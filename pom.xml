@@ -28,7 +28,7 @@
 
     <dependencies>
         <dependency>
-			<groupId>org.blueshift</groupId>
+			<groupId>org.projectblueshift</groupId>
 			<artifactId>blueshift-api</artifactId>
 			<version>${project.version}</version>
 		</dependency>
