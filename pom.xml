@@ -28,15 +28,15 @@
 
     <dependencies>
         <dependency>
-			<groupId>org.projectblueshift</groupId>
-			<artifactId>blueshift-api</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>io.netty</groupId>
-			<artifactId>netty-all</artifactId>
-			<version>5.0.0.Alpha1</version>
-		</dependency>
+            <groupId>org.projectblueshift</groupId>
+            <artifactId>blueshift-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
+            <version>5.0.0.Alpha1</version>
+        </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
