@@ -1,4 +1,4 @@
-package org.projectblueshift.server.netty.handlers;
+package net.tridentsdk.server.netty.handlers;
 
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;

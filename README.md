@@ -1,4 +1,4 @@
-Blueshift
+Trident
 =========
 
-The server &amp; API implementation for Blueshift
+The server &amp; API implementation for TridentSDK

@@ -1,6 +1,6 @@
-package org.projectblueshift.server;
+package net.tridentsdk.server;
 
-import org.projectblueshift.server.netty.BlueChannelInitializer;
+import net.tridentsdk.server.netty.TridentChannelInitializer;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
@@ -8,20 +8,20 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 
-public class BlueStart {
-	static BlueStart INSTANCE;
+public class TridentStart {
+	static TridentStart INSTANCE;
 	static int DEFAULT_PORT = 65536;
 	
 	EventLoopGroup bossGroup = new NioEventLoopGroup();
     EventLoopGroup workerGroup = new NioEventLoopGroup();
 	
-	BlueServer server;
+	TridentServer server;
 
-	public BlueStart () {
+	public TridentStart() {
 		INSTANCE = this;
 	}
 	
-	public void init(BlueConfig config) {
+	public void init(TridentConfig config) {
 		bossGroup = new NioEventLoopGroup();
 	    workerGroup = new NioEventLoopGroup();
 		
@@ -29,7 +29,7 @@ public class BlueStart {
             ServerBootstrap b = new ServerBootstrap();
             b.group(bossGroup, workerGroup)
              .channel(NioServerSocketChannel.class)
-             .childHandler(new BlueChannelInitializer())
+             .childHandler(new TridentChannelInitializer())
              .option(ChannelOption.TCP_NODELAY, true);
 
             // Bind and start to accept incoming connections.
@@ -37,7 +37,7 @@ public class BlueStart {
             
             //Runs the server on a seperate thread
             //Server should read all settings from the loaded config
-            server = new BlueServer(config);
+            server = new TridentServer(config);
             new Thread(server).run();
             
             // Wait until the server socket is closed, to gracefully shut down your server.
@@ -69,7 +69,7 @@ public class BlueStart {
          create the server from the args/config values
          */
     	
-    	new BlueStart().init(new BlueConfig(DEFAULT_PORT));
+    	new TridentStart().init(new TridentConfig(DEFAULT_PORT));
     }
 
 }

@@ -1,12 +1,12 @@
-package org.projectblueshift.server;
+package net.tridentsdk.server;
 
-import org.projectblueshift.api.Server;
+import net.tridentsdk.api.Server;
 
-public class BlueServer implements Server, Runnable {
-	private BlueConfig config;
+public class TridentServer implements Server, Runnable {
+	private TridentConfig config;
 	private Thread serverThread;
     
-    public BlueServer(BlueConfig config) {
+    public TridentServer(TridentConfig config) {
     	serverThread = Thread.currentThread();
         this.config = config;
         
@@ -25,7 +25,7 @@ public class BlueServer implements Server, Runnable {
 
     public void shutdown() {
     	//TODO: Cleanup stuff...
-    	BlueStart.shutdown();
+    	TridentStart.shutdown();
     }
 
 	

@@ -1,12 +1,12 @@
-package org.projectblueshift.server.netty;
+package net.tridentsdk.server.netty;
 
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.socket.SocketChannel;
-import org.projectblueshift.server.netty.handlers.ClientConnectionHandler;
-import org.projectblueshift.server.netty.packet.PacketDecoder;
+import net.tridentsdk.server.netty.packet.PacketDecoder;
+import net.tridentsdk.server.netty.handlers.ClientConnectionHandler;
 
-public class BlueChannelInitializer extends ChannelInitializer<SocketChannel> {
+public class TridentChannelInitializer extends ChannelInitializer<SocketChannel> {
 
     @Override
     protected void initChannel(SocketChannel channel) throws Exception {

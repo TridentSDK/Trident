@@ -1,4 +1,4 @@
-package org.projectblueshift.server.netty.packet;
+package net.tridentsdk.server.netty.packet;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
