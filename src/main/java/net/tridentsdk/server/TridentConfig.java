@@ -1,16 +1,26 @@
-package net.tridentsdk.server;
+package org.projectblueshift.server;
+
+import org.projectblueshift.server.config.YamlConfiguration;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 
 /**
  * Loads all the config data on start-up
  */
-public class TridentConfig {
-	private int port;
+public class BlueConfig {
+
+    private YamlConfiguration config;
+	private short port;
 	
-	public TridentConfig(int port) {
-		//TODO: Load all settings from file
+	public BlueConfig(File properties) throws FileNotFoundException {
+        FileInputStream stream = new FileInputStream(properties);
+        config = new YamlConfiguration(stream);
 	}
 	
-	public int getPort() {
+	public short getPort() {
 		return port;
 	}
+
 }

@@ -10,7 +10,7 @@ public class ClientConnectionHandler extends ChannelHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         super.channelRead(ctx, msg);
-
         // TODO: Handle data
     }
+
 }
