@@ -12,7 +12,7 @@ public class BlueServer implements Server, Runnable {
         
     }
 
-    public int getPort() {
+    public short getPort() {
         return config.getPort();
     }
 
@@ -20,14 +20,11 @@ public class BlueServer implements Server, Runnable {
 	public void run() {
     	//TODO: Set some server stuff up
 		//TODO: Main server Loop
-		
 	}
 
     public void shutdown() {
     	//TODO: Cleanup stuff...
     	BlueStart.shutdown();
     }
-
-	
 
 }

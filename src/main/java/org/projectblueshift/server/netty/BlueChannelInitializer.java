@@ -15,4 +15,5 @@ public class BlueChannelInitializer extends ChannelInitializer<SocketChannel> {
 
         channel.pipeline().addLast(new PacketDecoder(), new ClientConnectionHandler());
     }
+
 }

@@ -12,4 +12,5 @@ public class PacketDecoder extends ReplayingDecoder<Void> {
     protected void decode(ChannelHandlerContext context, ByteBuf byteBuf, List<Object> objects) throws Exception {
         // TODO: Decode bytes
     }
+
 }

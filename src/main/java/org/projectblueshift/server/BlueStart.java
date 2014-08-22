@@ -1,5 +1,10 @@
 package org.projectblueshift.server;
 
+import com.google.common.collect.Lists;
+import joptsimple.OptionException;
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
+import joptsimple.OptionSpec;
 import org.projectblueshift.server.netty.BlueChannelInitializer;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -8,17 +13,21 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 
+import java.io.File;
+import java.util.List;
+
 public class BlueStart {
-	static BlueStart INSTANCE;
-	static int DEFAULT_PORT = 65536;
-	
-	EventLoopGroup bossGroup = new NioEventLoopGroup();
-    EventLoopGroup workerGroup = new NioEventLoopGroup();
-	
-	BlueServer server;
+
+	private static BlueStart instance;
+	private static int DEFAULT_PORT = 65536;
+
+	private EventLoopGroup bossGroup = new NioEventLoopGroup();
+    private EventLoopGroup workerGroup = new NioEventLoopGroup();
+
+	private BlueServer server;
 
 	public BlueStart () {
-		INSTANCE = this;
+		instance = this;
 	}
 	
 	public void init(BlueConfig config) {
@@ -59,7 +68,7 @@ public class BlueStart {
 	}
 	
 	protected static void shutdown() {
-		INSTANCE.close();
+		instance.close();
 	}
 	
     public static void main(String[] args) {
@@ -68,8 +77,25 @@ public class BlueStart {
          parse the configuration file
          create the server from the args/config values
          */
-    	
-    	new BlueStart().init(new BlueConfig(DEFAULT_PORT));
+
+        OptionParser parser = new OptionParser();
+        parser.acceptsAll(asList("h", "help"), "Show this help dialog.").forHelp();
+        OptionSpec<Boolean> append = parser.acceptsAll(asList("log-append"), "Whether to append to the log file").withRequiredArg().ofType(Boolean.class).defaultsTo(true).describedAs("Log append");
+        OptionSpec<File> properties = parser.acceptsAll(asList("properties"), "The location for the properties file").withRequiredArg().ofType(File.class).defaultsTo(new File("server.yml")).describedAs("Properties file");
+
+        OptionSet options;
+        try {
+            options = parser.parse(args);
+        } catch(OptionException ex) {
+            ex.printStackTrace();
+            return;
+        }
+
+    	new BlueStart().init(new BlueConfig(options.valueOf(properties)));
+    }
+
+    private static List<String> asList(String... params) {
+        return Lists.newArrayList(params);
     }
 
 }
