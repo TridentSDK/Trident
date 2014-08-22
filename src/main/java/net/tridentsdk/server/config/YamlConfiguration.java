@@ -1,7 +1,6 @@
-package org.projectblueshift.server.config;
+package net.tridentsdk.server.config;
 
 import org.yaml.snakeyaml.Yaml;
-
 import java.io.InputStream;
 
 public class YamlConfiguration {
@@ -12,10 +11,8 @@ public class YamlConfiguration {
         yaml = new Yaml();
         yaml.load(string);
     }
-
     public YamlConfiguration(InputStream stream) {
         yaml = new Yaml();
         yaml.load(stream);
     }
-
 }

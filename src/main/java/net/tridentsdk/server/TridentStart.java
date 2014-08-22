@@ -1,36 +1,36 @@
-package org.projectblueshift.server;
+package net.tridentsdk.server;
 
 import com.google.common.collect.Lists;
 import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
-import org.projectblueshift.server.netty.BlueChannelInitializer;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import net.tridentsdk.server.netty.TridentChannelInitializer;
 
 import java.io.File;
 import java.util.List;
 
-public class BlueStart {
+public class TridentStart {
 
-	private static BlueStart instance;
+	private static TridentStart instance;
 	private static int DEFAULT_PORT = 65536;
 
 	private EventLoopGroup bossGroup = new NioEventLoopGroup();
     private EventLoopGroup workerGroup = new NioEventLoopGroup();
 
-	private BlueServer server;
+	private TridentServer server;
 
-	public BlueStart () {
+	public TridentStart () {
 		instance = this;
 	}
 	
-	public void init(BlueConfig config) {
+	public void init(TridentConfig config) {
 		bossGroup = new NioEventLoopGroup();
 	    workerGroup = new NioEventLoopGroup();
 		
@@ -38,7 +38,7 @@ public class BlueStart {
             ServerBootstrap b = new ServerBootstrap();
             b.group(bossGroup, workerGroup)
              .channel(NioServerSocketChannel.class)
-             .childHandler(new BlueChannelInitializer())
+             .childHandler(new TridentChannelInitializer())
              .option(ChannelOption.TCP_NODELAY, true);
 
             // Bind and start to accept incoming connections.
@@ -46,7 +46,7 @@ public class BlueStart {
             
             //Runs the server on a seperate thread
             //Server should read all settings from the loaded config
-            server = new BlueServer(config);
+            server = new TridentServer(config);
             new Thread(server).run();
             
             // Wait until the server socket is closed, to gracefully shut down your server.
@@ -71,7 +71,7 @@ public class BlueStart {
 		instance.close();
 	}
 	
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         /*TODO:
          check some args here, using an interpreter
          parse the configuration file
@@ -91,7 +91,7 @@ public class BlueStart {
             return;
         }
 
-    	new BlueStart().init(new BlueConfig(options.valueOf(properties)));
+    	new TridentStart().init(new TridentConfig(options.valueOf(properties)));
     }
 
     private static List<String> asList(String... params) {
