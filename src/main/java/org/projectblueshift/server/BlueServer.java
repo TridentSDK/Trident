@@ -1,52 +1,33 @@
 package org.projectblueshift.server;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.projectblueshift.api.Server;
 
-import java.net.InetSocketAddress;
-
-public class BlueServer implements Server {
-
-    private InetSocketAddress address;
-
-    private final NioEventLoopGroup loopGroup = new NioEventLoopGroup(0,
-            (new ThreadFactoryBuilder()).setNameFormat("Netty IO #%d").setDaemon(true).build());
-    private ServerBootstrap bootstrap;
-    private ChannelFuture channelFuture;
-
-    public BlueServer(InetSocketAddress address) {
-        this.address = address;
+public class BlueServer implements Server, Runnable {
+	private BlueConfig config;
+	private Thread serverThread;
+    
+    public BlueServer(BlueConfig config) {
+    	serverThread = Thread.currentThread();
+        this.config = config;
+        
     }
 
-    public InetSocketAddress getSocketAddress() {
-        return address;
+    public int getPort() {
+        return config.getPort();
     }
 
-    public short getPort() {
-        return (short) address.getPort();
-    }
-
-    public void init() {
-        try{
-            bootstrap = new ServerBootstrap();
-
-            channelFuture = bootstrap.channel(NioServerSocketChannel.class).group(loopGroup)
-                    .localAddress(address.getAddress(), address.getPort())
-                    .option(ChannelOption.SO_BACKLOG, 128)
-                    .childOption(ChannelOption.SO_KEEPALIVE, true).bind()
-                    .syncUninterruptibly();
-        }finally{
-
-        }
-    }
+    @Override
+	public void run() {
+    	//TODO: Set some server stuff up
+		//TODO: Main server Loop
+		
+	}
 
     public void shutdown() {
-
+    	//TODO: Cleanup stuff...
+    	BlueStart.shutdown();
     }
+
+	
 
 }

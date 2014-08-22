@@ -10,8 +10,8 @@ public class BlueChannelInitializer extends ChannelInitializer<SocketChannel> {
 
     @Override
     protected void initChannel(SocketChannel channel) throws Exception {
-        channel.config().setOption(ChannelOption.IP_TOS, 24);
-        channel.config().setOption(ChannelOption.TCP_NODELAY, false);
+        //channel.config().setOption(ChannelOption.IP_TOS, 24);
+        channel.config().setOption(ChannelOption.TCP_NODELAY, true);
 
         channel.pipeline().addLast(new PacketDecoder(), new ClientConnectionHandler());
     }

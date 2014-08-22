@@ -6,7 +6,7 @@ import io.netty.handler.codec.ReplayingDecoder;
 
 import java.util.List;
 
-public class PacketDecoder extends ReplayingDecoder {
+public class PacketDecoder extends ReplayingDecoder<Void> {
 
     @Override
     protected void decode(ChannelHandlerContext context, ByteBuf byteBuf, List<Object> objects) throws Exception {
