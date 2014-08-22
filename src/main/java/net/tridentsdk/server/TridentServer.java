@@ -12,7 +12,7 @@ public class TridentServer implements Server, Runnable {
         
     }
 
-    public short getPort() {
+    public int getPort() {
         return config.getPort();
     }
 

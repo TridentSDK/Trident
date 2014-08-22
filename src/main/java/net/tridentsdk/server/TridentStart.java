@@ -18,59 +18,57 @@ import java.util.List;
 
 public class TridentStart {
 
-	private static TridentStart instance;
-	private static int DEFAULT_PORT = 65536;
+    private static TridentStart instance;
+    private static int DEFAULT_PORT = 65536;
 
-	private EventLoopGroup bossGroup = new NioEventLoopGroup();
+    private EventLoopGroup bossGroup = new NioEventLoopGroup();
     private EventLoopGroup workerGroup = new NioEventLoopGroup();
 
-	private TridentServer server;
+    private TridentServer server;
 
-	public TridentStart () {
-		instance = this;
-	}
-	
-	public void init(TridentConfig config) {
-		bossGroup = new NioEventLoopGroup();
-	    workerGroup = new NioEventLoopGroup();
-		
-		try {
+    public TridentStart () {
+        instance = this;
+    }
+
+    public void init(TridentConfig config) {
+        bossGroup = new NioEventLoopGroup();
+        workerGroup = new NioEventLoopGroup();
+
+        try {
             ServerBootstrap b = new ServerBootstrap();
             b.group(bossGroup, workerGroup)
-             .channel(NioServerSocketChannel.class)
-             .childHandler(new TridentChannelInitializer())
-             .option(ChannelOption.TCP_NODELAY, true);
+                    .channel(NioServerSocketChannel.class)
+                    .childHandler(new TridentChannelInitializer())
+                    .option(ChannelOption.TCP_NODELAY, true);
 
             // Bind and start to accept incoming connections.
             ChannelFuture f = b.bind(config.getPort()).sync();
-            
+
             //Runs the server on a seperate thread
             //Server should read all settings from the loaded config
             server = new TridentServer(config);
             new Thread(server).run();
-            
+
             // Wait until the server socket is closed, to gracefully shut down your server.
             f.channel().closeFuture().sync();
         } catch (InterruptedException e) {
-        	//Exception is caught if server is closed.
-        	
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} finally {
-			close();
+            //Exception is caught if server is closed.
+            e.printStackTrace();
+        } finally {
+            close();
         }
-	}
-	
-	public void close() {
-		//Correct way to close the socket and shut down the server
-		workerGroup.shutdownGracefully();
+    }
+
+    public void close() {
+        //Correct way to close the socket and shut down the server
+        workerGroup.shutdownGracefully();
         bossGroup.shutdownGracefully();
-	}
-	
-	protected static void shutdown() {
-		instance.close();
-	}
-	
+    }
+
+    protected static void shutdown() {
+        instance.close();
+    }
+
     public static void main(String[] args) throws Exception {
         /*TODO:
          check some args here, using an interpreter
@@ -91,7 +89,7 @@ public class TridentStart {
             return;
         }
 
-    	new TridentStart().init(new TridentConfig(options.valueOf(properties)));
+        new TridentStart().init(new TridentConfig(options.valueOf(properties)));
     }
 
     private static List<String> asList(String... params) {
