@@ -24,7 +24,9 @@ import net.tridentsdk.server.netty.packet.PacketType;
 import net.tridentsdk.server.netty.protocol.Protocol4;
 
 /**
+ * The login packet sent to connect the server to the client
  *
+ * @author The TridentSDK Team
  */
 public class PacketClientHandshake implements Packet {
     int    protocolVersion;
@@ -41,9 +43,14 @@ public class PacketClientHandshake implements Packet {
         return this;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * <p>Cannot be encoded. Throws {@link UnsupportedOperationException}.</p>
+     */
     @Override
     public ByteBuf encode() {
-        throw new IllegalStateException("PacketClientHandshake cannot be encoded!");
+        throw new UnsupportedOperationException("PacketClientHandshake cannot be encoded!");
     }
 
     @Override
