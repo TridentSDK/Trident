@@ -6,7 +6,7 @@ import net.tridentsdk.server.netty.packet.PacketType;
 import net.tridentsdk.server.netty.protocol.Protocol4;
 import io.netty.buffer.ByteBuf;
 
-public class HandshakeClientHandshakePacket implements Packet {
+public class PacketClientHandshake implements Packet {
 	int protocolVersion;
 	String address;
 	short port;
@@ -21,7 +21,12 @@ public class HandshakeClientHandshakePacket implements Packet {
 		return this;
 	}
 
-	@Override
+    @Override
+    public ByteBuf encode() {
+        throw new IllegalStateException("PacketClientHandshake cannot be encoded!");
+    }
+
+    @Override
 	public PacketType getType() {
 		return Protocol4.Handshake.Client.HANDSHAKE;
 	}
