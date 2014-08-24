@@ -30,7 +30,7 @@ public class UnknownPacket implements Packet {
     }
 
     @Override public ByteBuf encode() {
-        return null;
+        throw new UnsupportedOperationException("Cannot serialize unknown packet");
     }
 
     @Override
