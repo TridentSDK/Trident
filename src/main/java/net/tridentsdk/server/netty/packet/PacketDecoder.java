@@ -24,30 +24,28 @@ public class PacketDecoder extends ReplayingDecoder<State> {
 	
     @Override
     protected void decode(ChannelHandlerContext context, ByteBuf buf, List<Object> objects) throws Exception {
-        // TODO: Decode bytes
     	switch (state()) {
-    	case LENGTH:
-    		length = Codec.readVarInt32(buf);
-    		checkpoint(State.DATA);
-    	case DATA:
-    		//Makes sure that there are enough bytes for the whole packet
-    		buf.markReaderIndex();
-    		buf.readBytes(length);
-    		buf.resetReaderIndex();
-    		
-    		//Gets the packet type, and reads all data from buffer to the packet
-    		int id = Codec.readVarInt32(buf);
-    		Packet packet = protocol.getPacket(id).create(buf);
-    		packet.decode(buf);
-    		
-    		System.out.println("Packet="+ packet.getType());
-    		
-    		//If packet is unknown, skip the bytes corresponding to the length
-    		if (packet.getType().equals(Protocol4.Unknown.UNKNOWN)) {
-    			buf.skipBytes(length);
-    		}
-    		
-    	}
+            case LENGTH:
+                length = Codec.readVarInt32(buf);
+                checkpoint(State.DATA);
+
+            case DATA:
+                //Makes sure that there are enough bytes for the whole packet
+                buf.markReaderIndex();
+                buf.readBytes(length);
+                buf.resetReaderIndex();
+
+                //Gets the packet type, and reads all data from buffer to the packet
+                int id = Codec.readVarInt32(buf);
+                Packet packet = protocol.getPacket(id).create(buf);
+                packet.decode(buf);
+
+                //If packet is unknown, skip the bytes corresponding to the length
+                if (packet.getType().equals(Protocol4.Unknown.UNKNOWN)) {
+                    buf.skipBytes(length);
+                }
+
+        }
     }
     
     enum State {

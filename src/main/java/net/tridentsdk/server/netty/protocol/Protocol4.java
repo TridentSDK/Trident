@@ -6,41 +6,7 @@ import net.tridentsdk.server.netty.packet.UnknownPacket;
 import net.tridentsdk.server.netty.packet.handshake.client.HandshakeClientHandshakePacket;
 import io.netty.buffer.ByteBuf;
 
-public class Protocol4 extends TridentProtocol {
-	
-	public static class Handshake {
-		
-		public static enum Client implements PacketType {
-			HANDSHAKE {
-				@Override
-				public int id() {
-					return 0x00;
-				}
-
-				@Override
-				public Packet create(ByteBuf buf) {
-					return new HandshakeClientHandshakePacket().decode(buf);
-				}
-			};
-		}
-		
-		
-	}
-	
-	
-	public static enum Unknown implements PacketType {
-		UNKNOWN {
-			@Override
-			public int id() {
-				return -1;
-			}
-
-			@Override
-			public Packet create(ByteBuf buf) {
-				return new UnknownPacket(); 
-			}
-		};
-	}
+public class Protocol4 implements TridentProtocol {
 	
 	@Override
 	public PacketType getPacket(int id) {
@@ -52,4 +18,38 @@ public class Protocol4 extends TridentProtocol {
 		
 		return Unknown.UNKNOWN;
 	}
+
+    public static class Handshake {
+
+        public static enum Client implements PacketType {
+            HANDSHAKE {
+                @Override
+                public int id() {
+                    return 0x00;
+                }
+
+                @Override
+                public Packet create(ByteBuf buf) {
+                    return new HandshakeClientHandshakePacket().decode(buf);
+                }
+            }
+        }
+
+
+    }
+
+
+    public static enum Unknown implements PacketType {
+        UNKNOWN {
+            @Override
+            public int id() {
+                return -1;
+            }
+
+            @Override
+            public Packet create(ByteBuf buf) {
+                return new UnknownPacket();
+            }
+        }
+    }
 }

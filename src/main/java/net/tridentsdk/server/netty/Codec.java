@@ -12,6 +12,7 @@ public class Codec {
 		int length = readVarInt32(buf);
 		byte[] bytes = new byte[length];
 		buf.readBytes(bytes);
+
 		//Current charset used by strings is UFT_8
 		return new String(bytes, Charsets.UTF_8);
 		
@@ -20,14 +21,16 @@ public class Codec {
 	public static int readVarInt32(ByteBuf buf) {
 		//The result we will return
 		int result = 0;
+
 		//How much to indent the current bytes
 		int indent = 0;
 		int b = buf.readByte();
+
 		//If below, it means there are more bytes
 		while ((b & 0b10000000) == 0b10000000) {
 			Preconditions.checkArgument(indent < 21, "Too many bytes for a VarInt32.");
 			
-			//Adds the byte in the apprioriate position (first byte goes last, etc.)
+			//Adds the byte in the appropriate position (first byte goes last, etc.)
 			result += (b & 0b01111111) << indent;
 			indent +=7;
 			
@@ -35,15 +38,18 @@ public class Codec {
 			b = buf.readByte();
 			
 		}
+
 		return result += (b & 0b01111111) << indent;
 	}
 	
 	public static long readVarInt64(ByteBuf buf) {
 		//The result we will return
 		long result = 0;
+
 		//How much to indent the current bytes
 		int indent = 0;
 		long b = buf.readByte();
+
 		//If below, it means there are more bytes
 		while ((b & 0b10000000) == 0b10000000) {
 			Preconditions.checkArgument(indent < 49, "Too many bytes for a VarInt64.");
@@ -56,12 +62,7 @@ public class Codec {
 			b = buf.readByte();
 			
 		}
+
 		return result += (b & 0b01111111) << indent;
 	}
-	
-	//For testing the codec
-	/*public static void main(String[] args) {
-		ByteBuf buf = Unpooled.copiedBuffer(new byte[] {(byte) 0b10010110, (byte) 0b10010110, (byte) 0b10010110, (byte) 0b10010110, (byte) 0b10010110, (byte) 0b10010110, (byte) 0b10010110, (byte) 0b10010110});
-		System.out.println(readVarInt64(buf));
-	}*/
 }

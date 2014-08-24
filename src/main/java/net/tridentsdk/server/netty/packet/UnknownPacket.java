@@ -7,7 +7,7 @@ import io.netty.buffer.ByteBuf;
  * Used to represent any erroneous packets recieved
  *
  */
-public class UnknownPacket extends Packet {
+public class UnknownPacket implements Packet {
 
 	@Override
 	public Packet decode(ByteBuf buf) {

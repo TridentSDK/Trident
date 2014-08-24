@@ -2,7 +2,7 @@ package net.tridentsdk.server.netty.protocol;
 
 import net.tridentsdk.server.netty.packet.PacketType;
 
-public abstract class TridentProtocol {
+public interface TridentProtocol {
 	
-	public abstract PacketType getPacket(int id);
+	public PacketType getPacket(int id);
 }

@@ -10,7 +10,7 @@ import java.io.FileNotFoundException;
  * Loads all the config data on start-up
  */
 public class TridentConfig {
-	private static short DEFAULT_PORT = 25565;
+	private static final short DEFAULT_PORT = 25565;
 	
     private YamlConfiguration config;
 	private short port;
