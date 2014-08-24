@@ -1,4 +1,4 @@
-package net.tridentsdk.server.netty.packet.handshake.client;
+package net.tridentsdk.server.packets.handshake.client;
 
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.Packet;

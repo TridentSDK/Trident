@@ -3,7 +3,7 @@ package net.tridentsdk.server.netty.protocol;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.packet.PacketType;
 import net.tridentsdk.server.netty.packet.UnknownPacket;
-import net.tridentsdk.server.netty.packet.handshake.client.HandshakeClientHandshakePacket;
+import net.tridentsdk.server.packets.handshake.client.HandshakeClientHandshakePacket;
 import io.netty.buffer.ByteBuf;
 
 public class Protocol4 implements TridentProtocol {
