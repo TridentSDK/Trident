@@ -19,11 +19,31 @@ package net.tridentsdk.server.netty.packet;
 
 import io.netty.buffer.ByteBuf;
 
+/**
+ * Data bearing abstraction that represents a piece of information to communicate between server and client
+ *
+ * @author The TridentSDK Team
+ */
 public interface Packet {
-
+    /**
+     * Sets the fields of the packet from the data serialized into the buffer
+     *
+     * @param buf the buffer storing the serialized packet data
+     * @return the this instance of the packet
+     */
     Packet decode(ByteBuf buf);
 
+    /**
+     * Serialized the data held by this packet to a ByteBuf
+     *
+     * @return the serialized form of the packet
+     */
     ByteBuf encode();
 
+    /**
+     * The packet type represented by the implementation
+     *
+     * @return the packet type
+     */
     PacketType getType();
 }
