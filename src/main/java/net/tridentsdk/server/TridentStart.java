@@ -1,6 +1,7 @@
 package net.tridentsdk.server;
 
 import com.google.common.collect.Lists;
+
 import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
@@ -11,6 +12,7 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import net.tridentsdk.api.Trident;
 import net.tridentsdk.server.netty.TridentChannelInitializer;
 
 import java.io.File;
@@ -19,7 +21,6 @@ import java.util.List;
 public class TridentStart {
 
     private static TridentStart instance;
-    private static int DEFAULT_PORT = 65536;
 
     private EventLoopGroup bossGroup = new NioEventLoopGroup();
     private EventLoopGroup workerGroup = new NioEventLoopGroup();
@@ -47,13 +48,13 @@ public class TridentStart {
             //Runs the server on a seperate thread
             //Server should read all settings from the loaded config
             server = new TridentServer(config);
+            Trident.setServer(server);
             new Thread(server).run();
 
             // Wait until the server socket is closed, to gracefully shut down your server.
             f.channel().closeFuture().sync();
         } catch (InterruptedException e) {
             //Exception is caught if server is closed.
-            e.printStackTrace();
         } finally {
             close();
         }
@@ -61,8 +62,8 @@ public class TridentStart {
 
     public void close() {
         //Correct way to close the socket and shut down the server
-        workerGroup.shutdownGracefully();
-        bossGroup.shutdownGracefully();
+        workerGroup.shutdownGracefully().awaitUninterruptibly();
+        bossGroup.shutdownGracefully().awaitUninterruptibly();
     }
 
     protected static void shutdown() {

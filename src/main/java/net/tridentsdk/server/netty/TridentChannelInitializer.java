@@ -13,7 +13,8 @@ public class TridentChannelInitializer extends ChannelInitializer<SocketChannel>
         //channel.config().setOption(ChannelOption.IP_TOS, 24);
         channel.config().setOption(ChannelOption.TCP_NODELAY, true);
 
-        channel.pipeline().addLast(new PacketDecoder(), new ClientConnectionHandler());
+        channel.pipeline().addLast(new PacketDecoder()); 
+        channel.pipeline().addLast(new ClientConnectionHandler());
     }
 
 }
