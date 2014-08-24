@@ -6,7 +6,7 @@ import net.tridentsdk.server.netty.packet.PacketType;
 import net.tridentsdk.server.netty.protocol.Protocol4;
 import io.netty.buffer.ByteBuf;
 
-public class HandshakeClientHandshakePacket extends Packet {
+public class HandshakeClientHandshakePacket implements Packet {
 	int protocolVersion;
 	String address;
 	short port;
