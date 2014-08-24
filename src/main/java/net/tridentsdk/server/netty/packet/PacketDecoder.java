@@ -1,55 +1,68 @@
+/*
+ * Copyright (C) 2014 The TridentSDK Team
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package net.tridentsdk.server.netty.packet;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ReplayingDecoder;
-
-import java.util.List;
-
 import net.tridentsdk.api.Trident;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.netty.Codec;
-import net.tridentsdk.server.netty.packet.PacketDecoder.State;
 import net.tridentsdk.server.netty.protocol.Protocol4;
 import net.tridentsdk.server.netty.protocol.TridentProtocol;
 
-public class PacketDecoder extends ReplayingDecoder<State> {
-	TridentProtocol protocol;
-	private int length;
-	
-	public PacketDecoder() {
-	     super(State.LENGTH);
-	     protocol = ((TridentServer) Trident.getServer()).getProtocol();
-	  }
-	
+import java.util.List;
+
+public class PacketDecoder extends ReplayingDecoder<PacketDecoder.State> {
+    final   TridentProtocol protocol;
+    private int             length;
+
+    public PacketDecoder() {
+        super(PacketDecoder.State.LENGTH);
+        this.protocol = ((TridentServer) Trident.getServer()).getProtocol();
+    }
+
     @Override
     protected void decode(ChannelHandlerContext context, ByteBuf buf, List<Object> objects) throws Exception {
-    	switch (state()) {
+        switch (this.state()) {
             case LENGTH:
-                length = Codec.readVarInt32(buf);
-                checkpoint(State.DATA);
+                this.length = Codec.readVarInt32(buf);
+                this.checkpoint(PacketDecoder.State.DATA);
 
             case DATA:
                 //Makes sure that there are enough bytes for the whole packet
                 buf.markReaderIndex();
-                buf.readBytes(length);
+                buf.readBytes(this.length);
                 buf.resetReaderIndex();
 
                 //Gets the packet type, and reads all data from buffer to the packet
                 int id = Codec.readVarInt32(buf);
-                Packet packet = protocol.getPacket(id).create(buf);
+                Packet packet = this.protocol.getPacket(id).create(buf);
                 packet.decode(buf);
 
                 //If packet is unknown, skip the bytes corresponding to the length
                 if (packet.getType().equals(Protocol4.Unknown.UNKNOWN)) {
-                    buf.skipBytes(length);
+                    buf.skipBytes(this.length);
                 }
-
         }
     }
-    
-    enum State {
-    	LENGTH, DATA;
-    }
 
+    enum State {
+        LENGTH, DATA
+    }
 }
