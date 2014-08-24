@@ -20,6 +20,11 @@ package net.tridentsdk.server.netty.handlers;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
 
+/**
+ * The channel handler that is placed into the netty connection bootstrap to process outbound and inbound messages
+ *
+ * @author The TridentSDK Team
+ */
 public class ClientConnectionHandler extends ChannelHandlerAdapter {
 
     // TODO: Store client object
