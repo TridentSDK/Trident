@@ -17,6 +17,8 @@
 
 package net.tridentsdk.server.netty.protocol;
 
+import net.tridentsdk.server.netty.packet.Packet;
+
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
@@ -46,6 +48,31 @@ public class Protocol {
 
     public Handshake getHandshake() {
         return handshake;
+    }
+
+
+    public Packet getPacket(int id, ClientStage type) {
+        switch(type) {
+            case PLAY:
+                return play.getPacket(id);
+
+            case HANDSHAKE:
+                return handshake.getPacket(id);
+
+            case STATUS:
+                return status.getPacket(id);
+
+            case LOGIN:
+                return status.getPacket(id);
+
+            default:
+                throw new IllegalArgumentException(type + " is not supported for Protocol#getPacket()!");
+        }
+    }
+
+    public enum ClientStage {
+        // TODO Add this to a more appropriate class
+        PLAY, STATUS, LOGIN, HANDSHAKE
     }
 
 }

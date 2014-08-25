@@ -23,7 +23,7 @@ import io.netty.channel.socket.SocketChannel;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import net.tridentsdk.server.netty.handlers.ClientConnectionHandler;
+import net.tridentsdk.server.netty.client.ClientConnectionHandler;
 import net.tridentsdk.server.netty.packet.PacketDecoder;
 
 /**

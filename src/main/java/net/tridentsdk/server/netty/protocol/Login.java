@@ -1,22 +1,10 @@
 package net.tridentsdk.server.netty.protocol;
 
-class Login implements ProtocolType {
-    private In loginIn;
-    private Out loginOut;
+class Login extends PacketManager {
 
-    public class In extends PacketManager {
+    Login() {
+        super();
+
         // TODO
-    }
-
-    public class Out extends PacketManager {
-        // TODO
-    }
-
-    public PacketManager getIn() {
-        return loginIn;
-    }
-
-    public PacketManager getOut() {
-        return loginOut;
     }
 }

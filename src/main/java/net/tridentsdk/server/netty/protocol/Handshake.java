@@ -2,21 +2,11 @@ package net.tridentsdk.server.netty.protocol;
 
 import net.tridentsdk.server.packets.handshake.client.PacketClientHandshake;
 
-class Handshake implements ProtocolType {
-    private Out out;
+class Handshake extends PacketManager {
 
-    public class Out extends PacketManager {
-        protected Out() {
-            packets.put(0x00, PacketClientHandshake.class);
-        }
-    }
+    Handshake() {
+        super();
 
-    public PacketManager getOut() {
-        return out;
-    }
-
-    @Override
-    public PacketManager getIn() {
-        return null;
+        packets.put(0x00, PacketClientHandshake.class);
     }
 }

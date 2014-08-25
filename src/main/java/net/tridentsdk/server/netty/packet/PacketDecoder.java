@@ -23,8 +23,10 @@ import io.netty.handler.codec.ReplayingDecoder;
 import net.tridentsdk.api.Trident;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.netty.Codec;
+import net.tridentsdk.server.netty.client.ClientConnection;
 import net.tridentsdk.server.netty.protocol.Protocol;
 
+import java.net.InetSocketAddress;
 import java.util.List;
 
 /**
@@ -62,7 +64,13 @@ public class PacketDecoder extends ReplayingDecoder<PacketDecoder.State> {
 
                 //Gets the packet type, and reads all data from buffer to the packet
                 int id = Codec.readVarInt32(buf);
-                Packet packet = this.protocol.getPacket(id); // TODO: Identify if its referring to Play, Status, Login, or Handshake
+                InetSocketAddress address =  (InetSocketAddress) context.channel().remoteAddress();
+                ClientConnection connection = ClientConnection.getConnection(address);
+
+                if(connection == null)
+                    connection = new ClientConnection(context);
+
+                Packet packet = this.protocol.getPacket(id, connection.getStage());
 
                 //If packet is unknown, skip the bytes corresponding to the length
                 if (packet.getId() == -1) {
