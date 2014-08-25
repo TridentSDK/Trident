@@ -21,15 +21,29 @@ import org.yaml.snakeyaml.Yaml;
 
 import java.io.InputStream;
 
+/**
+ * Wrapper class over the YML file format, backed by {@link org.yaml.snakeyaml.Yaml}
+ *
+ * @author The TridentSDK Team
+ */
 public class YamlConfiguration {
-
     private final Yaml yaml;
 
+    /**
+     * Loads the file name and parses the YAML format
+     *
+     * @param string the file path (?)
+     */
     public YamlConfiguration(String string) {
         this.yaml = new Yaml();
         this.yaml.load(string);
     }
 
+    /**
+     * Loads the file name and parses the YAML format
+     *
+     * @param stream the file stream that represents the file data
+     */
     public YamlConfiguration(InputStream stream) {
         this.yaml = new Yaml();
         this.yaml.load(stream);

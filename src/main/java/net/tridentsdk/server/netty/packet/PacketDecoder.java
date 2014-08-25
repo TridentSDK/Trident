@@ -28,10 +28,19 @@ import net.tridentsdk.server.netty.protocol.TridentProtocol;
 
 import java.util.List;
 
+/**
+ * Channel handler that decodes the packet data sent from the stream in the form of the byte buffer. This is needed to
+ * interpret the data sent correctly, and make sure that the data maintains its transmission integrity.
+ *
+ * @author The TridentSDK Team
+ */
 public class PacketDecoder extends ReplayingDecoder<PacketDecoder.State> {
     final   TridentProtocol protocol;
     private int             length;
 
+    /**
+     * Creates the decoder and initializes the state
+     */
     public PacketDecoder() {
         super(PacketDecoder.State.LENGTH);
         this.protocol = ((TridentServer) Trident.getServer()).getProtocol();
@@ -62,6 +71,11 @@ public class PacketDecoder extends ReplayingDecoder<PacketDecoder.State> {
         }
     }
 
+    /**
+     * The current read state of the decoder
+     *
+     * @author The TridentSDK Team
+     */
     enum State {
         LENGTH, DATA
     }

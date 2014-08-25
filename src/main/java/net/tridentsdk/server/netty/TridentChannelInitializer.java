@@ -23,8 +23,12 @@ import io.netty.channel.socket.SocketChannel;
 import net.tridentsdk.server.netty.handlers.ClientConnectionHandler;
 import net.tridentsdk.server.netty.packet.PacketDecoder;
 
+/**
+ * The netty channel initializer which appends the handlers to the socket channel
+ *
+ * @author The TridentSDK Team
+ */
 public class TridentChannelInitializer extends ChannelInitializer<SocketChannel> {
-
     @Override
     protected void initChannel(SocketChannel channel) throws Exception {
         //channel.config().setOption(ChannelOption.IP_TOS, 24);

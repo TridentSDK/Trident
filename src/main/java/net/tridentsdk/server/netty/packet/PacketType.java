@@ -19,8 +19,24 @@ package net.tridentsdk.server.netty.packet;
 
 import io.netty.buffer.ByteBuf;
 
+/**
+ * The type abstraction that holds the packet information and factory methods
+ *
+ * @author The TridentSDK Team
+ */
 public interface PacketType {
+    /**
+     * The identifying number for the packet
+     *
+     * @return the packet's ID
+     */
     int id();
 
+    /**
+     * Creation factory for the packet represented by the type
+     *
+     * @param buf the buffer to deserialize packet data from
+     * @return the new packet holding the data from the buffer
+     */
     Packet create(ByteBuf buf);
 }

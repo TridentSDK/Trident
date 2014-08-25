@@ -21,6 +21,14 @@ import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.netty.packet.*;
 import net.tridentsdk.server.packets.handshake.client.PacketClientHandshake;
 
+import javax.annotation.concurrent.ThreadSafe;
+
+/**
+ * The base implementation for the protocol handling internals
+ *
+ * @author The TridentSDK Team
+ */
+@ThreadSafe
 public class Protocol4 implements TridentProtocol {
     @Override
     public PacketType getPacket(int id) {
@@ -33,13 +41,22 @@ public class Protocol4 implements TridentProtocol {
         return Protocol4.Unknown.UNKNOWN;
     }
 
+    /**
+     * The packet type representing {@link net.tridentsdk.server.packets.handshake.client.PacketClientHandshake}
+     *
+     * @author The TridentSDK Team
+     */
     public static class Handshake {
-
+        /**
+         * Enumeration overridden to hold the values and factories to the handshaking packet
+         *
+         * @author The TridentSDK Team
+         */
         public enum Client implements PacketType {
             HANDSHAKE {
                 @Override
                 public int id() {
-                    return 0x00;
+                    return 0x00; // = 0
                 }
 
                 @Override
@@ -50,6 +67,12 @@ public class Protocol4 implements TridentProtocol {
         }
     }
 
+    /**
+     * The packet type representing {@link net.tridentsdk.server.netty.packet.UnknownPacket}. Also overrides the packet
+     * type enumeration for value and factory methods.
+     *
+     * @author The TridentSDK Team
+     */
     public enum Unknown implements PacketType {
         UNKNOWN {
             @Override

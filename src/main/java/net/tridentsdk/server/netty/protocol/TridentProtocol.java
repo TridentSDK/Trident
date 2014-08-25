@@ -19,6 +19,19 @@ package net.tridentsdk.server.netty.protocol;
 
 import net.tridentsdk.server.netty.packet.PacketType;
 
+/**
+ * Interface level access to the communications protocol between client and server
+ *
+ * @author The TridentSDK Team
+ */
 public interface TridentProtocol {
+    /**
+     * Gets the packet from the enum constant list of available packets
+     *
+     * @param id the packet ID that identifies the type for the packet
+     * @return the packet type that holds the ID
+     */
     PacketType getPacket(int id);
+
+    // TODO from AgentTroll: WTF is this for?? Read from enum instead
 }

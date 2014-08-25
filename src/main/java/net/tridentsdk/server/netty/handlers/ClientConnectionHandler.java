@@ -26,7 +26,6 @@ import io.netty.channel.ChannelHandlerContext;
  * @author The TridentSDK Team
  */
 public class ClientConnectionHandler extends ChannelHandlerAdapter {
-
     // TODO: Store client object
 
     @Override

@@ -21,10 +21,23 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 
+import javax.annotation.concurrent.ThreadSafe;
+
+/**
+ * Utility class to help decode the bytes from a backed buffer serializer
+ *
+ * @author The TridentSDK Team
+ */
+@ThreadSafe
 public final class Codec {
+    private Codec() {} // Suppress initialization of utility class
 
-    private Codec() {}
-
+    /**
+     * Read a string from the encoded buffer
+     *
+     * @param buf the buffer to decode the string from
+     * @return the decoded string read from the buffer
+     */
     public static String readString(ByteBuf buf) {
         //Reads the length of the string
         int length = Codec.readVarInt32(buf);
@@ -35,6 +48,12 @@ public final class Codec {
         return new String(bytes, Charsets.UTF_8);
     }
 
+    /**
+     * Reads a 32bit integer from the encoded buffer
+     *
+     * @param buf the buffer to decode the integer from
+     * @return the decoded integer read from the buffer
+     */
     public static int readVarInt32(ByteBuf buf) {
         //The result we will return
         int result = 0;
@@ -44,20 +63,28 @@ public final class Codec {
         int b = (int) buf.readByte();
 
         //If below, it means there are more bytes
-        while ((b & 0b10000000) == 0b10000000) {
+        // 0x80 = 128 for those that don't know
+        while ((b & 0x80) == 0x80) {
             Preconditions.checkArgument(indent < 21, "Too many bytes for a VarInt32.");
 
             //Adds the byte in the appropriate position (first byte goes last, etc.)
-            result += (b & 0b01111111) << indent;
+            result += (b & 0x7f) << indent;
             indent += 7;
 
             //Reads the next byte
             b = (int) buf.readByte();
         }
 
-        return result += (b & 0b01111111) << indent;
+        // 0x7f = 127
+        return result += (b & 0x7f) << indent;
     }
 
+    /**
+     * Reads a 64bit long from the encoded buffer
+     *
+     * @param buf the buffer to decode the long from
+     * @return the decoded long read from the buffer
+     */
     public static long readVarInt64(ByteBuf buf) {
         //The result we will return
         long result = 0L;
@@ -67,17 +94,17 @@ public final class Codec {
         long b = (long) buf.readByte();
 
         //If below, it means there are more bytes
-        while ((b & 0b10000000L) == 0b10000000) {
+        while ((b & 0x80L) == 0x80) {
             Preconditions.checkArgument(indent < 49, "Too many bytes for a VarInt64.");
 
             //Adds the byte in the apprioriate position (first byte goes last, etc.)
-            result += (b & 0b01111111L) << indent;
+            result += (b & 0x7fL) << indent;
             indent += 7;
 
             //Reads the next byte
             b = (long) buf.readByte();
         }
 
-        return result += (b & 0b01111111L) << indent;
+        return result += (b & 0x7fL) << indent;
     }
 }

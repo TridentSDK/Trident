@@ -21,7 +21,9 @@ import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.netty.protocol.Protocol4;
 
 /**
- * Used to represent any erroneous packets recieved
+ * Used to represent any erroneous packets received
+ *
+ * @author The TridentSDK Team
  */
 public class UnknownPacket implements Packet {
     @Override
@@ -29,6 +31,11 @@ public class UnknownPacket implements Packet {
         return this;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * <p>Cannot be encoded. Throws UnsupportedOperationException</p>
+     */
     @Override public ByteBuf encode() {
         throw new UnsupportedOperationException("Cannot serialize unknown packet");
     }
