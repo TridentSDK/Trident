@@ -1,27 +1,46 @@
+/*
+ * Copyright (C) 2014 The TridentSDK Team
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package net.tridentsdk.server.netty.protocol;
 
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.packet.UnknownPacket;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
 abstract class PacketManager {
-    protected Map<Integer, Class<?>> packets = new HashMap<>();
+    protected final Map<Integer, Class<?>> packets = new HashMap<>();
 
     protected PacketManager() {
-        packets.put(-1, UnknownPacket.class);
+        this.packets.put(-1, UnknownPacket.class);
     }
 
     public Packet getPacket(int id) {
-        try{
-            Class<?> cls = packets.get(id);
+        try {
+            Class<?> cls = this.packets.get(id);
 
-            if(cls == null)
-                cls = packets.get(-1);
+            if (cls == null)
+                cls = this.packets.get(-1);
 
-            return cls.asSubclass(Packet.class).newInstance();
-        }catch(IllegalAccessException | InstantiationException ex) {
+            return cls.asSubclass(Packet.class).getConstructor().newInstance();
+        } catch (IllegalAccessException | InstantiationException |
+                NoSuchMethodException | InvocationTargetException ex) {
             throw new RuntimeException(ex.getMessage());
         }
     }

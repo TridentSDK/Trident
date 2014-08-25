@@ -28,42 +28,40 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public class Protocol {
-
-    private Play play = new Play();
-    private Status status = new Status();
-    private Login login = new Login();
-    private Handshake handshake = new Handshake();
+    private final Play      play      = new Play();
+    private final Status    status    = new Status();
+    private final Login     login     = new Login();
+    private final Handshake handshake = new Handshake();
 
     public Play getPlay() {
-        return play;
+        return this.play;
     }
 
     public Status getStatus() {
-        return status;
+        return this.status;
     }
 
     public Login getLogin() {
-        return login;
+        return this.login;
     }
 
     public Handshake getHandshake() {
-        return handshake;
+        return this.handshake;
     }
 
-
-    public Packet getPacket(int id, ClientStage type) {
-        switch(type) {
+    public Packet getPacket(int id, Protocol.ClientStage type) {
+        switch (type) {
             case PLAY:
-                return play.getPacket(id);
+                return this.play.getPacket(id);
 
             case HANDSHAKE:
-                return handshake.getPacket(id);
+                return this.handshake.getPacket(id);
 
             case STATUS:
-                return status.getPacket(id);
+                return this.status.getPacket(id);
 
             case LOGIN:
-                return status.getPacket(id);
+                return this.status.getPacket(id);
 
             default:
                 throw new IllegalArgumentException(type + " is not supported for Protocol#getPacket()!");
@@ -74,5 +72,4 @@ public class Protocol {
         // TODO Add this to a more appropriate class
         PLAY, STATUS, LOGIN, HANDSHAKE
     }
-
 }

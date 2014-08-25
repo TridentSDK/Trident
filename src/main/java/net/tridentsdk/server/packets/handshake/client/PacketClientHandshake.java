@@ -20,7 +20,6 @@ package net.tridentsdk.server.packets.handshake.client;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.Packet;
-import net.tridentsdk.server.netty.protocol.Protocol;
 
 /**
  * The login packet sent to connect the server to the client
@@ -43,9 +42,7 @@ public class PacketClientHandshake implements Packet {
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * <p>Cannot be encoded. Throws {@link UnsupportedOperationException}.</p>
+     * {@inheritDoc} <p/> <p>Cannot be encoded. Throws {@link UnsupportedOperationException}.</p>
      */
     @Override
     public ByteBuf encode() {

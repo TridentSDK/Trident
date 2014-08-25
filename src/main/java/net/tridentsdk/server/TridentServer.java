@@ -18,6 +18,7 @@
 package net.tridentsdk.server;
 
 import net.tridentsdk.api.Server;
+import net.tridentsdk.api.Trident;
 import net.tridentsdk.server.netty.protocol.Protocol;
 
 /**
@@ -26,21 +27,28 @@ import net.tridentsdk.server.netty.protocol.Protocol;
  * @author The TridentSDK Team
  */
 public class TridentServer implements Server, Runnable {
-    private final TridentConfig   config;
-    private final Protocol        protocol;
-    private final Thread          serverThread;
+    private final TridentConfig config;
+    private final Protocol      protocol;
+    private final Thread        serverThread;
+
+    private TridentServer(TridentConfig config) {
+        this.serverThread = Thread.currentThread();
+        this.config = config;
+
+        //TODO: Get protocol version from config... or elsewhere
+        this.protocol = new Protocol();
+    }
 
     /**
      * Creates the server access base, distributing information to the fields available
      *
      * @param config the configuration to use for option lookup
      */
-    protected TridentServer(TridentConfig config) {
-        this.serverThread = Thread.currentThread();
-        this.config = config;
-
-        //TODO: Get protocol version from config... or elsewhere
-        this.protocol = new Protocol();
+    public static TridentServer createServer(TridentConfig config) {
+        TridentServer server = new TridentServer(config);
+        Trident.setServer(server);
+        return server;
+        // We CANNOT let the "this" instance escape during creation, else we lose thread-safety
     }
 
     /**
@@ -57,7 +65,7 @@ public class TridentServer implements Server, Runnable {
      *
      * @return the port occupied by the server
      */
-    public int getPort() {
+    @Override public int getPort() {
         return (int) this.config.getPort();
     }
 

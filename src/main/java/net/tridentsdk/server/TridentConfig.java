@@ -26,9 +26,8 @@ import java.io.File;
  */
 public class TridentConfig {
     private static final int DEFAULT_PORT = 25565;
-
-    private       YamlConfiguration config;
     private final short             port;
+    private       YamlConfiguration config;
 
     /**
      * Wraps the properties file and converts it to the configuration format usable by the server

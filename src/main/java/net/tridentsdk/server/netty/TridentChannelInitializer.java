@@ -20,11 +20,10 @@ package net.tridentsdk.server.netty;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.socket.SocketChannel;
-
-import javax.annotation.concurrent.ThreadSafe;
-
 import net.tridentsdk.server.netty.client.ClientConnectionHandler;
 import net.tridentsdk.server.netty.packet.PacketDecoder;
+
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * The netty channel initializer which appends the handlers to the socket channel

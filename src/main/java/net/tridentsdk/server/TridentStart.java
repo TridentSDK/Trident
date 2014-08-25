@@ -23,7 +23,6 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import joptsimple.*;
-import net.tridentsdk.api.Trident;
 import net.tridentsdk.server.netty.TridentChannelInitializer;
 
 import java.io.File;
@@ -47,49 +46,6 @@ public class TridentStart {
      */
     public TridentStart() {
         TridentStart.instance = this;
-    }
-
-    /**
-     * Initializes the server with the configuration file
-     *
-     * @param config the configuration to use for option lookup
-     */
-    public void init(TridentConfig config) {
-        this.bossGroup = new NioEventLoopGroup();
-        this.workerGroup = new NioEventLoopGroup();
-
-        try {
-            ServerBootstrap b = new ServerBootstrap();
-            b.group(this.bossGroup, this.workerGroup)
-             .channel(NioServerSocketChannel.class)
-             .childHandler(new TridentChannelInitializer())
-             .option(ChannelOption.TCP_NODELAY, true);
-
-            // Bind and start to accept incoming connections.
-            ChannelFuture f = b.bind((int) config.getPort()).sync();
-
-            //Runs the server on a separate thread
-            //Server should read all settings from the loaded config
-            this.server = new TridentServer(config);
-            Trident.setServer(this.server);
-            new Thread(this.server).start();
-
-            // Wait until the server socket is closed, to gracefully shut down your server.
-            f.channel().closeFuture().sync();
-        } catch (InterruptedException e) {
-            //Exception is caught if server is closed.
-        } finally {
-            this.close();
-        }
-    }
-
-    /**
-     * Shuts down the server by closing the backed event loops
-     */
-    public void close() {
-        //Correct way to close the socket and shut down the server
-        this.workerGroup.shutdownGracefully().awaitUninterruptibly();
-        this.bossGroup.shutdownGracefully().awaitUninterruptibly();
     }
 
     /**
@@ -139,5 +95,47 @@ public class TridentStart {
 
     private static Collection<String> asList(String... params) {
         return Lists.newArrayList(params);
+    }
+
+    /**
+     * Initializes the server with the configuration file
+     *
+     * @param config the configuration to use for option lookup
+     */
+    public void init(TridentConfig config) {
+        this.bossGroup = new NioEventLoopGroup();
+        this.workerGroup = new NioEventLoopGroup();
+
+        try {
+            ServerBootstrap b = new ServerBootstrap();
+            b.group(this.bossGroup, this.workerGroup)
+             .channel(NioServerSocketChannel.class)
+             .childHandler(new TridentChannelInitializer())
+             .option(ChannelOption.TCP_NODELAY, true);
+
+            // Bind and start to accept incoming connections.
+            ChannelFuture f = b.bind((int) config.getPort()).sync();
+
+            //Runs the server on a separate thread
+            //Server should read all settings from the loaded config
+            this.server = TridentServer.createServer(config);
+            new Thread(this.server).start();
+
+            // Wait until the server socket is closed, to gracefully shut down your server.
+            f.channel().closeFuture().sync();
+        } catch (InterruptedException e) {
+            //Exception is caught if server is closed.
+        } finally {
+            this.close();
+        }
+    }
+
+    /**
+     * Shuts down the server by closing the backed event loops
+     */
+    public void close() {
+        //Correct way to close the socket and shut down the server
+        this.workerGroup.shutdownGracefully().awaitUninterruptibly();
+        this.bossGroup.shutdownGracefully().awaitUninterruptibly();
     }
 }

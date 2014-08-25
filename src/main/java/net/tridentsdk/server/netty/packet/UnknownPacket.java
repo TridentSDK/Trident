@@ -18,8 +18,8 @@
 package net.tridentsdk.server.netty.packet;
 
 import io.netty.buffer.ByteBuf;
+
 import javax.annotation.concurrent.ThreadSafe;
-import net.tridentsdk.server.netty.protocol.Protocol;
 
 /**
  * Used to represent any erroneous packets received
@@ -34,9 +34,7 @@ public class UnknownPacket implements Packet {
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * <p>Cannot be encoded. Throws UnsupportedOperationException</p>
+     * {@inheritDoc} <p/> <p>Cannot be encoded. Throws UnsupportedOperationException</p>
      */
     @Override public ByteBuf encode() {
         throw new UnsupportedOperationException("Cannot serialize unknown packet");

@@ -31,15 +31,14 @@ import java.util.List;
 
 /**
  * Channel handler that decodes the packet data sent from the stream in the form of the byte buffer. This is needed to
- * interpret the data sent correctly, and make sure that the data maintains its transmission integrity.
- *
- * <p>Note this is not shareable. It must be thread confined, or create a new instance for each channel.</p>
+ * interpret the data sent correctly, and make sure that the data maintains its transmission integrity. <p/> <p>Note
+ * this is not shareable. It must be thread confined, or create a new instance for each channel.</p>
  *
  * @author The TridentSDK Team
  */
 public class PacketDecoder extends ReplayingDecoder<PacketDecoder.State> {
     final   Protocol protocol;
-    private int             length;
+    private int      length;
 
     /**
      * Creates the decoder and initializes the state
@@ -64,10 +63,10 @@ public class PacketDecoder extends ReplayingDecoder<PacketDecoder.State> {
 
                 //Gets the packet type, and reads all data from buffer to the packet
                 int id = Codec.readVarInt32(buf);
-                InetSocketAddress address =  (InetSocketAddress) context.channel().remoteAddress();
+                InetSocketAddress address = (InetSocketAddress) context.channel().remoteAddress();
                 ClientConnection connection = ClientConnection.getConnection(address);
 
-                if(connection == null)
+                if (connection == null)
                     connection = new ClientConnection(context);
 
                 Packet packet = this.protocol.getPacket(id, connection.getStage());
