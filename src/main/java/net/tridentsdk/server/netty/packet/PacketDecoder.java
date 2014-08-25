@@ -32,6 +32,8 @@ import java.util.List;
  * Channel handler that decodes the packet data sent from the stream in the form of the byte buffer. This is needed to
  * interpret the data sent correctly, and make sure that the data maintains its transmission integrity.
  *
+ * <p>Note this is not shareable. It must be thread confined, or create a new instance for each channel.</p>
+ *
  * @author The TridentSDK Team
  */
 public class PacketDecoder extends ReplayingDecoder<PacketDecoder.State> {
