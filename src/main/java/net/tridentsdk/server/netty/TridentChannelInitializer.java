@@ -20,6 +20,9 @@ package net.tridentsdk.server.netty;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.socket.SocketChannel;
+
+import javax.annotation.concurrent.ThreadSafe;
+
 import net.tridentsdk.server.netty.handlers.ClientConnectionHandler;
 import net.tridentsdk.server.netty.packet.PacketDecoder;
 
@@ -28,6 +31,7 @@ import net.tridentsdk.server.netty.packet.PacketDecoder;
  *
  * @author The TridentSDK Team
  */
+@ThreadSafe
 public class TridentChannelInitializer extends ChannelInitializer<SocketChannel> {
     @Override
     protected void initChannel(SocketChannel channel) throws Exception {
