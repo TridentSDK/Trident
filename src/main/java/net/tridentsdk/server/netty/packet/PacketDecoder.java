@@ -23,8 +23,7 @@ import io.netty.handler.codec.ReplayingDecoder;
 import net.tridentsdk.api.Trident;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.netty.Codec;
-import net.tridentsdk.server.netty.protocol.Protocol4;
-import net.tridentsdk.server.netty.protocol.TridentProtocol;
+import net.tridentsdk.server.netty.protocol.Protocol;
 
 import java.util.List;
 
@@ -37,7 +36,7 @@ import java.util.List;
  * @author The TridentSDK Team
  */
 public class PacketDecoder extends ReplayingDecoder<PacketDecoder.State> {
-    final   TridentProtocol protocol;
+    final   Protocol protocol;
     private int             length;
 
     /**
@@ -63,11 +62,11 @@ public class PacketDecoder extends ReplayingDecoder<PacketDecoder.State> {
 
                 //Gets the packet type, and reads all data from buffer to the packet
                 int id = Codec.readVarInt32(buf);
-                Packet packet = this.protocol.getPacket(id).create(buf);
+                Packet packet = this.protocol.getPacket(id);
                 packet.decode(buf);
 
                 //If packet is unknown, skip the bytes corresponding to the length
-                if (packet.getType().equals(Protocol4.Unknown.UNKNOWN)) {
+                if (packet.getClass().equals(UnknownPacket.class)) {
                     buf.skipBytes(this.length);
                 }
         }

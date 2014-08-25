@@ -18,8 +18,7 @@
 package net.tridentsdk.server;
 
 import net.tridentsdk.api.Server;
-import net.tridentsdk.server.netty.protocol.Protocol4;
-import net.tridentsdk.server.netty.protocol.TridentProtocol;
+import net.tridentsdk.server.netty.protocol.Protocol;
 
 /**
  * The access base to internal workings of the server
@@ -28,7 +27,7 @@ import net.tridentsdk.server.netty.protocol.TridentProtocol;
  */
 public class TridentServer implements Server, Runnable {
     private final TridentConfig   config;
-    private final TridentProtocol protocol;
+    private final Protocol        protocol;
     private final Thread          serverThread;
 
     /**
@@ -41,7 +40,7 @@ public class TridentServer implements Server, Runnable {
         this.config = config;
 
         //TODO: Get protocol version from config... or elsewhere
-        this.protocol = new Protocol4();
+        this.protocol = new Protocol();
     }
 
     /**
@@ -49,7 +48,7 @@ public class TridentServer implements Server, Runnable {
      *
      * @return the access to server protocol
      */
-    public TridentProtocol getProtocol() {
+    public Protocol getProtocol() {
         return this.protocol;
     }
 
@@ -71,7 +70,8 @@ public class TridentServer implements Server, Runnable {
     /**
      * Performs the shutdown procedure on the server, ending with the exit of the JVM
      */
-    public static void shutdown() {
+    @Override
+    public void shutdown() {
         //TODO: Cleanup stuff...
         TridentStart.shutdown();
     }

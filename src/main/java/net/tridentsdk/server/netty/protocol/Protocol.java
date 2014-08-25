@@ -15,28 +15,37 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.tridentsdk.server.netty.packet;
+package net.tridentsdk.server.netty.protocol;
 
-import io.netty.buffer.ByteBuf;
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * The type abstraction that holds the packet information and factory methods
+ * The base implementation for the protocol handling internals
  *
  * @author The TridentSDK Team
  */
-public interface PacketType {
-    /**
-     * The identifying number for the packet
-     *
-     * @return the packet's ID
-     */
-    int id();
+@ThreadSafe
+public class Protocol {
 
-    /**
-     * Creation factory for the packet represented by the type
-     *
-     * @param buf the buffer to deserialize packet data from
-     * @return the new packet holding the data from the buffer
-     */
-    Packet create(ByteBuf buf);
+    private Play play = new Play();
+    private Status status = new Status();
+    private Login login = new Login();
+    private Handshake handshake = new Handshake();
+
+    public Play getPlay() {
+        return play;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public Login getLogin() {
+        return login;
+    }
+
+    public Handshake getHandshake() {
+        return handshake;
+    }
+
 }

@@ -19,7 +19,7 @@ package net.tridentsdk.server.netty.packet;
 
 import io.netty.buffer.ByteBuf;
 import javax.annotation.concurrent.ThreadSafe;
-import net.tridentsdk.server.netty.protocol.Protocol4;
+import net.tridentsdk.server.netty.protocol.Protocol;
 
 /**
  * Used to represent any erroneous packets received
@@ -43,7 +43,7 @@ public class UnknownPacket implements Packet {
     }
 
     @Override
-    public PacketType getType() {
-        return Protocol4.Unknown.UNKNOWN;
+    public int getId() {
+        return -1;
     }
 }

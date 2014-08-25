@@ -40,10 +40,5 @@ public interface Packet {
      */
     ByteBuf encode();
 
-    /**
-     * The packet type represented by the implementation
-     *
-     * @return the packet type
-     */
-    PacketType getType();
+    int getId();
 }

@@ -20,8 +20,7 @@ package net.tridentsdk.server.packets.handshake.client;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.Packet;
-import net.tridentsdk.server.netty.packet.PacketType;
-import net.tridentsdk.server.netty.protocol.Protocol4;
+import net.tridentsdk.server.netty.protocol.Protocol;
 
 /**
  * The login packet sent to connect the server to the client
@@ -54,7 +53,7 @@ public class PacketClientHandshake implements Packet {
     }
 
     @Override
-    public PacketType getType() {
-        return Protocol4.Handshake.Client.HANDSHAKE;
+    public int getId() {
+        return 0x00;
     }
 }
