@@ -62,13 +62,14 @@ public class PacketDecoder extends ReplayingDecoder<PacketDecoder.State> {
 
                 //Gets the packet type, and reads all data from buffer to the packet
                 int id = Codec.readVarInt32(buf);
-                Packet packet = this.protocol.getPacket(id);
-                packet.decode(buf);
+                Packet packet = this.protocol.getPacket(id); // TODO: Identify if its referring to Play, Status, Login, or Handshake
 
                 //If packet is unknown, skip the bytes corresponding to the length
-                if (packet.getClass().equals(UnknownPacket.class)) {
+                if (packet.getId() == -1) {
                     buf.skipBytes(this.length);
                 }
+
+                packet.decode(buf);
         }
     }
 
