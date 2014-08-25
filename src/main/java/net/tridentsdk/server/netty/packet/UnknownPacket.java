@@ -18,6 +18,7 @@
 package net.tridentsdk.server.netty.packet;
 
 import io.netty.buffer.ByteBuf;
+import javax.annotation.concurrent.ThreadSafe;
 import net.tridentsdk.server.netty.protocol.Protocol4;
 
 /**
@@ -25,6 +26,7 @@ import net.tridentsdk.server.netty.protocol.Protocol4;
  *
  * @author The TridentSDK Team
  */
+@ThreadSafe
 public class UnknownPacket implements Packet {
     @Override
     public Packet decode(ByteBuf buf) {
