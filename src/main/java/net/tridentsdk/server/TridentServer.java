@@ -32,7 +32,7 @@ public class TridentServer implements Server, Runnable {
     private final Thread          serverThread;
 
     /**
-     * Creates the server access base, distributing information to the fields availible
+     * Creates the server access base, distributing information to the fields available
      *
      * @param config the configuration to use for option lookup
      */

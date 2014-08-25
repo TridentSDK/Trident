@@ -68,7 +68,7 @@ public class TridentStart {
             // Bind and start to accept incoming connections.
             ChannelFuture f = b.bind((int) config.getPort()).sync();
 
-            //Runs the server on a seperate thread
+            //Runs the server on a separate thread
             //Server should read all settings from the loaded config
             this.server = new TridentServer(config);
             Trident.setServer(this.server);

@@ -32,11 +32,11 @@
     </repositories>
 
     <dependencies>
-
         <dependency>
             <groupId>net.tridentsdk</groupId>
             <artifactId>tridentsdk</artifactId>
             <version>${project.version}</version>
+            <!-- TODO I can't find this on IntelliJ, is it just me? - AgentTroll-->
         </dependency>
 
         <dependency>
@@ -115,5 +115,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

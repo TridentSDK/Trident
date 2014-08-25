@@ -97,7 +97,7 @@ public final class Codec {
         while ((b & 0x80L) == 0x80) {
             Preconditions.checkArgument(indent < 49, "Too many bytes for a VarInt64.");
 
-            //Adds the byte in the apprioriate position (first byte goes last, etc.)
+            //Adds the byte in the appropriate position (first byte goes last, etc.)
             result += (b & 0x7fL) << indent;
             indent += 7;
 

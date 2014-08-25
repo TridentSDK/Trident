@@ -32,7 +32,7 @@ public class YamlConfiguration {
     /**
      * Loads the file name and parses the YAML format
      *
-     * @param string the file path (?)
+     * @param string the file path
      */
     public YamlConfiguration(String string) {
         this.yaml = new Yaml();
