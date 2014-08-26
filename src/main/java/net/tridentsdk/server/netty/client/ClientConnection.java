@@ -33,9 +33,9 @@ public class ClientConnection {
     private static final Map<InetSocketAddress, ClientConnection> clientData =
             new ConcurrentHashMap<>();
 
-    private final InetSocketAddress    address;
-    private final Channel              channel;
-    private       Protocol.ClientStage stage;
+    private final    InetSocketAddress    address;
+    private final    Channel              channel;
+    private volatile Protocol.ClientStage stage;
 
     public ClientConnection(ChannelHandlerContext channelContext) {
         this.address = (InetSocketAddress) channelContext.channel().remoteAddress();
