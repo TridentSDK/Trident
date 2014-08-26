@@ -18,6 +18,7 @@
 package net.tridentsdk.server.netty.protocol;
 
 import net.tridentsdk.server.netty.packet.Packet;
+import net.tridentsdk.server.netty.packet.PacketType;
 import net.tridentsdk.server.netty.packet.UnknownPacket;
 
 import java.lang.reflect.InvocationTargetException;
@@ -25,18 +26,35 @@ import java.util.HashMap;
 import java.util.Map;
 
 abstract class PacketManager {
-    protected final Map<Integer, Class<?>> packets = new HashMap<>();
+    protected final Map<Integer, Class<?>> inPackets = new HashMap<>();
+    protected final Map<Integer, Class<?>> outPackets = new HashMap<>();
 
     protected PacketManager() {
-        this.packets.put(-1, UnknownPacket.class);
+        this.inPackets.put(-1, UnknownPacket.class);
+        this.outPackets.put(-1, UnknownPacket.class);
     }
 
-    public Packet getPacket(int id) {
+    public Packet getPacket(int id, PacketType type) {
         try {
-            Class<?> cls = this.packets.get(id);
+            Map<Integer, Class<?>> applicableMap;
+
+            switch(type) {
+                case IN:
+                    applicableMap = this.inPackets;
+                    break;
+
+                case OUT:
+                    applicableMap = this.outPackets;
+                    break;
+
+                default:
+                    return null;
+            }
+
+            Class<?> cls = applicableMap.get(id);
 
             if (cls == null)
-                cls = this.packets.get(-1);
+                cls = applicableMap.get(-1);
 
             return cls.asSubclass(Packet.class).getConstructor().newInstance();
         } catch (IllegalAccessException | InstantiationException |

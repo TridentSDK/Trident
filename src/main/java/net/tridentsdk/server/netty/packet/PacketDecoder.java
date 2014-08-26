@@ -24,10 +24,8 @@ import io.netty.handler.codec.ReplayingDecoder;
 import net.tridentsdk.api.Trident;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.netty.Codec;
-import net.tridentsdk.server.netty.client.ClientConnection;
 import net.tridentsdk.server.netty.protocol.Protocol;
 
-import java.net.InetSocketAddress;
 import java.util.List;
 
 /**

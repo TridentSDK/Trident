@@ -24,7 +24,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import net.tridentsdk.server.netty.client.ClientConnection;
 
 /**
- * Used to represent any erroneous packets received
+ * Used to represent any erroneous inPackets received
  *
  * @author The TridentSDK Team
  */

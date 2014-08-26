@@ -18,6 +18,7 @@
 package net.tridentsdk.server.netty.protocol;
 
 import net.tridentsdk.server.netty.packet.Packet;
+import net.tridentsdk.server.netty.packet.PacketType;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -49,22 +50,22 @@ public class Protocol {
         return this.handshake;
     }
 
-    public Packet getPacket(int id, Protocol.ClientStage type) {
-        switch (type) {
+    public Packet getPacket(int id, Protocol.ClientStage stage, PacketType type) {
+        switch (stage) {
             case PLAY:
-                return this.play.getPacket(id);
+                return this.play.getPacket(id, type);
 
             case HANDSHAKE:
-                return this.handshake.getPacket(id);
+                return this.handshake.getPacket(id, type);
 
             case STATUS:
-                return this.status.getPacket(id);
+                return this.status.getPacket(id, type);
 
             case LOGIN:
-                return this.status.getPacket(id);
+                return this.status.getPacket(id, type);
 
             default:
-                throw new IllegalArgumentException(type + " is not supported for Protocol#getPacket()!");
+                throw new IllegalArgumentException(stage + " is not supported for Protocol#getPacket!");
         }
     }
 

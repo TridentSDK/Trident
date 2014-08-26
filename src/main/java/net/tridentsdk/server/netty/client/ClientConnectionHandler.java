@@ -29,6 +29,7 @@ import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.packet.PacketData;
 import net.tridentsdk.server.netty.packet.PacketDecoder;
+import net.tridentsdk.server.netty.packet.PacketType;
 import net.tridentsdk.server.netty.protocol.Protocol;
 
 /**
@@ -61,11 +62,13 @@ public class ClientConnectionHandler extends SimpleChannelInboundHandler<PacketD
             connection = new ClientConnection(context);
         }
 
-        Packet packet = this.protocol.getPacket(data.getId(), connection.getStage());
+        Packet packet = this.protocol.getPacket(data.getId(), connection.getStage(), PacketType.IN);
 
-        //TODO: If packet is unknown... do something?
+        //If packet is unknown disconnect the client, as said client seems to be modified
         if (packet.getId() == -1) {
-            //TODO:
+            connection.logout();
+
+            // TODO Print client info. stating that has sent an invalid packet and has been disconnected
             return;
         }
 

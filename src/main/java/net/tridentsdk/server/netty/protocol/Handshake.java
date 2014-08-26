@@ -22,7 +22,6 @@ import net.tridentsdk.server.packets.handshake.client.PacketClientHandshake;
 class Handshake extends PacketManager {
 
     Handshake() {
-
-        this.packets.put(0x00, PacketClientHandshake.class);
+        this.outPackets.put(0x00, PacketClientHandshake.class);
     }
 }
