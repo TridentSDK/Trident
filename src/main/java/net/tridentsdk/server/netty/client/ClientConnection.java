@@ -8,7 +8,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See theplate
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Handles the connection of a player upon joining
+ * Handles the connection of a client upon joining
  * 
  * @author The TridentSDK Team
  */ 
@@ -44,7 +44,7 @@ public class ClientConnection {
     /**
      * Creates a new connection handler for the joining channel stream
      * 
-     * @param channelContext the channel of the player joining
+     * @param channelContext the channel of the client joining
      */ 
     public ClientConnection(ChannelHandlerContext channelContext) {
         this.address = (InetSocketAddress) channelContext.channel().remoteAddress();
@@ -103,7 +103,7 @@ public class ClientConnection {
     }
 
     /**
-     * The IP address of the player handled by this connection wrapper
+     * The IP address of the client handled by this connection wrapper
      * 
      * @return the handled IP address
      */ 
@@ -114,16 +114,16 @@ public class ClientConnection {
     /**
      * Gets the current state of the connection
      * 
-     * @return the current state of the protocol for the player
+     * @return the current state of the protocol for the client
      */ 
     public Protocol.ClientStage getStage() {
         return this.stage;
     }
 
     /**
-     * Sets the player state, should only be used by the ClientConnectionHandler
+     * Sets the client state, should only be used by the ClientConnectionHandler
      * 
-     * @param stage the state to set the player to
+     * @param stage the state to set the client to
      */ 
     public void setStage(Protocol.ClientStage stage) {
         this.stage = stage;
@@ -132,7 +132,7 @@ public class ClientConnection {
     }
 
     /**
-     * Removes the player's server side client handler
+     * Removes the client's server side client handler
      */ 
     public void logout() {
         // TODO
