@@ -19,6 +19,7 @@ package net.tridentsdk.server.packets.handshake.client;
 
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.netty.Codec;
+import net.tridentsdk.server.netty.client.ClientConnection;
 import net.tridentsdk.server.netty.packet.Packet;
 
 /**
@@ -45,12 +46,21 @@ public class PacketClientHandshake implements Packet {
      * {@inheritDoc} <p/> <p>Cannot be encoded. Throws {@link UnsupportedOperationException}.</p>
      */
     @Override
-    public ByteBuf encode() {
+    public void encode(ByteBuf buf) {
         throw new UnsupportedOperationException("PacketClientHandshake cannot be encoded!");
     }
 
     @Override
     public int getId() {
         return 0x00;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void handleOutbound(ClientConnection connection) {
+        // TODO Auto-generated method stub
+        
     }
 }

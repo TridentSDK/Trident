@@ -17,34 +17,29 @@
 
 package net.tridentsdk.server.netty.packet;
 
-import net.tridentsdk.server.netty.client.ClientConnection;
 import io.netty.buffer.ByteBuf;
 
 /**
- * Data bearing abstraction that represents a piece of information to communicate between server and client
- *
  * @author The TridentSDK Team
  */
-public interface Packet {
-    /**
-     * Sets the fields of the packet from the data serialized into the buffer
-     *
-     * @param buf the buffer storing the serialized packet data
-     * @return the this instance of the packet
-     */
-    Packet decode(ByteBuf buf);
-
-    /**
-     * Serialized the data held by this packet into a buffer
-     * @param buf the buffer to write to
-     */
-    void encode(ByteBuf buf);
+public class PacketData {
+    private int id;
+    private ByteBuf data;
     
-    /**
-     * Handles the packet after recieving it from a connection
-     * @param connection The connection that sent the packet
-     */
-    void handleOutbound(ClientConnection connection);
-
-    int getId();
+    public PacketData(int id, ByteBuf data) {
+        this.id = id;
+        this.data = data;
+    }
+    
+    public int getId() {
+        return id;
+    }
+    
+    public ByteBuf getData() {
+        return data;
+    }
+    
+    public int getLength() {
+        return data.readableBytes();
+    }
 }

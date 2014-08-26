@@ -21,6 +21,8 @@ import io.netty.buffer.ByteBuf;
 
 import javax.annotation.concurrent.ThreadSafe;
 
+import net.tridentsdk.server.netty.client.ClientConnection;
+
 /**
  * Used to represent any erroneous packets received
  *
@@ -36,12 +38,21 @@ public class UnknownPacket implements Packet {
     /**
      * {@inheritDoc} <p/> <p>Cannot be encoded. Throws UnsupportedOperationException</p>
      */
-    @Override public ByteBuf encode() {
+    @Override public void encode(ByteBuf buf) {
         throw new UnsupportedOperationException("Cannot serialize unknown packet");
     }
 
     @Override
     public int getId() {
         return -1;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void handleOutbound(ClientConnection connection) {
+        // TODO Auto-generated method stub
+        
     }
 }

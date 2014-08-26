@@ -18,6 +18,7 @@
 package net.tridentsdk.server.netty.packet;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ReplayingDecoder;
 import net.tridentsdk.api.Trident;
@@ -60,23 +61,20 @@ public class PacketDecoder extends ReplayingDecoder<PacketDecoder.State> {
                 buf.markReaderIndex();
                 buf.readBytes(this.length);
                 buf.resetReaderIndex();
-
-                //Gets the packet type, and reads all data from buffer to the packet
+                
+                //Gets the packet id from the data
                 int id = Codec.readVarInt32(buf);
-                InetSocketAddress address = (InetSocketAddress) context.channel().remoteAddress();
-                ClientConnection connection = ClientConnection.getConnection(address);
-
-                if (connection == null)
-                    connection = new ClientConnection(context);
-
-                Packet packet = this.protocol.getPacket(id, connection.getStage());
-
-                //If packet is unknown, skip the bytes corresponding to the length
-                if (packet.getId() == -1) {
-                    buf.skipBytes(this.length);
-                }
-
-                packet.decode(buf);
+                
+                //Copies the Buf's data to put into a PacketData instance
+                ByteBuf dataCopy = Unpooled.copiedBuffer(buf);
+                dataCopy.readerIndex(buf.readerIndex());
+                //Moves the readerIndex of the input buf to the end, to signify that we've read the packet
+                buf.skipBytes(this.length);
+                
+                //Passes the PacketData instance to be processed downstream
+                objects.add(new PacketData(id, dataCopy));
+                
+                this.checkpoint(PacketDecoder.State.LENGTH);
         }
     }
 
