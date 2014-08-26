@@ -59,8 +59,5 @@ public class PacketClientHandshake implements Packet {
      * {@inheritDoc}
      */
     @Override
-    public void handleOutbound(ClientConnection connection) {
-        // TODO Auto-generated method stub
-        
-    }
+    public void handleOutbound(ClientConnection connection) {}
 }

@@ -26,7 +26,7 @@ import net.tridentsdk.server.netty.protocol.Protocol;
  *
  * @author The TridentSDK Team
  */
-public class TridentServer implements Server, Runnable {
+public final class TridentServer implements Server, Runnable {
     private final TridentConfig config;
     private final Protocol      protocol;
     private final Thread        serverThread;

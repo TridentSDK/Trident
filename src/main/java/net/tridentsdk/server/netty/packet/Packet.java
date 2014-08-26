@@ -41,7 +41,7 @@ public interface Packet {
     void encode(ByteBuf buf);
     
     /**
-     * Handles the packet after recieving it from a connection
+     * Handles the packet after receiving it from a connection
      * @param connection The connection that sent the packet
      */
     void handleOutbound(ClientConnection connection);
