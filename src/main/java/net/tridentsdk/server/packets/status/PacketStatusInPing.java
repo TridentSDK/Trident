@@ -5,6 +5,7 @@ import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.client.ClientConnection;
 import net.tridentsdk.server.netty.packet.Packet;
+import net.tridentsdk.server.netty.packet.PacketType;
 
 public class PacketStatusInPing implements Packet {
 
@@ -24,11 +25,16 @@ public class PacketStatusInPing implements Packet {
 
     @Override
     public void handleOutbound(ClientConnection connection) {
-        connection.sendPacket(new PacketStatusOutPing().decode(connection.getChannel().alloc().buffer()));
+        connection.sendPacket(new PacketStatusOutPing());
     }
 
     public long getTime() {
         return time;
+    }
+
+    @Override
+    public PacketType getType() {
+        return PacketType.IN;
     }
 
     @Override

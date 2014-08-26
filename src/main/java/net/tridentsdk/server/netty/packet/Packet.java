@@ -47,4 +47,6 @@ public interface Packet {
     void handleOutbound(ClientConnection connection);
 
     int getId();
+
+    PacketType getType();
 }

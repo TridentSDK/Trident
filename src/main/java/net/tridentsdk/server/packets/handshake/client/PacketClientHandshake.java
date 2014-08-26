@@ -21,6 +21,7 @@ import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.client.ClientConnection;
 import net.tridentsdk.server.netty.packet.Packet;
+import net.tridentsdk.server.netty.packet.PacketType;
 
 /**
  * The login packet sent to connect the server to the client
@@ -53,6 +54,11 @@ public class PacketClientHandshake implements Packet {
     @Override
     public int getId() {
         return 0x00;
+    }
+
+    @Override
+    public PacketType getType() {
+        return PacketType.OUT;
     }
 
     /**

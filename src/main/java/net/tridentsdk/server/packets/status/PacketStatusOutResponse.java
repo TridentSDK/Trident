@@ -3,6 +3,7 @@ package net.tridentsdk.server.packets.status;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.netty.client.ClientConnection;
 import net.tridentsdk.server.netty.packet.Packet;
+import net.tridentsdk.server.netty.packet.PacketType;
 
 public class PacketStatusOutResponse implements Packet {
 
@@ -17,6 +18,12 @@ public class PacketStatusOutResponse implements Packet {
     public void encode(ByteBuf buf) {
         // TODO (for now at-least)
     }
+
+    @Override
+    public PacketType getType() {
+        return PacketType.OUT;
+    }
+
 
     @Override
     public void handleOutbound(ClientConnection connection) {

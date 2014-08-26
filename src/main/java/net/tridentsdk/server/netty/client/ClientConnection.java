@@ -17,6 +17,7 @@
 
 package net.tridentsdk.server.netty.client;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import net.tridentsdk.server.netty.packet.Packet;
@@ -52,8 +53,15 @@ public class ClientConnection {
     }
 
     public void sendPacket(Packet packet) {
-        // TODO: Larger procedure is most probably required
-        this.channel.writeAndFlush(packet);
+        // Create new ByteBuf
+        ByteBuf buffer = channel.alloc().buffer();
+
+        //Encode the packet id then the packet
+        buffer.writeInt(packet.getId());
+        packet.encode(buffer);
+
+        // Write the encoded packet and flush it
+        channel.writeAndFlush(buffer);
 
         // In case Channel state changes lets update the HashMap
         ClientConnection.clientData.put(this.address, this);
