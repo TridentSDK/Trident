@@ -17,19 +17,17 @@
 
 package net.tridentsdk.server.netty.protocol;
 
-import net.tridentsdk.server.netty.packet.Packet;
-import net.tridentsdk.server.netty.packet.PacketType;
-import net.tridentsdk.server.netty.packet.UnknownPacket;
+import net.tridentsdk.server.netty.packet.*;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
 abstract class PacketManager {
-    protected final Map<Integer, Class<?>> inPackets = new HashMap<>();
-    protected final Map<Integer, Class<?>> outPackets = new HashMap<>();
+    final Map<Integer, Class<?>> inPackets  = new HashMap<>();
+    final Map<Integer, Class<?>> outPackets = new HashMap<>();
 
-    protected PacketManager() {
+    PacketManager() {
         this.inPackets.put(-1, UnknownPacket.class);
         this.outPackets.put(-1, UnknownPacket.class);
     }
@@ -38,7 +36,7 @@ abstract class PacketManager {
         try {
             Map<Integer, Class<?>> applicableMap;
 
-            switch(type) {
+            switch (type) {
                 case IN:
                     applicableMap = this.inPackets;
                     break;

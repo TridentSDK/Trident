@@ -36,8 +36,8 @@ import java.util.List;
  * @author The TridentSDK Team
  */
 public class PacketDecoder extends ReplayingDecoder<PacketDecoder.State> {
-    final   Protocol protocol;
-    private int      length;
+    private final Protocol protocol;
+    private       int      length;
 
     /**
      * Creates the decoder and initializes the state
@@ -59,19 +59,19 @@ public class PacketDecoder extends ReplayingDecoder<PacketDecoder.State> {
                 buf.markReaderIndex();
                 buf.readBytes(this.length);
                 buf.resetReaderIndex();
-                
+
                 //Gets the packet id from the data
                 int id = Codec.readVarInt32(buf);
-                
+
                 //Copies the Buf's data to put into a PacketData instance
                 ByteBuf dataCopy = Unpooled.copiedBuffer(buf);
                 dataCopy.readerIndex(buf.readerIndex());
                 //Moves the readerIndex of the input buf to the end, to signify that we've read the packet
                 buf.skipBytes(this.length);
-                
+
                 //Passes the PacketData instance to be processed downstream
                 objects.add(new PacketData(id, dataCopy));
-                
+
                 this.checkpoint(PacketDecoder.State.LENGTH);
         }
     }

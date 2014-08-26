@@ -19,15 +19,19 @@ package net.tridentsdk.server;
 
 import net.tridentsdk.server.config.YamlConfiguration;
 
+import javax.annotation.concurrent.ThreadSafe;
 import java.io.File;
 
 /**
  * The configuration holder that wraps the server's configuration defaults and values upon startup
+ *
+ * @author The TridentSDK Team
  */
+@ThreadSafe
 public class TridentConfig {
     private static final int DEFAULT_PORT = 25565;
     private final short             port;
-    private       YamlConfiguration config;
+    private final YamlConfiguration config;
 
     /**
      * Wraps the properties file and converts it to the configuration format usable by the server
@@ -35,10 +39,10 @@ public class TridentConfig {
      * @param properties the properties file specifying options for the server use
      */
     public TridentConfig(File properties) {
-        /*FileInputStream stream = new FileInputStream(properties);
-        config = new YamlConfiguration(stream);*/
+        /*FileInputStream stream = new FileInputStream(properties); */
+        this.config = null; /* new YamlConfiguration(stream) */
 
-        //TODO: Temporary
+        // TODO: Temporary
         this.port = (short) TridentConfig.DEFAULT_PORT;
     }
 

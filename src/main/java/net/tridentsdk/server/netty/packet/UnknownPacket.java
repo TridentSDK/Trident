@@ -18,10 +18,9 @@
 package net.tridentsdk.server.netty.packet;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.server.netty.client.ClientConnection;
 
 import javax.annotation.concurrent.ThreadSafe;
-
-import net.tridentsdk.server.netty.client.ClientConnection;
 
 /**
  * Used to represent any erroneous inPackets received
@@ -49,10 +48,19 @@ public class UnknownPacket implements Packet {
 
     /**
      * {@inheritDoc}
+     *
+     * <p>Returns {@code null}, since we don't know where the packet came from</p>
+     */
+    @Override public PacketType getType() {
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>Does not do anything</p>
      */
     @Override
     public void handleOutbound(ClientConnection connection) {
-        // TODO Auto-generated method stub
-        
     }
 }

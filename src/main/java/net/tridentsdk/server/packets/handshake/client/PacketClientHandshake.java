@@ -29,10 +29,10 @@ import net.tridentsdk.server.netty.packet.PacketType;
  * @author The TridentSDK Team
  */
 public class PacketClientHandshake implements Packet {
-    int    protocolVersion;
-    String address;
-    short  port;
-    int    nextState;
+    private int    protocolVersion;
+    private String address;
+    private short  port;
+    private int    nextState;
 
     @Override
     public Packet decode(ByteBuf buf) {
@@ -44,7 +44,9 @@ public class PacketClientHandshake implements Packet {
     }
 
     /**
-     * {@inheritDoc} <p/> <p>Cannot be encoded. Throws {@link UnsupportedOperationException}.</p>
+     * {@inheritDoc}
+     *
+     * <p>Cannot be encoded. Throws {@link UnsupportedOperationException}.</p>
      */
     @Override
     public void encode(ByteBuf buf) {
@@ -63,6 +65,8 @@ public class PacketClientHandshake implements Packet {
 
     /**
      * {@inheritDoc}
+     *
+     * <p>Nothing is done here</p>
      */
     @Override
     public void handleOutbound(ClientConnection connection) {}

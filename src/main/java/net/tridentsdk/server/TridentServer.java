@@ -21,20 +21,22 @@ import net.tridentsdk.api.Server;
 import net.tridentsdk.api.Trident;
 import net.tridentsdk.server.netty.protocol.Protocol;
 
+import javax.annotation.concurrent.ThreadSafe;
+import java.util.concurrent.atomic.AtomicReference;
+
 /**
  * The access base to internal workings of the server
  *
  * @author The TridentSDK Team
  */
+@ThreadSafe
 public final class TridentServer implements Server, Runnable {
     private final TridentConfig config;
     private final Protocol      protocol;
-    private final Thread        serverThread;
+    private final AtomicReference<Thread> serverThread = new AtomicReference<>();
 
     private TridentServer(TridentConfig config) {
-        this.serverThread = Thread.currentThread();
         this.config = config;
-
         //TODO: Get protocol version from config... or elsewhere
         this.protocol = new Protocol();
     }
@@ -47,6 +49,8 @@ public final class TridentServer implements Server, Runnable {
     public static TridentServer createServer(TridentConfig config) {
         TridentServer server = new TridentServer(config);
         Trident.setServer(server);
+        server.serverThread.set(new Thread(server, "TridentServer Main Thread"));
+        server.serverThread.get().start();
         return server;
         // We CANNOT let the "this" instance escape during creation, else we lose thread-safety
     }

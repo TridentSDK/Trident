@@ -25,35 +25,32 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import joptsimple.*;
 import net.tridentsdk.server.netty.TridentChannelInitializer;
 
+import javax.annotation.concurrent.ThreadSafe;
 import java.io.File;
 import java.util.Collection;
 
 /**
  * Server class that starts the connection listener.
  *
+ * <p>Despite the fact that this class is under protected access, it is documented anyways because of its significance
+ * in the server</p>
+ *
  * @author The TridentSDK Team
  */
-public class TridentStart {
-    private static TridentStart instance;
+@ThreadSafe
+final class TridentStart {
+    private static final EventLoopGroup bossGroup   = new NioEventLoopGroup();
+    private static final EventLoopGroup workerGroup = new NioEventLoopGroup();
 
-    private EventLoopGroup bossGroup   = new NioEventLoopGroup();
-    private EventLoopGroup workerGroup = new NioEventLoopGroup();
-
-    private TridentServer server;
-
-    /**
-     * Creates a new instance of the server starter
-     */
-    public TridentStart() {
-        TridentStart.instance = this;
-    }
+    private TridentStart() {} // Do not initialize
 
     /**
      * Shutdown hook
      */
-    protected static void shutdown() {
-        TridentStart.instance.close();
+    static void shutdown() {
+        TridentStart.close();
     }
+    // TODO why do we need this? Put it in close instead - AgentTroll
 
     /**
      * Starts the server up when the jarfile is run
@@ -90,7 +87,7 @@ public class TridentStart {
             return;
         }
 
-        new TridentStart().init(new TridentConfig(options.valueOf(properties)));
+        TridentStart.init(new TridentConfig(options.valueOf(properties)));
     }
 
     private static Collection<String> asList(String... params) {
@@ -102,13 +99,10 @@ public class TridentStart {
      *
      * @param config the configuration to use for option lookup
      */
-    public void init(TridentConfig config) {
-        this.bossGroup = new NioEventLoopGroup();
-        this.workerGroup = new NioEventLoopGroup();
-
+    private static void init(TridentConfig config) {
         try {
             ServerBootstrap b = new ServerBootstrap();
-            b.group(this.bossGroup, this.workerGroup)
+            b.group(TridentStart.bossGroup, TridentStart.workerGroup)
              .channel(NioServerSocketChannel.class)
              .childHandler(new TridentChannelInitializer())
              .option(ChannelOption.TCP_NODELAY, true);
@@ -118,24 +112,23 @@ public class TridentStart {
 
             //Runs the server on a separate thread
             //Server should read all settings from the loaded config
-            this.server = TridentServer.createServer(config);
-            new Thread(this.server).start();
+            TridentServer.createServer(config);
 
             // Wait until the server socket is closed, to gracefully shut down your server.
             f.channel().closeFuture().sync();
         } catch (InterruptedException e) {
             //Exception is caught if server is closed.
         } finally {
-            this.close();
+            TridentStart.close();
         }
     }
 
     /**
      * Shuts down the server by closing the backed event loops
      */
-    public void close() {
+    private static void close() {
         //Correct way to close the socket and shut down the server
-        this.workerGroup.shutdownGracefully().awaitUninterruptibly();
-        this.bossGroup.shutdownGracefully().awaitUninterruptibly();
+        TridentStart.workerGroup.shutdownGracefully().awaitUninterruptibly();
+        TridentStart.bossGroup.shutdownGracefully().awaitUninterruptibly();
     }
 }

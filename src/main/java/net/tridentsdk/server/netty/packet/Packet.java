@@ -17,8 +17,8 @@
 
 package net.tridentsdk.server.netty.packet;
 
-import net.tridentsdk.server.netty.client.ClientConnection;
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.server.netty.client.ClientConnection;
 
 /**
  * Data bearing abstraction that represents a piece of information to communicate between server and client
@@ -36,12 +36,14 @@ public interface Packet {
 
     /**
      * Serialized the data held by this packet into a buffer
+     *
      * @param buf the buffer to write to
      */
     void encode(ByteBuf buf);
-    
+
     /**
      * Handles the packet after receiving it from a connection
+     *
      * @param connection The connection that sent the packet
      */
     void handleOutbound(ClientConnection connection);

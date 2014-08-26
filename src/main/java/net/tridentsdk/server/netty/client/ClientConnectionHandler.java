@@ -17,40 +17,40 @@
 
 package net.tridentsdk.server.netty.client;
 
-import java.net.InetSocketAddress;
-
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-
-import javax.annotation.concurrent.ThreadSafe;
-
 import net.tridentsdk.api.Trident;
 import net.tridentsdk.server.TridentServer;
-import net.tridentsdk.server.netty.packet.Packet;
-import net.tridentsdk.server.netty.packet.PacketData;
-import net.tridentsdk.server.netty.packet.PacketDecoder;
-import net.tridentsdk.server.netty.packet.PacketType;
+import net.tridentsdk.server.netty.packet.*;
 import net.tridentsdk.server.netty.protocol.Protocol;
 
+import javax.annotation.concurrent.ThreadSafe;
+import java.net.InetSocketAddress;
+
 /**
- * The channel handler that is placed into the netty connection bootstrap to process inbound messages from clients (not just players)
+ * The channel handler that is placed into the netty connection bootstrap to process inbound messages from clients (not
+ * just players)
  *
  * @author The TridentSDK Team
  */
 @ThreadSafe
 public class ClientConnectionHandler extends SimpleChannelInboundHandler<PacketData> {
-    final   Protocol protocol;
-    
+    private final Protocol protocol;
+
     public ClientConnectionHandler() {
-        super();
         this.protocol = ((TridentServer) Trident.getServer()).getProtocol();
     }
     
-    /* (non-Javadoc)
-     * @see io.netty.channel.SimpleChannelInboundHandler#messageReceived(io.netty.channel.ChannelHandlerContext, java.lang.Object)
+    /*
+     * (non-Javadoc)
+     * see io.netty.channel.SimpleChannelInboundHandler#messageReceived(io.netty.channel.ChannelHandlerContext,
+     * java.lang.Object)
      */
+
     /**
      * Converts the PacketData to a Packet depending on the ConnectionStage of the Client
+     *
+     * {@inheritDoc}
      */
     @Override
     protected void messageReceived(ChannelHandlerContext context, PacketData data)
@@ -58,9 +58,7 @@ public class ClientConnectionHandler extends SimpleChannelInboundHandler<PacketD
         InetSocketAddress address = (InetSocketAddress) context.channel().remoteAddress();
         ClientConnection connection = ClientConnection.getConnection(address);
 
-        if (connection == null) {
-            connection = new ClientConnection(context);
-        }
+        if (connection == null) connection = new ClientConnection(context);
 
         Packet packet = this.protocol.getPacket(data.getId(), connection.getStage(), PacketType.IN);
 
@@ -73,6 +71,5 @@ public class ClientConnectionHandler extends SimpleChannelInboundHandler<PacketD
         }
 
         packet.decode(data.getData());
-        
     }
 }

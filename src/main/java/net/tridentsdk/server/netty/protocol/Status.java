@@ -17,19 +17,16 @@
 
 package net.tridentsdk.server.netty.protocol;
 
-import net.tridentsdk.server.packets.status.PacketStatusInPing;
-import net.tridentsdk.server.packets.status.PacketStatusInRequest;
-import net.tridentsdk.server.packets.status.PacketStatusOutPing;
-import net.tridentsdk.server.packets.status.PacketStatusOutResponse;
+import net.tridentsdk.api.docs.AccessNoDoc;
+import net.tridentsdk.server.packets.status.*;
 
+@AccessNoDoc
 class Status extends PacketManager {
-    
     Status() {
-        inPackets.put(0x00, PacketStatusInRequest.class);
-        inPackets.put(0x01, PacketStatusInPing.class);
+        this.inPackets.put(0x00, PacketStatusInRequest.class);
+        this.inPackets.put(0x01, PacketStatusInPing.class);
 
-        outPackets.put(0x00, PacketStatusOutResponse.class);
-        outPackets.put(0x01, PacketStatusOutPing.class);
+        this.outPackets.put(0x00, PacketStatusOutResponse.class);
+        this.outPackets.put(0x01, PacketStatusOutPing.class);
     }
-
 }

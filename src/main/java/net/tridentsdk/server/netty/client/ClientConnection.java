@@ -20,6 +20,7 @@ package net.tridentsdk.server.netty.client;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
+import net.tridentsdk.api.docs.AccessNoDoc;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.protocol.Protocol;
 
@@ -27,8 +28,9 @@ import java.net.InetSocketAddress;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class ClientConnection {
-
+@AccessNoDoc
+class ClientConnection {
+    // TODO look over non-public, because there will be loads of crap going if we let people screw with this (easily)
     // TODO: Find a more efficient way to do this
     private static final Map<InetSocketAddress, ClientConnection> clientData =
             new ConcurrentHashMap<>();
@@ -54,14 +56,14 @@ public class ClientConnection {
 
     public void sendPacket(Packet packet) {
         // Create new ByteBuf
-        ByteBuf buffer = channel.alloc().buffer();
+        ByteBuf buffer = this.channel.alloc().buffer();
 
         //Encode the packet id then the packet
         buffer.writeInt(packet.getId());
         packet.encode(buffer);
 
         // Write the encoded packet and flush it
-        channel.writeAndFlush(buffer);
+        this.channel.writeAndFlush(buffer);
 
         // In case Channel state changes lets update the HashMap
         ClientConnection.clientData.put(this.address, this);

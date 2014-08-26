@@ -20,26 +20,49 @@ package net.tridentsdk.server.netty.packet;
 import io.netty.buffer.ByteBuf;
 
 /**
+ * Packet information, such as identification and serialized form
+ *
  * @author The TridentSDK Team
  */
 public class PacketData {
-    private int id;
-    private ByteBuf data;
-    
+    private final int     id;
+    private final ByteBuf data;
+
+    /**
+     * Wraps the packet raw information
+     *
+     * @param id the packet ID as assigned by the protocol
+     * @param data the serialized form of the packet
+     */
     public PacketData(int id, ByteBuf data) {
         this.id = id;
         this.data = data;
     }
-    
+
+    /**
+     * Gets the packet identification number
+     *
+     * @return the packet ID
+     */
     public int getId() {
-        return id;
+        return this.id;
     }
-    
+
+    /**
+     * Gets the serialized packet
+     *
+     * @return the serialized packet
+     */
     public ByteBuf getData() {
-        return data;
+        return this.data;
     }
-    
+
+    /**
+     * The amount of bytes that can be read from the serialized packet
+     *
+     * @return the byte length of the serialized data
+     */
     public int getLength() {
-        return data.readableBytes();
+        return this.data.readableBytes();
     }
 }
