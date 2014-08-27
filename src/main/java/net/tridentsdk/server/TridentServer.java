@@ -49,8 +49,10 @@ public final class TridentServer implements Server, Runnable {
     public static TridentServer createServer(TridentConfig config) {
         TridentServer server = new TridentServer(config);
         Trident.setServer(server);
+
         server.serverThread.set(new Thread(server, "TridentServer Main Thread"));
         server.serverThread.get().start();
+
         return server;
         // We CANNOT let the "this" instance escape during creation, else we lose thread-safety
     }
