@@ -3,7 +3,6 @@ package net.tridentsdk.server;
 import net.tridentsdk.server.config.YamlConfiguration;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
 /**
