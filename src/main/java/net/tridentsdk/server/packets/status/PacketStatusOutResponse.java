@@ -45,12 +45,22 @@ public class PacketStatusOutResponse implements Packet {
         return PacketType.OUT;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p/>
+     * <p>Cannot be handled</p>
+     */
     @Override
     public void handleOutbound(ClientConnection connection) {
         throw new UnsupportedOperationException(
                 "PacketStatusOutResponse is a client-bound packet therefor cannot be handled!");
     }
 
+    /**
+     * {@inheritDoc}
+     * <p/>
+     * <p>Cannot be decoded</p>
+     */
     @Override
     public Packet decode(ByteBuf buf) {
         throw new UnsupportedOperationException("PacketStatusOutResponse is cannot be decoded!");

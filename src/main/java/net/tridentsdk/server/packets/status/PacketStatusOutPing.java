@@ -44,9 +44,7 @@ public class PacketStatusOutPing implements Packet {
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * <p>Cannot be decoded</p>
+     * {@inheritDoc} <p/> <p>Cannot be decoded</p>
      */
     @Override
     public Packet decode(ByteBuf buf) {
@@ -54,9 +52,7 @@ public class PacketStatusOutPing implements Packet {
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * <p>Cannot be handled</p>
+     * {@inheritDoc} <p/> <p>Cannot be handled</p>
      */
     @Override
     public void handleOutbound(ClientConnection connection) {

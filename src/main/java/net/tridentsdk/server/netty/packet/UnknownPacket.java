@@ -47,18 +47,14 @@ public class UnknownPacket implements Packet {
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * <p>Returns {@code null}, since we don't know where the packet came from</p>
+     * {@inheritDoc} <p/> <p>Returns {@code null}, since we don't know where the packet came from</p>
      */
     @Override public PacketType getType() {
         return null;
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * <p>Does not do anything</p>
+     * {@inheritDoc} <p/> <p>Does not do anything</p>
      */
     @Override
     public void handleOutbound(ClientConnection connection) {

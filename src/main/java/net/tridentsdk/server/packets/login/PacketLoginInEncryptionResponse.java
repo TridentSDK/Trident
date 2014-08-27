@@ -1,13 +1,28 @@
+/*
+ * Copyright (C) 2014 The TridentSDK Team
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package net.tridentsdk.server.packets.login;
 
 import io.netty.buffer.ByteBuf;
-
 import net.tridentsdk.server.netty.client.ClientConnection;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.packet.PacketType;
 
 public class PacketLoginInEncryptionResponse implements Packet {
-
     private short secretLength;
     private short tokenLength;
 
@@ -23,18 +38,18 @@ public class PacketLoginInEncryptionResponse implements Packet {
     public Packet decode(ByteBuf buf) {
         // TODO: Figure a better workaround
 
-        secretLength = buf.readShort();
-        secret = new byte[secretLength];
+        this.secretLength = buf.readShort();
+        this.secret = new byte[(int) this.secretLength];
 
-        for(int i = 0; i <= secretLength; i++) {
-            secret[i] = buf.readByte();
+        for (int i = 0; i <= (int) this.secretLength; i++) {
+            this.secret[i] = buf.readByte();
         }
 
-        tokenLength = buf.readShort();
-        token = new byte[tokenLength];
+        this.tokenLength = buf.readShort();
+        this.token = new byte[(int) this.tokenLength];
 
-        for(int i = 0; i <= secretLength; i++) {
-            token[i] = buf.readByte();
+        for (int i = 0; i <= (int) this.secretLength; i++) {
+            this.token[i] = buf.readByte();
         }
 
         return this;
@@ -45,22 +60,47 @@ public class PacketLoginInEncryptionResponse implements Packet {
         return PacketType.IN;
     }
 
+    /**
+     * Gets the length of the secret
+     *
+     * @return the secret length
+     */
     public short getSecretLength() {
-        return secretLength;
+        return this.secretLength;
     }
 
+    /**
+     * Gets the length of the client token
+     *
+     * @return the token client length
+     */
     public short getTokenLength() {
-        return tokenLength;
+        return this.tokenLength;
     }
 
+    /**
+     * Gets the actual secret
+     *
+     * @return the secret
+     */
     public byte[] getSecret() {
-        return secret;
+        return this.secret;
     }
 
+    /**
+     * Gets the client token
+     *
+     * @return the client token
+     */
     public byte[] getToken() {
-        return token;
+        return this.token;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p/>
+     * <p>Cannot be encoded</p>
+     */
     @Override
     public void encode(ByteBuf buf) {
         throw new UnsupportedOperationException("PacketLoginInEncryptionResponse cannot be encoded!");

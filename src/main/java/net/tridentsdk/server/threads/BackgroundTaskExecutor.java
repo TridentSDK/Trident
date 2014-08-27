@@ -15,9 +15,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.tridentsdk.server.netty.protocol;
+package net.tridentsdk.server.threads;
 
-import net.tridentsdk.api.docs.AccessNoDoc;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-@AccessNoDoc class Play extends PacketManager {
+/**
+ * Executes background tasks that don't matter too much to the actual server
+ *
+ * @author The TridentSDK Team
+ */
+public class BackgroundTaskExecutor {
+    static final ExecutorService SERVICE = Executors.newCachedThreadPool();
+
+    /**
+     * Execute the task in the internal thread pool
+     * <p/>
+     * <p>Synchronization is a requirement</p>
+     *
+     * @param runnable the task to execute
+     */
+    public static void execute(Runnable runnable) {
+        BackgroundTaskExecutor.SERVICE.execute(runnable);
+    }
 }

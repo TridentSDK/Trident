@@ -46,9 +46,7 @@ public class PacketStatusInRequest implements Packet {
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * <p>Cannot be encoded</p>
+     * {@inheritDoc} <p/> <p>Cannot be encoded</p>
      */
     @Override
     public void encode(ByteBuf buf) {

@@ -23,6 +23,8 @@ import net.tridentsdk.api.Trident;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.netty.packet.*;
 import net.tridentsdk.server.netty.protocol.Protocol;
+import net.tridentsdk.server.threads.BackgroundTaskExecutor;
+import net.tridentsdk.server.threads.PlayerThreads;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.net.InetSocketAddress;
@@ -49,7 +51,7 @@ public class ClientConnectionHandler extends SimpleChannelInboundHandler<PacketD
 
     /**
      * Converts the PacketData to a Packet depending on the ConnectionStage of the Client
-     *
+     * <p/>
      * {@inheritDoc}
      */
     @Override
@@ -71,5 +73,12 @@ public class ClientConnectionHandler extends SimpleChannelInboundHandler<PacketD
         }
 
         packet.decode(data.getData());
+
+        final ClientConnection finalConnection = connection;
+        BackgroundTaskExecutor.execute(new Runnable() {
+            @Override public void run() {
+                PlayerThreads.clientThreadHandle(finalConnection);
+            }
+        });
     }
 }

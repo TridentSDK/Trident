@@ -31,7 +31,7 @@ public class PacketData {
     /**
      * Wraps the packet raw information
      *
-     * @param id the packet ID as assigned by the protocol
+     * @param id   the packet ID as assigned by the protocol
      * @param data the serialized form of the packet
      */
     public PacketData(int id, ByteBuf data) {

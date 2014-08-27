@@ -50,8 +50,6 @@ public class PacketStatusInPing implements Packet {
 
     /**
      * TODO not an expert on this lol - AgentTroll
-     *
-     * @return
      */
     public long getTime() {
         return this.time;
@@ -63,9 +61,7 @@ public class PacketStatusInPing implements Packet {
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * <p>Cannot be encoded</p>
+     * {@inheritDoc} <p/> <p>Cannot be encoded</p>
      */
     @Override
     public void encode(ByteBuf buf) {

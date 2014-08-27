@@ -15,9 +15,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.tridentsdk.server.netty.protocol;
+package net.tridentsdk.server;
 
-import net.tridentsdk.api.docs.AccessNoDoc;
+public final class ServerShutdownTest {
+    private ServerShutdownTest() {}
 
-@AccessNoDoc class Play extends PacketManager {
+    public static void main(String... args) {
+        TridentStart.main(args);
+        TridentStart.shutdown();
+    }
 }
