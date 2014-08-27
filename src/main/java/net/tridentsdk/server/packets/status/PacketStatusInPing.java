@@ -15,52 +15,60 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.tridentsdk.server.netty.packet;
+package net.tridentsdk.server.packets.status;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.client.ClientConnection;
-
-import javax.annotation.concurrent.ThreadSafe;
+import net.tridentsdk.server.netty.packet.Packet;
+import net.tridentsdk.server.netty.packet.PacketType;
 
 /**
- * Used to represent any erroneous inPackets received
+ * Represents a ping packet sent in from the client
  *
  * @author The TridentSDK Team
  */
-@ThreadSafe
-public class UnknownPacket implements Packet {
-    @Override
-    public Packet decode(ByteBuf buf) {
-        return this;
-    }
-
-    /**
-     * {@inheritDoc} <p/> <p>Cannot be encoded. Throws UnsupportedOperationException</p>
-     */
-    @Override public void encode(ByteBuf buf) {
-        throw new UnsupportedOperationException("Cannot serialize unknown packet");
-    }
+public class PacketStatusInPing implements Packet {
+    private long time;
 
     @Override
     public int getId() {
-        return -1;
+        return 0x01;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>Returns {@code null}, since we don't know where the packet came from</p>
-     */
-    @Override public PacketType getType() {
-        return null;
+    @Override
+    public Packet decode(ByteBuf buf) {
+        this.time = Codec.readVarInt64(buf);
+
+        return this;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>Does not do anything</p>
-     */
     @Override
     public void handleOutbound(ClientConnection connection) {
+        connection.sendPacket(new PacketStatusOutPing());
+    }
+
+    /**
+     * TODO not an expert on this lol - AgentTroll
+     *
+     * @return
+     */
+    public long getTime() {
+        return this.time;
+    }
+
+    @Override
+    public PacketType getType() {
+        return PacketType.IN;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>Cannot be encoded</p>
+     */
+    @Override
+    public void encode(ByteBuf buf) {
+        throw new UnsupportedOperationException("PacketStatusInPing cannot be encoded!");
     }
 }

@@ -15,52 +15,48 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.tridentsdk.server.netty.packet;
+package net.tridentsdk.server.packets.status;
 
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.netty.client.ClientConnection;
-
-import javax.annotation.concurrent.ThreadSafe;
+import net.tridentsdk.server.netty.packet.Packet;
+import net.tridentsdk.server.netty.packet.PacketType;
 
 /**
- * Used to represent any erroneous inPackets received
+ * TODO not an expert on this lol - AgentTroll
  *
  * @author The TridentSDK Team
  */
-@ThreadSafe
-public class UnknownPacket implements Packet {
+public class PacketStatusInRequest implements Packet {
+    @Override
+    public int getId() {
+        return 0x00;
+    }
+
     @Override
     public Packet decode(ByteBuf buf) {
+        // No fields are in this packet, therefor no need for any decoding
+
         return this;
     }
 
-    /**
-     * {@inheritDoc} <p/> <p>Cannot be encoded. Throws UnsupportedOperationException</p>
-     */
-    @Override public void encode(ByteBuf buf) {
-        throw new UnsupportedOperationException("Cannot serialize unknown packet");
-    }
-
     @Override
-    public int getId() {
-        return -1;
+    public PacketType getType() {
+        return PacketType.IN;
     }
 
     /**
      * {@inheritDoc}
      *
-     * <p>Returns {@code null}, since we don't know where the packet came from</p>
+     * <p>Cannot be encoded</p>
      */
-    @Override public PacketType getType() {
-        return null;
+    @Override
+    public void encode(ByteBuf buf) {
+        throw new UnsupportedOperationException("PacketStatusInRequest cannot be encoded!");
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>Does not do anything</p>
-     */
     @Override
     public void handleOutbound(ClientConnection connection) {
+        // TODO Respond to the client accordingly
     }
 }

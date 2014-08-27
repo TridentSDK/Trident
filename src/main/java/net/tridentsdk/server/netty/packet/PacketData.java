@@ -18,49 +18,51 @@
 package net.tridentsdk.server.netty.packet;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.server.netty.client.ClientConnection;
-
-import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * Used to represent any erroneous inPackets received
+ * Packet information, such as identification and serialized form
  *
  * @author The TridentSDK Team
  */
-@ThreadSafe
-public class UnknownPacket implements Packet {
-    @Override
-    public Packet decode(ByteBuf buf) {
-        return this;
+public class PacketData {
+    private final int     id;
+    private final ByteBuf data;
+
+    /**
+     * Wraps the packet raw information
+     *
+     * @param id the packet ID as assigned by the protocol
+     * @param data the serialized form of the packet
+     */
+    public PacketData(int id, ByteBuf data) {
+        this.id = id;
+        this.data = data;
     }
 
     /**
-     * {@inheritDoc} <p/> <p>Cannot be encoded. Throws UnsupportedOperationException</p>
+     * Gets the packet identification number
+     *
+     * @return the packet ID
      */
-    @Override public void encode(ByteBuf buf) {
-        throw new UnsupportedOperationException("Cannot serialize unknown packet");
-    }
-
-    @Override
     public int getId() {
-        return -1;
+        return this.id;
     }
 
     /**
-     * {@inheritDoc}
+     * Gets the serialized packet
      *
-     * <p>Returns {@code null}, since we don't know where the packet came from</p>
+     * @return the serialized packet
      */
-    @Override public PacketType getType() {
-        return null;
+    public ByteBuf getData() {
+        return this.data;
     }
 
     /**
-     * {@inheritDoc}
+     * The amount of bytes that can be read from the serialized packet
      *
-     * <p>Does not do anything</p>
+     * @return the byte length of the serialized data
      */
-    @Override
-    public void handleOutbound(ClientConnection connection) {
+    public int getLength() {
+        return this.data.readableBytes();
     }
 }

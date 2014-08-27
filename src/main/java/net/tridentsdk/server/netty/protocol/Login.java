@@ -15,21 +15,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.tridentsdk.server.netty.packet;
+package net.tridentsdk.server.netty.protocol;
 
-/**
- * The direction the packet is headed, the bound of it
- *
- * @author The TridentSDK Team
- */
-public enum PacketType {
-    /**
-     * For packets which are received from the client
-     */
-    IN,
+import net.tridentsdk.api.docs.AccessNoDoc;
+import net.tridentsdk.server.packets.login.*;
 
-    /**
-     * For packets which are sent from the server
-     */
-    OUT
+@AccessNoDoc
+class Login extends PacketManager {
+
+    Login() {
+        inPackets.put(0x00, PacketLoginInStart.class);
+        inPackets.put(0x01, PacketLoginInEncryptionResponse.class);
+
+        outPackets.put(0x00, PacketLoginOutDisconnect.class);
+        outPackets.put(0x01, PacketLoginOutEncryptionRequest.class);
+        outPackets.put(0x02, PacketLoginOutSuccess.class);
+    }
 }

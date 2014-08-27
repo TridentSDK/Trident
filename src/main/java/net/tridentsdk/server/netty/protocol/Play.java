@@ -15,21 +15,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.tridentsdk.server.netty.packet;
+package net.tridentsdk.server.netty.protocol;
 
-/**
- * The direction the packet is headed, the bound of it
- *
- * @author The TridentSDK Team
- */
-public enum PacketType {
-    /**
-     * For packets which are received from the client
-     */
-    IN,
+import net.tridentsdk.api.docs.AccessNoDoc;
 
-    /**
-     * For packets which are sent from the server
-     */
-    OUT
+@AccessNoDoc
+class Play extends PacketManager {
 }

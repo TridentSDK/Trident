@@ -15,21 +15,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.tridentsdk.server.netty.packet;
+package net.tridentsdk.server.netty.protocol;
 
-/**
- * The direction the packet is headed, the bound of it
- *
- * @author The TridentSDK Team
- */
-public enum PacketType {
-    /**
-     * For packets which are received from the client
-     */
-    IN,
+import net.tridentsdk.api.docs.AccessNoDoc;
+import net.tridentsdk.server.packets.status.*;
 
-    /**
-     * For packets which are sent from the server
-     */
-    OUT
+@AccessNoDoc
+class Status extends PacketManager {
+    Status() {
+        this.inPackets.put(0x00, PacketStatusInRequest.class);
+        this.inPackets.put(0x01, PacketStatusInPing.class);
+
+        this.outPackets.put(0x00, PacketStatusOutResponse.class);
+        this.outPackets.put(0x01, PacketStatusOutPing.class);
+    }
 }
