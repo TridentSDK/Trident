@@ -24,16 +24,15 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import joptsimple.*;
 import net.tridentsdk.server.netty.TridentChannelInitializer;
+import net.tridentsdk.server.threads.ThreadsManager;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.io.File;
 import java.util.Collection;
 
 /**
- * Server class that starts the connection listener.
- *
- * <p>Despite the fact that this class is under protected access, it is documented anyways because of its significance
- * in the server</p>
+ * Server class that starts the connection listener. <p/> <p>Despite the fact that this class is under protected access,
+ * it is documented anyways because of its significance in the server</p>
  *
  * @author The TridentSDK Team
  */
@@ -130,5 +129,6 @@ final class TridentStart {
         //Correct way to close the socket and shut down the server
         TridentStart.workerGroup.shutdownGracefully().awaitUninterruptibly();
         TridentStart.bossGroup.shutdownGracefully().awaitUninterruptibly();
+        ThreadsManager.stopAll();
     }
 }

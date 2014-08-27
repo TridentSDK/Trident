@@ -20,8 +20,7 @@ package net.tridentsdk.server.netty.protocol;
 import net.tridentsdk.api.docs.AccessNoDoc;
 import net.tridentsdk.server.packets.handshake.client.PacketClientHandshake;
 
-@AccessNoDoc
-class Handshake extends PacketManager {
+@AccessNoDoc class Handshake extends PacketManager {
     Handshake() {
         this.outPackets.put(0x00, PacketClientHandshake.class);
     }

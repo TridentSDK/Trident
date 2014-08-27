@@ -15,9 +15,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.tridentsdk.server.netty.protocol;
-
-import net.tridentsdk.api.docs.AccessNoDoc;
-
-@AccessNoDoc class Play extends PacketManager {
-}
+/**
+ * The main server workings, all of what happens, happens here.
+ *
+ * <ul>
+ *     <li>TridentConfig - The server configuration file</li>
+ *     <li>TridentServer - The server loop and accessors are here</li>
+ *     <li>TridentStart  - This class starts the server and the connection pool</li>
+ * </ul>
+ */
+package net.tridentsdk.server;

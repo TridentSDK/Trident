@@ -44,9 +44,7 @@ public class PacketClientHandshake implements Packet {
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * <p>Cannot be encoded. Throws {@link UnsupportedOperationException}.</p>
+     * {@inheritDoc} <p/> <p>Cannot be encoded. Throws {@link UnsupportedOperationException}.</p>
      */
     @Override
     public void encode(ByteBuf buf) {
@@ -64,9 +62,7 @@ public class PacketClientHandshake implements Packet {
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * <p>Nothing is done here</p>
+     * {@inheritDoc} <p/> <p>Nothing is done here</p>
      */
     @Override
     public void handleOutbound(ClientConnection connection) {}
