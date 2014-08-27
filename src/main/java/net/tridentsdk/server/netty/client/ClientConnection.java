@@ -67,7 +67,7 @@ public class ClientConnection {
      * Gets the connection by the IP address
      * 
      * @param address the IP to lookup the connection handler
-     * @return the instnace of the client handler associated with the IP
+     * @return the instance of the client handler associated with the IP
      */ 
     public static ClientConnection getConnection(InetSocketAddress address) {
         return ClientConnection.clientData.get(address);
