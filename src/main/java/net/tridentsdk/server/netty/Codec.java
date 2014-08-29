@@ -22,6 +22,7 @@ import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 
 import javax.annotation.concurrent.ThreadSafe;
+import java.nio.charset.Charset;
 
 /**
  * Utility class to help decode the bytes from a backed buffer serializer
@@ -30,6 +31,9 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class Codec {
+    //Current charset used by strings is UFT_8
+    private final static Charset encodingCharset = Charsets.UTF_8;
+    
     private Codec() {} // Suppress initialization of utility class
 
     /**
@@ -44,12 +48,26 @@ public final class Codec {
         byte[] bytes = new byte[length];
         buf.readBytes(bytes);
 
-        //Current charset used by strings is UFT_8
-        return new String(bytes, Charsets.UTF_8);
+        return new String(bytes, encodingCharset);
+    }
+    
+    /**
+     * Writes a string to the buffer
+     *
+     * @param buf the buffer to decode the string from
+     * @return the decoded string read from the buffer
+     */
+    public static void writeString(ByteBuf buf, String string) {
+        //Writes the length of the string
+        Codec.writeVarInt32(buf, string.length());
+        
+        //Writes the bytes of the string
+        byte[] bytes = string.getBytes(encodingCharset);
+        buf.writeBytes(bytes);
     }
 
     /**
-     * Reads a 32bit integer from the encoded buffer
+     * Reads a 32bit VarInt from the encoded buffer
      *
      * @param buf the buffer to decode the integer from
      * @return the decoded integer read from the buffer
@@ -78,9 +96,28 @@ public final class Codec {
         // 0x7f = 127
         return result += (b & 0x7f) << indent;
     }
+    
+    /**
+     * Writes an int value as a VarInt to the buffer.
+     *
+     * @param buf the buffer to encode into
+     * @param toEncode the integer encode into buf
+     */
+    public static void writeVarInt32(ByteBuf buf, int toEncode) {
+        //Loops through until the currently 'selected' set of 7 bits is the terminating one
+        while ((toEncode & 0xFFFFFF80) != 0L) {
+            /*Writes the selected 7 bits, and adds a 1 at the front
+            signifying that there is another byte*/
+            buf.writeByte((toEncode & 0x7F) | 0x80);
+            //Selects the next set of 7 bits
+            toEncode >>>= 7;
+        }
+        //Writes the final terminating byte with a 0 at the front to signify termination
+        buf.writeByte(toEncode & 0x7F);
+    }
 
     /**
-     * Reads a 64bit long from the encoded buffer
+     * Reads a 64bit VarInt from the encoded buffer
      *
      * @param buf the buffer to decode the long from
      * @return the decoded long read from the buffer
@@ -106,5 +143,24 @@ public final class Codec {
         }
 
         return result += (b & 0x7fL) << indent;
+    }
+    
+    /**
+     * Writes a long value as a VarInt to the buffer.
+     *
+     * @param buf the buffer to encode into
+     * @param toEncode the integer encode into buf
+     */
+    public static void writeVarInt64(ByteBuf buf, long toEncode) {
+        //Loops through until the currently 'selected' set of 7 bits is the terminating one
+        while ((toEncode & 0xFFFFFFFFFFFFFF80L) != 0L) {
+            /*Writes the selected 7 bits, and adds a 1 at the front
+            signifying that there is another byte*/
+            buf.writeByte((int) ((toEncode & 0x7F) | 0x80));
+            //Selects the next set of 7 bits
+            toEncode >>>= 7;
+        }
+        //Writes the final terminating byte with a 0 at the front to signify termination
+        buf.writeByte((int) (toEncode & 0x7F));
     }
 }

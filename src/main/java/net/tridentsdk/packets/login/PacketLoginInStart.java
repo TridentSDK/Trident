@@ -15,15 +15,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.tridentsdk.server.packets.login;
+package net.tridentsdk.packets.login;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.client.ClientConnection;
+import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.packet.PacketType;
 
 /*
- * TODO: Read up more on disconnect JSON message
+ * TODO: Figure out a safe-way to pass on player's name
  */
 
 /**
@@ -31,8 +33,8 @@ import net.tridentsdk.server.netty.packet.PacketType;
  *
  * @author The TridentSDK Team
  */
-public class PacketLoginOutDisconnect implements Packet {
-    private String jsonMessage;
+public class PacketLoginInStart extends InPacket {
+    private String name;
 
     @Override
     public int getId() {
@@ -40,42 +42,28 @@ public class PacketLoginOutDisconnect implements Packet {
     }
 
     @Override
-    public PacketType getType() {
-        return PacketType.OUT;
-    }
-
-    @Override
-    public void encode(ByteBuf buf) {
-        // TODO (for now at-least)
-    }
-
-    // Here too...
-    public String getJsonMessage() {
-        return this.jsonMessage;
-    }
-
-    public void setJsonMessage(String jsonMessage) {
-        this.jsonMessage = jsonMessage;
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p/>
-     * <p>Cannot be decoded</p>
-     */
-    @Override
     public Packet decode(ByteBuf buf) {
-        throw new UnsupportedOperationException("PacketLoginOutDisconnect cannot be encoded!");
+        this.name = Codec.readString(buf);
+
+        return this;
+    }
+
+    @Override
+    public PacketType getType() {
+        return PacketType.IN;
     }
 
     /**
-     * {@inheritDoc}
-     * <p/>
-     * <p>Cannot be handled</p>
+     * Gets the client name
+     *
+     * @return the client name
      */
+    public String getName() {
+        return this.name;
+    }
+
     @Override
-    public void handleOutbound(ClientConnection connection) {
-        throw new UnsupportedOperationException(
-                "PacketLoginOutDisconnect is a client-bound packet therefor cannot be handled!");
+    public void handleReceived(ClientConnection connection) {
+        // TODO: Respond with PacketLoginOutEncryptionRequest
     }
 }

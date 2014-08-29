@@ -15,46 +15,48 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.tridentsdk.server.packets.status;
+package net.tridentsdk.packets.handshake;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.client.ClientConnection;
+import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.packet.PacketType;
 
 /**
- * TODO not an expert on this lol - AgentTroll
+ * The login packet sent to connect the server to the client
  *
  * @author The TridentSDK Team
  */
-public class PacketStatusInRequest implements Packet {
+public class PacketHandshakeIn extends InPacket {
+    private int    protocolVersion;
+    private String address;
+    private short  port;
+    private int    nextState;
+
+    @Override
+    public Packet decode(ByteBuf buf) {
+        this.protocolVersion = Codec.readVarInt32(buf);
+        this.address = Codec.readString(buf);
+        this.port = buf.readShort();
+        this.nextState = Codec.readVarInt32(buf);
+        return this;
+    }
+
     @Override
     public int getId() {
         return 0x00;
     }
 
     @Override
-    public Packet decode(ByteBuf buf) {
-        // No fields are in this packet, therefor no need for any decoding
-
-        return this;
-    }
-
-    @Override
     public PacketType getType() {
-        return PacketType.IN;
+        return PacketType.OUT;
     }
 
     /**
-     * {@inheritDoc} <p/> <p>Cannot be encoded</p>
+     * {@inheritDoc} <p/> <p>Nothing is done here</p>
      */
     @Override
-    public void encode(ByteBuf buf) {
-        throw new UnsupportedOperationException("PacketStatusInRequest cannot be encoded!");
-    }
-
-    @Override
-    public void handleOutbound(ClientConnection connection) {
-        // TODO Respond to the client accordingly
-    }
+    public void handleReceived(ClientConnection connection) {}
 }

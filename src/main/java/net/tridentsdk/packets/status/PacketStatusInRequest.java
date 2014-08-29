@@ -15,26 +15,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.tridentsdk.server.packets.login;
+package net.tridentsdk.packets.status;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.client.ClientConnection;
+import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.packet.PacketType;
 
-/*
- * TODO: Figure out a safe-way to pass on player's name
- */
-
 /**
- * TODO not an expert on this - AgentTroll
+ * TODO not an expert on this lol - AgentTroll
  *
  * @author The TridentSDK Team
  */
-public class PacketLoginInStart implements Packet {
-    private String name;
-
+public class PacketStatusInRequest extends InPacket {
     @Override
     public int getId() {
         return 0x00;
@@ -42,7 +36,7 @@ public class PacketLoginInStart implements Packet {
 
     @Override
     public Packet decode(ByteBuf buf) {
-        this.name = Codec.readString(buf);
+        // No fields are in this packet, therefor no need for any decoding
 
         return this;
     }
@@ -52,27 +46,8 @@ public class PacketLoginInStart implements Packet {
         return PacketType.IN;
     }
 
-    /**
-     * Gets the client name
-     *
-     * @return the client name
-     */
-    public String getName() {
-        return this.name;
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p/>
-     * <p>Cannot be encoded</p>
-     */
     @Override
-    public void encode(ByteBuf buf) {
-        throw new UnsupportedOperationException("PacketLoginInStart cannot be encoded!");
-    }
-
-    @Override
-    public void handleOutbound(ClientConnection connection) {
-        // TODO: Respond with PacketLoginOutEncryptionRequest
+    public void handleReceived(ClientConnection connection) {
+        // TODO Respond to the client accordingly
     }
 }

@@ -57,6 +57,6 @@ public class UnknownPacket implements Packet {
      * {@inheritDoc} <p/> <p>Does not do anything</p>
      */
     @Override
-    public void handleOutbound(ClientConnection connection) {
+    public void handleReceived(ClientConnection connection) {
     }
 }

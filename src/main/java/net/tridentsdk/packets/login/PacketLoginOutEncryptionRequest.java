@@ -15,14 +15,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.tridentsdk.server.packets.login;
+package net.tridentsdk.packets.login;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.client.ClientConnection;
+import net.tridentsdk.server.netty.packet.OutPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.packet.PacketType;
 
-public class PacketLoginOutEncryptionRequest implements Packet {
+public class PacketLoginOutEncryptionRequest extends OutPacket {
     private short keyLength;
     private short tokenLength;
 
@@ -34,14 +36,6 @@ public class PacketLoginOutEncryptionRequest implements Packet {
         return 0x01;
     }
 
-    /**
-     * {@inheritDoc} <p/> <p>Cannot be decoded</p>
-     */
-    @Override
-    public Packet decode(ByteBuf buf) {
-        throw new UnsupportedOperationException("PacketLoginOutEncryptionRequest cannot be decoded!");
-    }
-
     @Override
     public PacketType getType() {
         return PacketType.OUT;
@@ -49,7 +43,13 @@ public class PacketLoginOutEncryptionRequest implements Packet {
 
     @Override
     public void encode(ByteBuf buf) {
-        // TODO (for-now at least)
+        Codec.writeString(buf, "");
+
+        buf.writeShort(keyLength);
+        buf.writeBytes(publicKey);
+
+        buf.writeShort(tokenLength);
+        buf.writeBytes(verifyToken);
     }
 
     /**
@@ -86,14 +86,5 @@ public class PacketLoginOutEncryptionRequest implements Packet {
      */
     public byte[] getVerifyToken() {
         return this.verifyToken;
-    }
-
-    /**
-     * {@inheritDoc} <p/> <p>Cannot be handled</p>
-     */
-    @Override
-    public void handleOutbound(ClientConnection connection) {
-        throw new UnsupportedOperationException(
-                "PacketStatusOutResponse is a client-bound packet therefor cannot be handled!");
     }
 }

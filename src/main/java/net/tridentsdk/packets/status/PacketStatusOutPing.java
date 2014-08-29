@@ -15,11 +15,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.tridentsdk.server.packets.status;
+package net.tridentsdk.packets.status;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.server.netty.client.ClientConnection;
-import net.tridentsdk.server.netty.packet.Packet;
+import net.tridentsdk.server.netty.packet.OutPacket;
 import net.tridentsdk.server.netty.packet.PacketType;
 
 /**
@@ -27,42 +26,19 @@ import net.tridentsdk.server.netty.packet.PacketType;
  *
  * @author The TridentSDK Team
  */
-public class PacketStatusOutResponse implements Packet {
-    private String jsonResponse;
-
+public class PacketStatusOutPing extends OutPacket {
     @Override
     public int getId() {
-        return 0x00;
+        return 0x01;
     }
 
     @Override
     public void encode(ByteBuf buf) {
-        // TODO (for now at-least)
+        buf.writeLong(System.currentTimeMillis());
     }
 
     @Override
     public PacketType getType() {
         return PacketType.OUT;
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p/>
-     * <p>Cannot be handled</p>
-     */
-    @Override
-    public void handleOutbound(ClientConnection connection) {
-        throw new UnsupportedOperationException(
-                "PacketStatusOutResponse is a client-bound packet therefor cannot be handled!");
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p/>
-     * <p>Cannot be decoded</p>
-     */
-    @Override
-    public Packet decode(ByteBuf buf) {
-        throw new UnsupportedOperationException("PacketStatusOutResponse is cannot be decoded!");
     }
 }

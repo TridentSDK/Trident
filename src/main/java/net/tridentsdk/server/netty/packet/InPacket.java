@@ -15,20 +15,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.tridentsdk.server.netty.protocol;
+package net.tridentsdk.server.netty.packet;
 
-import net.tridentsdk.api.docs.AccessNoDoc;
-import net.tridentsdk.packets.status.PacketStatusInPing;
-import net.tridentsdk.packets.status.PacketStatusInRequest;
-import net.tridentsdk.packets.status.PacketStatusOutPing;
-import net.tridentsdk.packets.status.PacketStatusOutResponse;
+import io.netty.buffer.ByteBuf;
 
-@AccessNoDoc class Status extends PacketManager {
-    Status() {
-        this.inPackets.put(0x00, PacketStatusInRequest.class);
-        this.inPackets.put(0x01, PacketStatusInPing.class);
-
-        this.outPackets.put(0x00, PacketStatusOutResponse.class);
-        this.outPackets.put(0x01, PacketStatusOutPing.class);
+/**
+ * @author The TridentSDK Team
+ */
+public abstract class InPacket implements Packet {
+    
+    /**
+     * {@inheritDoc}
+     * <p/>
+     * <p>Cannot be encoded</p>
+     */
+    @Override
+    public void encode(ByteBuf buf) {
+        throw new UnsupportedOperationException(this.getClass().getName() + " cannot be encoded!");
     }
 }

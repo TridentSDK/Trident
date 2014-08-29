@@ -15,20 +15,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.tridentsdk.server.netty.protocol;
+package net.tridentsdk.packets.login;
 
-import net.tridentsdk.api.docs.AccessNoDoc;
-import net.tridentsdk.packets.status.PacketStatusInPing;
-import net.tridentsdk.packets.status.PacketStatusInRequest;
-import net.tridentsdk.packets.status.PacketStatusOutPing;
-import net.tridentsdk.packets.status.PacketStatusOutResponse;
+import io.netty.buffer.ByteBuf;
+import net.tridentsdk.server.netty.packet.OutPacket;
+import net.tridentsdk.server.netty.packet.PacketType;
 
-@AccessNoDoc class Status extends PacketManager {
-    Status() {
-        this.inPackets.put(0x00, PacketStatusInRequest.class);
-        this.inPackets.put(0x01, PacketStatusInPing.class);
+/**
+ * TODO not an expert on this - AgentTroll
+ *
+ * @author The TridentSDK Team
+ */
+public class PacketLoginOutSuccess extends OutPacket {
+    @Override
+    public int getId() {
+        return 0x02;
+    }
 
-        this.outPackets.put(0x00, PacketStatusOutResponse.class);
-        this.outPackets.put(0x01, PacketStatusOutPing.class);
+    @Override
+    public PacketType getType() {
+        return PacketType.OUT;
+    }
+
+    @Override
+    public void encode(ByteBuf buf) {
+        // TODO: Encode packet
     }
 }

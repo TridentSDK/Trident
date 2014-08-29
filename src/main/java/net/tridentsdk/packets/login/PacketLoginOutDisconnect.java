@@ -15,56 +15,46 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.tridentsdk.server.packets.status;
+package net.tridentsdk.packets.login;
 
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.netty.Codec;
-import net.tridentsdk.server.netty.client.ClientConnection;
-import net.tridentsdk.server.netty.packet.Packet;
+import net.tridentsdk.server.netty.packet.OutPacket;
 import net.tridentsdk.server.netty.packet.PacketType;
 
+/*
+ * TODO: Read up more on disconnect JSON message
+ */
+
 /**
- * Represents a ping packet sent in from the client
+ * TODO not an expert on this - AgentTroll
  *
  * @author The TridentSDK Team
  */
-public class PacketStatusInPing implements Packet {
-    private long time;
+public class PacketLoginOutDisconnect extends OutPacket {
+    private String jsonMessage;
 
     @Override
     public int getId() {
-        return 0x01;
-    }
-
-    @Override
-    public Packet decode(ByteBuf buf) {
-        this.time = Codec.readVarInt64(buf);
-
-        return this;
-    }
-
-    @Override
-    public void handleOutbound(ClientConnection connection) {
-        connection.sendPacket(new PacketStatusOutPing());
-    }
-
-    /**
-     * TODO not an expert on this lol - AgentTroll
-     */
-    public long getTime() {
-        return this.time;
+        return 0x00;
     }
 
     @Override
     public PacketType getType() {
-        return PacketType.IN;
+        return PacketType.OUT;
     }
 
-    /**
-     * {@inheritDoc} <p/> <p>Cannot be encoded</p>
-     */
     @Override
     public void encode(ByteBuf buf) {
-        throw new UnsupportedOperationException("PacketStatusInPing cannot be encoded!");
+        Codec.writeString(buf, jsonMessage);
+    }
+
+    // Here too...
+    public String getJsonMessage() {
+        return this.jsonMessage;
+    }
+
+    public void setJsonMessage(String jsonMessage) {
+        this.jsonMessage = jsonMessage;
     }
 }
