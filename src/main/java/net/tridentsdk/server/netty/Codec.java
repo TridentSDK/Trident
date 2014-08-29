@@ -34,7 +34,7 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class Codec {
-    //Current charset used by strings is UFT_8
+    //Current charset used by strings is UTF_8
     private final static Charset encodingCharset = Charsets.UTF_8;
     
     private Codec() {} // Suppress initialization of utility class
