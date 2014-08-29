@@ -19,10 +19,11 @@ package net.tridentsdk.server.packets.login;
 
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.netty.client.ClientConnection;
+import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.packet.PacketType;
 
-public class PacketLoginInEncryptionResponse implements Packet {
+public class PacketLoginInEncryptionResponse extends InPacket {
     private short secretLength;
     private short tokenLength;
 
@@ -96,18 +97,8 @@ public class PacketLoginInEncryptionResponse implements Packet {
         return this.token;
     }
 
-    /**
-     * {@inheritDoc}
-     * <p/>
-     * <p>Cannot be encoded</p>
-     */
     @Override
-    public void encode(ByteBuf buf) {
-        throw new UnsupportedOperationException("PacketLoginInEncryptionResponse cannot be encoded!");
-    }
-
-    @Override
-    public void handleOutbound(ClientConnection connection) {
+    public void handleRecieved(ClientConnection connection) {
         //
     }
 }

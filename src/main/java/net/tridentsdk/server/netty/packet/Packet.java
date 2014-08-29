@@ -46,7 +46,7 @@ public interface Packet {
      *
      * @param connection The connection that sent the packet
      */
-    void handleOutbound(ClientConnection connection);
+    void handleRecieved(ClientConnection connection);
 
     int getId();
 

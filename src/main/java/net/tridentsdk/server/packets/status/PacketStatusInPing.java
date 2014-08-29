@@ -20,6 +20,7 @@ package net.tridentsdk.server.packets.status;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.client.ClientConnection;
+import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.packet.PacketType;
 
@@ -28,7 +29,7 @@ import net.tridentsdk.server.netty.packet.PacketType;
  *
  * @author The TridentSDK Team
  */
-public class PacketStatusInPing implements Packet {
+public class PacketStatusInPing extends InPacket {
     private long time;
 
     @Override
@@ -44,7 +45,7 @@ public class PacketStatusInPing implements Packet {
     }
 
     @Override
-    public void handleOutbound(ClientConnection connection) {
+    public void handleRecieved(ClientConnection connection) {
         connection.sendPacket(new PacketStatusOutPing());
     }
 
@@ -58,13 +59,5 @@ public class PacketStatusInPing implements Packet {
     @Override
     public PacketType getType() {
         return PacketType.IN;
-    }
-
-    /**
-     * {@inheritDoc} <p/> <p>Cannot be encoded</p>
-     */
-    @Override
-    public void encode(ByteBuf buf) {
-        throw new UnsupportedOperationException("PacketStatusInPing cannot be encoded!");
     }
 }

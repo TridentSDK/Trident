@@ -15,34 +15,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.tridentsdk.server.packets.status;
+package net.tridentsdk.server.netty.packet;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.server.netty.client.ClientConnection;
-import net.tridentsdk.server.netty.packet.OutPacket;
-import net.tridentsdk.server.netty.packet.Packet;
-import net.tridentsdk.server.netty.packet.PacketType;
 
 /**
- * TODO not an expert on this lol - AgentTroll
- *
  * @author The TridentSDK Team
  */
-public class PacketStatusOutResponse extends OutPacket {
-    private String jsonResponse;
-
-    @Override
-    public int getId() {
-        return 0x00;
-    }
-
+public abstract class InPacket implements Packet {
+    
+    /**
+     * {@inheritDoc}
+     * <p/>
+     * <p>Cannot be encoded</p>
+     */
     @Override
     public void encode(ByteBuf buf) {
-        // TODO (for now at-least)
-    }
-
-    @Override
-    public PacketType getType() {
-        return PacketType.OUT;
+        throw new UnsupportedOperationException(this.getClass().getName() + " cannot be encoded!");
     }
 }

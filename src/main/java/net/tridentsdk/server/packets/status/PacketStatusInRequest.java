@@ -19,6 +19,7 @@ package net.tridentsdk.server.packets.status;
 
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.netty.client.ClientConnection;
+import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.packet.PacketType;
 
@@ -27,7 +28,7 @@ import net.tridentsdk.server.netty.packet.PacketType;
  *
  * @author The TridentSDK Team
  */
-public class PacketStatusInRequest implements Packet {
+public class PacketStatusInRequest extends InPacket {
     @Override
     public int getId() {
         return 0x00;
@@ -45,16 +46,8 @@ public class PacketStatusInRequest implements Packet {
         return PacketType.IN;
     }
 
-    /**
-     * {@inheritDoc} <p/> <p>Cannot be encoded</p>
-     */
     @Override
-    public void encode(ByteBuf buf) {
-        throw new UnsupportedOperationException("PacketStatusInRequest cannot be encoded!");
-    }
-
-    @Override
-    public void handleOutbound(ClientConnection connection) {
+    public void handleRecieved(ClientConnection connection) {
         // TODO Respond to the client accordingly
     }
 }

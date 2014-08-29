@@ -20,6 +20,7 @@ package net.tridentsdk.server.packets.login;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.client.ClientConnection;
+import net.tridentsdk.server.netty.packet.OutPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.packet.PacketType;
 
@@ -32,7 +33,7 @@ import net.tridentsdk.server.netty.packet.PacketType;
  *
  * @author The TridentSDK Team
  */
-public class PacketLoginOutDisconnect implements Packet {
+public class PacketLoginOutDisconnect extends OutPacket {
     private String jsonMessage;
 
     @Override
@@ -57,26 +58,5 @@ public class PacketLoginOutDisconnect implements Packet {
 
     public void setJsonMessage(String jsonMessage) {
         this.jsonMessage = jsonMessage;
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p/>
-     * <p>Cannot be decoded</p>
-     */
-    @Override
-    public Packet decode(ByteBuf buf) {
-        throw new UnsupportedOperationException("PacketLoginOutDisconnect cannot be encoded!");
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p/>
-     * <p>Cannot be handled</p>
-     */
-    @Override
-    public void handleOutbound(ClientConnection connection) {
-        throw new UnsupportedOperationException(
-                "PacketLoginOutDisconnect is a client-bound packet therefor cannot be handled!");
     }
 }

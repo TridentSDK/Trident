@@ -19,6 +19,7 @@ package net.tridentsdk.server.packets.status;
 
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.netty.client.ClientConnection;
+import net.tridentsdk.server.netty.packet.OutPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.packet.PacketType;
 
@@ -27,7 +28,7 @@ import net.tridentsdk.server.netty.packet.PacketType;
  *
  * @author The TridentSDK Team
  */
-public class PacketStatusOutPing implements Packet {
+public class PacketStatusOutPing extends OutPacket {
     @Override
     public int getId() {
         return 0x01;
@@ -41,22 +42,5 @@ public class PacketStatusOutPing implements Packet {
     @Override
     public PacketType getType() {
         return PacketType.OUT;
-    }
-
-    /**
-     * {@inheritDoc} <p/> <p>Cannot be decoded</p>
-     */
-    @Override
-    public Packet decode(ByteBuf buf) {
-        throw new UnsupportedOperationException("PacketStatusOutResponse cannot be decoded!");
-    }
-
-    /**
-     * {@inheritDoc} <p/> <p>Cannot be handled</p>
-     */
-    @Override
-    public void handleOutbound(ClientConnection connection) {
-        throw new UnsupportedOperationException(
-                "PacketStatusOutResponse is a client-bound packet therefore cannot be handled!");
     }
 }

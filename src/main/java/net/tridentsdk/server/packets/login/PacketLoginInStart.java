@@ -20,6 +20,7 @@ package net.tridentsdk.server.packets.login;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.client.ClientConnection;
+import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.packet.PacketType;
 
@@ -32,7 +33,7 @@ import net.tridentsdk.server.netty.packet.PacketType;
  *
  * @author The TridentSDK Team
  */
-public class PacketLoginInStart implements Packet {
+public class PacketLoginInStart extends InPacket {
     private String name;
 
     @Override
@@ -61,18 +62,8 @@ public class PacketLoginInStart implements Packet {
         return this.name;
     }
 
-    /**
-     * {@inheritDoc}
-     * <p/>
-     * <p>Cannot be encoded</p>
-     */
     @Override
-    public void encode(ByteBuf buf) {
-        throw new UnsupportedOperationException("PacketLoginInStart cannot be encoded!");
-    }
-
-    @Override
-    public void handleOutbound(ClientConnection connection) {
+    public void handleRecieved(ClientConnection connection) {
         // TODO: Respond with PacketLoginOutEncryptionRequest
     }
 }
