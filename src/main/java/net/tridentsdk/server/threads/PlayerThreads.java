@@ -21,7 +21,10 @@ import net.tridentsdk.api.docs.AccessNoDoc;
 import net.tridentsdk.server.netty.client.ClientConnection;
 
 import javax.annotation.concurrent.ThreadSafe;
-import java.util.*;
+import java.util.AbstractMap;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.*;
 
 /**

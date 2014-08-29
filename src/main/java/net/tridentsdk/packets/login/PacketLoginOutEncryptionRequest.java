@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.tridentsdk.server.packets.login;
+package net.tridentsdk.packets.login;
 
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.netty.Codec;

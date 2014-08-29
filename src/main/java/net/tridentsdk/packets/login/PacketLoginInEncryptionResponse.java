@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.tridentsdk.server.packets.login;
+package net.tridentsdk.packets.login;
 
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.netty.client.ClientConnection;
@@ -98,7 +98,7 @@ public class PacketLoginInEncryptionResponse extends InPacket {
     }
 
     @Override
-    public void handleRecieved(ClientConnection connection) {
-        //
+    public void handleReceived(ClientConnection connection) {
+        // TODO: Do stuff
     }
 }

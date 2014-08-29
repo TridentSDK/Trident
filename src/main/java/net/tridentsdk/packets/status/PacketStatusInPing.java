@@ -15,32 +15,49 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.tridentsdk.server.packets.login;
+package net.tridentsdk.packets.status;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.client.ClientConnection;
-import net.tridentsdk.server.netty.packet.OutPacket;
+import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.packet.PacketType;
 
 /**
- * TODO not an expert on this - AgentTroll
+ * Represents a ping packet sent in from the client
  *
  * @author The TridentSDK Team
  */
-public class PacketLoginOutSuccess extends OutPacket {
+public class PacketStatusInPing extends InPacket {
+    private long time;
+
     @Override
     public int getId() {
-        return 0x02;
+        return 0x01;
+    }
+
+    @Override
+    public Packet decode(ByteBuf buf) {
+        this.time = Codec.readVarInt64(buf);
+
+        return this;
+    }
+
+    @Override
+    public void handleReceived(ClientConnection connection) {
+        connection.sendPacket(new PacketStatusOutPing());
+    }
+
+    /**
+     * TODO not an expert on this lol - AgentTroll
+     */
+    public long getTime() {
+        return this.time;
     }
 
     @Override
     public PacketType getType() {
-        return PacketType.OUT;
-    }
-
-    @Override
-    public void encode(ByteBuf buf) {
-        // TODO: Encode packet
+        return PacketType.IN;
     }
 }

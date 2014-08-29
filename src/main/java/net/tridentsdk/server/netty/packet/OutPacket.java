@@ -17,8 +17,8 @@
 
 package net.tridentsdk.server.netty.packet;
 
-import net.tridentsdk.server.netty.client.ClientConnection;
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.server.netty.client.ClientConnection;
 
 /**
  * @author The TridentSDK Team
@@ -41,7 +41,7 @@ public abstract class OutPacket implements Packet {
     * <p>Cannot be recieved</p>
     */
     @Override
-    public void handleRecieved(ClientConnection connection) {
+    public void handleReceived(ClientConnection connection) {
         throw new UnsupportedOperationException(this.getClass().getName() + " is a client-bound packet therefor cannot be handled!");
     }
 }

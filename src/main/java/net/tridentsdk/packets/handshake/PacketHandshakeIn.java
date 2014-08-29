@@ -15,32 +15,48 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.tridentsdk.server.packets.status;
+package net.tridentsdk.packets.handshake;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.client.ClientConnection;
-import net.tridentsdk.server.netty.packet.OutPacket;
+import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.packet.PacketType;
 
 /**
- * TODO not an expert on this lol - AgentTroll
+ * The login packet sent to connect the server to the client
  *
  * @author The TridentSDK Team
  */
-public class PacketStatusOutPing extends OutPacket {
+public class PacketHandshakeIn extends InPacket {
+    private int    protocolVersion;
+    private String address;
+    private short  port;
+    private int    nextState;
+
     @Override
-    public int getId() {
-        return 0x01;
+    public Packet decode(ByteBuf buf) {
+        this.protocolVersion = Codec.readVarInt32(buf);
+        this.address = Codec.readString(buf);
+        this.port = buf.readShort();
+        this.nextState = Codec.readVarInt32(buf);
+        return this;
     }
 
     @Override
-    public void encode(ByteBuf buf) {
-        buf.writeLong(System.currentTimeMillis());
+    public int getId() {
+        return 0x00;
     }
 
     @Override
     public PacketType getType() {
         return PacketType.OUT;
     }
+
+    /**
+     * {@inheritDoc} <p/> <p>Nothing is done here</p>
+     */
+    @Override
+    public void handleReceived(ClientConnection connection) {}
 }

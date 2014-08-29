@@ -17,15 +17,12 @@
 
 package net.tridentsdk.server.netty;
 
-import java.nio.charset.Charset;
-
 import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
-
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 
 import javax.annotation.concurrent.ThreadSafe;
+import java.nio.charset.Charset;
 
 /**
  * Utility class to help decode the bytes from a backed buffer serializer

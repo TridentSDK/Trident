@@ -15,26 +15,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.tridentsdk.server.packets.login;
+package net.tridentsdk.packets.status;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.server.netty.Codec;
-import net.tridentsdk.server.netty.client.ClientConnection;
 import net.tridentsdk.server.netty.packet.OutPacket;
-import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.packet.PacketType;
 
-/*
- * TODO: Read up more on disconnect JSON message
- */
+import java.io.UnsupportedEncodingException;
 
 /**
- * TODO not an expert on this - AgentTroll
+ * TODO not an expert on this lol - AgentTroll
  *
  * @author The TridentSDK Team
  */
-public class PacketLoginOutDisconnect extends OutPacket {
-    private String jsonMessage;
+public class PacketStatusOutResponse extends OutPacket {
+    private String jsonResponse;
 
     @Override
     public int getId() {
@@ -42,21 +37,14 @@ public class PacketLoginOutDisconnect extends OutPacket {
     }
 
     @Override
-    public PacketType getType() {
-        return PacketType.OUT;
+    public void encode(ByteBuf buf) {
+        try{
+            buf.writeBytes(jsonResponse.getBytes("UTF-8"));
+        }catch(UnsupportedEncodingException ignored) {}
     }
 
     @Override
-    public void encode(ByteBuf buf) {
-        Codec.writeString(buf, jsonMessage);
-    }
-
-    // Here too...
-    public String getJsonMessage() {
-        return this.jsonMessage;
-    }
-
-    public void setJsonMessage(String jsonMessage) {
-        this.jsonMessage = jsonMessage;
+    public PacketType getType() {
+        return PacketType.OUT;
     }
 }

@@ -15,21 +15,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.tridentsdk.server.packets.status;
+package net.tridentsdk.packets.login;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.server.netty.client.ClientConnection;
+import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
-import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.packet.PacketType;
 
+/*
+ * TODO: Read up more on disconnect JSON message
+ */
+
 /**
- * TODO not an expert on this lol - AgentTroll
+ * TODO not an expert on this - AgentTroll
  *
  * @author The TridentSDK Team
  */
-public class PacketStatusOutResponse extends OutPacket {
-    private String jsonResponse;
+public class PacketLoginOutDisconnect extends OutPacket {
+    private String jsonMessage;
 
     @Override
     public int getId() {
@@ -37,12 +40,21 @@ public class PacketStatusOutResponse extends OutPacket {
     }
 
     @Override
-    public void encode(ByteBuf buf) {
-        // TODO (for now at-least)
+    public PacketType getType() {
+        return PacketType.OUT;
     }
 
     @Override
-    public PacketType getType() {
-        return PacketType.OUT;
+    public void encode(ByteBuf buf) {
+        Codec.writeString(buf, jsonMessage);
+    }
+
+    // Here too...
+    public String getJsonMessage() {
+        return this.jsonMessage;
+    }
+
+    public void setJsonMessage(String jsonMessage) {
+        this.jsonMessage = jsonMessage;
     }
 }

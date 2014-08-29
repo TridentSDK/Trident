@@ -15,39 +15,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.tridentsdk.server.packets.status;
+package net.tridentsdk.packets.login;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.server.netty.client.ClientConnection;
-import net.tridentsdk.server.netty.packet.InPacket;
-import net.tridentsdk.server.netty.packet.Packet;
+import net.tridentsdk.server.netty.packet.OutPacket;
 import net.tridentsdk.server.netty.packet.PacketType;
 
 /**
- * TODO not an expert on this lol - AgentTroll
+ * TODO not an expert on this - AgentTroll
  *
  * @author The TridentSDK Team
  */
-public class PacketStatusInRequest extends InPacket {
+public class PacketLoginOutSuccess extends OutPacket {
     @Override
     public int getId() {
-        return 0x00;
-    }
-
-    @Override
-    public Packet decode(ByteBuf buf) {
-        // No fields are in this packet, therefor no need for any decoding
-
-        return this;
+        return 0x02;
     }
 
     @Override
     public PacketType getType() {
-        return PacketType.IN;
+        return PacketType.OUT;
     }
 
     @Override
-    public void handleRecieved(ClientConnection connection) {
-        // TODO Respond to the client accordingly
+    public void encode(ByteBuf buf) {
+        // TODO: Encode packet
     }
 }
