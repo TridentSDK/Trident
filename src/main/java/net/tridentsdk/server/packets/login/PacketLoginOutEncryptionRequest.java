@@ -18,6 +18,7 @@
 package net.tridentsdk.server.packets.login;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.client.ClientConnection;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.packet.PacketType;
@@ -49,7 +50,13 @@ public class PacketLoginOutEncryptionRequest implements Packet {
 
     @Override
     public void encode(ByteBuf buf) {
-        // TODO (for-now at least)
+        Codec.writeString(buf, "");
+
+        buf.writeShort(keyLength);
+        buf.writeBytes(publicKey);
+
+        buf.writeShort(tokenLength);
+        buf.writeBytes(verifyToken);
     }
 
     /**
