@@ -35,7 +35,7 @@ import java.util.concurrent.*;
 @ThreadSafe
 public final class PlayerThreads {
     static final Map<PlayerThreads.ThreadPlayerHandler, Integer>                        THREAD_MAP  =
-            new HashMap<>(16);
+            new HashMap<>(4);
     static final Map<ClientConnection, PlayerThreads.ThreadPlayerWrapper>               WRAPPER_MAP =
             new HashMap<>();
     static final ConcurrentHashMap<ClientConnection, PlayerThreads.ThreadPlayerWrapper> CACHE_MAP   =
@@ -46,7 +46,7 @@ public final class PlayerThreads {
     static {
         PlayerThreads.SERVICE.execute(new Runnable() {
             @Override public void run() {
-                for (int i = 0; i < 16; i++)
+                for (int i = 0; i < 4; i++)
                     PlayerThreads.THREAD_MAP.put(new PlayerThreads.ThreadPlayerHandler(), Integer.valueOf(0));
             }
         });
