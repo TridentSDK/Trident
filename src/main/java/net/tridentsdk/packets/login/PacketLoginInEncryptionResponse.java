@@ -99,6 +99,11 @@ public class PacketLoginInEncryptionResponse extends InPacket {
 
     @Override
     public void handleReceived(ClientConnection connection) {
-        //
+        String name = LoginManager.getInstance().getName(connection.getAddress());
+        PacketLoginOutSuccess packet = new PacketLoginOutSuccess();
+        packet.setName(name);
+
+        connection.sendPacket(packet);
+        LoginManager.getInstance().finish(connection.getAddress());
     }
 }

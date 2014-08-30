@@ -48,7 +48,8 @@ public class PacketLoginOutEncryptionRequest extends OutPacket {
             publicKey = RSA.generate(1024).getPublic().getEncoded();
             keyLength = (short) publicKey.length;
 
-            // TODO: Get verification token from https://sessionserver.mojang.com/session/minecraft/join
+            verifyToken = new byte[0];
+            tokenLength = 0;
         }catch(Exception ex) {ex.printStackTrace();}
 
         Codec.writeString(buf, "");

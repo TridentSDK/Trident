@@ -17,6 +17,7 @@
 
 package net.tridentsdk.server;
 
+import com.mojang.api.profiles.HttpProfileRepository;
 import net.tridentsdk.api.Server;
 import net.tridentsdk.api.Trident;
 import net.tridentsdk.server.netty.protocol.Protocol;
@@ -34,6 +35,7 @@ public final class TridentServer implements Server, Runnable {
     private final TridentConfig config;
     private final Protocol      protocol;
     private final AtomicReference<Thread> serverThread = new AtomicReference<>();
+    private final HttpProfileRepository profileRepository = new HttpProfileRepository("minecraft");
 
     private TridentServer(TridentConfig config) {
         this.config = config;
@@ -64,6 +66,10 @@ public final class TridentServer implements Server, Runnable {
      */
     public Protocol getProtocol() {
         return this.protocol;
+    }
+
+    public HttpProfileRepository getProfileRepository() {
+        return profileRepository;
     }
 
     /**

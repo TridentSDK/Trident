@@ -61,5 +61,6 @@ public class PacketLoginInStart extends InPacket {
     public void handleReceived(ClientConnection connection) {
         // TODO: Respond with PacketLoginOutEncryptionRequest
         LoginManager.getInstance().initLogin(connection.getAddress(), getName());
+        connection.sendPacket(new PacketLoginOutEncryptionRequest());
     }
 }
