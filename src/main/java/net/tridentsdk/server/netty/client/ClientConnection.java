@@ -20,10 +20,13 @@ package net.tridentsdk.server.netty.client;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
+import net.tridentsdk.server.encryption.RSA;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.protocol.Protocol;
 
 import java.net.InetSocketAddress;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -40,6 +43,9 @@ public class ClientConnection {
     private final    InetSocketAddress    address;
     private final    Channel              channel;
     private volatile Protocol.ClientStage stage;
+    private volatile boolean              encryptionEnabled;
+    private          PublicKey            publicKey;
+    private volatile PrivateKey           privateKey;
 
     /**
      * Creates a new connection handler for the joining channel stream
@@ -49,6 +55,7 @@ public class ClientConnection {
     public ClientConnection(ChannelHandlerContext channelContext) {
         this.address = (InetSocketAddress) channelContext.channel().remoteAddress();
         this.channel = channelContext.channel();
+        this.encryptionEnabled = false;
 
         ClientConnection.clientData.put(this.address, this);
     }
@@ -77,19 +84,53 @@ public class ClientConnection {
      * Sends protocol data through the client stream
      *
      * @param packet the packet to send, encoded and written to the stream
+     * @param encrypted if you wish for packet to be encrypted
      */
-    public void sendPacket(Packet packet) {
+    public void sendPacket(Packet packet, boolean encrypted) {
         // Create new ByteBuf
         ByteBuf buffer = this.channel.alloc().buffer();
 
-        //Encode the packet id then the packet
-        buffer.writeInt(packet.getId());
-        packet.encode(buffer);
+        if(encrypted && !(encryptionEnabled))
+            throw new IllegalArgumentException("You can not use encryption if encryption is not enabled!");
+
+        try{
+            if(encrypted) {
+                buffer.writeBytes(RSA.encrypt((byte) packet.getId(), publicKey));
+
+                packet.encode(buffer);
+                buffer.writeBytes(encrypt(buffer.array()));
+            }else{
+                buffer.writeInt(packet.getId());
+                packet.encode(buffer);
+            }
+        }catch(Exception ex) {
+            ex.printStackTrace();
+        }
 
         // Write the encoded packet and flush it
         this.channel.writeAndFlush(buffer);
 
         // In case Channel state changes lets update the HashMap
+        ClientConnection.clientData.put(this.address, this);
+    }
+
+    public void sendPacket(Packet packet) {
+        sendPacket(packet, false);
+    }
+
+    public byte[] encrypt(byte[] data) throws Exception {
+        return RSA.encrypt(data, publicKey);
+    }
+
+    public byte[] decrypt(byte[] data) throws Exception {
+        return RSA.decrypt(data, privateKey);
+    }
+
+    public void enableEncryption(PublicKey publicKey, PrivateKey privateKey) {
+        this.publicKey = publicKey;
+        this.privateKey = privateKey;
+        this.encryptionEnabled = true;
+
         ClientConnection.clientData.put(this.address, this);
     }
 
@@ -118,6 +159,18 @@ public class ClientConnection {
      */
     public Protocol.ClientStage getStage() {
         return this.stage;
+    }
+
+    public boolean isEncryptionEnabled() {
+        return encryptionEnabled;
+    }
+
+    public PublicKey getPublicKey() {
+        return publicKey;
+    }
+
+    public PrivateKey getPrivateKey() {
+        return privateKey;
     }
 
     /**

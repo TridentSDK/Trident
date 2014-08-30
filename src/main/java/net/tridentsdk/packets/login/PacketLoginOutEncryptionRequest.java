@@ -18,6 +18,7 @@
 package net.tridentsdk.packets.login;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.server.encryption.RSA;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.client.ClientConnection;
 import net.tridentsdk.server.netty.packet.OutPacket;
@@ -43,6 +44,13 @@ public class PacketLoginOutEncryptionRequest extends OutPacket {
 
     @Override
     public void encode(ByteBuf buf) {
+        try{
+            publicKey = RSA.generate(1024).getPublic().getEncoded();
+            keyLength = (short) publicKey.length;
+
+            // TODO: Get verification token from https://sessionserver.mojang.com/session/minecraft/join
+        }catch(Exception ex) {ex.printStackTrace();}
+
         Codec.writeString(buf, "");
 
         buf.writeShort(keyLength);

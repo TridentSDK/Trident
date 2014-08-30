@@ -99,6 +99,6 @@ public class PacketLoginInEncryptionResponse extends InPacket {
 
     @Override
     public void handleReceived(ClientConnection connection) {
-        // TODO: Do stuff
+        //
     }
 }

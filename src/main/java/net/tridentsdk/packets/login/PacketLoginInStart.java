@@ -24,12 +24,7 @@ import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.packet.PacketType;
 
-/*
- * TODO: Figure out a safe-way to pass on player's name
- */
-
 /**
- * TODO not an expert on this - AgentTroll
  *
  * @author The TridentSDK Team
  */
@@ -65,5 +60,6 @@ public class PacketLoginInStart extends InPacket {
     @Override
     public void handleReceived(ClientConnection connection) {
         // TODO: Respond with PacketLoginOutEncryptionRequest
+        LoginManager.getInstance().initLogin(connection.getAddress(), getName());
     }
 }
