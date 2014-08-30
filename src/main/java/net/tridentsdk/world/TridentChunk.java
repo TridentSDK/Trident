@@ -1,14 +1,16 @@
 package net.tridentsdk.world;
 
+import net.tridentsdk.api.world.Chunk;
+
 import java.io.Serializable;
 import java.util.Random;
 
-public class Chunk implements Serializable {
+public class TridentChunk implements Serializable, Chunk {
 
     private int x, z;
-    public World world;
+    public TridentWorld world;
 
-    public Chunk(World world, int x, int z) {
+    public TridentChunk(TridentWorld world, int x, int z) {
         this.world = world;
         this.x = x;
         this.z = z;
@@ -39,7 +41,7 @@ public class Chunk implements Serializable {
         return z;
     }
 
-    public World getWorld() {
+    public TridentWorld getWorld() {
         return world;
     }
 }

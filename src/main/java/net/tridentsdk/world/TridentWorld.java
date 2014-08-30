@@ -1,10 +1,16 @@
 package net.tridentsdk.world;
 
+import net.tridentsdk.api.Block;
+import net.tridentsdk.api.Location;
+import net.tridentsdk.api.world.Chunk;
+import net.tridentsdk.api.world.World;
+import net.tridentsdk.api.world.WorldLoader;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class World implements Serializable {
+public class TridentWorld implements Serializable, World {
     public static final int size = 1;
     public static final int maxHeight  = 255;
     public static final int maxChunks = -1;
@@ -14,14 +20,14 @@ public class World implements Serializable {
     public Random random;
     public WorldLoader loader;
 
-    public double spawnX, spawnY, spawnZ;
+    public Location spawnLocation;
 
-    public World(String name, WorldLoader loader) {
+    public TridentWorld(String name, WorldLoader loader) {
         this.name = name;
         this.loader = loader;
         this.random = new Random();
 
-        //TODO Set spawn point
+        // TODO Set spawn point
     }
 
     public String getName() {
@@ -32,14 +38,17 @@ public class World implements Serializable {
         if (chunks == null) {
             return null;
         }
+
         for (Chunk chunk : chunks.toArray(new Chunk[chunks.size()])) {
             if (chunk == null) {
                 continue;
             }
+
             if (chunk.getX() == x && chunk.getZ() == z) {
                 return chunk;
             }
         }
+
         if (generateIfNotFound) {
             generateChunk(x, z);
             return getChunkAt(x, z, false);
@@ -49,24 +58,31 @@ public class World implements Serializable {
     }
 
     public void generateChunk(int x, int z) {
-        if (maxChunks != -1) {
-            if (x > maxChunks || x < -maxChunks) {
-                return;
-            }
+        if (x > maxChunks || x < -maxChunks) {
+            return;
+        }
 
-            if (z > maxChunks || z < -maxChunks) {
-                return;
-            }
+        if (z > maxChunks || z < -maxChunks) {
+            return;
         }
 
         if (getChunkAt(x, z, false) == null) {
             if (loader.chunkExists(this, x,z)) {
                 chunks.add(loader.loadChunk(this, x, z));
 
-                Chunk c = new Chunk(this, x, z);
+                TridentChunk c = new TridentChunk(this, x, z);
                 chunks.add(c);
                 c.generate();
             }
         }
     }
+
+    @Override
+    public Block getBlockAt(Location location) {
+        if(location.getWorld().getName().equals(getName()))
+            throw new IllegalArgumentException("Provided location does not have the same world!");
+
+        return null;
+    }
+
 }
