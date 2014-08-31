@@ -34,15 +34,15 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 @ThreadSafe
 public final class TridentServer implements Server, Runnable {
-    private final TridentConfig config;
-    private final Protocol protocol;
-    private final AtomicReference<Thread> serverThread = new AtomicReference<>();
-    private final HttpProfileRepository profileRepository = new HttpProfileRepository("minecraft");
-    private final Queue<Runnable> threadTasks = new ConcurrentLinkedQueue<>();
+    private TridentConfig config;
+    private Protocol protocol;
+    private Queue<Runnable> threadTasks = new ConcurrentLinkedQueue<>();
+    
+    private final AtomicReference<Thread> SERVER_THREAD = new AtomicReference<>();
+    private final HttpProfileRepository PROFILE_REPOSITORY = new HttpProfileRepository("minecraft");
 
     private TridentServer(TridentConfig config) {
         this.config = config;
-        //TODO: Get protocol version from config... or elsewhere
         this.protocol = new Protocol();
     }
 
@@ -55,8 +55,8 @@ public final class TridentServer implements Server, Runnable {
         TridentServer server = new TridentServer(config);
         Trident.setServer(server);
 
-        server.serverThread.set(new Thread(server, "TridentServer Main Thread"));
-        server.serverThread.get().start();
+        server.SERVER_THREAD.set(new Thread(server, "TridentServer Main Thread"));
+        server.SERVER_THREAD.get().start();
 
         return server;
         // We CANNOT let the "this" instance escape during creation, else we lose thread-safety
@@ -72,7 +72,7 @@ public final class TridentServer implements Server, Runnable {
     }
 
     public HttpProfileRepository getProfileRepository() {
-        return profileRepository;
+        return PROFILE_REPOSITORY;
     }
 
     /**
