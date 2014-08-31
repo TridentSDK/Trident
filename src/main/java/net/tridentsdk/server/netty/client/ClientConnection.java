@@ -37,13 +37,13 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author The TridentSDK Team
  */
 public class ClientConnection {
-    private static final Map<InetSocketAddress, AtomicReference<ClientConnection>> clientData =
+    static final Map<InetSocketAddress, AtomicReference<ClientConnection>> clientData =
             new ConcurrentHashMap<>();
 
     private final InetSocketAddress address;
     private final Channel channel;
-    private PublicKey publicKey;
 
+    private volatile PublicKey publicKey;
     private volatile Protocol.ClientStage stage;
     private volatile boolean encryptionEnabled;
     private volatile PrivateKey privateKey;
@@ -53,7 +53,7 @@ public class ClientConnection {
      *
      * @param channelContext the channel of the client joining
      */
-    public ClientConnection(ChannelHandlerContext channelContext) {
+    ClientConnection(ChannelHandlerContext channelContext) {
         this.address = (InetSocketAddress) channelContext.channel().remoteAddress();
         this.channel = channelContext.channel();
         this.encryptionEnabled = false;
