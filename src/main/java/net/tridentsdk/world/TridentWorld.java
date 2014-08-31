@@ -16,13 +16,13 @@ public class TridentWorld implements Serializable, World {
     private static final int MAX_CHUNKS = -1;
 
     private String name;
-    private ArrayList<Chunk> chunks = new ArrayList<>();
+    ArrayList<Chunk> chunks = new ArrayList<>();
     private Random random;
     private WorldLoader loader;
 
     public Location spawnLocation;
 
-    public TridentWorld(String name, WorldLoader loader) {
+    TridentWorld(String name, WorldLoader loader) {
         this.name = name;
         this.loader = loader;
         this.random = new Random();
