@@ -23,6 +23,8 @@ import net.tridentsdk.api.Trident;
 import net.tridentsdk.server.netty.protocol.Protocol;
 
 import javax.annotation.concurrent.ThreadSafe;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -36,6 +38,7 @@ public final class TridentServer implements Server, Runnable {
     private final Protocol protocol;
     private final AtomicReference<Thread> serverThread = new AtomicReference<>();
     private final HttpProfileRepository profileRepository = new HttpProfileRepository("minecraft");
+    private final Queue<Runnable> threadTasks = new ConcurrentLinkedQueue<>();
 
     private TridentServer(TridentConfig config) {
         this.config = config;
@@ -77,14 +80,31 @@ public final class TridentServer implements Server, Runnable {
      *
      * @return the port occupied by the server
      */
-    @Override public int getPort() {
+    @Override
+    public int getPort() {
         return (int) this.config.getPort();
     }
+
+    public void addTask(Runnable task) {
+        threadTasks.add(task);
+    }
+
 
     @Override
     public void run() {
         //TODO: Set some server stuff up
+
         //TODO: Main server Loop
+        while(Thread.currentThread().isAlive()) {
+            try {
+                Runnable runnable = threadTasks.poll();
+
+                if(runnable != null)
+                    runnable.run();
+            }catch(Exception ex) {
+                // DON'T DIE ON ME
+            }
+        }
     }
 
     /**

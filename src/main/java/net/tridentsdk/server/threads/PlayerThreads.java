@@ -135,7 +135,8 @@ public final class PlayerThreads {
     static class ThreadPlayerHandler extends Thread {
         private final Queue<Runnable> tasks = new ConcurrentLinkedQueue<>();
 
-        @Override public void run() {
+        @Override
+        public void run() {
             while (!this.isInterrupted()) {
                 try {
                     Runnable task = tasks.poll();
