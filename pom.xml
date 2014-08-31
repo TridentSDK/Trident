@@ -47,11 +47,6 @@
             <name>SnakeYAML repository</name>
             <url>http://oss.sonatype.org/content/groups/public/</url>
         </repository>
-
-        <repository>
-            <id>ac-repo</id>
-            <url>https://raw.github.com/mazentheamazin/AccountsClient/mvn-repo/</url>
-        </repository>
     </repositories>
 
     <dependencies>
@@ -92,13 +87,6 @@
             <artifactId>snakeyaml</artifactId>
             <version>1.14-SNAPSHOT</version>
             <scope>compile</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.mojang</groupId>
-            <artifactId>AccountsClient</artifactId>
-            <scope>compile</scope>
-            <version>1.0</version>
         </dependency>
 
         <dependency>
@@ -159,15 +147,6 @@
                         <phase>package</phase>
                     </execution>
                 </executions>
-
-                <configuration>
-                    <relocations>
-                        <relocation>
-                            <pattern>com.google.gson</pattern>
-                            <shadedPattern>net.minecraft.util.com.google.gson</shadedPattern>
-                        </relocation>
-                    </relocations>
-                </configuration>
             </plugin>
         </plugins>
     </build>

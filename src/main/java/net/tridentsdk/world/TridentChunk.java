@@ -21,7 +21,7 @@ public class TridentChunk implements Serializable, Chunk {
         int chunkX = x * 16;
         int chunkZ = z * 16;
 
-        Random r = world.random;
+        Random r = new Random();
 
        for (int x = 0; x < 16; x++) {
            for (int z = 0; z < 16; z++) {
