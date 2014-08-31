@@ -22,6 +22,7 @@ import net.tridentsdk.server.netty.client.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.packet.PacketType;
+import net.tridentsdk.server.netty.protocol.Protocol;
 
 public class PacketLoginInEncryptionResponse extends InPacket {
     private short secretLength;
@@ -104,6 +105,7 @@ public class PacketLoginInEncryptionResponse extends InPacket {
         packet.setName(name);
 
         connection.sendPacket(packet);
+        connection.setStage(Protocol.ClientStage.PLAY);
         LoginManager.getInstance().finish(connection.getAddress());
     }
 }

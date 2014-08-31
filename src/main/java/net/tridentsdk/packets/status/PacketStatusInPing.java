@@ -23,6 +23,7 @@ import net.tridentsdk.server.netty.client.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.packet.PacketType;
+import net.tridentsdk.server.netty.protocol.Protocol;
 
 /**
  * Represents a ping packet sent in from the client
@@ -47,6 +48,7 @@ public class PacketStatusInPing extends InPacket {
     @Override
     public void handleReceived(ClientConnection connection) {
         connection.sendPacket(new PacketStatusOutPing());
+        connection.setStage(Protocol.ClientStage.LOGIN);
     }
 
     /**
