@@ -29,6 +29,7 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Handles the connection of a client upon joining
@@ -36,8 +37,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author The TridentSDK Team
  */
 public class ClientConnection {
-    // TODO: Find a more efficient way to do this
-    private static final Map<InetSocketAddress, ClientConnection> clientData =
+    private static final Map<InetSocketAddress, AtomicReference<ClientConnection>> clientData =
             new ConcurrentHashMap<>();
 
     private final InetSocketAddress address;
@@ -58,7 +58,7 @@ public class ClientConnection {
         this.channel = channelContext.channel();
         this.encryptionEnabled = false;
 
-        ClientConnection.clientData.put(this.address, this);
+        ClientConnection.clientData.put(this.address, new AtomicReference<>(this));
     }
 
     /**
@@ -78,7 +78,7 @@ public class ClientConnection {
      * @return the instance of the client handler associated with the IP
      */
     public static ClientConnection getConnection(InetSocketAddress address) {
-        return ClientConnection.clientData.get(address);
+        return ClientConnection.clientData.get(address).get();
     }
 
     /**
@@ -110,9 +110,6 @@ public class ClientConnection {
 
         // Write the encoded packet and flush it
         this.channel.writeAndFlush(buffer);
-
-        // In case Channel state changes lets update the HashMap
-        ClientConnection.clientData.put(this.address, this);
     }
 
     public void sendPacket(Packet packet) {
@@ -131,8 +128,6 @@ public class ClientConnection {
         this.publicKey = publicKey;
         this.privateKey = privateKey;
         this.encryptionEnabled = true;
-
-        ClientConnection.clientData.put(this.address, this);
     }
 
     /**
@@ -181,8 +176,6 @@ public class ClientConnection {
      */
     public void setStage(Protocol.ClientStage stage) {
         this.stage = stage;
-
-        ClientConnection.clientData.put(this.address, this);
     }
 
     /**
