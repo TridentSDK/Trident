@@ -31,7 +31,7 @@ import java.io.FileNotFoundException;
 @ThreadSafe
 public class TridentConfig {
     private static final int DEFAULT_PORT = 25565;
-    private final short             port;
+    private final short port;
     private final YamlConfiguration config;
 
     /**

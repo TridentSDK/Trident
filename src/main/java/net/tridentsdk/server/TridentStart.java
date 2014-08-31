@@ -43,7 +43,7 @@ import java.util.Collection;
  */
 @ThreadSafe
 final class TridentStart {
-    private static final EventLoopGroup bossGroup   = new NioEventLoopGroup();
+    private static final EventLoopGroup bossGroup = new NioEventLoopGroup();
     private static final EventLoopGroup workerGroup = new NioEventLoopGroup();
 
     private TridentStart() {} // Do not initialize

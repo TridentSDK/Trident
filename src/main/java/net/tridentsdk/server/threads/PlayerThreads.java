@@ -34,13 +34,11 @@ import java.util.concurrent.*;
  */
 @ThreadSafe
 public final class PlayerThreads {
-    static final Map<PlayerThreads.ThreadPlayerHandler, Integer>                        THREAD_MAP  =
-            new HashMap<>(4);
-    static final Map<ClientConnection, PlayerThreads.ThreadPlayerWrapper>               WRAPPER_MAP =
-            new HashMap<>();
-    static final ConcurrentHashMap<ClientConnection, PlayerThreads.ThreadPlayerWrapper> CACHE_MAP   =
-            new ConcurrentHashMap<>();
+    static final Map<PlayerThreads.ThreadPlayerHandler, Integer> THREAD_MAP  = new HashMap<>(4);
+    static final Map<ClientConnection, PlayerThreads.ThreadPlayerWrapper> WRAPPER_MAP = new HashMap<>();
 
+    static final ConcurrentHashMap<ClientConnection, PlayerThreads.ThreadPlayerWrapper> CACHE_MAP
+            = new ConcurrentHashMap<>();
     static final ExecutorService SERVICE = Executors.newSingleThreadExecutor();
 
     static {
@@ -75,6 +73,7 @@ public final class PlayerThreads {
         Callable<PlayerThreads.ThreadPlayerWrapper> callable = new Callable<PlayerThreads.ThreadPlayerWrapper>() {
             @Override public PlayerThreads.ThreadPlayerWrapper call() throws Exception {
                 PlayerThreads.ThreadPlayerWrapper wrapper = PlayerThreads.WRAPPER_MAP.get(connection);
+
                 if (wrapper == null) {
                     Map.Entry<PlayerThreads.ThreadPlayerHandler, ? extends Number> handler =
                             PlayerThreads.minMap(PlayerThreads.THREAD_MAP);
@@ -91,6 +90,7 @@ public final class PlayerThreads {
         };
 
         Future<PlayerThreads.ThreadPlayerWrapper> future = PlayerThreads.SERVICE.submit(callable);
+
         try {
             PlayerThreads.ThreadPlayerWrapper wrapper = future.get();
             if (wrapper != null) PlayerThreads.CACHE_MAP.put(connection, wrapper);
@@ -111,6 +111,7 @@ public final class PlayerThreads {
         PlayerThreads.SERVICE.execute(new Runnable() {
             @Override public void run() {
                 PlayerThreads.ThreadPlayerWrapper wrapper = PlayerThreads.WRAPPER_MAP.remove(connection);
+
                 if (wrapper != null) {
                     PlayerThreads.ThreadPlayerHandler handle = wrapper.getHandler();
                     PlayerThreads.THREAD_MAP.put(handle, Integer.valueOf(PlayerThreads.THREAD_MAP.get(handle) - 1));
@@ -121,9 +122,11 @@ public final class PlayerThreads {
 
     private static <T> Map.Entry<T, ? extends Number> minMap(Map<T, ? extends Number> map) {
         Map.Entry<T, ? extends Number> ent = (Map.Entry<T, ? extends Number>) PlayerThreads.DEF_ENTRY;
+
         for (Map.Entry<T, ? extends Number> entry : map.entrySet())
             if (entry.getValue().longValue() < ent.getValue().longValue())
                 ent = entry;
+
         return ent;
     }
 

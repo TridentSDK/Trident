@@ -37,7 +37,7 @@ import java.util.List;
  */
 public class PacketDecoder extends ReplayingDecoder<PacketDecoder.State> {
     private final Protocol protocol;
-    private       int      length;
+    private int length;
 
     /**
      * Creates the decoder and initializes the state

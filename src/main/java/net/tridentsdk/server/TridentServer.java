@@ -33,7 +33,7 @@ import java.util.concurrent.atomic.AtomicReference;
 @ThreadSafe
 public final class TridentServer implements Server, Runnable {
     private final TridentConfig config;
-    private final Protocol      protocol;
+    private final Protocol protocol;
     private final AtomicReference<Thread> serverThread = new AtomicReference<>();
     private final HttpProfileRepository profileRepository = new HttpProfileRepository("minecraft");
 

@@ -30,10 +30,10 @@ import net.tridentsdk.server.netty.packet.PacketType;
  * @author The TridentSDK Team
  */
 public class PacketHandshakeIn extends InPacket {
-    private int    protocolVersion;
+    private int protocolVersion;
     private String address;
-    private short  port;
-    private int    nextState;
+    private short port;
+    private int nextState;
 
     @Override
     public Packet decode(ByteBuf buf) {

@@ -25,7 +25,7 @@ import io.netty.buffer.ByteBuf;
  * @author The TridentSDK Team
  */
 public class PacketData {
-    private final int     id;
+    private final int id;
     private final ByteBuf data;
 
     /**

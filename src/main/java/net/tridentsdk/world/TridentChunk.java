@@ -7,7 +7,8 @@ import java.util.Random;
 
 public class TridentChunk implements Serializable, Chunk {
 
-    private int x, z;
+    private int x;
+    private int z;
     public TridentWorld world;
 
     public TridentChunk(TridentWorld world, int x, int z) {
