@@ -37,7 +37,7 @@ public final class TridentServer implements Server, Runnable {
     private TridentConfig config;
     private Protocol protocol;
     private Queue<Runnable> threadTasks = new ConcurrentLinkedQueue<>();
-    
+
     private final AtomicReference<Thread> SERVER_THREAD = new AtomicReference<>();
     private final HttpProfileRepository PROFILE_REPOSITORY = new HttpProfileRepository("minecraft");
 

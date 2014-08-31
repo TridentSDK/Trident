@@ -11,14 +11,14 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class TridentWorld implements Serializable, World {
-    public static final int size = 1;
-    public static final int maxHeight  = 255;
-    public static final int maxChunks = -1;
+    private static final int SIZE = 1;
+    private static final int MAX_HEIGHT = 255;
+    private static final int MAX_CHUNKS = -1;
 
     private String name;
-    public ArrayList<Chunk> chunks = new ArrayList<>();
-    public Random random;
-    public WorldLoader loader;
+    private ArrayList<Chunk> chunks = new ArrayList<>();
+    private Random random;
+    private WorldLoader loader;
 
     public Location spawnLocation;
 
@@ -58,11 +58,11 @@ public class TridentWorld implements Serializable, World {
     }
 
     public void generateChunk(int x, int z) {
-        if (x > maxChunks || x < -maxChunks) {
+        if (x > MAX_CHUNKS || x < -MAX_CHUNKS) {
             return;
         }
 
-        if (z > maxChunks || z < -maxChunks) {
+        if (z > MAX_CHUNKS || z < -MAX_CHUNKS) {
             return;
         }
 
