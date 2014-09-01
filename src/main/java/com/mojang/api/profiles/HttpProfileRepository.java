@@ -1,26 +1,38 @@
+/*
+ * Copyright (C) 2014 The TridentSDK Team
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package com.mojang.api.profiles;
 
 import com.google.gson.Gson;
-import com.mojang.api.http.BasicHttpClient;
-import com.mojang.api.http.HttpBody;
-import com.mojang.api.http.HttpClient;
-import com.mojang.api.http.HttpHeader;
+import com.mojang.api.http.*;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class HttpProfileRepository implements ProfileRepository {
 
     // You're not allowed to request more than 100 profiles per go.
     private static final int PROFILES_PER_REQUEST = 100;
 
-    private static Gson gson = new Gson();
-    private final String agent;
-    private HttpClient client;
+    private static final Gson gson = new Gson();
+    private final String     agent;
+    private final HttpClient client;
 
     public HttpProfileRepository(String agent) {
         this(agent, BasicHttpClient.getInstance());
@@ -31,25 +43,29 @@ public class HttpProfileRepository implements ProfileRepository {
         this.client = client;
     }
 
+    private static HttpBody getHttpBody(String... namesBatch) {
+        return new HttpBody(HttpProfileRepository.gson.toJson(namesBatch));
+    }
+
     @Override
     public Profile[] findProfilesByNames(String... names) {
-        List<Profile> profiles = new ArrayList<Profile>();
+        List<Profile> profiles = new ArrayList<>();
         try {
 
-            List<HttpHeader> headers = new ArrayList<HttpHeader>();
+            List<HttpHeader> headers = new ArrayList<>();
             headers.add(new HttpHeader("Content-Type", "application/json"));
 
             int namesCount = names.length;
             int start = 0;
             int i = 0;
             do {
-                int end = PROFILES_PER_REQUEST * (i + 1);
+                int end = HttpProfileRepository.PROFILES_PER_REQUEST * (i + 1);
                 if (end > namesCount) {
                     end = namesCount;
                 }
                 String[] namesBatch = Arrays.copyOfRange(names, start, end);
-                HttpBody body = getHttpBody(namesBatch);
-                Profile[] result = post(getProfilesUrl(), body, headers);
+                HttpBody body = HttpProfileRepository.getHttpBody(namesBatch);
+                Profile[] result = this.post(this.getProfilesUrl(), body, headers);
                 profiles.addAll(Arrays.asList(result));
 
                 start = end;
@@ -64,15 +80,11 @@ public class HttpProfileRepository implements ProfileRepository {
 
     private URL getProfilesUrl() throws MalformedURLException {
         // To lookup Minecraft profiles, agent should be "minecraft"
-        return new URL("https://api.mojang.com/profiles/" + agent);
+        return new URL("https://api.mojang.com/profiles/" + this.agent);
     }
 
     private Profile[] post(URL url, HttpBody body, List<HttpHeader> headers) throws IOException {
-        String response = client.post(url, body, headers);
-        return gson.fromJson(response, Profile[].class);
-    }
-
-    private static HttpBody getHttpBody(String... namesBatch) {
-        return new HttpBody(gson.toJson(namesBatch));
+        String response = this.client.post(url, body, headers);
+        return HttpProfileRepository.gson.fromJson(response, Profile[].class);
     }
 }

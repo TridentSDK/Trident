@@ -21,7 +21,6 @@ import net.tridentsdk.server.config.YamlConfiguration;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.io.File;
-import java.io.FileNotFoundException;
 
 /**
  * The configuration holder that wraps the server's configuration defaults and values upon startup
@@ -31,7 +30,7 @@ import java.io.FileNotFoundException;
 @ThreadSafe
 public class TridentConfig {
     private static final int DEFAULT_PORT = 25565;
-    private final short port;
+    private final short             port;
     private final YamlConfiguration config;
 
     /**

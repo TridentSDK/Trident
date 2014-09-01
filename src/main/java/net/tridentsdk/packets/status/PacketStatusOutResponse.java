@@ -38,9 +38,10 @@ public class PacketStatusOutResponse extends OutPacket {
 
     @Override
     public void encode(ByteBuf buf) {
-        try{
-            buf.writeBytes(jsonResponse.getBytes("UTF-8"));
-        }catch(UnsupportedEncodingException ignored) {}
+        try {
+            buf.writeBytes(this.jsonResponse.getBytes("UTF-8"));
+        } catch (UnsupportedEncodingException ignored) {
+        }
     }
 
     @Override

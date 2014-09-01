@@ -24,24 +24,21 @@ import net.tridentsdk.server.netty.client.ClientConnection;
  * @author The TridentSDK Team
  */
 public abstract class OutPacket implements Packet {
-    
+
     /**
-     * {@inheritDoc}
-     * <p/>
-     * <p>Cannot be decoded</p>
+     * {@inheritDoc} <p/> <p>Cannot be decoded</p>
      */
     @Override
     public Packet decode(ByteBuf buf) {
         throw new UnsupportedOperationException(this.getClass().getName() + " cannot be decoded!");
     }
-    
+
     /**
-    * {@inheritDoc}
-    * <p/>
-    * <p>Cannot be recieved</p>
-    */
+     * {@inheritDoc} <p/> <p>Cannot be received</p>
+     */
     @Override
     public void handleReceived(ClientConnection connection) {
-        throw new UnsupportedOperationException(this.getClass().getName() + " is a client-bound packet therefor cannot be handled!");
+        throw new UnsupportedOperationException(
+                this.getClass().getName() + " is a client-bound packet therefor cannot be handled!");
     }
 }

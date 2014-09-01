@@ -19,7 +19,8 @@ package net.tridentsdk.packets.login;
 
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.netty.Codec;
-import net.tridentsdk.server.netty.packet.OutPacket;
+import net.tridentsdk.server.netty.client.ClientConnection;
+import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.packet.PacketType;
 
 /*
@@ -31,7 +32,7 @@ import net.tridentsdk.server.netty.packet.PacketType;
  *
  * @author The TridentSDK Team
  */
-public class PacketLoginOutDisconnect extends OutPacket {
+public class PacketLoginOutDisconnect implements Packet {
     private String jsonMessage;
 
     @Override
@@ -46,7 +47,10 @@ public class PacketLoginOutDisconnect extends OutPacket {
 
     @Override
     public void encode(ByteBuf buf) {
-        Codec.writeString(buf, jsonMessage);
+        Codec.writeString(buf, this.jsonMessage);
+    }
+
+    @Override public void handleReceived(ClientConnection connection) {
     }
 
     // Here too...
@@ -56,5 +60,13 @@ public class PacketLoginOutDisconnect extends OutPacket {
 
     public void setJsonMessage(String jsonMessage) {
         this.jsonMessage = jsonMessage;
+    }
+
+    /**
+     * {@inheritDoc} <p/> <p>Cannot be decoded</p>
+     */
+    @Override
+    public Packet decode(ByteBuf buf) {
+        throw new UnsupportedOperationException("PacketLoginOutDisconnect cannot be encoded!");
     }
 }

@@ -19,15 +19,11 @@ package net.tridentsdk.server;
 
 import com.google.common.collect.Lists;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import joptsimple.OptionException;
-import joptsimple.OptionParser;
-import joptsimple.OptionSet;
-import joptsimple.OptionSpec;
+import joptsimple.*;
+import net.tridentsdk.api.Trident;
 import net.tridentsdk.server.netty.TridentChannelInitializer;
 import net.tridentsdk.server.threads.ThreadsManager;
 
@@ -43,7 +39,7 @@ import java.util.Collection;
  */
 @ThreadSafe
 final class TridentStart {
-    private static final EventLoopGroup bossGroup = new NioEventLoopGroup();
+    private static final EventLoopGroup bossGroup   = new NioEventLoopGroup();
     private static final EventLoopGroup workerGroup = new NioEventLoopGroup();
 
     private TridentStart() {} // Do not initialize
@@ -130,10 +126,11 @@ final class TridentStart {
     /**
      * Shuts down the server by closing the backed event loops
      */
-    private static void close() {
+    public static void close() {
         //Correct way to close the socket and shut down the server
         TridentStart.workerGroup.shutdownGracefully().awaitUninterruptibly();
         TridentStart.bossGroup.shutdownGracefully().awaitUninterruptibly();
+        Trident.getServer().shutdown();
         ThreadsManager.stopAll();
     }
 }

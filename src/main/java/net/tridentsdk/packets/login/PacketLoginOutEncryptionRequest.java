@@ -20,9 +20,7 @@ package net.tridentsdk.packets.login;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.encryption.RSA;
 import net.tridentsdk.server.netty.Codec;
-import net.tridentsdk.server.netty.client.ClientConnection;
 import net.tridentsdk.server.netty.packet.OutPacket;
-import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.packet.PacketType;
 
 public class PacketLoginOutEncryptionRequest extends OutPacket {
@@ -44,21 +42,23 @@ public class PacketLoginOutEncryptionRequest extends OutPacket {
 
     @Override
     public void encode(ByteBuf buf) {
-        try{
-            publicKey = RSA.generate(1024).getPublic().getEncoded();
-            keyLength = (short) publicKey.length;
+        try {
+            this.publicKey = RSA.generate(1024).getPublic().getEncoded();
+            this.keyLength = (short) this.publicKey.length;
 
-            verifyToken = new byte[0];
-            tokenLength = 0;
-        }catch(Exception ex) {ex.printStackTrace();}
+            this.verifyToken = new byte[0];
+            this.tokenLength = (short) 0;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
 
         Codec.writeString(buf, "");
 
-        buf.writeShort(keyLength);
-        buf.writeBytes(publicKey);
+        buf.writeShort((int) this.keyLength);
+        buf.writeBytes(this.publicKey);
 
-        buf.writeShort(tokenLength);
-        buf.writeBytes(verifyToken);
+        buf.writeShort((int) this.tokenLength);
+        buf.writeBytes(this.verifyToken);
     }
 
     /**

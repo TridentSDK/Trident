@@ -29,9 +29,9 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public class Protocol {
-    private final Play play = new Play();
-    private final Status status = new Status();
-    private final Login login = new Login();
+    private final Play      play      = new Play();
+    private final Status    status    = new Status();
+    private final Login     login     = new Login();
     private final Handshake handshake = new Handshake();
 
     public Play getPlay() {

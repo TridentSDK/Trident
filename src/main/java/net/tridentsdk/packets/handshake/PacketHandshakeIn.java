@@ -20,20 +20,18 @@ package net.tridentsdk.packets.handshake;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.client.ClientConnection;
-import net.tridentsdk.server.netty.packet.InPacket;
-import net.tridentsdk.server.netty.packet.Packet;
-import net.tridentsdk.server.netty.packet.PacketType;
+import net.tridentsdk.server.netty.packet.*;
 
 /**
- * The login packet sent to connect the server to the client
+ * The secure packet sent to connect the server to the client
  *
  * @author The TridentSDK Team
  */
 public class PacketHandshakeIn extends InPacket {
-    private int protocolVersion;
+    private int    protocolVersion;
     private String address;
-    private short port;
-    private int nextState;
+    private short  port;
+    private int    nextState;
 
     @Override
     public Packet decode(ByteBuf buf) {

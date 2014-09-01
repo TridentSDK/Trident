@@ -24,8 +24,6 @@ import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 import net.tridentsdk.server.netty.packet.PacketType;
 
-import java.util.UUID;
-
 /**
  * TODO not an expert on this - AgentTroll
  *
@@ -49,12 +47,12 @@ public class PacketLoginOutSuccess extends OutPacket {
         this.name = name;
 
         this.id = ((TridentServer) Trident.getServer()).getProfileRepository()
-                    .findProfilesByNames(name)[0].getId();
+                                                       .findProfilesByNames(name)[0].getId();
     }
 
     @Override
     public void encode(ByteBuf buf) {
-        Codec.writeString(buf, id);
-        Codec.writeString(buf, name);
+        Codec.writeString(buf, this.id);
+        Codec.writeString(buf, this.name);
     }
 }

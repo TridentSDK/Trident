@@ -23,11 +23,9 @@ import io.netty.buffer.ByteBuf;
  * @author The TridentSDK Team
  */
 public abstract class InPacket implements Packet {
-    
+
     /**
-     * {@inheritDoc}
-     * <p/>
-     * <p>Cannot be encoded</p>
+     * {@inheritDoc} <p/> <p>Cannot be encoded</p>
      */
     @Override
     public void encode(ByteBuf buf) {

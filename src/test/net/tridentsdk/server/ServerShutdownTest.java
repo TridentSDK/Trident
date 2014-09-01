@@ -22,6 +22,6 @@ public final class ServerShutdownTest {
 
     public static void main(String... args) {
         TridentStart.main(args);
-        TridentStart.shutdown();
+        TridentStart.close();
     }
 }

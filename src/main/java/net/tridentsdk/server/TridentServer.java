@@ -18,9 +18,11 @@
 package net.tridentsdk.server;
 
 import com.mojang.api.profiles.HttpProfileRepository;
+import com.mojang.api.profiles.ProfileRepository;
 import net.tridentsdk.api.Server;
 import net.tridentsdk.api.Trident;
 import net.tridentsdk.server.netty.protocol.Protocol;
+import net.tridentsdk.server.threads.ThreadsManager;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Queue;
@@ -34,12 +36,12 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 @ThreadSafe
 public final class TridentServer implements Server, Runnable {
-    private TridentConfig config;
-    private Protocol protocol;
-    private Queue<Runnable> threadTasks = new ConcurrentLinkedQueue<>();
-
-    private final AtomicReference<Thread> SERVER_THREAD = new AtomicReference<>();
-    private final HttpProfileRepository PROFILE_REPOSITORY = new HttpProfileRepository("minecraft");
+    private final AtomicReference<Thread> SERVER_THREAD      = new AtomicReference<>();
+    private final ProfileRepository       PROFILE_REPOSITORY = new HttpProfileRepository("minecraft");
+    private final TridentConfig config;
+    private final Protocol      protocol;
+    private final Queue<Runnable> threadTasks = new ConcurrentLinkedQueue<>();
+    private volatile boolean stopped;
 
     private TridentServer(TridentConfig config) {
         this.config = config;
@@ -71,8 +73,8 @@ public final class TridentServer implements Server, Runnable {
         return this.protocol;
     }
 
-    public HttpProfileRepository getProfileRepository() {
-        return PROFILE_REPOSITORY;
+    public ProfileRepository getProfileRepository() {
+        return this.PROFILE_REPOSITORY;
     }
 
     /**
@@ -85,25 +87,24 @@ public final class TridentServer implements Server, Runnable {
         return (int) this.config.getPort();
     }
 
+    /**
+     * Puts a task into the execution queue
+     */
     public void addTask(Runnable task) {
-        threadTasks.add(task);
+        this.threadTasks.add(task);
     }
-
 
     @Override
     public void run() {
         //TODO: Set some server stuff up
 
         //TODO: Main server Loop
-        while(Thread.currentThread().isAlive()) {
-            try {
-                Runnable runnable = threadTasks.poll();
-
-                if(runnable != null)
-                    runnable.run();
-            }catch(Exception ex) {
-                // DON'T DIE ON ME
-            }
+        if (!this.stopped) {
+            Runnable task = this.threadTasks.poll();
+            if (task != null)
+                task.run();
+            ThreadsManager.park();
+            this.run();
         }
     }
 
@@ -113,6 +114,7 @@ public final class TridentServer implements Server, Runnable {
     @Override
     public void shutdown() {
         //TODO: Cleanup stuff...
-        TridentStart.shutdown();
+        this.SERVER_THREAD.get().interrupt();
+        this.stopped = true;
     }
 }

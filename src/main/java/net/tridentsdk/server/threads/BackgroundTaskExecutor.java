@@ -25,13 +25,13 @@ import java.util.concurrent.Executors;
  *
  * @author The TridentSDK Team
  */
-public class BackgroundTaskExecutor {
+public final class BackgroundTaskExecutor {
     static final ExecutorService SERVICE = Executors.newCachedThreadPool();
 
+    private BackgroundTaskExecutor() {}
+
     /**
-     * Execute the task in the internal thread pool
-     * <p/>
-     * <p>Synchronization is a requirement</p>
+     * Execute the task in the internal thread pool <p/> <p>Synchronization is a requirement</p>
      *
      * @param runnable the task to execute
      */

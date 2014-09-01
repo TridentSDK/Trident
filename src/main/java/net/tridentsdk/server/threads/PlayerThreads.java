@@ -21,10 +21,7 @@ import net.tridentsdk.api.docs.AccessNoDoc;
 import net.tridentsdk.server.netty.client.ClientConnection;
 
 import javax.annotation.concurrent.ThreadSafe;
-import java.util.AbstractMap;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.*;
 
 /**
@@ -34,12 +31,14 @@ import java.util.concurrent.*;
  */
 @ThreadSafe
 public final class PlayerThreads {
-    static final Map<PlayerThreads.ThreadPlayerHandler, Integer> THREAD_MAP  = new HashMap<>(4);
+    static final Map<PlayerThreads.ThreadPlayerHandler, Integer>          THREAD_MAP  = new HashMap<>(4);
     static final Map<ClientConnection, PlayerThreads.ThreadPlayerWrapper> WRAPPER_MAP = new HashMap<>();
 
-    static final ConcurrentHashMap<ClientConnection, PlayerThreads.ThreadPlayerWrapper> CACHE_MAP
-            = new ConcurrentHashMap<>();
-    static final ExecutorService SERVICE = Executors.newSingleThreadExecutor();
+    static final Map<ClientConnection, PlayerThreads.ThreadPlayerWrapper> CACHE_MAP
+                                                                                  =
+            new ConcurrentHashMap<>();
+    static final ExecutorService                                          SERVICE =
+            Executors.newSingleThreadExecutor();
 
     static {
         PlayerThreads.SERVICE.execute(new Runnable() {
@@ -55,11 +54,8 @@ public final class PlayerThreads {
     private PlayerThreads() {}
 
     /**
-     * Gets the management tool for the player
-     * <p/>
-     * <p>This will put in a new value for the caches if cannot find for a new player</p>
-     * <p/>
-     * <p>May block the first call</p>
+     * Gets the management tool for the player <p/> <p>This will put in a new value for the caches if cannot find for a
+     * new player</p> <p/> <p>May block the first call</p>
      *
      * @param connection the player to find the wrapper for
      */
@@ -120,6 +116,15 @@ public final class PlayerThreads {
         });
     }
 
+    /**
+     * Gets all of the thread player wrappers
+     *
+     * @return the values of the concurrent cache
+     */
+    public static Collection<PlayerThreads.ThreadPlayerWrapper> wrappedPlayers() {
+        return PlayerThreads.CACHE_MAP.values();
+    }
+
     private static <T> Map.Entry<T, ? extends Number> minMap(Map<T, ? extends Number> map) {
         Map.Entry<T, ? extends Number> ent = (Map.Entry<T, ? extends Number>) PlayerThreads.DEF_ENTRY;
 
@@ -134,18 +139,39 @@ public final class PlayerThreads {
     @AccessNoDoc
     static class ThreadPlayerHandler extends Thread {
         private final Queue<Runnable> tasks = new ConcurrentLinkedQueue<>();
+        private volatile boolean stopped;
 
         @Override
         public void run() {
-            while (!this.isInterrupted()) {
-                try {
-                    Runnable task = tasks.poll();
-                    if (task != null)
-                        task.run();
-                } catch (Exception x) {
-                    continue; // Keep going :)
-                }
+            if (!this.stopped) {
+                Runnable task = this.tasks.poll();
+                if (task != null)
+                    task.run();
+                ThreadsManager.park();
+                this.run();
             }
+        }
+
+        @Override public void interrupt() {
+            super.interrupt();
+            this.addTask(new Runnable() {
+                @Override public void run() {
+                    PlayerThreads.ThreadPlayerHandler.this.performStop();
+                }
+            });
+        }
+
+        public void performStop() {
+            this.stopped = true;
+        }
+
+        /**
+         * Add task to queue
+         *
+         * @param task the task to run
+         */
+        public void addTask(Runnable task) {
+            this.tasks.add(task);
         }
     }
 

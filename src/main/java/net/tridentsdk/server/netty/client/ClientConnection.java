@@ -41,12 +41,12 @@ public class ClientConnection {
             new ConcurrentHashMap<>();
 
     private final InetSocketAddress address;
-    private final Channel channel;
+    private final Channel           channel;
 
-    private volatile PublicKey publicKey;
+    private volatile PublicKey            publicKey;
     private volatile Protocol.ClientStage stage;
-    private volatile boolean encryptionEnabled;
-    private volatile PrivateKey privateKey;
+    private volatile boolean              encryptionEnabled;
+    private volatile PrivateKey           privateKey;
 
     /**
      * Creates a new connection handler for the joining channel stream
@@ -81,30 +81,37 @@ public class ClientConnection {
         return ClientConnection.clientData.get(address).get();
     }
 
+    public static ClientConnection registerConnection(ChannelHandlerContext channelContext) {
+        ClientConnection newConnection = new ClientConnection(channelContext);
+
+        ClientConnection.clientData.put(newConnection.getAddress(), new AtomicReference<>(newConnection));
+        return newConnection;
+    }
+
     /**
      * Sends protocol data through the client stream
      *
-     * @param packet the packet to send, encoded and written to the stream
+     * @param packet    the packet to send, encoded and written to the stream
      * @param encrypted if you wish for packet to be encrypted
      */
     public void sendPacket(Packet packet, boolean encrypted) {
         // Create new ByteBuf
         ByteBuf buffer = this.channel.alloc().buffer();
 
-        if(encrypted && !(encryptionEnabled))
+        if (encrypted && !this.encryptionEnabled)
             throw new IllegalArgumentException("You can not use encryption if encryption is not enabled!");
 
-        try{
-            if(encrypted) {
-                buffer.writeBytes(RSA.encrypt((byte) packet.getId(), publicKey));
+        try {
+            if (encrypted) {
+                buffer.writeBytes(RSA.encrypt((byte) packet.getId(), this.publicKey));
 
                 packet.encode(buffer);
-                buffer.writeBytes(encrypt(buffer.array()));
-            }else{
+                buffer.writeBytes(this.encrypt(buffer.array()));
+            } else {
                 buffer.writeInt(packet.getId());
                 packet.encode(buffer);
             }
-        }catch(Exception ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
 
@@ -113,15 +120,15 @@ public class ClientConnection {
     }
 
     public void sendPacket(Packet packet) {
-        sendPacket(packet, false);
+        this.sendPacket(packet, false);
     }
 
-    public byte[] encrypt(byte[] data) throws Exception {
-        return RSA.encrypt(data, publicKey);
+    public byte[] encrypt(byte... data) throws Exception {
+        return RSA.encrypt(data, this.publicKey);
     }
 
-    public byte[] decrypt(byte[] data) throws Exception {
-        return RSA.decrypt(data, privateKey);
+    public byte[] decrypt(byte... data) throws Exception {
+        return RSA.decrypt(data, this.privateKey);
     }
 
     public void enableEncryption(PublicKey publicKey, PrivateKey privateKey) {
@@ -157,18 +164,6 @@ public class ClientConnection {
         return this.stage;
     }
 
-    public boolean isEncryptionEnabled() {
-        return encryptionEnabled;
-    }
-
-    public PublicKey getPublicKey() {
-        return publicKey;
-    }
-
-    public PrivateKey getPrivateKey() {
-        return privateKey;
-    }
-
     /**
      * Sets the client state, should only be used by the ClientConnectionHandler
      *
@@ -176,6 +171,18 @@ public class ClientConnection {
      */
     public void setStage(Protocol.ClientStage stage) {
         this.stage = stage;
+    }
+
+    public boolean isEncryptionEnabled() {
+        return this.encryptionEnabled;
+    }
+
+    public PublicKey getPublicKey() {
+        return this.publicKey;
+    }
+
+    public PrivateKey getPrivateKey() {
+        return this.privateKey;
     }
 
     /**

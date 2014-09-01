@@ -21,9 +21,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import net.tridentsdk.api.Trident;
 import net.tridentsdk.server.TridentServer;
-import net.tridentsdk.server.netty.packet.Packet;
-import net.tridentsdk.server.netty.packet.PacketData;
-import net.tridentsdk.server.netty.packet.PacketType;
+import net.tridentsdk.server.netty.packet.*;
 import net.tridentsdk.server.netty.protocol.Protocol;
 import net.tridentsdk.server.threads.BackgroundTaskExecutor;
 import net.tridentsdk.server.threads.PlayerThreads;
@@ -62,7 +60,7 @@ public class ClientConnectionHandler extends SimpleChannelInboundHandler<PacketD
         InetSocketAddress address = (InetSocketAddress) context.channel().remoteAddress();
         ClientConnection connection = ClientConnection.getConnection(address);
 
-        if (connection == null) connection = ConnectionFactory.registerConnection(context);
+        if (connection == null) connection = ClientConnection.registerConnection(context);
 
         Packet packet = this.protocol.getPacket(data.getId(), connection.getStage(), PacketType.IN);
 

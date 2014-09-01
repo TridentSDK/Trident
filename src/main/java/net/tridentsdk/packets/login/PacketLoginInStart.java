@@ -20,12 +20,9 @@ package net.tridentsdk.packets.login;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.client.ClientConnection;
-import net.tridentsdk.server.netty.packet.InPacket;
-import net.tridentsdk.server.netty.packet.Packet;
-import net.tridentsdk.server.netty.packet.PacketType;
+import net.tridentsdk.server.netty.packet.*;
 
 /**
- *
  * @author The TridentSDK Team
  */
 public class PacketLoginInStart extends InPacket {
@@ -60,7 +57,7 @@ public class PacketLoginInStart extends InPacket {
     @Override
     public void handleReceived(ClientConnection connection) {
         // TODO: Respond with PacketLoginOutEncryptionRequest
-        LoginManager.getInstance().initLogin(connection.getAddress(), getName());
+        LoginManager.getInstance().initLogin(connection.getAddress(), this.getName());
         connection.sendPacket(new PacketLoginOutEncryptionRequest());
     }
 }
