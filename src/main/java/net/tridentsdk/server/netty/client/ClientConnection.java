@@ -57,8 +57,6 @@ public class ClientConnection {
         this.address = (InetSocketAddress) channelContext.channel().remoteAddress();
         this.channel = channelContext.channel();
         this.encryptionEnabled = false;
-
-        ClientConnection.clientData.put(this.address, new AtomicReference<>(this));
     }
 
     /**
