@@ -21,6 +21,7 @@ import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.client.ClientConnection;
 import net.tridentsdk.server.netty.packet.*;
+import net.tridentsdk.server.netty.protocol.Protocol;
 
 /**
  * The secure packet sent to connect the server to the client
@@ -56,5 +57,15 @@ public class PacketHandshakeIn extends InPacket {
      * {@inheritDoc} <p/> <p>Nothing is done here</p>
      */
     @Override
-    public void handleReceived(ClientConnection connection) {}
+    public void handleReceived(ClientConnection connection) {
+        switch(nextState) {
+            case 1:
+                connection.setStage(Protocol.ClientStage.STATUS);
+                break;
+
+            case 2:
+                connection.setStage(Protocol.ClientStage.LOGIN);
+                break;
+        }
+    }
 }

@@ -57,6 +57,7 @@ public class ClientConnection {
         this.address = (InetSocketAddress) channelContext.channel().remoteAddress();
         this.channel = channelContext.channel();
         this.encryptionEnabled = false;
+        this.stage = Protocol.ClientStage.HANDSHAKE;
     }
 
     /**
