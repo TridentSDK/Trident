@@ -25,11 +25,14 @@ import net.tridentsdk.server.netty.client.ClientConnection;
  */
 public abstract class OutPacket implements Packet {
 
+<<<<<<< HEAD
     @Override
     public PacketType getType() {
         return PacketType.OUT;
     }
 
+=======
+>>>>>>> 4a4a38088be774afb95fe9355e80960315b4d93b
     /**
      * {@inheritDoc} <p/> <p>Cannot be decoded</p>
      */
