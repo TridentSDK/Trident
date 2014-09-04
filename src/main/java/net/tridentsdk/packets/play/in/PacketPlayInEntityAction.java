@@ -19,7 +19,7 @@ public class PacketPlayInEntityAction extends InPacket {
     @Override
     public Packet decode(ByteBuf buf) {
         Codec.readVarInt32(buf); // ignore entity id as its the player's
-        this.type = ActionType.getAction(buf.readByte());
+        this.type = ActionType.getAction(buf.readUnsignedByte());
         this.jumpBoost = Codec.readVarInt32(buf);
 
         return this;

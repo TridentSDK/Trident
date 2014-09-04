@@ -31,12 +31,9 @@ public abstract class InPacket implements Packet {
     public void encode(ByteBuf buf) {
         throw new UnsupportedOperationException(this.getClass().getName() + " cannot be encoded!");
     }
-<<<<<<< HEAD
 
     @Override
     public PacketType getType() {
         return PacketType.IN;
     }
-=======
->>>>>>> 4a4a38088be774afb95fe9355e80960315b4d93b
 }
