@@ -36,11 +36,13 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 @ThreadSafe
 public final class TridentServer implements Server, Runnable {
-    private final AtomicReference<Thread> SERVER_THREAD      = new AtomicReference<>();
-    private final ProfileRepository       PROFILE_REPOSITORY = new HttpProfileRepository("minecraft");
+    private final AtomicReference<Thread> SERVER_THREAD = new AtomicReference<>();
+    private final ProfileRepository PROFILE_REPOSITORY = new HttpProfileRepository("minecraft");
+
     private final TridentConfig config;
-    private final Protocol      protocol;
+    private final Protocol protocol;
     private final Queue<Runnable> threadTasks = new ConcurrentLinkedQueue<>();
+
     private volatile boolean stopped;
 
     private TridentServer(TridentConfig config) {

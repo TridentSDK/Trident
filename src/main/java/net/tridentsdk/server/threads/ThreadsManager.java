@@ -42,6 +42,7 @@ public final class ThreadsManager {
         try {
             Field field = Unsafe.class.getDeclaredField("theUnsafe");
             field.setAccessible(true);
+
             return (Unsafe) field.get(null);
         } catch (IllegalAccessException | NoSuchFieldException e) {
             e.printStackTrace();
@@ -63,6 +64,7 @@ public final class ThreadsManager {
     public static void stopAll() {
         BackgroundTaskExecutor.SERVICE.shutdownNow();
         PlayerThreads.SERVICE.shutdownNow();
+
         PlayerThreads.THREAD_MAP.clear();
         PlayerThreads.WRAPPER_MAP.clear();
         for (Map.Entry<ClientConnection, PlayerThreads.ThreadPlayerWrapper> entry :

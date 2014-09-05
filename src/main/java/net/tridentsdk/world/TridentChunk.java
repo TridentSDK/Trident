@@ -38,7 +38,8 @@ public class TridentChunk implements Serializable, Chunk {
 		this.location = coord;
 	}
 
-    @Override public void generate() {
+    @Override
+    public void generate() {
         int chunkX = this.getX() * 16;
         int chunkZ = this.getZ() * 16;
 
@@ -55,11 +56,13 @@ public class TridentChunk implements Serializable, Chunk {
         }
     }
 
-    @Override public int getX() {
+    @Override
+    public int getX() {
         return this.location.getX();
     }
 
-    @Override public int getZ() {
+    @Override
+    public int getZ() {
         return this.location.getX();
     }
     
@@ -68,7 +71,8 @@ public class TridentChunk implements Serializable, Chunk {
 		return location;
 	}
 
-    @Override public TridentWorld getWorld() {
+    @Override
+    public TridentWorld getWorld() {
         return this.world;
     }
 

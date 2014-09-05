@@ -31,14 +31,11 @@ import java.util.concurrent.*;
  */
 @ThreadSafe
 public final class PlayerThreads {
-    static final Map<PlayerThreads.ThreadPlayerHandler, Integer>          THREAD_MAP  = new HashMap<>(4);
+    static final Map<PlayerThreads.ThreadPlayerHandler, Integer> THREAD_MAP  = new HashMap<>(4);
     static final Map<ClientConnection, PlayerThreads.ThreadPlayerWrapper> WRAPPER_MAP = new HashMap<>();
 
-    static final Map<ClientConnection, PlayerThreads.ThreadPlayerWrapper> CACHE_MAP
-                                                                                  =
-            new ConcurrentHashMap<>();
-    static final ExecutorService                                          SERVICE =
-            Executors.newSingleThreadExecutor();
+    static final Map<ClientConnection, PlayerThreads.ThreadPlayerWrapper> CACHE_MAP = new ConcurrentHashMap<>();
+    static final ExecutorService SERVICE = Executors.newSingleThreadExecutor();
 
     static {
         PlayerThreads.SERVICE.execute(new Runnable() {

@@ -37,7 +37,8 @@ public class UnknownPacket implements Packet {
     /**
      * {@inheritDoc} <p/> <p>Cannot be encoded. Throws UnsupportedOperationException</p>
      */
-    @Override public void encode(ByteBuf buf) {
+    @Override
+    public void encode(ByteBuf buf) {
         throw new UnsupportedOperationException("Cannot serialize unknown packet");
     }
 
@@ -49,7 +50,8 @@ public class UnknownPacket implements Packet {
     /**
      * {@inheritDoc} <p/> <p>Returns {@code null}, since we don't know where the packet came from</p>
      */
-    @Override public PacketType getType() {
+    @Override
+    public PacketType getType() {
         return null;
     }
 

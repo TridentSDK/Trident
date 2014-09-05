@@ -24,8 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class LoginManager {
     private static final LoginManager instance = new LoginManager();
 
-    private final Map<InetSocketAddress, String> loginNames
-            = new ConcurrentHashMap<>();
+    private final Map<InetSocketAddress, String> loginNames = new ConcurrentHashMap<>();
 
     private LoginManager() {}
 

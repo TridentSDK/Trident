@@ -20,7 +20,8 @@ package net.tridentsdk.server.netty.protocol;
 import net.tridentsdk.api.docs.AccessNoDoc;
 import net.tridentsdk.packets.play.in.*;
 
-@AccessNoDoc class Play extends PacketManager {
+@AccessNoDoc
+class Play extends PacketManager {
 
     Play() {
         inPackets.put(0x00, PacketPlayInKeepAlive.class);

@@ -34,10 +34,10 @@ public class TridentWorld implements Serializable, World {
 
 
 	private final Map<ChunkLocation, Chunk> chunks  = new ConcurrentHashMap<>();
-	private final String      name;
-	private final Random      random;
+	private final String name;
+	private final Random random;
 	private final WorldLoader loader;
-	public        Location    spawnLocation;
+	private Location spawnLocation;
 
 	TridentWorld(String name, WorldLoader loader) {
 		this.name = name;
