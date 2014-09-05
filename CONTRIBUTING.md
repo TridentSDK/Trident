@@ -68,4 +68,4 @@ Keep in mind that you will be asked before accepting your PR if you agree to our
 Terms and Conditions for Contributors
 =====================================
 
-A contributor is one who adds and/or removes content from TridentSDK's or Trident's repository in any shape or form. Contributors shall not have ownership rights or copyrights for their contribution that have been pushed to TridentSDK’s or Trident’s repository.
+A contributor is one who adds and/or removes content from TridentSDK's or Trident's repository in any shape or form. Contributors shall not have ownership rights nor copyrights for their contribution(s) that have been pushed to TridentSDK’s or Trident’s repository.
