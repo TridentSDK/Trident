@@ -22,7 +22,7 @@ Keep in mind that you will be asked before accepting your PR if you agree to our
         * Then checkout the new branch with `git checkout relevantBranchName`
 * Check for unnecessary whitespace with `git diff --check` before committing;
 * Make sure your code meets [our requirements](#code-requirements);
-* Make sure your commit messages are in the [proper format](#commit-message-example);
+* Make sure your commit messages are in the [proper format](#commit-message-format);
 * Test your changes to make sure it actually addresses the issue it should;
 * Make sure your code compiles under Java 7, as that is what the project has to be built with. We will not be supporting Java 8 within the near future.
 
@@ -37,7 +37,7 @@ Keep in mind that you will be asked before accepting your PR if you agree to our
 
     These whitespace requirements are easily and often overlooked.  They are critical formatting requirements designed to help simplify a shared heterogeneous development environment.  Learn how your IDE functions in order to show you these characters and verify them.  Analyse the git diff closely to verify every character and if the PR should include the character change.  It is tedious and it is critical.
 
-    [Eclipse](http://stackoverflow.com/a/11596227/532590)
+    [Eclipse](http://stackoverflow.com/a/11596227/532590),
     [NetBeans](http://stackoverflow.com/a/1866385/532590)
 
 * No 80 column limit or 'weird' mid-statement newlines.
