@@ -18,9 +18,7 @@
 package net.tridentsdk.server.threads;
 
 import net.tridentsdk.server.netty.client.ClientConnection;
-import sun.misc.Unsafe;
 
-import java.lang.reflect.Field;
 import java.util.Map;
 
 /**
@@ -29,34 +27,7 @@ import java.util.Map;
  * @author The TridentSDK Team
  */
 public final class ThreadsManager {
-    private static final Unsafe unsafe = ThreadsManager.getUnsafe();
-
     private ThreadsManager() {}
-
-    /**
-     * Gets the unsafe instance
-     *
-     * @return the instance of unsafe
-     */
-    private static Unsafe getUnsafe() {
-        try {
-            Field field = Unsafe.class.getDeclaredField("theUnsafe");
-            field.setAccessible(true);
-
-            return (Unsafe) field.get(null);
-        } catch (IllegalAccessException | NoSuchFieldException e) {
-            e.printStackTrace();
-        }
-
-        return null;
-    }
-
-    /**
-     * Forces the thread into waiting mode for loop prorogation
-     */
-    public static void park() {
-        ThreadsManager.unsafe.park(false, 2L);
-    }
 
     /**
      * Stops all the executors and clears all caches of concurrent threads

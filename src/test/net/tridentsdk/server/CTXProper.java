@@ -77,7 +77,7 @@ public class CTXProper implements ChannelHandlerContext {
                 return false;
             }
 
-            @Override public Channel.Unsafe unsafe() {
+            @Override public Unsafe unsafe() {
                 return null;
             }
 

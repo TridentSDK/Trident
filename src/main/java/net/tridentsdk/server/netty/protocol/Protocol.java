@@ -29,9 +29,9 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public class Protocol {
-    private final Play play = new Play();
-    private final Status status = new Status();
-    private final Login login = new Login();
+    private final Play      play      = new Play();
+    private final Status    status    = new Status();
+    private final Login     login     = new Login();
     private final Handshake handshake = new Handshake();
 
     public Play getPlay() {
@@ -50,7 +50,7 @@ public class Protocol {
         return this.handshake;
     }
 
-    public Packet getPacket(int id, Protocol.ClientStage stage, PacketType type) {
+    public Packet getPacket(int id, ClientStage stage, PacketType type) {
         switch (stage) {
             case PLAY:
                 return this.play.getPacket(id, type);

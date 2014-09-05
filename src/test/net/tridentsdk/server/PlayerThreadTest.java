@@ -31,12 +31,15 @@ import java.util.concurrent.TimeUnit;
 @State(Scope.Benchmark)
 public class PlayerThreadTest {
     // private static final Queue<Object> QUEUE = new ConcurrentLinkedQueue<>();
+    private static PlayerThreads.ThreadPlayerWrapper wrapper;
 
     @Setup public static void setup() {
         for (int i = 0; i < 6_000; i++) {
             PlayerThreads.clientThreadHandle(ClientConnection.registerConnection(new CTXProper()));
             // PlayerThreadTest.QUEUE.add(new CTXProper());
         }
+
+        PlayerThreadTest.wrapper = (PlayerThreads.ThreadPlayerWrapper) PlayerThreads.wrappedPlayers().toArray()[0];
     }
 
     //@Benchmark public void aRetrieval(Blackhole blackhole) {
@@ -59,11 +62,11 @@ public class PlayerThreadTest {
     }
 
     @Benchmark public void benchASingle() {
-        ((PlayerThreads.ThreadPlayerWrapper) PlayerThreads.wrappedPlayers().toArray()[0]).doAction();
+        //PlayerThreadTest.wrapper.doAction();
     }
 
     @Benchmark public void benchEvery() {
-        for (PlayerThreads.ThreadPlayerWrapper wrapper : PlayerThreads.wrappedPlayers())
-            wrapper.doAction();
+        //for (PlayerThreads.ThreadPlayerWrapper wrapper : PlayerThreads.wrappedPlayers())
+        //wrapper.doAction();
     }
 }

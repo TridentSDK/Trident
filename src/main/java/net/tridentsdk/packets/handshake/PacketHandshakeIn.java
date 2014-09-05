@@ -29,10 +29,10 @@ import net.tridentsdk.server.netty.protocol.Protocol;
  * @author The TridentSDK Team
  */
 public class PacketHandshakeIn extends InPacket {
-    private int protocolVersion;
+    private int    protocolVersion;
     private String address;
-    private short port;
-    private int nextState;
+    private short  port;
+    private int    nextState;
 
     @Override
     public Packet decode(ByteBuf buf) {
@@ -58,7 +58,7 @@ public class PacketHandshakeIn extends InPacket {
      */
     @Override
     public void handleReceived(ClientConnection connection) {
-        switch (nextState) {
+        switch (this.nextState) {
             case 1:
                 connection.setStage(Protocol.ClientStage.STATUS);
                 break;

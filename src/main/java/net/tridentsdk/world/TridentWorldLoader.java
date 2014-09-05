@@ -17,12 +17,11 @@
 
 package net.tridentsdk.world;
 
-import net.tridentsdk.api.world.*;
+import net.tridentsdk.api.world.World;
+import net.tridentsdk.api.world.WorldLoader;
 
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicReference;
 
 public abstract class TridentWorldLoader implements WorldLoader {
 
@@ -40,13 +39,13 @@ public abstract class TridentWorldLoader implements WorldLoader {
 
     @Override
     public boolean worldExists(String world) {
-        return worlds.containsKey(world);
+        return this.worlds.containsKey(world);
     }
 
     //TODO: I dont believe this is checking the right thing... This should be checking of it 
     //exist in the save file, not in memory
     @Override
     public boolean chunkExists(World world, int x, int z) {
-    	return world.getChunkAt(x, z, false) != null;
+        return world.getChunkAt(x, z, false) != null;
     }
 }

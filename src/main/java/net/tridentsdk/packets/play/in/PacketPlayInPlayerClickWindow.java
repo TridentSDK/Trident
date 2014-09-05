@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2014 The TridentSDK Team
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package net.tridentsdk.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
@@ -20,33 +37,33 @@ public class PacketPlayInPlayerClickWindow extends InPacket {
     }
 
     public int getWindowId() {
-        return windowId;
+        return this.windowId;
     }
 
     public int getClickedButton() {
-        return clickedButton;
+        return this.clickedButton;
     }
 
     public short getClickedSlot() {
-        return clickedSlot;
+        return this.clickedSlot;
     }
 
     public short getActionNumber() {
-        return actionNumber;
+        return this.actionNumber;
     }
 
     public short getMode() {
-        return mode;
+        return this.mode;
     }
 
     @Override
     public Packet decode(ByteBuf buf) {
-        windowId = buf.readByte();
-        clickedSlot = buf.readShort();
-        clickedButton = buf.readByte();
+        this.windowId = (int) buf.readByte();
+        this.clickedSlot = buf.readShort();
+        this.clickedButton = (int) buf.readByte();
 
-        actionNumber = buf.readShort();
-        mode = buf.readShort();
+        this.actionNumber = buf.readShort();
+        this.mode = buf.readShort();
         return this;
     }
 

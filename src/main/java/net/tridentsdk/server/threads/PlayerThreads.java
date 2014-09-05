@@ -31,17 +31,20 @@ import java.util.concurrent.*;
  */
 @ThreadSafe
 public final class PlayerThreads {
-    static final Map<PlayerThreads.ThreadPlayerHandler, Integer> THREAD_MAP  = new HashMap<>(4);
-    static final Map<ClientConnection, PlayerThreads.ThreadPlayerWrapper> WRAPPER_MAP = new HashMap<>();
+    static final Map<ThreadPlayerHandler, Integer>          THREAD_MAP  = new HashMap<>(4);
+    static final Map<ClientConnection, ThreadPlayerWrapper> WRAPPER_MAP = new HashMap<>();
 
-    static final Map<ClientConnection, PlayerThreads.ThreadPlayerWrapper> CACHE_MAP = new ConcurrentHashMap<>();
-    static final ExecutorService SERVICE = Executors.newSingleThreadExecutor();
+    static final Map<ClientConnection, ThreadPlayerWrapper> CACHE_MAP
+                                                                    =
+            new ConcurrentHashMap<>();
+    static final ExecutorService                            SERVICE =
+            Executors.newSingleThreadExecutor();
 
     static {
         PlayerThreads.SERVICE.execute(new Runnable() {
             @Override public void run() {
                 for (int i = 0; i < 4; i++)
-                    PlayerThreads.THREAD_MAP.put(new PlayerThreads.ThreadPlayerHandler(), Integer.valueOf(0));
+                    PlayerThreads.THREAD_MAP.put(new ThreadPlayerHandler(), Integer.valueOf(0));
             }
         });
     }
@@ -56,21 +59,21 @@ public final class PlayerThreads {
      *
      * @param connection the player to find the wrapper for
      */
-    public static PlayerThreads.ThreadPlayerWrapper clientThreadHandle(ClientConnection connection) {
-        PlayerThreads.ThreadPlayerWrapper wrapper = PlayerThreads.CACHE_MAP.get(connection); // Fast path
+    public static ThreadPlayerWrapper clientThreadHandle(ClientConnection connection) {
+        ThreadPlayerWrapper wrapper = PlayerThreads.CACHE_MAP.get(connection); // Fast path
         if (wrapper == null) wrapper = PlayerThreads.fallbackHandle(connection); // If not...
         return wrapper;
     }
 
-    private static PlayerThreads.ThreadPlayerWrapper fallbackHandle(final ClientConnection connection) {
-        Callable<PlayerThreads.ThreadPlayerWrapper> callable = new Callable<PlayerThreads.ThreadPlayerWrapper>() {
-            @Override public PlayerThreads.ThreadPlayerWrapper call() throws Exception {
-                PlayerThreads.ThreadPlayerWrapper wrapper = PlayerThreads.WRAPPER_MAP.get(connection);
+    private static ThreadPlayerWrapper fallbackHandle(final ClientConnection connection) {
+        Callable<ThreadPlayerWrapper> callable = new Callable<ThreadPlayerWrapper>() {
+            @Override public ThreadPlayerWrapper call() throws Exception {
+                ThreadPlayerWrapper wrapper = PlayerThreads.WRAPPER_MAP.get(connection);
 
                 if (wrapper == null) {
-                    Map.Entry<PlayerThreads.ThreadPlayerHandler, ? extends Number> handler =
+                    Map.Entry<ThreadPlayerHandler, ? extends Number> handler =
                             PlayerThreads.minMap(PlayerThreads.THREAD_MAP);
-                    PlayerThreads.ThreadPlayerWrapper wrap = new PlayerThreads.ThreadPlayerWrapper(handler.getKey());
+                    ThreadPlayerWrapper wrap = new ThreadPlayerWrapper(handler.getKey());
 
                     PlayerThreads.WRAPPER_MAP.put(connection, wrap);
                     PlayerThreads.THREAD_MAP.put(handler.getKey(), Integer.valueOf(handler.getValue().intValue() + 1));
@@ -82,10 +85,10 @@ public final class PlayerThreads {
             }
         };
 
-        Future<PlayerThreads.ThreadPlayerWrapper> future = PlayerThreads.SERVICE.submit(callable);
+        Future<ThreadPlayerWrapper> future = PlayerThreads.SERVICE.submit(callable);
 
         try {
-            PlayerThreads.ThreadPlayerWrapper wrapper = future.get();
+            ThreadPlayerWrapper wrapper = future.get();
             if (wrapper != null) PlayerThreads.CACHE_MAP.put(connection, wrapper);
             return wrapper;
         } catch (InterruptedException e) {
@@ -103,10 +106,10 @@ public final class PlayerThreads {
     public static void remove(final ClientConnection connection) {
         PlayerThreads.SERVICE.execute(new Runnable() {
             @Override public void run() {
-                PlayerThreads.ThreadPlayerWrapper wrapper = PlayerThreads.WRAPPER_MAP.remove(connection);
+                ThreadPlayerWrapper wrapper = PlayerThreads.WRAPPER_MAP.remove(connection);
 
                 if (wrapper != null) {
-                    PlayerThreads.ThreadPlayerHandler handle = wrapper.getHandler();
+                    ThreadPlayerHandler handle = wrapper.getHandler();
                     PlayerThreads.THREAD_MAP.put(handle, Integer.valueOf(PlayerThreads.THREAD_MAP.get(handle) - 1));
                 }
             }
@@ -118,7 +121,7 @@ public final class PlayerThreads {
      *
      * @return the values of the concurrent cache
      */
-    public static Collection<PlayerThreads.ThreadPlayerWrapper> wrappedPlayers() {
+    public static Collection<ThreadPlayerWrapper> wrappedPlayers() {
         return PlayerThreads.CACHE_MAP.values();
     }
 
@@ -132,19 +135,20 @@ public final class PlayerThreads {
         return ent;
     }
 
-    // TODO put player implementation here, or move somewhere?
     @AccessNoDoc
     static class ThreadPlayerHandler extends Thread {
-        private final Queue<Runnable> tasks = new ConcurrentLinkedQueue<>();
-        private volatile boolean stopped;
+        private final TransferQueue<Runnable> tasks = new LinkedTransferQueue<>();
+        private boolean stopped;
+        // Does not need to be volatile because only this thread can change it
 
         @Override
         public void run() {
             if (!this.stopped) {
-                Runnable task = this.tasks.poll();
-                if (task != null)
+                try {
+                    Runnable task = this.tasks.take();
                     task.run();
-                ThreadsManager.park();
+                } catch (InterruptedException ignored) {
+                }
                 this.run();
             }
         }
@@ -153,34 +157,29 @@ public final class PlayerThreads {
             super.interrupt();
             this.addTask(new Runnable() {
                 @Override public void run() {
-                    PlayerThreads.ThreadPlayerHandler.this.performStop();
+                    ThreadPlayerHandler.this.stopped = true;
                 }
             });
         }
 
-        public void performStop() {
-            this.stopped = true;
-        }
-
-        /**
-         * Add task to queue
-         *
-         * @param task the task to run
-         */
         public void addTask(Runnable task) {
-            this.tasks.add(task);
+            try {
+                this.tasks.transfer(task);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
     public static class ThreadPlayerWrapper /* implements Player */ {
-        private final PlayerThreads.ThreadPlayerHandler handler;
+        private final ThreadPlayerHandler handler;
 
         /**
          * Wraps the thread player handling thread
          *
          * @param handler the handling thread to delegate actions to
          */
-        ThreadPlayerWrapper(PlayerThreads.ThreadPlayerHandler handler) {
+        ThreadPlayerWrapper(ThreadPlayerHandler handler) {
             this.handler = handler;
         }
 
@@ -189,7 +188,7 @@ public final class PlayerThreads {
          *
          * @return the delegation handler
          */
-        public PlayerThreads.ThreadPlayerHandler getHandler() {
+        public ThreadPlayerHandler getHandler() {
             return this.handler;
         }
     }

@@ -41,12 +41,12 @@ public class ClientConnection {
             new ConcurrentHashMap<>();
 
     private final InetSocketAddress address;
-    private final Channel channel;
+    private final Channel           channel;
 
-    private volatile PublicKey publicKey;
+    private volatile PublicKey            publicKey;
     private volatile Protocol.ClientStage stage;
-    private volatile boolean encryptionEnabled;
-    private volatile PrivateKey privateKey;
+    private volatile boolean              encryptionEnabled;
+    private volatile PrivateKey           privateKey;
 
     /**
      * Creates a new connection handler for the joining channel stream

@@ -43,37 +43,30 @@ public class PacketDecoder extends ReplayingDecoder<PacketDecoder.State> {
      * Creates the decoder and initializes the state
      */
     public PacketDecoder() {
-        super(PacketDecoder.State.LENGTH);
+        super(State.LENGTH);
         this.protocol = ((TridentServer) Trident.getServer()).getProtocol();
     }
 
     @Override
     protected void decode(ChannelHandlerContext context, ByteBuf buf, List<Object> objects) throws Exception {
-        switch (this.state()) {
-            case LENGTH:
-                this.length = Codec.readVarInt32(buf);
-                this.checkpoint(PacketDecoder.State.DATA);
+        // TODO :)
+        int length = Codec.readVarInt32(buf);
 
-            case DATA:
-                //Makes sure that there are enough bytes for the whole packet
-                buf.markReaderIndex();
-                buf.readBytes(this.length);
-                buf.resetReaderIndex();
+        this.checkpoint(State.DATA);
 
-                //Gets the packet id from the data
-                int id = Codec.readVarInt32(buf);
+        //Gets the packet id from the data
+        int id = Codec.readVarInt32(buf);
+        buf.markReaderIndex();
+        byte[] data = new byte[length];
+        buf.readBytes(data);
 
-                //Copies the Buf's data to put into a PacketData instance
-                ByteBuf dataCopy = Unpooled.copiedBuffer(buf);
-                dataCopy.readerIndex(buf.readerIndex());
-                //Moves the readerIndex of the input buf to the end, to signify that we've read the packet
-                buf.skipBytes(this.length);
+        //Copies the Buf's data to put into a PacketData instance
+        ByteBuf dataCopy = Unpooled.copiedBuffer(data);
 
-                //Passes the PacketData instance to be processed downstream
-                objects.add(new PacketData(id, dataCopy));
+        //Passes the PacketData instance to be processed downstream
+        objects.add(new PacketData(id, dataCopy));
 
-                this.checkpoint(PacketDecoder.State.LENGTH);
-        }
+        this.checkpoint(State.LENGTH);
     }
 
     /**

@@ -22,11 +22,10 @@ import com.mojang.api.profiles.ProfileRepository;
 import net.tridentsdk.api.Server;
 import net.tridentsdk.api.Trident;
 import net.tridentsdk.server.netty.protocol.Protocol;
-import net.tridentsdk.server.threads.ThreadsManager;
 
 import javax.annotation.concurrent.ThreadSafe;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.LinkedTransferQueue;
+import java.util.concurrent.TransferQueue;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -36,14 +35,14 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 @ThreadSafe
 public final class TridentServer implements Server, Runnable {
-    private final AtomicReference<Thread> SERVER_THREAD = new AtomicReference<>();
-    private final ProfileRepository PROFILE_REPOSITORY = new HttpProfileRepository("minecraft");
+    private final AtomicReference<Thread> SERVER_THREAD      = new AtomicReference<>();
+    private final ProfileRepository       PROFILE_REPOSITORY = new HttpProfileRepository("minecraft");
 
     private final TridentConfig config;
-    private final Protocol protocol;
-    private final Queue<Runnable> threadTasks = new ConcurrentLinkedQueue<>();
+    private final Protocol      protocol;
+    private final TransferQueue<Runnable> threadTasks = new LinkedTransferQueue<>();
 
-    private volatile boolean stopped;
+    private boolean stopped;
 
     private TridentServer(TridentConfig config) {
         this.config = config;
@@ -102,10 +101,12 @@ public final class TridentServer implements Server, Runnable {
 
         //TODO: Main server Loop
         while (!this.stopped) {
-            Runnable task = this.threadTasks.poll();
-            if (task != null)
+            try {
+                Runnable task = this.threadTasks.take();
                 task.run();
-            ThreadsManager.park();
+            } catch (InterruptedException ignored) {
+            }
+            this.run();
         }
     }
 
@@ -116,6 +117,14 @@ public final class TridentServer implements Server, Runnable {
     public void shutdown() {
         //TODO: Cleanup stuff...
         this.SERVER_THREAD.get().interrupt();
-        this.stopped = true;
+        try {
+            this.threadTasks.transfer(new Runnable() {
+                @Override public void run() {
+                    TridentServer.this.stopped = true;
+                }
+            });
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }

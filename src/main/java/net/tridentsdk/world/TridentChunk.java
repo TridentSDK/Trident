@@ -24,19 +24,18 @@ import java.io.Serializable;
 import java.util.Random;
 
 public class TridentChunk implements Serializable, Chunk {
-
     private static final long serialVersionUID = 3323137810332318805L;
-    private final  TridentWorld world;
-    private final  ChunkLocation location; 
+    private final TridentWorld  world;
+    private final ChunkLocation location;
 
     public TridentChunk(TridentWorld world, int x, int z) {
-       this(world, new ChunkLocation(x, z));
+        this(world, new ChunkLocation(x, z));
     }
-    
+
     public TridentChunk(TridentWorld world, ChunkLocation coord) {
-		this.world = world;
-		this.location = coord;
-	}
+        this.world = world;
+        this.location = coord;
+    }
 
     @Override
     public void generate() {
@@ -65,18 +64,14 @@ public class TridentChunk implements Serializable, Chunk {
     public int getZ() {
         return this.location.getX();
     }
-    
-	@Override
-	public ChunkLocation getLocation() {
-		return location;
-	}
+
+    @Override
+    public ChunkLocation getLocation() {
+        return this.location;
+    }
 
     @Override
     public TridentWorld getWorld() {
         return this.world;
     }
-
-
-
-	
 }

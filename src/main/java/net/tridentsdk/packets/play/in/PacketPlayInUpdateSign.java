@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2014 The TridentSDK Team
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package net.tridentsdk.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
@@ -9,8 +26,8 @@ import net.tridentsdk.server.netty.packet.Packet;
 
 public class PacketPlayInUpdateSign extends InPacket {
 
+    private final String[] jsonContents = new String[4];
     private Location signLocation;
-    private String[] jsonContents = new String[4];
 
     @Override
     public int getId() {
@@ -20,24 +37,24 @@ public class PacketPlayInUpdateSign extends InPacket {
     @Override
     public Packet decode(ByteBuf buf) {
         long encoded = buf.readLong();
-        double x = encoded >> 38;
-        double y = encoded << 26 >> 52;
-        double z = encoded << 38 >> 38;
+        double x = (double) (encoded >> 38);
+        double y = (double) (encoded << 26 >> 52);
+        double z = (double) (encoded << 38 >> 38);
 
         this.signLocation = new Location(null, x, y, z);
 
-        for(int i = 0; i <= 4; i++) {
-            jsonContents[i] = Codec.readString(buf);
+        for (int i = 0; i <= 4; i++) {
+            this.jsonContents[i] = Codec.readString(buf);
         }
         return this;
     }
 
     public Location getSignLocation() {
-        return signLocation;
+        return this.signLocation;
     }
 
     public String[] getJsonContents() {
-        return jsonContents;
+        return this.jsonContents;
     }
 
     @Override
