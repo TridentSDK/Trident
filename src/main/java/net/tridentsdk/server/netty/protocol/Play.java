@@ -36,5 +36,18 @@ import net.tridentsdk.packets.play.in.*;
         inPackets.put(0x0A, PacketPlayInAnimation.class); // I don't even
         inPackets.put(0x0B, PacketPlayInEntityAction.class);
         inPackets.put(0x0C, PacketPlayInSteerVehicle.class);
+        inPackets.put(0x0D, PacketPlayInPlayerCloseWindow.class);
+        inPackets.put(0x0E, PacketPlayInPlayerClickWindow.class);
+        inPackets.put(0x0F, PacketPlayInPlayerConfirmTransaction.class);
+        inPackets.put(0x10, PacketPlayInPlayerCAction.class);
+        inPackets.put(0x11, PacketPlayInPlayerEnchant.class);
+        inPackets.put(0x12, PacketPlayInUpdateSign.class);
+        inPackets.put(0x13, PacketPlayInPlayerAbilities.class);
+        inPackets.put(0x14, PacketPlayInTabComplete.class);
+        inPackets.put(0x15, PacketPlayInClientSettings.class);
+        inPackets.put(0x16, PacketPlayInClientStatus.class);
+        inPackets.put(0x17, PacketPlayInPluginMessage.class);
+        inPackets.put(0x18, PacketPlayInPlayerSpectate.class);
+        inPackets.put(0x19, PacketPlayInPackStatus.class);
     }
 }
