@@ -101,7 +101,7 @@ public final class TridentServer implements Server, Runnable {
         //TODO: Set some server stuff up
 
         //TODO: Main server Loop
-        while(!this.stopped) {
+        while (!this.stopped) {
             Runnable task = this.threadTasks.poll();
             if (task != null)
                 task.run();

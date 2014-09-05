@@ -10,8 +10,8 @@ import net.tridentsdk.server.netty.packet.Packet;
 public class PacketPlayInBlockPlace extends InPacket {
 
     private Location location;
-    private byte direction; // wat
-    private Vector cursorPosition;
+    private byte     direction; // wat
+    private Vector   cursorPosition;
 
     @Override
     public int getId() {
@@ -23,11 +23,11 @@ public class PacketPlayInBlockPlace extends InPacket {
         long encodedLocation = buf.readLong();
 
         this.location = new Location(null, encodedLocation >> 38, encodedLocation << 26 >> 52,
-                encodedLocation << 38 >> 38);
+                                     encodedLocation << 38 >> 38);
         this.direction = buf.readByte();
 
         // ignore held item
-        for(int i = 0; i < buf.readableBytes() - 3; i++) {
+        for (int i = 0; i < buf.readableBytes() - 3; i++) {
             buf.readByte();
         }
 

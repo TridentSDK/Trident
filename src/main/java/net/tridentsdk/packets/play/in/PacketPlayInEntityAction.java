@@ -9,7 +9,7 @@ import net.tridentsdk.server.netty.packet.Packet;
 public class PacketPlayInEntityAction extends InPacket {
 
     private ActionType type;
-    private int jumpBoost; // because people at Mojang are fucking retards
+    private int        jumpBoost; // because people at Mojang are fucking retards
 
     @Override
     public int getId() {
@@ -45,17 +45,17 @@ public class PacketPlayInEntityAction extends InPacket {
             this.id = id;
         }
 
-        public int getId() {
-            return id;
-        }
-
         public static ActionType getAction(int id) {
-            for(ActionType type : values()) {
-                if(type.id == id)
+            for (ActionType type : values()) {
+                if (type.id == id)
                     return type;
             }
 
             throw new IllegalArgumentException(id + " is not a valid ActionType id!");
+        }
+
+        public int getId() {
+            return id;
         }
     }
 }

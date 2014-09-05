@@ -18,7 +18,6 @@ public class PacketPlayInPlayerHeldItemChange extends InPacket {
     public Packet decode(ByteBuf buf) {
         this.slot = buf.readShort();
 
-
         return this;
     }
 

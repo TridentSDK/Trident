@@ -58,7 +58,7 @@ public class PacketHandshakeIn extends InPacket {
      */
     @Override
     public void handleReceived(ClientConnection connection) {
-        switch(nextState) {
+        switch (nextState) {
             case 1:
                 connection.setStage(Protocol.ClientStage.STATUS);
                 break;

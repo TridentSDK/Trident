@@ -77,7 +77,10 @@ public class ClientConnection {
      * @return the instance of the client handler associated with the IP
      */
     public static ClientConnection getConnection(InetSocketAddress address) {
-        return ClientConnection.clientData.get(address).get();
+        AtomicReference<ClientConnection> reference = ClientConnection.clientData.get(address);
+        if (reference == null)
+            return null;
+        return reference.get();
     }
 
     public static ClientConnection registerConnection(ChannelHandlerContext channelContext) {

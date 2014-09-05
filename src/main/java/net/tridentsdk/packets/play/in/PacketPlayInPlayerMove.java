@@ -9,7 +9,7 @@ import net.tridentsdk.server.netty.packet.Packet;
 public class PacketPlayInPlayerMove extends InPacket {
 
     protected Location location;
-    protected boolean onGround;
+    protected boolean  onGround;
 
     @Override
     public int getId() {

@@ -29,6 +29,7 @@ public abstract class OutPacket implements Packet {
     public PacketType getType() {
         return PacketType.OUT;
     }
+
     /**
      * {@inheritDoc} <p/> <p>Cannot be decoded</p>
      */

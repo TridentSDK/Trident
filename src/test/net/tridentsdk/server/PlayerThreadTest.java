@@ -48,10 +48,10 @@ public class PlayerThreadTest {
                 .include(".*" + PlayerThreadTest.class.getSimpleName() + ".*")
                 .timeUnit(TimeUnit.NANOSECONDS)
                 .mode(Mode.AverageTime)
-                .warmupIterations(10)
-                .measurementIterations(5)
+                .warmupIterations(25)
+                .measurementIterations(25)
                 .forks(1)
-                .threads(10)
+                .threads(4)
                 .build();
 
         new Runner(opt).run();
@@ -59,11 +59,11 @@ public class PlayerThreadTest {
     }
 
     @Benchmark public void benchASingle() {
-        //((PlayerThreads.ThreadPlayerWrapper) PlayerThreads.wrappedPlayers().toArray()[0]).doAction();
+        ((PlayerThreads.ThreadPlayerWrapper) PlayerThreads.wrappedPlayers().toArray()[0]).doAction();
     }
 
     @Benchmark public void benchEvery() {
-        //for (PlayerThreads.ThreadPlayerWrapper wrapper : PlayerThreads.wrappedPlayers())
-        //wrapper.doAction();
+        for (PlayerThreads.ThreadPlayerWrapper wrapper : PlayerThreads.wrappedPlayers())
+            wrapper.doAction();
     }
 }
