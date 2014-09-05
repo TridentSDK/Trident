@@ -40,7 +40,7 @@ class Play extends PacketManager {
         inPackets.put(0x0D, PacketPlayInPlayerCloseWindow.class);
         inPackets.put(0x0E, PacketPlayInPlayerClickWindow.class);
         inPackets.put(0x0F, PacketPlayInPlayerConfirmTransaction.class);
-        inPackets.put(0x10, PacketPlayInPlayerCAction.class);
+        inPackets.put(0x10, PacketPlayInPlayerCreativeAction.class);
         inPackets.put(0x11, PacketPlayInPlayerEnchant.class);
         inPackets.put(0x12, PacketPlayInUpdateSign.class);
         inPackets.put(0x13, PacketPlayInPlayerAbilities.class);

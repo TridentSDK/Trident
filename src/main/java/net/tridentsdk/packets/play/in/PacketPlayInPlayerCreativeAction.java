@@ -5,7 +5,7 @@ import net.tridentsdk.server.netty.client.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 
-public class PacketPlayInPlayerCAction extends InPacket {
+public class PacketPlayInPlayerCreativeAction extends InPacket {
 
     private short slot;
 
