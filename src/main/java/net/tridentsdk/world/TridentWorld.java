@@ -23,78 +23,108 @@ import net.tridentsdk.api.world.*;
 
 import java.io.Serializable;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class TridentWorld implements Serializable, World {
-    private static final int               SIZE             = 1;
-    private static final int               MAX_HEIGHT       = 255;
-    private static final int               MAX_CHUNKS       = -1;
-    private static final long              serialVersionUID = 2892463980167406259L;
-    final                Collection<Chunk> chunks           = new ArrayList<>();
-    private final String      name;
-    private final Random      random;
-    private final WorldLoader loader;
-    public        Location    spawnLocation;
 
-    TridentWorld(String name, WorldLoader loader) {
-        this.name = name;
-        this.loader = loader;
-        this.random = new Random();
+	private static final int SIZE  = 1;
+	private static final int MAX_HEIGHT = 255;
+	private static final int MAX_CHUNKS  = -1;
+	private static final long serialVersionUID = 2892463980167406259L;
 
-        // TODO Set spawn point
-    }
 
-    @Override public String getName() {
-        return this.name;
-    }
+	private final Map<ChunkLocation, Chunk> chunks  = new ConcurrentHashMap<>();
+	private final String      name;
+	private final Random      random;
+	private final WorldLoader loader;
+	public        Location    spawnLocation;
 
-    @Override public Chunk getChunkAt(int x, int z, boolean generateIfNotFound) {
-        if (this.chunks == null) {
-            return null;
-        }
+	TridentWorld(String name, WorldLoader loader) {
+		this.name = name;
+		this.loader = loader;
+		this.random = new Random();
 
-        for (Chunk chunk : this.chunks.toArray(new Chunk[this.chunks.size()])) {
-            if (chunk == null) {
-                continue;
-            }
+		// TODO Set spawn point
+	}
 
-            if ((chunk.getX() == x) && (chunk.getZ() == z)) {
-                return chunk;
-            }
-        }
+	@Override 
+	public String getName() {
+		return this.name;
+	}
 
-        if (generateIfNotFound) {
-            this.generateChunk(x, z);
-            return this.getChunkAt(x, z, false);
-        } else {
-            return null;
-        }
-    }
+	@Override 
+	public Chunk getChunkAt(int x, int z, boolean generateIfNotFound) {
+		return getChunkAt(new ChunkLocation(x, z), generateIfNotFound);
+	}
 
-    @Override public void generateChunk(int x, int z) {
-        if ((x > TridentWorld.MAX_CHUNKS) || (x < -TridentWorld.MAX_CHUNKS)) {
-            return;
-        }
+	@Override
+	public Chunk getChunkAt(ChunkLocation location, boolean generateIfNotFound){
+		if(location == null){
+			return null;
+		}
 
-        if ((z > TridentWorld.MAX_CHUNKS) || (z < -TridentWorld.MAX_CHUNKS)) {
-            return;
-        }
+		Chunk chunk = chunks.get(location);
 
-        if (this.getChunkAt(x, z, false) == null) {
-            if (this.loader.chunkExists(this, x, z)) {
-                this.chunks.add(this.loader.loadChunk(this, x, z));
+		if(chunk == null && generateIfNotFound){
+			return generateChunk(location);
+		} else {
+			return chunk;
+		}
+	}
 
-                Chunk c = new TridentChunk(this, x, z);
-                this.chunks.add(c);
-                c.generate();
-            }
-        }
-    }
+	@Override 
+	public Chunk generateChunk(int x, int z) {
+		return generateChunk(new ChunkLocation(x, z));
+	}
 
-    @Override
-    public Block getBlockAt(Location location) {
-        if (location.getWorld().getName().equals(this.getName()))
-            throw new IllegalArgumentException("Provided location does not have the same world!");
+	@Override
+	public Chunk generateChunk(ChunkLocation location) {
+		if(location == null)
+			throw new NullPointerException("Location cannot be null");
 
-        return null;
-    }
+
+		int x = location.getX();
+		int z = location.getZ();
+
+		if ((x > TridentWorld.MAX_CHUNKS) || (x < -TridentWorld.MAX_CHUNKS)) {
+			return null;
+		}
+
+		if ((z > TridentWorld.MAX_CHUNKS) || (z < -TridentWorld.MAX_CHUNKS)) {
+			return null;
+		}
+
+		if (this.getChunkAt(location, false) == null) {
+			if (this.loader.chunkExists(this, x, z)) {
+				addChunkAt(location, this.loader.loadChunk(this, x, z));
+			} else{
+				Chunk chunk = new TridentChunk(this, x, z);
+				addChunkAt(location, chunk);
+				chunk.generate();
+			}
+		}
+		return getChunkAt(location, false);
+	}
+
+	private void addChunkAt(ChunkLocation location, Chunk chunk){
+		if(location == null){
+			throw new NullPointerException("Location cannot be null");
+		}
+		this.chunks.put(location, chunk);
+	}
+
+	@Override
+	public Block getBlockAt(Location location) {
+		if (location.getWorld().getName().equals(this.getName()))
+			throw new IllegalArgumentException("Provided location does not have the same world!");
+
+		return null;
+	}
+
+	@Override
+	public ChunkSnapshot getChunkSnapshot() {
+		return new ChunkSnapshot(chunks);
+	}
 }
+
+

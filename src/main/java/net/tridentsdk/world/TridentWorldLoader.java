@@ -20,11 +20,13 @@ package net.tridentsdk.world;
 import net.tridentsdk.api.world.*;
 
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 public abstract class TridentWorldLoader implements WorldLoader {
 
-    private final Iterable<AtomicReference<World>> worldReferences = new ArrayList<>();
+    private final Map<String, World> worlds = new ConcurrentHashMap<>();
 
     @Override
     public World load(String world) {
@@ -38,23 +40,13 @@ public abstract class TridentWorldLoader implements WorldLoader {
 
     @Override
     public boolean worldExists(String world) {
-        for (AtomicReference<World> reference : this.worldReferences) {
-            if (reference.get().getName().equalsIgnoreCase(world)) {
-                return true;
-            }
-        }
-
-        return false;
+        return worlds.containsKey(world);
     }
 
+    //TODO: I dont believe this is checking the right thing... This should be checking of it 
+    //exist in the save file, not in memory
     @Override
     public boolean chunkExists(World world, int x, int z) {
-        for (Chunk chunk : ((TridentWorld) world).chunks) {
-            if ((chunk.getX() == x) && (chunk.getZ() == z)) {
-                return true;
-            }
-        }
-
-        return false;
+    	return world.getChunkAt(x, z, false) != null;
     }
 }

@@ -18,6 +18,7 @@
 package net.tridentsdk.world;
 
 import net.tridentsdk.api.world.Chunk;
+import net.tridentsdk.api.world.ChunkLocation;
 
 import java.io.Serializable;
 import java.util.Random;
@@ -25,19 +26,21 @@ import java.util.Random;
 public class TridentChunk implements Serializable, Chunk {
 
     private static final long serialVersionUID = 3323137810332318805L;
-    public final  TridentWorld world;
-    private final int          x;
-    private final int          z;
+    private final  TridentWorld world;
+    private final  ChunkLocation location; 
 
     public TridentChunk(TridentWorld world, int x, int z) {
-        this.world = world;
-        this.x = x;
-        this.z = z;
+       this(world, new ChunkLocation(x, z));
     }
+    
+    public TridentChunk(TridentWorld world, ChunkLocation coord) {
+		this.world = world;
+		this.location = coord;
+	}
 
     @Override public void generate() {
-        int chunkX = this.x * 16;
-        int chunkZ = this.z * 16;
+        int chunkX = this.getX() * 16;
+        int chunkZ = this.getZ() * 16;
 
         Random r = new Random();
 
@@ -53,14 +56,23 @@ public class TridentChunk implements Serializable, Chunk {
     }
 
     @Override public int getX() {
-        return this.x;
+        return this.location.getX();
     }
 
     @Override public int getZ() {
-        return this.z;
+        return this.location.getX();
     }
+    
+	@Override
+	public ChunkLocation getLocation() {
+		return location;
+	}
 
     @Override public TridentWorld getWorld() {
         return this.world;
     }
+
+
+
+	
 }
