@@ -25,35 +25,15 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package net.tridentsdk.packets.play.in;
+package net.tridentsdk.impl;
 
-import io.netty.buffer.ByteBuf;
-import net.tridentsdk.server.netty.client.ClientConnection;
-import net.tridentsdk.server.netty.packet.InPacket;
-import net.tridentsdk.server.netty.packet.Packet;
+import net.tridentsdk.api.Block;
+import net.tridentsdk.api.Location;
 
-public class PacketPlayInPlayerCloseWindow extends InPacket {
+public final class BlockFactory {
+    private BlockFactory() {}
 
-    private int id;
-
-    @Override
-    public int getId() {
-        return 0x0D;
-    }
-
-    @Override
-    public Packet decode(ByteBuf buf) {
-        this.id = (int) buf.readByte();
-
-        return this;
-    }
-
-    public int getWindowId() {
-        return this.id;
-    }
-
-    @Override
-    public void handleReceived(ClientConnection connection) {
-        // TODO: Act accordingly
+    public static Block createBlock(Location location) {
+        return location.getWorld().getBlockAt(location);
     }
 }
