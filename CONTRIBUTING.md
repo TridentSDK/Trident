@@ -26,6 +26,8 @@ Keep in mind that you will be asked before accepting your PR if you agree to our
 * Tabs shouldn't be used, please reference these threads to find how to make your IDE use spaces:
 
     Eclipse: http://www.oracle.com/technetwork/java/javase/documentation/codeconvtoc-136057.html
+    
+    IntelliJ: http://www.jetbrains.com/idea/webhelp/general.html (Default indent options)
 
 * Comments in code are encouraged to understand what your code does and how it works
 
@@ -33,7 +35,7 @@ Keep in mind that you will be asked before accepting your PR if you agree to our
 
 * Your commit messages must follow the format below
 
-* Any PRs that are racist and/or offensive to anyone through commit messages or code-comments will be rejected immediately and reported to GitHub. We have 0 tolerance for any type of offensive content.
+* Any PRs that are racist and/or offensive to anyone through commit messages or code-comments will be rejected immediately and reported to GitHub. We have zero tolerance for any type of offensive content.
 
 ### Commit Message Format
 
