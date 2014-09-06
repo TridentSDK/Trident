@@ -50,6 +50,8 @@ Keep in mind that you will be asked before accepting your PR if you agree to our
 
 * PRs with JavaDocs comments already made will help us accept and understand your PR.
 
+* Code should use standard libraries such as Guava. A required dependency that will be added will be discussed, lengthening the acceptance time. This also reduces the chance of acceptance.
+
 * Your PR must follow the PR format set out once creating one, any which doesn't follow said format will automatically be rejected.
 
 * Your commits should follow the [general format](#commit-message-format).
