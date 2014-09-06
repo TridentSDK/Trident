@@ -46,8 +46,8 @@ public class PacketLoginOutSuccess extends OutPacket {
     public void setName(String name) {
         this.name = name;
 
-        this.id = ((TridentServer) Trident.getServer()).getProfileRepository()
-                                                       .findProfilesByNames(name)[0].getId();
+        this.id = null; /* ((TridentServer) Trident.getServer()).getProfileRepository()
+                                                       .findProfilesByNames(name)[0].getId(); */
     }
 
     @Override
