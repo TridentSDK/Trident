@@ -40,6 +40,18 @@
 		<url>https://github.com/TridentSDK/Trident/tree/master/</url>
 	</scm>
 
+	<distributionManagement>
+		<repository>
+			<id>deployment-vilsol</id>
+			<name>Internal Releases</name>
+			<url>http://repo.vil.so/nexus/content/repositories/releases/</url>
+		</repository>
+		<snapshotRepository>
+			<id>deployment-vilsol</id>
+			<name>Internal Snapshots</name>
+			<url>http://repo.vil.so/nexus/content/repositories/snapshots/</url>
+		</snapshotRepository>
+	</distributionManagement>
 
 	<repositories>
 		<repository>
