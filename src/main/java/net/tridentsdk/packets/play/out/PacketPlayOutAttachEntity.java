@@ -49,7 +49,7 @@ public class PacketPlayOutAttachEntity extends OutPacket {
         return vehicleId;
     }
 
-    public boolean isLeash() {
+    public boolean isLeashed() {
         return leash;
     }
 
