@@ -25,49 +25,54 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package net.tridentsdk.server.netty.protocol;
+package net.tridentsdk.packets.play.out;
 
-import net.tridentsdk.server.netty.packet.*;
+import io.netty.buffer.ByteBuf;
+import net.tridentsdk.server.netty.Codec;
+import net.tridentsdk.server.netty.packet.OutPacket;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
-import java.util.Map;
+public class PacketPlayOutEntityEffect extends OutPacket {
 
-abstract class PacketManager {
-    final Map<Integer, Class<?>> inPackets = new HashMap<>();
-    final Map<Integer, Class<?>> outPackets = new HashMap<>();
+    private int entityId;
+    private short effectId;
+    private short amplifier;
 
-    PacketManager() {
-        this.inPackets.put(-1, UnknownPacket.class);
-        this.outPackets.put(-1, UnknownPacket.class);
+    private long duration;
+    private boolean hideParticles;
+
+    @Override
+    public int getId() {
+        return 0x0D;
     }
 
-    public Packet getPacket(int id, PacketType type) {
-        try {
-            Map<Integer, Class<?>> applicableMap;
+    public int getEntityId() {
+        return entityId;
+    }
 
-            switch (type) {
-            case IN:
-                applicableMap = this.inPackets;
-                break;
+    public short getEffectId() {
+        return effectId;
+    }
 
-            case OUT:
-                applicableMap = this.outPackets;
-                break;
+    public short getAmplifier() {
+        return amplifier;
+    }
 
-            default:
-                return null;
-            }
+    public long getDuration() {
+        return duration;
+    }
 
-            Class<?> cls = applicableMap.get(id);
+    public boolean isHideParticles() {
+        return hideParticles;
+    }
 
-            if (cls == null)
-                cls = applicableMap.get(-1);
+    @Override
+    public void encode(ByteBuf buf) {
+        Codec.writeVarInt32(buf, entityId);
 
-            return cls.asSubclass(Packet.class).getConstructor().newInstance();
-        } catch (IllegalAccessException | InstantiationException |
-                NoSuchMethodException | InvocationTargetException ex) {
-            throw new RuntimeException(ex.getMessage());
-        }
+        buf.writeByte(effectId);
+        buf.writeByte(amplifier);
+        Codec.writeVarInt64(buf, duration);
+
+        buf.writeBoolean(hideParticles);
     }
 }

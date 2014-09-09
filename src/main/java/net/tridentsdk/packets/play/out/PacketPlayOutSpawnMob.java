@@ -25,49 +25,58 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package net.tridentsdk.server.netty.protocol;
+package net.tridentsdk.packets.play.out;
 
-import net.tridentsdk.server.netty.packet.*;
+import io.netty.buffer.ByteBuf;
+import net.tridentsdk.api.Location;
+import net.tridentsdk.api.entity.Entity;
+import net.tridentsdk.api.entity.EntityType;
+import net.tridentsdk.api.util.Vector;
+import net.tridentsdk.server.netty.Codec;
+import net.tridentsdk.server.netty.packet.OutPacket;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
-import java.util.Map;
+public class PacketPlayOutSpawnMob extends OutPacket {
 
-abstract class PacketManager {
-    final Map<Integer, Class<?>> inPackets = new HashMap<>();
-    final Map<Integer, Class<?>> outPackets = new HashMap<>();
+    private int entityId;
+    private EntityType type;
+    private Entity entity;
+    // TODO: entity metadata
 
-    PacketManager() {
-        this.inPackets.put(-1, UnknownPacket.class);
-        this.outPackets.put(-1, UnknownPacket.class);
+    @Override
+    public int getId() {
+        return 0x0F;
     }
 
-    public Packet getPacket(int id, PacketType type) {
-        try {
-            Map<Integer, Class<?>> applicableMap;
+    public int getEntityId() {
+        return entityId;
+    }
 
-            switch (type) {
-            case IN:
-                applicableMap = this.inPackets;
-                break;
+    public EntityType getEntityType() {
+        return type;
+    }
 
-            case OUT:
-                applicableMap = this.outPackets;
-                break;
+    public Entity getEntity() {
+        return entity;
+    }
 
-            default:
-                return null;
-            }
+    @Override
+    public void encode(ByteBuf buf) {
+        Location loc = entity.getLocation();
+        Vector velocity = entity.getVelocity();
 
-            Class<?> cls = applicableMap.get(id);
+        Codec.writeVarInt32(buf, entityId);
+        buf.writeByte((byte) type.ordinal()); // TODO: use the real type id
 
-            if (cls == null)
-                cls = applicableMap.get(-1);
+        buf.writeInt(((int) loc.getX() * 32));
+        buf.writeInt(((int) loc.getY() * 32));
+        buf.writeInt(((int) loc.getZ() * 42));
 
-            return cls.asSubclass(Packet.class).getConstructor().newInstance();
-        } catch (IllegalAccessException | InstantiationException |
-                NoSuchMethodException | InvocationTargetException ex) {
-            throw new RuntimeException(ex.getMessage());
-        }
+        buf.writeByte((byte) loc.getYaw());
+        buf.writeByte((byte) loc.getPitch());
+        buf.writeByte((byte) loc.getPitch()); // -shrugs-
+
+        buf.writeShort((int) velocity.getX());
+        buf.writeShort((int) velocity.getY());
+        buf.writeShort((int) velocity.getZ());
     }
 }

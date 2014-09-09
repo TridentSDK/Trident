@@ -25,49 +25,51 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package net.tridentsdk.server.netty.protocol;
+package net.tridentsdk.packets.play.out;
 
-import net.tridentsdk.server.netty.packet.*;
+import io.netty.buffer.ByteBuf;
+import net.tridentsdk.api.Location;
+import net.tridentsdk.api.entity.Player;
+import net.tridentsdk.server.netty.Codec;
+import net.tridentsdk.server.netty.packet.OutPacket;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.UUID;
 
-abstract class PacketManager {
-    final Map<Integer, Class<?>> inPackets = new HashMap<>();
-    final Map<Integer, Class<?>> outPackets = new HashMap<>();
+public class PacketPlayOutSpawnPlayer extends OutPacket {
 
-    PacketManager() {
-        this.inPackets.put(-1, UnknownPacket.class);
-        this.outPackets.put(-1, UnknownPacket.class);
+    private int entityId;
+    private Player player;
+    // TODO: Mojang slot stuff
+    // TODO: entity metadata
+
+    @Override
+    public int getId() {
+        return 0x0C;
     }
 
-    public Packet getPacket(int id, PacketType type) {
-        try {
-            Map<Integer, Class<?>> applicableMap;
+    public int getEntityId() {
+        return entityId;
+    }
 
-            switch (type) {
-            case IN:
-                applicableMap = this.inPackets;
-                break;
+    public Player getPlayer() {
+        return player;
+    }
 
-            case OUT:
-                applicableMap = this.outPackets;
-                break;
+    @Override
+    public void encode(ByteBuf buf) {
+        Location loc = player.getLocation();
+        UUID id = player.getUniqueId();
 
-            default:
-                return null;
-            }
+        Codec.writeVarInt32(buf, entityId);
 
-            Class<?> cls = applicableMap.get(id);
+        buf.writeLong(id.getMostSignificantBits());
+        buf.writeLong(id.getLeastSignificantBits());
 
-            if (cls == null)
-                cls = applicableMap.get(-1);
+        buf.writeInt(((int) loc.getX() * 32));
+        buf.writeInt(((int) loc.getY() * 32));
+        buf.writeInt(((int) loc.getZ() * 32));
 
-            return cls.asSubclass(Packet.class).getConstructor().newInstance();
-        } catch (IllegalAccessException | InstantiationException |
-                NoSuchMethodException | InvocationTargetException ex) {
-            throw new RuntimeException(ex.getMessage());
-        }
+        buf.writeByte((byte) loc.getYaw());
+        buf.writeByte((byte) loc.getPitch());
     }
 }

@@ -25,49 +25,40 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package net.tridentsdk.server.netty.protocol;
+package net.tridentsdk.packets.play.out;
 
-import net.tridentsdk.server.netty.packet.*;
+import io.netty.buffer.ByteBuf;
+import net.tridentsdk.server.netty.Codec;
+import net.tridentsdk.server.netty.packet.OutPacket;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
-import java.util.Map;
+public class PacketPlayOutSetExperience extends OutPacket {
 
-abstract class PacketManager {
-    final Map<Integer, Class<?>> inPackets = new HashMap<>();
-    final Map<Integer, Class<?>> outPackets = new HashMap<>();
+    private float experienceBar;
+    private int level;
+    private long totalExperience;
 
-    PacketManager() {
-        this.inPackets.put(-1, UnknownPacket.class);
-        this.outPackets.put(-1, UnknownPacket.class);
+    @Override
+    public int getId() {
+        return 0x0F;
     }
 
-    public Packet getPacket(int id, PacketType type) {
-        try {
-            Map<Integer, Class<?>> applicableMap;
+    public float getExperienceBar() {
+        return experienceBar;
+    }
 
-            switch (type) {
-            case IN:
-                applicableMap = this.inPackets;
-                break;
+    public int getLevel() {
+        return level;
+    }
 
-            case OUT:
-                applicableMap = this.outPackets;
-                break;
+    public long getTotalExperience() {
+        return totalExperience;
+    }
 
-            default:
-                return null;
-            }
+    @Override
+    public void encode(ByteBuf buf) {
+        buf.writeFloat(experienceBar);
 
-            Class<?> cls = applicableMap.get(id);
-
-            if (cls == null)
-                cls = applicableMap.get(-1);
-
-            return cls.asSubclass(Packet.class).getConstructor().newInstance();
-        } catch (IllegalAccessException | InstantiationException |
-                NoSuchMethodException | InvocationTargetException ex) {
-            throw new RuntimeException(ex.getMessage());
-        }
+        Codec.writeVarInt32(buf, level);
+        Codec.writeVarInt64(buf, totalExperience);
     }
 }

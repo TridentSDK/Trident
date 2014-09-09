@@ -25,49 +25,39 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package net.tridentsdk.server.netty.protocol;
+package net.tridentsdk.packets.play.out;
 
-import net.tridentsdk.server.netty.packet.*;
+import io.netty.buffer.ByteBuf;
+import net.tridentsdk.api.Location;
+import net.tridentsdk.server.netty.packet.OutPacket;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
-import java.util.Map;
+public class PacketPlayOutPlayerCompleteMove extends OutPacket {
 
-abstract class PacketManager {
-    final Map<Integer, Class<?>> inPackets = new HashMap<>();
-    final Map<Integer, Class<?>> outPackets = new HashMap<>();
+    private Location location;
+    private byte flags;
 
-    PacketManager() {
-        this.inPackets.put(-1, UnknownPacket.class);
-        this.outPackets.put(-1, UnknownPacket.class);
+    @Override
+    public int getId() {
+        return 0x08;
     }
 
-    public Packet getPacket(int id, PacketType type) {
-        try {
-            Map<Integer, Class<?>> applicableMap;
+    public Location getLocation() {
+        return location;
+    }
 
-            switch (type) {
-            case IN:
-                applicableMap = this.inPackets;
-                break;
+    public byte getFlags() {
+        return flags;
+    }
 
-            case OUT:
-                applicableMap = this.outPackets;
-                break;
+    @Override
+    public void encode(ByteBuf buf) {
+        buf.writeDouble(location.getX());
+        buf.writeDouble(location.getY());
+        buf.writeDouble(location.getZ());
 
-            default:
-                return null;
-            }
+        buf.writeFloat(location.getYaw());
+        buf.writeFloat(location.getPitch());
 
-            Class<?> cls = applicableMap.get(id);
-
-            if (cls == null)
-                cls = applicableMap.get(-1);
-
-            return cls.asSubclass(Packet.class).getConstructor().newInstance();
-        } catch (IllegalAccessException | InstantiationException |
-                NoSuchMethodException | InvocationTargetException ex) {
-            throw new RuntimeException(ex.getMessage());
-        }
+        buf.writeByte(flags);
     }
 }

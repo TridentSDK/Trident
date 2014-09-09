@@ -25,49 +25,62 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package net.tridentsdk.server.netty.protocol;
+package net.tridentsdk.packets.play.out;
 
-import net.tridentsdk.server.netty.packet.*;
+import io.netty.buffer.ByteBuf;
+import net.tridentsdk.server.netty.Codec;
+import net.tridentsdk.server.netty.packet.OutPacket;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
-import java.util.Map;
+public class PacketPlayOutJoinGame extends OutPacket {
 
-abstract class PacketManager {
-    final Map<Integer, Class<?>> inPackets = new HashMap<>();
-    final Map<Integer, Class<?>> outPackets = new HashMap<>();
+    // TODO: Enum representations
+    private int entityId;
+    private short gameMode;
+    private int dimension;
 
-    PacketManager() {
-        this.inPackets.put(-1, UnknownPacket.class);
-        this.outPackets.put(-1, UnknownPacket.class);
+    private short difficulity;
+    private short maxPlayers;
+    private String levelType;
+
+    @Override
+    public int getId() {
+        return 0x01;
     }
 
-    public Packet getPacket(int id, PacketType type) {
-        try {
-            Map<Integer, Class<?>> applicableMap;
+    public int getEntityId() {
+        return entityId;
+    }
 
-            switch (type) {
-            case IN:
-                applicableMap = this.inPackets;
-                break;
+    public short getGameMode() {
+        return gameMode;
+    }
 
-            case OUT:
-                applicableMap = this.outPackets;
-                break;
+    public int getDimension() {
+        return dimension;
+    }
 
-            default:
-                return null;
-            }
+    public short getDifficulity() {
+        return difficulity;
+    }
 
-            Class<?> cls = applicableMap.get(id);
+    public short getMaxPlayers() {
+        return maxPlayers;
+    }
 
-            if (cls == null)
-                cls = applicableMap.get(-1);
+    public String getLevelType() {
+        return levelType;
+    }
 
-            return cls.asSubclass(Packet.class).getConstructor().newInstance();
-        } catch (IllegalAccessException | InstantiationException |
-                NoSuchMethodException | InvocationTargetException ex) {
-            throw new RuntimeException(ex.getMessage());
-        }
+    @Override
+    public void encode(ByteBuf buf) {
+        buf.writeInt(entityId);
+
+        buf.writeByte(gameMode);
+        buf.writeByte(dimension);
+        buf.writeByte(difficulity);
+        buf.writeByte(maxPlayers);
+
+        Codec.writeString(buf, levelType);
+        buf.writeBoolean(true);
     }
 }
