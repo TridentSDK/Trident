@@ -51,17 +51,18 @@ import io.netty.buffer.ByteBuf;
 /**
  * @author The TridentSDK Team
  */
-public class NBTByteBufBuilder {
-    ByteBuf input;
+public class NBTDecoder {
+    final ByteBuf input;
     
-    public NBTByteBufBuilder() { }
-    
-    public NBTByteBufBuilder input(ByteBuf input) {
+    public NBTDecoder(ByteBuf input) {
         this.input = input;
-        return this;
     }
     
-    public CompoundTag build(byte b) throws NBTException {
+    public CompoundTag decode() throws NBTException {
+        return decode(input.readByte());
+    }
+    
+    public CompoundTag decode(byte b) throws NBTException {
         TagType initType = TagType.fromId(b);
         
         //NBT source must start with a compound tag or is invalid

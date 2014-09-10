@@ -58,10 +58,9 @@ public class Slot {
 
         if((b = buf.readByte()) != 0) {
             try{
-                NBTByteBufBuilder builder = new NBTByteBufBuilder();
-
-                builder.input(buf);
-                compoundTag = builder.build(b);
+                NBTDecoder builder = new NBTDecoder(buf);
+                
+                compoundTag = builder.decode(b);
             }catch(NBTException ignored) {
                 // do something
             }
