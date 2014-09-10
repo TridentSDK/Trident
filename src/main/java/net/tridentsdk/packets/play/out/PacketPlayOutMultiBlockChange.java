@@ -31,46 +31,52 @@
 package net.tridentsdk.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.api.Location;
-import net.tridentsdk.data.Position;
+import net.tridentsdk.api.world.ChunkLocation;
+import net.tridentsdk.data.RecordBuilder;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
-public class PacketPlayOutSpawnPainting extends OutPacket {
+public class PacketPlayOutMultiBlockChange extends OutPacket {
 
-    private int entityId;
-    private String title;
-    private Location location;
-    private short direction;
+    private ChunkLocation chunkLocation;
+    private RecordBuilder[] records = new RecordBuilder[] {};
 
     @Override
     public int getId() {
-        return 0x10;
+        return 0x22;
     }
 
-    public int getEntityId() {
-        return entityId;
+    public ChunkLocation getChunkLocation() {
+        return chunkLocation;
     }
 
-    public String getTitle() {
-        return title;
+    public RecordBuilder[] getRecords() {
+        return records;
     }
 
-    public Location getLocation() {
-        return location;
-    }
+    public void cleanup() {
+        RecordBuilder[] newRecords = new RecordBuilder[] {};
 
-    public short getDirection() {
-        return direction;
+        for(RecordBuilder value : records) {
+            if(value != null) {
+                newRecords[newRecords.length] = value;
+            }
+        }
+
+        this.records = newRecords;
     }
 
     @Override
     public void encode(ByteBuf buf) {
-        Codec.writeVarInt32(buf, entityId);
-        Codec.writeString(buf, title);
+        cleanup();
 
-        new Position(location).write(buf);
+        buf.writeInt(chunkLocation.getX());
+        buf.writeInt(chunkLocation.getZ());
 
-        buf.writeByte(direction);
+        Codec.writeVarInt32(buf, records.length);
+
+        for(RecordBuilder record : records) {
+            record.write(buf);
+        }
     }
 }

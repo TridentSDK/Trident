@@ -31,46 +31,47 @@
 package net.tridentsdk.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.api.Location;
-import net.tridentsdk.data.Position;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
-public class PacketPlayOutSpawnPainting extends OutPacket {
+public class PacketPlayOutUpdateScore extends OutPacket {
 
-    private int entityId;
-    private String title;
-    private Location location;
-    private short direction;
+    private String itemName;
+    private short type; // TODO: Change to enum
+    private String scoreName;
+    private int value;
 
     @Override
     public int getId() {
-        return 0x10;
+        return 0x3C;
     }
 
-    public int getEntityId() {
-        return entityId;
+    public String getItemName() {
+        return itemName;
     }
 
-    public String getTitle() {
-        return title;
+    public short getUpdateType() {
+        return type;
     }
 
-    public Location getLocation() {
-        return location;
+    public String getScoreName() {
+        return scoreName;
     }
 
-    public short getDirection() {
-        return direction;
+    public int getValue() {
+        return value;
     }
 
     @Override
     public void encode(ByteBuf buf) {
-        Codec.writeVarInt32(buf, entityId);
-        Codec.writeString(buf, title);
+        Codec.writeString(buf, itemName);
+        buf.writeByte(type);
 
-        new Position(location).write(buf);
+        if(type == 1) {
+            return;
+        }
 
-        buf.writeByte(direction);
+        Codec.writeString(buf, scoreName);
+        Codec.writeVarInt32(buf, value);
     }
 }

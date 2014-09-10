@@ -31,46 +31,85 @@
 package net.tridentsdk.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.api.Location;
-import net.tridentsdk.data.Position;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
-public class PacketPlayOutSpawnPainting extends OutPacket {
+public class PacketPlayOutMaps extends OutPacket {
 
-    private int entityId;
-    private String title;
-    private Location location;
-    private short direction;
+    private int itemDamage;
+    private int scale;
+    private int length;
+    private byte[] icons; // array must be 3 * larger than length
+    private byte columns;
+    private byte rows;
+    private byte x;
+    private byte y;
+    private int columnLength;
+    private byte[] data;
 
     @Override
     public int getId() {
-        return 0x10;
+        return 0x34;
     }
 
-    public int getEntityId() {
-        return entityId;
+    public int getItemDamage() {
+        return itemDamage;
     }
 
-    public String getTitle() {
-        return title;
+    public int getScale() {
+        return scale;
     }
 
-    public Location getLocation() {
-        return location;
+    public int getLength() {
+        return length;
     }
 
-    public short getDirection() {
-        return direction;
+    public byte[] getIcons() {
+        return icons;
+    }
+
+    public byte getColumns() {
+        return columns;
+    }
+
+    public byte getRows() {
+        return rows;
+    }
+
+    public byte getX() {
+        return x;
+    }
+
+    public byte getY() {
+        return y;
+    }
+
+    public int getColumnLength() {
+        return columnLength;
+    }
+
+    public byte[] getData() {
+        return data;
     }
 
     @Override
     public void encode(ByteBuf buf) {
-        Codec.writeVarInt32(buf, entityId);
-        Codec.writeString(buf, title);
+        Codec.writeVarInt32(buf, itemDamage);
+        buf.writeByte(scale);
+        Codec.writeVarInt32(buf, length);
 
-        new Position(location).write(buf);
+        buf.writeBytes(icons);
+        buf.writeByte(columns);
 
-        buf.writeByte(direction);
+        if(columns <= 0) {
+            return;
+        }
+
+        buf.writeByte(rows);
+        buf.writeByte(x);
+        buf.writeByte(y);
+
+        Codec.writeVarInt32(buf, columnLength);
+        buf.writeBytes(data); // here I'm not sure if I'm doing it right
     }
 }

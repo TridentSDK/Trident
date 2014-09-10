@@ -31,46 +31,50 @@
 package net.tridentsdk.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.api.Location;
-import net.tridentsdk.data.Position;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
-public class PacketPlayOutSpawnPainting extends OutPacket {
+public class PacketPlayOutOpenWindow extends OutPacket {
 
-    private int entityId;
-    private String title;
-    private Location location;
-    private short direction;
+    private int windowId;
+    private String inventoryType; // TODO: Change to enum
+    private String windowTitle;
+    private int slots;
+    private int entityId; // only for horses, since people at Mojang are retards
 
     @Override
     public int getId() {
-        return 0x10;
+        return 0x2D;
+    }
+
+    public int getWindowId() {
+        return windowId;
+    }
+
+    public String getInventoryType() {
+        return inventoryType;
+    }
+
+    public String getWindowTitle() {
+        return windowTitle;
+    }
+
+    public int getSlots() {
+        return slots;
     }
 
     public int getEntityId() {
         return entityId;
     }
 
-    public String getTitle() {
-        return title;
-    }
-
-    public Location getLocation() {
-        return location;
-    }
-
-    public short getDirection() {
-        return direction;
-    }
-
     @Override
     public void encode(ByteBuf buf) {
-        Codec.writeVarInt32(buf, entityId);
-        Codec.writeString(buf, title);
+        buf.writeByte(windowId);
 
-        new Position(location).write(buf);
+        Codec.writeString(buf, inventoryType);
+        Codec.writeString(buf, windowTitle);
 
-        buf.writeByte(direction);
+        buf.writeByte(slots);
+        buf.writeInt(entityId); // rip in varints
     }
 }

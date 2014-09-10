@@ -31,46 +31,49 @@
 package net.tridentsdk.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.api.Location;
-import net.tridentsdk.data.Position;
+import net.tridentsdk.data.PropertyBuilder;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
-public class PacketPlayOutSpawnPainting extends OutPacket {
+public class PacketPlayOutEntityProperties extends OutPacket {
 
     private int entityId;
-    private String title;
-    private Location location;
-    private short direction;
+    private PropertyBuilder[] properties = new PropertyBuilder[] {};
 
     @Override
     public int getId() {
-        return 0x10;
+        return 0x20;
     }
 
     public int getEntityId() {
         return entityId;
     }
 
-    public String getTitle() {
-        return title;
+    public PropertyBuilder[] getProperties() {
+        return properties;
     }
 
-    public Location getLocation() {
-        return location;
-    }
+    public void cleanup() {
+        PropertyBuilder[] newProperties = new PropertyBuilder[] {};
 
-    public short getDirection() {
-        return direction;
+        for(PropertyBuilder value : properties) {
+            if(value != null) {
+                newProperties[newProperties.length] = value;
+            }
+        }
+
+        this.properties = newProperties;
     }
 
     @Override
     public void encode(ByteBuf buf) {
+        cleanup();
+
         Codec.writeVarInt32(buf, entityId);
-        Codec.writeString(buf, title);
+        buf.writeInt(properties.length);
 
-        new Position(location).write(buf);
-
-        buf.writeByte(direction);
+        for(PropertyBuilder property : properties) {
+            property.write(buf);
+        }
     }
 }

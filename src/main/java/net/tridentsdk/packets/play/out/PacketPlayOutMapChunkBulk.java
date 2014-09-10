@@ -31,46 +31,45 @@
 package net.tridentsdk.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.api.Location;
-import net.tridentsdk.data.Position;
+import net.tridentsdk.data.ChunkMetaBuilder;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
-public class PacketPlayOutSpawnPainting extends OutPacket {
+public class PacketPlayOutMapChunkBulk extends OutPacket {
 
-    private int entityId;
-    private String title;
-    private Location location;
-    private short direction;
+    private boolean lightSent;
+    private int columnCount;
+    private ChunkMetaBuilder meta;
+    private byte[] data;
 
     @Override
     public int getId() {
-        return 0x10;
+            return 0x26;
     }
 
-    public int getEntityId() {
-        return entityId;
+    public boolean isLightSent() {
+        return lightSent;
     }
 
-    public String getTitle() {
-        return title;
+    public int getColumnCount() {
+        return columnCount;
     }
 
-    public Location getLocation() {
-        return location;
+    public ChunkMetaBuilder getMeta() {
+        return meta;
     }
 
-    public short getDirection() {
-        return direction;
+    public byte[] getData() {
+        return data;
     }
 
     @Override
     public void encode(ByteBuf buf) {
-        Codec.writeVarInt32(buf, entityId);
-        Codec.writeString(buf, title);
+        buf.writeBoolean(lightSent);
 
-        new Position(location).write(buf);
+        Codec.writeVarInt32(buf, columnCount);
+        meta.write(buf);
 
-        buf.writeByte(direction);
+        buf.writeBytes(data);
     }
 }

@@ -36,41 +36,37 @@ import net.tridentsdk.data.Position;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
-public class PacketPlayOutSpawnPainting extends OutPacket {
+public class PacketPlayOutBlockAction extends OutPacket {
 
-    private int entityId;
-    private String title;
     private Location location;
-    private short direction;
+    private byte byte1;
+    private byte byte2;
+    private int blockId;
 
     @Override
     public int getId() {
-        return 0x10;
-    }
-
-    public int getEntityId() {
-        return entityId;
-    }
-
-    public String getTitle() {
-        return title;
+        return 0x24;
     }
 
     public Location getLocation() {
         return location;
     }
 
-    public short getDirection() {
-        return direction;
+    public byte getByte1() {
+        return byte1;
+    }
+
+    public byte getByte2() {
+        return byte2;
     }
 
     @Override
     public void encode(ByteBuf buf) {
-        Codec.writeVarInt32(buf, entityId);
-        Codec.writeString(buf, title);
-
         new Position(location).write(buf);
 
-        buf.writeByte(direction);
+        buf.writeByte(byte1);
+        buf.writeByte(byte2);
+
+        Codec.writeVarInt32(buf, blockId);
     }
 }

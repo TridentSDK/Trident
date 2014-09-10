@@ -31,46 +31,54 @@
 package net.tridentsdk.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.api.Location;
-import net.tridentsdk.data.Position;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
-public class PacketPlayOutSpawnPainting extends OutPacket {
+public class PacketPlayOutStatistics extends OutPacket {
 
-    private int entityId;
-    private String title;
-    private Location location;
-    private short direction;
+    private StatisticEntry[] entries;
 
     @Override
     public int getId() {
-        return 0x10;
+        return 0x37;
     }
 
-    public int getEntityId() {
-        return entityId;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public Location getLocation() {
-        return location;
-    }
-
-    public short getDirection() {
-        return direction;
+    public StatisticEntry[] getEntries() {
+        return entries;
     }
 
     @Override
     public void encode(ByteBuf buf) {
-        Codec.writeVarInt32(buf, entityId);
-        Codec.writeString(buf, title);
+        Codec.writeVarInt32(buf, entries.length);
 
-        new Position(location).write(buf);
+        for(StatisticEntry entry : entries) {
+            entry.write(buf);
+        }
+    }
 
-        buf.writeByte(direction);
+    public class StatisticEntry {
+        private String string;
+        private int value;
+
+        public String getString() {
+            return string;
+        }
+
+        public void setString(String string) {
+            this.string = string;
+        }
+
+        public int getValue() {
+            return value;
+        }
+
+        public void setValue(int value) {
+            this.value = value;
+        }
+
+        public void write(ByteBuf buf) {
+            Codec.writeString(buf, string);
+            Codec.writeVarInt32(buf, value);
+        }
     }
 }

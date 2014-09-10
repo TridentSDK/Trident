@@ -32,45 +32,66 @@ package net.tridentsdk.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.api.Location;
-import net.tridentsdk.data.Position;
+import net.tridentsdk.api.util.Vector;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
-public class PacketPlayOutSpawnPainting extends OutPacket {
+public class PacketPlayOutParticle extends OutPacket {
 
-    private int entityId;
-    private String title;
-    private Location location;
-    private short direction;
+    private int particleId;
+    private boolean distance;
+    private Location loc;
+    private Vector offset; // d - (d * Random#nextGaussian())
+    private float particleData;
+    private int[] data;
 
     @Override
     public int getId() {
-        return 0x10;
+        return 0x2A;
     }
 
-    public int getEntityId() {
-        return entityId;
+    public int getParticleId() {
+        return particleId;
     }
 
-    public String getTitle() {
-        return title;
+    public boolean isDistance() {
+        return distance;
     }
 
-    public Location getLocation() {
-        return location;
+    public Location getLoc() {
+        return loc;
     }
 
-    public short getDirection() {
-        return direction;
+    public Vector getOffset() {
+        return offset;
+    }
+
+    public float getParticleData() {
+        return particleData;
+    }
+
+    public int[] getData() {
+        return data;
     }
 
     @Override
     public void encode(ByteBuf buf) {
-        Codec.writeVarInt32(buf, entityId);
-        Codec.writeString(buf, title);
+        buf.writeInt(particleId);
+        buf.writeBoolean(distance);
 
-        new Position(location).write(buf);
+        buf.writeFloat((float) loc.getX());
+        buf.writeFloat((float) loc.getY());
+        buf.writeFloat((float) loc.getZ());
 
-        buf.writeByte(direction);
+        buf.writeFloat((float) offset.getX());
+        buf.writeFloat((float) offset.getY());
+        buf.writeFloat((float) offset.getZ());
+
+        buf.writeFloat(particleData);
+        buf.writeInt(data.length);
+
+        for(int i : data) {
+            Codec.writeVarInt32(buf, i);
+        }
     }
 }

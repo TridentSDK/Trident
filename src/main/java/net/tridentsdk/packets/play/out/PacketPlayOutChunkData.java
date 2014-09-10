@@ -31,46 +31,47 @@
 package net.tridentsdk.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.api.Location;
-import net.tridentsdk.data.Position;
+import net.tridentsdk.api.world.ChunkLocation;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
-public class PacketPlayOutSpawnPainting extends OutPacket {
+public class PacketPlayOutChunkData extends OutPacket {
 
-    private int entityId;
-    private String title;
-    private Location location;
-    private short direction;
+    private ChunkLocation chunkLocation;
+    private boolean continuous;
+    private short primaryBitMap;
+    private byte[] data = new byte[] {};
 
     @Override
     public int getId() {
-        return 0x10;
+        return 0x21;
     }
 
-    public int getEntityId() {
-        return entityId;
+    public ChunkLocation getChunkLocation() {
+        return chunkLocation;
     }
 
-    public String getTitle() {
-        return title;
+    public boolean isContinuous() {
+        return continuous;
     }
 
-    public Location getLocation() {
-        return location;
+    public short getPrimaryBitMap() {
+        return primaryBitMap;
     }
 
-    public short getDirection() {
-        return direction;
+    public byte[] getData() {
+        return data;
     }
 
     @Override
     public void encode(ByteBuf buf) {
-        Codec.writeVarInt32(buf, entityId);
-        Codec.writeString(buf, title);
+        buf.writeInt(chunkLocation.getX());
+        buf.writeInt(chunkLocation.getZ());
 
-        new Position(location).write(buf);
+        buf.writeBoolean(continuous);
+        buf.writeByte(primaryBitMap);
 
-        buf.writeByte(direction);
+        Codec.writeVarInt32(buf, data.length);
+        buf.writeBytes(data);
     }
 }

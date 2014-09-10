@@ -36,41 +36,35 @@ import net.tridentsdk.data.Position;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
-public class PacketPlayOutSpawnPainting extends OutPacket {
+public class PacketPlayOutBlockBreakAnimation extends OutPacket {
 
     private int entityId;
-    private String title;
     private Location location;
-    private short direction;
+    private short destroyStage;
 
     @Override
     public int getId() {
-        return 0x10;
+        return 0x25;
     }
 
     public int getEntityId() {
         return entityId;
     }
 
-    public String getTitle() {
-        return title;
-    }
-
     public Location getLocation() {
         return location;
     }
 
-    public short getDirection() {
-        return direction;
+    public short getDestroyStage() {
+        return destroyStage;
     }
 
     @Override
     public void encode(ByteBuf buf) {
         Codec.writeVarInt32(buf, entityId);
-        Codec.writeString(buf, title);
 
         new Position(location).write(buf);
 
-        buf.writeByte(direction);
+        buf.writeByte(destroyStage);
     }
 }

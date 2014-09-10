@@ -33,44 +33,43 @@ package net.tridentsdk.packets.play.out;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.api.Location;
 import net.tridentsdk.data.Position;
-import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
-public class PacketPlayOutSpawnPainting extends OutPacket {
+public class PacketPlayOutEffect extends OutPacket {
 
-    private int entityId;
-    private String title;
-    private Location location;
-    private short direction;
+    private int effectId;
+    private Location loc;
+    private int data;
+    private boolean playSound;
 
     @Override
     public int getId() {
-        return 0x10;
+        return 0x28;
     }
 
-    public int getEntityId() {
-        return entityId;
+    public int getEffectId() {
+        return effectId;
     }
 
-    public String getTitle() {
-        return title;
+    public Location getLoc() {
+        return loc;
     }
 
-    public Location getLocation() {
-        return location;
+    public int getData() {
+        return data;
     }
 
-    public short getDirection() {
-        return direction;
+    public boolean isPlaySound() {
+        return playSound;
     }
 
     @Override
     public void encode(ByteBuf buf) {
-        Codec.writeVarInt32(buf, entityId);
-        Codec.writeString(buf, title);
+        buf.writeInt(effectId);
 
-        new Position(location).write(buf);
+        new Position(loc).write(buf);
 
-        buf.writeByte(direction);
+        buf.writeInt(data);
+        buf.writeBoolean(playSound);
     }
 }

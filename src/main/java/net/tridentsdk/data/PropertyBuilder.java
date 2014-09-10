@@ -28,49 +28,75 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package net.tridentsdk.packets.play.out;
+package net.tridentsdk.data;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.api.Location;
-import net.tridentsdk.data.Position;
 import net.tridentsdk.server.netty.Codec;
-import net.tridentsdk.server.netty.packet.OutPacket;
 
-public class PacketPlayOutSpawnPainting extends OutPacket {
+public class PropertyBuilder {
 
-    private int entityId;
-    private String title;
-    private Location location;
-    private short direction;
+    private String key;
+    private double value;
+    private volatile String[] modifiers; // TODO: look more into this, modify accordingly
 
-    @Override
-    public int getId() {
-        return 0x10;
+    public PropertyBuilder() {
+        modifiers = new String[] {};
     }
 
-    public int getEntityId() {
-        return entityId;
+    public String getKey() {
+        return key;
     }
 
-    public String getTitle() {
-        return title;
+    public PropertyBuilder setKey(String key) {
+        this.key = key;
+
+        return this;
     }
 
-    public Location getLocation() {
-        return location;
+    public double getValue() {
+        return value;
     }
 
-    public short getDirection() {
-        return direction;
+    public PropertyBuilder setValue(double value) {
+        this.value = value;
+
+        return this;
     }
 
-    @Override
-    public void encode(ByteBuf buf) {
-        Codec.writeVarInt32(buf, entityId);
-        Codec.writeString(buf, title);
+    public String[] getModifiers() {
+        return modifiers;
+    }
 
-        new Position(location).write(buf);
+    public PropertyBuilder addModifier(int index, String modifier) {
+        modifiers[index] = modifier;
 
-        buf.writeByte(direction);
+        return this;
+    }
+
+    public PropertyBuilder cleanup() {
+        String[] newModifiers = new String[] {};
+
+        for(String value : modifiers) {
+            if(value != null) {
+                newModifiers[newModifiers.length] = value;
+            }
+        }
+
+        this.modifiers = newModifiers;
+        return this;
+    }
+
+    public PropertyBuilder write(ByteBuf buf) {
+        cleanup();
+
+        Codec.writeString(buf, key);
+        buf.writeDouble(value);
+        Codec.writeVarInt32(buf, modifiers.length);
+
+        for(String s : modifiers) {
+            Codec.writeString(buf, s);
+        }
+
+        return this;
     }
 }

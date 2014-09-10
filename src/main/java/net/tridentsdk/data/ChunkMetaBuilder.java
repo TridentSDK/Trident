@@ -28,49 +28,43 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package net.tridentsdk.packets.play.out;
+package net.tridentsdk.data;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.api.Location;
-import net.tridentsdk.data.Position;
-import net.tridentsdk.server.netty.Codec;
-import net.tridentsdk.server.netty.packet.OutPacket;
+import net.tridentsdk.api.world.ChunkLocation;
 
-public class PacketPlayOutSpawnPainting extends OutPacket {
+public class ChunkMetaBuilder {
 
-    private int entityId;
-    private String title;
-    private Location location;
-    private short direction;
+    private ChunkLocation location;
+    private short bitmap;
 
-    @Override
-    public int getId() {
-        return 0x10;
+    public ChunkMetaBuilder() {
     }
 
-    public int getEntityId() {
-        return entityId;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public Location getLocation() {
+    public ChunkLocation getLocation() {
         return location;
     }
 
-    public short getDirection() {
-        return direction;
+    public ChunkMetaBuilder setLocation(ChunkLocation location) {
+        this.location = location;
+
+        return this;
     }
 
-    @Override
-    public void encode(ByteBuf buf) {
-        Codec.writeVarInt32(buf, entityId);
-        Codec.writeString(buf, title);
+    public short getBitmap() {
+        return bitmap;
+    }
 
-        new Position(location).write(buf);
+    public ChunkMetaBuilder setBitmap(short bitmap) {
+        this.bitmap = bitmap;
 
-        buf.writeByte(direction);
+        return this;
+    }
+
+    public void write(ByteBuf buf) {
+        buf.writeInt(location.getX());
+        buf.writeInt(location.getZ());
+
+        buf.writeShort(bitmap);
     }
 }

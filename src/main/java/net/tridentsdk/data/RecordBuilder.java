@@ -28,49 +28,64 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package net.tridentsdk.packets.play.out;
+package net.tridentsdk.data;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.api.Location;
-import net.tridentsdk.data.Position;
 import net.tridentsdk.server.netty.Codec;
-import net.tridentsdk.server.netty.packet.OutPacket;
 
-public class PacketPlayOutSpawnPainting extends OutPacket {
+public class RecordBuilder {
 
-    private int entityId;
-    private String title;
-    private Location location;
-    private short direction;
+    private volatile byte x;
+    private volatile byte y;
+    private volatile byte z;
+    private volatile int blockId;
 
-    @Override
-    public int getId() {
-        return 0x10;
+    public RecordBuilder() {
     }
 
-    public int getEntityId() {
-        return entityId;
+    public byte getX() {
+        return x;
     }
 
-    public String getTitle() {
-        return title;
+    public RecordBuilder setX(byte x) {
+        this.x = x;
+
+        return this;
     }
 
-    public Location getLocation() {
-        return location;
+    public byte getY() {
+        return y;
     }
 
-    public short getDirection() {
-        return direction;
+    public RecordBuilder setY(byte y) {
+        this.y = y;
+
+        return this;
     }
 
-    @Override
-    public void encode(ByteBuf buf) {
-        Codec.writeVarInt32(buf, entityId);
-        Codec.writeString(buf, title);
+    public byte getZ() {
+        return z;
+    }
 
-        new Position(location).write(buf);
+    public RecordBuilder setZ(byte z) {
+        this.z = z;
 
-        buf.writeByte(direction);
+        return this;
+    }
+
+    public int getBlockId() {
+        return blockId;
+    }
+
+    public RecordBuilder setBlockId(int blockId) {
+        this.blockId = blockId;
+
+        return this;
+    }
+
+    public RecordBuilder write(ByteBuf buf) {
+        Codec.writeVarInt32(buf, blockId);
+
+        return this;
     }
 }

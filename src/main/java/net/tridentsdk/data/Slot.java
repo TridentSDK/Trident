@@ -28,49 +28,78 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package net.tridentsdk.packets.play.out;
+package net.tridentsdk.data;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.api.Location;
-import net.tridentsdk.data.Position;
-import net.tridentsdk.server.netty.Codec;
-import net.tridentsdk.server.netty.packet.OutPacket;
+import net.tridentsdk.api.Material;
+import net.tridentsdk.api.nbt.CompoundTag;
+import net.tridentsdk.api.nbt.NBTException;
 
-public class PacketPlayOutSpawnPainting extends OutPacket {
+public class Slot {
 
-    private int entityId;
-    private String title;
-    private Location location;
-    private short direction;
+    private final int id;
+    private final Material mat;
 
-    @Override
+    private volatile short quantity;
+    private volatile short damageValue;
+    private volatile CompoundTag compoundTag;
+
+    public Slot(ByteBuf buf) {
+        this.id = buf.readByte();
+        this.mat = Material.fromString(String.valueOf(id));
+
+        if(id == -1) {
+            return;
+        }
+
+        this.quantity = buf.readByte();
+        this.damageValue = buf.readShort();
+        byte b;
+
+        if((b = buf.readByte()) != 0) {
+            try{
+                NBTByteBufBuilder builder = new NBTByteBufBuilder();
+
+                builder.input(buf);
+                compoundTag = builder.build(b);
+            }catch(NBTException ignored) {
+                // do something
+            }
+        }
+    }
+
     public int getId() {
-        return 0x10;
+        return id;
     }
 
-    public int getEntityId() {
-        return entityId;
+    public Material getType() {
+        return mat;
     }
 
-    public String getTitle() {
-        return title;
+    public short getQuantity() {
+        return quantity;
     }
 
-    public Location getLocation() {
-        return location;
+    public short getDamageValue() {
+        return damageValue;
     }
 
-    public short getDirection() {
-        return direction;
+    public CompoundTag getCompoundTag() {
+        return compoundTag;
     }
 
-    @Override
-    public void encode(ByteBuf buf) {
-        Codec.writeVarInt32(buf, entityId);
-        Codec.writeString(buf, title);
+    public void write(ByteBuf buf) {
+        buf.writeByte(id);
 
-        new Position(location).write(buf);
+        if(id == (-1)) {
+            return;
+        }
 
-        buf.writeByte(direction);
+        buf.writeByte(quantity);
+        buf.writeShort(damageValue);
+
+        if(compoundTag != null) {
+            // TODO: write compound tag
+        }
     }
 }

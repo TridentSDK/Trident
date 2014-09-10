@@ -31,46 +31,35 @@
 package net.tridentsdk.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.api.Location;
-import net.tridentsdk.data.Position;
-import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
-public class PacketPlayOutSpawnPainting extends OutPacket {
+public class PacketPlayOutWindowProperty extends OutPacket {
 
-    private int entityId;
-    private String title;
-    private Location location;
-    private short direction;
+    private int windowId;
+    private short property;
+    private short value;
 
     @Override
     public int getId() {
-        return 0x10;
+        return 0x31;
     }
 
-    public int getEntityId() {
-        return entityId;
+    public int getWindowId() {
+        return windowId;
     }
 
-    public String getTitle() {
-        return title;
+    public short getProperty() {
+        return property;
     }
 
-    public Location getLocation() {
-        return location;
-    }
-
-    public short getDirection() {
-        return direction;
+    public short getValue() {
+        return value;
     }
 
     @Override
     public void encode(ByteBuf buf) {
-        Codec.writeVarInt32(buf, entityId);
-        Codec.writeString(buf, title);
-
-        new Position(location).write(buf);
-
-        buf.writeByte(direction);
+        buf.writeByte(windowId);
+        buf.writeShort(property);
+        buf.writeShort(value);
     }
 }

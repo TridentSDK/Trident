@@ -32,45 +32,65 @@ package net.tridentsdk.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.api.Location;
-import net.tridentsdk.data.Position;
-import net.tridentsdk.server.netty.Codec;
+import net.tridentsdk.api.util.Vector;
+import net.tridentsdk.data.RecordBuilder;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
-public class PacketPlayOutSpawnPainting extends OutPacket {
+public class PacketPlayOutExplosion extends OutPacket {
 
-    private int entityId;
-    private String title;
-    private Location location;
-    private short direction;
+    private Location loc;
+    private int recordCount;
+    private RecordBuilder[] records;
+    private Vector velocity;
 
     @Override
     public int getId() {
-        return 0x10;
+        return 0x27;
     }
 
-    public int getEntityId() {
-        return entityId;
+    public Location getLoc() {
+        return loc;
     }
 
-    public String getTitle() {
-        return title;
+    public int getRecordCount() {
+        return recordCount;
     }
 
-    public Location getLocation() {
-        return location;
+    public RecordBuilder[] getRecords() {
+        return records;
     }
 
-    public short getDirection() {
-        return direction;
+    public Vector getVelocity() {
+        return velocity;
+    }
+
+    public void cleanup() {
+        RecordBuilder[] newRecords = new RecordBuilder[] {};
+
+        for(RecordBuilder builder : records) {
+            if(builder != null) {
+                newRecords[newRecords.length] = builder;
+            }
+        }
+
+        this.records = newRecords;
     }
 
     @Override
     public void encode(ByteBuf buf) {
-        Codec.writeVarInt32(buf, entityId);
-        Codec.writeString(buf, title);
+        buf.writeFloat((float) loc.getX());
+        buf.writeFloat((float) loc.getY());
+        buf.writeFloat((float) loc.getZ());
+        buf.writeFloat(0F); // unused by client
 
-        new Position(location).write(buf);
+        buf.writeInt(recordCount);
 
-        buf.writeByte(direction);
+        for(RecordBuilder builder : records) {
+            builder.write(buf);
+        }
+
+        buf.writeFloat((float) velocity.getX());
+        buf.writeFloat((float) velocity.getY());
+        buf.writeFloat((float) velocity.getZ());
     }
 }

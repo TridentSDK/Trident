@@ -32,45 +32,38 @@ package net.tridentsdk.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.api.Location;
-import net.tridentsdk.data.Position;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
-public class PacketPlayOutSpawnPainting extends OutPacket {
+/*
+ * @NotJavaDoc
+ * Note: This is for thunderbolts striking within a 512 block radius
+ */
+public class PacketPlayOutSpawnGlobalEntity extends OutPacket {
 
     private int entityId;
-    private String title;
-    private Location location;
-    private short direction;
+    private Location loc;
 
     @Override
     public int getId() {
-        return 0x10;
+        return 0x2C;
     }
 
     public int getEntityId() {
         return entityId;
     }
 
-    public String getTitle() {
-        return title;
-    }
-
-    public Location getLocation() {
-        return location;
-    }
-
-    public short getDirection() {
-        return direction;
+    public Location getLoc() {
+        return loc;
     }
 
     @Override
     public void encode(ByteBuf buf) {
         Codec.writeVarInt32(buf, entityId);
-        Codec.writeString(buf, title);
+        buf.writeByte(1); // always thunderbolt
 
-        new Position(location).write(buf);
-
-        buf.writeByte(direction);
+        buf.writeInt(((int) loc.getX() * 32));
+        buf.writeInt(((int) loc.getY() * 32));
+        buf.writeInt(((int) loc.getZ() * 32));
     }
 }

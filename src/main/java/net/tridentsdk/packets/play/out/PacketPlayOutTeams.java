@@ -31,46 +31,86 @@
 package net.tridentsdk.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.api.Location;
-import net.tridentsdk.data.Position;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
-public class PacketPlayOutSpawnPainting extends OutPacket {
+public class PacketPlayOutTeams extends OutPacket {
 
-    private int entityId;
-    private String title;
-    private Location location;
-    private short direction;
+    private String teamName;
+    private short mode; // TODO: change to enum
+
+    private String teamDisplay;
+    private String teamPrefix;
+    private String teamSuffix;
+
+    private short friendlyFire;
+    private String nameTagVisibility; // TODO: change to enum
+    private short color;
+
+    private String[] players;
 
     @Override
     public int getId() {
-        return 0x10;
+        return 0x3E;
     }
 
-    public int getEntityId() {
-        return entityId;
+    public String getTeamName() {
+        return teamName;
     }
 
-    public String getTitle() {
-        return title;
+    public short getMode() {
+        return mode;
     }
 
-    public Location getLocation() {
-        return location;
+    public String getTeamDisplay() {
+        return teamDisplay;
     }
 
-    public short getDirection() {
-        return direction;
+    public String getTeamPrefix() {
+        return teamPrefix;
+    }
+
+    public String getTeamSuffix() {
+        return teamSuffix;
+    }
+
+    public short getFriendlyFire() {
+        return friendlyFire;
+    }
+
+    public String getNameTagVisibility() {
+        return nameTagVisibility;
+    }
+
+    public short getColor() {
+        return color;
+    }
+
+    public String[] getPlayers() {
+        return players;
     }
 
     @Override
     public void encode(ByteBuf buf) {
-        Codec.writeVarInt32(buf, entityId);
-        Codec.writeString(buf, title);
+        Codec.writeString(buf, teamName);
+        buf.writeByte(mode);
 
-        new Position(location).write(buf);
+        if(mode == 1 || mode == 2) {
+            Codec.writeString(buf, teamDisplay);
+            Codec.writeString(buf, teamPrefix);
+            Codec.writeString(buf, teamSuffix);
 
-        buf.writeByte(direction);
+            buf.writeByte(friendlyFire);
+            Codec.writeString(buf, nameTagVisibility);
+            buf.writeByte(color);
+        }
+
+        if(mode == 3 || mode == 4) {
+            Codec.writeVarInt32(buf, players.length);
+
+            for(String s : players) {
+                Codec.writeString(buf, s);
+            }
+        }
     }
 }
