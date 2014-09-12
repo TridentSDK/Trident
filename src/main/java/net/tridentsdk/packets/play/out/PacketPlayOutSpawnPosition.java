@@ -41,13 +41,13 @@ public class PacketPlayOutSpawnPosition extends OutPacket {
     }
 
     public Location getLocation() {
-        return location;
+        return this.location;
     }
 
     @Override
     public void encode(ByteBuf buf) {
-        buf.writeLong(((int) location.getX() & 0x3FFFFFF) << 38 |
-                ((int) location.getY() & 0xFFF) << 26 |
-                ((int) location.getZ() & 0x3FFFFFF));
+        buf.writeLong((long) (((int) this.location.getX() & 0x3FFFFFF) << 6 |
+                              ((int) this.location.getY() & 0xFFF) << 26 |
+                              (int) this.location.getZ() & 0x3FFFFFF));
     }
 }

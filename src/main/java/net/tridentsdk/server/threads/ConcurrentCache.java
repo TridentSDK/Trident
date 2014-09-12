@@ -25,33 +25,54 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package net.tridentsdk.packets.play.out;
+package net.tridentsdk.server.threads;
 
-import io.netty.buffer.ByteBuf;
-import net.tridentsdk.server.netty.Codec;
-import net.tridentsdk.server.netty.packet.OutPacket;
+import java.util.*;
+import java.util.concurrent.*;
 
-public class PacketPlayOutRemoveEffect extends OutPacket {
+public class ConcurrentCache<K, V> {
+    private final ConcurrentMap<K, Future<V>> cache = new ConcurrentHashMap<>();
 
-    private int entityId;
-    private int effectId;
+    public V retrieve(K k, Callable<V> callable, ExecutorService executor) {
+        while (true) {
+            Future<V> future = this.cache.get(k);
+            if (future == null) {
+                Future<V> task = new FutureTask<>(callable);
+                future = this.cache.putIfAbsent(k, task);
+                if (future == null) future = executor.submit(callable);
+            }
 
-    @Override
-    public int getId() {
-        return 0x0E;
+            try {
+                return future.get();
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            } catch (CancellationException e) {
+                this.cache.remove(k, future);
+            }
+        }
     }
 
-    public int getEntityId() {
-        return this.entityId;
+    public V retrieve(K k) {
+        Future<V> future = this.cache.get(k);
+        if (future == null) return null;
+        try {
+            return future.get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        } catch (CancellationException e) {
+            this.cache.remove(k, future);
+        }
+
+        return null;
     }
 
-    public int getEffectId() {
-        return this.effectId;
-    }
-
-    @Override
-    public void encode(ByteBuf buf) {
-        Codec.writeVarInt32(buf, this.entityId);
-        buf.writeByte(this.effectId);
+    public Collection<V> values() {
+        List<V> list = new ArrayList<>();
+        for (Future<V> v : this.cache.values())
+            try {
+                list.add(v.get());
+            } catch (InterruptedException | ExecutionException ignored) {
+            }
+        return list;
     }
 }

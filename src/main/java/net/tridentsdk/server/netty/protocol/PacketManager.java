@@ -47,16 +47,16 @@ abstract class PacketManager {
             Map<Integer, Class<?>> applicableMap;
 
             switch (type) {
-            case IN:
-                applicableMap = this.inPackets;
-                break;
+                case IN:
+                    applicableMap = this.inPackets;
+                    break;
 
-            case OUT:
-                applicableMap = this.outPackets;
-                break;
+                case OUT:
+                    applicableMap = this.outPackets;
+                    break;
 
-            default:
-                return null;
+                default:
+                    return null;
             }
 
             Class<?> cls = applicableMap.get(id);

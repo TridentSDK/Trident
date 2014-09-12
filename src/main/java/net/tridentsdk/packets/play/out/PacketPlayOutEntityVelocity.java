@@ -43,19 +43,19 @@ public class PacketPlayOutEntityVelocity extends OutPacket {
     }
 
     public int getEntityId() {
-        return entityId;
+        return this.entityId;
     }
 
     public Vector getVelocity() {
-        return velocity;
+        return this.velocity;
     }
 
     @Override
     public void encode(ByteBuf buf) {
-        Codec.writeVarInt32(buf, entityId);
+        Codec.writeVarInt32(buf, this.entityId);
 
-        buf.writeShort((int) velocity.getX());
-        buf.writeShort((int) velocity.getY());
-        buf.writeShort((int) velocity.getZ());
+        buf.writeShort((int) this.velocity.getX());
+        buf.writeShort((int) this.velocity.getY());
+        buf.writeShort((int) this.velocity.getZ());
     }
 }

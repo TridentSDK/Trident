@@ -40,11 +40,11 @@ public class PacketPlayOutPlayerHeldItemChange extends OutPacket {
     }
 
     public byte getSlot() {
-        return slot;
+        return this.slot;
     }
 
     @Override
     public void encode(ByteBuf buf) {
-        buf.writeByte(slot);
+        buf.writeByte((int) this.slot);
     }
 }

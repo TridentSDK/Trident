@@ -44,28 +44,28 @@ public class PacketPlayOutEntityTeleport extends OutPacket {
     }
 
     public int getEntityId() {
-        return entityId;
+        return this.entityId;
     }
 
     public Location getLocation() {
-        return location;
+        return this.location;
     }
 
     public boolean isOnGround() {
-        return onGround;
+        return this.onGround;
     }
 
     @Override
     public void encode(ByteBuf buf) {
-        Codec.writeVarInt32(buf, entityId);
+        Codec.writeVarInt32(buf, this.entityId);
 
-        buf.writeInt(((int) location.getX() * 32));
-        buf.writeInt(((int) location.getY() * 32));
-        buf.writeInt(((int) location.getZ() * 32));
+        buf.writeInt((int) this.location.getX() * 32);
+        buf.writeInt((int) this.location.getY() * 32);
+        buf.writeInt((int) this.location.getZ() * 32);
 
-        buf.writeByte((int) location.getYaw());
-        buf.writeByte((int) location.getPitch());
+        buf.writeByte((int) this.location.getYaw());
+        buf.writeByte((int) this.location.getPitch());
 
-        buf.writeBoolean(onGround);
+        buf.writeBoolean(this.onGround);
     }
 }

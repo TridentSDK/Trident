@@ -41,14 +41,14 @@ public class PacketPlayOutDestroyEntities extends OutPacket {
     }
 
     public int[] getDestroyedEntities() {
-        return destroyedEntities;
+        return this.destroyedEntities;
     }
 
     @Override
     public void encode(ByteBuf buf) {
-        Codec.writeVarInt32(buf, destroyedEntities.length);
+        Codec.writeVarInt32(buf, this.destroyedEntities.length);
 
-        for(int i : destroyedEntities) {
+        for (int i : this.destroyedEntities) {
             Codec.writeVarInt32(buf, i);
         }
     }

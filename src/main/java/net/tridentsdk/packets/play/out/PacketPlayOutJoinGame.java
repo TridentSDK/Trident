@@ -48,39 +48,39 @@ public class PacketPlayOutJoinGame extends OutPacket {
     }
 
     public int getEntityId() {
-        return entityId;
+        return this.entityId;
     }
 
     public short getGameMode() {
-        return gameMode;
+        return this.gameMode;
     }
 
     public int getDimension() {
-        return dimension;
+        return this.dimension;
     }
 
     public short getDifficulity() {
-        return difficulity;
+        return this.difficulity;
     }
 
     public short getMaxPlayers() {
-        return maxPlayers;
+        return this.maxPlayers;
     }
 
     public String getLevelType() {
-        return levelType;
+        return this.levelType;
     }
 
     @Override
     public void encode(ByteBuf buf) {
-        buf.writeInt(entityId);
+        buf.writeInt(this.entityId);
 
-        buf.writeByte(gameMode);
-        buf.writeByte(dimension);
-        buf.writeByte(difficulity);
-        buf.writeByte(maxPlayers);
+        buf.writeByte((int) this.gameMode);
+        buf.writeByte(this.dimension);
+        buf.writeByte((int) this.difficulity);
+        buf.writeByte((int) this.maxPlayers);
 
-        Codec.writeString(buf, levelType);
+        Codec.writeString(buf, this.levelType);
         buf.writeBoolean(true);
     }
 }

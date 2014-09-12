@@ -35,7 +35,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class PacketPlayOutKeepAlive extends OutPacket {
 
-    private static AtomicInteger counter = new AtomicInteger(-1);
+    private static final AtomicInteger counter = new AtomicInteger(-1);
 
     @Override
     public int getId() {
@@ -44,6 +44,6 @@ public class PacketPlayOutKeepAlive extends OutPacket {
 
     @Override
     public void encode(ByteBuf buf) {
-        Codec.writeVarInt32(buf, counter.addAndGet(1));
+        Codec.writeVarInt32(buf, PacketPlayOutKeepAlive.counter.addAndGet(1));
     }
 }

@@ -42,16 +42,16 @@ public class PacketPlayOutEntityHeadLook extends OutPacket {
     }
 
     public int getEntityId() {
-        return entityId;
+        return this.entityId;
     }
 
     public float getHeadYaw() {
-        return headYaw;
+        return this.headYaw;
     }
 
     @Override
     public void encode(ByteBuf buf) {
-        Codec.writeVarInt32(buf, entityId);
-        buf.writeByte((int) headYaw);
+        Codec.writeVarInt32(buf, this.entityId);
+        buf.writeByte((int) this.headYaw);
     }
 }

@@ -43,21 +43,21 @@ public class PacketPlayOutUpdateHealth extends OutPacket {
     }
 
     public float getHealth() {
-        return health;
+        return this.health;
     }
 
     public int getFood() {
-        return food;
+        return this.food;
     }
 
     public float getFoodSaturation() {
-        return foodSaturation;
+        return this.foodSaturation;
     }
 
     @Override
     public void encode(ByteBuf buf) {
-        buf.writeFloat(health);
-        Codec.writeVarInt32(buf, food);
-        buf.writeFloat(foodSaturation);
+        buf.writeFloat(this.health);
+        Codec.writeVarInt32(buf, this.food);
+        buf.writeFloat(this.foodSaturation);
     }
 }

@@ -27,10 +27,6 @@
 
 package net.tridentsdk.server.threads;
 
-import net.tridentsdk.server.netty.client.ClientConnection;
-
-import java.util.Map;
-
 /**
  * Handles the majority of the lifecycle for the threads
  *
@@ -46,11 +42,7 @@ public final class ThreadsManager {
         BackgroundTaskExecutor.SERVICE.shutdownNow();
         PlayerThreads.SERVICE.shutdownNow();
 
-        PlayerThreads.THREAD_MAP.clear();
-        PlayerThreads.WRAPPER_MAP.clear();
-        for (Map.Entry<ClientConnection, PlayerThreads.ThreadPlayerWrapper> entry :
-                PlayerThreads.CACHE_MAP.entrySet())
-            entry.getValue().getHandler().interrupt();
-        PlayerThreads.CACHE_MAP.clear();
+        PlayerThreads.SERVICE.shutdownNow();
+        PlayerThreads.THREAD_MAP.shutdown();
     }
 }

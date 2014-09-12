@@ -43,16 +43,16 @@ public class PacketPlayOutEntityEquipment extends OutPacket {
     }
 
     public int getEntityId() {
-        return entityId;
+        return this.entityId;
     }
 
     public short getSlot() {
-        return slot;
+        return this.slot;
     }
 
     @Override
     public void encode(ByteBuf buf) {
-        Codec.writeVarInt32(buf, entityId);
-        buf.writeShort(slot);
+        Codec.writeVarInt32(buf, this.entityId);
+        buf.writeShort((int) this.slot);
     }
 }

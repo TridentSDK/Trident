@@ -42,23 +42,23 @@ public class PacketPlayOutAttachEntity extends OutPacket {
     }
 
     public int getEntityId() {
-        return entityId;
+        return this.entityId;
     }
 
     public int getVehicleId() {
-        return vehicleId;
+        return this.vehicleId;
     }
 
     public boolean isLeashed() {
-        return leash;
+        return this.leash;
     }
 
     @Override
     public void encode(ByteBuf buf) {
-        buf.writeInt(entityId); // Well, that's a first
-        buf.writeInt(vehicleId); // AGAIN
+        buf.writeInt(this.entityId); // Well, that's a first
+        buf.writeInt(this.vehicleId); // AGAIN
         // rip in peace varints
 
-        buf.writeBoolean(leash);
+        buf.writeBoolean(this.leash);
     }
 }

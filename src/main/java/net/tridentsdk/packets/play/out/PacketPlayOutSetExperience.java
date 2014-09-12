@@ -43,22 +43,22 @@ public class PacketPlayOutSetExperience extends OutPacket {
     }
 
     public float getExperienceBar() {
-        return experienceBar;
+        return this.experienceBar;
     }
 
     public int getLevel() {
-        return level;
+        return this.level;
     }
 
     public long getTotalExperience() {
-        return totalExperience;
+        return this.totalExperience;
     }
 
     @Override
     public void encode(ByteBuf buf) {
-        buf.writeFloat(experienceBar);
+        buf.writeFloat(this.experienceBar);
 
-        Codec.writeVarInt32(buf, level);
-        Codec.writeVarInt64(buf, totalExperience);
+        Codec.writeVarInt32(buf, this.level);
+        Codec.writeVarInt64(buf, this.totalExperience);
     }
 }

@@ -42,16 +42,16 @@ public class PacketPlayOutAnimation extends OutPacket {
     }
 
     public int getEntityId() {
-        return entityId;
+        return this.entityId;
     }
 
     public int getAnimationId() {
-        return animationId;
+        return this.animationId;
     }
 
     @Override
     public void encode(ByteBuf buf) {
-        Codec.writeVarInt32(buf, entityId);
-        buf.writeByte(animationId);
+        Codec.writeVarInt32(buf, this.entityId);
+        buf.writeByte(this.animationId);
     }
 }

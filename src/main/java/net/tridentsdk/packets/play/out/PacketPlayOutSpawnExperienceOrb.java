@@ -44,25 +44,25 @@ public class PacketPlayOutSpawnExperienceOrb extends OutPacket {
     }
 
     public int getEntityId() {
-        return entityId;
+        return this.entityId;
     }
 
     public Location getLocation() {
-        return location;
+        return this.location;
     }
 
     public short getCount() {
-        return count;
+        return this.count;
     }
 
     @Override
     public void encode(ByteBuf buf) {
-        Codec.writeVarInt32(buf, entityId);
+        Codec.writeVarInt32(buf, this.entityId);
 
-        buf.writeInt(((int) location.getX() * 32));
-        buf.writeInt(((int) location.getY() * 32));
-        buf.writeInt(((int) location.getZ() * 32));
+        buf.writeInt((int) this.location.getX() * 32);
+        buf.writeInt((int) this.location.getY() * 32);
+        buf.writeInt((int) this.location.getZ() * 32);
 
-        buf.writeShort(count);
+        buf.writeShort((int) this.count);
     }
 }

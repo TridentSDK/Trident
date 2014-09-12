@@ -4,28 +4,25 @@
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
+ *     1. Redistributions of source code must retain the above copyright
+ *        notice, this list of conditions and the following disclaimer.
+ *     2. Redistributions in binary form must reproduce the above copyright
+ *        notice, this list of conditions and the following disclaimer in the
+ *        documentation and/or other materials provided with the distribution.
+ *     3. Neither the name of the The TridentSDK Team nor the
+ *        names of its contributors may be used to endorse or promote products
+ *        derived from this software without specific prior written permission.
  *
- *     1. Redistributions of source code must retain the above copyright notice, this
- *   list of conditions and the following disclaimer.
- *
- *     2. Redistributions in binary form must reproduce the above copyright notice,
- *   this list of conditions and the following disclaimer in the documentation
- *   and/or other materials provided with the distribution.
- *
- *     3. Neither the name of TridentSDK nor the names of its
- *   contributors may be used to endorse or promote products derived from
- *   this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL The TridentSDK Team BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 package net.tridentsdk.packets.play.out;
@@ -55,60 +52,60 @@ public class PacketPlayOutTeams extends OutPacket {
     }
 
     public String getTeamName() {
-        return teamName;
+        return this.teamName;
     }
 
     public short getMode() {
-        return mode;
+        return this.mode;
     }
 
     public String getTeamDisplay() {
-        return teamDisplay;
+        return this.teamDisplay;
     }
 
     public String getTeamPrefix() {
-        return teamPrefix;
+        return this.teamPrefix;
     }
 
     public String getTeamSuffix() {
-        return teamSuffix;
+        return this.teamSuffix;
     }
 
     public short getFriendlyFire() {
-        return friendlyFire;
+        return this.friendlyFire;
     }
 
     public String getNameTagVisibility() {
-        return nameTagVisibility;
+        return this.nameTagVisibility;
     }
 
     public short getColor() {
-        return color;
+        return this.color;
     }
 
     public String[] getPlayers() {
-        return players;
+        return this.players;
     }
 
     @Override
     public void encode(ByteBuf buf) {
-        Codec.writeString(buf, teamName);
-        buf.writeByte(mode);
+        Codec.writeString(buf, this.teamName);
+        buf.writeByte((int) this.mode);
 
-        if(mode == 1 || mode == 2) {
-            Codec.writeString(buf, teamDisplay);
-            Codec.writeString(buf, teamPrefix);
-            Codec.writeString(buf, teamSuffix);
+        if (this.mode == 1 || this.mode == 2) {
+            Codec.writeString(buf, this.teamDisplay);
+            Codec.writeString(buf, this.teamPrefix);
+            Codec.writeString(buf, this.teamSuffix);
 
-            buf.writeByte(friendlyFire);
-            Codec.writeString(buf, nameTagVisibility);
-            buf.writeByte(color);
+            buf.writeByte((int) this.friendlyFire);
+            Codec.writeString(buf, this.nameTagVisibility);
+            buf.writeByte((int) this.color);
         }
 
-        if(mode == 3 || mode == 4) {
-            Codec.writeVarInt32(buf, players.length);
+        if (this.mode == 3 || this.mode == 4) {
+            Codec.writeVarInt32(buf, this.players.length);
 
-            for(String s : players) {
+            for (String s : this.players) {
                 Codec.writeString(buf, s);
             }
         }

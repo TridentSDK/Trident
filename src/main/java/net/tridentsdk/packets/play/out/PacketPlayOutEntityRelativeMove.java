@@ -44,25 +44,25 @@ public class PacketPlayOutEntityRelativeMove extends OutPacket {
     }
 
     public int getEntityId() {
-        return entityId;
+        return this.entityId;
     }
 
     public Vector getDifference() {
-        return difference;
+        return this.difference;
     }
 
     public boolean isOnGround() {
-        return onGround;
+        return this.onGround;
     }
 
     @Override
     public void encode(ByteBuf buf) {
-        Codec.writeVarInt32(buf, entityId);
+        Codec.writeVarInt32(buf, this.entityId);
 
-        buf.writeInt(((int) difference.getX() * 32));
-        buf.writeInt(((int) difference.getY() * 32));
-        buf.writeInt(((int) difference.getZ() * 32));
+        buf.writeInt((int) this.difference.getX() * 32);
+        buf.writeInt((int) this.difference.getY() * 32);
+        buf.writeInt((int) this.difference.getZ() * 32);
 
-        buf.writeBoolean(onGround);
+        buf.writeBoolean(this.onGround);
     }
 }

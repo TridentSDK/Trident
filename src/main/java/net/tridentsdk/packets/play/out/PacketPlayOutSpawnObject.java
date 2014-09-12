@@ -49,19 +49,19 @@ public class PacketPlayOutSpawnObject extends OutPacket {
 
     @Override
     public void encode(ByteBuf buf) {
-        Location l = entity.getLocation();
-        Vector v = entity.getVelocity();
+        Location l = this.entity.getLocation();
+        Vector v = this.entity.getVelocity();
 
-        Codec.writeVarInt32(buf, entityId);
-        buf.writeByte(type.ordinal()); // TODO: Get the correct id type
+        Codec.writeVarInt32(buf, this.entityId);
+        buf.writeByte(this.type.ordinal()); // TODO: Get the correct id type
 
         buf.writeInt((int) l.getX() * 32);
         buf.writeInt((int) l.getY() * 32);
         buf.writeInt((int) l.getZ() * 32);
 
-        buf.writeByte((byte) l.getYaw());
-        buf.writeByte((byte) l.getPitch());
-        buf.writeByte((byte) l.getPitch()); // -shrugs-
+        buf.writeByte((int) (byte) l.getYaw());
+        buf.writeByte((int) (byte) l.getPitch());
+        buf.writeByte((int) (byte) l.getPitch()); // -shrugs-
 
         buf.writeShort((int) v.getX());
         buf.writeShort((int) v.getY());

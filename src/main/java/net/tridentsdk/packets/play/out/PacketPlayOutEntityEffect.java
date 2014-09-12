@@ -46,33 +46,33 @@ public class PacketPlayOutEntityEffect extends OutPacket {
     }
 
     public int getEntityId() {
-        return entityId;
+        return this.entityId;
     }
 
     public short getEffectId() {
-        return effectId;
+        return this.effectId;
     }
 
     public short getAmplifier() {
-        return amplifier;
+        return this.amplifier;
     }
 
     public long getDuration() {
-        return duration;
+        return this.duration;
     }
 
     public boolean isHideParticles() {
-        return hideParticles;
+        return this.hideParticles;
     }
 
     @Override
     public void encode(ByteBuf buf) {
-        Codec.writeVarInt32(buf, entityId);
+        Codec.writeVarInt32(buf, this.entityId);
 
-        buf.writeByte(effectId);
-        buf.writeByte(amplifier);
-        Codec.writeVarInt64(buf, duration);
+        buf.writeByte((int) this.effectId);
+        buf.writeByte((int) this.amplifier);
+        Codec.writeVarInt64(buf, this.duration);
 
-        buf.writeBoolean(hideParticles);
+        buf.writeBoolean(this.hideParticles);
     }
 }

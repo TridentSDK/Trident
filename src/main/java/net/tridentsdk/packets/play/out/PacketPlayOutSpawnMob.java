@@ -48,32 +48,32 @@ public class PacketPlayOutSpawnMob extends OutPacket {
     }
 
     public int getEntityId() {
-        return entityId;
+        return this.entityId;
     }
 
     public EntityType getEntityType() {
-        return type;
+        return this.type;
     }
 
     public Entity getEntity() {
-        return entity;
+        return this.entity;
     }
 
     @Override
     public void encode(ByteBuf buf) {
-        Location loc = entity.getLocation();
-        Vector velocity = entity.getVelocity();
+        Location loc = this.entity.getLocation();
+        Vector velocity = this.entity.getVelocity();
 
-        Codec.writeVarInt32(buf, entityId);
-        buf.writeByte((byte) type.ordinal()); // TODO: use the real type id
+        Codec.writeVarInt32(buf, this.entityId);
+        buf.writeByte((int) (byte) this.type.ordinal()); // TODO: use the real type id
 
-        buf.writeInt(((int) loc.getX() * 32));
-        buf.writeInt(((int) loc.getY() * 32));
-        buf.writeInt(((int) loc.getZ() * 42));
+        buf.writeInt((int) loc.getX() * 32);
+        buf.writeInt((int) loc.getY() * 32);
+        buf.writeInt((int) loc.getZ() * 42);
 
-        buf.writeByte((byte) loc.getYaw());
-        buf.writeByte((byte) loc.getPitch());
-        buf.writeByte((byte) loc.getPitch()); // -shrugs-
+        buf.writeByte((int) (byte) loc.getYaw());
+        buf.writeByte((int) (byte) loc.getPitch());
+        buf.writeByte((int) (byte) loc.getPitch()); // -shrugs-
 
         buf.writeShort((int) velocity.getX());
         buf.writeShort((int) velocity.getY());

@@ -4,28 +4,25 @@
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
+ *     1. Redistributions of source code must retain the above copyright
+ *        notice, this list of conditions and the following disclaimer.
+ *     2. Redistributions in binary form must reproduce the above copyright
+ *        notice, this list of conditions and the following disclaimer in the
+ *        documentation and/or other materials provided with the distribution.
+ *     3. Neither the name of the The TridentSDK Team nor the
+ *        names of its contributors may be used to endorse or promote products
+ *        derived from this software without specific prior written permission.
  *
- *     1. Redistributions of source code must retain the above copyright notice, this
- *   list of conditions and the following disclaimer.
- *
- *     2. Redistributions in binary form must reproduce the above copyright notice,
- *   this list of conditions and the following disclaimer in the documentation
- *   and/or other materials provided with the distribution.
- *
- *     3. Neither the name of TridentSDK nor the names of its
- *   contributors may be used to endorse or promote products derived from
- *   this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL The TridentSDK Team BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 package net.tridentsdk.packets.play.out;
@@ -53,63 +50,63 @@ public class PacketPlayOutMaps extends OutPacket {
     }
 
     public int getItemDamage() {
-        return itemDamage;
+        return this.itemDamage;
     }
 
     public int getScale() {
-        return scale;
+        return this.scale;
     }
 
     public int getLength() {
-        return length;
+        return this.length;
     }
 
     public byte[] getIcons() {
-        return icons;
+        return this.icons;
     }
 
     public byte getColumns() {
-        return columns;
+        return this.columns;
     }
 
     public byte getRows() {
-        return rows;
+        return this.rows;
     }
 
     public byte getX() {
-        return x;
+        return this.x;
     }
 
     public byte getY() {
-        return y;
+        return this.y;
     }
 
     public int getColumnLength() {
-        return columnLength;
+        return this.columnLength;
     }
 
     public byte[] getData() {
-        return data;
+        return this.data;
     }
 
     @Override
     public void encode(ByteBuf buf) {
-        Codec.writeVarInt32(buf, itemDamage);
-        buf.writeByte(scale);
-        Codec.writeVarInt32(buf, length);
+        Codec.writeVarInt32(buf, this.itemDamage);
+        buf.writeByte(this.scale);
+        Codec.writeVarInt32(buf, this.length);
 
-        buf.writeBytes(icons);
-        buf.writeByte(columns);
+        buf.writeBytes(this.icons);
+        buf.writeByte((int) this.columns);
 
-        if(columns <= 0) {
+        if ((int) this.columns <= 0) {
             return;
         }
 
-        buf.writeByte(rows);
-        buf.writeByte(x);
-        buf.writeByte(y);
+        buf.writeByte((int) this.rows);
+        buf.writeByte((int) this.x);
+        buf.writeByte((int) this.y);
 
-        Codec.writeVarInt32(buf, columnLength);
-        buf.writeBytes(data); // here I'm not sure if I'm doing it right
+        Codec.writeVarInt32(buf, this.columnLength);
+        buf.writeBytes(this.data); // here I'm not sure if I'm doing it right
     }
 }

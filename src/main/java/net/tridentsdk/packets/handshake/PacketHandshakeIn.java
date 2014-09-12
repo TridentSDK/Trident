@@ -69,13 +69,13 @@ public class PacketHandshakeIn extends InPacket {
     @Override
     public void handleReceived(ClientConnection connection) {
         switch (this.nextState) {
-        case 1:
-            connection.setStage(Protocol.ClientStage.STATUS);
-            break;
+            case 1:
+                connection.setStage(Protocol.ClientStage.STATUS);
+                break;
 
-        case 2:
-            connection.setStage(Protocol.ClientStage.LOGIN);
-            break;
+            case 2:
+                connection.setStage(Protocol.ClientStage.LOGIN);
+                break;
         }
     }
 }

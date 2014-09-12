@@ -30,10 +30,9 @@ package net.tridentsdk.server;
 import net.tridentsdk.api.Server;
 import net.tridentsdk.api.Trident;
 import net.tridentsdk.server.netty.protocol.Protocol;
+import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
 
 import javax.annotation.concurrent.ThreadSafe;
-import java.util.concurrent.LinkedTransferQueue;
-import java.util.concurrent.TransferQueue;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -42,15 +41,13 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author The TridentSDK Team
  */
 @ThreadSafe
-public final class TridentServer implements Server, Runnable {
+public final class TridentServer implements Server {
     private final AtomicReference<Thread> SERVER_THREAD = new AtomicReference<>();
     //private final ProfileRepository PROFILE_REPOSITORY = new HttpProfileRepository("minecraft");
 
     private final TridentConfig config;
     private final Protocol protocol;
-    private final TransferQueue<Runnable> threadTasks = new LinkedTransferQueue<>();
-
-    private boolean stopped;
+    private final ConcurrentTaskExecutor<?> taskExecutor = new ConcurrentTaskExecutor<>(1);
 
     private TridentServer(TridentConfig config) {
         this.config = config;
@@ -66,8 +63,7 @@ public final class TridentServer implements Server, Runnable {
         TridentServer server = new TridentServer(config);
         Trident.setServer(server);
 
-        server.SERVER_THREAD.set(new Thread(server, "TridentServer Main Thread"));
-        server.SERVER_THREAD.get().start();
+        server.SERVER_THREAD.set(server.taskExecutor.getScaledThread().asThread());
 
         return server;
         // We CANNOT let the "this" instance escape during creation, else we lose thread-safety
@@ -101,24 +97,7 @@ public final class TridentServer implements Server, Runnable {
      * Puts a task into the execution queue
      */
     public void addTask(Runnable task) {
-        this.threadTasks.add(task);
-    }
-
-    @Override
-    public void run() {
-        //TODO: Set some server stuff up
-
-        //TODO: Main server Loop
-        while (!this.stopped) {
-            try {
-                // task cannot be null because it will block until there is an
-                // element in the linked queue
-                Runnable task = this.threadTasks.take();
-                task.run();
-            } catch (InterruptedException ignored) {
-            }
-            this.run();
-        }
+        this.taskExecutor.getScaledThread().addTask(task);
     }
 
     /**
@@ -127,15 +106,6 @@ public final class TridentServer implements Server, Runnable {
     @Override
     public void shutdown() {
         //TODO: Cleanup stuff...
-        this.SERVER_THREAD.get().interrupt();
-        try {
-            this.threadTasks.transfer(new Runnable() {
-                @Override public void run() {
-                    TridentServer.this.stopped = true;
-                }
-            });
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        this.taskExecutor.shutdown();
     }
 }

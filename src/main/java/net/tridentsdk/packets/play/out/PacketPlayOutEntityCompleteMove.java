@@ -28,7 +28,6 @@
 package net.tridentsdk.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.api.Location;
 import net.tridentsdk.api.util.Vector;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
@@ -47,36 +46,36 @@ public class PacketPlayOutEntityCompleteMove extends OutPacket {
     }
 
     public int getEntityId() {
-        return entityId;
+        return this.entityId;
     }
 
     public Vector getDifference() {
-        return difference;
+        return this.difference;
     }
 
     public float getYaw() {
-        return yaw;
+        return this.yaw;
     }
 
     public float getPitch() {
-        return pitch;
+        return this.pitch;
     }
 
     public byte getFlags() {
-        return flags;
+        return this.flags;
     }
 
     @Override
     public void encode(ByteBuf buf) {
-        Codec.writeVarInt32(buf, entityId);
+        Codec.writeVarInt32(buf, this.entityId);
 
-        buf.writeByte(((int) difference.getX() * 32));
-        buf.writeByte(((int) difference.getY() * 32));
-        buf.writeByte(((int) difference.getZ() * 32));
+        buf.writeByte((int) this.difference.getX() * 32);
+        buf.writeByte((int) this.difference.getY() * 32);
+        buf.writeByte((int) this.difference.getZ() * 32);
 
-        buf.writeByte((int) yaw);
-        buf.writeByte((int) pitch);
+        buf.writeByte((int) this.yaw);
+        buf.writeByte((int) this.pitch);
 
-        buf.writeByte(flags);
+        buf.writeByte((int) this.flags);
     }
 }

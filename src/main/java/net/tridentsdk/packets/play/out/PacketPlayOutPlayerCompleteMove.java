@@ -42,22 +42,22 @@ public class PacketPlayOutPlayerCompleteMove extends OutPacket {
     }
 
     public Location getLocation() {
-        return location;
+        return this.location;
     }
 
     public byte getFlags() {
-        return flags;
+        return this.flags;
     }
 
     @Override
     public void encode(ByteBuf buf) {
-        buf.writeDouble(location.getX());
-        buf.writeDouble(location.getY());
-        buf.writeDouble(location.getZ());
+        buf.writeDouble(this.location.getX());
+        buf.writeDouble(this.location.getY());
+        buf.writeDouble(this.location.getZ());
 
-        buf.writeFloat(location.getYaw());
-        buf.writeFloat(location.getPitch());
+        buf.writeFloat(this.location.getYaw());
+        buf.writeFloat(this.location.getPitch());
 
-        buf.writeByte(flags);
+        buf.writeByte((int) this.flags);
     }
 }

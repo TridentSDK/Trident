@@ -41,16 +41,16 @@ public class PacketPlayOutTimeUpdate extends OutPacket {
     }
 
     public long getWorldAge() {
-        return worldAge;
+        return this.worldAge;
     }
 
     public long getTime() {
-        return time;
+        return this.time;
     }
 
     @Override
     public void encode(ByteBuf buf) {
-        buf.writeLong(worldAge);
-        buf.writeLong(time);
+        buf.writeLong(this.worldAge);
+        buf.writeLong(this.time);
     }
 }

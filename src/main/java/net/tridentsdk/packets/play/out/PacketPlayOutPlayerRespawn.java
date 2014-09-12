@@ -44,26 +44,26 @@ public class PacketPlayOutPlayerRespawn extends OutPacket {
     }
 
     public int getDimension() {
-        return dimension;
+        return this.dimension;
     }
 
     public int getDifficulty() {
-        return difficulty;
+        return this.difficulty;
     }
 
     public int getGameMode() {
-        return gameMode;
+        return this.gameMode;
     }
 
     public String getLevelType() {
-        return levelType;
+        return this.levelType;
     }
 
     @Override
     public void encode(ByteBuf buf) {
-        buf.writeInt(dimension);
-        buf.writeByte(difficulty);
-        buf.writeByte(gameMode);
-        Codec.writeString(buf, levelType);
+        buf.writeInt(this.dimension);
+        buf.writeByte(this.difficulty);
+        buf.writeByte(this.gameMode);
+        Codec.writeString(buf, this.levelType);
     }
 }

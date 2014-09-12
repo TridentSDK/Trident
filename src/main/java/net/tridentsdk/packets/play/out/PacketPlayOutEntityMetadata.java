@@ -43,6 +43,6 @@ public class PacketPlayOutEntityMetadata extends OutPacket {
 
     @Override
     public void encode(ByteBuf buf) {
-        Codec.writeVarInt32(buf, entityId);
+        Codec.writeVarInt32(buf, this.entityId);
     }
 }

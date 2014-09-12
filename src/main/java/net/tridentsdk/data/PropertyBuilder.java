@@ -4,28 +4,25 @@
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
+ *     1. Redistributions of source code must retain the above copyright
+ *        notice, this list of conditions and the following disclaimer.
+ *     2. Redistributions in binary form must reproduce the above copyright
+ *        notice, this list of conditions and the following disclaimer in the
+ *        documentation and/or other materials provided with the distribution.
+ *     3. Neither the name of the The TridentSDK Team nor the
+ *        names of its contributors may be used to endorse or promote products
+ *        derived from this software without specific prior written permission.
  *
- *     1. Redistributions of source code must retain the above copyright notice, this
- *   list of conditions and the following disclaimer.
- *
- *     2. Redistributions in binary form must reproduce the above copyright notice,
- *   this list of conditions and the following disclaimer in the documentation
- *   and/or other materials provided with the distribution.
- *
- *     3. Neither the name of TridentSDK nor the names of its
- *   contributors may be used to endorse or promote products derived from
- *   this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL The TridentSDK Team BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 package net.tridentsdk.data;
@@ -34,17 +31,17 @@ import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.netty.Codec;
 
 public class PropertyBuilder {
-
     private String key;
     private double value;
     private volatile String[] modifiers; // TODO: look more into this, modify accordingly
+    // TODO uh, no, volatile arrays do not work - AgentTroll
 
     public PropertyBuilder() {
-        modifiers = new String[] {};
+        this.modifiers = new String[] { };
     }
 
     public String getKey() {
-        return key;
+        return this.key;
     }
 
     public PropertyBuilder setKey(String key) {
@@ -54,7 +51,7 @@ public class PropertyBuilder {
     }
 
     public double getValue() {
-        return value;
+        return this.value;
     }
 
     public PropertyBuilder setValue(double value) {
@@ -64,20 +61,20 @@ public class PropertyBuilder {
     }
 
     public String[] getModifiers() {
-        return modifiers;
+        return this.modifiers;
     }
 
     public PropertyBuilder addModifier(int index, String modifier) {
-        modifiers[index] = modifier;
+        this.modifiers[index] = modifier;
 
         return this;
     }
 
     public PropertyBuilder cleanup() {
-        String[] newModifiers = new String[] {};
+        String[] newModifiers = { };
 
-        for(String value : modifiers) {
-            if(value != null) {
+        for (String value : this.modifiers) {
+            if (value != null) {
                 newModifiers[newModifiers.length] = value;
             }
         }
@@ -87,13 +84,13 @@ public class PropertyBuilder {
     }
 
     public PropertyBuilder write(ByteBuf buf) {
-        cleanup();
+        this.cleanup();
 
-        Codec.writeString(buf, key);
-        buf.writeDouble(value);
-        Codec.writeVarInt32(buf, modifiers.length);
+        Codec.writeString(buf, this.key);
+        buf.writeDouble(this.value);
+        Codec.writeVarInt32(buf, this.modifiers.length);
 
-        for(String s : modifiers) {
+        for (String s : this.modifiers) {
             Codec.writeString(buf, s);
         }
 

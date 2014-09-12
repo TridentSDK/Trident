@@ -48,28 +48,28 @@ public class PacketPlayOutSpawnPlayer extends OutPacket {
     }
 
     public int getEntityId() {
-        return entityId;
+        return this.entityId;
     }
 
     public Player getPlayer() {
-        return player;
+        return this.player;
     }
 
     @Override
     public void encode(ByteBuf buf) {
-        Location loc = player.getLocation();
-        UUID id = player.getUniqueId();
+        Location loc = this.player.getLocation();
+        UUID id = this.player.getUniqueId();
 
-        Codec.writeVarInt32(buf, entityId);
+        Codec.writeVarInt32(buf, this.entityId);
 
         buf.writeLong(id.getMostSignificantBits());
         buf.writeLong(id.getLeastSignificantBits());
 
-        buf.writeInt(((int) loc.getX() * 32));
-        buf.writeInt(((int) loc.getY() * 32));
-        buf.writeInt(((int) loc.getZ() * 32));
+        buf.writeInt((int) loc.getX() * 32);
+        buf.writeInt((int) loc.getY() * 32);
+        buf.writeInt((int) loc.getZ() * 32);
 
-        buf.writeByte((byte) loc.getYaw());
-        buf.writeByte((byte) loc.getPitch());
+        buf.writeByte((int) (byte) loc.getYaw());
+        buf.writeByte((int) (byte) loc.getPitch());
     }
 }

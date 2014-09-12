@@ -62,20 +62,20 @@ public class Protocol {
 
     public Packet getPacket(int id, ClientStage stage, PacketType type) {
         switch (stage) {
-        case PLAY:
-            return this.play.getPacket(id, type);
+            case PLAY:
+                return this.play.getPacket(id, type);
 
-        case HANDSHAKE:
-            return this.handshake.getPacket(id, type);
+            case HANDSHAKE:
+                return this.handshake.getPacket(id, type);
 
-        case STATUS:
-            return this.status.getPacket(id, type);
+            case STATUS:
+                return this.status.getPacket(id, type);
 
-        case LOGIN:
-            return this.status.getPacket(id, type);
+            case LOGIN:
+                return this.status.getPacket(id, type);
 
-        default:
-            throw new IllegalArgumentException(stage + " is not supported for Protocol#getPacket!");
+            default:
+                throw new IllegalArgumentException(stage + " is not supported for Protocol#getPacket!");
         }
     }
 

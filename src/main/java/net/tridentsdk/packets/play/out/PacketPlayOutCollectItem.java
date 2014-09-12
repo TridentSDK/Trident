@@ -42,16 +42,16 @@ public class PacketPlayOutCollectItem extends OutPacket {
     }
 
     public int getCollectedId() {
-        return collectedId;
+        return this.collectedId;
     }
 
     public int getCollectorId() {
-        return collectorId;
+        return this.collectorId;
     }
 
     @Override
     public void encode(ByteBuf buf) {
-        Codec.writeVarInt32(buf, collectedId);
-        Codec.writeVarInt32(buf, collectorId);
+        Codec.writeVarInt32(buf, this.collectedId);
+        Codec.writeVarInt32(buf, this.collectorId);
     }
 }

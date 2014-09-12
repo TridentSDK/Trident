@@ -42,16 +42,16 @@ public class PacketPlayOutEntityStatus extends OutPacket {
     }
 
     public int getEntityId() {
-        return entityId;
+        return this.entityId;
     }
 
     public short getStatus() {
-        return status;
+        return this.status;
     }
 
     @Override
     public void encode(ByteBuf buf) {
-        Codec.writeVarInt32(buf, entityId);
-        buf.writeByte(status);
+        Codec.writeVarInt32(buf, this.entityId);
+        buf.writeByte((int) this.status);
     }
 }
