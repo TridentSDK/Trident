@@ -28,62 +28,34 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package net.tridentsdk.data;
+package net.tridentsdk.entity;
 
-import io.netty.buffer.ByteBuf;
-import net.tridentsdk.server.netty.Codec;
+import net.tridentsdk.api.Location;
+import net.tridentsdk.api.entity.Entity;
+import net.tridentsdk.api.entity.LivingEntity;
 
-public class RecordBuilder implements Writable {
+public abstract class TridentLivingEntity extends TridentEntity implements LivingEntity {
 
-    private volatile byte x;
-    private volatile byte y;
-    private volatile byte z;
-    private volatile int blockId;
+    protected boolean dead;
 
-    public RecordBuilder() {
+    public TridentLivingEntity(int id, Location spawnLocation) {
+        super(id, spawnLocation);
+
+        this.dead = false;
     }
 
-    public byte getX() {
-        return x;
+    @Override
+    public void hide(Entity entity) {
+        //
     }
 
-    public RecordBuilder setX(byte x) {
-        this.x = x;
-
-        return this;
+    @Override
+    public void show(Entity entity) {
+        //
     }
 
-    public byte getY() {
-        return y;
-    }
-
-    public RecordBuilder setY(byte y) {
-        this.y = y;
-
-        return this;
-    }
-
-    public byte getZ() {
-        return z;
-    }
-
-    public RecordBuilder setZ(byte z) {
-        this.z = z;
-
-        return this;
-    }
-
-    public int getBlockId() {
-        return blockId;
-    }
-
-    public RecordBuilder setBlockId(int blockId) {
-        this.blockId = blockId;
-
-        return this;
-    }
-
-    public void write(ByteBuf buf) {
-        Codec.writeVarInt32(buf, blockId);
+    @Override
+    public boolean isDead() {
+        return dead;
     }
 }

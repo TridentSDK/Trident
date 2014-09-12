@@ -30,7 +30,7 @@ package net.tridentsdk.data;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.api.world.ChunkLocation;
 
-public class ChunkMetaBuilder {
+public class ChunkMetaBuilder implements Writable {
 
     private ChunkLocation location;
     private short bitmap;
@@ -55,6 +55,7 @@ public class ChunkMetaBuilder {
         return this;
     }
 
+    @Override
     public void write(ByteBuf buf) {
         buf.writeInt(this.location.getX());
         buf.writeInt(this.location.getZ());

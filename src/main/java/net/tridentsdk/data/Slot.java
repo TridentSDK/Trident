@@ -32,7 +32,7 @@ import net.tridentsdk.api.Material;
 import net.tridentsdk.api.nbt.CompoundTag;
 import net.tridentsdk.api.nbt.NBTException;
 
-public class Slot {
+public class Slot implements Writable {
 
     private final int id;
     private final Material mat;

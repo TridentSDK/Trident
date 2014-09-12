@@ -31,59 +31,9 @@
 package net.tridentsdk.data;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.server.netty.Codec;
 
-public class RecordBuilder implements Writable {
+public interface Writable {
 
-    private volatile byte x;
-    private volatile byte y;
-    private volatile byte z;
-    private volatile int blockId;
+    public void write(ByteBuf buf);
 
-    public RecordBuilder() {
-    }
-
-    public byte getX() {
-        return x;
-    }
-
-    public RecordBuilder setX(byte x) {
-        this.x = x;
-
-        return this;
-    }
-
-    public byte getY() {
-        return y;
-    }
-
-    public RecordBuilder setY(byte y) {
-        this.y = y;
-
-        return this;
-    }
-
-    public byte getZ() {
-        return z;
-    }
-
-    public RecordBuilder setZ(byte z) {
-        this.z = z;
-
-        return this;
-    }
-
-    public int getBlockId() {
-        return blockId;
-    }
-
-    public RecordBuilder setBlockId(int blockId) {
-        this.blockId = blockId;
-
-        return this;
-    }
-
-    public void write(ByteBuf buf) {
-        Codec.writeVarInt32(buf, blockId);
-    }
 }
