@@ -28,13 +28,14 @@
 package net.tridentsdk.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.api.inventory.InventoryType;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutOpenWindow extends OutPacket {
 
     private int windowId;
-    private String inventoryType; // TODO: Change to enum
+    private InventoryType inventoryType;
     private String windowTitle;
     private int slots;
     private int entityId; // only for horses, since people at Mojang are retards
@@ -48,7 +49,7 @@ public class PacketPlayOutOpenWindow extends OutPacket {
         return this.windowId;
     }
 
-    public String getInventoryType() {
+    public InventoryType getInventoryType() {
         return this.inventoryType;
     }
 
@@ -68,7 +69,7 @@ public class PacketPlayOutOpenWindow extends OutPacket {
     public void encode(ByteBuf buf) {
         buf.writeByte(this.windowId);
 
-        Codec.writeString(buf, this.inventoryType);
+        Codec.writeString(buf, this.inventoryType.toString());
         Codec.writeString(buf, this.windowTitle);
 
         buf.writeByte(this.slots);

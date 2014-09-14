@@ -28,12 +28,13 @@
 package net.tridentsdk.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.api.board.BoardType;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutDisplayScoreboard extends OutPacket {
 
-    private short position; // TODO Change to enum
+    private BoardType boardType;
     private String scoreName;
 
     @Override
@@ -41,8 +42,8 @@ public class PacketPlayOutDisplayScoreboard extends OutPacket {
         return 0x3D;
     }
 
-    public short getPosition() {
-        return this.position;
+    public BoardType getBoardType() {
+        return this.boardType;
     }
 
     public String getScoreName() {
@@ -51,7 +52,7 @@ public class PacketPlayOutDisplayScoreboard extends OutPacket {
 
     @Override
     public void encode(ByteBuf buf) {
-        buf.writeByte((int) this.position);
+        buf.writeByte(this.boardType.toByte());
         Codec.writeString(buf, this.scoreName);
     }
 }

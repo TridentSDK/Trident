@@ -28,23 +28,24 @@
 package net.tridentsdk.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.api.Difficulty;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutServerDifficulty extends OutPacket {
 
-    private short difficulty; // TODO: change to enum
+    private Difficulty difficulty;
 
     @Override
     public int getId() {
         return 0x41;
     }
 
-    public short getDifficulty() {
+    public Difficulty getDifficulty() {
         return this.difficulty;
     }
 
     @Override
     public void encode(ByteBuf buf) {
-        buf.writeByte((int) this.difficulty);
+        buf.writeByte(difficulty.toByte());
     }
 }

@@ -28,20 +28,21 @@
 package net.tridentsdk.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.api.board.TagVisibility;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutTeams extends OutPacket {
 
     private String teamName;
-    private short mode; // TODO: change to enum
+    private Mode mode;
 
     private String teamDisplay;
     private String teamPrefix;
     private String teamSuffix;
 
     private short friendlyFire;
-    private String nameTagVisibility; // TODO: change to enum
+    private TagVisibility tagVisibility;
     private short color;
 
     private String[] players;
@@ -55,7 +56,7 @@ public class PacketPlayOutTeams extends OutPacket {
         return this.teamName;
     }
 
-    public short getMode() {
+    public Mode getMode() {
         return this.mode;
     }
 
@@ -75,8 +76,8 @@ public class PacketPlayOutTeams extends OutPacket {
         return this.friendlyFire;
     }
 
-    public String getNameTagVisibility() {
-        return this.nameTagVisibility;
+    public TagVisibility getTagVisibility() {
+        return this.tagVisibility;
     }
 
     public short getColor() {
@@ -90,24 +91,43 @@ public class PacketPlayOutTeams extends OutPacket {
     @Override
     public void encode(ByteBuf buf) {
         Codec.writeString(buf, this.teamName);
-        buf.writeByte((int) this.mode);
+        buf.writeByte(this.mode.toByte());
 
-        if (this.mode == 1 || this.mode == 2) {
+        if (mode.b == 1 || mode.b == 2) {
             Codec.writeString(buf, this.teamDisplay);
             Codec.writeString(buf, this.teamPrefix);
             Codec.writeString(buf, this.teamSuffix);
 
             buf.writeByte((int) this.friendlyFire);
-            Codec.writeString(buf, this.nameTagVisibility);
+            Codec.writeString(buf, tagVisibility.toString());
             buf.writeByte((int) this.color);
         }
 
-        if (this.mode == 3 || this.mode == 4) {
+        if (mode.b == 3 || mode.b == 4) {
             Codec.writeVarInt32(buf, this.players.length);
 
             for (String s : this.players) {
                 Codec.writeString(buf, s);
             }
+        }
+    }
+
+    public enum Mode {
+
+        CREATED(0),
+        REMOVED(1),
+        UPDATED(2),
+        ADD_PLAYER(3),
+        REMOVE_PLAYER(4);
+
+        private final byte b;
+
+        Mode(int i) {
+            this.b = (byte) i;
+        }
+
+        public byte toByte() {
+            return b;
         }
     }
 }

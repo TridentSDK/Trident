@@ -34,7 +34,7 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 public class PacketPlayOutUpdateScore extends OutPacket {
 
     private String itemName;
-    private short type; // TODO: Change to enum
+    private UpdateType type; // TODO: Change to enum
     private String scoreName;
     private int value;
 
@@ -47,7 +47,7 @@ public class PacketPlayOutUpdateScore extends OutPacket {
         return this.itemName;
     }
 
-    public short getUpdateType() {
+    public UpdateType getUpdateType() {
         return this.type;
     }
 
@@ -62,13 +62,29 @@ public class PacketPlayOutUpdateScore extends OutPacket {
     @Override
     public void encode(ByteBuf buf) {
         Codec.writeString(buf, this.itemName);
-        buf.writeByte((int) this.type);
+        buf.writeByte(type.toByte());
 
-        if (this.type == 1) {
+        if (this.type.b == 1) {
             return;
         }
 
         Codec.writeString(buf, this.scoreName);
         Codec.writeVarInt32(buf, this.value);
+    }
+
+    public enum UpdateType {
+        CREATE(0),
+        UPDATE(0),
+        REMOVE(1);
+
+        private final byte b;
+
+        UpdateType(int i) {
+            this.b = (byte) i;
+        }
+
+        public byte toByte() {
+            return b;
+        }
     }
 }

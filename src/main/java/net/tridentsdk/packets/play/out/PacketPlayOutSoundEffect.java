@@ -29,12 +29,13 @@ package net.tridentsdk.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.api.Location;
+import net.tridentsdk.api.SoundName;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutSoundEffect extends OutPacket {
 
-    private String soundName; // TODO: change to enum
+    private SoundName soundName;
     private Location loc;
     private float volume; // f * 100
     private int pitch; // 63 = 100%
@@ -47,7 +48,7 @@ public class PacketPlayOutSoundEffect extends OutPacket {
     /**
      * @return Darude - Sandstorm
      */
-    public String getSoundName() {
+    public SoundName getSoundName() {
         return this.soundName;
     }
 
@@ -65,7 +66,7 @@ public class PacketPlayOutSoundEffect extends OutPacket {
 
     @Override
     public void encode(ByteBuf buf) {
-        Codec.writeString(buf, this.soundName);
+        Codec.writeString(buf, this.soundName.toString());
 
         buf.writeInt((int) this.loc.getX());
         buf.writeInt((int) this.loc.getY());

@@ -28,13 +28,14 @@
 package net.tridentsdk.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.entity.EntityStatus;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutEntityStatus extends OutPacket {
 
     private int entityId;
-    private short status; // TODO: Change to enum
+    private EntityStatus status;
 
     @Override
     public int getId() {
@@ -45,13 +46,13 @@ public class PacketPlayOutEntityStatus extends OutPacket {
         return this.entityId;
     }
 
-    public short getStatus() {
+    public EntityStatus getStatus() {
         return this.status;
     }
 
     @Override
     public void encode(ByteBuf buf) {
         Codec.writeVarInt32(buf, this.entityId);
-        buf.writeByte((int) this.status);
+        buf.writeByte(status.toByte());
     }
 }

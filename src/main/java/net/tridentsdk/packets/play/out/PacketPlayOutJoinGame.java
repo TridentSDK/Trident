@@ -28,19 +28,22 @@
 package net.tridentsdk.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.api.Difficulty;
+import net.tridentsdk.api.Gamemode;
+import net.tridentsdk.api.world.Dimension;
+import net.tridentsdk.api.world.LevelType;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutJoinGame extends OutPacket {
 
-    // TODO: Enum representations
     private int entityId;
-    private short gameMode;
-    private int dimension;
+    private Gamemode gamemode;
+    private Dimension dimension;
 
-    private short difficulity;
+    private Difficulty difficulity;
     private short maxPlayers;
-    private String levelType;
+    private LevelType levelType;
 
     @Override
     public int getId() {
@@ -51,15 +54,15 @@ public class PacketPlayOutJoinGame extends OutPacket {
         return this.entityId;
     }
 
-    public short getGameMode() {
-        return this.gameMode;
+    public Gamemode getGamemode() {
+        return this.gamemode;
     }
 
-    public int getDimension() {
+    public Dimension getDimension() {
         return this.dimension;
     }
 
-    public short getDifficulity() {
+    public Difficulty getDifficulity() {
         return this.difficulity;
     }
 
@@ -67,7 +70,7 @@ public class PacketPlayOutJoinGame extends OutPacket {
         return this.maxPlayers;
     }
 
-    public String getLevelType() {
+    public LevelType getLevelType() {
         return this.levelType;
     }
 
@@ -75,12 +78,12 @@ public class PacketPlayOutJoinGame extends OutPacket {
     public void encode(ByteBuf buf) {
         buf.writeInt(this.entityId);
 
-        buf.writeByte((int) this.gameMode);
-        buf.writeByte(this.dimension);
-        buf.writeByte((int) this.difficulity);
+        buf.writeByte(gamemode.toByte());
+        buf.writeByte(dimension.toByte());
+        buf.writeByte(difficulity.toByte());
         buf.writeByte((int) this.maxPlayers);
 
-        Codec.writeString(buf, this.levelType);
+        Codec.writeString(buf, levelType.toString());
         buf.writeBoolean(true);
     }
 }
