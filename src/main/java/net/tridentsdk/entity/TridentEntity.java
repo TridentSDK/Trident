@@ -39,7 +39,7 @@ import net.tridentsdk.api.world.World;
 
 import java.util.List;
 
-public class TridentEntity implements Entity {
+public abstract class TridentEntity implements Entity {
 
     protected volatile Vector velocity;
     protected volatile boolean velocityChanged;
