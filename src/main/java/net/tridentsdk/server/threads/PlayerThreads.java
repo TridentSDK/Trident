@@ -150,9 +150,7 @@ public final class PlayerThreads {
             return null;
         }
 
-        @Override public UUID getUniqueId() {
-            return null;
-        }
+
 
         @Override public void remove() {
 
@@ -172,6 +170,76 @@ public final class PlayerThreads {
 
         @Override public EntityType getType() {
             return null;
+        }
+
+        @Override
+        public void applyProperties(EntityProperties properties) {
+
+        }
+
+        @Override
+        public void hide(Entity entity) {
+
+        }
+
+        @Override
+        public void show(Entity entity) {
+
+        }
+
+        @Override
+        public double getHealth() {
+            return 0;
+        }
+
+        @Override
+        public double getMaxHealth() {
+            return 0;
+        }
+
+        @Override
+        public long getRemainingAir() {
+            return 0;
+        }
+
+        @Override
+        public String getDisplayName() {
+            return null;
+        }
+
+        @Override
+        public Location getEyeLocation() {
+            return null;
+        }
+
+        @Override
+        public boolean canPickupItems() {
+            return false;
+        }
+
+        @Override
+        public void setRemainingAir(long ticks) {
+
+        }
+
+        @Override
+        public void setHealth(double health) {
+
+        }
+
+        @Override
+        public void setMaxHealth(double maxHealth) {
+
+        }
+
+        @Override
+        public boolean isDead() {
+            return false;
+        }
+
+        @Override
+        public int getId() {
+            return 0;
         }
     }
 }
