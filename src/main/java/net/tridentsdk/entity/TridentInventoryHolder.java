@@ -31,22 +31,27 @@
 package net.tridentsdk.entity;
 
 import net.tridentsdk.api.Location;
-import net.tridentsdk.api.entity.LivingEntity;
+import net.tridentsdk.api.entity.InventoryHolder;
+import net.tridentsdk.api.inventory.Inventory;
+import net.tridentsdk.api.inventory.ItemStack;
 
 import java.util.UUID;
 
-public abstract class TridentLivingEntity extends TridentEntity implements LivingEntity {
+public abstract class TridentInventoryHolder extends TridentLivingEntity implements InventoryHolder {
 
-    protected boolean dead;
+    protected Inventory inventory;
 
-    public TridentLivingEntity(UUID id, Location spawnLocation) {
+    public TridentInventoryHolder(UUID id, Location spawnLocation) {
         super(id, spawnLocation);
-
-        this.dead = false;
     }
 
     @Override
-    public boolean isDead() {
-        return dead;
+    public Inventory getInventory() {
+        return inventory;
+    }
+
+    @Override
+    public ItemStack getContent(int slot) {
+        return inventory.getContents()[slot];
     }
 }

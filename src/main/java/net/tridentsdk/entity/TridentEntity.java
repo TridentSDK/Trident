@@ -38,8 +38,12 @@ import net.tridentsdk.api.util.Vector;
 import net.tridentsdk.api.world.World;
 
 import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class TridentEntity implements Entity {
+
+    protected AtomicInteger counter = new AtomicInteger(-1);
 
     protected volatile Vector velocity;
     protected volatile boolean velocityChanged;
@@ -51,12 +55,20 @@ public abstract class TridentEntity implements Entity {
     protected volatile double fallDistance;
 
     protected volatile long ticksLived;
+    protected volatile long fireTicks;
+    protected volatile long airTicks;
 
     protected Entity passenger;
     protected int id;
+    protected UUID uniqueId;
 
-    public TridentEntity(int id, Location spawnLocation) {
-        this.id = id;
+    protected String displayName;
+    protected boolean nameVisible;
+    protected boolean silent;
+
+    public TridentEntity(UUID uniqueId, Location spawnLocation) {
+        this.uniqueId = uniqueId;
+        this.id = counter.addAndGet(1);
 
         this.velocity = new Vector(0D, 0D, 0D);
         this.velocityChanged = false;
@@ -112,6 +124,21 @@ public abstract class TridentEntity implements Entity {
     }
 
     @Override
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    @Override
+    public boolean isSilent() {
+        return silent;
+    }
+
+    @Override
+    public UUID getUniqueId() {
+        return uniqueId;
+    }
+
+    @Override
     public void setVelocity(Vector vector) {
         this.velocity = vector;
         this.velocityChanged = true;
@@ -161,6 +188,11 @@ public abstract class TridentEntity implements Entity {
         this.passenger = entity;
 
         // TODO: Update clients
+    }
+
+    @Override
+    public void setDisplayName(String name) {
+        this.displayName = name;
     }
 
     @Override

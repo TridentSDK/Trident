@@ -29,6 +29,7 @@ package net.tridentsdk.server.threads;
 
 import net.tridentsdk.api.Location;
 import net.tridentsdk.api.entity.*;
+import net.tridentsdk.api.entity.living.Player;
 import net.tridentsdk.api.util.Vector;
 import net.tridentsdk.api.world.World;
 import net.tridentsdk.server.netty.client.ClientConnection;
