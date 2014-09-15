@@ -30,10 +30,10 @@
 
 package net.tridentsdk.entity;
 
+import java.util.UUID;
+
 import net.tridentsdk.api.Location;
 import net.tridentsdk.api.entity.LivingEntity;
-
-import java.util.UUID;
 
 public abstract class TridentLivingEntity extends TridentEntity implements LivingEntity {
 

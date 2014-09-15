@@ -35,6 +35,7 @@ import net.tridentsdk.api.world.World;
 import net.tridentsdk.server.netty.client.ClientConnection;
 
 import javax.annotation.concurrent.ThreadSafe;
+
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -241,6 +242,35 @@ public final class PlayerThreads {
         @Override
         public int getId() {
             return 0;
+        }
+
+		@Override
+        public void setDisplayName(String name) {
+	        // TODO Auto-generated method stub
+	        
+        }
+
+		@Override
+        public boolean isNameVisible() {
+	        // TODO Auto-generated method stub
+	        return false;
+        }
+
+		@Override
+        public boolean isSilent() {
+	        // TODO Auto-generated method stub
+	        return false;
+        }
+
+		@Override
+        public UUID getUniqueId() {
+	        // TODO Auto-generated method stub
+	        return null;
+        }
+
+		@Override
+        public <T extends Projectile> T launchProjectile(EntityProperties properties) {
+	        return null;
         }
     }
 }
