@@ -1,12 +1,6 @@
 TridentSDK
 =========
 
-The TridentSDK is a new development API which can be used to develop plugins for the popular game Minecraft. This SDK has a few things that its' older sisters do not. 
+TridentSDK is the successor to the Bukkit/Spigot projects. Following the news of the "takeover" of the Bukkit project and the DMCA takedown of Bukkit, and therefore Spigot, we realized that someone needs to step up and create the best of server software for Minecraft after the decline of both projects. The result was TridentSDK, the development kit that is implemented by the server, Trident.
 
-- Evades Mojangs EULA
-- Adds more features as requested by the community
-- Replaces the Bukkit Project.
-- Does not use Mojangs code.
-
-
-This has been created by a team of dedicated and hardworking people that want nothing more than creating a better future for Minecraft develeopers.
+TridentSDK is generously sponsored by Gazamo, which our current lead developer works for. We are grateful to the community who has heard about our project for submitting pull requests, starting, watching, and forking our project. We primarily use IntelliJ IDEA from JetBrains to develop, although some of us have stayed with Eclipse. Testing is done with VisualVM and JProfiler.
