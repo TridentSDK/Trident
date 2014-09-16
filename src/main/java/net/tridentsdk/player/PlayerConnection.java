@@ -33,7 +33,6 @@ package net.tridentsdk.player;
 import net.tridentsdk.server.netty.client.ClientConnection;
 import net.tridentsdk.server.netty.protocol.Protocol;
 
-import java.lang.ref.WeakReference;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class PlayerConnection extends ClientConnection {
@@ -41,7 +40,7 @@ public class PlayerConnection extends ClientConnection {
     private volatile int keepAliveId;
     private volatile long keepAliveSent; // in ticks and relative to player
 
-    private final WeakReference<TridentPlayer> player;
+    private final TridentPlayer player;
 
     PlayerConnection(ClientConnection connection, TridentPlayer player) {
         clientData.remove(connection.getAddress());
@@ -54,12 +53,12 @@ public class PlayerConnection extends ClientConnection {
         super.stage = Protocol.ClientStage.PLAY; // stage must be PLAY to actually create PlayerConnection
         super.encryptionEnabled = connection.isEncryptionEnabled();
 
-        this.player = new WeakReference<>(player);
+        this.player = player;
         this.keepAliveId = -1;
     }
 
     public TridentPlayer getPlayer() {
-        return player.get();
+        return player;
     }
 
     public int getKeepAliveId() {
