@@ -47,28 +47,31 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author The TridentSDK Team
  */
 public class ClientConnection {
-    static final Map<InetSocketAddress, AtomicReference<ClientConnection>> clientData =
+    protected static final Map<InetSocketAddress, AtomicReference<ClientConnection>> clientData =
             new ConcurrentHashMap<>();
 
-    private final InetSocketAddress address;
-    private final Channel channel;
+    protected InetSocketAddress address;
+    protected Channel channel;
 
-    private volatile PublicKey publicKey;
-    private volatile Protocol.ClientStage stage;
-    private volatile boolean encryptionEnabled;
-    private volatile PrivateKey privateKey;
+    protected volatile PublicKey publicKey;
+    protected volatile Protocol.ClientStage stage;
+    protected volatile boolean encryptionEnabled;
+    protected volatile PrivateKey privateKey;
 
     /**
      * Creates a new connection handler for the joining channel stream
      *
      * @param channelContext the channel of the client joining
      */
-    ClientConnection(ChannelHandlerContext channelContext) {
+    protected ClientConnection(ChannelHandlerContext channelContext) {
         this.address = (InetSocketAddress) channelContext.channel().remoteAddress();
         this.channel = channelContext.channel();
         this.encryptionEnabled = false;
         this.stage = Protocol.ClientStage.HANDSHAKE;
     }
+
+    protected ClientConnection() {}
+
 
     /**
      * Checks if an IP address is logged into the server
@@ -201,7 +204,6 @@ public class ClientConnection {
      * Removes the client's server side client handler
      */
     public void logout() {
-        // TODO
         ClientConnection.clientData.remove(this.address);
 
         this.channel.close();

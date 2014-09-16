@@ -28,6 +28,7 @@
 package net.tridentsdk.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.player.PlayerConnection;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.client.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
@@ -51,6 +52,8 @@ public class PacketPlayInKeepAlive extends InPacket {
 
     @Override
     public void handleReceived(ClientConnection connection) {
-        // TODO: State that keep alive has been done successfully
+        PlayerConnection pc = (PlayerConnection) connection;
+
+        pc.setKeepAliveId(-1, 0L);
     }
 }

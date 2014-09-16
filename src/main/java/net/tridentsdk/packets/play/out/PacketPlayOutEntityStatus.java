@@ -39,7 +39,7 @@ public class PacketPlayOutEntityStatus extends OutPacket {
 
     @Override
     public int getId() {
-        return 0x0A;
+        return 0x1A;
     }
 
     public int getEntityId() {

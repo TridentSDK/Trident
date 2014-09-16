@@ -28,73 +28,27 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package net.tridentsdk.entity;
+package net.tridentsdk.packets.play.out;
 
-import java.util.UUID;
+import io.netty.buffer.ByteBuf;
+import net.tridentsdk.server.netty.Codec;
+import net.tridentsdk.server.netty.packet.OutPacket;
 
-import net.tridentsdk.api.Location;
-import net.tridentsdk.api.entity.LivingEntity;
-import net.tridentsdk.api.util.Vector;
+public class PacketPlayOutCamera extends OutPacket {
 
-public abstract class TridentLivingEntity extends TridentEntity implements LivingEntity {
+    private int cameraId;
 
-    protected boolean dead;
-    protected volatile double health;
-    protected volatile boolean canPickup = true;
+    @Override
+    public int getId() {
+        return 0x43;
+    }
 
-    protected double maxHealth;
-    protected volatile long fireTicks;
-    protected volatile long airTicks;
-
-    public TridentLivingEntity(UUID id, Location spawnLocation) {
-        super(id, spawnLocation);
-
-        this.dead = false;
+    public int getCameraId() {
+        return cameraId;
     }
 
     @Override
-    public double getHealth() {
-        return health;
-    }
-
-    @Override
-    public double getMaxHealth() {
-        return maxHealth;
-    }
-
-    @Override
-    public Location getEyeLocation() {
-        return getLocation().getRelative(new Vector(0d, 1d, 0d));
-    }
-
-    @Override
-    public long getRemainingAir() {
-        return airTicks;
-    }
-
-    @Override
-    public void setRemainingAir(long ticks) {
-        this.airTicks = ticks;
-    }
-
-    @Override
-    public boolean canPickupItems() {
-        return canPickup;
-    }
-
-    @Override
-    public void setHealth(double health) {
-        this.health = health;
-    }
-
-    @Override
-    public void setMaxHealth(double maxHealth) {
-        this.maxHealth = maxHealth;
-    }
-
-
-    @Override
-    public boolean isDead() {
-        return dead;
+    public void encode(ByteBuf buf) {
+        Codec.writeVarInt32(buf, cameraId);
     }
 }

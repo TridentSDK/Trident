@@ -36,6 +36,8 @@ import net.tridentsdk.api.entity.Entity;
 import net.tridentsdk.api.entity.EntityType;
 import net.tridentsdk.api.util.Vector;
 import net.tridentsdk.api.world.World;
+import net.tridentsdk.packets.play.out.PacketPlayOutEntityVelocity;
+import net.tridentsdk.player.TridentPlayer;
 
 import java.util.List;
 import java.util.UUID;
@@ -54,9 +56,7 @@ public abstract class TridentEntity implements Entity {
     protected volatile boolean onGround;
     protected volatile double fallDistance;
 
-    protected volatile long ticksLived;
-    protected volatile long fireTicks;
-    protected volatile long airTicks;
+    protected volatile long ticksExisted;
 
     protected Entity passenger;
     protected int id;
@@ -88,7 +88,7 @@ public abstract class TridentEntity implements Entity {
             }
         }
 
-        this.ticksLived = 0L;
+        this.ticksExisted = 0L;
         this.passenger = null;
     }
 
@@ -143,12 +143,13 @@ public abstract class TridentEntity implements Entity {
         this.velocity = vector;
         this.velocityChanged = true;
 
-        // TODO: update all clients
+        TridentPlayer.sendAll(new PacketPlayOutEntityVelocity().set("entityId", id)
+                .set("velocity", vector));
     }
 
     @Override
     public void tick() {
-
+        ticksExisted++;
     }
 
     @Override

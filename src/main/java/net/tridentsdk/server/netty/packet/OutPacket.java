@@ -30,6 +30,8 @@ package net.tridentsdk.server.netty.packet;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.netty.client.ClientConnection;
 
+import java.lang.reflect.Field;
+
 /**
  * @author The TridentSDK Team
  */
@@ -38,6 +40,24 @@ public abstract class OutPacket implements Packet {
     @Override
     public PacketType getType() {
         return PacketType.OUT;
+    }
+
+    /**
+     * Sets the field name with said value
+     * @param name Name of field you wish to set
+     * @param value Value you wish to set the field to
+     * @return OutPacket instance
+     */
+    public OutPacket set(String name, Object value) {
+        try {
+            Field field = getClass().getField(name);
+
+            field.setAccessible(true);
+            field.set(value, this);
+        }catch(NoSuchFieldException | IllegalAccessException ignored) {
+        }
+
+        return this;
     }
 
     /**

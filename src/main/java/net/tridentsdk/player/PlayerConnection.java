@@ -28,73 +28,54 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package net.tridentsdk.entity;
+package net.tridentsdk.player;
 
-import java.util.UUID;
+import net.tridentsdk.server.netty.client.ClientConnection;
+import net.tridentsdk.server.netty.protocol.Protocol;
 
-import net.tridentsdk.api.Location;
-import net.tridentsdk.api.entity.LivingEntity;
-import net.tridentsdk.api.util.Vector;
+import java.lang.ref.WeakReference;
+import java.util.concurrent.atomic.AtomicReference;
 
-public abstract class TridentLivingEntity extends TridentEntity implements LivingEntity {
+public class PlayerConnection extends ClientConnection {
 
-    protected boolean dead;
-    protected volatile double health;
-    protected volatile boolean canPickup = true;
+    private volatile int keepAliveId;
+    private volatile long keepAliveSent; // in ticks and relative to player
 
-    protected double maxHealth;
-    protected volatile long fireTicks;
-    protected volatile long airTicks;
+    private final WeakReference<TridentPlayer> player;
 
-    public TridentLivingEntity(UUID id, Location spawnLocation) {
-        super(id, spawnLocation);
+    PlayerConnection(ClientConnection connection, TridentPlayer player) {
+        clientData.remove(connection.getAddress());
+        clientData.put(connection.getAddress(), new AtomicReference<ClientConnection>(this));
 
-        this.dead = false;
+        super.address = connection.getAddress();
+        super.channel = connection.getChannel();
+        super.publicKey = connection.getPublicKey();
+        super.privateKey = connection.getPrivateKey();
+        super.stage = Protocol.ClientStage.PLAY; // stage must be PLAY to actually create PlayerConnection
+        super.encryptionEnabled = connection.isEncryptionEnabled();
+
+        this.player = new WeakReference<>(player);
+        this.keepAliveId = -1;
     }
 
-    @Override
-    public double getHealth() {
-        return health;
+    public TridentPlayer getPlayer() {
+        return player.get();
     }
 
-    @Override
-    public double getMaxHealth() {
-        return maxHealth;
+    public int getKeepAliveId() {
+        return keepAliveId;
     }
 
-    @Override
-    public Location getEyeLocation() {
-        return getLocation().getRelative(new Vector(0d, 1d, 0d));
+    public void setKeepAliveId(int id, long ticksLived) {
+        this.keepAliveId = id;
+        this.keepAliveSent = ticksLived;
     }
 
-    @Override
-    public long getRemainingAir() {
-        return airTicks;
-    }
-
-    @Override
-    public void setRemainingAir(long ticks) {
-        this.airTicks = ticks;
-    }
-
-    @Override
-    public boolean canPickupItems() {
-        return canPickup;
-    }
-
-    @Override
-    public void setHealth(double health) {
-        this.health = health;
-    }
-
-    @Override
-    public void setMaxHealth(double maxHealth) {
-        this.maxHealth = maxHealth;
-    }
-
-
-    @Override
-    public boolean isDead() {
-        return dead;
+    /*
+     * @NotJavaDoc
+     * Relative to player
+     */
+    public long getKeepAliveSent() {
+        return keepAliveSent;
     }
 }
