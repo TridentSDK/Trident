@@ -31,6 +31,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import net.tridentsdk.server.encryption.RSA;
+import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.protocol.Protocol;
 
@@ -123,14 +124,15 @@ public class ClientConnection {
                 packet.encode(buffer);
                 buffer.writeBytes(this.encrypt(buffer.array()));
             } else {
-                buffer.writeInt(packet.getId());
+                Codec.writeVarInt32(buffer, packet.getId());
                 packet.encode(buffer);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-
-        // Write the encoded packet and flush it
+        
+        // Write the encoded packet length and flush it
+        this.channel.write(buffer.readableBytes());
         this.channel.writeAndFlush(buffer);
     }
 

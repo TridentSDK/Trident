@@ -27,44 +27,52 @@
 
 package net.tridentsdk.server.netty.packet;
 
+import net.tridentsdk.server.netty.Codec;
+import net.tridentsdk.server.netty.client.ClientConnection;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 /**
- * Packet information, such as identification and serialized form
+ * Wraps the raw Packet Data/Bytes receieved over the network
+ * (May serve more functions later)
  *
  * @author The TridentSDK Team
  */
 public class PacketData {
-    private final int id;
-    private final ByteBuf data;
+    private final ByteBuf rawData;
+    private ByteBuf decrypted;
+    private Integer id;
 
     /**
      * Wraps the packet raw information
      *
-     * @param id   the packet ID as assigned by the protocol
      * @param data the serialized form of the packet
      */
-    public PacketData(int id, ByteBuf data) {
-        this.id = id;
-        this.data = data;
+    public PacketData(ByteBuf data) {
+        this.rawData = data;
     }
-
+    
     /**
-     * Gets the packet identification number
-     *
-     * @return the packet ID
+     * Gets the Id of the packet. Reads it if it hasn't been read
+     * 
+     * @return id the id of the packet
      */
     public int getId() {
-        return this.id;
+        return id == null ? id = Codec.readVarInt32(getData()) : id;
     }
 
     /**
-     * Gets the serialized packet
+     * Gets the appropriate packet data
      *
      * @return the serialized packet
      */
     public ByteBuf getData() {
-        return this.data;
+        return this.decrypted != null ? this.decrypted : this.rawData;
+    }
+    
+    public void decrypt(ClientConnection conn) throws Exception {
+        byte[] bytes = conn.decrypt(rawData.array());
+        decrypted = Unpooled.copiedBuffer(bytes);
     }
 
     /**
@@ -73,6 +81,7 @@ public class PacketData {
      * @return the byte length of the serialized data
      */
     public int getLength() {
-        return this.data.readableBytes();
+        return getData().readableBytes();
     }
+
 }

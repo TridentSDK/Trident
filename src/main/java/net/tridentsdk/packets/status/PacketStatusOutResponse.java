@@ -28,10 +28,14 @@
 package net.tridentsdk.packets.status;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 import net.tridentsdk.server.netty.packet.PacketType;
 
 import java.io.UnsupportedEncodingException;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 /**
  * TODO not an expert on this lol - AgentTroll
@@ -39,8 +43,12 @@ import java.io.UnsupportedEncodingException;
  * @author The TridentSDK Team
  */
 public class PacketStatusOutResponse extends OutPacket {
-    private String jsonResponse;
+    private Response response;
 
+    public PacketStatusOutResponse() {
+        response = new Response();
+    }
+    
     @Override
     public int getId() {
         return 0x00;
@@ -48,14 +56,34 @@ public class PacketStatusOutResponse extends OutPacket {
 
     @Override
     public void encode(ByteBuf buf) {
-        try {
-            buf.writeBytes(this.jsonResponse.getBytes("UTF-8"));
-        } catch (UnsupportedEncodingException ignored) {
-        }
+        String json = new GsonBuilder().create().toJson(response);
+        System.out.println("SENDING: " + json);
+        Codec.writeString(buf, json);
     }
 
     @Override
     public PacketType getType() {
         return PacketType.OUT;
+    }
+    
+    //TODO: Do this properly
+    public static class Response {
+        public static class Version {
+            String name = "1.7.9";
+            int protocol = 5;
+        }
+        
+        public static class Players {
+            int max = 10;
+            int online = 5;
+        }
+        
+        public static class Description {
+            String text = "The best server out!";
+        }
+        
+        Version version = new Version();
+        Players players = new Players();
+        Description description = new Description();
     }
 }

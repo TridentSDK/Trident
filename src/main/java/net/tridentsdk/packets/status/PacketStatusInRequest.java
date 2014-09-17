@@ -27,6 +27,8 @@
 
 package net.tridentsdk.packets.status;
 
+import com.google.gson.JsonObject;
+
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.netty.client.ClientConnection;
 import net.tridentsdk.server.netty.packet.*;
@@ -57,5 +59,7 @@ public class PacketStatusInRequest extends InPacket {
     @Override
     public void handleReceived(ClientConnection connection) {
         // TODO Respond to the client accordingly
+        // TODO: Have this hook into TridentServer and get info accordingly
+        connection.sendPacket(new PacketStatusOutResponse());
     }
 }

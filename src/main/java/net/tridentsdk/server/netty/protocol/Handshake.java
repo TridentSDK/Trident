@@ -32,6 +32,6 @@ import net.tridentsdk.packets.handshake.PacketHandshakeIn;
 
 @AccessNoDoc class Handshake extends PacketManager {
     Handshake() {
-        this.outPackets.put(0x00, PacketHandshakeIn.class);
+        this.inPackets.put(0x00, PacketHandshakeIn.class);
     }
 }

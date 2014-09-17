@@ -72,7 +72,7 @@ public class Protocol {
                 return this.status.getPacket(id, type);
 
             case LOGIN:
-                return this.status.getPacket(id, type);
+                return this.login.getPacket(id, type);
 
             default:
                 throw new IllegalArgumentException(stage + " is not supported for Protocol#getPacket!");

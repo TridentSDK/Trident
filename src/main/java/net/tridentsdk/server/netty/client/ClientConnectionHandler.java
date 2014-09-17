@@ -70,19 +70,31 @@ public class ClientConnectionHandler extends SimpleChannelInboundHandler<PacketD
         InetSocketAddress address = (InetSocketAddress) context.channel().remoteAddress();
         ClientConnection connection = ClientConnection.getConnection(address);
 
-        if (connection == null) connection = ClientConnection.registerConnection(context);
+        if (connection == null) {
+            connection = ClientConnection.registerConnection(context);
+        }
+        
+        if (connection.isEncryptionEnabled()) {
+            data.decrypt(connection);
+        }
 
         Packet packet = this.protocol.getPacket(data.getId(), connection.getStage(), PacketType.IN);
-
+        
+        System.out.println("Connection Stagt: " + connection.getStage());
+        
+        System.out.println("Recieved packet: " + packet.getClass().getSimpleName());
+        
         //If packet is unknown disconnect the client, as said client seems to be modified
         if (packet.getId() == -1) {
             connection.logout();
-
+            
             // TODO Print client info. stating that has sent an invalid packet and has been disconnected
             return;
         }
 
         packet.decode(data.getData());
+
+        packet.handleReceived(connection);
 
         final ClientConnection finalConnection = connection;
         BackgroundTaskExecutor.execute(new Runnable() {

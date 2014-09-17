@@ -46,37 +46,32 @@ import java.util.List;
  * @author The TridentSDK Team
  */
 public class PacketDecoder extends ReplayingDecoder<PacketDecoder.State> {
-    private final Protocol protocol;
-    private int length;
+    
+    private int rawLength;
 
     /**
      * Creates the decoder and initializes the state
      */
     public PacketDecoder() {
         super(State.LENGTH);
-        this.protocol = ((TridentServer) Trident.getServer()).getProtocol();
     }
 
     @Override
     protected void decode(ChannelHandlerContext context, ByteBuf buf, List<Object> objects) throws Exception {
-        // TODO :)
-        int length = Codec.readVarInt32(buf);
-
-        this.checkpoint(State.DATA);
-
-        //Gets the packet id from the data
-        int id = Codec.readVarInt32(buf);
-        buf.markReaderIndex();
-        byte[] data = new byte[length];
-        buf.readBytes(data);
-
-        //Copies the Buf's data to put into a PacketData instance
-        ByteBuf dataCopy = Unpooled.copiedBuffer(data);
-
-        //Passes the PacketData instance to be processed downstream
-        objects.add(new PacketData(id, dataCopy));
-
-        this.checkpoint(State.LENGTH);
+        
+        switch (this.state()) {
+        case LENGTH:
+            rawLength = Codec.readVarInt32(buf);
+            this.checkpoint(State.DATA);
+            //NOTE: Not meant to break;
+        case DATA:
+            ByteBuf data = buf.readBytes(rawLength);
+            objects.add(new PacketData(data));
+            this.checkpoint(State.LENGTH);
+            break;
+            
+        }
+     
     }
 
     /**

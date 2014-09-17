@@ -96,8 +96,9 @@ final class TridentStart {
             ex.printStackTrace();
             return;
         }
-
-        TridentStart.init(new TridentConfig(options.valueOf(properties)));
+        //FIXME: Disabled till working:
+        //TridentStart.init(new TridentConfig(options.valueOf(properties)));
+        TridentStart.init(new TridentConfig(null));
     }
 
     private static Collection<String> asList(String... params) {
@@ -127,7 +128,9 @@ final class TridentStart {
             // Wait until the server socket is closed, to gracefully shut down your server.
             f.channel().closeFuture().sync();
         } catch (InterruptedException e) {
-            //Exception is caught if server is closed.
+            //This exception is caught if server is closed.
+        } catch (Exception e) {
+            e.printStackTrace();
         } finally {
             TridentStart.close();
         }

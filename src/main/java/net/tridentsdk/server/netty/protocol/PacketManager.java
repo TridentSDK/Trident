@@ -34,8 +34,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 abstract class PacketManager {
-    final Map<Integer, Class<?>> inPackets = new HashMap<>();
-    final Map<Integer, Class<?>> outPackets = new HashMap<>();
+    final protected Map<Integer, Class<? extends Packet>> inPackets = new HashMap<>();
+    final protected Map<Integer, Class<? extends Packet>> outPackets = new HashMap<>();
 
     PacketManager() {
         this.inPackets.put(-1, UnknownPacket.class);
@@ -44,7 +44,7 @@ abstract class PacketManager {
 
     public Packet getPacket(int id, PacketType type) {
         try {
-            Map<Integer, Class<?>> applicableMap;
+            Map<Integer, Class<? extends Packet>> applicableMap;
 
             switch (type) {
                 case IN:
