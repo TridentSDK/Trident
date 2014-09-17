@@ -80,7 +80,7 @@ public class ClientConnectionHandler extends SimpleChannelInboundHandler<PacketD
 
         Packet packet = this.protocol.getPacket(data.getId(), connection.getStage(), PacketType.IN);
         
-        System.out.println("Connection Stagt: " + connection.getStage());
+        System.out.println("Connection Stage: " + connection.getStage());
         
         System.out.println("Recieved packet: " + packet.getClass().getSimpleName());
         

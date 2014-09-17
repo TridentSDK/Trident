@@ -116,7 +116,7 @@ public class ClientConnection {
 
         if (encrypted && !this.encryptionEnabled)
             throw new IllegalArgumentException("You can not use encryption if encryption is not enabled!");
-
+        
         try {
             if (encrypted) {
                 buffer.writeBytes(RSA.encrypt((byte) packet.getId(), this.publicKey));
@@ -132,8 +132,8 @@ public class ClientConnection {
         }
         
         // Write the encoded packet length and flush it
-        this.channel.write(buffer.readableBytes());
-        this.channel.writeAndFlush(buffer);
+        this.channel.write(buffer);
+        this.channel.flush();
     }
 
     public void sendPacket(Packet packet) {
