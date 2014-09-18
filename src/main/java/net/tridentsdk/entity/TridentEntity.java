@@ -36,6 +36,7 @@ import net.tridentsdk.api.entity.Entity;
 import net.tridentsdk.api.entity.EntityType;
 import net.tridentsdk.api.util.Vector;
 import net.tridentsdk.api.world.World;
+import net.tridentsdk.packets.play.out.PacketPlayOutEntityTeleport;
 import net.tridentsdk.packets.play.out.PacketPlayOutEntityVelocity;
 import net.tridentsdk.player.TridentPlayer;
 
@@ -106,6 +107,21 @@ public abstract class TridentEntity implements Entity {
     public void teleport(Location location) {
         this.loc = location;
         this.locationChanged = true;
+
+        for(double y = loc.getY(); y > 0; y--) {
+            Location l = new Location(loc.getWorld(), loc.getX(),
+                    y, loc.getZ());
+
+            if (l.getWorld().getBlockAt(l).getType() != Material.AIR) {
+                this.fallDistance = (loc.getY() - y);
+                this.onGround = (fallDistance == 0D);
+
+                break;
+            }
+        }
+
+        TridentPlayer.sendAll(new PacketPlayOutEntityTeleport().set("entityId", id)
+                .set("location", loc).set("onGround", onGround));
     }
 
     @Override

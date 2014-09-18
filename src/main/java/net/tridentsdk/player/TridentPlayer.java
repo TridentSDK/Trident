@@ -32,7 +32,9 @@ package net.tridentsdk.player;
 
 import net.tridentsdk.api.Location;
 import net.tridentsdk.api.entity.living.Player;
+import net.tridentsdk.entity.TridentInventoryHolder;
 import net.tridentsdk.entity.TridentLivingEntity;
+import net.tridentsdk.packets.play.out.PacketPlayOutChatMessage;
 import net.tridentsdk.packets.play.out.PacketPlayOutDisconnect;
 import net.tridentsdk.packets.play.out.PacketPlayOutKeepAlive;
 import net.tridentsdk.server.netty.client.ClientConnection;
@@ -40,7 +42,7 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 import java.util.UUID;
 
-public abstract class TridentPlayer extends TridentLivingEntity implements Player { // abstract for now to avoid compilation errors
+public abstract class TridentPlayer extends TridentInventoryHolder implements Player { // abstract for now to avoid compilation errors
 
     private static final TridentPlayer[] players = {};
 
@@ -64,6 +66,11 @@ public abstract class TridentPlayer extends TridentLivingEntity implements Playe
         }else if((ticksExisted - connection.getKeepAliveSent()) >= 600L){
             kickPlayer("Timed out!");
         }
+    }
+
+    public void sendMessage(String message) {
+        connection.sendPacket(new PacketPlayOutChatMessage().set("jsonMessage", message).set("position",
+                PacketPlayOutChatMessage.ChatPosition.CHAT));
     }
 
     /*
