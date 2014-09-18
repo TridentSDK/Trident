@@ -62,12 +62,20 @@ public class PacketLoginOutEncryptionRequest extends OutPacket {
             ex.printStackTrace();
         }
 
+        StringBuilder builder = new StringBuilder();
+
+        for(byte b : publicKey) {
+            builder.append(b);
+        }
+
+        System.out.println("Public key: " + builder.toString());
+
         Codec.writeString(buf, "");
 
-        buf.writeShort((int) this.keyLength);
+        Codec.writeVarInt32(buf, (int) this.keyLength);
         buf.writeBytes(this.publicKey);
 
-        buf.writeShort((int) this.tokenLength);
+        Codec.writeVarInt32(buf, (int) this.tokenLength);
         buf.writeBytes(this.verifyToken);
     }
 

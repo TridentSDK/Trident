@@ -28,6 +28,7 @@
 package net.tridentsdk.packets.login;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.client.ClientConnection;
 import net.tridentsdk.server.netty.packet.*;
 import net.tridentsdk.server.netty.protocol.Protocol;
@@ -48,17 +49,17 @@ public class PacketLoginInEncryptionResponse extends InPacket {
     public Packet decode(ByteBuf buf) {
         // TODO: Figure a better workaround
 
-        this.secretLength = buf.readShort();
+        this.secretLength = (short) Codec.readVarInt32(buf);
         this.secret = new byte[(int) this.secretLength];
 
-        for (int i = 0; i <= (int) this.secretLength; i++) {
+        for (int i = 0; i < (int) this.secretLength; i++) {
             this.secret[i] = buf.readByte();
         }
 
-        this.tokenLength = buf.readShort();
+        this.tokenLength = (short) Codec.readVarInt32(buf);
         this.token = new byte[(int) this.tokenLength];
 
-        for (int i = 0; i <= (int) this.secretLength; i++) {
+        for (int i = 0; i < (int) this.secretLength; i++) {
             this.token[i] = buf.readByte();
         }
 

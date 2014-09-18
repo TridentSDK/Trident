@@ -32,6 +32,8 @@ import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 import net.tridentsdk.server.netty.packet.PacketType;
 
+import java.util.UUID;
+
 /**
  * TODO not an expert on this - AgentTroll
  *
@@ -54,8 +56,7 @@ public class PacketLoginOutSuccess extends OutPacket {
     public void setName(String name) {
         this.name = name;
 
-        this.id = null; /* ((TridentServer) Trident.getServer()).getProfileRepository()
-                                                       .findProfilesByNames(name)[0].getId(); */
+        this.id = UUID.randomUUID().toString(); // temp until authentication is finished
     }
 
     @Override

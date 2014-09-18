@@ -37,10 +37,8 @@ public final class RSA {
 
     public static KeyPair generate(int bits) throws NoSuchAlgorithmException, InvalidAlgorithmParameterException {
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
-        AlgorithmParameterSpec spec = new RSAKeyGenParameterSpec(bits,
-                                                                 RSAKeyGenParameterSpec.F4);
 
-        keyGen.initialize(spec);
+        keyGen.initialize(bits);
         return keyGen.generateKeyPair();
     }
 
