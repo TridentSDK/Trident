@@ -32,6 +32,7 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.socket.SocketChannel;
 import net.tridentsdk.server.netty.client.ClientConnectionHandler;
 import net.tridentsdk.server.netty.packet.PacketDecoder;
+import net.tridentsdk.server.netty.packet.PacketEncoder;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -46,8 +47,12 @@ public class TridentChannelInitializer extends ChannelInitializer<SocketChannel>
     protected void initChannel(SocketChannel channel) throws Exception {
         //channel.config().setOption(ChannelOption.IP_TOS, 24);
         channel.config().setOption(ChannelOption.TCP_NODELAY, true);
-
+        
+        //Decode:
         channel.pipeline().addLast(new PacketDecoder());
         channel.pipeline().addLast(new ClientConnectionHandler());
+        
+        //Encode:
+        channel.pipeline().addLast(new PacketEncoder());
     }
 }

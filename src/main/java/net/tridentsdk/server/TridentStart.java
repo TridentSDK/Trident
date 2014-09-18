@@ -111,6 +111,10 @@ final class TridentStart {
      * @param config the configuration to use for option lookup
      */
     private static void init(TridentConfig config) {
+        //TODO: Need to run on seperate thread?
+        //Server should read all settings from the loaded config
+        TridentServer.createServer(config);
+        
         try {
             ServerBootstrap b = new ServerBootstrap();
             b.group(TridentStart.bossGroup, TridentStart.workerGroup)
@@ -120,10 +124,6 @@ final class TridentStart {
 
             // Bind and start to accept incoming connections.
             ChannelFuture f = b.bind((int) config.getPort()).sync();
-
-            //Runs the server on a separate thread
-            //Server should read all settings from the loaded config
-            TridentServer.createServer(config);
 
             // Wait until the server socket is closed, to gracefully shut down your server.
             f.channel().closeFuture().sync();

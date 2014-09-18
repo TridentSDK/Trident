@@ -69,8 +69,8 @@ public class PacketStatusOutResponse extends OutPacket {
     //TODO: Do this properly
     public static class Response {
         public static class Version {
-            String name = "1.7.9";
-            int protocol = 5;
+            String name = "1.8";
+            int protocol = 47;
         }
         
         public static class Players {

@@ -119,11 +119,13 @@ public class ClientConnection {
 
         try {
             if (encrypted) {
+                //TODO: Write as VarInt
                 buffer.writeBytes(RSA.encrypt((byte) packet.getId(), this.publicKey));
 
                 packet.encode(buffer);
                 buffer.writeBytes(this.encrypt(buffer.array()));
             } else {
+                System.out.println("UNENCRYPTED");
                 Codec.writeVarInt32(buffer, packet.getId());
                 packet.encode(buffer);
             }
@@ -131,7 +133,7 @@ public class ClientConnection {
             ex.printStackTrace();
         }
         
-        // Write the encoded packet length and flush it
+        // Write the packet and flush it
         this.channel.write(buffer);
         this.channel.flush();
     }
