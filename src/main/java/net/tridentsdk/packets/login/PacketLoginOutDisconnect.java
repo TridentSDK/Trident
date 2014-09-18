@@ -30,12 +30,10 @@ package net.tridentsdk.packets.login;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.client.ClientConnection;
+import net.tridentsdk.server.netty.packet.OutPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.packet.PacketType;
 
-/*
- * TODO: Read up more on disconnect JSON message
- */
 
 /**
  * TODO not an expert on this - AgentTroll
@@ -68,8 +66,9 @@ public class PacketLoginOutDisconnect implements Packet {
         return this.jsonMessage;
     }
 
-    public void setJsonMessage(String jsonMessage) {
+    public PacketLoginOutDisconnect setJsonMessage(String jsonMessage) {
         this.jsonMessage = jsonMessage;
+        return this;
     }
 
     /**

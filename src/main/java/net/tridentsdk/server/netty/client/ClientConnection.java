@@ -104,6 +104,10 @@ public class ClientConnection {
         return newConnection;
     }
 
+    public void setPublicKey(PublicKey publicKey) {
+        this.publicKey = publicKey;
+    }
+
     /**
      * Sends protocol data through the client stream
      *

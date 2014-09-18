@@ -50,11 +50,12 @@ public abstract class OutPacket implements Packet {
      */
     public OutPacket set(String name, Object value) {
         try {
-            Field field = getClass().getField(name);
+            Field field = getClass().getDeclaredField(name);
 
             field.setAccessible(true);
-            field.set(value, this);
-        }catch(NoSuchFieldException | IllegalAccessException ignored) {
+            field.set(this, value);
+        }catch(NoSuchFieldException | IllegalAccessException e) {
+            e.printStackTrace();
         }
 
         return this;

@@ -29,10 +29,9 @@ package net.tridentsdk.packets.login;
 
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.netty.Codec;
+import net.tridentsdk.server.netty.client.ClientConnection;
 import net.tridentsdk.server.netty.packet.OutPacket;
 import net.tridentsdk.server.netty.packet.PacketType;
-
-import java.util.UUID;
 
 /**
  * TODO not an expert on this - AgentTroll
@@ -42,6 +41,8 @@ import java.util.UUID;
 public class PacketLoginOutSuccess extends OutPacket {
     private String name;
     private String id;
+    private ClientConnection connection;
+    private byte[] secret;
 
     @Override
     public int getId() {
@@ -53,10 +54,12 @@ public class PacketLoginOutSuccess extends OutPacket {
         return PacketType.OUT;
     }
 
+    public ClientConnection getConnection() {
+        return connection;
+    }
+
     public void setName(String name) {
         this.name = name;
-
-        this.id = UUID.randomUUID().toString(); // temp until authentication is finished
     }
 
     @Override

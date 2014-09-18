@@ -32,6 +32,12 @@ import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.client.ClientConnection;
 import net.tridentsdk.server.netty.packet.*;
 
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.EncodedKeySpec;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
+
 /**
  * @author The TridentSDK Team
  */
@@ -66,8 +72,15 @@ public class PacketLoginInStart extends InPacket {
 
     @Override
     public void handleReceived(ClientConnection connection) {
-        // TODO: Respond with PacketLoginOutEncryptionRequest
         LoginManager.getInstance().initLogin(connection.getAddress(), this.getName());
-        connection.sendPacket(new PacketLoginOutEncryptionRequest());
+        PacketLoginOutEncryptionRequest p = new PacketLoginOutEncryptionRequest();
+        connection.sendPacket(p);
+
+        try{
+            KeyFactory factory = KeyFactory.getInstance("RSA");
+            EncodedKeySpec spec = new X509EncodedKeySpec(p.getPublicKey());
+
+            connection.setPublicKey(factory.generatePublic(spec));
+        }catch(NoSuchAlgorithmException | InvalidKeySpecException ignored) {}
     }
 }
