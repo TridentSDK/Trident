@@ -143,9 +143,8 @@ public class ClientConnection {
 
         try {
             if (encrypted) {
-                buffer.writeBytes(encrypt((byte) packet.getId()));
-
                 ByteBuf decrypted = Unpooled.buffer();
+                Codec.writeVarInt32(decrypted, packet.getId());
                 packet.encode(decrypted);
 
                 buffer.writeBytes(encrypt(decrypted.array()));
