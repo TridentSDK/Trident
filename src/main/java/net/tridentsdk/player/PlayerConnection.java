@@ -48,8 +48,8 @@ public class PlayerConnection extends ClientConnection {
 
         super.address = connection.getAddress();
         super.channel = connection.getChannel();
-        super.publicKey = connection.getPublicKey();
-        super.privateKey = connection.getPrivateKey();
+        super.loginKeyPair = connection.getLoginKeyPair();
+        super.sharedSecret = connection.getSharedSecret();
         super.stage = Protocol.ClientStage.PLAY; // stage must be PLAY to actually create PlayerConnection
         super.encryptionEnabled = connection.isEncryptionEnabled();
 

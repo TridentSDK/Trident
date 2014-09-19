@@ -42,7 +42,6 @@ public class PacketLoginOutSuccess extends OutPacket {
     private String name;
     private String id;
     private ClientConnection connection;
-    private byte[] secret;
 
     @Override
     public int getId() {

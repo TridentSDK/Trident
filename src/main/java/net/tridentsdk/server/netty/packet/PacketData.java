@@ -69,11 +69,6 @@ public class PacketData {
     public ByteBuf getData() {
         return this.decrypted != null ? this.decrypted : this.rawData;
     }
-    
-    public void decrypt(ClientConnection conn) throws Exception {
-        byte[] bytes = conn.decrypt(rawData.array());
-        decrypted = Unpooled.copiedBuffer(bytes);
-    }
 
     /**
      * The amount of bytes that can be read from the serialized packet

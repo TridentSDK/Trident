@@ -74,9 +74,10 @@ public class ClientConnectionHandler extends SimpleChannelInboundHandler<PacketD
             connection = ClientConnection.registerConnection(context);
         }
         
-        if (connection.isEncryptionEnabled()) {
+        //FIXME
+        /*if (connection.isEncryptionEnabled()) {
             data.decrypt(connection);
-        }
+        }*/
 
         Packet packet = this.protocol.getPacket(data.getId(), connection.getStage(), PacketType.IN);
         

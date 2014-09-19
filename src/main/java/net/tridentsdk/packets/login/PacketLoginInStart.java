@@ -81,7 +81,7 @@ public class PacketLoginInStart extends InPacket {
             KeyPair pair = RSA.generate(1024);
 
             p.set("publicKey", pair.getPublic().getEncoded());
-            connection.enableEncryption(pair.getPublic(), pair.getPrivate());
+            connection.setLoginKeyPair(pair);
         }catch(NoSuchAlgorithmException | InvalidAlgorithmParameterException ignored) {}
 
         connection.sendPacket(p, false);

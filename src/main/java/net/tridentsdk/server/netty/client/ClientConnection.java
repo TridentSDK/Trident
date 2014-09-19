@@ -36,6 +36,7 @@ import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.protocol.Protocol;
 
 import java.net.InetSocketAddress;
+import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
@@ -56,10 +57,10 @@ public class ClientConnection {
     protected InetSocketAddress address;
     protected Channel channel;
 
-    protected volatile PublicKey publicKey;
+    protected volatile KeyPair loginKeyPair;
     protected volatile Protocol.ClientStage stage;
     protected volatile boolean encryptionEnabled;
-    protected volatile PrivateKey privateKey;
+    protected volatile byte[] sharedSecret;
     protected volatile byte[] verificationToken;
 
     /**
@@ -107,8 +108,8 @@ public class ClientConnection {
         return newConnection;
     }
 
-    public void setPublicKey(PublicKey publicKey) {
-        this.publicKey = publicKey;
+    public void setLoginKeyPair(KeyPair keyPair) {
+        this.loginKeyPair = keyPair;
     }
 
     /**
@@ -128,11 +129,7 @@ public class ClientConnection {
 
         try {
             if (encrypted) {
-                //TODO: Write as VarInt
-                buffer.writeBytes(RSA.encrypt((byte) packet.getId(), this.publicKey));
-
-                packet.encode(buffer);
-                buffer.writeBytes(this.encrypt(buffer.array()));
+                //TODO: Write encrypted packets with shared secret
             } else {
                 System.out.println("UNENCRYPTED");
                 Codec.writeVarInt32(buffer, packet.getId());
@@ -151,23 +148,26 @@ public class ClientConnection {
         this.sendPacket(packet, encryptionEnabled);
     }
 
-    public byte[] encrypt(byte... data) throws Exception {
+    //TODO: Encryption/Decryption should use SharedSecret
+    /*public byte[] encrypt(byte... data) throws Exception {
         return RSA.encrypt(data, this.publicKey);
     }
 
     public byte[] decrypt(byte... data) throws Exception {
         return RSA.decrypt(data, this.privateKey);
-    }
+    }*/
 
     public void generateToken() {
         verificationToken = new byte[4];
         SR.nextBytes(verificationToken);
     }
 
-    public void enableEncryption(PublicKey publicKey, PrivateKey privateKey) {
-        this.publicKey = publicKey;
-        this.privateKey = privateKey;
-        this.encryptionEnabled = true;
+    public void enableEncryption(byte[] secret) {
+        //Makes sure the secret is only set once
+        if (!encryptionEnabled) {
+            this.sharedSecret = secret;
+            this.encryptionEnabled = true;
+        }    
     }
 
     /**
@@ -214,12 +214,12 @@ public class ClientConnection {
         return this.encryptionEnabled;
     }
 
-    public PublicKey getPublicKey() {
-        return this.publicKey;
+    public KeyPair getLoginKeyPair() {
+        return this.loginKeyPair;
     }
-
-    public PrivateKey getPrivateKey() {
-        return this.privateKey;
+    
+    public byte[] getSharedSecret() {
+        return this.sharedSecret;
     }
 
     /**

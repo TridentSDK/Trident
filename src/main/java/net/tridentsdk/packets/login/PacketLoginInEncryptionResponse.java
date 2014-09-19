@@ -29,7 +29,9 @@ package net.tridentsdk.packets.login;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.server.encryption.RSA;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.client.ClientConnection;
 import net.tridentsdk.server.netty.packet.*;
@@ -38,6 +40,7 @@ import net.tridentsdk.server.netty.protocol.Protocol;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import javax.net.ssl.HttpsURLConnection;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
@@ -60,8 +63,8 @@ public class PacketLoginInEncryptionResponse extends InPacket {
     private short secretLength;
     private short tokenLength;
 
-    private byte[] secret;
-    private byte[] token;
+    private byte[] encryptedSecret;
+    private byte[] encryptedToken;
 
     @Override
     public int getId() {
@@ -72,18 +75,15 @@ public class PacketLoginInEncryptionResponse extends InPacket {
     public Packet decode(ByteBuf buf) {
 
         this.secretLength = (short) Codec.readVarInt32(buf);
-        this.secret = new byte[(int) this.secretLength];
-
-        for (int i = 0; i < (int) this.secretLength; i++) {
-            this.secret[i] = buf.readByte();
-        }
+        
+        this.encryptedSecret = new byte[(int) this.secretLength];
+        buf.readBytes(this.encryptedSecret);
 
         this.tokenLength = (short) Codec.readVarInt32(buf);
-        this.token = new byte[(int) this.tokenLength];
-
-        for (int i = 0; i < (int) this.secretLength; i++) {
-            this.token[i] = buf.readByte();
-        }
+        System.out.println("TOKEN LENGTH: " + tokenLength);
+        
+        this.encryptedToken = new byte[(int) this.tokenLength];
+        buf.readBytes(this.encryptedToken);
 
         return this;
     }
@@ -111,26 +111,19 @@ public class PacketLoginInEncryptionResponse extends InPacket {
         return this.tokenLength;
     }
 
-    /**
-     * Gets the actual secret
-     *
-     * @return the secret
-     */
-    public byte[] getSecret() {
-        return this.secret;
-    }
-
-    /**
-     * Gets the client token
-     *
-     * @return the client token
-     */
-    public byte[] getToken() {
-        return this.token;
-    }
-
     @Override
     public void handleReceived(ClientConnection connection) {
+        byte[] sharedSecret = null;
+        byte[] token = null;
+        try {
+            sharedSecret = RSA.decrypt(encryptedSecret, connection.getLoginKeyPair().getPrivate());
+            token = RSA.decrypt(encryptedToken, connection.getLoginKeyPair().getPrivate());
+        } catch (Exception e) {
+         // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        
+        //Check that we got the same verification token;
         if(!(Arrays.equals(connection.getVerificationToken(), token))) {
             System.out.println("Client with IP " + connection.getAddress().getHostName() +
                     " has sent an invalid token!");
@@ -138,14 +131,14 @@ public class PacketLoginInEncryptionResponse extends InPacket {
             connection.logout();
             return;
         }
+        
+        connection.enableEncryption(sharedSecret);
 
         try{
             KeyFactory factory = KeyFactory.getInstance("RSA");
-            EncodedKeySpec spec = new X509EncodedKeySpec(secret);
+            EncodedKeySpec spec = new X509EncodedKeySpec(sharedSecret);
 
-            connection.enableEncryption(connection.getPublicKey(),
-                    factory.generatePrivate(spec));
-        }catch(NoSuchAlgorithmException | InvalidKeySpecException ignored) {}
+        }catch(NoSuchAlgorithmException ignored) {}
 
         String name = LoginManager.getInstance().getName(connection.getAddress());
         String id = "";
@@ -153,9 +146,13 @@ public class PacketLoginInEncryptionResponse extends InPacket {
         try{
             URL url = new URL("https://sessionserver.mojang.com/session/minecraft/hasJoined?username=" +
                     URLEncoder.encode(name, "UTF-8") + "&serverId=" +
-                    new BigInteger(HashGenerator.getHash(connection, name, secret)).toString(16));
+                    new BigInteger(HashGenerator.getHash(connection, name, sharedSecret)).toString(16));
             HttpsURLConnection c = (HttpsURLConnection) url.openConnection();
-
+            
+            c.setRequestProperty("User-Agent", "MINECRAFT");
+            
+            System.out.println("RESPONSE: " + c.getResponseCode());
+            
             BufferedReader reader = new BufferedReader(new InputStreamReader(c.getInputStream()));
             StringBuilder sb = new StringBuilder();
             String line;
@@ -175,11 +172,11 @@ public class PacketLoginInEncryptionResponse extends InPacket {
 
             connection.logout();
         }
-
+        
+        //TODO:
         PacketLoginOutSuccess packet = new PacketLoginOutSuccess();
         packet.setName(name);
         packet.set("connection", connection);
-        packet.set("secret", secret);
         packet.set("id", id);
 
         connection.sendPacket(packet);
@@ -193,7 +190,7 @@ public class PacketLoginInEncryptionResponse extends InPacket {
 
         static byte[] getHash(ClientConnection connection, String name, byte[] secret) throws Exception {
             byte[][] b = {getHex(name).getBytes("ISO_8859_1"), secret,
-                    connection.getPublicKey().getEncoded()};
+                    connection.getLoginKeyPair().getPublic().getEncoded()};
             MessageDigest digest = MessageDigest.getInstance("SHA-1");
 
             for(byte[] bytes : b) {
