@@ -41,7 +41,7 @@ import java.nio.charset.Charset;
  */
 @ThreadSafe
 public final class Codec {
-    //Current charset used by strings is UFT_8
+    //Current charset used by strings is UTF_8
     public static final Charset CHARSET = Charsets.UTF_8;
 
     private Codec() {} // Suppress initialization of utility class
