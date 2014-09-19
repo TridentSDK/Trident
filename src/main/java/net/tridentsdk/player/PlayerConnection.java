@@ -43,6 +43,7 @@ public class PlayerConnection extends ClientConnection {
     private final TridentPlayer player;
 
     PlayerConnection(ClientConnection connection, TridentPlayer player) {
+        // remove old connection, and replace it with this one
         clientData.remove(connection.getAddress());
         clientData.put(connection.getAddress(), new AtomicReference<ClientConnection>(this));
 

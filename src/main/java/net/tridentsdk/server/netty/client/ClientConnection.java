@@ -67,10 +67,11 @@ public class ClientConnection {
         }
     }
 
-
+    /* Network fields */
     protected InetSocketAddress address;
     protected Channel channel;
 
+    /* Encryption and client data fields */
     protected volatile KeyPair loginKeyPair;
     protected volatile Protocol.ClientStage stage;
     protected volatile boolean encryptionEnabled;
@@ -109,15 +110,22 @@ public class ClientConnection {
      * @return the instance of the client handler associated with the IP
      */
     public static ClientConnection getConnection(InetSocketAddress address) {
+        // Get the connection reference
         AtomicReference<ClientConnection> reference = ClientConnection.clientData.get(address);
+
+        // return null if connection is not found
         if (reference == null)
             return null;
+
+        // return found connection
         return reference.get();
     }
 
     public static ClientConnection registerConnection(ChannelHandlerContext channelContext) {
+        // Make a new instance of ClientConnection
         ClientConnection newConnection = new ClientConnection(channelContext);
 
+        // Register data and return the new instance
         ClientConnection.clientData.put(newConnection.getAddress(), new AtomicReference<>(newConnection));
         return newConnection;
     }
@@ -136,9 +144,11 @@ public class ClientConnection {
         // Create new ByteBuf
         ByteBuf buffer = this.channel.alloc().buffer();
 
+        // throw an IllegalArgumentException if encryption hasn't been enabled yet
         if (encrypted && !this.encryptionEnabled)
             throw new IllegalArgumentException("You can not use encryption if encryption is not enabled!");
 
+        // Write the packet into the bytebuf
         try {
             if (encrypted) {
                 ByteBuf decrypted = Unpooled.buffer();

@@ -60,13 +60,21 @@ public class PacketDecoder extends ReplayingDecoder<PacketDecoder.State> {
     protected void decode(ChannelHandlerContext context, ByteBuf buf, List<Object> objects) throws Exception {
         
         switch (this.state()) {
+        /* Reading the length of sent packet */
         case LENGTH:
             rawLength = Codec.readVarInt32(buf);
             this.checkpoint(State.DATA);
             //NOTE: Not meant to break;
+
+        /* Reading the packet */
         case DATA:
+            // read amount of data stated by rawLength
             ByteBuf data = buf.readBytes(rawLength);
+
+            // add packet data to objects to be handled
             objects.add(new PacketData(data));
+
+            // read the next packet (i.e repeat)
             this.checkpoint(State.LENGTH);
             break;
             

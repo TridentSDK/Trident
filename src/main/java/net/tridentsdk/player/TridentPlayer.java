@@ -59,11 +59,13 @@ public abstract class TridentPlayer extends TridentInventoryHolder implements Pl
         super.tick();
 
         if(connection.getKeepAliveId() == (-1)) {
+            // send Keep Alive packet if not sent already
             PacketPlayOutKeepAlive packet = new PacketPlayOutKeepAlive();
 
             connection.sendPacket(packet);
             connection.setKeepAliveId(packet.getKeepAliveId(), ticksExisted);
         }else if((ticksExisted - connection.getKeepAliveSent()) >= 600L){
+            // kick the player for not responding to the keep alive within 30 seconds/600 ticks
             kickPlayer("Timed out!");
         }
     }

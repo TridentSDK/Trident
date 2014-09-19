@@ -70,6 +70,7 @@ public class ClientConnectionHandler extends SimpleChannelInboundHandler<PacketD
         InetSocketAddress address = (InetSocketAddress) context.channel().remoteAddress();
         ClientConnection connection = ClientConnection.getConnection(address);
 
+        // Register a connection if not an existing one
         if (connection == null) {
             connection = ClientConnection.registerConnection(context);
         }
@@ -89,8 +90,8 @@ public class ClientConnectionHandler extends SimpleChannelInboundHandler<PacketD
             return;
         }
 
+        // decode and handle the packet
         packet.decode(data.getData());
-
         packet.handleReceived(connection);
 
         final ClientConnection finalConnection = connection;
