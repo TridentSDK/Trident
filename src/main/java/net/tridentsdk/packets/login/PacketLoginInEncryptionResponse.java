@@ -80,11 +80,10 @@ public class PacketLoginInEncryptionResponse extends InPacket {
         buf.readBytes(this.encryptedSecret);
 
         this.tokenLength = (short) Codec.readVarInt32(buf);
-        System.out.println("TOKEN LENGTH: " + tokenLength);
         
         this.encryptedToken = new byte[(int) this.tokenLength];
         buf.readBytes(this.encryptedToken);
-
+        
         return this;
     }
 
@@ -141,43 +140,43 @@ public class PacketLoginInEncryptionResponse extends InPacket {
         }catch(NoSuchAlgorithmException ignored) {}
 
         String name = LoginManager.getInstance().getName(connection.getAddress());
-        String id = "";
-
+        
+        StringBuilder sb = new StringBuilder();
         try{
             URL url = new URL("https://sessionserver.mojang.com/session/minecraft/hasJoined?username=" +
                     URLEncoder.encode(name, "UTF-8") + "&serverId=" +
-                    new BigInteger(HashGenerator.getHash(connection, name, sharedSecret)).toString(16));
+                    new BigInteger(HashGenerator.getHash(connection, sharedSecret)).toString(16));
             HttpsURLConnection c = (HttpsURLConnection) url.openConnection();
             
-            c.setRequestProperty("User-Agent", "MINECRAFT");
-            
-            System.out.println("RESPONSE: " + c.getResponseCode());
+            int code = c.getResponseCode();
+            if (code != 200) {
+                //TODO: If session servers are down... or?
+            }
             
             BufferedReader reader = new BufferedReader(new InputStreamReader(c.getInputStream()));
-            StringBuilder sb = new StringBuilder();
+            
             String line;
-
             while((line = reader.readLine()) != null) {
+                System.out.println("LINE: " + line);
                 sb.append(line);
                 sb.append("\n");
             }
-
-            JsonObject obj = GSON.fromJson(sb.toString(), JsonObject.class);
             reader.close();
-
-            id = obj.get("id").getAsString();
-            // TODO: generate player
         }catch(Exception ex) {
             ex.printStackTrace();
 
             connection.logout();
+            return;
         }
+        
+        SessionResponse response = GSON.fromJson(sb.toString(), SessionResponse.class);
+        //TODO: Generate the PlayerConnection object
         
         //TODO:
         PacketLoginOutSuccess packet = new PacketLoginOutSuccess();
-        packet.setName(name);
-        packet.set("connection", connection);
-        packet.set("id", id);
+        packet.set("uuid", response.id);
+        packet.set("username", response.name);
+        
 
         connection.sendPacket(packet);
         connection.setStage(Protocol.ClientStage.PLAY);
@@ -188,9 +187,10 @@ public class PacketLoginInEncryptionResponse extends InPacket {
 
         private static char[] hexArray = "0123456789ABCDEF".toCharArray();
 
-        static byte[] getHash(ClientConnection connection, String name, byte[] secret) throws Exception {
-            byte[][] b = {getHex(name).getBytes("ISO_8859_1"), secret,
-                    connection.getLoginKeyPair().getPublic().getEncoded()};
+        static byte[] getHash(ClientConnection connection, byte[] secret) throws Exception {
+            /*byte[][] b = {getHex(name).getBytes("ISO_8859_1"), secret,
+                    connection.getLoginKeyPair().getPublic().getEncoded()};*/
+            byte[][] b = {secret, connection.getLoginKeyPair().getPublic().getEncoded()};
             MessageDigest digest = MessageDigest.getInstance("SHA-1");
 
             for(byte[] bytes : b) {
@@ -199,8 +199,9 @@ public class PacketLoginInEncryptionResponse extends InPacket {
 
             return digest.digest();
         }
-
-        private static String getHex(String data) {
+        
+        //Currently unneeded
+        /*private static String getHex(String data) {
             MessageDigest digest = null;
 
             try {
@@ -259,6 +260,17 @@ public class PacketLoginInEncryptionResponse extends InPacket {
             }
 
             return p;
+        }*/
+    }
+    
+    public static class SessionResponse {
+        public static class Properties {
+            String name;
+            String value;
         }
+        //The UUID of the player
+        String id;
+        String name;
+        Properties properties;
     }
 }

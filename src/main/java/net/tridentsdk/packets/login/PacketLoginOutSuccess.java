@@ -39,8 +39,8 @@ import net.tridentsdk.server.netty.packet.PacketType;
  * @author The TridentSDK Team
  */
 public class PacketLoginOutSuccess extends OutPacket {
-    private String name;
-    private String id;
+    private String uuid;
+    private String username;
     private ClientConnection connection;
 
     @Override
@@ -57,13 +57,9 @@ public class PacketLoginOutSuccess extends OutPacket {
         return connection;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     @Override
     public void encode(ByteBuf buf) {
-        Codec.writeString(buf, this.id);
-        Codec.writeString(buf, this.name);
+        Codec.writeString(buf, this.uuid);
+        Codec.writeString(buf, this.username);
     }
 }
