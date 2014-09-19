@@ -169,10 +169,8 @@ public class PacketLoginInEncryptionResponse extends InPacket {
         }
         
         SessionResponse response = GSON.fromJson(sb.toString(), SessionResponse.class);
-        //TODO: Generate the PlayerConnection object
-        
-        //TODO:
         PacketLoginOutSuccess packet = new PacketLoginOutSuccess();
+
         packet.set("uuid", response.id);
         packet.set("username", response.name);
         
@@ -180,15 +178,13 @@ public class PacketLoginInEncryptionResponse extends InPacket {
         connection.sendPacket(packet);
         connection.setStage(Protocol.ClientStage.PLAY);
         LoginManager.getInstance().finish(connection.getAddress());
+
+        // TODO: generate player
     }
 
     private static class HashGenerator {
 
-        private static char[] hexArray = "0123456789ABCDEF".toCharArray();
-
         static byte[] getHash(ClientConnection connection, byte[] secret) throws Exception {
-            /*byte[][] b = {getHex(name).getBytes("ISO_8859_1"), secret,
-                    connection.getLoginKeyPair().getPublic().getEncoded()};*/
             byte[][] b = {secret, connection.getLoginKeyPair().getPublic().getEncoded()};
             MessageDigest digest = MessageDigest.getInstance("SHA-1");
 
@@ -198,68 +194,6 @@ public class PacketLoginInEncryptionResponse extends InPacket {
 
             return digest.digest();
         }
-        
-        //Currently unneeded
-        /*private static String getHex(String data) {
-            MessageDigest digest = null;
-
-            try {
-                digest = MessageDigest.getInstance("SHA-1");
-                digest.reset();
-                digest.update(data.getBytes("UTF-8"));
-            } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
-
-            byte[] hash = digest.digest();
-            boolean negative = (hash[0] & 0x80) == 0x80;
-
-            if (negative)
-                hash = twosCompliment(hash);
-
-            String digests = getHexString(hash);
-
-            if (digests.startsWith("0")) {
-                digests = digests.replaceFirst("0", digests);
-            }
-
-            if (negative) {
-                digests = "-" + digests;
-            }
-
-            digests = digests.toLowerCase();
-            return digests;
-        }
-
-        private static String getHexString(byte[] bytes) {
-            char[] hexChars = new char[bytes.length * 2];
-            int v;
-
-            for (int j = 0; j < bytes.length; j++ ) {
-                v = bytes[j] & 0xFF;
-
-                hexChars[j * 2] = hexArray[v >>> 4];
-                hexChars[j * 2 + 1] = hexArray[v & 0x0F];
-            }
-
-            return new String(hexChars);
-        }
-
-        private static byte[] twosCompliment(byte[] p) {
-            int i;
-            boolean carry = true;
-
-            for (i = p.length - 1; i >= 0; i--) {
-                p[i] = (byte)~p[i];
-
-                if (carry) {
-                    carry = p[i] == 0xFF;
-                    p[i]++;
-                }
-            }
-
-            return p;
-        }*/
     }
     
     public static class SessionResponse {
