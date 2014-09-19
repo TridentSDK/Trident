@@ -82,7 +82,7 @@ public class PacketLoginInStart extends InPacket {
 
             p.set("publicKey", pair.getPublic().getEncoded());
             connection.enableEncryption(pair.getPublic(), pair.getPrivate());
-        }catch(NoSuchAlgorithmException | InvalidAlgorithmParameterException ignored) {}
+        } catch(NoSuchAlgorithmException | InvalidAlgorithmParameterException ignored) {}
 
         connection.sendPacket(p, false);
     }
