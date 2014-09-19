@@ -29,6 +29,7 @@ package net.tridentsdk.server;
 
 import net.tridentsdk.api.Server;
 import net.tridentsdk.api.Trident;
+import net.tridentsdk.entity.EntityManager;
 import net.tridentsdk.server.netty.protocol.Protocol;
 import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
 
@@ -43,15 +44,16 @@ import java.util.concurrent.atomic.AtomicReference;
 @ThreadSafe
 public final class TridentServer implements Server {
     private final AtomicReference<Thread> SERVER_THREAD = new AtomicReference<>();
-    //private final ProfileRepository PROFILE_REPOSITORY = new HttpProfileRepository("minecraft");
 
     private final TridentConfig config;
     private final Protocol protocol;
     private final ConcurrentTaskExecutor<?> taskExecutor = new ConcurrentTaskExecutor<>(1);
+    private final EntityManager entityManager;
 
     private TridentServer(TridentConfig config) {
         this.config = config;
         this.protocol = new Protocol();
+        this.entityManager = new EntityManager();
     }
 
     /**
@@ -78,10 +80,9 @@ public final class TridentServer implements Server {
         return this.protocol;
     }
 
-    /*
-    public ProfileRepository getProfileRepository() {
-        return this.PROFILE_REPOSITORY;
-    } */
+    public EntityManager getEntityManager() {
+        return entityManager;
+    }
 
     /**
      * Gets the port the server currently runs on
@@ -107,5 +108,9 @@ public final class TridentServer implements Server {
     public void shutdown() {
         //TODO: Cleanup stuff...
         this.taskExecutor.shutdown();
+    }
+
+    public static TridentServer getInstance() {
+        return (TridentServer) Trident.getServer();
     }
 }

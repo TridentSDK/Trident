@@ -39,6 +39,7 @@ import net.tridentsdk.api.world.World;
 import net.tridentsdk.packets.play.out.PacketPlayOutEntityTeleport;
 import net.tridentsdk.packets.play.out.PacketPlayOutEntityVelocity;
 import net.tridentsdk.player.TridentPlayer;
+import net.tridentsdk.server.TridentServer;
 
 import java.util.List;
 import java.util.UUID;
@@ -91,6 +92,8 @@ public abstract class TridentEntity implements Entity {
 
         this.ticksExisted = 0L;
         this.passenger = null;
+
+        TridentServer.getInstance().getEntityManager().registerEntity(this);
     }
 
     @Override
