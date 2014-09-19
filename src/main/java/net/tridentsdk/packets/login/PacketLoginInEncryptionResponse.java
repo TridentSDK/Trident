@@ -141,10 +141,13 @@ public class PacketLoginInEncryptionResponse extends InPacket {
                     URLEncoder.encode(name, "UTF-8") + "&serverId=" +
                     new BigInteger(HashGenerator.getHash(connection, sharedSecret)).toString(16));
             HttpsURLConnection c = (HttpsURLConnection) url.openConnection();
-            
             int code = c.getResponseCode();
+
             if (code != 200) {
-                //TODO: If session servers are down... or?
+                connection.sendPacket(new PacketLoginOutDisconnect().setJsonMessage("Unable to create session"), false);
+
+                connection.logout();
+                return;
             }
             
             BufferedReader reader = new BufferedReader(new InputStreamReader(c.getInputStream()));
