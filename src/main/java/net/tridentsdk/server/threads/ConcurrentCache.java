@@ -36,9 +36,11 @@ public class ConcurrentCache<K, V> {
     public V retrieve(K k, Callable<V> callable, ExecutorService executor) {
         while (true) {
             Future<V> future = this.cache.get(k);
+
             if (future == null) {
                 Future<V> task = new FutureTask<>(callable);
                 future = this.cache.putIfAbsent(k, task);
+
                 if (future == null) future = executor.submit(callable);
             }
 
@@ -54,7 +56,9 @@ public class ConcurrentCache<K, V> {
 
     public V retrieve(K k) {
         Future<V> future = this.cache.get(k);
+
         if (future == null) return null;
+
         try {
             return future.get();
         } catch (InterruptedException | ExecutionException e) {
@@ -68,11 +72,13 @@ public class ConcurrentCache<K, V> {
 
     public Collection<V> values() {
         List<V> list = new ArrayList<>();
-        for (Future<V> v : this.cache.values())
+
+        for (Future<V> v : this.cache.values()) {
             try {
                 list.add(v.get());
-            } catch (InterruptedException | ExecutionException ignored) {
-            }
+            } catch (InterruptedException | ExecutionException ignored) {}
+        }
+
         return list;
     }
 }

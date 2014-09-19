@@ -45,7 +45,7 @@ public abstract class TridentProjectile extends TridentEntity implements Project
 	
 	public TridentProjectile(UUID uniqueId, Location spawnLocation, ProjectileSource source){
 		super(uniqueId, spawnLocation);
-		this.source = new WeakReference<ProjectileSource>(source);
+		this.source = new WeakReference<>(source);
 	}
 
 	@Override

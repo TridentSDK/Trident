@@ -50,8 +50,9 @@ public class TridentEgg extends TridentProjectile implements Egg {
 	@Override
 	protected void hit() {
 		int chance = ThreadLocalRandom.current().nextInt(1, 256);
-		if(chance <= 8){
-			if(chance == 1){
+
+		if(chance <= 8) {
+			if(chance == 1) {
 				// TODO: Spawn 4 Baby Chicken
 			} else {
 				// TODO: Spawn 1 Baby Chicken

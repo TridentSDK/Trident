@@ -134,7 +134,7 @@ public class PacketLoginInEncryptionResponse extends InPacket {
         connection.enableEncryption(sharedSecret);
 
         String name = LoginManager.getInstance().getName(connection.getAddress());
-        
+
         StringBuilder sb = new StringBuilder();
         try{
             URL url = new URL("https://sessionserver.mojang.com/session/minecraft/hasJoined?username=" +
@@ -151,7 +151,7 @@ public class PacketLoginInEncryptionResponse extends InPacket {
             }
             
             BufferedReader reader = new BufferedReader(new InputStreamReader(c.getInputStream()));
-            
+
             String line;
             while((line = reader.readLine()) != null) {
                 //DEBUG: System.out.println("LINE: " + line);

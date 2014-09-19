@@ -61,6 +61,7 @@ public class NBTEncoder {
 
         List<NBTTag> innerTags = tag.listTags();
         this.input.writeInt(innerTags.size());
+
         for (NBTTag inner : innerTags) {
             this.writeTag(inner);
         }
@@ -77,35 +78,45 @@ public class NBTEncoder {
             case BYTE:
                 this.input.writeByte((int) tag.asType(ByteTag.class).getValue());
                 break;
+
             case SHORT:
                 this.input.writeShort((int) tag.asType(ShortTag.class).getValue());
                 break;
+
             case INT:
                 this.input.writeInt(tag.asType(IntTag.class).getValue());
                 break;
+
             case LONG:
                 this.input.writeLong(tag.asType(LongTag.class).getValue());
                 break;
+
             case FLOAT:
                 this.input.writeFloat(tag.asType(FloatTag.class).getValue());
                 break;
+
             case DOUBLE:
                 this.input.writeDouble(tag.asType(DoubleTag.class).getValue());
                 break;
+
             case BYTE_ARRAY:
                 byte[] barray = tag.asType(ByteArrayTag.class).getValue();
                 this.input.writeInt(barray.length);
                 this.input.writeBytes(barray);
                 break;
+
             case STRING:
                 this.writeString(tag.asType(StringTag.class).getValue());
                 break;
+
             case LIST:
                 this.writeListTag(tag.asType(ListTag.class));
                 break;
+
             case COMPOUND:
                 this.writeCompoundTag(tag.asType(CompoundTag.class));
                 break;
+
             case INT_ARRAY:
                 int[] iarray = tag.asType(IntArrayTag.class).getValue();
                 this.input.writeInt(iarray.length);
@@ -113,6 +124,7 @@ public class NBTEncoder {
                     this.input.writeInt(anIarray);
                 }
                 break;
+
             default:
                 //Shouldn't/Can't happen
                 break;

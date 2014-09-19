@@ -47,9 +47,10 @@ public class TridentSnowball extends TridentProjectile implements Projectile{
 
 	@Override
     protected void hit() {
-		if(entityHit != null){
-			if(entityHit instanceof LivingEntity){
+		if(entityHit != null) {
+			if(entityHit instanceof LivingEntity) {
 				LivingEntity ent = (LivingEntity) entityHit;
+
 				if(ent instanceof Blaze){
 					// Damage 3 hearts
 				} else if(ent instanceof EnderDragon){
