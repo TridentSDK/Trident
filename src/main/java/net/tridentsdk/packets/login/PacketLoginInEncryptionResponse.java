@@ -56,6 +56,7 @@ import java.security.spec.EncodedKeySpec;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
+import java.util.List;
 
 public class PacketLoginInEncryptionResponse extends InPacket {
     private static final Gson GSON = new Gson();
@@ -132,12 +133,6 @@ public class PacketLoginInEncryptionResponse extends InPacket {
         
         connection.enableEncryption(sharedSecret);
 
-        try{
-            KeyFactory factory = KeyFactory.getInstance("RSA");
-            EncodedKeySpec spec = new X509EncodedKeySpec(sharedSecret);
-
-        }catch(NoSuchAlgorithmException ignored) {}
-
         String name = LoginManager.getInstance().getName(connection.getAddress());
         
         StringBuilder sb = new StringBuilder();
@@ -156,7 +151,7 @@ public class PacketLoginInEncryptionResponse extends InPacket {
             
             String line;
             while((line = reader.readLine()) != null) {
-                System.out.println("LINE: " + line);
+                //DEBUG: System.out.println("LINE: " + line);
                 sb.append(line);
                 sb.append("\n");
             }
@@ -200,10 +195,12 @@ public class PacketLoginInEncryptionResponse extends InPacket {
         public static class Properties {
             String name;
             String value;
+            String signature;
         }
         //The UUID of the player
         String id;
         String name;
-        Properties properties;
+        List<Properties> properties;
+        boolean legacy;
     }
 }
