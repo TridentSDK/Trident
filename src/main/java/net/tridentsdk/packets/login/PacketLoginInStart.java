@@ -74,6 +74,10 @@ public class PacketLoginInStart extends InPacket {
     public void handleReceived(ClientConnection connection) {
         LoginManager.getInstance().initLogin(connection.getAddress(), this.getName());
         PacketLoginOutEncryptionRequest p = new PacketLoginOutEncryptionRequest();
+
+        connection.generateToken();
+        p.set("verifyToken", connection.getVerificationToken());
+
         connection.sendPacket(p);
 
         try{

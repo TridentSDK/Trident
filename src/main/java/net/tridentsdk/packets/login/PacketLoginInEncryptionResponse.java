@@ -35,6 +35,7 @@ import net.tridentsdk.server.netty.client.ClientConnection;
 import net.tridentsdk.server.netty.packet.*;
 import net.tridentsdk.server.netty.protocol.Protocol;
 
+import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;
@@ -51,6 +52,7 @@ import java.security.PrivateKey;
 import java.security.spec.EncodedKeySpec;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.Arrays;
 
 public class PacketLoginInEncryptionResponse extends InPacket {
     private static final Gson GSON = new Gson();
@@ -68,7 +70,6 @@ public class PacketLoginInEncryptionResponse extends InPacket {
 
     @Override
     public Packet decode(ByteBuf buf) {
-        // TODO: Figure a better workaround
 
         this.secretLength = (short) Codec.readVarInt32(buf);
         this.secret = new byte[(int) this.secretLength];
@@ -130,6 +131,14 @@ public class PacketLoginInEncryptionResponse extends InPacket {
 
     @Override
     public void handleReceived(ClientConnection connection) {
+        if(!(Arrays.equals(connection.getVerificationToken(), token))) {
+            System.out.println("Client with IP " + connection.getAddress().getHostName() +
+                    " has sent an invalid token!");
+
+            connection.logout();
+            return;
+        }
+
         try{
             KeyFactory factory = KeyFactory.getInstance("RSA");
             EncodedKeySpec spec = new X509EncodedKeySpec(secret);

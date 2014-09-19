@@ -38,6 +38,7 @@ import net.tridentsdk.server.netty.protocol.Protocol;
 import java.net.InetSocketAddress;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
@@ -50,6 +51,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class ClientConnection {
     protected static final Map<InetSocketAddress, AtomicReference<ClientConnection>> clientData =
             new ConcurrentHashMap<>();
+    protected static final SecureRandom SR = new SecureRandom();
 
     protected InetSocketAddress address;
     protected Channel channel;
@@ -58,6 +60,7 @@ public class ClientConnection {
     protected volatile Protocol.ClientStage stage;
     protected volatile boolean encryptionEnabled;
     protected volatile PrivateKey privateKey;
+    protected volatile byte[] verificationToken;
 
     /**
      * Creates a new connection handler for the joining channel stream
@@ -156,6 +159,11 @@ public class ClientConnection {
         return RSA.decrypt(data, this.privateKey);
     }
 
+    public void generateToken() {
+        verificationToken = new byte[4];
+        SR.nextBytes(verificationToken);
+    }
+
     public void enableEncryption(PublicKey publicKey, PrivateKey privateKey) {
         this.publicKey = publicKey;
         this.privateKey = privateKey;
@@ -187,6 +195,10 @@ public class ClientConnection {
      */
     public Protocol.ClientStage getStage() {
         return this.stage;
+    }
+
+    public byte[] getVerificationToken() {
+        return verificationToken;
     }
 
     /**

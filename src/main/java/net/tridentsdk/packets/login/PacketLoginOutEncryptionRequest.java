@@ -56,8 +56,7 @@ public class PacketLoginOutEncryptionRequest extends OutPacket {
             this.publicKey = RSA.generate(1024).getPublic().getEncoded();
             this.keyLength = (short) this.publicKey.length;
 
-            this.verifyToken = new byte[0];
-            this.tokenLength = (short) 0;
+            this.tokenLength = (short) 4;
         } catch (Exception ex) {
             ex.printStackTrace();
         }
