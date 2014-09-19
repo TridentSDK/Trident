@@ -52,14 +52,9 @@ public class PacketLoginOutEncryptionRequest extends OutPacket {
 
     @Override
     public void encode(ByteBuf buf) {
-        try {
-            this.publicKey = RSA.generate(1024).getPublic().getEncoded();
-            this.keyLength = (short) this.publicKey.length;
+        this.keyLength = (short) this.publicKey.length;
 
-            this.tokenLength = (short) 4;
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+        this.tokenLength = (short) 4;
 
         StringBuilder builder = new StringBuilder();
 

@@ -28,15 +28,14 @@
 package net.tridentsdk.packets.login;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.server.encryption.RSA;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.client.ClientConnection;
 import net.tridentsdk.server.netty.packet.*;
 
-import java.security.KeyFactory;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
-import java.security.spec.EncodedKeySpec;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.X509EncodedKeySpec;
 
 /**
  * @author The TridentSDK Team
@@ -78,13 +77,13 @@ public class PacketLoginInStart extends InPacket {
         connection.generateToken();
         p.set("verifyToken", connection.getVerificationToken());
 
-        connection.sendPacket(p);
+        try {
+            KeyPair pair = RSA.generate(1024);
 
-        try{
-            KeyFactory factory = KeyFactory.getInstance("RSA");
-            EncodedKeySpec spec = new X509EncodedKeySpec(p.getPublicKey());
+            p.set("publicKey", pair.getPublic().getEncoded());
+            connection.enableEncryption(pair.getPublic(), pair.getPrivate());
+        }catch(NoSuchAlgorithmException | InvalidAlgorithmParameterException ignored) {}
 
-            connection.setPublicKey(factory.generatePublic(spec));
-        }catch(NoSuchAlgorithmException | InvalidKeySpecException ignored) {}
+        connection.sendPacket(p, false);
     }
 }
