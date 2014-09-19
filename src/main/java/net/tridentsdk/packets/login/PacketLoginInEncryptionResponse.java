@@ -73,15 +73,14 @@ public class PacketLoginInEncryptionResponse extends InPacket {
 
     @Override
     public Packet decode(ByteBuf buf) {
-
         this.secretLength = (short) Codec.readVarInt32(buf);
-        
         this.encryptedSecret = new byte[(int) this.secretLength];
+
         buf.readBytes(this.encryptedSecret);
 
         this.tokenLength = (short) Codec.readVarInt32(buf);
-        
         this.encryptedToken = new byte[(int) this.tokenLength];
+
         buf.readBytes(this.encryptedToken);
         
         return this;

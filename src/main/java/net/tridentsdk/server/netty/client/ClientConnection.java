@@ -28,6 +28,7 @@
 package net.tridentsdk.server.netty.client;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import net.tridentsdk.server.encryption.RSA;
@@ -35,6 +36,9 @@ import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.protocol.Protocol;
 
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 import java.net.InetSocketAddress;
 import java.security.KeyPair;
 import java.security.PrivateKey;
@@ -53,6 +57,16 @@ public class ClientConnection {
     protected static final Map<InetSocketAddress, AtomicReference<ClientConnection>> clientData =
             new ConcurrentHashMap<>();
     protected static final SecureRandom SR = new SecureRandom();
+    protected static Cipher cipher;
+
+    static {
+        try {
+            cipher = Cipher.getInstance("AES");
+        }catch(Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
 
     protected InetSocketAddress address;
     protected Channel channel;
@@ -60,7 +74,7 @@ public class ClientConnection {
     protected volatile KeyPair loginKeyPair;
     protected volatile Protocol.ClientStage stage;
     protected volatile boolean encryptionEnabled;
-    protected volatile byte[] sharedSecret;
+    protected volatile SecretKey sharedSecret;
     protected volatile byte[] verificationToken;
 
     /**
@@ -129,7 +143,12 @@ public class ClientConnection {
 
         try {
             if (encrypted) {
-                //TODO: Write encrypted packets with shared secret
+                buffer.writeBytes(encrypt((byte) packet.getId()));
+
+                ByteBuf decrypted = Unpooled.buffer();
+                packet.encode(decrypted);
+
+                buffer.writeBytes(encrypt(decrypted.array()));
             } else {
                 System.out.println("UNENCRYPTED");
                 Codec.writeVarInt32(buffer, packet.getId());
@@ -148,14 +167,17 @@ public class ClientConnection {
         this.sendPacket(packet, encryptionEnabled);
     }
 
-    //TODO: Encryption/Decryption should use SharedSecret
-    /*public byte[] encrypt(byte... data) throws Exception {
-        return RSA.encrypt(data, this.publicKey);
+    public byte[] encrypt(byte... data) throws Exception {
+        cipher.init(Cipher.ENCRYPT_MODE, sharedSecret);
+
+        return cipher.doFinal(data);
     }
 
     public byte[] decrypt(byte... data) throws Exception {
-        return RSA.decrypt(data, this.privateKey);
-    }*/
+        cipher.init(Cipher.DECRYPT_MODE, sharedSecret);
+
+        return cipher.doFinal(data);
+    }
 
     public void generateToken() {
         verificationToken = new byte[4];
@@ -165,7 +187,7 @@ public class ClientConnection {
     public void enableEncryption(byte[] secret) {
         //Makes sure the secret is only set once
         if (!encryptionEnabled) {
-            this.sharedSecret = secret;
+            this.sharedSecret = new SecretKeySpec(secret, "AES");
             this.encryptionEnabled = true;
         }    
     }
@@ -218,7 +240,7 @@ public class ClientConnection {
         return this.loginKeyPair;
     }
     
-    public byte[] getSharedSecret() {
+    public SecretKey getSharedSecret() {
         return this.sharedSecret;
     }
 
