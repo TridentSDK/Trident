@@ -139,8 +139,6 @@ public class ClientConnection {
         if (encrypted && !this.encryptionEnabled)
             throw new IllegalArgumentException("You can not use encryption if encryption is not enabled!");
 
-        System.out.println("Sending packet: " + packet.getClass().getSimpleName());
-
         try {
             if (encrypted) {
                 ByteBuf decrypted = Unpooled.buffer();
@@ -149,7 +147,6 @@ public class ClientConnection {
 
                 buffer.writeBytes(encrypt(decrypted.array()));
             } else {
-                System.out.println("UNENCRYPTED");
                 Codec.writeVarInt32(buffer, packet.getId());
                 packet.encode(buffer);
             }

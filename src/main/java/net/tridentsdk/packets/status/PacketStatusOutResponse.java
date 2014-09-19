@@ -57,7 +57,6 @@ public class PacketStatusOutResponse extends OutPacket {
     @Override
     public void encode(ByteBuf buf) {
         String json = new GsonBuilder().create().toJson(response);
-        System.out.println("SENDING: " + json);
         Codec.writeString(buf, json);
     }
 

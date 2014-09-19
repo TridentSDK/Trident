@@ -56,14 +56,6 @@ public class PacketLoginOutEncryptionRequest extends OutPacket {
 
         this.tokenLength = (short) 4;
 
-        StringBuilder builder = new StringBuilder();
-
-        for(byte b : publicKey) {
-            builder.append(b);
-        }
-
-        System.out.println("Public key: " + builder.toString());
-
         Codec.writeString(buf, "");
 
         Codec.writeVarInt32(buf, (int) this.keyLength);

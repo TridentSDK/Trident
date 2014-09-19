@@ -81,10 +81,6 @@ public class ClientConnectionHandler extends SimpleChannelInboundHandler<PacketD
 
         Packet packet = this.protocol.getPacket(data.getId(), connection.getStage(), PacketType.IN);
         
-        System.out.println("Connection Stage: " + connection.getStage());
-        
-        System.out.println("Recieved packet: " + packet.getClass().getSimpleName());
-        
         //If packet is unknown disconnect the client, as said client seems to be modified
         if (packet.getId() == -1) {
             connection.logout();
