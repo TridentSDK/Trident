@@ -28,6 +28,7 @@
 package net.tridentsdk.server.netty.client;
 
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelPromise;
 import io.netty.channel.SimpleChannelInboundHandler;
 import net.tridentsdk.api.Trident;
 import net.tridentsdk.server.TridentServer;
@@ -74,11 +75,10 @@ public class ClientConnectionHandler extends SimpleChannelInboundHandler<PacketD
         if (connection == null) {
             connection = ClientConnection.registerConnection(context);
         }
-        
-        //FIXME
-        /*if (connection.isEncryptionEnabled()) {
+
+        if (connection.isEncryptionEnabled()) {
             data.decrypt(connection);
-        }*/
+        }
 
         Packet packet = this.protocol.getPacket(data.getId(), connection.getStage(), PacketType.IN);
         
@@ -90,6 +90,8 @@ public class ClientConnectionHandler extends SimpleChannelInboundHandler<PacketD
             return;
         }
 
+        System.out.println("Received packet: " + packet.getClass().getSimpleName());
+
         // decode and handle the packet
         packet.decode(data.getData());
         packet.handleReceived(connection);
@@ -100,5 +102,21 @@ public class ClientConnectionHandler extends SimpleChannelInboundHandler<PacketD
                 PlayerThreads.clientThreadHandle(finalConnection);
             }
         });
+    }
+
+    @Override
+    public void disconnect(ChannelHandlerContext ctx, ChannelPromise promise) throws Exception {
+        super.disconnect(ctx, promise);
+
+        ClientConnection.getConnection(ctx).logout();
+        System.out.println("Logged out client!");
+    }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        super.channelInactive(ctx);
+
+        ClientConnection.getConnection(ctx).logout();
+        System.out.println("Logged out client!");
     }
 }

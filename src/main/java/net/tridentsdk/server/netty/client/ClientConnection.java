@@ -125,6 +125,10 @@ public class ClientConnection {
         return reference.get();
     }
 
+    public static ClientConnection getConnection(ChannelHandlerContext chx) {
+        return getConnection((InetSocketAddress) chx.channel().remoteAddress());
+    }
+
     public static ClientConnection registerConnection(ChannelHandlerContext channelContext) {
         // Make a new instance of ClientConnection
         ClientConnection newConnection = new ClientConnection(channelContext);
@@ -132,6 +136,15 @@ public class ClientConnection {
         // Register data and return the new instance
         ClientConnection.clientData.put(newConnection.getAddress(), new AtomicReference<>(newConnection));
         return newConnection;
+    }
+
+    public static boolean encryptionEnabled(ChannelHandlerContext context) {
+        // Get the atomic reference of the client
+        AtomicReference<ClientConnection> currentConnection = clientData.get((InetSocketAddress)
+                context.channel().remoteAddress());
+
+        // Return false if the connection is non-existant, otherwise returned value in instance
+        return currentConnection != null && currentConnection.get().isEncryptionEnabled();
     }
 
     public void setLoginKeyPair(KeyPair keyPair) {
@@ -153,6 +166,8 @@ public class ClientConnection {
         // throw an IllegalArgumentException if encryption hasn't been enabled yet
         if (encrypted && !this.encryptionEnabled)
             throw new IllegalArgumentException("You can not use encryption if encryption is not enabled!");
+
+        System.out.println("Sending packet: " + packet.getClass().getSimpleName() + " with id " + packet.getId());
 
         // Write the packet into the bytebuf
         try {

@@ -70,6 +70,16 @@ public class PacketData {
         return this.decrypted != null ? this.decrypted : this.rawData;
     }
 
+    public void decrypt(ClientConnection con) {
+        try {
+            decrypted = Unpooled.buffer();
+
+            decrypted.writeBytes(con.encrypt(Codec.toArray(rawData)));
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
     /**
      * The amount of bytes that can be read from the serialized packet
      *

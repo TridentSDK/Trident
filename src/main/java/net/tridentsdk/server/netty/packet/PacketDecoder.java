@@ -34,6 +34,7 @@ import io.netty.handler.codec.ReplayingDecoder;
 import net.tridentsdk.api.Trident;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.netty.Codec;
+import net.tridentsdk.server.netty.client.ClientConnection;
 import net.tridentsdk.server.netty.protocol.Protocol;
 
 import java.util.List;
@@ -62,7 +63,12 @@ public class PacketDecoder extends ReplayingDecoder<PacketDecoder.State> {
         switch (this.state()) {
         /* Reading the length of sent packet */
         case LENGTH:
-            rawLength = Codec.readVarInt32(buf);
+            if(ClientConnection.encryptionEnabled(context)) {
+                rawLength = buf.readableBytes();
+            } else {
+                rawLength = Codec.readVarInt32(buf);
+            }
+
             this.checkpoint(State.DATA);
             //NOTE: Not meant to break;
 
@@ -70,6 +76,11 @@ public class PacketDecoder extends ReplayingDecoder<PacketDecoder.State> {
         case DATA:
             // read amount of data stated by rawLength
             ByteBuf data = buf.readBytes(rawLength);
+
+            // read the length of the packet if encrypted, as would be ignored
+            if(ClientConnection.encryptionEnabled(context)) {
+                Codec.readVarInt32(buf);
+            }
 
             // add packet data to objects to be handled
             objects.add(new PacketData(data));
