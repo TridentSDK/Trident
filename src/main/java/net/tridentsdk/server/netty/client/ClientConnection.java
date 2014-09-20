@@ -38,7 +38,9 @@ import net.tridentsdk.server.netty.protocol.Protocol;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+
 import java.net.InetSocketAddress;
 import java.security.KeyPair;
 import java.security.PrivateKey;
@@ -58,10 +60,11 @@ public class ClientConnection {
             new ConcurrentHashMap<>();
     protected static final SecureRandom SR = new SecureRandom();
     protected static Cipher cipher;
+    
 
     static {
         try {
-            cipher = Cipher.getInstance("AES");
+            cipher = Cipher.getInstance("AES/CFB8/NoPadding");
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -76,6 +79,7 @@ public class ClientConnection {
     protected volatile Protocol.ClientStage stage;
     protected volatile boolean encryptionEnabled;
     protected volatile SecretKey sharedSecret;
+    private IvParameterSpec ivSpec;
     protected volatile byte[] verificationToken;
 
     /**
@@ -141,6 +145,8 @@ public class ClientConnection {
      * @param encrypted if you wish for packet to be encrypted
      */
     public void sendPacket(Packet packet, boolean encrypted) {
+        System.out.println("Sending Packet: " + packet.getClass().getSimpleName() + " Encrypted: " + encrypted);
+        
         // Create new ByteBuf
         ByteBuf buffer = this.channel.alloc().buffer();
 
@@ -155,7 +161,7 @@ public class ClientConnection {
                 Codec.writeVarInt32(decrypted, packet.getId());
                 packet.encode(decrypted);
 
-                buffer.writeBytes(encrypt(decrypted.array()));
+                buffer.writeBytes(encrypt(Codec.toArray(decrypted)));
             } else {
                 Codec.writeVarInt32(buffer, packet.getId());
                 packet.encode(buffer);
@@ -174,13 +180,13 @@ public class ClientConnection {
     }
 
     public byte[] encrypt(byte... data) throws Exception {
-        cipher.init(Cipher.ENCRYPT_MODE, sharedSecret);
+        cipher.init(Cipher.ENCRYPT_MODE, sharedSecret, ivSpec);
 
         return cipher.doFinal(data);
     }
 
     public byte[] decrypt(byte... data) throws Exception {
-        cipher.init(Cipher.DECRYPT_MODE, sharedSecret);
+        cipher.init(Cipher.DECRYPT_MODE, sharedSecret, ivSpec);
 
         return cipher.doFinal(data);
     }
@@ -194,6 +200,7 @@ public class ClientConnection {
         //Makes sure the secret is only set once
         if (!encryptionEnabled) {
             this.sharedSecret = new SecretKeySpec(secret, "AES");
+            this.ivSpec = new IvParameterSpec(sharedSecret.getEncoded(), 0, 16);
             this.encryptionEnabled = true;
         }    
     }

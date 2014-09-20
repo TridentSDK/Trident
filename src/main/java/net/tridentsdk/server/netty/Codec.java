@@ -172,4 +172,26 @@ public final class Codec {
         //Writes the final terminating byte with a 0 at the front to signify termination
         buf.writeByte((int) (toEncode & 0x7FL));
     }
+    /**
+     * Writes the full contents of a ByteBuf to an array
+     * 
+     * @param buf the buffer to get data from
+     * @return bytes the array of bytes
+     */
+    public static byte[] toArray(ByteBuf buf) {
+        return toArray(buf, buf.readableBytes());
+    }
+    
+    /**
+     * Writes a certain length of bytes from a ByteBuf to an array
+     * 
+     * @param buf the buffer to get data from
+     * @param length the length to write
+     * @return bytes the array of bytes
+     */
+    public static byte[] toArray(ByteBuf buf, int length) {
+        byte[] bytes = new byte[length];
+        buf.readBytes(buf);
+        return bytes;
+    }
 }
