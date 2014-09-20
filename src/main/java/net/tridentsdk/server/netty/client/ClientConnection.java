@@ -62,7 +62,7 @@ public class ClientConnection {
     static {
         try {
             cipher = Cipher.getInstance("AES");
-        }catch(Exception ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
     }

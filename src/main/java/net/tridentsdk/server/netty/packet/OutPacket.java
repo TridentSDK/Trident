@@ -54,7 +54,7 @@ public abstract class OutPacket implements Packet {
 
             field.setAccessible(true);
             field.set(this, value);
-        }catch(NoSuchFieldException | IllegalAccessException e) {
+        } catch (NoSuchFieldException | IllegalAccessException e) {
             e.printStackTrace();
         }
 
