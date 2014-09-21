@@ -30,6 +30,10 @@
 
 package net.tridentsdk.entity;
 
+import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
+import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
 import net.tridentsdk.api.Trident;
 import net.tridentsdk.api.entity.Entity;
 
@@ -39,12 +43,11 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class EntityManager {
-
     private Map<Integer, Entity> entities = new ConcurrentHashMap<>();
 
     public EntityManager() {
         if(!(Trident.isTrident()))
-            throw new UnsupportedOperationException("EntityManager can only be created by TridentSDK!");
+            throw new UnsupportedOperationException("EntityManager can only be initalized by TridentSDK!");
     }
 
     void registerEntity(Entity entity) {
@@ -55,14 +58,14 @@ public final class EntityManager {
         return entities.get(id);
     }
 
-    public <T> Collection<T> getEntities(T type) {
-        Collection<Entity> set = entities.values();
+    public <T> ArrayList<T> getEntities(final Class<T> type) {
+        Predicate<Entity> pred = new Predicate<Entity>() {
+            @Override public boolean apply(Entity e) {
+                return Predicates.assignableFrom(type.getClass()).apply(e.getClass());
+            }
+        };
 
-        for(Entity entity : new ArrayList<>(set)) {
-            if(!(type.getClass().isAssignableFrom(entity.getClass())))
-                set.remove(entity);
-        }
 
-        return (Collection<T>) set;
+        return (ArrayList<T>) Lists.newArrayList(Iterators.filter(entities.values().iterator(), pred));
     }
 }
