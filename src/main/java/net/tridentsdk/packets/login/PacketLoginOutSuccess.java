@@ -28,8 +28,8 @@
 package net.tridentsdk.packets.login;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
-import net.tridentsdk.server.netty.client.ClientConnection;
 import net.tridentsdk.server.netty.packet.OutPacket;
 import net.tridentsdk.server.netty.packet.PacketType;
 

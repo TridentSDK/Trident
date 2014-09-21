@@ -30,11 +30,12 @@ package net.tridentsdk.server.netty.packet;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.ByteToMessageDecoder;
 import io.netty.handler.codec.ReplayingDecoder;
 import net.tridentsdk.api.Trident;
 import net.tridentsdk.server.TridentServer;
+import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
-import net.tridentsdk.server.netty.client.ClientConnection;
 import net.tridentsdk.server.netty.protocol.Protocol;
 
 import java.util.List;
@@ -46,59 +47,25 @@ import java.util.List;
  *
  * @author The TridentSDK Team
  */
-public class PacketDecoder extends ReplayingDecoder<PacketDecoder.State> {
+public class PacketDecoder extends ReplayingDecoder<Void> {
     
+    private ClientConnection connection;
     private int rawLength;
-
-    /**
-     * Creates the decoder and initializes the state
-     */
-    public PacketDecoder() {
-        super(State.LENGTH);
+    
+    @Override
+    public void handlerAdded(ChannelHandlerContext context) {
+        connection = ClientConnection.getConnection(context);
     }
 
     @Override
     protected void decode(ChannelHandlerContext context, ByteBuf buf, List<Object> objects) throws Exception {
         
-        switch (this.state()) {
-        /* Reading the length of sent packet */
-        case LENGTH:
-            if(ClientConnection.encryptionEnabled(context)) {
-                rawLength = buf.readableBytes();
-            } else {
-                rawLength = Codec.readVarInt32(buf);
-            }
+        rawLength = Codec.readVarInt32(buf);
+        
+        ByteBuf data = buf.readBytes(rawLength);
 
-            this.checkpoint(State.DATA);
-            //NOTE: Not meant to break;
-
-        /* Reading the packet */
-        case DATA:
-            // read amount of data stated by rawLength
-            ByteBuf data = buf.readBytes(rawLength);
-
-            // read the length of the packet if encrypted, as would be ignored
-            if(ClientConnection.encryptionEnabled(context)) {
-                Codec.readVarInt32(buf);
-            }
-
-            // add packet data to objects to be handled
-            objects.add(new PacketData(data));
-
-            // read the next packet (i.e repeat)
-            this.checkpoint(State.LENGTH);
-            break;
-            
-        }
+        objects.add(new PacketData(data)); 
      
     }
 
-    /**
-     * The current read state of the decoder
-     *
-     * @author The TridentSDK Team
-     */
-    enum State {
-        LENGTH, DATA
-    }
 }

@@ -191,7 +191,7 @@ public final class Codec {
      */
     public static byte[] toArray(ByteBuf buf, int length) {
         byte[] bytes = new byte[length];
-        buf.readBytes(buf);
+        buf.readBytes(bytes);
         return bytes;
     }
 }

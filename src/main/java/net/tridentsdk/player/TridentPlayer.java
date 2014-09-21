@@ -37,7 +37,7 @@ import net.tridentsdk.entity.TridentLivingEntity;
 import net.tridentsdk.packets.play.out.PacketPlayOutChatMessage;
 import net.tridentsdk.packets.play.out.PacketPlayOutDisconnect;
 import net.tridentsdk.packets.play.out.PacketPlayOutKeepAlive;
-import net.tridentsdk.server.netty.client.ClientConnection;
+import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
 import java.util.UUID;
@@ -90,7 +90,7 @@ public abstract class TridentPlayer extends TridentInventoryHolder implements Pl
 
     public static void sendAll(OutPacket packet) {
         for(TridentPlayer p : players) {
-            p.connection.sendPacket(packet, true);
+            p.connection.sendPacket(packet);
         }
     }
 }

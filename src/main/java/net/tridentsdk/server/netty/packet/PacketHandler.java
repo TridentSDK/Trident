@@ -25,19 +25,21 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package net.tridentsdk.server.netty.client;
+package net.tridentsdk.server.netty.packet;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
 import io.netty.channel.SimpleChannelInboundHandler;
 import net.tridentsdk.api.Trident;
 import net.tridentsdk.server.TridentServer;
+import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.*;
 import net.tridentsdk.server.netty.protocol.Protocol;
 import net.tridentsdk.server.threads.BackgroundTaskExecutor;
 import net.tridentsdk.server.threads.PlayerThreads;
 
 import javax.annotation.concurrent.ThreadSafe;
+
 import java.net.InetSocketAddress;
 
 /**
@@ -47,18 +49,18 @@ import java.net.InetSocketAddress;
  * @author The TridentSDK Team
  */
 @ThreadSafe
-public class ClientConnectionHandler extends SimpleChannelInboundHandler<PacketData> {
+public class PacketHandler extends SimpleChannelInboundHandler<PacketData> {
     private final Protocol protocol;
+    private ClientConnection connection;
 
-    public ClientConnectionHandler() {
+    public PacketHandler() {
         this.protocol = ((TridentServer) Trident.getServer()).getProtocol();
     }
     
-    /*
-     * (non-Javadoc)
-     * @see io.netty.channel.SimpleChannelInboundHandler#messageReceived(io.netty.channel.ChannelHandlerContext,
-     * java.lang.Object)
-     */
+    @Override
+    public void handlerAdded(ChannelHandlerContext context) {
+        connection = ClientConnection.getConnection(context);
+    }
 
     /**
      * Converts the PacketData to a Packet depending on the ConnectionStage of the Client
@@ -68,13 +70,6 @@ public class ClientConnectionHandler extends SimpleChannelInboundHandler<PacketD
     @Override
     protected void messageReceived(ChannelHandlerContext context, PacketData data)
             throws Exception {
-        InetSocketAddress address = (InetSocketAddress) context.channel().remoteAddress();
-        ClientConnection connection = ClientConnection.getConnection(address);
-
-        // Register a connection if not an existing one
-        if (connection == null) {
-            connection = ClientConnection.registerConnection(context);
-        }
 
         if (connection.isEncryptionEnabled()) {
             data.decrypt(connection);
@@ -103,20 +98,5 @@ public class ClientConnectionHandler extends SimpleChannelInboundHandler<PacketD
             }
         });
     }
-
-    @Override
-    public void disconnect(ChannelHandlerContext ctx, ChannelPromise promise) throws Exception {
-        super.disconnect(ctx, promise);
-
-        ClientConnection.getConnection(ctx).logout();
-        System.out.println("Logged out client!");
-    }
-
-    @Override
-    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        super.channelInactive(ctx);
-
-        ClientConnection.getConnection(ctx).logout();
-        System.out.println("Logged out client!");
-    }
+    
 }

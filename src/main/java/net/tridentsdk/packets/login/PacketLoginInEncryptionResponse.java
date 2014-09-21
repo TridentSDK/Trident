@@ -32,8 +32,8 @@ import com.google.gson.JsonObject;
 
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.encryption.RSA;
+import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
-import net.tridentsdk.server.netty.client.ClientConnection;
 import net.tridentsdk.server.netty.packet.*;
 import net.tridentsdk.server.netty.protocol.Protocol;
 
@@ -145,7 +145,8 @@ public class PacketLoginInEncryptionResponse extends InPacket {
             int code = c.getResponseCode();
 
             if (code != 200) {
-                connection.sendPacket(new PacketLoginOutDisconnect().setJsonMessage("Unable to create session"), false);
+                //TODO: No encryption
+                connection.sendPacket(new PacketLoginOutDisconnect().setJsonMessage("Unable to create session"));
 
                 connection.logout();
                 return;

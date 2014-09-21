@@ -25,14 +25,13 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package net.tridentsdk.server.netty.client;
+package net.tridentsdk.server.netty;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import net.tridentsdk.server.encryption.RSA;
-import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.protocol.Protocol;
 
@@ -87,9 +86,9 @@ public class ClientConnection {
      *
      * @param channelContext the channel of the client joining
      */
-    protected ClientConnection(ChannelHandlerContext channelContext) {
-        this.address = (InetSocketAddress) channelContext.channel().remoteAddress();
-        this.channel = channelContext.channel();
+    protected ClientConnection(Channel channel) {
+        this.address = (InetSocketAddress) channel.remoteAddress();
+        this.channel = channel;
         this.encryptionEnabled = false;
         this.stage = Protocol.ClientStage.HANDSHAKE;
     }
@@ -118,8 +117,9 @@ public class ClientConnection {
         AtomicReference<ClientConnection> reference = ClientConnection.clientData.get(address);
 
         // return null if connection is not found
-        if (reference == null)
+        if (reference == null) {
             return null;
+        }
 
         // return found connection
         return reference.get();
@@ -129,22 +129,13 @@ public class ClientConnection {
         return getConnection((InetSocketAddress) chx.channel().remoteAddress());
     }
 
-    public static ClientConnection registerConnection(ChannelHandlerContext channelContext) {
+    public static ClientConnection registerConnection(Channel channel) {
         // Make a new instance of ClientConnection
-        ClientConnection newConnection = new ClientConnection(channelContext);
+        ClientConnection newConnection = new ClientConnection(channel);
 
         // Register data and return the new instance
         ClientConnection.clientData.put(newConnection.getAddress(), new AtomicReference<>(newConnection));
         return newConnection;
-    }
-
-    public static boolean encryptionEnabled(ChannelHandlerContext context) {
-        // Get the atomic reference of the client
-        AtomicReference<ClientConnection> currentConnection = clientData.get((InetSocketAddress)
-                context.channel().remoteAddress());
-
-        // Return false if the connection is non-existant, otherwise returned value in instance
-        return currentConnection != null && currentConnection.get().isEncryptionEnabled();
     }
 
     public void setLoginKeyPair(KeyPair keyPair) {
@@ -157,41 +148,18 @@ public class ClientConnection {
      * @param packet    the packet to send, encoded and written to the stream
      * @param encrypted if you wish for packet to be encrypted
      */
-    public void sendPacket(Packet packet, boolean encrypted) {
-        System.out.println("Sending Packet: " + packet.getClass().getSimpleName() + " Encrypted: " + encrypted);
+    public void sendPacket(Packet packet) {
+        System.out.println("Sending Packet: " + packet.getClass().getSimpleName());
         
         // Create new ByteBuf
         ByteBuf buffer = this.channel.alloc().buffer();
-
-        // throw an IllegalArgumentException if encryption hasn't been enabled yet
-        if (encrypted && !this.encryptionEnabled)
-            throw new IllegalArgumentException("You can not use encryption if encryption is not enabled!");
-
-        System.out.println("Sending packet: " + packet.getClass().getSimpleName() + " with id " + packet.getId());
-
-        // Write the packet into the bytebuf
-        try {
-            if (encrypted) {
-                ByteBuf decrypted = Unpooled.buffer();
-                Codec.writeVarInt32(decrypted, packet.getId());
-                packet.encode(decrypted);
-
-                buffer.writeBytes(encrypt(Codec.toArray(decrypted)));
-            } else {
-                Codec.writeVarInt32(buffer, packet.getId());
-                packet.encode(buffer);
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+        
+        Codec.writeVarInt32(buffer, packet.getId());
+        packet.encode(buffer);
         
         // Write the packet and flush it
         this.channel.write(buffer);
         this.channel.flush();
-    }
-
-    public void sendPacket(Packet packet) {
-        this.sendPacket(packet, encryptionEnabled);
     }
 
     public byte[] encrypt(byte... data) throws Exception {

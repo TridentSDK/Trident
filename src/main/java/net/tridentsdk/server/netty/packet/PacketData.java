@@ -27,8 +27,8 @@
 
 package net.tridentsdk.server.netty.packet;
 
+import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
-import net.tridentsdk.server.netty.client.ClientConnection;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 

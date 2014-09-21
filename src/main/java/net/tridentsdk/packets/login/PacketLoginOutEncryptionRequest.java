@@ -53,7 +53,7 @@ public class PacketLoginOutEncryptionRequest extends OutPacket {
     @Override
     public void encode(ByteBuf buf) {
         this.keyLength = (short) this.publicKey.length;
-
+        
         this.tokenLength = (short) 4;
 
         Codec.writeString(buf, "");

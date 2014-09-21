@@ -28,7 +28,7 @@
 package net.tridentsdk.server.netty.packet;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.server.netty.client.ClientConnection;
+import net.tridentsdk.server.netty.ClientConnection;
 
 /**
  * Data bearing abstraction that represents a piece of information to communicate between server and client

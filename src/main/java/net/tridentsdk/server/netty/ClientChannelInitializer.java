@@ -27,12 +27,16 @@
 
 package net.tridentsdk.server.netty;
 
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
+import io.netty.channel.ChannelPromise;
 import io.netty.channel.socket.SocketChannel;
-import net.tridentsdk.server.netty.client.ClientConnectionHandler;
 import net.tridentsdk.server.netty.packet.PacketDecoder;
+import net.tridentsdk.server.netty.packet.PacketDecrypter;
 import net.tridentsdk.server.netty.packet.PacketEncoder;
+import net.tridentsdk.server.netty.packet.PacketEncrypter;
+import net.tridentsdk.server.netty.packet.PacketHandler;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -42,17 +46,39 @@ import javax.annotation.concurrent.ThreadSafe;
  * @author The TridentSDK Team
  */
 @ThreadSafe
-public class TridentChannelInitializer extends ChannelInitializer<SocketChannel> {
+public class ClientChannelInitializer extends ChannelInitializer<SocketChannel> {
+    private ClientConnection connection;
+    
     @Override
     protected void initChannel(SocketChannel channel) throws Exception {
         //channel.config().setOption(ChannelOption.IP_TOS, 24);
         channel.config().setOption(ChannelOption.TCP_NODELAY, true);
         
+        connection = ClientConnection.registerConnection(channel);
+        
         //Decode:
+        channel.pipeline().addLast(new PacketDecrypter());
         channel.pipeline().addLast(new PacketDecoder());
-        channel.pipeline().addLast(new ClientConnectionHandler());
+        channel.pipeline().addLast(new PacketHandler());
         
         //Encode:
         channel.pipeline().addLast(new PacketEncoder());
+        channel.pipeline().addLast(new PacketEncrypter());
+    }
+    
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        super.channelInactive(ctx);
+
+        connection.logout();
+        System.out.println("Logged out client!");
+    }
+    
+    @Override
+    public void disconnect(ChannelHandlerContext ctx, ChannelPromise promise) throws Exception {
+        super.disconnect(ctx, promise);
+
+        connection.logout();
+        System.out.println("Logged out client!");
     }
 }

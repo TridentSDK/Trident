@@ -34,7 +34,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import joptsimple.*;
 import net.tridentsdk.api.Trident;
-import net.tridentsdk.server.netty.TridentChannelInitializer;
+import net.tridentsdk.server.netty.ClientChannelInitializer;
 import net.tridentsdk.server.threads.ThreadsManager;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -119,7 +119,7 @@ final class TridentStart {
             ServerBootstrap b = new ServerBootstrap();
             b.group(TridentStart.bossGroup, TridentStart.workerGroup)
              .channel(NioServerSocketChannel.class)
-             .childHandler(new TridentChannelInitializer())
+             .childHandler(new ClientChannelInitializer())
              .option(ChannelOption.TCP_NODELAY, true);
 
             // Bind and start to accept incoming connections.

@@ -29,8 +29,8 @@ package net.tridentsdk.packets.login;
 
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.encryption.RSA;
+import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
-import net.tridentsdk.server.netty.client.ClientConnection;
 import net.tridentsdk.server.netty.packet.*;
 
 import java.security.InvalidAlgorithmParameterException;
@@ -84,6 +84,6 @@ public class PacketLoginInStart extends InPacket {
             connection.setLoginKeyPair(pair);
         } catch (NoSuchAlgorithmException | InvalidAlgorithmParameterException ignored) {}
 
-        connection.sendPacket(p, false);
+        connection.sendPacket(p);
     }
 }

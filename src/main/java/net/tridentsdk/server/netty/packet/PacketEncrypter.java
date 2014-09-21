@@ -28,54 +28,38 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package net.tridentsdk.player;
+package net.tridentsdk.server.netty.packet;
 
 import net.tridentsdk.server.netty.ClientConnection;
-import net.tridentsdk.server.netty.protocol.Protocol;
+import net.tridentsdk.server.netty.Codec;
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.MessageToByteEncoder;
 
-import java.util.concurrent.atomic.AtomicReference;
-
-public class PlayerConnection extends ClientConnection {
-
-    private volatile int keepAliveId;
-    private volatile long keepAliveSent; // in ticks and relative to player
-
-    private final TridentPlayer player;
-
-    PlayerConnection(ClientConnection connection, TridentPlayer player) {
-        // remove old connection, and replace it with this one
-        clientData.remove(connection.getAddress());
-        clientData.put(connection.getAddress(), new AtomicReference<ClientConnection>(this));
-
-        super.address = connection.getAddress();
-        super.channel = connection.getChannel();
-        super.loginKeyPair = connection.getLoginKeyPair();
-        super.sharedSecret = connection.getSharedSecret();
-        super.stage = Protocol.ClientStage.PLAY; // stage must be PLAY to actually create PlayerConnection
-        super.encryptionEnabled = connection.isEncryptionEnabled();
-
-        this.player = player;
-        this.keepAliveId = -1;
+/**
+ * Final step of the pipeline: encrypts all data and sends it to the client
+ * 
+ * @author The TridentSDK Team
+ */
+public class PacketEncrypter extends MessageToByteEncoder<ByteBuf> {
+    private ClientConnection connection;
+    
+    @Override
+    public void handlerAdded(ChannelHandlerContext context) {
+        connection = ClientConnection.getConnection(context);
     }
-
-    public TridentPlayer getPlayer() {
-        return player;
-    }
-
-    public int getKeepAliveId() {
-        return keepAliveId;
-    }
-
-    public void setKeepAliveId(int id, long ticksLived) {
-        this.keepAliveId = id;
-        this.keepAliveSent = ticksLived;
-    }
-
-    /*
-     * @NotJavaDoc
-     * Relative to player
+    
+    /* (non-Javadoc)
+     * @see io.netty.handler.codec.MessageToByteEncoder#encode(io.netty.channel.ChannelHandlerContext, java.lang.Object, io.netty.buffer.ByteBuf)
      */
-    public long getKeepAliveSent() {
-        return keepAliveSent;
+    @Override
+    protected void encode(ChannelHandlerContext ctx, ByteBuf msg, ByteBuf out)
+            throws Exception {
+        if (connection.isEncryptionEnabled()) {
+            out.writeBytes(connection.encrypt(Codec.toArray(msg)));
+        } else {
+            out.writeBytes(msg);
+        }
     }
+
 }

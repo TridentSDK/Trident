@@ -29,7 +29,7 @@ package net.tridentsdk.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.api.Location;
-import net.tridentsdk.server.netty.client.ClientConnection;
+import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 
