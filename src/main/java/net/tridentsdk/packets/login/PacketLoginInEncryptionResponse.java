@@ -57,9 +57,16 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class PacketLoginInEncryptionResponse extends InPacket {
     private static final Gson GSON = new Gson();
+    private static final Pattern idDash;
+    
+    static {
+        idDash = Pattern.compile("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})");
+    }
 
     private short secretLength;
     private short tokenLength;
@@ -171,15 +178,17 @@ public class PacketLoginInEncryptionResponse extends InPacket {
         SessionResponse response = GSON.fromJson(sb.toString(), SessionResponse.class);
         PacketLoginOutSuccess packet = new PacketLoginOutSuccess();
 
-        packet.set("uuid", response.id);
+        //Replaces the '-' less UUID from session server, with the required '-' filled UUID
+        packet.set("uuid", idDash.matcher(response.id).replaceAll("$1-$2-$3-$4-$5"));
         packet.set("username", response.name);
         
-
+     // TODO: generate player
+        
         connection.sendPacket(packet);
         connection.setStage(Protocol.ClientStage.PLAY);
         LoginManager.getInstance().finish(connection.getAddress());
 
-        // TODO: generate player
+        
     }
 
     private static class HashGenerator {

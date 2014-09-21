@@ -45,10 +45,10 @@ public class PacketEncoder extends MessageToByteEncoder<ByteBuf> {
      */
     @Override
     protected void encode(ChannelHandlerContext ctx, ByteBuf msg, ByteBuf out)
-            throws Exception {
+            throws Exception {        
         // Write length of the packet to be read
         Codec.writeVarInt32(out, msg.readableBytes());
-
+        
         // Write the packet
         out.writeBytes(msg);
     }

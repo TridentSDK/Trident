@@ -30,6 +30,8 @@
 
 package net.tridentsdk.server.netty.packet;
 
+import java.util.Arrays;
+
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
 import io.netty.buffer.ByteBuf;
@@ -57,6 +59,7 @@ public class PacketEncrypter extends MessageToByteEncoder<ByteBuf> {
             throws Exception {
         if (connection.isEncryptionEnabled()) {
             out.writeBytes(connection.encrypt(Codec.toArray(msg)));
+            
         } else {
             out.writeBytes(msg);
         }

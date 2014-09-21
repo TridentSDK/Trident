@@ -183,7 +183,7 @@ public class ClientConnection {
         //Makes sure the secret is only set once
         if (!encryptionEnabled) {
             this.sharedSecret = new SecretKeySpec(secret, "AES");
-            this.ivSpec = new IvParameterSpec(sharedSecret.getEncoded(), 0, 16);
+            this.ivSpec = new IvParameterSpec(sharedSecret.getEncoded());
             this.encryptionEnabled = true;
         }    
     }

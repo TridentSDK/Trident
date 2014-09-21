@@ -62,8 +62,9 @@ public class ClientChannelInitializer extends ChannelInitializer<SocketChannel> 
         channel.pipeline().addLast(new PacketHandler());
         
         //Encode:
-        channel.pipeline().addLast(new PacketEncoder());
         channel.pipeline().addLast(new PacketEncrypter());
+        channel.pipeline().addLast(new PacketEncoder());
+        
     }
     
     @Override
