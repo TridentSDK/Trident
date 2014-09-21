@@ -30,19 +30,26 @@
 
 package net.tridentsdk.player;
 
+import net.tridentsdk.api.Difficulty;
+import net.tridentsdk.api.Gamemode;
 import net.tridentsdk.api.Location;
+import net.tridentsdk.api.entity.Entity;
+import net.tridentsdk.api.entity.EntityProperties;
+import net.tridentsdk.api.entity.Projectile;
 import net.tridentsdk.api.entity.living.Player;
+import net.tridentsdk.api.world.Dimension;
+import net.tridentsdk.api.world.LevelType;
 import net.tridentsdk.entity.TridentInventoryHolder;
-import net.tridentsdk.entity.TridentLivingEntity;
 import net.tridentsdk.packets.play.out.PacketPlayOutChatMessage;
 import net.tridentsdk.packets.play.out.PacketPlayOutDisconnect;
+import net.tridentsdk.packets.play.out.PacketPlayOutJoinGame;
 import net.tridentsdk.packets.play.out.PacketPlayOutKeepAlive;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
 import java.util.UUID;
 
-public abstract class TridentPlayer extends TridentInventoryHolder implements Player { // abstract for now to avoid compilation errors
+public  class TridentPlayer extends TridentInventoryHolder implements Player { // abstract for now to avoid compilation errors
 
     private static final TridentPlayer[] players = {};
 
@@ -88,9 +95,47 @@ public abstract class TridentPlayer extends TridentInventoryHolder implements Pl
         return connection;
     }
 
+    @Override
+    public void hide(Entity entity) {
+        // TODO
+    }
+
+    @Override
+    public void show(Entity entity) {
+        // TODO
+    }
+
+    @Override
+    public boolean isNameVisible() {
+        return true;
+    }
+
+    @Override
+    public void applyProperties(EntityProperties properties) {
+        // TODO
+    }
+
+    @Override
+    public <T extends Projectile> T launchProjectile(EntityProperties properties) {
+        // TODO
+        return null;
+    }
+
     public static void sendAll(OutPacket packet) {
         for(TridentPlayer p : players) {
             p.connection.sendPacket(packet);
         }
+    }
+
+    public static TridentPlayer spawnPlayer(ClientConnection connection, UUID id) {
+        // TODO: find player's spawn location
+        TridentPlayer p = new TridentPlayer(id, new Location(null, 0, 0, 0), connection);
+
+        p.connection.sendPacket(new PacketPlayOutJoinGame().set("entityId", p.getId())
+                .set("gamemode", Gamemode.SURVIVAL).set("dimension", Dimension.OVERWORLD)
+                .set("difficulty", Difficulty.NORMAL).set("maxPlayers", (short) 10)
+                .set("levelType", LevelType.DEFAULT)); // code to test if client will move on
+
+        return p;
     }
 }

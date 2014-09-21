@@ -31,6 +31,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.player.TridentPlayer;
 import net.tridentsdk.server.encryption.RSA;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
@@ -57,6 +58,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -177,18 +179,19 @@ public class PacketLoginInEncryptionResponse extends InPacket {
         
         SessionResponse response = GSON.fromJson(sb.toString(), SessionResponse.class);
         PacketLoginOutSuccess packet = new PacketLoginOutSuccess();
+        UUID id;
 
         //Replaces the '-' less UUID from session server, with the required '-' filled UUID
         packet.set("uuid", idDash.matcher(response.id).replaceAll("$1-$2-$3-$4-$5"));
         packet.set("username", response.name);
         
-     // TODO: generate player
-        
         connection.sendPacket(packet);
         connection.setStage(Protocol.ClientStage.PLAY);
-        LoginManager.getInstance().finish(connection.getAddress());
 
-        
+        id = UUID.fromString(packet.getUuid());
+
+        LoginManager.getInstance().finish(connection.getAddress());
+        TridentPlayer.spawnPlayer(connection, id);
     }
 
     private static class HashGenerator {

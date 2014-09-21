@@ -57,6 +57,14 @@ public class PacketLoginOutSuccess extends OutPacket {
         return connection;
     }
 
+    public String getUuid() {
+        return uuid;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
     @Override
     public void encode(ByteBuf buf) {
         Codec.writeString(buf, this.uuid);

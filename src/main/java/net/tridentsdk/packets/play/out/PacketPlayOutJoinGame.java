@@ -41,7 +41,7 @@ public class PacketPlayOutJoinGame extends OutPacket {
     private Gamemode gamemode;
     private Dimension dimension;
 
-    private Difficulty difficulity;
+    private Difficulty difficulty;
     private short maxPlayers;
     private LevelType levelType;
 
@@ -62,8 +62,8 @@ public class PacketPlayOutJoinGame extends OutPacket {
         return this.dimension;
     }
 
-    public Difficulty getDifficulity() {
-        return this.difficulity;
+    public Difficulty getDifficulty() {
+        return this.difficulty;
     }
 
     public short getMaxPlayers() {
@@ -80,7 +80,7 @@ public class PacketPlayOutJoinGame extends OutPacket {
 
         buf.writeByte(gamemode.toByte());
         buf.writeByte(dimension.toByte());
-        buf.writeByte(difficulity.toByte());
+        buf.writeByte(difficulty.toByte());
         buf.writeByte((int) this.maxPlayers);
 
         Codec.writeString(buf, levelType.toString());

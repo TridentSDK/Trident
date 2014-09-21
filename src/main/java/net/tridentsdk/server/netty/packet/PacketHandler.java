@@ -28,19 +28,15 @@
 package net.tridentsdk.server.netty.packet;
 
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelPromise;
 import io.netty.channel.SimpleChannelInboundHandler;
 import net.tridentsdk.api.Trident;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.netty.ClientConnection;
-import net.tridentsdk.server.netty.packet.*;
 import net.tridentsdk.server.netty.protocol.Protocol;
 import net.tridentsdk.server.threads.BackgroundTaskExecutor;
 import net.tridentsdk.server.threads.PlayerThreads;
 
 import javax.annotation.concurrent.ThreadSafe;
-
-import java.net.InetSocketAddress;
 
 /**
  * The channel handler that is placed into the netty connection bootstrap to process inbound messages from clients (not
