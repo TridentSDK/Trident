@@ -28,8 +28,8 @@
 package net.tridentsdk.server.threads;
 
 import java.util.*;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedTransferQueue;
-import java.util.concurrent.TransferQueue;
 
 /**
  * Thread list to allow task execution in a shared thread scaled with removal <p/> <p>Allows assignment of a worker to
@@ -139,14 +139,14 @@ public class ConcurrentTaskExecutor<Assignment> {
     }
 
     private static class InnerThread implements TaskExecutor {
-        private final TransferQueue<Runnable> tasks = new LinkedTransferQueue<>();
+        private final BlockingQueue<Runnable> tasks = new LinkedTransferQueue<>();
         private final DelegateThread thread = new DelegateThread();
         private boolean stopped;
         // Does not need to be volatile because only this thread can change it
 
         @Override public void addTask(Runnable task) {
             try {
-                this.tasks.transfer(task);
+                this.tasks.put(task);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

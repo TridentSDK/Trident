@@ -33,13 +33,13 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import joptsimple.*;
-import net.tridentsdk.api.Trident;
+import net.tridentsdk.api.util.TridentLogger;
 import net.tridentsdk.server.netty.ClientChannelInitializer;
-import net.tridentsdk.server.threads.ThreadsManager;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.io.File;
 import java.util.Collection;
+import java.util.logging.Logger;
 
 /**
  * Server class that starts the connection listener. <p/> <p>Despite the fact that this class is under protected access,
@@ -51,16 +51,9 @@ import java.util.Collection;
 final class TridentStart {
     private static final EventLoopGroup bossGroup = new NioEventLoopGroup();
     private static final EventLoopGroup workerGroup = new NioEventLoopGroup();
+    private static final Logger LOGGER = new TridentLogger();
 
     private TridentStart() {} // Do not initialize
-
-    /**
-     * Shutdown hook
-     */
-    static void shutdown() {
-        TridentStart.close();
-    }
-    // TODO why do we need this? Put it in close instead - AgentTroll
 
     /**
      * Starts the server up when the jarfile is run
@@ -131,7 +124,7 @@ final class TridentStart {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            TridentStart.close();
+            TridentServer.getInstance().shutdown();
         }
     }
 
@@ -142,7 +135,5 @@ final class TridentStart {
         //Correct way to close the socket and shut down the server
         TridentStart.workerGroup.shutdownGracefully().awaitUninterruptibly();
         TridentStart.bossGroup.shutdownGracefully().awaitUninterruptibly();
-        Trident.getServer().shutdown();
-        ThreadsManager.stopAll();
     }
 }

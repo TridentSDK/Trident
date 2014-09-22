@@ -32,6 +32,7 @@ import net.tridentsdk.api.Trident;
 import net.tridentsdk.entity.EntityManager;
 import net.tridentsdk.server.netty.protocol.Protocol;
 import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
+import net.tridentsdk.server.threads.ThreadsManager;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.concurrent.atomic.AtomicReference;
@@ -111,6 +112,8 @@ public final class TridentServer implements Server {
     @Override
     public void shutdown() {
         //TODO: Cleanup stuff...
+        TridentStart.close();
         this.taskExecutor.shutdown();
+        ThreadsManager.stopAll();
     }
 }

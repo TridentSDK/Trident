@@ -33,10 +33,10 @@ import net.tridentsdk.server.netty.protocol.Protocol;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class PlayerConnection extends ClientConnection {
-
     private final TridentPlayer player;
     private volatile int keepAliveId;
     private volatile long keepAliveSent; // in ticks and relative to player
+    // TODO double/long may not be atomic write/read
 
     PlayerConnection(ClientConnection connection, TridentPlayer player) {
         // remove old connection, and replace it with this one

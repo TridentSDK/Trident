@@ -118,7 +118,6 @@ public final class PlayerThreads {
         }
 
         @Override public void hide(Entity entity) {
-
         }
 
         @Override public void show(Entity entity) {
