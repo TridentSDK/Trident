@@ -52,7 +52,7 @@ public class PacketPlayOutDisplayScoreboard extends OutPacket {
 
     @Override
     public void encode(ByteBuf buf) {
-        buf.writeByte(this.boardType.toByte());
+        buf.writeByte((int) this.boardType.toByte());
         Codec.writeString(buf, this.scoreName);
     }
 }

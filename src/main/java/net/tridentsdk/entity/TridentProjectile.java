@@ -4,66 +4,63 @@
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
+ *     1. Redistributions of source code must retain the above copyright
+ *        notice, this list of conditions and the following disclaimer.
+ *     2. Redistributions in binary form must reproduce the above copyright
+ *        notice, this list of conditions and the following disclaimer in the
+ *        documentation and/or other materials provided with the distribution.
+ *     3. Neither the name of the The TridentSDK Team nor the
+ *        names of its contributors may be used to endorse or promote products
+ *        derived from this software without specific prior written permission.
  *
- *     1. Redistributions of source code must retain the above copyright notice, this
- *   list of conditions and the following disclaimer.
- *
- *     2. Redistributions in binary form must reproduce the above copyright notice,
- *   this list of conditions and the following disclaimer in the documentation
- *   and/or other materials provided with the distribution.
- *
- *     3. Neither the name of TridentSDK nor the names of its
- *   contributors may be used to endorse or promote products derived from
- *   this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL The TridentSDK Team BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 package net.tridentsdk.entity;
-
-import java.lang.ref.WeakReference;
-import java.util.UUID;
 
 import net.tridentsdk.api.Block;
 import net.tridentsdk.api.Location;
 import net.tridentsdk.api.entity.*;
 import net.tridentsdk.api.entity.living.ProjectileSource;
 
+import java.lang.ref.WeakReference;
+import java.util.UUID;
+
 public abstract class TridentProjectile extends TridentEntity implements Projectile {
 
-	protected WeakReference<ProjectileSource> source;
-	protected Entity entityHit;
-	
-	public TridentProjectile(UUID uniqueId, Location spawnLocation, ProjectileSource source){
-		super(uniqueId, spawnLocation);
-		this.source = new WeakReference<>(source);
-	}
+    protected final WeakReference<ProjectileSource> source;
+    protected Entity entityHit;
 
-	@Override
-	public boolean isNameVisible() {
-		return false;
-	}
+    public TridentProjectile(UUID uniqueId, Location spawnLocation, ProjectileSource source) {
+        super(uniqueId, spawnLocation);
+        this.source = new WeakReference<>(source);
+    }
 
-	public abstract void applyProperties(EntityProperties properties);
+    @Override
+    public boolean isNameVisible() {
+        return false;
+    }
 
-	@Override
-	public ProjectileSource getProjectileSource() {
-		return source.get();
-	}
+    @Override public abstract void applyProperties(EntityProperties properties);
 
-	@Override
-	public Block getCurrentTile() {
-		return loc.getWorld().getBlockAt(loc);
-	}
-	
-	protected abstract void hit();
+    @Override
+    public ProjectileSource getProjectileSource() {
+        return this.source.get();
+    }
+
+    @Override
+    public Block getCurrentTile() {
+        return this.loc.getWorld().getBlockAt(this.loc);
+    }
+
+    protected abstract void hit();
 }

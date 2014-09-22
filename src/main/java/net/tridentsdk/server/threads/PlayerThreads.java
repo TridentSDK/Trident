@@ -30,13 +30,13 @@ package net.tridentsdk.server.threads;
 import net.tridentsdk.api.Location;
 import net.tridentsdk.api.entity.*;
 import net.tridentsdk.api.entity.living.Player;
-import net.tridentsdk.api.util.Vector;
-import net.tridentsdk.api.world.World;
+import net.tridentsdk.entity.TridentEntity;
 import net.tridentsdk.server.netty.ClientConnection;
+import net.tridentsdk.server.netty.packet.Packet;
 
 import javax.annotation.concurrent.ThreadSafe;
-
-import java.util.*;
+import java.util.Collection;
+import java.util.UUID;
 import java.util.concurrent.*;
 
 /**
@@ -80,6 +80,11 @@ public final class PlayerThreads {
         PlayerThreads.THREAD_MAP.removeAssignment(PlayerThreads.CACHE_MAP.retrieve(connection));
     }
 
+    public static void sendAll(Packet packet) {
+        for (ThreadPlayerWrapper wrapper : PlayerThreads.wrappedPlayers())
+            wrapper.getConnection().sendPacket(packet);
+    }
+
     /**
      * Gets all of the thread player wrappers
      *
@@ -89,7 +94,7 @@ public final class PlayerThreads {
         return PlayerThreads.CACHE_MAP.values();
     }
 
-    private static class ThreadPlayerWrapper implements Player {
+    private static class ThreadPlayerWrapper extends TridentEntity implements Player {
         private final ConcurrentTaskExecutor.TaskExecutor executor;
         private final ClientConnection connection;
 
@@ -99,6 +104,7 @@ public final class PlayerThreads {
          * @param executor the handling thread to delegate actions to
          */
         ThreadPlayerWrapper(ConcurrentTaskExecutor.TaskExecutor executor, ClientConnection connection) {
+            super(UUID.randomUUID(), new Location(null, 0.0, 0.0, 0.0));
             this.executor = executor;
             this.connection = connection;
         }
@@ -111,166 +117,60 @@ public final class PlayerThreads {
             return this.executor;
         }
 
-        // TODO
-        @Override public void teleport(double x, double y, double z) {
+        @Override public void hide(Entity entity) {
 
         }
 
-        @Override public void teleport(Entity entity) {
+        @Override public void show(Entity entity) {
 
         }
 
-        @Override public void teleport(Location location) {
+        @Override public double getHealth() {
+            return 0.0;
+        }
+
+        @Override public void setHealth(double health) {
 
         }
 
-        @Override public World getWorld() {
+        @Override public double getMaxHealth() {
+            return 0.0;
+        }
+
+        @Override public void setMaxHealth(double maxHealth) {
+
+        }
+
+        @Override public long getRemainingAir() {
+            return 0L;
+        }
+
+        @Override public void setRemainingAir(long ticks) {
+
+        }
+
+        @Override public Location getEyeLocation() {
             return null;
         }
 
-        @Override public Location getLocation() {
-            return null;
-        }
-
-        @Override public Vector getVelocity() {
-            return null;
-        }
-
-        @Override public void setVelocity(Vector vector) {
-
-        }
-
-        @Override public void tick() {
-
-        }
-
-        @Override public boolean isOnGround() {
+        @Override public boolean canPickupItems() {
             return false;
         }
 
-        @Override public List<Entity> getNearbyEntities(double radius) {
-            return null;
-        }
-
-
-
-        @Override public void remove() {
-
-        }
-
-        @Override public Entity getPassenger() {
-            return null;
-        }
-
-        @Override public void setPassenger(Entity entity) {
-
-        }
-
-        @Override public void eject() {
-
-        }
-
-        @Override public EntityType getType() {
-            return null;
-        }
-
-        @Override
-        public void applyProperties(EntityProperties properties) {
-
-        }
-
-        @Override
-        public void hide(Entity entity) {
-
-        }
-
-        @Override
-        public void show(Entity entity) {
-
-        }
-
-        @Override
-        public double getHealth() {
-            return 0;
-        }
-
-        @Override
-        public double getMaxHealth() {
-            return 0;
-        }
-
-        @Override
-        public long getRemainingAir() {
-            return 0;
-        }
-
-        @Override
-        public String getDisplayName() {
-            return null;
-        }
-
-        @Override
-        public Location getEyeLocation() {
-            return null;
-        }
-
-        @Override
-        public boolean canPickupItems() {
+        @Override public boolean isDead() {
             return false;
         }
 
-        @Override
-        public void setRemainingAir(long ticks) {
-
-        }
-
-        @Override
-        public void setHealth(double health) {
-
-        }
-
-        @Override
-        public void setMaxHealth(double maxHealth) {
-
-        }
-
-        @Override
-        public boolean isDead() {
+        @Override public boolean isNameVisible() {
             return false;
         }
 
-        @Override
-        public int getId() {
-            return 0;
+        @Override public void applyProperties(EntityProperties properties) {
+
         }
 
-		@Override
-        public void setDisplayName(String name) {
-	        // TODO Auto-generated method stub
-	        
-        }
-
-		@Override
-        public boolean isNameVisible() {
-	        // TODO Auto-generated method stub
-	        return false;
-        }
-
-		@Override
-        public boolean isSilent() {
-	        // TODO Auto-generated method stub
-	        return false;
-        }
-
-		@Override
-        public UUID getUniqueId() {
-	        // TODO Auto-generated method stub
-	        return null;
-        }
-
-		@Override
-        public <T extends Projectile> T launchProjectile(EntityProperties properties) {
-	        return null;
+        @Override public <T extends Projectile> T launchProjectile(EntityProperties properties) {
+            return null;
         }
     }
 }

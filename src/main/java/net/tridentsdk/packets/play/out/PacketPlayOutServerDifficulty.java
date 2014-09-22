@@ -46,6 +46,6 @@ public class PacketPlayOutServerDifficulty extends OutPacket {
 
     @Override
     public void encode(ByteBuf buf) {
-        buf.writeByte(difficulty.toByte());
+        buf.writeByte((int) this.difficulty.toByte());
     }
 }

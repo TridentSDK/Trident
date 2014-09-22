@@ -28,7 +28,6 @@
 package net.tridentsdk.packets.login;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.server.encryption.RSA;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 import net.tridentsdk.server.netty.packet.PacketType;
@@ -53,7 +52,7 @@ public class PacketLoginOutEncryptionRequest extends OutPacket {
     @Override
     public void encode(ByteBuf buf) {
         this.keyLength = (short) this.publicKey.length;
-        
+
         this.tokenLength = (short) 4;
 
         Codec.writeString(buf, "");

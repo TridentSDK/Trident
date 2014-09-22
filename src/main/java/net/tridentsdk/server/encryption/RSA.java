@@ -29,8 +29,6 @@ package net.tridentsdk.server.encryption;
 
 import javax.crypto.Cipher;
 import java.security.*;
-import java.security.spec.AlgorithmParameterSpec;
-import java.security.spec.RSAKeyGenParameterSpec;
 
 public final class RSA {
     private RSA() {}

@@ -28,15 +28,10 @@
 package net.tridentsdk.server.netty.packet;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.ByteToMessageDecoder;
 import io.netty.handler.codec.ReplayingDecoder;
-import net.tridentsdk.api.Trident;
-import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
-import net.tridentsdk.server.netty.protocol.Protocol;
 
 import java.util.List;
 
@@ -48,24 +43,22 @@ import java.util.List;
  * @author The TridentSDK Team
  */
 public class PacketDecoder extends ReplayingDecoder<Void> {
-    
+
     private ClientConnection connection;
     private int rawLength;
-    
+
     @Override
     public void handlerAdded(ChannelHandlerContext context) {
-        connection = ClientConnection.getConnection(context);
+        this.connection = ClientConnection.getConnection(context);
     }
 
     @Override
     protected void decode(ChannelHandlerContext context, ByteBuf buf, List<Object> objects) throws Exception {
-        
-        rawLength = Codec.readVarInt32(buf);
-        
-        ByteBuf data = buf.readBytes(rawLength);
 
-        objects.add(new PacketData(data)); 
-     
+        this.rawLength = Codec.readVarInt32(buf);
+
+        ByteBuf data = buf.readBytes(this.rawLength);
+
+        objects.add(new PacketData(data));
     }
-
 }

@@ -27,7 +27,8 @@
 
 package net.tridentsdk.server;
 
-import net.tridentsdk.server.netty.client.ClientConnection;
+import net.tridentsdk.api.entity.living.Player;
+import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.threads.PlayerThreads;
 import net.tridentsdk.server.threads.ThreadsManager;
 import org.openjdk.jmh.annotations.*;
@@ -41,15 +42,15 @@ import java.util.concurrent.TimeUnit;
 @State(Scope.Benchmark)
 public class PlayerThreadTest {
     // private static final Queue<Object> QUEUE = new ConcurrentLinkedQueue<>();
-    private static PlayerThreads.ThreadPlayerWrapper wrapper;
+    private static Player player;
 
     @Setup public static void setup() {
         for (int i = 0; i < 6_000; i++) {
-            PlayerThreads.clientThreadHandle(ClientConnection.registerConnection(new CTXProper()));
+            PlayerThreads.clientThreadHandle(ClientConnection.registerConnection(new CTXProper().channel()));
             // PlayerThreadTest.QUEUE.add(new CTXProper());
         }
 
-        PlayerThreadTest.wrapper = (PlayerThreads.ThreadPlayerWrapper) PlayerThreads.wrappedPlayers().toArray()[0];
+        PlayerThreadTest.player = (Player) PlayerThreads.wrappedPlayers().toArray()[0];
     }
 
     //@Benchmark public void aRetrieval(Blackhole blackhole) {

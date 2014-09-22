@@ -54,15 +54,15 @@ public class PacketLoginOutSuccess extends OutPacket {
     }
 
     public ClientConnection getConnection() {
-        return connection;
+        return this.connection;
     }
 
     public String getUuid() {
-        return uuid;
+        return this.uuid;
     }
 
     public String getUsername() {
-        return username;
+        return this.username;
     }
 
     @Override

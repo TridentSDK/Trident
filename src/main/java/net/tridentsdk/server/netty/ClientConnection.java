@@ -28,22 +28,18 @@
 package net.tridentsdk.server.netty;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
-import net.tridentsdk.server.encryption.RSA;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.protocol.Protocol;
+import net.tridentsdk.server.threads.PlayerThreads;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-
 import java.net.InetSocketAddress;
 import java.security.KeyPair;
-import java.security.PrivateKey;
-import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -58,33 +54,20 @@ public class ClientConnection {
     protected static final Map<InetSocketAddress, AtomicReference<ClientConnection>> clientData =
             new ConcurrentHashMap<>();
     protected static final SecureRandom SR = new SecureRandom();
-    protected static Cipher cipher;
-    
-
-    static {
-        try {
-            cipher = Cipher.getInstance("AES/CFB8/NoPadding");
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    }
-
+    protected static final Cipher cipher = ClientConnection.getCipher();
     /* Network fields */
     protected InetSocketAddress address;
     protected Channel channel;
-
     /* Encryption and client data fields */
     protected volatile KeyPair loginKeyPair;
     protected volatile Protocol.ClientStage stage;
     protected volatile boolean encryptionEnabled;
     protected volatile SecretKey sharedSecret;
-    private IvParameterSpec ivSpec;
     protected volatile byte[] verificationToken;
+    private IvParameterSpec ivSpec;
 
     /**
      * Creates a new connection handler for the joining channel stream
-     *
-     * @param channelContext the channel of the client joining
      */
     protected ClientConnection(Channel channel) {
         this.address = (InetSocketAddress) channel.remoteAddress();
@@ -95,6 +78,15 @@ public class ClientConnection {
 
     protected ClientConnection() {}
 
+    private static Cipher getCipher() {
+        try {
+            return Cipher.getInstance("AES/CFB8/NoPadding");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return null;
+    }
 
     /**
      * Checks if an IP address is logged into the server
@@ -126,7 +118,7 @@ public class ClientConnection {
     }
 
     public static ClientConnection getConnection(ChannelHandlerContext chx) {
-        return getConnection((InetSocketAddress) chx.channel().remoteAddress());
+        return ClientConnection.getConnection((InetSocketAddress) chx.channel().remoteAddress());
     }
 
     public static ClientConnection registerConnection(Channel channel) {
@@ -138,54 +130,49 @@ public class ClientConnection {
         return newConnection;
     }
 
-    public void setLoginKeyPair(KeyPair keyPair) {
-        this.loginKeyPair = keyPair;
-    }
-
     /**
      * Sends protocol data through the client stream
      *
-     * @param packet    the packet to send, encoded and written to the stream
-     * @param encrypted if you wish for packet to be encrypted
+     * @param packet the packet to send, encoded and written to the stream
      */
     public void sendPacket(Packet packet) {
         System.out.println("Sending Packet: " + packet.getClass().getSimpleName());
-        
+
         // Create new ByteBuf
         ByteBuf buffer = this.channel.alloc().buffer();
-        
+
         Codec.writeVarInt32(buffer, packet.getId());
         packet.encode(buffer);
-        
+
         // Write the packet and flush it
         this.channel.write(buffer);
         this.channel.flush();
     }
 
     public byte[] encrypt(byte... data) throws Exception {
-        cipher.init(Cipher.ENCRYPT_MODE, sharedSecret, ivSpec);
+        ClientConnection.cipher.init(Cipher.ENCRYPT_MODE, this.sharedSecret, this.ivSpec);
 
-        return cipher.doFinal(data);
+        return ClientConnection.cipher.doFinal(data);
     }
 
     public byte[] decrypt(byte... data) throws Exception {
-        cipher.init(Cipher.DECRYPT_MODE, sharedSecret, ivSpec);
+        ClientConnection.cipher.init(Cipher.DECRYPT_MODE, this.sharedSecret, this.ivSpec);
 
-        return cipher.doFinal(data);
+        return ClientConnection.cipher.doFinal(data);
     }
 
     public void generateToken() {
-        verificationToken = new byte[4];
-        SR.nextBytes(verificationToken);
+        this.verificationToken = new byte[4];
+        ClientConnection.SR.nextBytes(this.verificationToken);
     }
 
-    public void enableEncryption(byte[] secret) {
+    public void enableEncryption(byte... secret) {
         //Makes sure the secret is only set once
-        if (!encryptionEnabled) {
+        if (!this.encryptionEnabled) {
             this.sharedSecret = new SecretKeySpec(secret, "AES");
-            this.ivSpec = new IvParameterSpec(sharedSecret.getEncoded());
+            this.ivSpec = new IvParameterSpec(this.sharedSecret.getEncoded());
             this.encryptionEnabled = true;
-        }    
+        }
     }
 
     /**
@@ -215,10 +202,6 @@ public class ClientConnection {
         return this.stage;
     }
 
-    public byte[] getVerificationToken() {
-        return verificationToken;
-    }
-
     /**
      * Sets the client state, should only be used by the ClientConnectionHandler
      *
@@ -228,6 +211,10 @@ public class ClientConnection {
         this.stage = stage;
     }
 
+    public byte[] getVerificationToken() {
+        return this.verificationToken;
+    }
+
     public boolean isEncryptionEnabled() {
         return this.encryptionEnabled;
     }
@@ -235,7 +222,11 @@ public class ClientConnection {
     public KeyPair getLoginKeyPair() {
         return this.loginKeyPair;
     }
-    
+
+    public void setLoginKeyPair(KeyPair keyPair) {
+        this.loginKeyPair = keyPair;
+    }
+
     public SecretKey getSharedSecret() {
         return this.sharedSecret;
     }
@@ -245,7 +236,7 @@ public class ClientConnection {
      */
     public void logout() {
         ClientConnection.clientData.remove(this.address);
-
+        PlayerThreads.remove(this); // STOP REMOVING THIS PLS - AgentTroll
         this.channel.close();
     }
 }

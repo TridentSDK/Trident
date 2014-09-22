@@ -52,10 +52,10 @@ public class PacketHandler extends SimpleChannelInboundHandler<PacketData> {
     public PacketHandler() {
         this.protocol = ((TridentServer) Trident.getServer()).getProtocol();
     }
-    
+
     @Override
     public void handlerAdded(ChannelHandlerContext context) {
-        connection = ClientConnection.getConnection(context);
+        this.connection = ClientConnection.getConnection(context);
     }
 
     /**
@@ -67,16 +67,16 @@ public class PacketHandler extends SimpleChannelInboundHandler<PacketData> {
     protected void messageReceived(ChannelHandlerContext context, PacketData data)
             throws Exception {
 
-        if (connection.isEncryptionEnabled()) {
-            data.decrypt(connection);
+        if (this.connection.isEncryptionEnabled()) {
+            data.decrypt(this.connection);
         }
 
-        Packet packet = this.protocol.getPacket(data.getId(), connection.getStage(), PacketType.IN);
-        
+        Packet packet = this.protocol.getPacket(data.getId(), this.connection.getStage(), PacketType.IN);
+
         //If packet is unknown disconnect the client, as said client seems to be modified
         if (packet.getId() == -1) {
-            connection.logout();
-            
+            this.connection.logout();
+
             // TODO Print client info. stating that has sent an invalid packet and has been disconnected
             return;
         }
@@ -85,14 +85,13 @@ public class PacketHandler extends SimpleChannelInboundHandler<PacketData> {
 
         // decode and handle the packet
         packet.decode(data.getData());
-        packet.handleReceived(connection);
+        packet.handleReceived(this.connection);
 
-        final ClientConnection finalConnection = connection;
+        final ClientConnection finalConnection = this.connection;
         BackgroundTaskExecutor.execute(new Runnable() {
             @Override public void run() {
                 PlayerThreads.clientThreadHandle(finalConnection);
             }
         });
     }
-    
 }

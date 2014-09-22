@@ -27,7 +27,8 @@
 
 package net.tridentsdk.server.threads;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.concurrent.*;
 
 public class ConcurrentCache<K, V> {
@@ -71,12 +72,13 @@ public class ConcurrentCache<K, V> {
     }
 
     public Collection<V> values() {
-        List<V> list = new ArrayList<>();
+        Collection<V> list = new ArrayList<>();
 
         for (Future<V> v : this.cache.values()) {
             try {
                 list.add(v.get());
-            } catch (InterruptedException | ExecutionException ignored) {}
+            } catch (InterruptedException | ExecutionException ignored) {
+            }
         }
 
         return list;

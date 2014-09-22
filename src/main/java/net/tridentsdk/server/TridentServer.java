@@ -71,6 +71,10 @@ public final class TridentServer implements Server {
         // We CANNOT let the "this" instance escape during creation, else we lose thread-safety
     }
 
+    public static TridentServer getInstance() {
+        return (TridentServer) Trident.getServer();
+    }
+
     /**
      * Get the protocol base of the server
      *
@@ -81,7 +85,7 @@ public final class TridentServer implements Server {
     }
 
     public EntityManager getEntityManager() {
-        return entityManager;
+        return this.entityManager;
     }
 
     /**
@@ -108,9 +112,5 @@ public final class TridentServer implements Server {
     public void shutdown() {
         //TODO: Cleanup stuff...
         this.taskExecutor.shutdown();
-    }
-
-    public static TridentServer getInstance() {
-        return (TridentServer) Trident.getServer();
     }
 }

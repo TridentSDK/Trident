@@ -34,7 +34,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class TridentWorldLoader implements WorldLoader {
-
     private final Map<String, World> worlds = new ConcurrentHashMap<>();
 
     @Override
@@ -52,7 +51,7 @@ public abstract class TridentWorldLoader implements WorldLoader {
         return this.worlds.containsKey(world);
     }
 
-    //TODO: I dont' believe this is checking the right thing... This should be checking of it
+    //TODO: I don't believe this is checking the right thing... This should be checking of it
     //exist in the save file, not in memory
     @Override
     public boolean chunkExists(World world, int x, int z) {

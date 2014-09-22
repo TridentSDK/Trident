@@ -89,9 +89,8 @@ final class TridentStart {
                       .defaultsTo(new File("server.yml"))
                       .describedAs("Properties file");
 
-        OptionSet options;
         try {
-            options = parser.parse(args);
+            OptionSet options = parser.parse(args);
         } catch (OptionException ex) {
             ex.printStackTrace();
             return;
@@ -114,7 +113,7 @@ final class TridentStart {
         //TODO: Need to run on seperate thread?
         //Server should read all settings from the loaded config
         TridentServer.createServer(config);
-        
+
         try {
             ServerBootstrap b = new ServerBootstrap();
             b.group(TridentStart.bossGroup, TridentStart.workerGroup)

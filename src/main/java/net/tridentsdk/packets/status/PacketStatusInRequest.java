@@ -27,8 +27,6 @@
 
 package net.tridentsdk.packets.status;
 
-import com.google.gson.JsonObject;
-
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.*;

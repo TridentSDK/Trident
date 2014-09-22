@@ -62,7 +62,7 @@ public class PacketPlayOutUpdateScore extends OutPacket {
     @Override
     public void encode(ByteBuf buf) {
         Codec.writeString(buf, this.itemName);
-        buf.writeByte(type.toByte());
+        buf.writeByte((int) this.type.toByte());
 
         if (this.type.b == 1) {
             return;
@@ -84,7 +84,7 @@ public class PacketPlayOutUpdateScore extends OutPacket {
         }
 
         public byte toByte() {
-            return b;
+            return this.b;
         }
     }
 }

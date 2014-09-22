@@ -34,8 +34,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 abstract class PacketManager {
-    final protected Map<Integer, Class<? extends Packet>> inPackets = new HashMap<>();
-    final protected Map<Integer, Class<? extends Packet>> outPackets = new HashMap<>();
+    protected final Map<Integer, Class<? extends Packet>> inPackets = new HashMap<>();
+    protected final Map<Integer, Class<? extends Packet>> outPackets = new HashMap<>();
 
     PacketManager() {
         this.inPackets.put(-1, UnknownPacket.class);

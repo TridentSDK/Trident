@@ -62,7 +62,7 @@ public class NBTDecoder {
         CompoundTag compound = new CompoundTag(name);
         TagType innerType;
 
-        while ((innerType = TagType.fromId(input.readByte())) != TagType.END) {
+        while ((innerType = TagType.fromId(this.input.readByte())) != TagType.END) {
             compound.addTag(this.resolveTag(innerType, true));
         }
 

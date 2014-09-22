@@ -28,8 +28,6 @@
 package net.tridentsdk.packets.login;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.player.TridentPlayer;
 import net.tridentsdk.server.encryption.RSA;
@@ -38,34 +36,20 @@ import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.*;
 import net.tridentsdk.server.netty.protocol.Protocol;
 
-import javax.crypto.Cipher;
-import javax.crypto.spec.SecretKeySpec;
 import javax.net.ssl.HttpsURLConnection;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.net.URL;
-import java.net.URLConnection;
 import java.net.URLEncoder;
-import java.security.KeyFactory;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.spec.EncodedKeySpec;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.X509EncodedKeySpec;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
-import java.util.regex.Matcher;
+import java.util.*;
 import java.util.regex.Pattern;
 
 public class PacketLoginInEncryptionResponse extends InPacket {
     private static final Gson GSON = new Gson();
     private static final Pattern idDash;
-    
+
     static {
         idDash = Pattern.compile("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})");
     }
@@ -92,7 +76,7 @@ public class PacketLoginInEncryptionResponse extends InPacket {
         this.encryptedToken = new byte[(int) this.tokenLength];
 
         buf.readBytes(this.encryptedToken);
-        
+
         return this;
     }
 
@@ -125,31 +109,31 @@ public class PacketLoginInEncryptionResponse extends InPacket {
         byte[] token = null;
 
         try {
-            sharedSecret = RSA.decrypt(encryptedSecret, connection.getLoginKeyPair().getPrivate());
-            token = RSA.decrypt(encryptedToken, connection.getLoginKeyPair().getPrivate());
+            sharedSecret = RSA.decrypt(this.encryptedSecret, connection.getLoginKeyPair().getPrivate());
+            token = RSA.decrypt(this.encryptedToken, connection.getLoginKeyPair().getPrivate());
         } catch (Exception e) {
-         // TODO Auto-generated catch block
+            // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        
+
         //Check that we got the same verification token;
-        if(!(Arrays.equals(connection.getVerificationToken(), token))) {
+        if (!Arrays.equals(connection.getVerificationToken(), token)) {
             System.out.println("Client with IP " + connection.getAddress().getHostName() +
-                    " has sent an invalid token!");
+                               " has sent an invalid token!");
 
             connection.logout();
             return;
         }
-        
+
         connection.enableEncryption(sharedSecret);
 
         String name = LoginManager.getInstance().getName(connection.getAddress());
         StringBuilder sb = new StringBuilder();
 
-        try{
+        try {
             URL url = new URL("https://sessionserver.mojang.com/session/minecraft/hasJoined?username=" +
-                    URLEncoder.encode(name, "UTF-8") + "&serverId=" +
-                    new BigInteger(HashGenerator.getHash(connection, sharedSecret)).toString(16));
+                              URLEncoder.encode(name, "UTF-8") + "&serverId=" +
+                              new BigInteger(HashGenerator.getHash(connection, sharedSecret)).toString(16));
             HttpsURLConnection c = (HttpsURLConnection) url.openConnection();
             int code = c.getResponseCode();
 
@@ -160,11 +144,11 @@ public class PacketLoginInEncryptionResponse extends InPacket {
                 connection.logout();
                 return;
             }
-            
+
             BufferedReader reader = new BufferedReader(new InputStreamReader(c.getInputStream()));
             String line;
 
-            while((line = reader.readLine()) != null) {
+            while ((line = reader.readLine()) != null) {
                 sb.append(line);
                 sb.append("\n");
             }
@@ -176,48 +160,48 @@ public class PacketLoginInEncryptionResponse extends InPacket {
             connection.logout();
             return;
         }
-        
-        SessionResponse response = GSON.fromJson(sb.toString(), SessionResponse.class);
+
+        SessionResponse response = PacketLoginInEncryptionResponse.GSON.fromJson(sb.toString(), SessionResponse.class);
         PacketLoginOutSuccess packet = new PacketLoginOutSuccess();
-        UUID id;
 
         //Replaces the '-' less UUID from session server, with the required '-' filled UUID
-        packet.set("uuid", idDash.matcher(response.id).replaceAll("$1-$2-$3-$4-$5"));
+        packet.set("uuid", PacketLoginInEncryptionResponse.idDash.matcher(response.id).replaceAll("$1-$2-$3-$4-$5"));
         packet.set("username", response.name);
-        
+
         connection.sendPacket(packet);
         connection.setStage(Protocol.ClientStage.PLAY);
 
-        id = UUID.fromString(packet.getUuid());
+        UUID id = UUID.fromString(packet.getUuid());
 
         LoginManager.getInstance().finish(connection.getAddress());
         TridentPlayer.spawnPlayer(connection, id);
     }
 
-    private static class HashGenerator {
+    private static final class HashGenerator {
 
-        static byte[] getHash(ClientConnection connection, byte[] secret) throws Exception {
-            byte[][] b = {secret, connection.getLoginKeyPair().getPublic().getEncoded()};
+        static byte[] getHash(ClientConnection connection, byte... secret) throws Exception {
+            byte[][] b = { secret, connection.getLoginKeyPair().getPublic().getEncoded() };
             MessageDigest digest = MessageDigest.getInstance("SHA-1");
 
-            for(byte[] bytes : b) {
+            for (byte[] bytes : b) {
                 digest.update(bytes);
             }
 
             return digest.digest();
         }
     }
-    
+
     public static class SessionResponse {
-        public static class Properties {
-            String name;
-            String value;
-            String signature;
-        }
         //The UUID of the player
         String id;
         String name;
         List<Properties> properties;
         boolean legacy;
+
+        public static class Properties {
+            String name;
+            String value;
+            String signature;
+        }
     }
 }

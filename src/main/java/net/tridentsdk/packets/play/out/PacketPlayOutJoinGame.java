@@ -78,12 +78,12 @@ public class PacketPlayOutJoinGame extends OutPacket {
     public void encode(ByteBuf buf) {
         buf.writeInt(this.entityId);
 
-        buf.writeByte(gamemode.toByte());
-        buf.writeByte(dimension.toByte());
-        buf.writeByte(difficulty.toByte());
+        buf.writeByte((int) this.gamemode.toByte());
+        buf.writeByte((int) this.dimension.toByte());
+        buf.writeByte((int) this.difficulty.toByte());
         buf.writeByte((int) this.maxPlayers);
 
-        Codec.writeString(buf, levelType.toString());
+        Codec.writeString(buf, this.levelType.toString());
         buf.writeBoolean(true);
     }
 }

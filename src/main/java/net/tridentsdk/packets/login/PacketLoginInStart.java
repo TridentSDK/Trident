@@ -33,9 +33,7 @@ import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.*;
 
-import java.security.InvalidAlgorithmParameterException;
-import java.security.KeyPair;
-import java.security.NoSuchAlgorithmException;
+import java.security.*;
 
 /**
  * @author The TridentSDK Team
@@ -82,7 +80,8 @@ public class PacketLoginInStart extends InPacket {
 
             p.set("publicKey", pair.getPublic().getEncoded());
             connection.setLoginKeyPair(pair);
-        } catch (NoSuchAlgorithmException | InvalidAlgorithmParameterException ignored) {}
+        } catch (NoSuchAlgorithmException | InvalidAlgorithmParameterException ignored) {
+        }
 
         connection.sendPacket(p);
     }

@@ -91,19 +91,19 @@ public class PacketPlayOutTeams extends OutPacket {
     @Override
     public void encode(ByteBuf buf) {
         Codec.writeString(buf, this.teamName);
-        buf.writeByte(this.mode.toByte());
+        buf.writeByte((int) this.mode.toByte());
 
-        if (mode.b == 1 || mode.b == 2) {
+        if (this.mode.b == 1 || this.mode.b == 2) {
             Codec.writeString(buf, this.teamDisplay);
             Codec.writeString(buf, this.teamPrefix);
             Codec.writeString(buf, this.teamSuffix);
 
             buf.writeByte((int) this.friendlyFire);
-            Codec.writeString(buf, tagVisibility.toString());
+            Codec.writeString(buf, this.tagVisibility.toString());
             buf.writeByte((int) this.color);
         }
 
-        if (mode.b == 3 || mode.b == 4) {
+        if (this.mode.b == 3 || this.mode.b == 4) {
             Codec.writeVarInt32(buf, this.players.length);
 
             for (String s : this.players) {
@@ -127,7 +127,7 @@ public class PacketPlayOutTeams extends OutPacket {
         }
 
         public byte toByte() {
-            return b;
+            return this.b;
         }
     }
 }

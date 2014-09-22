@@ -84,7 +84,7 @@ public class Slot implements Writable {
         return this.compoundTag;
     }
 
-    public void write(ByteBuf buf) {
+    @Override public void write(ByteBuf buf) {
         buf.writeByte(this.id);
 
         if (this.id == -1) {

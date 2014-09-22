@@ -27,7 +27,7 @@
 
 package net.tridentsdk.server;
 
-import net.tridentsdk.server.netty.client.ClientConnection;
+import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.threads.PlayerThreads;
 import net.tridentsdk.server.threads.ThreadsManager;
 import org.openjdk.jmh.annotations.Benchmark;
@@ -110,7 +110,8 @@ n.t.s.TestPlayerThreads.autoBox         avgt         5        7.113        0.323
 n.t.s.TestPlayerThreads.explicitBox     avgt         5        7.097        0.301    ns/op
  */
 public class TestPlayerThreads {
-    public static final ClientConnection CLIENT_CONNECTION = ClientConnection.registerConnection(new CTXProper());
+    public static final ClientConnection CLIENT_CONNECTION = ClientConnection.registerConnection(
+            new CTXProper().channel());
 
     /* @Benchmark public void explicitBox(Blackhole blackhole) {
         blackhole.consume(Integer.valueOf(69));

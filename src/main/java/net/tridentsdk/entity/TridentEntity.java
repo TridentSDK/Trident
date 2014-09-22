@@ -4,28 +4,25 @@
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
+ *     1. Redistributions of source code must retain the above copyright
+ *        notice, this list of conditions and the following disclaimer.
+ *     2. Redistributions in binary form must reproduce the above copyright
+ *        notice, this list of conditions and the following disclaimer in the
+ *        documentation and/or other materials provided with the distribution.
+ *     3. Neither the name of the The TridentSDK Team nor the
+ *        names of its contributors may be used to endorse or promote products
+ *        derived from this software without specific prior written permission.
  *
- *     1. Redistributions of source code must retain the above copyright notice, this
- *   list of conditions and the following disclaimer.
- *
- *     2. Redistributions in binary form must reproduce the above copyright notice,
- *   this list of conditions and the following disclaimer in the documentation
- *   and/or other materials provided with the distribution.
- *
- *     3. Neither the name of TridentSDK nor the names of its
- *   contributors may be used to endorse or promote products derived from
- *   this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL The TridentSDK Team BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 package net.tridentsdk.entity;
@@ -46,45 +43,38 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class TridentEntity implements Entity {
-
-    protected AtomicInteger counter = new AtomicInteger(-1);
-
+    protected final AtomicInteger counter = new AtomicInteger(-1);
+    protected final int id;
+    protected final UUID uniqueId;
     protected volatile Vector velocity;
     protected volatile boolean velocityChanged;
-
     protected volatile Location loc;
     protected volatile boolean locationChanged;
-
     protected volatile boolean onGround;
     protected volatile double fallDistance;
-
     protected volatile long ticksExisted;
-
     protected Entity passenger;
-    protected int id;
-    protected UUID uniqueId;
-
     protected String displayName;
     protected boolean nameVisible;
     protected boolean silent;
 
     public TridentEntity(UUID uniqueId, Location spawnLocation) {
         this.uniqueId = uniqueId;
-        this.id = counter.addAndGet(1);
+        this.id = this.counter.addAndGet(1);
 
-        this.velocity = new Vector(0D, 0D, 0D);
+        this.velocity = new Vector(0.0D, 0.0D, 0.0D);
         this.velocityChanged = false;
 
         this.loc = spawnLocation;
         this.locationChanged = false;
 
-        for(double y = loc.getY(); y > 0; y--) {
-            Location l = new Location(loc.getWorld(), loc.getX(),
-                    y, loc.getZ());
+        for (double y = this.loc.getY(); y > 0.0; y--) {
+            Location l = new Location(this.loc.getWorld(), this.loc.getX(),
+                                      y, this.loc.getZ());
 
             if (l.getWorld().getBlockAt(l).getType() != Material.AIR) {
-                this.fallDistance = (loc.getY() - y);
-                this.onGround = (fallDistance == 0D);
+                this.fallDistance = this.loc.getY() - y;
+                this.onGround = this.fallDistance == 0D;
 
                 break;
             }
@@ -98,12 +88,12 @@ public abstract class TridentEntity implements Entity {
 
     @Override
     public void teleport(double x, double y, double z) {
-        teleport(new Location(getWorld(), x, y, z));
+        this.teleport(new Location(this.getWorld(), x, y, z));
     }
 
     @Override
     public void teleport(Entity entity) {
-        teleport(entity.getLocation());
+        this.teleport(entity.getLocation());
     }
 
     @Override
@@ -111,50 +101,36 @@ public abstract class TridentEntity implements Entity {
         this.loc = location;
         this.locationChanged = true;
 
-        for(double y = loc.getY(); y > 0; y--) {
-            Location l = new Location(loc.getWorld(), loc.getX(),
-                    y, loc.getZ());
+        for (double y = this.loc.getY(); y > 0.0; y--) {
+            Location l = new Location(this.loc.getWorld(), this.loc.getX(),
+                                      y, this.loc.getZ());
 
             if (l.getWorld().getBlockAt(l).getType() != Material.AIR) {
-                this.fallDistance = (loc.getY() - y);
-                this.onGround = (fallDistance == 0D);
+                this.fallDistance = this.loc.getY() - y;
+                this.onGround = this.fallDistance == 0D;
 
                 break;
             }
         }
 
-        TridentPlayer.sendAll(new PacketPlayOutEntityTeleport().set("entityId", id)
-                .set("location", loc).set("onGround", onGround));
+        TridentPlayer.sendAll(new PacketPlayOutEntityTeleport().set("entityId", this.id)
+                                                               .set("location", this.loc)
+                                                               .set("onGround", this.onGround));
     }
 
     @Override
     public World getWorld() {
-        return loc.getWorld();
+        return this.loc.getWorld();
     }
 
     @Override
     public Location getLocation() {
-        return loc;
+        return this.loc;
     }
 
     @Override
     public Vector getVelocity() {
-        return velocity;
-    }
-
-    @Override
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    @Override
-    public boolean isSilent() {
-        return silent;
-    }
-
-    @Override
-    public UUID getUniqueId() {
-        return uniqueId;
+        return this.velocity;
     }
 
     @Override
@@ -162,24 +138,44 @@ public abstract class TridentEntity implements Entity {
         this.velocity = vector;
         this.velocityChanged = true;
 
-        TridentPlayer.sendAll(new PacketPlayOutEntityVelocity().set("entityId", id)
-                .set("velocity", vector));
+        TridentPlayer.sendAll(new PacketPlayOutEntityVelocity().set("entityId", this.id)
+                                                               .set("velocity", vector));
+    }
+
+    @Override
+    public String getDisplayName() {
+        return this.displayName;
+    }
+
+    @Override
+    public void setDisplayName(String name) {
+        this.displayName = name;
+    }
+
+    @Override
+    public boolean isSilent() {
+        return this.silent;
+    }
+
+    @Override
+    public UUID getUniqueId() {
+        return this.uniqueId;
     }
 
     @Override
     public void tick() {
-        ticksExisted++;
+        this.ticksExisted++;
     }
 
     @Override
     public boolean isOnGround() {
-        return onGround;
+        return this.onGround;
     }
 
     /**
      * TODO
+     *
      * @param radius the spherical radius to look for entities around
-     * @return
      */
     @Override
     public List<Entity> getNearbyEntities(double radius) {
@@ -188,7 +184,7 @@ public abstract class TridentEntity implements Entity {
 
     @Override
     public int getId() {
-        return id;
+        return this.id;
     }
 
     /**
@@ -200,7 +196,7 @@ public abstract class TridentEntity implements Entity {
 
     @Override
     public Entity getPassenger() {
-        return passenger;
+        return this.passenger;
     }
 
     @Override
@@ -208,11 +204,6 @@ public abstract class TridentEntity implements Entity {
         this.passenger = entity;
 
         // TODO: Update clients
-    }
-
-    @Override
-    public void setDisplayName(String name) {
-        this.displayName = name;
     }
 
     @Override

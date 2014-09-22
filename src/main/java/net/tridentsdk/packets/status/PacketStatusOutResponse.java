@@ -27,15 +27,11 @@
 
 package net.tridentsdk.packets.status;
 
+import com.google.gson.GsonBuilder;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 import net.tridentsdk.server.netty.packet.PacketType;
-
-import java.io.UnsupportedEncodingException;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 /**
  * TODO not an expert on this lol - AgentTroll
@@ -43,12 +39,12 @@ import com.google.gson.GsonBuilder;
  * @author The TridentSDK Team
  */
 public class PacketStatusOutResponse extends OutPacket {
-    private Response response;
+    private final Response response;
 
     public PacketStatusOutResponse() {
-        response = new Response();
+        this.response = new Response();
     }
-    
+
     @Override
     public int getId() {
         return 0x00;
@@ -56,7 +52,7 @@ public class PacketStatusOutResponse extends OutPacket {
 
     @Override
     public void encode(ByteBuf buf) {
-        String json = new GsonBuilder().create().toJson(response);
+        String json = new GsonBuilder().create().toJson(this.response);
         Codec.writeString(buf, json);
     }
 
@@ -64,25 +60,25 @@ public class PacketStatusOutResponse extends OutPacket {
     public PacketType getType() {
         return PacketType.OUT;
     }
-    
+
     //TODO: Do this properly
     public static class Response {
+        Version version = new Version();
+        Players players = new Players();
+        Description description = new Description();
+
         public static class Version {
             String name = "1.8";
             int protocol = 47;
         }
-        
+
         public static class Players {
             int max = 10;
             int online = 5;
         }
-        
+
         public static class Description {
             String text = "The best server out!";
         }
-        
-        Version version = new Version();
-        Players players = new Players();
-        Description description = new Description();
     }
 }

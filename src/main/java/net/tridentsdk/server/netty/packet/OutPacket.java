@@ -44,13 +44,14 @@ public abstract class OutPacket implements Packet {
 
     /**
      * Sets the field name with said value
-     * @param name Name of field you wish to set
+     *
+     * @param name  Name of field you wish to set
      * @param value Value you wish to set the field to
      * @return OutPacket instance
      */
     public OutPacket set(String name, Object value) {
         try {
-            Field field = getClass().getDeclaredField(name);
+            Field field = this.getClass().getDeclaredField(name);
 
             field.setAccessible(true);
             field.set(this, value);
