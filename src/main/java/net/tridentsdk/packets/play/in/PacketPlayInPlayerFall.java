@@ -34,7 +34,7 @@ import net.tridentsdk.server.netty.packet.Packet;
 
 public class PacketPlayInPlayerFall extends InPacket {
 
-    private boolean onGround;
+    protected boolean onGround;
 
     @Override
     public int getId() {

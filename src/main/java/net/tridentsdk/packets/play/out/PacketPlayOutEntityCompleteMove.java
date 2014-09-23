@@ -34,11 +34,11 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutEntityCompleteMove extends OutPacket {
 
-    private int entityId;
-    private Vector difference;
-    private float yaw;
-    private float pitch;
-    private byte flags;
+    protected int entityId;
+    protected Vector difference;
+    protected float yaw;
+    protected float pitch;
+    protected byte flags;
 
     @Override
     public int getId() {

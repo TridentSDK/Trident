@@ -33,12 +33,12 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutEntityEffect extends OutPacket {
 
-    private int entityId;
-    private short effectId;
-    private short amplifier;
+    protected int entityId;
+    protected short effectId;
+    protected short amplifier;
 
-    private long duration;
-    private boolean hideParticles;
+    protected long duration;
+    protected boolean hideParticles;
 
     @Override
     public int getId() {

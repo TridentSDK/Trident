@@ -36,9 +36,9 @@ import net.tridentsdk.server.netty.packet.Packet;
 
 public class PacketPlayInBlockPlace extends InPacket {
 
-    private Location location;
-    private byte direction; // wat
-    private Vector cursorPosition;
+    protected Location location;
+    protected byte direction; // wat
+    protected Vector cursorPosition;
 
     @Override
     public int getId() {

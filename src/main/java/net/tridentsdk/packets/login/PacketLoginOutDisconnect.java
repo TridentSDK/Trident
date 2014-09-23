@@ -39,7 +39,7 @@ import net.tridentsdk.server.netty.packet.PacketType;
  * @author The TridentSDK Team
  */
 public class PacketLoginOutDisconnect implements Packet {
-    private String jsonMessage;
+    protected String jsonMessage;
 
     @Override
     public int getId() {

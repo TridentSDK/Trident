@@ -34,10 +34,10 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutEffect extends OutPacket {
 
-    private int effectId;
-    private Location loc;
-    private int data;
-    private boolean playSound;
+    protected int effectId;
+    protected Location loc;
+    protected int data;
+    protected boolean playSound;
 
     @Override
     public int getId() {

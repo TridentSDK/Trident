@@ -35,8 +35,8 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutMultiBlockChange extends OutPacket {
 
-    private ChunkLocation chunkLocation;
-    private RecordBuilder[] records = { };
+    protected ChunkLocation chunkLocation;
+    protected RecordBuilder[] records = { };
 
     @Override
     public int getId() {

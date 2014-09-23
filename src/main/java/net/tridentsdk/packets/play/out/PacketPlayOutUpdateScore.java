@@ -33,10 +33,10 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutUpdateScore extends OutPacket {
 
-    private String itemName;
-    private UpdateType type; // TODO: Change to enum
-    private String scoreName;
-    private int value;
+    protected String itemName;
+    protected UpdateType type;
+    protected String scoreName;
+    protected int value;
 
     @Override
     public int getId() {
@@ -77,7 +77,7 @@ public class PacketPlayOutUpdateScore extends OutPacket {
         UPDATE(0),
         REMOVE(1);
 
-        private final byte b;
+        protected final byte b;
 
         UpdateType(int i) {
             this.b = (byte) i;

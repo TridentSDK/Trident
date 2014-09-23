@@ -35,10 +35,10 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutExplosion extends OutPacket {
 
-    private Location loc;
-    private int recordCount;
-    private RecordBuilder[] records;
-    private Vector velocity;
+    protected Location loc;
+    protected int recordCount;
+    protected RecordBuilder[] records;
+    protected Vector velocity;
 
     @Override
     public int getId() {

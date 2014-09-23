@@ -33,7 +33,7 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutServerDifficulty extends OutPacket {
 
-    private Difficulty difficulty;
+    protected Difficulty difficulty;
 
     @Override
     public int getId() {

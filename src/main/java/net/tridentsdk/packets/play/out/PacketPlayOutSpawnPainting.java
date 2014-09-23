@@ -35,10 +35,10 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutSpawnPainting extends OutPacket {
 
-    private int entityId;
-    private String title;
-    private Location location;
-    private short direction;
+    protected int entityId;
+    protected String title;
+    protected Location location;
+    protected short direction;
 
     @Override
     public int getId() {

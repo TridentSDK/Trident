@@ -33,16 +33,16 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutMaps extends OutPacket {
 
-    private int itemDamage;
-    private int scale;
-    private int length;
-    private byte[] icons; // array must be 3 * larger than length
-    private byte columns;
-    private byte rows;
-    private byte x;
-    private byte y;
-    private int columnLength;
-    private byte[] data;
+    protected int itemDamage;
+    protected int scale;
+    protected int length;
+    protected byte[] icons; // array must be 3 * larger than length
+    protected byte columns;
+    protected byte rows;
+    protected byte x;
+    protected byte y;
+    protected int columnLength;
+    protected byte[] data;
 
     @Override
     public int getId() {

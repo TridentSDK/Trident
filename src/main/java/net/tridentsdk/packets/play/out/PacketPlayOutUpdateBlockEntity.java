@@ -34,9 +34,9 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutUpdateBlockEntity extends OutPacket {
 
-    private Location loc;
-    private int action;
-    private byte[] nbtData;
+    protected Location loc;
+    protected int action;
+    protected byte[] nbtData;
 
     @Override
     public int getId() {

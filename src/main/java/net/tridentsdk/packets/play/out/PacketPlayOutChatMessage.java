@@ -33,8 +33,8 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutChatMessage extends OutPacket {
 
-    private String jsonMessage;
-    private ChatPosition position;
+    protected String jsonMessage;
+    protected ChatPosition position;
 
     @Override
     public int getId() {
@@ -52,7 +52,7 @@ public class PacketPlayOutChatMessage extends OutPacket {
         SYSTEM_MESSAGE(1),
         ABOVE_BAR(2);
 
-        private final byte b;
+        protected final byte b;
 
         ChatPosition(int b) {
             this.b = (byte) b;

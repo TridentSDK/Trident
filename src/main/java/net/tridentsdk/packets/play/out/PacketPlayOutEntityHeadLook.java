@@ -33,8 +33,8 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutEntityHeadLook extends OutPacket {
 
-    private int entityId;
-    private float headYaw;
+    protected int entityId;
+    protected float headYaw;
 
     @Override
     public int getId() {

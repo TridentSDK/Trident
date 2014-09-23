@@ -34,10 +34,10 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 public class PacketPlayOutScoreboardObjective extends OutPacket {
 
     // TODO: Change to objective object
-    private String name;
-    private short mode;
-    private String value;
-    private String type;
+    protected String name;
+    protected short mode;
+    protected String value;
+    protected String type;
 
     @Override
     public int getId() {

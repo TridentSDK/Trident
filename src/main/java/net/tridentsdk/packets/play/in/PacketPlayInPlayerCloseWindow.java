@@ -34,7 +34,7 @@ import net.tridentsdk.server.netty.packet.Packet;
 
 public class PacketPlayInPlayerCloseWindow extends InPacket {
 
-    private int id;
+    protected int id;
 
     @Override
     public int getId() {

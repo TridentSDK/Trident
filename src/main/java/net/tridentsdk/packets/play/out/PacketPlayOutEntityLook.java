@@ -34,9 +34,9 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutEntityLook extends OutPacket {
 
-    private int entityId;
-    private Location location;
-    private boolean onGround;
+    protected int entityId;
+    protected Location location;
+    protected boolean onGround;
 
     @Override
     public int getId() {

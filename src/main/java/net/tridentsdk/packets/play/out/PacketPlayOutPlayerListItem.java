@@ -35,8 +35,8 @@ import java.util.UUID;
 
 public class PacketPlayOutPlayerListItem extends OutPacket {
 
-    private int action;
-    private PlayerListDataBuilder[] playerListData;
+    protected int action;
+    protected PlayerListDataBuilder[] playerListData;
 
     @Override
     public int getId() {
@@ -62,8 +62,8 @@ public class PacketPlayOutPlayerListItem extends OutPacket {
     }
 
     public class PlayerListDataBuilder {
-        private UUID id;
-        private Object[] values;
+        protected UUID id;
+        protected Object[] values;
 
         public UUID getId() {
             return this.id;

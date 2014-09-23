@@ -37,10 +37,10 @@ import java.util.Locale;
 
 public class PacketPlayInClientSettings extends InPacket {
 
-    private Locale locale;
-    private short viewDistance;
-    private byte chatFlags;
-    private boolean chatColors;
+    protected Locale locale;
+    protected short viewDistance;
+    protected byte chatFlags;
+    protected boolean chatColors;
 
     @Override
     public int getId() {

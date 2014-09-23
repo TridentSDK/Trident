@@ -33,8 +33,8 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutPluginMessage extends OutPacket {
 
-    private String channel;
-    private byte[] data;
+    protected String channel;
+    protected byte[] data;
 
     @Override
     public int getId() {

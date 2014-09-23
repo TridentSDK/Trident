@@ -34,7 +34,7 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutSignEditorOpen extends OutPacket {
 
-    private Location loc;
+    protected Location loc;
 
     @Override
     public int getId() {

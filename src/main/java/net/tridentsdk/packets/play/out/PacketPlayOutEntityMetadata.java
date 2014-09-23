@@ -33,7 +33,7 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutEntityMetadata extends OutPacket {
 
-    private int entityId;
+    protected int entityId;
     // TODO: metadata
 
     @Override

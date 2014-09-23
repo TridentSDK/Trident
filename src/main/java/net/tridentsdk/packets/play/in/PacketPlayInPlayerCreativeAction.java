@@ -34,7 +34,7 @@ import net.tridentsdk.server.netty.packet.Packet;
 
 public class PacketPlayInPlayerCreativeAction extends InPacket {
 
-    private short slot;
+    protected short slot;
 
     @Override
     public int getId() {

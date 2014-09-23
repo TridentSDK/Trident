@@ -34,10 +34,10 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutMapChunkBulk extends OutPacket {
 
-    private boolean lightSent;
-    private int columnCount;
-    private ChunkMetaBuilder meta;
-    private byte[] data;
+    protected boolean lightSent;
+    protected int columnCount;
+    protected ChunkMetaBuilder meta;
+    protected byte[] data;
 
     @Override
     public int getId() {

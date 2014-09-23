@@ -33,7 +33,7 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutStatistics extends OutPacket {
 
-    private StatisticEntry[] entries;
+    protected StatisticEntry[] entries;
 
     @Override
     public int getId() {
@@ -54,8 +54,8 @@ public class PacketPlayOutStatistics extends OutPacket {
     }
 
     public class StatisticEntry {
-        private String string;
-        private int value;
+        protected String string;
+        protected int value;
 
         public String getString() {
             return this.string;

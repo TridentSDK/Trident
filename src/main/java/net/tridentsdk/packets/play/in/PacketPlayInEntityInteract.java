@@ -36,10 +36,10 @@ import net.tridentsdk.server.netty.packet.Packet;
 
 public class PacketPlayInEntityInteract extends InPacket {
 
-    private int target;
-    private int type; // TODO: Change to InteractType
+    protected int target;
+    protected int type; // TODO: Change to InteractType
 
-    private Location location;
+    protected Location location;
 
     @Override
     public int getId() {

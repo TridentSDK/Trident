@@ -35,8 +35,8 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutBlockChange extends OutPacket {
 
-    private Location location;
-    private int blockId;
+    protected Location location;
+    protected int blockId;
 
     @Override
     public int getId() {

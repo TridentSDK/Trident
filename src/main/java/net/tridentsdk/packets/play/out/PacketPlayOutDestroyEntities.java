@@ -33,7 +33,7 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutDestroyEntities extends OutPacket {
 
-    private int[] destroyedEntities;
+    protected int[] destroyedEntities;
 
     @Override
     public int getId() {

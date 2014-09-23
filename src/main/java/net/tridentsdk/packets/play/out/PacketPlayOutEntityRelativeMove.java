@@ -34,9 +34,9 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutEntityRelativeMove extends OutPacket {
 
-    private int entityId;
-    private Vector difference;
-    private boolean onGround;
+    protected int entityId;
+    protected Vector difference;
+    protected boolean onGround;
 
     @Override
     public int getId() {

@@ -34,7 +34,7 @@ import net.tridentsdk.server.netty.packet.Packet;
 
 public class PacketPlayInClientStatus extends InPacket {
 
-    private short actionId;
+    protected short actionId;
 
     @Override
     public int getId() {

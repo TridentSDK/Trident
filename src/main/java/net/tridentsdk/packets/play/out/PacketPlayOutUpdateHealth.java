@@ -33,9 +33,9 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutUpdateHealth extends OutPacket {
 
-    private float health;
-    private int food;
-    private float foodSaturation;
+    protected float health;
+    protected int food;
+    protected float foodSaturation;
 
     @Override
     public int getId() {

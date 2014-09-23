@@ -35,8 +35,8 @@ import net.tridentsdk.server.netty.packet.Packet;
 
 public class PacketPlayInPluginMessage extends InPacket {
 
-    private String channel;
-    private byte[] data;
+    protected String channel;
+    protected byte[] data;
 
     @Override
     public int getId() {

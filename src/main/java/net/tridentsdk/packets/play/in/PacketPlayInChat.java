@@ -35,7 +35,7 @@ import net.tridentsdk.server.netty.packet.Packet;
 
 public class PacketPlayInChat extends InPacket {
 
-    private String message;
+    protected String message;
 
     @Override
     public int getId() {

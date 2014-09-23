@@ -32,9 +32,9 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutConfirmTransaction extends OutPacket {
 
-    private int windowId;
-    private short actionNumber;
-    private boolean accepted;
+    protected int windowId;
+    protected short actionNumber;
+    protected boolean accepted;
 
     @Override
     public int getId() {

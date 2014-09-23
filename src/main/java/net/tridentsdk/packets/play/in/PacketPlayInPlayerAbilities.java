@@ -34,10 +34,10 @@ import net.tridentsdk.server.netty.packet.Packet;
 
 public class PacketPlayInPlayerAbilities extends InPacket {
 
-    private byte flags;
+    protected byte flags;
 
-    private float flyingSpeed;
-    private float walkingSpeed;
+    protected float flyingSpeed;
+    protected float walkingSpeed;
 
     @Override
     public int getId() {

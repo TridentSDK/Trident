@@ -38,8 +38,8 @@ import net.tridentsdk.server.netty.packet.OutPacket;
  */
 public class PacketPlayOutSpawnGlobalEntity extends OutPacket {
 
-    private int entityId;
-    private Location loc;
+    protected int entityId;
+    protected Location loc;
 
     @Override
     public int getId() {

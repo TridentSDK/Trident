@@ -35,8 +35,8 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutUpdateSign extends OutPacket {
 
-    private Location loc;
-    private String[] messages;
+    protected Location loc;
+    protected String[] messages;
 
     @Override
     public int getId() {

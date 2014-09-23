@@ -32,7 +32,7 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutCloseWindow extends OutPacket {
 
-    private int windowId;
+    protected int windowId;
 
     @Override
     public int getId() {

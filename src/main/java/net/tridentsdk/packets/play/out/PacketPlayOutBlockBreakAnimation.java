@@ -35,9 +35,9 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutBlockBreakAnimation extends OutPacket {
 
-    private int entityId;
-    private Location location;
-    private short destroyStage;
+    protected int entityId;
+    protected Location location;
+    protected short destroyStage;
 
     @Override
     public int getId() {

@@ -33,9 +33,9 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutSetExperience extends OutPacket {
 
-    private float experienceBar;
-    private int level;
-    private long totalExperience;
+    protected float experienceBar;
+    protected int level;
+    protected long totalExperience;
 
     @Override
     public int getId() {

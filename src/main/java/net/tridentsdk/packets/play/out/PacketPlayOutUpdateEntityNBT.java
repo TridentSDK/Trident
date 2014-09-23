@@ -33,7 +33,7 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutUpdateEntityNBT extends OutPacket {
 
-    private int entityId;
+    protected int entityId;
 
     @Override
     public int getId() {

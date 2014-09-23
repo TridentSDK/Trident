@@ -34,10 +34,10 @@ import net.tridentsdk.server.netty.packet.Packet;
 
 public class PacketPlayInPlayerLook extends InPacket {
 
-    private float newYaw;
-    private float newPitch;
+    protected float newYaw;
+    protected float newPitch;
 
-    private boolean onGround;
+    protected boolean onGround;
 
     @Override
     public int getId() {

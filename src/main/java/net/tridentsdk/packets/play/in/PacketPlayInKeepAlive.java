@@ -36,7 +36,7 @@ import net.tridentsdk.server.netty.packet.Packet;
 
 public class PacketPlayInKeepAlive extends InPacket {
 
-    private int keepAliveId;
+    protected int keepAliveId;
 
     @Override
     public int getId() {

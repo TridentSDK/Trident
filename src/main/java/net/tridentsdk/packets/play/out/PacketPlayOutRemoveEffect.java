@@ -33,8 +33,8 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutRemoveEffect extends OutPacket {
 
-    private int entityId;
-    private int effectId;
+    protected int entityId;
+    protected int effectId;
 
     @Override
     public int getId() {

@@ -35,8 +35,8 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutUseBed extends OutPacket {
 
-    private int entityId;
-    private Location bedHead;
+    protected int entityId;
+    protected Location bedHead;
 
     @Override
     public int getId() {

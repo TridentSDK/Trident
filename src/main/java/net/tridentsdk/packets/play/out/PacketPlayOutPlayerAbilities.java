@@ -32,9 +32,9 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutPlayerAbilities extends OutPacket {
 
-    private byte flags;
-    private float flyingSpeed;
-    private float walkingSpeed;
+    protected byte flags;
+    protected float flyingSpeed;
+    protected float walkingSpeed;
 
     @Override
     public int getId() {

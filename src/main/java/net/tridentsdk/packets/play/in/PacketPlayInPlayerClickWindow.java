@@ -34,12 +34,12 @@ import net.tridentsdk.server.netty.packet.Packet;
 
 public class PacketPlayInPlayerClickWindow extends InPacket {
 
-    private int windowId;
-    private int clickedButton;
+    protected int windowId;
+    protected int clickedButton;
 
-    private short clickedSlot;
-    private short actionNumber;
-    private short mode;
+    protected short clickedSlot;
+    protected short actionNumber;
+    protected short mode;
 
     @Override
     public int getId() {

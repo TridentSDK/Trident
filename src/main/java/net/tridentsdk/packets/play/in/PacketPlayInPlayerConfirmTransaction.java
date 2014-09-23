@@ -34,8 +34,8 @@ import net.tridentsdk.server.netty.packet.Packet;
 
 public class PacketPlayInPlayerConfirmTransaction extends InPacket {
 
-    private short actionNumber;
-    private boolean accepted;
+    protected short actionNumber;
+    protected boolean accepted;
 
     @Override
     public int getId() {

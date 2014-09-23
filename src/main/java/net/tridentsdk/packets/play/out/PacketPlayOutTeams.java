@@ -34,18 +34,18 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutTeams extends OutPacket {
 
-    private String teamName;
-    private Mode mode;
+    protected String teamName;
+    protected Mode mode;
 
-    private String teamDisplay;
-    private String teamPrefix;
-    private String teamSuffix;
+    protected String teamDisplay;
+    protected String teamPrefix;
+    protected String teamSuffix;
 
-    private short friendlyFire;
-    private TagVisibility tagVisibility;
-    private short color;
+    protected short friendlyFire;
+    protected TagVisibility tagVisibility;
+    protected short color;
 
-    private String[] players;
+    protected String[] players;
 
     @Override
     public int getId() {
@@ -120,7 +120,7 @@ public class PacketPlayOutTeams extends OutPacket {
         ADD_PLAYER(3),
         REMOVE_PLAYER(4);
 
-        private final byte b;
+        protected final byte b;
 
         Mode(int i) {
             this.b = (byte) i;

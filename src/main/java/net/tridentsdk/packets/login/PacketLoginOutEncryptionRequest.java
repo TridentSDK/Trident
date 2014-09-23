@@ -33,11 +33,11 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 import net.tridentsdk.server.netty.packet.PacketType;
 
 public class PacketLoginOutEncryptionRequest extends OutPacket {
-    private short keyLength;
-    private short tokenLength;
+    protected short keyLength;
+    protected short tokenLength;
 
-    private byte[] publicKey;
-    private byte[] verifyToken;
+    protected byte[] publicKey;
+    protected byte[] verifyToken;
 
     @Override
     public int getId() {

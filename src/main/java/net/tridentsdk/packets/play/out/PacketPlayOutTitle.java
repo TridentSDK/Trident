@@ -33,8 +33,8 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutTitle extends OutPacket {
 
-    private int action;
-    private Object[] values;
+    protected int action;
+    protected Object[] values;
 
     @Override
     public int getId() {

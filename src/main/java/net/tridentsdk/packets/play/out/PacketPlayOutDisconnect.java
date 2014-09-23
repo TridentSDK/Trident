@@ -33,7 +33,7 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutDisconnect extends OutPacket {
 
-    private String reason;
+    protected String reason;
 
     @Override
     public int getId() {

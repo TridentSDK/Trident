@@ -33,9 +33,9 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutSetSlot extends OutPacket {
 
-    private int windowId;
-    private short slot;
-    private Slot item;
+    protected int windowId;
+    protected short slot;
+    protected Slot item;
 
     @Override
     public int getId() {

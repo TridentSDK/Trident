@@ -33,13 +33,13 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutCombatEvent extends OutPacket {
 
-    private short event;
-    private int entityId;
+    protected short event;
+    protected int entityId;
 
-    private short duration;
+    protected short duration;
 
-    private int playerId;
-    private String message;
+    protected int playerId;
+    protected String message;
 
     @Override
     public int getId() {

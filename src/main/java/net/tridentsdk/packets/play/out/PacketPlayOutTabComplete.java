@@ -33,7 +33,7 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutTabComplete extends OutPacket {
 
-    private String[] matches;
+    protected String[] matches;
 
     @Override
     public int getId() {

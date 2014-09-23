@@ -32,7 +32,7 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutPlayerHeldItemChange extends OutPacket {
 
-    private byte slot;
+    protected byte slot;
 
     @Override
     public int getId() {

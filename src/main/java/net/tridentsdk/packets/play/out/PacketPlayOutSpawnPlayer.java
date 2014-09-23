@@ -37,8 +37,8 @@ import java.util.UUID;
 
 public class PacketPlayOutSpawnPlayer extends OutPacket {
 
-    private int entityId;
-    private Player player;
+    protected int entityId;
+    protected Player player;
     // TODO: Mojang slot stuff
     // TODO: entity metadata
 

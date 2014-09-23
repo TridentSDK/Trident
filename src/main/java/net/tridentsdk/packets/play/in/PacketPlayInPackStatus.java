@@ -35,8 +35,8 @@ import net.tridentsdk.server.netty.packet.Packet;
 
 public class PacketPlayInPackStatus extends InPacket {
 
-    private String hash;
-    private int result;
+    protected String hash;
+    protected int result;
 
     @Override
     public int getId() {

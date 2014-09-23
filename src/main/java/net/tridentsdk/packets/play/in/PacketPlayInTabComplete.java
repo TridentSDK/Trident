@@ -36,9 +36,9 @@ import net.tridentsdk.server.netty.packet.Packet;
 
 public class PacketPlayInTabComplete extends InPacket {
 
-    private String text;
-    private boolean hasPosition;
-    private Location lookedAtBlock;
+    protected String text;
+    protected boolean hasPosition;
+    protected Location lookedAtBlock;
 
     @Override
     public int getId() {

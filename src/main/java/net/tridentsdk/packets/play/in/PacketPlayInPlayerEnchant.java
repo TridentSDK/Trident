@@ -34,7 +34,7 @@ import net.tridentsdk.server.netty.packet.Packet;
 
 public class PacketPlayInPlayerEnchant extends InPacket {
 
-    private byte enchantment;
+    protected byte enchantment;
 
     @Override
     public int getId() {

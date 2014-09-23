@@ -34,8 +34,8 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutDisplayScoreboard extends OutPacket {
 
-    private BoardType boardType;
-    private String scoreName;
+    protected BoardType boardType;
+    protected String scoreName;
 
     @Override
     public int getId() {

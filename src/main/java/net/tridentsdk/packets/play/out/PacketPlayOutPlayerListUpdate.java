@@ -33,8 +33,8 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutPlayerListUpdate extends OutPacket {
 
-    private String header;
-    private String footer;
+    protected String header;
+    protected String footer;
 
     @Override
     public int getId() {

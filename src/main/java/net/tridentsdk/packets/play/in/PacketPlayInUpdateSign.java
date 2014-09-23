@@ -36,8 +36,8 @@ import net.tridentsdk.server.netty.packet.Packet;
 
 public class PacketPlayInUpdateSign extends InPacket {
 
-    private final String[] jsonContents = new String[4];
-    private Location signLocation;
+    protected final String[] jsonContents = new String[4];
+    protected Location signLocation;
 
     @Override
     public int getId() {

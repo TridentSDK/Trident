@@ -37,13 +37,13 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutJoinGame extends OutPacket {
 
-    private int entityId;
-    private Gamemode gamemode;
-    private Dimension dimension;
+    protected int entityId;
+    protected Gamemode gamemode;
+    protected Dimension dimension;
 
-    private Difficulty difficulty;
-    private short maxPlayers;
-    private LevelType levelType;
+    protected Difficulty difficulty;
+    protected short maxPlayers;
+    protected LevelType levelType;
 
     @Override
     public int getId() {

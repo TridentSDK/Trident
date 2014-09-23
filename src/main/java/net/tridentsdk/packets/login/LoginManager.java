@@ -32,11 +32,11 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class LoginManager {
-    private static final LoginManager instance = new LoginManager();
+    protected static final LoginManager instance = new LoginManager();
 
-    private final Map<InetSocketAddress, String> loginNames = new ConcurrentHashMap<>();
+    protected final Map<InetSocketAddress, String> loginNames = new ConcurrentHashMap<>();
 
-    private LoginManager() {}
+    protected LoginManager() {}
 
     public static LoginManager getInstance() {
         return LoginManager.instance;

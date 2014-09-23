@@ -35,12 +35,12 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutParticle extends OutPacket {
 
-    private int particleId;
-    private boolean distance;
-    private Location loc;
-    private Vector offset; // d - (d * Random#nextGaussian())
-    private float particleData;
-    private int[] data;
+    protected int particleId;
+    protected boolean distance;
+    protected Location loc;
+    protected Vector offset; // d - (d * Random#nextGaussian())
+    protected float particleData;
+    protected int[] data;
 
     @Override
     public int getId() {

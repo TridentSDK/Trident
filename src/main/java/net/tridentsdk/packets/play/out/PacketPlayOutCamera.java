@@ -33,7 +33,7 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutCamera extends OutPacket {
 
-    private int cameraId;
+    protected int cameraId;
 
     @Override
     public int getId() {

@@ -35,8 +35,8 @@ import net.tridentsdk.server.netty.packet.Packet;
 
 public class PacketPlayInEntityAction extends InPacket {
 
-    private ActionType type;
-    private int jumpBoost; // because people at Mojang are fucking retards
+    protected ActionType type;
+    protected int jumpBoost; // because people at Mojang are fucking retards
 
     @Override
     public int getId() {
@@ -66,7 +66,7 @@ public class PacketPlayInEntityAction extends InPacket {
         ON_HORSE(5),
         OPEN_INVENTORY(6);
 
-        private final int id;
+        protected final int id;
 
         ActionType(int id) {
             this.id = id;

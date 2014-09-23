@@ -34,8 +34,8 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutEntityStatus extends OutPacket {
 
-    private int entityId;
-    private EntityStatus status;
+    protected int entityId;
+    protected EntityStatus status;
 
     @Override
     public int getId() {

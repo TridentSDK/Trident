@@ -33,8 +33,8 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutEntityEquipment extends OutPacket {
 
-    private int entityId;
-    private short slot;
+    protected int entityId;
+    protected short slot;
     // TODO: mojang slot shit
 
     @Override

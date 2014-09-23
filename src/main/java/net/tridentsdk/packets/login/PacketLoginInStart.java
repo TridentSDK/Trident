@@ -39,7 +39,7 @@ import java.security.*;
  * @author The TridentSDK Team
  */
 public class PacketLoginInStart extends InPacket {
-    private String name;
+    protected String name;
 
     @Override
     public int getId() {

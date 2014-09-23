@@ -32,9 +32,9 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutAttachEntity extends OutPacket {
 
-    private int entityId;
-    private int vehicleId;
-    private boolean leash;
+    protected int entityId;
+    protected int vehicleId;
+    protected boolean leash;
 
     @Override
     public int getId() {

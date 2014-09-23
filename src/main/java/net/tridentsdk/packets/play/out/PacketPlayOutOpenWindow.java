@@ -34,11 +34,11 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutOpenWindow extends OutPacket {
 
-    private int windowId;
-    private InventoryType inventoryType;
-    private String windowTitle;
-    private int slots;
-    private int entityId; // only for horses, since people at Mojang are retards
+    protected int windowId;
+    protected InventoryType inventoryType;
+    protected String windowTitle;
+    protected int slots;
+    protected int entityId; // only for horses, since people at Mojang are retards
 
     @Override
     public int getId() {

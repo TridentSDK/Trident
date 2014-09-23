@@ -33,8 +33,8 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutAnimation extends OutPacket {
 
-    private int entityId;
-    private int animationId;
+    protected int entityId;
+    protected int animationId;
 
     @Override
     public int getId() {

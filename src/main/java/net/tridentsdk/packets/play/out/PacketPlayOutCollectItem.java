@@ -33,8 +33,8 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutCollectItem extends OutPacket {
 
-    private int collectedId;
-    private int collectorId;
+    protected int collectedId;
+    protected int collectorId;
 
     @Override
     public int getId() {

@@ -39,7 +39,7 @@ import net.tridentsdk.server.netty.protocol.Protocol;
  * @author The TridentSDK Team
  */
 public class PacketStatusInPing extends InPacket {
-    private long time;
+    protected long time;
 
     @Override
     public int getId() {

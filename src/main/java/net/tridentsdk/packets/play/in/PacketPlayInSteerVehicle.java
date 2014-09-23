@@ -36,10 +36,10 @@ import net.tridentsdk.server.netty.packet.Packet;
  * IM IN ME MUMS CAAR
  */
 public class PacketPlayInSteerVehicle extends InPacket {
-    private float sideways; // I don't even
-    private float forward;  // mojang pls
+    protected float sideways; // I don't even
+    protected float forward;  // mojang pls
 
-    private short flags;
+    protected short flags;
 
     @Override
     public int getId() {

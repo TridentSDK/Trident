@@ -34,8 +34,8 @@ import net.tridentsdk.server.netty.packet.Packet;
 
 public class PacketPlayInPlayerCompleteMove extends PacketPlayInPlayerMove {
 
-    private float newYaw;
-    private float newPitch;
+    protected float newYaw;
+    protected float newPitch;
 
     @Override
     public int getId() {

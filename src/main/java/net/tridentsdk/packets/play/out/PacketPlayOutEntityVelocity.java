@@ -34,8 +34,8 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutEntityVelocity extends OutPacket {
 
-    private int entityId;
-    private Vector velocity;
+    protected int entityId;
+    protected Vector velocity;
 
     @Override
     public int getId() {

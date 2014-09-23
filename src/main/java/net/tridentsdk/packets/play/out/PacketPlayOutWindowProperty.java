@@ -32,9 +32,9 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutWindowProperty extends OutPacket {
 
-    private int windowId;
-    private short property;
-    private short value;
+    protected int windowId;
+    protected short property;
+    protected short value;
 
     @Override
     public int getId() {

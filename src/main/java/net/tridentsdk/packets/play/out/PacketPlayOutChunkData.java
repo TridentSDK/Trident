@@ -34,10 +34,10 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutChunkData extends OutPacket {
 
-    private final byte[] data = { };
-    private ChunkLocation chunkLocation;
-    private boolean continuous;
-    private short primaryBitMap;
+    protected final byte[] data = { };
+    protected ChunkLocation chunkLocation;
+    protected boolean continuous;
+    protected short primaryBitMap;
 
     @Override
     public int getId() {

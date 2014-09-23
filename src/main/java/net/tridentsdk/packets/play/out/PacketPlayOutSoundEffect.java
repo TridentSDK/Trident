@@ -35,10 +35,10 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutSoundEffect extends OutPacket {
 
-    private Sound soundName;
-    private Location loc;
-    private float volume; // f * 100
-    private int pitch; // 63 = 100%
+    protected Sound soundName;
+    protected Location loc;
+    protected float volume; // f * 100
+    protected int pitch; // 63 = 100%
 
     @Override
     public int getId() {

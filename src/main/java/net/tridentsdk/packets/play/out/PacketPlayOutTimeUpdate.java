@@ -32,8 +32,8 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutTimeUpdate extends OutPacket {
 
-    private long worldAge;
-    private long time;
+    protected long worldAge;
+    protected long time;
 
     @Override
     public int getId() {

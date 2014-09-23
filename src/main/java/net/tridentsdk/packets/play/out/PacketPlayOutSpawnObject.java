@@ -37,9 +37,9 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutSpawnObject extends OutPacket {
 
-    private int entityId;
-    private EntityType type;
-    private Entity entity;
+    protected int entityId;
+    protected EntityType type;
+    protected Entity entity;
     // TODO: Object data
 
     @Override

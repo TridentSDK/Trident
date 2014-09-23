@@ -33,7 +33,7 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutSpawnPosition extends OutPacket {
 
-    private Location location;
+    protected Location location;
 
     @Override
     public int getId() {

@@ -33,10 +33,10 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutPlayerRespawn extends OutPacket {
 
-    private int dimension;
-    private int difficulty;
-    private int gameMode;
-    private String levelType;
+    protected int dimension;
+    protected int difficulty;
+    protected int gameMode;
+    protected String levelType;
 
     @Override
     public int getId() {

@@ -33,7 +33,7 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutResourcePackSend extends OutPacket {
 
-    private String url;
+    protected String url;
 
     @Override
     public int getId() {

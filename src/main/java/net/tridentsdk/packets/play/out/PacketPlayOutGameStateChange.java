@@ -32,8 +32,8 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutGameStateChange extends OutPacket {
 
-    private int reason;
-    private float value; // value differs depending on reason
+    protected int reason;
+    protected float value; // value differs depending on reason
 
     @Override
     public int getId() {

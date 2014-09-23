@@ -33,8 +33,8 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutPlayerCompleteMove extends OutPacket {
 
-    private Location location;
-    private byte flags;
+    protected Location location;
+    protected byte flags;
 
     @Override
     public int getId() {
