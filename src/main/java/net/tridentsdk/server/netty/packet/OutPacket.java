@@ -28,6 +28,7 @@
 package net.tridentsdk.server.netty.packet;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.reflect.FastClass;
 import net.tridentsdk.server.netty.ClientConnection;
 
 import java.lang.reflect.Field;
@@ -36,6 +37,14 @@ import java.lang.reflect.Field;
  * @author The TridentSDK Team
  */
 public abstract class OutPacket implements Packet {
+
+    private FastClass fastClass;
+
+    public OutPacket() {
+        super();
+
+        fastClass = FastClass.get(getClass());
+    }
 
     @Override
     public PacketType getType() {
@@ -50,15 +59,7 @@ public abstract class OutPacket implements Packet {
      * @return OutPacket instance
      */
     public OutPacket set(String name, Object value) {
-        try {
-            Field field = getClass().getDeclaredField(name);
-
-            field.setAccessible(true);
-            field.set(this, value);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            e.printStackTrace();
-        }
-
+        fastClass.getField(this, name).set(value);
         return this;
     }
 
