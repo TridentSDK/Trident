@@ -42,7 +42,8 @@ public class TridentEgg extends TridentProjectile implements Egg {
     }
 
     @Override
-    public void applyProperties(EntityProperties properties) {}
+    public void applyProperties(EntityProperties properties) {
+    }
 
     @Override
     protected void hit() {

@@ -38,7 +38,8 @@ import java.util.concurrent.Executors;
 public final class BackgroundTaskExecutor {
     static final ExecutorService SERVICE = Executors.newCachedThreadPool();
 
-    private BackgroundTaskExecutor() {}
+    private BackgroundTaskExecutor() {
+    }
 
     /**
      * Execute the task in the internal thread pool <p/> <p>Synchronization is a requirement</p>

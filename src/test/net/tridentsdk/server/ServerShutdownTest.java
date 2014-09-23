@@ -28,7 +28,8 @@
 package net.tridentsdk.server;
 
 public final class ServerShutdownTest {
-    private ServerShutdownTest() {}
+    private ServerShutdownTest() {
+    }
 
     public static void main(String... args) {
         TridentStart.main(args);

@@ -37,7 +37,7 @@ public class PropertyBuilder implements Writable {
     private volatile String[] modifiers; // TODO: look more into this, modify accordingly
 
     public PropertyBuilder() {
-        this.modifiers = new String[] { };
+        this.modifiers = new String[]{};
     }
 
     public String getKey() {
@@ -71,7 +71,7 @@ public class PropertyBuilder implements Writable {
     }
 
     public PropertyBuilder cleanup() {
-        String[] newModifiers = { };
+        String[] newModifiers = {};
 
         for (String value : this.modifiers) {
             if (value != null) {
@@ -83,7 +83,8 @@ public class PropertyBuilder implements Writable {
         return this;
     }
 
-    @Override public void write(ByteBuf buf) {
+    @Override
+    public void write(ByteBuf buf) {
         this.cleanup();
 
         Codec.writeString(buf, this.key);

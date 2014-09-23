@@ -44,7 +44,8 @@ public class PlayerThreadTest {
     // private static final Queue<Object> QUEUE = new ConcurrentLinkedQueue<>();
     private static Player player;
 
-    @Setup public static void setup() {
+    @Setup
+    public static void setup() {
         for (int i = 0; i < 6_000; i++) {
             PlayerThreads.clientThreadHandle(ClientConnection.registerConnection(new CTXProper().channel()));
             // PlayerThreadTest.QUEUE.add(new CTXProper());
@@ -72,11 +73,13 @@ public class PlayerThreadTest {
         ThreadsManager.stopAll();
     }
 
-    @Benchmark public void benchASingle() {
+    @Benchmark
+    public void benchASingle() {
         //PlayerThreadTest.wrapper.doAction();
     }
 
-    @Benchmark public void benchEvery() {
+    @Benchmark
+    public void benchEvery() {
         //for (PlayerThreads.ThreadPlayerWrapper wrapper : PlayerThreads.wrappedPlayers())
         //wrapper.doAction();
     }

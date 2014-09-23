@@ -44,7 +44,8 @@ public final class Codec {
     //Current charset used by strings is UTF_8
     public static final Charset CHARSET = Charsets.UTF_8;
 
-    private Codec() {} // Suppress initialization of utility class
+    private Codec() {
+    } // Suppress initialization of utility class
 
     /**
      * Read a string from the encoded buffer

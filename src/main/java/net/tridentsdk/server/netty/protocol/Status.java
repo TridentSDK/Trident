@@ -28,9 +28,13 @@
 package net.tridentsdk.server.netty.protocol;
 
 import net.tridentsdk.api.docs.AccessNoDoc;
-import net.tridentsdk.packets.status.*;
+import net.tridentsdk.packets.status.PacketStatusInPing;
+import net.tridentsdk.packets.status.PacketStatusInRequest;
+import net.tridentsdk.packets.status.PacketStatusOutPing;
+import net.tridentsdk.packets.status.PacketStatusOutResponse;
 
-@AccessNoDoc class Status extends PacketManager {
+@AccessNoDoc
+class Status extends PacketManager {
     Status() {
         this.inPackets.put(0x00, PacketStatusInRequest.class);
         this.inPackets.put(0x01, PacketStatusInPing.class);

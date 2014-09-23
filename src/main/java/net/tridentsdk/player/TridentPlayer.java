@@ -27,13 +27,20 @@
 
 package net.tridentsdk.player;
 
-import net.tridentsdk.api.*;
-import net.tridentsdk.api.entity.*;
+import net.tridentsdk.api.Difficulty;
+import net.tridentsdk.api.Gamemode;
+import net.tridentsdk.api.Location;
+import net.tridentsdk.api.entity.Entity;
+import net.tridentsdk.api.entity.EntityProperties;
+import net.tridentsdk.api.entity.Projectile;
 import net.tridentsdk.api.entity.living.Player;
 import net.tridentsdk.api.world.Dimension;
 import net.tridentsdk.api.world.LevelType;
 import net.tridentsdk.entity.TridentInventoryHolder;
-import net.tridentsdk.packets.play.out.*;
+import net.tridentsdk.packets.play.out.PacketPlayOutChatMessage;
+import net.tridentsdk.packets.play.out.PacketPlayOutDisconnect;
+import net.tridentsdk.packets.play.out.PacketPlayOutJoinGame;
+import net.tridentsdk.packets.play.out.PacketPlayOutKeepAlive;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.Packet;
 
@@ -42,7 +49,7 @@ import java.util.UUID;
 public class TridentPlayer extends TridentInventoryHolder
         implements Player { // abstract for now to avoid compilation errors
 
-    private static final TridentPlayer[] players = { };
+    private static final TridentPlayer[] players = {};
 
     private final PlayerConnection connection;
 
@@ -63,13 +70,13 @@ public class TridentPlayer extends TridentInventoryHolder
         TridentPlayer p = new TridentPlayer(id, new Location(null, 0.0, 0.0, 0.0), connection);
 
         p.connection.sendPacket(new PacketPlayOutJoinGame().set("entityId", p.getId())
-                                                           .set("gamemode", Gamemode.SURVIVAL)
-                                                           .set("dimension", Dimension.OVERWORLD)
-                                                           .set("difficulty", Difficulty.NORMAL)
-                                                           .set("maxPlayers", (short) 10)
-                                                           .set("levelType",
-                                                                LevelType.DEFAULT)); // code to test if client will
-                                                                // move on
+                .set("gamemode", Gamemode.SURVIVAL)
+                .set("dimension", Dimension.OVERWORLD)
+                .set("difficulty", Difficulty.NORMAL)
+                .set("maxPlayers", (short) 10)
+                .set("levelType",
+                        LevelType.DEFAULT)); // code to test if client will
+        // move on
 
         return p;
     }
@@ -92,9 +99,9 @@ public class TridentPlayer extends TridentInventoryHolder
 
     public void sendMessage(String message) {
         this.connection.sendPacket(new PacketPlayOutChatMessage().set("jsonMessage", message).set("position",
-                                                                                                  PacketPlayOutChatMessage
-                                                                                                          .ChatPosition
-                                                                                                          .CHAT));
+                PacketPlayOutChatMessage
+                        .ChatPosition
+                        .CHAT));
     }
 
     /*

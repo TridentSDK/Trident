@@ -27,7 +27,9 @@
 
 package net.tridentsdk.server.threads;
 
-import java.util.*;
+import java.util.AbstractMap;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedTransferQueue;
 
@@ -144,7 +146,8 @@ public class ConcurrentTaskExecutor<Assignment> {
         private boolean stopped;
         // Does not need to be volatile because only this thread can change it
 
-        @Override public void addTask(Runnable task) {
+        @Override
+        public void addTask(Runnable task) {
             try {
                 this.tasks.put(task);
             } catch (InterruptedException e) {
@@ -152,16 +155,19 @@ public class ConcurrentTaskExecutor<Assignment> {
             }
         }
 
-        @Override public void interrupt() {
+        @Override
+        public void interrupt() {
             this.thread.interrupt();
             this.addTask(new Runnable() {
-                @Override public void run() {
+                @Override
+                public void run() {
                     InnerThread.this.stopped = true;
                 }
             });
         }
 
-        @Override public Thread asThread() {
+        @Override
+        public Thread asThread() {
             return this.thread;
         }
 

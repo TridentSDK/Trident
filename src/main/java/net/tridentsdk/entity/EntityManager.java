@@ -56,7 +56,8 @@ public final class EntityManager {
 
     public <T> ArrayList<T> getEntities(final Class<T> type) {
         Predicate<Entity> pred = new Predicate<Entity>() {
-            @Override public boolean apply(Entity e) {
+            @Override
+            public boolean apply(Entity e) {
                 return Predicates.assignableFrom(type.getClass()).apply(e.getClass());
             }
         };

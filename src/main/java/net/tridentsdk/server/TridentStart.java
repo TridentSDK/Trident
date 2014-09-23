@@ -29,10 +29,15 @@ package net.tridentsdk.server;
 
 import com.google.common.collect.Lists;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.*;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import joptsimple.*;
+import joptsimple.OptionException;
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
+import joptsimple.OptionSpec;
 import net.tridentsdk.api.util.TridentLogger;
 import net.tridentsdk.server.netty.ClientChannelInitializer;
 
@@ -53,7 +58,8 @@ final class TridentStart {
     private static final EventLoopGroup workerGroup = new NioEventLoopGroup();
     private static final Logger LOGGER = new TridentLogger();
 
-    private TridentStart() {} // Do not initialize
+    private TridentStart() {
+    } // Do not initialize
 
     /**
      * Starts the server up when the jarfile is run
@@ -71,16 +77,16 @@ final class TridentStart {
         parser.acceptsAll(TridentStart.asList("h", "help"), "Show this help dialog.").forHelp();
         OptionSpec<Boolean> append =
                 parser.acceptsAll(TridentStart.asList("log-append"), "Whether to append to the log file")
-                      .withRequiredArg()
-                      .ofType(Boolean.class)
-                      .defaultsTo(true)
-                      .describedAs("Log append");
+                        .withRequiredArg()
+                        .ofType(Boolean.class)
+                        .defaultsTo(true)
+                        .describedAs("Log append");
         OptionSpec<File> properties =
                 parser.acceptsAll(TridentStart.asList("properties"), "The location for the properties file")
-                      .withRequiredArg()
-                      .ofType(File.class)
-                      .defaultsTo(new File("server.yml"))
-                      .describedAs("Properties file");
+                        .withRequiredArg()
+                        .ofType(File.class)
+                        .defaultsTo(new File("server.yml"))
+                        .describedAs("Properties file");
 
         try {
             OptionSet options = parser.parse(args);
@@ -110,9 +116,9 @@ final class TridentStart {
         try {
             ServerBootstrap b = new ServerBootstrap();
             b.group(TridentStart.bossGroup, TridentStart.workerGroup)
-             .channel(NioServerSocketChannel.class)
-             .childHandler(new ClientChannelInitializer())
-             .option(ChannelOption.TCP_NODELAY, true);
+                    .channel(NioServerSocketChannel.class)
+                    .childHandler(new ClientChannelInitializer())
+                    .option(ChannelOption.TCP_NODELAY, true);
 
             // Bind and start to accept incoming connections.
             ChannelFuture f = b.bind((int) config.getPort()).sync();

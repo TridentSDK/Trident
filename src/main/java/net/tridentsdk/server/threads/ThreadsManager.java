@@ -33,7 +33,8 @@ package net.tridentsdk.server.threads;
  * @author The TridentSDK Team
  */
 public final class ThreadsManager {
-    private ThreadsManager() {}
+    private ThreadsManager() {
+    }
 
     /**
      * Stops all the executors and clears all caches of concurrent threads

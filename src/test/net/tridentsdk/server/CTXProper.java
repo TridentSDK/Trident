@@ -37,113 +37,141 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
 public class CTXProper implements ChannelHandlerContext {
-    @Override public Channel channel() {
+    @Override
+    public Channel channel() {
         return new Channel() {
-            @Override public ChannelId id() {
+            @Override
+            public ChannelId id() {
                 return null;
             }
 
-            @Override public EventLoop eventLoop() {
+            @Override
+            public EventLoop eventLoop() {
                 return null;
             }
 
-            @Override public Channel parent() {
+            @Override
+            public Channel parent() {
                 return null;
             }
 
-            @Override public ChannelConfig config() {
+            @Override
+            public ChannelConfig config() {
                 return null;
             }
 
-            @Override public boolean isOpen() {
+            @Override
+            public boolean isOpen() {
                 return false;
             }
 
-            @Override public boolean isRegistered() {
+            @Override
+            public boolean isRegistered() {
                 return false;
             }
 
-            @Override public boolean isActive() {
+            @Override
+            public boolean isActive() {
                 return false;
             }
 
-            @Override public ChannelMetadata metadata() {
+            @Override
+            public ChannelMetadata metadata() {
                 return null;
             }
 
-            @Override public SocketAddress localAddress() {
+            @Override
+            public SocketAddress localAddress() {
                 return null;
             }
 
-            @Override public SocketAddress remoteAddress() {
+            @Override
+            public SocketAddress remoteAddress() {
                 return new InetSocketAddress(69);
             }
 
-            @Override public ChannelFuture closeFuture() {
+            @Override
+            public ChannelFuture closeFuture() {
                 return null;
             }
 
-            @Override public boolean isWritable() {
+            @Override
+            public boolean isWritable() {
                 return false;
             }
 
-            @Override public Unsafe unsafe() {
+            @Override
+            public Unsafe unsafe() {
                 return null;
             }
 
-            @Override public ChannelPipeline pipeline() {
+            @Override
+            public ChannelPipeline pipeline() {
                 return null;
             }
 
-            @Override public ByteBufAllocator alloc() {
+            @Override
+            public ByteBufAllocator alloc() {
                 return null;
             }
 
-            @Override public ChannelPromise newPromise() {
+            @Override
+            public ChannelPromise newPromise() {
                 return null;
             }
 
-            @Override public ChannelProgressivePromise newProgressivePromise() {
+            @Override
+            public ChannelProgressivePromise newProgressivePromise() {
                 return null;
             }
 
-            @Override public ChannelFuture newSucceededFuture() {
+            @Override
+            public ChannelFuture newSucceededFuture() {
                 return null;
             }
 
-            @Override public ChannelFuture newFailedFuture(Throwable throwable) {
+            @Override
+            public ChannelFuture newFailedFuture(Throwable throwable) {
                 return null;
             }
 
-            @Override public ChannelPromise voidPromise() {
+            @Override
+            public ChannelPromise voidPromise() {
                 return null;
             }
 
-            @Override public ChannelFuture bind(SocketAddress socketAddress) {
+            @Override
+            public ChannelFuture bind(SocketAddress socketAddress) {
                 return null;
             }
 
-            @Override public ChannelFuture connect(SocketAddress socketAddress) {
+            @Override
+            public ChannelFuture connect(SocketAddress socketAddress) {
                 return null;
             }
 
-            @Override public ChannelFuture connect(SocketAddress socketAddress, SocketAddress socketAddress2) {
+            @Override
+            public ChannelFuture connect(SocketAddress socketAddress, SocketAddress socketAddress2) {
                 return null;
             }
 
-            @Override public ChannelFuture disconnect() {
+            @Override
+            public ChannelFuture disconnect() {
                 return null;
             }
 
-            @Override public ChannelFuture close() {
+            @Override
+            public ChannelFuture close() {
                 return null;
             }
 
-            @Override public ChannelFuture bind(SocketAddress socketAddress, ChannelPromise channelPromise) {
+            @Override
+            public ChannelFuture bind(SocketAddress socketAddress, ChannelPromise channelPromise) {
                 return null;
             }
 
-            @Override public ChannelFuture connect(SocketAddress socketAddress, ChannelPromise channelPromise) {
+            @Override
+            public ChannelFuture connect(SocketAddress socketAddress, ChannelPromise channelPromise) {
                 return null;
             }
 
@@ -153,125 +181,155 @@ public class CTXProper implements ChannelHandlerContext {
                 return null;
             }
 
-            @Override public ChannelFuture disconnect(ChannelPromise channelPromise) {
+            @Override
+            public ChannelFuture disconnect(ChannelPromise channelPromise) {
                 return null;
             }
 
-            @Override public ChannelFuture close(ChannelPromise channelPromise) {
+            @Override
+            public ChannelFuture close(ChannelPromise channelPromise) {
                 return null;
             }
 
-            @Override public Channel read() {
+            @Override
+            public Channel read() {
                 return null;
             }
 
-            @Override public ChannelFuture write(Object o) {
+            @Override
+            public ChannelFuture write(Object o) {
                 return null;
             }
 
-            @Override public ChannelFuture write(Object o, ChannelPromise channelPromise) {
+            @Override
+            public ChannelFuture write(Object o, ChannelPromise channelPromise) {
                 return null;
             }
 
-            @Override public Channel flush() {
+            @Override
+            public Channel flush() {
                 return null;
             }
 
-            @Override public ChannelFuture writeAndFlush(Object o, ChannelPromise channelPromise) {
+            @Override
+            public ChannelFuture writeAndFlush(Object o, ChannelPromise channelPromise) {
                 return null;
             }
 
-            @Override public ChannelFuture writeAndFlush(Object o) {
+            @Override
+            public ChannelFuture writeAndFlush(Object o) {
                 return null;
             }
 
-            @Override public <T> Attribute<T> attr(AttributeKey<T> tAttributeKey) {
+            @Override
+            public <T> Attribute<T> attr(AttributeKey<T> tAttributeKey) {
                 return null;
             }
 
-            @Override public int compareTo(Channel channel) {
+            @Override
+            public int compareTo(Channel channel) {
                 return 0;
             }
         };
     }
 
-    @Override public EventExecutor executor() {
+    @Override
+    public EventExecutor executor() {
         return null;
     }
 
-    @Override public ChannelHandlerInvoker invoker() {
+    @Override
+    public ChannelHandlerInvoker invoker() {
         return null;
     }
 
-    @Override public String name() {
+    @Override
+    public String name() {
         return null;
     }
 
-    @Override public ChannelHandler handler() {
+    @Override
+    public ChannelHandler handler() {
         return null;
     }
 
-    @Override public boolean isRemoved() {
+    @Override
+    public boolean isRemoved() {
         return false;
     }
 
-    @Override public ChannelHandlerContext fireChannelRegistered() {
+    @Override
+    public ChannelHandlerContext fireChannelRegistered() {
         return null;
     }
 
-    @Override public ChannelHandlerContext fireChannelActive() {
+    @Override
+    public ChannelHandlerContext fireChannelActive() {
         return null;
     }
 
-    @Override public ChannelHandlerContext fireChannelInactive() {
+    @Override
+    public ChannelHandlerContext fireChannelInactive() {
         return null;
     }
 
-    @Override public ChannelHandlerContext fireExceptionCaught(Throwable throwable) {
+    @Override
+    public ChannelHandlerContext fireExceptionCaught(Throwable throwable) {
         return null;
     }
 
-    @Override public ChannelHandlerContext fireUserEventTriggered(Object o) {
+    @Override
+    public ChannelHandlerContext fireUserEventTriggered(Object o) {
         return null;
     }
 
-    @Override public ChannelHandlerContext fireChannelRead(Object o) {
+    @Override
+    public ChannelHandlerContext fireChannelRead(Object o) {
         return null;
     }
 
-    @Override public ChannelHandlerContext fireChannelReadComplete() {
+    @Override
+    public ChannelHandlerContext fireChannelReadComplete() {
         return null;
     }
 
-    @Override public ChannelHandlerContext fireChannelWritabilityChanged() {
+    @Override
+    public ChannelHandlerContext fireChannelWritabilityChanged() {
         return null;
     }
 
-    @Override public ChannelFuture bind(SocketAddress socketAddress) {
+    @Override
+    public ChannelFuture bind(SocketAddress socketAddress) {
         return null;
     }
 
-    @Override public ChannelFuture connect(SocketAddress socketAddress) {
+    @Override
+    public ChannelFuture connect(SocketAddress socketAddress) {
         return null;
     }
 
-    @Override public ChannelFuture connect(SocketAddress socketAddress, SocketAddress socketAddress2) {
+    @Override
+    public ChannelFuture connect(SocketAddress socketAddress, SocketAddress socketAddress2) {
         return null;
     }
 
-    @Override public ChannelFuture disconnect() {
+    @Override
+    public ChannelFuture disconnect() {
         return null;
     }
 
-    @Override public ChannelFuture close() {
+    @Override
+    public ChannelFuture close() {
         return null;
     }
 
-    @Override public ChannelFuture bind(SocketAddress socketAddress, ChannelPromise channelPromise) {
+    @Override
+    public ChannelFuture bind(SocketAddress socketAddress, ChannelPromise channelPromise) {
         return null;
     }
 
-    @Override public ChannelFuture connect(SocketAddress socketAddress, ChannelPromise channelPromise) {
+    @Override
+    public ChannelFuture connect(SocketAddress socketAddress, ChannelPromise channelPromise) {
         return null;
     }
 
@@ -281,67 +339,83 @@ public class CTXProper implements ChannelHandlerContext {
         return null;
     }
 
-    @Override public ChannelFuture disconnect(ChannelPromise channelPromise) {
+    @Override
+    public ChannelFuture disconnect(ChannelPromise channelPromise) {
         return null;
     }
 
-    @Override public ChannelFuture close(ChannelPromise channelPromise) {
+    @Override
+    public ChannelFuture close(ChannelPromise channelPromise) {
         return null;
     }
 
-    @Override public ChannelHandlerContext read() {
+    @Override
+    public ChannelHandlerContext read() {
         return null;
     }
 
-    @Override public ChannelFuture write(Object o) {
+    @Override
+    public ChannelFuture write(Object o) {
         return null;
     }
 
-    @Override public ChannelFuture write(Object o, ChannelPromise channelPromise) {
+    @Override
+    public ChannelFuture write(Object o, ChannelPromise channelPromise) {
         return null;
     }
 
-    @Override public ChannelHandlerContext flush() {
+    @Override
+    public ChannelHandlerContext flush() {
         return null;
     }
 
-    @Override public ChannelFuture writeAndFlush(Object o, ChannelPromise channelPromise) {
+    @Override
+    public ChannelFuture writeAndFlush(Object o, ChannelPromise channelPromise) {
         return null;
     }
 
-    @Override public ChannelFuture writeAndFlush(Object o) {
+    @Override
+    public ChannelFuture writeAndFlush(Object o) {
         return null;
     }
 
-    @Override public ChannelPipeline pipeline() {
+    @Override
+    public ChannelPipeline pipeline() {
         return null;
     }
 
-    @Override public ByteBufAllocator alloc() {
+    @Override
+    public ByteBufAllocator alloc() {
         return null;
     }
 
-    @Override public ChannelPromise newPromise() {
+    @Override
+    public ChannelPromise newPromise() {
         return null;
     }
 
-    @Override public ChannelProgressivePromise newProgressivePromise() {
+    @Override
+    public ChannelProgressivePromise newProgressivePromise() {
         return null;
     }
 
-    @Override public ChannelFuture newSucceededFuture() {
+    @Override
+    public ChannelFuture newSucceededFuture() {
         return null;
     }
 
-    @Override public ChannelFuture newFailedFuture(Throwable throwable) {
+    @Override
+    public ChannelFuture newFailedFuture(Throwable throwable) {
         return null;
     }
 
-    @Override public ChannelPromise voidPromise() {
+    @Override
+    public ChannelPromise voidPromise() {
         return null;
     }
 
-    @Override public <T> Attribute<T> attr(AttributeKey<T> tAttributeKey) {
+    @Override
+    public <T> Attribute<T> attr(AttributeKey<T> tAttributeKey) {
         return null;
     }
 }

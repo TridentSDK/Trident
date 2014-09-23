@@ -89,7 +89,8 @@ public class PacketHandler extends SimpleChannelInboundHandler<PacketData> {
 
         final ClientConnection finalConnection = this.connection;
         BackgroundTaskExecutor.execute(new Runnable() {
-            @Override public void run() {
+            @Override
+            public void run() {
                 PlayerThreads.clientThreadHandle(finalConnection);
             }
         });

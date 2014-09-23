@@ -56,7 +56,8 @@ public class PacketLoginOutDisconnect implements Packet {
         Codec.writeString(buf, this.jsonMessage);
     }
 
-    @Override public void handleReceived(ClientConnection connection) {
+    @Override
+    public void handleReceived(ClientConnection connection) {
     }
 
     // Here too...

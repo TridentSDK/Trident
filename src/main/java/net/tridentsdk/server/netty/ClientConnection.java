@@ -76,7 +76,8 @@ public class ClientConnection {
         this.stage = Protocol.ClientStage.HANDSHAKE;
     }
 
-    protected ClientConnection() {}
+    protected ClientConnection() {
+    }
 
     private static Cipher getCipher() {
         try {

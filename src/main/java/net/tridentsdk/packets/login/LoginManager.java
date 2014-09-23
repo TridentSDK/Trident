@@ -36,7 +36,8 @@ public class LoginManager {
 
     protected final Map<InetSocketAddress, String> loginNames = new ConcurrentHashMap<>();
 
-    protected LoginManager() {}
+    protected LoginManager() {
+    }
 
     public static LoginManager getInstance() {
         return LoginManager.instance;

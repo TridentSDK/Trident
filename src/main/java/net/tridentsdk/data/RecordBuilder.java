@@ -77,7 +77,8 @@ public class RecordBuilder implements Writable {
         return this;
     }
 
-    @Override public void write(ByteBuf buf) {
+    @Override
+    public void write(ByteBuf buf) {
         Codec.writeVarInt32(buf, this.blockId);
     }
 }

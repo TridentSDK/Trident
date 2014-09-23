@@ -136,11 +136,13 @@ public class TestPlayerThreads {
         ThreadsManager.stopAll();
     }
 
-    @Benchmark public void put(Blackhole blackhole) {
+    @Benchmark
+    public void put(Blackhole blackhole) {
         blackhole.consume(PlayerThreads.clientThreadHandle(TestPlayerThreads.CLIENT_CONNECTION));
     }
 
-    @Benchmark public void remove(Blackhole blackhole) {
+    @Benchmark
+    public void remove(Blackhole blackhole) {
         PlayerThreads.remove(TestPlayerThreads.CLIENT_CONNECTION);
     }
 }

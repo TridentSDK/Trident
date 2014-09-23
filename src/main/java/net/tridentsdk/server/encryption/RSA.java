@@ -31,7 +31,8 @@ import javax.crypto.Cipher;
 import java.security.*;
 
 public final class RSA {
-    private RSA() {}
+    private RSA() {
+    }
 
     public static KeyPair generate(int bits) throws NoSuchAlgorithmException, InvalidAlgorithmParameterException {
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
@@ -51,7 +52,7 @@ public final class RSA {
         Cipher cipher = Cipher.getInstance("RSA");
         cipher.init(Cipher.ENCRYPT_MODE, key);
 
-        return cipher.doFinal(new byte[] { data });
+        return cipher.doFinal(new byte[]{data});
     }
 
     public static byte[] decrypt(byte[] data, Key key) throws Exception {
@@ -65,6 +66,6 @@ public final class RSA {
         Cipher cipher = Cipher.getInstance("RSA");
         cipher.init(Cipher.DECRYPT_MODE, key);
 
-        return cipher.doFinal(new byte[] { data });
+        return cipher.doFinal(new byte[]{data});
     }
 }

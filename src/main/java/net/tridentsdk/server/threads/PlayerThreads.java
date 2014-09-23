@@ -28,7 +28,9 @@
 package net.tridentsdk.server.threads;
 
 import net.tridentsdk.api.Location;
-import net.tridentsdk.api.entity.*;
+import net.tridentsdk.api.entity.Entity;
+import net.tridentsdk.api.entity.EntityProperties;
+import net.tridentsdk.api.entity.Projectile;
 import net.tridentsdk.api.entity.living.Player;
 import net.tridentsdk.entity.TridentEntity;
 import net.tridentsdk.server.netty.ClientConnection;
@@ -37,7 +39,9 @@ import net.tridentsdk.server.netty.packet.Packet;
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Collection;
 import java.util.UUID;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Player handling thread manager
@@ -51,7 +55,8 @@ public final class PlayerThreads {
 
     static final ExecutorService SERVICE = Executors.newSingleThreadExecutor();
 
-    private PlayerThreads() {}
+    private PlayerThreads() {
+    }
 
     /**
      * Gets the management tool for the player <p/> <p>This will put in a new value for the caches if cannot find for a
@@ -61,7 +66,8 @@ public final class PlayerThreads {
      */
     public static Player clientThreadHandle(final ClientConnection connection) {
         return PlayerThreads.CACHE_MAP.retrieve(connection, new Callable<ThreadPlayerWrapper>() {
-            @Override public ThreadPlayerWrapper call() throws Exception {
+            @Override
+            public ThreadPlayerWrapper call() throws Exception {
                 ConcurrentTaskExecutor.TaskExecutor executor = PlayerThreads.THREAD_MAP.getScaledThread();
                 ThreadPlayerWrapper wrapper = new ThreadPlayerWrapper(executor, connection);
                 PlayerThreads.THREAD_MAP.assign(executor, wrapper);
@@ -117,58 +123,72 @@ public final class PlayerThreads {
             return this.executor;
         }
 
-        @Override public void hide(Entity entity) {
+        @Override
+        public void hide(Entity entity) {
         }
 
-        @Override public void show(Entity entity) {
+        @Override
+        public void show(Entity entity) {
 
         }
 
-        @Override public double getHealth() {
+        @Override
+        public double getHealth() {
             return 0.0;
         }
 
-        @Override public void setHealth(double health) {
+        @Override
+        public void setHealth(double health) {
 
         }
 
-        @Override public double getMaxHealth() {
+        @Override
+        public double getMaxHealth() {
             return 0.0;
         }
 
-        @Override public void setMaxHealth(double maxHealth) {
+        @Override
+        public void setMaxHealth(double maxHealth) {
 
         }
 
-        @Override public long getRemainingAir() {
+        @Override
+        public long getRemainingAir() {
             return 0L;
         }
 
-        @Override public void setRemainingAir(long ticks) {
+        @Override
+        public void setRemainingAir(long ticks) {
 
         }
 
-        @Override public Location getEyeLocation() {
+        @Override
+        public Location getEyeLocation() {
             return null;
         }
 
-        @Override public boolean canPickupItems() {
+        @Override
+        public boolean canPickupItems() {
             return false;
         }
 
-        @Override public boolean isDead() {
+        @Override
+        public boolean isDead() {
             return false;
         }
 
-        @Override public boolean isNameVisible() {
+        @Override
+        public boolean isNameVisible() {
             return false;
         }
 
-        @Override public void applyProperties(EntityProperties properties) {
+        @Override
+        public void applyProperties(EntityProperties properties) {
 
         }
 
-        @Override public <T extends Projectile> T launchProjectile(EntityProperties properties) {
+        @Override
+        public <T extends Projectile> T launchProjectile(EntityProperties properties) {
             return null;
         }
     }

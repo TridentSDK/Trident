@@ -44,7 +44,8 @@ public abstract class OutPacket implements Packet {
 
     /**
      * Sets the field name with said value
-     * @param name Name of field you wish to set
+     *
+     * @param name  Name of field you wish to set
      * @param value Value you wish to set the field to
      * @return OutPacket instance
      */

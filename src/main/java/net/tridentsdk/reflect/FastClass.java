@@ -52,10 +52,15 @@ public class FastClass {
         this.constructorAccess = ConstructorAccess.get(cls);
     }
 
+    public static FastClass get(Class<?> cls) {
+        return new FastClass(cls);
+    }
+
     /**
      * Get a field from the class
+     *
      * @param instance Instance of the class
-     * @param name Name of the field
+     * @param name     Name of the field
      * @return FastField instance
      */
     public FastField getField(Object instance, String name) {
@@ -64,8 +69,9 @@ public class FastClass {
 
     /**
      * Get a method from the class
+     *
      * @param instance Instance of the class
-     * @param name Name of the method
+     * @param name     Name of the method
      * @return FastMethod instance
      */
     public FastMethod getMethod(Object instance, String name) {
@@ -74,6 +80,7 @@ public class FastClass {
 
     /**
      * Get the default constructor found
+     *
      * @return the default FastConstructor
      */
     public FastConstructor getConstructor() {
@@ -82,9 +89,5 @@ public class FastClass {
 
     public Class<?> toClass() {
         return cls;
-    }
-
-    public static FastClass get(Class<?> cls) {
-        return new FastClass(cls);
     }
 }
