@@ -33,8 +33,10 @@ import net.tridentsdk.entity.EntityManager;
 import net.tridentsdk.server.netty.protocol.Protocol;
 import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
 import net.tridentsdk.server.threads.ThreadsManager;
+import net.tridentsdk.world.RegionFileCache;
 
 import javax.annotation.concurrent.ThreadSafe;
+
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -50,11 +52,13 @@ public final class TridentServer implements Server {
     private final Protocol protocol;
     private final ConcurrentTaskExecutor<?> taskExecutor = new ConcurrentTaskExecutor<>(1);
     private final EntityManager entityManager;
+    private final RegionFileCache regionCache;
 
     private TridentServer(TridentConfig config) {
         this.config = config;
         this.protocol = new Protocol();
         this.entityManager = new EntityManager();
+        this.regionCache = new RegionFileCache();
     }
 
     /**
@@ -87,6 +91,10 @@ public final class TridentServer implements Server {
 
     public EntityManager getEntityManager() {
         return this.entityManager;
+    }
+    
+    public RegionFileCache getRegionFileCache() {
+        return this.regionCache;
     }
 
     /**
