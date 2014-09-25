@@ -28,10 +28,8 @@
 package net.tridentsdk.server.netty.packet;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.reflect.FastClass;
+import net.tridentsdk.api.reflect.FastClass;
 import net.tridentsdk.server.netty.ClientConnection;
-
-import java.lang.reflect.Field;
 
 /**
  * @author The TridentSDK Team
