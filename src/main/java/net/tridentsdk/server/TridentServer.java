@@ -29,6 +29,7 @@ package net.tridentsdk.server;
 
 import net.tridentsdk.api.Server;
 import net.tridentsdk.api.Trident;
+import net.tridentsdk.api.config.JsonConfig;
 import net.tridentsdk.entity.EntityManager;
 import net.tridentsdk.server.netty.protocol.Protocol;
 import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
@@ -48,13 +49,13 @@ import java.util.concurrent.atomic.AtomicReference;
 public final class TridentServer implements Server {
     private final AtomicReference<Thread> SERVER_THREAD = new AtomicReference<>();
 
-    private final TridentConfig config;
+    private final JsonConfig config;
     private final Protocol protocol;
     private final ConcurrentTaskExecutor<?> taskExecutor = new ConcurrentTaskExecutor<>(1);
     private final EntityManager entityManager;
     private final RegionFileCache regionCache;
 
-    private TridentServer(TridentConfig config) {
+    private TridentServer(JsonConfig config) {
         this.config = config;
         this.protocol = new Protocol();
         this.entityManager = new EntityManager();
@@ -66,7 +67,7 @@ public final class TridentServer implements Server {
      *
      * @param config the configuration to use for option lookup
      */
-    public static TridentServer createServer(TridentConfig config) {
+    public static TridentServer createServer(JsonConfig config) {
         TridentServer server = new TridentServer(config);
         Trident.setServer(server);
 
@@ -104,7 +105,7 @@ public final class TridentServer implements Server {
      */
     @Override
     public int getPort() {
-        return (int) this.config.getPort();
+        return this.config.getInt("port", 25565);
     }
 
     /**

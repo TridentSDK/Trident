@@ -38,11 +38,15 @@ import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
+import net.tridentsdk.api.config.JsonConfig;
 import net.tridentsdk.api.util.TridentLogger;
 import net.tridentsdk.server.netty.ClientChannelInitializer;
 
 import javax.annotation.concurrent.ThreadSafe;
+import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.logging.Logger;
 
@@ -66,7 +70,7 @@ final class TridentStart {
      *
      * @param args the command line arguments
      */
-    public static void main(String... args) {
+    public static void main(String... args) throws Exception {
         /*TODO:
          check some args here, using an interpreter
          parse the configuration file
@@ -85,18 +89,32 @@ final class TridentStart {
                 parser.acceptsAll(TridentStart.asList("properties"), "The location for the properties file")
                         .withRequiredArg()
                         .ofType(File.class)
-                        .defaultsTo(new File("server.yml"))
+                        .defaultsTo(new File("server.json"))
                         .describedAs("Properties file");
+        OptionSet options = null;
+        File f;
 
         try {
-            OptionSet options = parser.parse(args);
+            options = parser.parse(args);
         } catch (OptionException ex) {
             ex.printStackTrace();
             return;
         }
-        //FIXME: Disabled till working:
-        //TridentStart.init(new TridentConfig(options.valueOf(properties)));
-        TridentStart.init(new TridentConfig(null));
+
+        if(!((f = properties.value(options)).exists())) {
+            f.createNewFile();
+
+            DataInputStream dis = new DataInputStream(TridentStart.class.getResourceAsStream("server.json"));
+            FileWriter writer = new FileWriter(f);
+
+            writer.write(dis.readUTF());
+
+            writer.flush();
+            writer.close();
+            dis.close();
+        }
+
+        TridentStart.init(new JsonConfig(f));
     }
 
     private static Collection<String> asList(String... params) {
@@ -108,7 +126,7 @@ final class TridentStart {
      *
      * @param config the configuration to use for option lookup
      */
-    private static void init(TridentConfig config) {
+    private static void init(JsonConfig config) {
         //TODO: Need to run on seperate thread?
         //Server should read all settings from the loaded config
         TridentServer.createServer(config);
@@ -121,7 +139,7 @@ final class TridentStart {
                     .option(ChannelOption.TCP_NODELAY, true);
 
             // Bind and start to accept incoming connections.
-            ChannelFuture f = b.bind((int) config.getPort()).sync();
+            ChannelFuture f = b.bind(config.getInt("port", 25565)).sync();
 
             // Wait until the server socket is closed, to gracefully shut down your server.
             f.channel().closeFuture().sync();

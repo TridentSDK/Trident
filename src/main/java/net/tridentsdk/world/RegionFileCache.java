@@ -45,7 +45,7 @@ public class RegionFileCache {
         int actualX = chunkX >> 5, actualZ = chunkZ >> 5;
         
         File regionDir = new File(serverDirectory, "region");
-        File actualFile = new File(regionDir, actualX + "." + actualZ + ".mca");
+        File actualFile = new File(regionDir, "r." + actualX + "." + actualZ + ".mca");
         
         RegionFile file = regionFiles.get(actualFile);
         
@@ -57,7 +57,6 @@ public class RegionFileCache {
             try {
                 file = new RegionFile(actualFile);
             } catch (IOException e) {
-                //TODO: Handle exception
                 e.printStackTrace();
             }
             regionFiles.put(actualFile, file);
