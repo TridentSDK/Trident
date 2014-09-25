@@ -50,6 +50,10 @@ public class PacketStatusOutResponse extends OutPacket {
         return 0x00;
     }
 
+    public Response getResponse() {
+        return response;
+    }
+
     @Override
     public void encode(ByteBuf buf) {
         String json = new GsonBuilder().create().toJson(response);
@@ -78,7 +82,7 @@ public class PacketStatusOutResponse extends OutPacket {
         }
 
         public static class Description {
-            String text = "The best server out!";
+            String text = "default blah blah this is never going to show";
         }
     }
 }

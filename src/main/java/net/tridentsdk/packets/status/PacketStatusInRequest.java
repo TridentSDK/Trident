@@ -28,6 +28,7 @@
 package net.tridentsdk.packets.status;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
@@ -59,7 +60,16 @@ public class PacketStatusInRequest extends InPacket {
     @Override
     public void handleReceived(ClientConnection connection) {
         // TODO Respond to the client accordingly
-        // TODO: Have this hook into TridentServer and get info accordingly
-        connection.sendPacket(new PacketStatusOutResponse());
+        PacketStatusOutResponse packet = new PacketStatusOutResponse();
+        PacketStatusOutResponse.Response response = packet.getResponse();
+
+        response.description.text = TridentServer.getInstance().getConfig()
+                .getString("motd", "Just another TridentSDK server");
+        response.players.max = TridentServer.getInstance().getConfig()
+                .getInt("max-players", 10);
+
+        packet.set("response", response);
+
+        connection.sendPacket(packet);
     }
 }

@@ -115,6 +115,10 @@ public final class TridentServer implements Server {
         this.taskExecutor.getScaledThread().addTask(task);
     }
 
+    public JsonConfig getConfig(){
+        return config;
+    }
+
     /**
      * Performs the shutdown procedure on the server, ending with the exit of the JVM
      */
