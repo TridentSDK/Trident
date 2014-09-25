@@ -68,7 +68,7 @@ public class PacketStatusInRequest extends InPacket {
         response.players.max = TridentServer.getInstance().getConfig()
                 .getInt("max-players", 10);
 
-        packet.set("response", response);
+        packet.response = response;
 
         connection.sendPacket(packet);
     }

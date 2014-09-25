@@ -39,7 +39,7 @@ import net.tridentsdk.server.netty.packet.PacketType;
  * @author The TridentSDK Team
  */
 public class PacketStatusOutResponse extends OutPacket {
-    private Response response;
+    Response response;
 
     public PacketStatusOutResponse() {
         response = new Response();
