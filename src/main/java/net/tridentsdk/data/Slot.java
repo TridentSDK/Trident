@@ -28,8 +28,10 @@
 package net.tridentsdk.data;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufInputStream;
 import net.tridentsdk.api.Material;
 import net.tridentsdk.api.nbt.CompoundTag;
+import net.tridentsdk.api.nbt.NBTDecoder;
 import net.tridentsdk.api.nbt.NBTException;
 
 public class Slot implements Writable {
@@ -55,7 +57,7 @@ public class Slot implements Writable {
 
         if ((b = buf.readByte()) != 0) {
             try {
-                NBTDecoder builder = new NBTDecoder(buf);
+                NBTDecoder builder = new NBTDecoder(new ByteBufInputStream(buf));
 
                 this.compoundTag = builder.decode(b);
             } catch (NBTException ignored) {
