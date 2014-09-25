@@ -45,6 +45,7 @@ import org.openjdk.jmh.util.FileUtils;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.io.*;
+import java.net.InetSocketAddress;
 import java.nio.file.Files;
 import java.util.Collection;
 import java.util.logging.Logger;
@@ -130,7 +131,10 @@ final class TridentStart {
                     .option(ChannelOption.TCP_NODELAY, true);
 
             // Bind and start to accept incoming connections.
-            ChannelFuture f = b.bind(config.getInt("port", 25565)).sync();
+            ChannelFuture f = b.bind(
+                    new InetSocketAddress(config.getString("address", "127.0.0.1"),
+                            config.getInt("port", 25565)))
+                    .sync();
 
             // Wait until the server socket is closed, to gracefully shut down your server.
             f.channel().closeFuture().sync();

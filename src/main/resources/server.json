@@ -1,4 +1,5 @@
 {
+	"address":"localhost",
 	"port":25565,
 	"motd":"Just another TridentSDK server",
 	"max-players":10
