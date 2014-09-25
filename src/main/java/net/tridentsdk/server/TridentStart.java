@@ -41,12 +41,11 @@ import joptsimple.OptionSpec;
 import net.tridentsdk.api.config.JsonConfig;
 import net.tridentsdk.api.util.TridentLogger;
 import net.tridentsdk.server.netty.ClientChannelInitializer;
+import org.openjdk.jmh.util.FileUtils;
 
 import javax.annotation.concurrent.ThreadSafe;
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.InputStream;
+import java.io.*;
+import java.nio.file.Files;
 import java.util.Collection;
 import java.util.logging.Logger;
 
@@ -102,16 +101,8 @@ final class TridentStart {
         }
 
         if(!((f = properties.value(options)).exists())) {
-            f.createNewFile();
-
-            DataInputStream dis = new DataInputStream(TridentStart.class.getResourceAsStream("server.json"));
-            FileWriter writer = new FileWriter(f);
-
-            writer.write(dis.readUTF());
-
-            writer.flush();
-            writer.close();
-            dis.close();
+            InputStream link = (TridentServer.class.getResourceAsStream("/server.json"));
+            Files.copy(link, f.getAbsoluteFile().toPath());
         }
 
         TridentStart.init(new JsonConfig(f));
