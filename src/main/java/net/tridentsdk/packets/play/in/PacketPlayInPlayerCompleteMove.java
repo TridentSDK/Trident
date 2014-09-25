@@ -32,9 +32,18 @@ import net.tridentsdk.api.Location;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.Packet;
 
+/**
+ * Packet sent when player moved both x, y, z and yaw, and pitch.
+ */
 public class PacketPlayInPlayerCompleteMove extends PacketPlayInPlayerMove {
 
+    /**
+     * New yaw of the client
+     */
     protected float newYaw;
+    /**
+     * New pitch of the client
+     */
     protected float newPitch;
 
     @Override

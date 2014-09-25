@@ -32,9 +32,10 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 import net.tridentsdk.server.netty.packet.PacketType;
 
 /**
- * TODO not an expert on this lol - AgentTroll
+ * The response sent by the server for PacketStatusInPing
  *
  * @author The TridentSDK Team
+ * @see net.tridentsdk.packets.status.PacketStatusInPing
  */
 public class PacketStatusOutPing extends OutPacket {
     @Override

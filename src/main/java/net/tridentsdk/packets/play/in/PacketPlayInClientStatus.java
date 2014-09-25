@@ -32,8 +32,18 @@ import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 
+/**
+ * Sent by the client when it's ready to login or respawn after death
+ */
 public class PacketPlayInClientStatus extends InPacket {
 
+    /**
+     * Action ID values:
+     *
+     * 0 - Perform Respawn
+     * 1 - Request statistics
+     * 2 - Open inventory acheivement
+     */
     protected short actionId;
 
     @Override

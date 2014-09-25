@@ -36,11 +36,39 @@ import net.tridentsdk.server.netty.packet.Packet;
 import java.util.Locale;
 
 public class PacketPlayInClientSettings extends InPacket {
-
+    /**
+     * Locale of the client, reference to Locale#forLanguageTag(String) to read said locale
+     *
+     * @see java.util.Locale#forLanguageTag(String)
+     */
     protected Locale locale;
+    /**
+     * View distance set by the client
+     */
     protected short viewDistance;
+    /**
+     * Chat settings:
+     *
+     * Bits 0-1. 00: Enabled. 01: Commands only. 10: Hidden.
+     */
     protected byte chatFlags;
+    /**
+     * If the client has colours enabled for chat
+     */
     protected boolean chatColors;
+    /**
+     * Displayed skin parts also packs several values into one byte.
+     *
+     * Bit 0: Cape enabled
+     * Bit 1: Jacket enabled
+     * Bit 2: Left Sleeve enabled
+     * Bit 3: Right Sleeve enabled
+     * Bit 4: Left Pants Leg enabled
+     * Bit 5: Right Pants Leg enabled
+     * Bit 6: Hat enabled
+     * The most significant bit (bit 7) appears to be unused.
+     */
+    protected byte skinParts;
 
     @Override
     public int getId() {
@@ -54,7 +82,7 @@ public class PacketPlayInClientSettings extends InPacket {
         this.chatFlags = buf.readByte();
         this.chatColors = buf.readBoolean();
 
-        buf.readUnsignedByte(); // -shrugs-
+        this.skinParts = (byte) buf.readUnsignedByte();
 
         return this;
     }

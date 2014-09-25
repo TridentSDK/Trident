@@ -33,9 +33,25 @@ import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 
+/**
+ * Sent by the client to state the status of downloading the resource pack
+ */
 public class PacketPlayInPackStatus extends InPacket {
 
+    /**
+     * Hash of the pack
+     */
     protected String hash;
+    /**
+     * Result/Status
+     *
+     * 0 - Successfully loaded
+     * 1 - Declined
+     * 2 - Failed download
+     * 3 - Accepted
+     *
+     * TODO Change to enum
+     */
     protected int result;
 
     @Override

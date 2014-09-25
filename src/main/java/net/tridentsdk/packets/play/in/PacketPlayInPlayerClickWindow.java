@@ -28,18 +28,43 @@
 package net.tridentsdk.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.data.Slot;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 
+/**
+ * Packet sent by the player when it clicks on a slot in a window.
+ */
 public class PacketPlayInPlayerClickWindow extends InPacket {
 
+    /**
+     * The id of the window which was clicked. 0 for player inventory.
+     */
     protected int windowId;
+    /**
+     * The button used in the click, dependent on action number
+     *
+     * TODO reference to wiki
+     */
     protected int clickedButton;
 
+    /**
+     * The clicked slot, -999 if not applicable
+     */
     protected short clickedSlot;
+    /**
+     * A unique number for the action, used for transaction handling
+     */
     protected short actionNumber;
+    /**
+     * Inventory operation mode
+     */
     protected short mode;
+    /**
+     * Item clicked
+     */
+    protected Slot clickedItem;
 
     @Override
     public int getId() {
@@ -66,6 +91,10 @@ public class PacketPlayInPlayerClickWindow extends InPacket {
         return this.mode;
     }
 
+    public Slot getClickedItem() {
+        return clickedItem;
+    }
+
     @Override
     public Packet decode(ByteBuf buf) {
         this.windowId = (int) buf.readByte();
@@ -74,6 +103,8 @@ public class PacketPlayInPlayerClickWindow extends InPacket {
 
         this.actionNumber = buf.readShort();
         this.mode = buf.readShort();
+        this.clickedItem = new Slot(buf);
+
         return this;
     }
 

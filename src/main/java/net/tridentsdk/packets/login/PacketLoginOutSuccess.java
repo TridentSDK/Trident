@@ -39,8 +39,17 @@ import net.tridentsdk.server.netty.packet.PacketType;
  * @author The TridentSDK Team
  */
 public class PacketLoginOutSuccess extends OutPacket {
+    /**
+     * UUID of the client, represented as a String and contains dashes
+     */
     protected String uuid;
+    /**
+     * Username of the client
+     */
     protected String username;
+    /**
+     * Connection of the client, currently not used
+     */
     protected ClientConnection connection;
 
     @Override

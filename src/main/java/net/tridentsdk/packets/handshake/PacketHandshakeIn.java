@@ -36,14 +36,32 @@ import net.tridentsdk.server.netty.packet.PacketType;
 import net.tridentsdk.server.netty.protocol.Protocol;
 
 /**
- * The secure packet sent to connect the server to the client
+ * The handshake packet from the client defining information about said client
  *
  * @author The TridentSDK Team
  */
 public class PacketHandshakeIn extends InPacket {
+    /**
+     * Protocol version the client is running on
+     */
     protected int protocolVersion;
+
+    /**
+     * Beleived to stay as "localhost", more documentation required
+     */
     protected String address;
+
+    /**
+     * Beleived to be always "25565", more documentation required
+     */
     protected short port;
+
+    /**
+     * The next stage the client will be going into
+     *
+     * 1 for STATUS
+     * 2 for LOGIN
+     */
     protected int nextState;
 
     @Override

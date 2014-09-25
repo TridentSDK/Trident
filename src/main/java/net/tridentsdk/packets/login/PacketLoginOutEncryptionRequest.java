@@ -32,11 +32,29 @@ import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 import net.tridentsdk.server.netty.packet.PacketType;
 
+/**
+ * @author The TridentSDK Team
+ */
 public class PacketLoginOutEncryptionRequest extends OutPacket {
+    /**
+     * Length of the public key
+     */
     protected short keyLength;
+    /**
+     * Length of the verification token
+     */
     protected short tokenLength;
 
+    /**
+     * Public Key used during the LOGIN stage, reference PacketLoginInEncrytionResponse
+     * regarding encryption for the LOGIN stage
+     *
+     * @see net.tridentsdk.packets.login.PacketLoginInEncryptionResponse
+     */
     protected byte[] publicKey;
+    /**
+     * Verification token used throughout the LOGIN stage
+     */
     protected byte[] verifyToken;
 
     @Override

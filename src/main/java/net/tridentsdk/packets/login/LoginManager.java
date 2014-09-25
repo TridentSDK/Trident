@@ -31,9 +31,18 @@ import java.net.InetSocketAddress;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class LoginManager {
+/**
+ * Class used to store login usernames during the login stage
+ */
+public final class LoginManager {
+    /**
+     * Instance of the class
+     */
     protected static final LoginManager instance = new LoginManager();
 
+    /**
+     * Map used to store usernames with the address as the key
+     */
     protected final Map<InetSocketAddress, String> loginNames = new ConcurrentHashMap<>();
 
     protected LoginManager() {

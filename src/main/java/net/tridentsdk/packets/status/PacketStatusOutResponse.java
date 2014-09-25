@@ -34,11 +34,15 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 import net.tridentsdk.server.netty.packet.PacketType;
 
 /**
- * TODO not an expert on this lol - AgentTroll
+ * Status response to PacketStatusInRequest
  *
  * @author The TridentSDK Team
+ * @see net.tridentsdk.packets.status.PacketStatusInRequest
  */
 public class PacketStatusOutResponse extends OutPacket {
+    /**
+     * The actual response, represented in JSON in the protocol
+     */
     Response response;
 
     public PacketStatusOutResponse() {
@@ -65,23 +69,47 @@ public class PacketStatusOutResponse extends OutPacket {
         return PacketType.OUT;
     }
 
-    //TODO: Do this properly
     public static class Response {
+        /**
+         * Version information
+         */
         Version version = new Version();
+        /**
+         * Information regarding players
+         */
         Players players = new Players();
+        /**
+         * Description is the MOTD
+         */
         Description description = new Description();
 
         public static class Version {
+            /**
+             * Name of the version
+             * TODO make configurable
+             */
             String name = "1.8";
+            /**
+             * Protocol version, 47 for 1.8
+             */
             int protocol = 47;
         }
 
         public static class Players {
+            /**
+             * The slots of the server
+             */
             int max = 10;
+            /**
+             * Amount of players online
+             */
             int online = 5;
         }
 
         public static class Description {
+            /**
+             * MOTD
+             */
             String text = "default blah blah this is never going to show";
         }
     }

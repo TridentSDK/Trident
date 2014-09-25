@@ -43,6 +43,9 @@ import java.security.NoSuchAlgorithmException;
  * @author The TridentSDK Team
  */
 public class PacketLoginInStart extends InPacket {
+    /**
+     * Username of the client to be verified
+     */
     protected String name;
 
     @Override
@@ -76,17 +79,25 @@ public class PacketLoginInStart extends InPacket {
         LoginManager.getInstance().initLogin(connection.getAddress(), this.getName());
         PacketLoginOutEncryptionRequest p = new PacketLoginOutEncryptionRequest();
 
+        // Generate the 4 byte token and update the packet
         connection.generateToken();
         p.set("verifyToken", connection.getVerificationToken());
 
         try {
+            /* Generate the 1024-bit encryption key specified for the client, only used during the LOGIN stage.
+             * Note: A notchian Minecraft server will have one KeyPair for all clients during the LOGIN stage,
+             * this is flawed as it won't be hard to decrypt the secret which is used as the key for all encryption
+             * after LOGIN therefore generating a keypair for each client is much more secure
+             */
             KeyPair pair = RSA.generate(1024);
 
+            // Update the packet with the new key
             p.set("publicKey", pair.getPublic().getEncoded());
             connection.setLoginKeyPair(pair);
         } catch (NoSuchAlgorithmException | InvalidAlgorithmParameterException ignored) {
         }
 
+        // Send the packet to the client
         connection.sendPacket(p);
     }
 }

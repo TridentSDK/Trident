@@ -35,9 +35,10 @@ import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.packet.PacketType;
 
 /**
- * TODO not an expert on this lol - AgentTroll
+ * Packet sent by the client to request PacketStatusOutResponse
  *
  * @author The TridentSDK Team
+ * @see net.tridentsdk.packets.status.PacketStatusOutResponse
  */
 public class PacketStatusInRequest extends InPacket {
     @Override
@@ -59,10 +60,10 @@ public class PacketStatusInRequest extends InPacket {
 
     @Override
     public void handleReceived(ClientConnection connection) {
-        // TODO Respond to the client accordingly
         PacketStatusOutResponse packet = new PacketStatusOutResponse();
         PacketStatusOutResponse.Response response = packet.getResponse();
 
+        // Set MOTD and max players based on the config TODO events
         response.description.text = TridentServer.getInstance().getConfig()
                 .getString("motd", "Just another TridentSDK server");
         response.players.max = TridentServer.getInstance().getConfig()

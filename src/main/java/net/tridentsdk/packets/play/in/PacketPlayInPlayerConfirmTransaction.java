@@ -34,7 +34,13 @@ import net.tridentsdk.server.netty.packet.Packet;
 
 public class PacketPlayInPlayerConfirmTransaction extends InPacket {
 
+    /**
+     * Each action number is unique
+     */
     protected short actionNumber;
+    /**
+     * Wether the transaction was accepted
+     */
     protected boolean accepted;
 
     @Override

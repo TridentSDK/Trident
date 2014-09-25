@@ -41,6 +41,9 @@ import net.tridentsdk.server.netty.protocol.Protocol;
  * @author The TridentSDK Team
  */
 public class PacketStatusInPing extends InPacket {
+    /**
+     * System time of the client (ms)
+     */
     protected long time;
 
     @Override

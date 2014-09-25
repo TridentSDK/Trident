@@ -28,23 +28,42 @@
 package net.tridentsdk.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.data.Slot;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 
+/**
+ * While the user is in the standard inventory (i.e., not a crafting bench) on a creative-mode server,
+ * then this packet will be sent:
+ *
+ * If an item is dropped into the quick bar
+ * If an item is picked up from the quick bar (item id is -1)
+ */
 public class PacketPlayInPlayerCreativeAction extends InPacket {
 
+    /**
+     * Slot of the action
+     */
     protected short slot;
+    /**
+     * Item used in the action
+     */
+    protected Slot item;
 
     @Override
     public int getId() {
         return 0x10;
     }
 
+    public Slot getItem() {
+        return item;
+    }
+
     @Override
     public Packet decode(ByteBuf buf) {
         this.slot = buf.readShort();
-        buf.readBytes(buf.readableBytes()); // yeah, not going to let the client state the item
+        this.item = new Slot(buf);
 
         return this;
     }

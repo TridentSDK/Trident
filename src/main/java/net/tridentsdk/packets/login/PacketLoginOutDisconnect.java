@@ -34,11 +34,14 @@ import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.packet.PacketType;
 
 /**
- * TODO not an expert on this - AgentTroll
+ * Packet used to disconnect the client from the login stage for whatsoever reason
  *
  * @author The TridentSDK Team
  */
 public class PacketLoginOutDisconnect implements Packet {
+    /**
+     * Disconnect message, represented JSON
+     */
     protected String jsonMessage;
 
     @Override

@@ -35,6 +35,11 @@ import net.tridentsdk.server.netty.packet.Packet;
 
 public class PacketPlayInChat extends InPacket {
 
+    /**
+     * Message sent by the client, represented in JSON
+     *
+     * TODO: provide example
+     */
     protected String message;
 
     @Override

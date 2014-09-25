@@ -32,8 +32,14 @@ import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 
+/**
+ * Packet sent by the client when closed a Window
+ */
 public class PacketPlayInPlayerCloseWindow extends InPacket {
 
+    /**
+     * Id of the window, 0 if player inventory
+     */
     protected int id;
 
     @Override

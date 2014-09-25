@@ -34,8 +34,14 @@ import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 
+/**
+ * Sent by the packet to keep the connection alive
+ */
 public class PacketPlayInKeepAlive extends InPacket {
 
+    /**
+     * Id of the keep alive packet, sent by the server
+     */
     protected int keepAliveId;
 
     @Override

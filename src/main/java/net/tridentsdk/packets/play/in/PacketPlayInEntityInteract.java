@@ -36,9 +36,20 @@ import net.tridentsdk.server.netty.packet.Packet;
 
 public class PacketPlayInEntityInteract extends InPacket {
 
+    /**
+     * Entity id of the target interacted
+     */
     protected int target;
-    protected int type; // TODO: Change to InteractType
+    /**
+     * Type of interation, reference InteractType
+     *
+     * @see net.tridentsdk.packets.play.in.PacketPlayInEntityInteract.InteractType
+     */
+    protected InteractType type;
 
+    /**
+     * Location of the target, sent as 3 floats x, y, z
+     */
     protected Location location;
 
     @Override
@@ -49,7 +60,7 @@ public class PacketPlayInEntityInteract extends InPacket {
     @Override
     public Packet decode(ByteBuf buf) {
         this.target = Codec.readVarInt32(buf);
-        this.type = Codec.readVarInt32(buf);
+        this.type = InteractType.fromId(Codec.readVarInt32(buf));
 
         double x = (double) buf.readFloat();
         double y = (double) buf.readFloat();
@@ -63,7 +74,7 @@ public class PacketPlayInEntityInteract extends InPacket {
         return this.target;
     }
 
-    public int getInteractType() {
+    public InteractType getInteractType() {
         return this.type;
     }
 
@@ -74,5 +85,30 @@ public class PacketPlayInEntityInteract extends InPacket {
     @Override
     public void handleReceived(ClientConnection connection) {
         // TODO: Respond to the client accordingly
+    }
+
+    public enum InteractType {
+        INTERACT(0),
+        ATTACK(1),
+        INTERACT_AT(2);
+
+        private int id;
+
+        InteractType(int id) {
+            this.id = id;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public static InteractType fromId(int id) {
+            for(InteractType type : values()) {
+                if(type.getId() == id)
+                    return type;
+            }
+
+            return null;
+        }
     }
 }

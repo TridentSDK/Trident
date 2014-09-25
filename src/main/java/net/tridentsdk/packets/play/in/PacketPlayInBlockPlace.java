@@ -36,8 +36,14 @@ import net.tridentsdk.server.netty.packet.Packet;
 
 public class PacketPlayInBlockPlace extends InPacket {
 
+    /**
+     * Location of the block being placed
+     */
     protected Location location;
     protected byte direction; // wat
+    /**
+     * Position of the cursor, incorrect use of a Vector xD
+     */
     protected Vector cursorPosition;
 
     @Override

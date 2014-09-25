@@ -53,11 +53,14 @@ import java.util.concurrent.atomic.AtomicReference;
 public class ClientConnection {
     protected static final Map<InetSocketAddress, AtomicReference<ClientConnection>> clientData =
             new ConcurrentHashMap<>();
+
     protected static final SecureRandom SR = new SecureRandom();
     protected static final Cipher cipher = ClientConnection.getCipher();
+
     /* Network fields */
     protected InetSocketAddress address;
     protected Channel channel;
+
     /* Encryption and client data fields */
     protected volatile KeyPair loginKeyPair;
     protected volatile Protocol.ClientStage stage;
@@ -237,7 +240,7 @@ public class ClientConnection {
      */
     public void logout() {
         ClientConnection.clientData.remove(this.address);
-        PlayerThreads.remove(this); // STOP REMOVING THIS PLS - AgentTroll
+        PlayerThreads.remove(this);
         this.channel.close();
     }
 }
