@@ -33,9 +33,18 @@ import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 
+/**
+ * This packet is sent when the player wishes updates the player's XYZ position on the server.
+ */
 public class PacketPlayInPlayerMove extends InPacket {
 
+    /**
+     * Updated location, Y is the feet location
+     */
     protected Location location;
+    /**
+     * Wether the player is on the ground or not
+     */
     protected boolean onGround;
 
     @Override

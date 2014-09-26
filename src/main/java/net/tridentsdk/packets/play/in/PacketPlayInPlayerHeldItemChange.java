@@ -32,8 +32,14 @@ import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 
+/**
+ * Packet sent when player changes selected slot
+ */
 public class PacketPlayInPlayerHeldItemChange extends InPacket {
 
+    /**
+     * Slot number from 0-8
+     */
     protected short slot;
 
     @Override

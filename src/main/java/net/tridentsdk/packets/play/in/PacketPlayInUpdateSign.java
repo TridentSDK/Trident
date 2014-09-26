@@ -34,9 +34,18 @@ import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 
+/**
+ * Packet is sent when a player wishes to update a sign
+ */
 public class PacketPlayInUpdateSign extends InPacket {
 
+    /**
+     * Contents of the sign, represented in JSON
+     */
     protected final String[] jsonContents = new String[4];
+    /**
+     * Location of the sign
+     */
     protected Location signLocation;
 
     @Override

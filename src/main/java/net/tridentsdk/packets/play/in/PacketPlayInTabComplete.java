@@ -34,10 +34,22 @@ import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 
+/**
+ * Sent when the user presses tab while writing text. The payload contains all text behind the cursor.
+ */
 public class PacketPlayInTabComplete extends InPacket {
 
+    /**
+     * Text currently written
+     */
     protected String text;
+    /**
+     * If player is looking at a specific block
+     */
     protected boolean hasPosition;
+    /**
+     * Position of the block the player is looking at, only sent if hasPosition is true
+     */
     protected Location lookedAtBlock;
 
     @Override

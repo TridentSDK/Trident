@@ -32,11 +32,23 @@ import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 
+/**
+ * Packet sent when only Yaw + Pitch is sent by the client
+ */
 public class PacketPlayInPlayerLook extends InPacket {
 
+    /**
+     * Absolute rotation on the X Axis, in degrees
+     */
     protected float newYaw;
+    /**
+     * Absolute rotation on the Y Axis, in degrees
+     */
     protected float newPitch;
 
+    /**
+     * Wether the playeris on the ground or not
+     */
     protected boolean onGround;
 
     @Override

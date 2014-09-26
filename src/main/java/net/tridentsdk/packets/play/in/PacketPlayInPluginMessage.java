@@ -33,9 +33,18 @@ import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 
+/**
+ * Mods and plugins can use this to send their data.
+ */
 public class PacketPlayInPluginMessage extends InPacket {
 
+    /**
+     * Name of the channel
+     */
     protected String channel;
+    /**
+     * Data it wishes to send
+     */
     protected byte[] data;
 
     @Override

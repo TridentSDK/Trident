@@ -33,12 +33,21 @@ import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 
 /**
- * IM IN ME MUMS CAAR
+ * Packet is sent when player steers his vehicle
  */
 public class PacketPlayInSteerVehicle extends InPacket {
-    protected float sideways; // I don't even
-    protected float forward;  // mojang pls
+    /**
+     * Positive to the left of the player
+     */
+    protected float sideways;
+    /**
+     * Positive forward
+     */
+    protected float forward;
 
+    /**
+     *  0x1 Jump, 0x2 Unmount
+     */
     protected short flags;
 
     @Override
@@ -48,13 +57,8 @@ public class PacketPlayInSteerVehicle extends InPacket {
 
     @Override
     public Packet decode(ByteBuf buf) {
-        // VROOM VROOM
         this.sideways = buf.readFloat();
-
-        // UR 2 SLOW!?!?!?
         this.forward = buf.readFloat();
-
-        // fkn CTF in COD
         this.flags = buf.readUnsignedByte();
 
         return this;

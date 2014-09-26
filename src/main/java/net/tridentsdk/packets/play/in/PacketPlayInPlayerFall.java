@@ -32,8 +32,13 @@ import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 
+/**
+ * This packet is used to indicate whether the player is on ground (walking/swimming), or airborne (jumping/falling).
+ */
 public class PacketPlayInPlayerFall extends InPacket {
-
+    /**
+     * True if the client is on the ground, False otherwise
+     */
     protected boolean onGround;
 
     @Override

@@ -32,18 +32,31 @@ import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 
+import java.util.UUID;
+
+/**
+ * Packet sent when player is spectating, need to research more about this packet
+ */
 public class PacketPlayInPlayerSpectate extends InPacket {
+
+    /**
+     * Target player, this might imply that the player is able to set
+     * other players to spectate mode? If so, we'll need to fix that
+     */
+    protected UUID uuid;
 
     @Override
     public int getId() {
         return 0x18;
     }
 
+    public UUID getUniqueId() {
+        return uuid;
+    }
+
     @Override
     public Packet decode(ByteBuf buf) {
-        // Ignore the UUID, we know the client will be spectating
-        buf.readLong();
-        buf.readLong();
+        uuid = new UUID(buf.readLong(), buf.readLong());
 
         return this;
     }

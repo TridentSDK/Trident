@@ -34,6 +34,9 @@ import net.tridentsdk.server.netty.packet.Packet;
 
 public class PacketPlayInPlayerEnchant extends InPacket {
 
+    /**
+     * The position of the enchantment on the enchantment table window, starting with 0 as the topmost one
+     */
     protected byte enchantment;
 
     @Override
