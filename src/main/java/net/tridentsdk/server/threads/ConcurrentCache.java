@@ -55,22 +55,6 @@ public class ConcurrentCache<K, V> {
         }
     }
 
-    public V retrieve(K k) {
-        Future<V> future = this.cache.get(k);
-
-        if (future == null) return null;
-
-        try {
-            return future.get();
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-        } catch (CancellationException e) {
-            this.cache.remove(k, future);
-        }
-
-        return null;
-    }
-
     public Collection<V> values() {
         Collection<V> list = new ArrayList<>();
 
