@@ -49,6 +49,7 @@ public class TridentChunk implements Serializable, Chunk {
 
     @Override
     public void generate() {
+        // this is just a no, we need chunk generators to be used instead of following on a one generator basis
         int chunkX = this.getX() * 16;
         int chunkZ = this.getZ() * 16;
 

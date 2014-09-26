@@ -29,7 +29,13 @@
  */
 package net.tridentsdk.world;
 
+import net.tridentsdk.api.nbt.*;
+
 import java.io.*;
+import java.util.List;
+import java.util.zip.DataFormatException;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.Inflater;
 
 /**
  * Represents a Region File (in region/ directory) in memory
@@ -39,8 +45,10 @@ public class RegionFile {
     private RandomAccessFile file;
     private int[] locations = new int[1024];
     private int[] timestamps = new int[1024];
+    private CompoundTag nbtTag;
 
-    public RegionFile(File path) throws IOException {
+    public RegionFile(File path)
+            throws IOException, DataFormatException, NBTException {
         file = new RandomAccessFile(path, "rw");
 
         // Packing to default size of 8192 if it isn't already that size
@@ -75,8 +83,60 @@ public class RegionFile {
         for(int i = 0; i < 1024; i++){
             timestamps[i] = file.readInt();
         }
-        
-        
+
+        // Read the length, and the compression type
+        int length = file.readInt();
+        short compression = file.readByte();
+        byte[] compressedData = new byte[length - 1];
+        byte[] chunkData;
+
+        // Read the compressed data
+        file.readFully(compressedData);
+
+        // Decompress the data using rather the GZIP or Zlib
+        switch(compression) {
+            case 1:
+                GZIPInputStream in = new GZIPInputStream(new ByteArrayInputStream(compressedData));
+                chunkData = new byte[in.available()];
+
+                file.readFully(chunkData);
+                in.close();
+                break;
+
+            case 2:
+                Inflater inflater = new Inflater();
+
+                inflater.setInput(compressedData);
+                chunkData = new byte[inflater.getRemaining()];
+
+                inflater.inflate(chunkData);
+                inflater.end();
+                break;
+
+            default:
+                throw new IllegalStateException("Compression type provided is invalid!");
+        }
+
+        // Get the NBT tag
+        this.nbtTag = new NBTDecoder(new DataInputStream(new ByteArrayInputStream(compressedData)))
+                .decode();
+
+        // Read and store all NBT data
+        IntTag chunkX = (IntTag) nbtTag.getTag("xPos");
+        IntTag chunkZ = (IntTag) nbtTag.getTag("zPos");
+        LongTag lastUpdate = (LongTag) nbtTag.getTag("LastUpdate");
+
+        ByteTag lightPopulated = (ByteTag) nbtTag.getTag("LightPopulated"); // unknown usage
+        ByteTag terrainPopulated = (ByteTag) nbtTag.getTag("TerrainPopulated");
+
+        LongTag inhabitedTag = (LongTag) nbtTag.getTag("InhabitedTime");
+        ByteArrayTag biomes = (ByteArrayTag) nbtTag.getTag("Biomes");
+        IntArrayTag heightMap = (IntArrayTag) nbtTag.getTag("HeightMap");
+
+        ListTag sections = (ListTag) nbtTag.getTag("Sections");
+        ListTag entities = (ListTag) nbtTag.getTag("Entities");
+        ListTag tileEntities = (ListTag) nbtTag.getTag("TileEntities");
+        ListTag tileTicks = (ListTag) nbtTag.getTag("TileTicks");
     }
 
 }
