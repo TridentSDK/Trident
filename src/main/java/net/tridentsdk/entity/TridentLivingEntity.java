@@ -27,6 +27,7 @@
 
 package net.tridentsdk.entity;
 
+import com.google.common.util.concurrent.AtomicDouble;
 import net.tridentsdk.api.Location;
 import net.tridentsdk.api.entity.LivingEntity;
 import net.tridentsdk.api.util.Vector;
@@ -37,10 +38,10 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
 
     protected final boolean dead;
     protected final boolean canPickup = true;
-    protected volatile double health;
+    protected final AtomicDouble health = new AtomicDouble(0.0);
     protected double maxHealth;
-    protected volatile long fireTicks;
-    protected volatile long airTicks;
+    protected volatile AtomicDouble fireTicks = new AtomicDouble(0.0);
+    protected volatile AtomicDouble airTicks = new AtomicDouble(0.0);
 
     public TridentLivingEntity(UUID id, Location spawnLocation) {
         super(id, spawnLocation);
@@ -50,12 +51,12 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
 
     @Override
     public double getHealth() {
-        return this.health;
+        return this.health.get();
     }
 
     @Override
     public void setHealth(double health) {
-        this.health = health;
+        this.health.set(health);
     }
 
     @Override
@@ -75,12 +76,12 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
 
     @Override
     public long getRemainingAir() {
-        return this.airTicks;
+        return (long) this.airTicks.get();
     }
 
     @Override
     public void setRemainingAir(long ticks) {
-        this.airTicks = ticks;
+        this.airTicks.set((double) ticks);
     }
 
     @Override

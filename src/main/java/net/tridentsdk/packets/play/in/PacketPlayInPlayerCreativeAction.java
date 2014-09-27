@@ -34,11 +34,10 @@ import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 
 /**
- * While the user is in the standard inventory (i.e., not a crafting bench) on a creative-mode server,
- * then this packet will be sent:
- *
- * If an item is dropped into the quick bar
- * If an item is picked up from the quick bar (item id is -1)
+ * While the user is in the standard inventory (i.e., not a crafting bench) on a creative-mode server, then this packet
+ * will be sent:
+ * <p/>
+ * If an item is dropped into the quick bar If an item is picked up from the quick bar (item id is -1)
  */
 public class PacketPlayInPlayerCreativeAction extends InPacket {
 
@@ -57,7 +56,7 @@ public class PacketPlayInPlayerCreativeAction extends InPacket {
     }
 
     public Slot getItem() {
-        return item;
+        return this.item;
     }
 
     @Override

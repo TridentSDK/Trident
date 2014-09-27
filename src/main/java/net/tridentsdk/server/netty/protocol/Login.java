@@ -30,8 +30,7 @@ package net.tridentsdk.server.netty.protocol;
 import net.tridentsdk.api.docs.AccessNoDoc;
 import net.tridentsdk.packets.login.*;
 
-@AccessNoDoc
-class Login extends PacketManager {
+@AccessNoDoc class Login extends PacketManager {
     Login() {
         this.inPackets.put(0x00, PacketLoginInStart.class);
         this.inPackets.put(0x01, PacketLoginInEncryptionResponse.class);

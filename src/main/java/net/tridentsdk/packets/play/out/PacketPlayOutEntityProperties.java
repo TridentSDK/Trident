@@ -35,7 +35,7 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 public class PacketPlayOutEntityProperties extends OutPacket {
 
     protected int entityId;
-    protected PropertyBuilder[] properties = {};
+    protected PropertyBuilder[] properties = { };
 
     @Override
     public int getId() {
@@ -51,7 +51,7 @@ public class PacketPlayOutEntityProperties extends OutPacket {
     }
 
     public void cleanup() {
-        PropertyBuilder[] newProperties = {};
+        PropertyBuilder[] newProperties = { };
 
         for (PropertyBuilder value : this.properties) {
             if (value != null) {

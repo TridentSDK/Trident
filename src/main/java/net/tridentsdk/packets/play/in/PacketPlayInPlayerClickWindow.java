@@ -44,7 +44,7 @@ public class PacketPlayInPlayerClickWindow extends InPacket {
     protected int windowId;
     /**
      * The button used in the click, dependent on action number
-     *
+     * <p/>
      * TODO reference to wiki
      */
     protected int clickedButton;
@@ -92,7 +92,7 @@ public class PacketPlayInPlayerClickWindow extends InPacket {
     }
 
     public Slot getClickedItem() {
-        return clickedItem;
+        return this.clickedItem;
     }
 
     @Override

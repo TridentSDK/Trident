@@ -66,7 +66,7 @@ public class ClientConnection {
     protected volatile Protocol.ClientStage stage;
     protected volatile boolean encryptionEnabled;
     protected volatile SecretKey sharedSecret;
-    protected volatile byte[] verificationToken;
+    protected volatile byte[] verificationToken; // This won't work TODO
     private IvParameterSpec ivSpec;
 
     /**

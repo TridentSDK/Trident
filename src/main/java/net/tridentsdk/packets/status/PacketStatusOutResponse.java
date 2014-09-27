@@ -46,7 +46,7 @@ public class PacketStatusOutResponse extends OutPacket {
     Response response;
 
     public PacketStatusOutResponse() {
-        response = new Response();
+        this.response = new Response();
     }
 
     @Override
@@ -55,12 +55,12 @@ public class PacketStatusOutResponse extends OutPacket {
     }
 
     public Response getResponse() {
-        return response;
+        return this.response;
     }
 
     @Override
     public void encode(ByteBuf buf) {
-        String json = new GsonBuilder().create().toJson(response);
+        String json = new GsonBuilder().create().toJson(this.response);
         Codec.writeString(buf, json);
     }
 
@@ -85,8 +85,7 @@ public class PacketStatusOutResponse extends OutPacket {
 
         public static class Version {
             /**
-             * Name of the version
-             * TODO make configurable
+             * Name of the version TODO make configurable
              */
             String name = "1.8";
             /**

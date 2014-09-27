@@ -49,7 +49,7 @@ public class Position implements Writable {
     @Override
     public void write(ByteBuf buf) {
         buf.writeLong((long) (((int) this.loc.getX() & 0x3FFFFFF) << 38 |
-                ((int) this.loc.getY() & 0xFFF) << 26 |
-                (int) this.loc.getZ() & 0x3FFFFFF));
+                              ((int) this.loc.getY() & 0xFFF) << 26 |
+                              (int) this.loc.getZ() & 0x3FFFFFF));
     }
 }

@@ -46,7 +46,7 @@ public class PacketPlayInSteerVehicle extends InPacket {
     protected float forward;
 
     /**
-     *  0x1 Jump, 0x2 Unmount
+     * 0x1 Jump, 0x2 Unmount
      */
     protected short flags;
 

@@ -46,8 +46,8 @@ public class PacketLoginOutEncryptionRequest extends OutPacket {
     protected short tokenLength;
 
     /**
-     * Public Key used during the LOGIN stage, reference PacketLoginInEncrytionResponse
-     * regarding encryption for the LOGIN stage
+     * Public Key used during the LOGIN stage, reference PacketLoginInEncrytionResponse regarding encryption for the
+     * LOGIN stage
      *
      * @see net.tridentsdk.packets.login.PacketLoginInEncryptionResponse
      */

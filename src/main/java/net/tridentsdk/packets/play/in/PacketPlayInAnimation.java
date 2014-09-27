@@ -33,8 +33,7 @@ import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 
 /**
- * What the fuck is this?
- * Take me on my word when I say I have no idea for the use of this
+ * What the fuck is this? Take me on my word when I say I have no idea for the use of this
  */
 public class PacketPlayInAnimation extends InPacket {
 

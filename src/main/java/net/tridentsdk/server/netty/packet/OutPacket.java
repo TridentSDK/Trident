@@ -36,12 +36,11 @@ import net.tridentsdk.server.netty.ClientConnection;
  */
 public abstract class OutPacket implements Packet {
 
-    private FastClass fastClass;
+    private final FastClass fastClass;
 
     public OutPacket() {
-        super();
 
-        fastClass = FastClass.get(getClass());
+        this.fastClass = FastClass.get(this.getClass());
     }
 
     @Override
@@ -57,7 +56,7 @@ public abstract class OutPacket implements Packet {
      * @return OutPacket instance
      */
     public OutPacket set(String name, Object value) {
-        fastClass.getField(this, name).set(value);
+        this.fastClass.getField(this, name).set(value);
         return this;
     }
 

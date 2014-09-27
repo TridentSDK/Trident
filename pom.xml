@@ -70,11 +70,6 @@
             <name>SnakeYAML repository</name>
             <url>http://oss.sonatype.org/content/groups/public/</url>
         </repository>
-
-        <repository>
-            <id>vilsol-repo</id>
-            <url>http://repo.vil.so/nexus/content/groups/public/</url>
-        </repository>
     </repositories>
 
     <dependencies>

@@ -30,9 +30,7 @@ package net.tridentsdk.packets.handshake;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
-import net.tridentsdk.server.netty.packet.InPacket;
-import net.tridentsdk.server.netty.packet.Packet;
-import net.tridentsdk.server.netty.packet.PacketType;
+import net.tridentsdk.server.netty.packet.*;
 import net.tridentsdk.server.netty.protocol.Protocol;
 
 /**
@@ -58,9 +56,8 @@ public class PacketHandshakeIn extends InPacket {
 
     /**
      * The next stage the client will be going into
-     *
-     * 1 for STATUS
-     * 2 for LOGIN
+     * <p/>
+     * 1 for STATUS 2 for LOGIN
      */
     protected int nextState;
 

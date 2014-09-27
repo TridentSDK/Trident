@@ -41,18 +41,19 @@ import net.tridentsdk.server.TridentServer;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 public abstract class TridentEntity implements Entity {
     protected final AtomicInteger counter = new AtomicInteger(-1);
     protected final int id;
     protected final UUID uniqueId;
+    protected final AtomicLong fallDistance = new AtomicLong(0L);
+    protected final AtomicLong ticksExisted = new AtomicLong(0L);
     protected volatile Vector velocity;
     protected volatile boolean velocityChanged;
     protected volatile Location loc;
     protected volatile boolean locationChanged;
     protected volatile boolean onGround;
-    protected volatile double fallDistance;
-    protected volatile long ticksExisted;
     protected Entity passenger;
     protected String displayName;
     protected boolean nameVisible;
@@ -70,17 +71,18 @@ public abstract class TridentEntity implements Entity {
 
         for (double y = this.loc.getY(); y > 0.0; y--) {
             Location l = new Location(this.loc.getWorld(), this.loc.getX(),
-                    y, this.loc.getZ());
+                                      y, this.loc.getZ());
 
             if (l.getWorld().getBlockAt(l).getType() != Material.AIR) {
-                this.fallDistance = this.loc.getY() - y;
-                this.onGround = this.fallDistance == 0D;
+                this.fallDistance.set((long) (this.loc.getY() - y));
+                this.onGround = this.fallDistance.get() == 0.0D;
+                // Depending on what you want to do here, it may or may not work when multithreading
+                // TODO
 
                 break;
             }
         }
 
-        this.ticksExisted = 0L;
         this.passenger = null;
 
         TridentServer.getInstance().getEntityManager().registerEntity(this);
@@ -103,19 +105,19 @@ public abstract class TridentEntity implements Entity {
 
         for (double y = this.loc.getY(); y > 0.0; y--) {
             Location l = new Location(this.loc.getWorld(), this.loc.getX(),
-                    y, this.loc.getZ());
+                                      y, this.loc.getZ());
 
             if (l.getWorld().getBlockAt(l).getType() != Material.AIR) {
-                this.fallDistance = this.loc.getY() - y;
-                this.onGround = this.fallDistance == 0D;
+                this.fallDistance.set((long) (this.loc.getY() - y));
+                this.onGround = this.fallDistance.get() == 0.0D;
 
                 break;
             }
         }
 
         TridentPlayer.sendAll(new PacketPlayOutEntityTeleport().set("entityId", this.id)
-                .set("location", this.loc)
-                .set("onGround", this.onGround));
+                                                               .set("location", this.loc)
+                                                               .set("onGround", this.onGround));
     }
 
     @Override
@@ -139,7 +141,7 @@ public abstract class TridentEntity implements Entity {
         this.velocityChanged = true;
 
         TridentPlayer.sendAll(new PacketPlayOutEntityVelocity().set("entityId", this.id)
-                .set("velocity", vector));
+                                                               .set("velocity", vector));
     }
 
     @Override
@@ -164,7 +166,7 @@ public abstract class TridentEntity implements Entity {
 
     @Override
     public void tick() {
-        this.ticksExisted++;
+        this.ticksExisted.incrementAndGet();
     }
 
     @Override

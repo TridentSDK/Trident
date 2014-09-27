@@ -40,8 +40,8 @@ import java.util.UUID;
 public class PacketPlayInPlayerSpectate extends InPacket {
 
     /**
-     * Target player, this might imply that the player is able to set
-     * other players to spectate mode? If so, we'll need to fix that
+     * Target player, this might imply that the player is able to set other players to spectate mode? If so, we'll need
+     * to fix that
      */
     protected UUID uuid;
 
@@ -51,12 +51,12 @@ public class PacketPlayInPlayerSpectate extends InPacket {
     }
 
     public UUID getUniqueId() {
-        return uuid;
+        return this.uuid;
     }
 
     @Override
     public Packet decode(ByteBuf buf) {
-        uuid = new UUID(buf.readLong(), buf.readLong());
+        this.uuid = new UUID(buf.readLong(), buf.readLong());
 
         return this;
     }

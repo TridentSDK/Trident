@@ -28,9 +28,7 @@
 package net.tridentsdk.server.threads;
 
 import net.tridentsdk.api.Location;
-import net.tridentsdk.api.entity.Entity;
-import net.tridentsdk.api.entity.EntityProperties;
-import net.tridentsdk.api.entity.Projectile;
+import net.tridentsdk.api.entity.*;
 import net.tridentsdk.api.entity.living.Player;
 import net.tridentsdk.entity.TridentEntity;
 import net.tridentsdk.server.netty.ClientConnection;
@@ -39,9 +37,7 @@ import net.tridentsdk.server.netty.packet.Packet;
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Collection;
 import java.util.UUID;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 /**
  * Player handling thread manager

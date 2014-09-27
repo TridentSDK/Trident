@@ -35,22 +35,23 @@ import net.tridentsdk.server.netty.packet.Packet;
 
 /**
  * Sent by the client when doing any of the action types below.
- *
+ * <p/>
  * Note: Client will send ActionType#START_SPRINTING when "Leave bed" is clicked
- * @see net.tridentsdk.packets.play.in.PacketPlayInEntityAction.ActionType
+ *
+ * @see ActionType
  */
 public class PacketPlayInEntityAction extends InPacket {
 
     /**
      * Entity ActionType
      *
-     * @see net.tridentsdk.packets.play.in.PacketPlayInEntityAction.ActionType
+     * @see ActionType
      */
     protected ActionType type;
     /**
      * Horse jump boost, mentioned if not ActionType#ON_HOURSE
      *
-     * @see net.tridentsdk.packets.play.in.PacketPlayInEntityAction.ActionType#ON_HORSE
+     * @see ActionType#ON_HORSE
      */
     protected int jumpBoost; // because people at Mojang are fucking retards
 

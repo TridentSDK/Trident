@@ -62,7 +62,7 @@ public class PacketPlayOutExplosion extends OutPacket {
     }
 
     public void cleanup() {
-        RecordBuilder[] newRecords = {};
+        RecordBuilder[] newRecords = { };
 
         for (RecordBuilder builder : this.records) {
             if (builder != null) {

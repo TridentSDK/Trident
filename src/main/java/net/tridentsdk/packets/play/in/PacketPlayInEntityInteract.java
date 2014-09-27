@@ -43,7 +43,7 @@ public class PacketPlayInEntityInteract extends InPacket {
     /**
      * Type of interation, reference InteractType
      *
-     * @see net.tridentsdk.packets.play.in.PacketPlayInEntityInteract.InteractType
+     * @see InteractType
      */
     protected InteractType type;
 
@@ -92,23 +92,23 @@ public class PacketPlayInEntityInteract extends InPacket {
         ATTACK(1),
         INTERACT_AT(2);
 
-        private int id;
+        private final int id;
 
         InteractType(int id) {
             this.id = id;
         }
 
-        public int getId() {
-            return id;
-        }
-
         public static InteractType fromId(int id) {
-            for(InteractType type : values()) {
-                if(type.getId() == id)
+            for (InteractType type : InteractType.values()) {
+                if (type.getId() == id)
                     return type;
             }
 
             return null;
+        }
+
+        public int getId() {
+            return this.id;
         }
     }
 }

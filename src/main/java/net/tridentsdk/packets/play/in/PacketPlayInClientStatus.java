@@ -39,10 +39,8 @@ public class PacketPlayInClientStatus extends InPacket {
 
     /**
      * Action ID values:
-     *
-     * 0 - Perform Respawn
-     * 1 - Request statistics
-     * 2 - Open inventory acheivement
+     * <p/>
+     * 0 - Perform Respawn 1 - Request statistics 2 - Open inventory acheivement
      */
     protected short actionId;
 

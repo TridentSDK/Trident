@@ -33,9 +33,7 @@ import net.tridentsdk.player.TridentPlayer;
 import net.tridentsdk.server.encryption.RSA;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
-import net.tridentsdk.server.netty.packet.InPacket;
-import net.tridentsdk.server.netty.packet.Packet;
-import net.tridentsdk.server.netty.packet.PacketType;
+import net.tridentsdk.server.netty.packet.*;
 import net.tridentsdk.server.netty.protocol.Protocol;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -45,9 +43,7 @@ import java.math.BigInteger;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Pattern;
 
 public class PacketLoginInEncryptionResponse extends InPacket {
@@ -132,17 +128,17 @@ public class PacketLoginInEncryptionResponse extends InPacket {
         byte[] token = null;
 
         try {
-            sharedSecret = RSA.decrypt(encryptedSecret, connection.getLoginKeyPair().getPrivate());
-            token = RSA.decrypt(encryptedToken, connection.getLoginKeyPair().getPrivate());
+            sharedSecret = RSA.decrypt(this.encryptedSecret, connection.getLoginKeyPair().getPrivate());
+            token = RSA.decrypt(this.encryptedToken, connection.getLoginKeyPair().getPrivate());
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
 
         // Check that we got the same verification token;
-        if (!(Arrays.equals(connection.getVerificationToken(), token))) {
+        if (!Arrays.equals(connection.getVerificationToken(), token)) {
             System.out.println("Client with IP " + connection.getAddress().getHostName() +
-                    " has sent an invalid token!");
+                               " has sent an invalid token!");
 
             connection.logout();
             return;
@@ -157,8 +153,8 @@ public class PacketLoginInEncryptionResponse extends InPacket {
         try {
             // Contact Mojang's session servers, to finalize creating the session as well as get the client's UUID
             URL url = new URL("https://sessionserver.mojang.com/session/minecraft/hasJoined?username=" +
-                    URLEncoder.encode(name, "UTF-8") + "&serverId=" +
-                    new BigInteger(HashGenerator.getHash(connection, sharedSecret)).toString(16));
+                              URLEncoder.encode(name, "UTF-8") + "&serverId=" +
+                              new BigInteger(HashGenerator.getHash(connection, sharedSecret)).toString(16));
             HttpsURLConnection c = (HttpsURLConnection) url.openConnection();
             int code = c.getResponseCode();
 
@@ -176,7 +172,7 @@ public class PacketLoginInEncryptionResponse extends InPacket {
 
             while ((line = reader.readLine()) != null) {
                 sb.append(line);
-                sb.append("\n");
+                sb.append('\n');
             }
 
             reader.close();
@@ -188,12 +184,11 @@ public class PacketLoginInEncryptionResponse extends InPacket {
         }
 
         // Read the JSON response
-        SessionResponse response = GSON.fromJson(sb.toString(), SessionResponse.class);
+        SessionResponse response = PacketLoginInEncryptionResponse.GSON.fromJson(sb.toString(), SessionResponse.class);
         PacketLoginOutSuccess packet = new PacketLoginOutSuccess();
-        UUID id;
 
         //Replaces the '-' less UUID from session server, with the required '-' filled UUID
-        packet.set("uuid", idDash.matcher(response.id).replaceAll("$1-$2-$3-$4-$5"));
+        packet.set("uuid", PacketLoginInEncryptionResponse.idDash.matcher(response.id).replaceAll("$1-$2-$3-$4-$5"));
         packet.set("username", response.name);
 
         // Send the client PacketLoginOutSuccess and set the new stage to PLAY
@@ -201,24 +196,26 @@ public class PacketLoginInEncryptionResponse extends InPacket {
         connection.setStage(Protocol.ClientStage.PLAY);
 
         // Store the UUID to be used when spawning the player
-        id = UUID.fromString(packet.getUuid());
+        UUID id = UUID.fromString(packet.getUuid());
 
         // Remove stored information in LoginManager and spawn the player
         LoginManager.getInstance().finish(connection.getAddress());
         TridentPlayer.spawnPlayer(connection, id);
     }
 
-    protected static class HashGenerator {
+    protected static final class HashGenerator {
+
+        private HashGenerator() {}
 
         /**
          * Used to generate the hash for the serverId
+         *
          * @param connection Connection of the client
-         * @param secret Scared secret
+         * @param secret     Scared secret
          * @return Generated Hash
-         * @throws Exception
          */
-        static byte[] getHash(ClientConnection connection, byte[] secret) throws Exception {
-            byte[][] b = {secret, connection.getLoginKeyPair().getPublic().getEncoded()};
+        static byte[] getHash(ClientConnection connection, byte... secret) throws Exception {
+            byte[][] b = { secret, connection.getLoginKeyPair().getPublic().getEncoded() };
             MessageDigest digest = MessageDigest.getInstance("SHA-1");
 
             for (byte[] bytes : b) {

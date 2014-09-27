@@ -37,7 +37,6 @@ import net.tridentsdk.server.threads.ThreadsManager;
 import net.tridentsdk.world.RegionFileCache;
 
 import javax.annotation.concurrent.ThreadSafe;
-
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -93,7 +92,7 @@ public final class TridentServer implements Server {
     public EntityManager getEntityManager() {
         return this.entityManager;
     }
-    
+
     public RegionFileCache getRegionFileCache() {
         return this.regionCache;
     }
@@ -115,8 +114,8 @@ public final class TridentServer implements Server {
         this.taskExecutor.getScaledThread().addTask(task);
     }
 
-    public JsonConfig getConfig(){
-        return config;
+    public JsonConfig getConfig() {
+        return this.config;
     }
 
     /**

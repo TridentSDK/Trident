@@ -34,7 +34,7 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutChunkData extends OutPacket {
 
-    protected final byte[] data = {};
+    protected final byte[] data = { };
     protected ChunkLocation chunkLocation;
     protected boolean continuous;
     protected short primaryBitMap;

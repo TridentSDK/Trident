@@ -29,9 +29,7 @@ package net.tridentsdk.entity;
 
 import net.tridentsdk.api.Block;
 import net.tridentsdk.api.Location;
-import net.tridentsdk.api.entity.Entity;
-import net.tridentsdk.api.entity.EntityProperties;
-import net.tridentsdk.api.entity.Projectile;
+import net.tridentsdk.api.entity.*;
 import net.tridentsdk.api.entity.living.ProjectileSource;
 
 import java.lang.ref.WeakReference;

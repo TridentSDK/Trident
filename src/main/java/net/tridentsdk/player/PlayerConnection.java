@@ -30,12 +30,13 @@ package net.tridentsdk.player;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.protocol.Protocol;
 
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class PlayerConnection extends ClientConnection {
     private final TridentPlayer player;
+    private final AtomicLong keepAliveSent = new AtomicLong(0L); // in ticks and relative to player
     private volatile int keepAliveId;
-    private volatile long keepAliveSent; // in ticks and relative to player
     // TODO double/long may not be atomic write/read
 
     PlayerConnection(ClientConnection connection, TridentPlayer player) {
@@ -64,7 +65,7 @@ public class PlayerConnection extends ClientConnection {
 
     public void setKeepAliveId(int id, long ticksLived) {
         this.keepAliveId = id;
-        this.keepAliveSent = ticksLived;
+        this.keepAliveSent.set(ticksLived);
     }
 
     /*
@@ -72,6 +73,6 @@ public class PlayerConnection extends ClientConnection {
      * Relative to player
      */
     public long getKeepAliveSent() {
-        return this.keepAliveSent;
+        return this.keepAliveSent.get();
     }
 }
