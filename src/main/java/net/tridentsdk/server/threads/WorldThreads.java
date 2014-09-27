@@ -87,4 +87,16 @@ public final class WorldThreads {
         WorldThreads.THREAD_MAP.removeAssignment(world);
         WorldThreads.CACHE_MAP.remove(world);
     }
+
+    public static void notifyRedstoneTick() {
+        for(ConcurrentTaskExecutor.TaskExecutor executor: CACHE_MAP.values()) {
+            executor.addTask(new Runnable() {
+                @Override
+                public void run() {
+                    // TODO: maybe move this somewhere else?
+                    // TODO: tick the world's redstone
+                }
+            });
+        }
+    }
 }

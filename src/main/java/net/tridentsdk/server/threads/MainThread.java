@@ -21,9 +21,11 @@ public class MainThread extends Thread {
 
     private volatile int ticksToWait = 0;
 
+    private volatile boolean redstoneTick = false;
+
     private final int ticksPerSecond;
     private final int tickLength;
-    
+
     private static MainThread instance;
 
     public static MainThread getInstance() {
@@ -69,6 +71,15 @@ public class MainThread extends Thread {
 
             // TODO: tick the worlds?
             WorldThreads.notifyTick();
+
+            // alternate redstone ticks between ticks
+            if(redstoneTick) {
+                WorldThreads.notifyRedstoneTick();
+                redstoneTick = false;
+            }
+            else {
+                redstoneTick = true;
+            }
 
             // TODO: decrement all timers for later tasks
 
