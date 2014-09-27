@@ -25,12 +25,19 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package net.tridentsdk.server;import net.tridentsdk.data.PropertyBuilder;
+package net.tridentsdk.server;
+
+import io.netty.channel.Channel;
+import net.tridentsdk.server.netty.protocol.Protocol;
+
+import java.net.InetSocketAddress;
+import java.security.SecureRandom;
 
 public final class VolatileArrayTest {
     private VolatileArrayTest() {}
 
     public static void main(String... args) {
+        /*
         final PropertyBuilder builder = new PropertyBuilder(100);
         for (int i = 0; i < 100; i++) {
             final int i1 = i;
@@ -43,6 +50,49 @@ public final class VolatileArrayTest {
 
         for (String string : builder.getModifiers()) {
             System.out.println(string);
+        } THIS WORKS
+        */
+
+        ClientConnection connection = new ClientConnection(new CTXProper().channel());
+        connection.generateToken();
+        System.out.print(connection.getVerificationToken().length);
+        // THIS WORKS TOO!
+    }
+
+    // Shortened version
+    public static class ClientConnection {
+        protected final SecureRandom SR = new SecureRandom();
+
+        /* Network fields */
+        protected InetSocketAddress address;
+        protected Channel channel;
+
+        /* Encryption and client data fields */
+        protected volatile Protocol.ClientStage stage;
+        protected volatile boolean encryptionEnabled;
+        protected volatile byte[] verificationToken; // DO NOT WRITE INDIVIDUAL ELEMENTS TO IT. Consult AgentTroll
+
+        /**
+         * Creates a new connection handler for the joining channel stream
+         */
+        protected ClientConnection(Channel channel) {
+            this.address = (InetSocketAddress) channel.remoteAddress();
+            this.channel = channel;
+            this.encryptionEnabled = false;
+            this.stage = Protocol.ClientStage.HANDSHAKE;
+        }
+
+        public void generateToken() {
+            this.verificationToken = new byte[4];
+            this.SR.nextBytes(this.verificationToken);
+        }
+
+        public InetSocketAddress getAddress() {
+            return this.address;
+        }
+
+        public byte[] getVerificationToken() {
+            return this.verificationToken;
         }
     }
 }

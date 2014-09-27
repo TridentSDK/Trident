@@ -66,7 +66,7 @@ public class ClientConnection {
     protected volatile Protocol.ClientStage stage;
     protected volatile boolean encryptionEnabled;
     protected volatile SecretKey sharedSecret;
-    protected volatile byte[] verificationToken; // This might work... Might...
+    protected volatile byte[] verificationToken; // DO NOT WRITE INDIVIDUAL ELEMENTS TO IT. Consult AgentTroll
     private IvParameterSpec ivSpec;
 
     /**
