@@ -83,8 +83,8 @@ public class TridentPlayer extends TridentInventoryHolder
             PacketPlayOutKeepAlive packet = new PacketPlayOutKeepAlive();
 
             this.connection.sendPacket(packet);
-            this.connection.setKeepAliveId(packet.getKeepAliveId(), this.ticksExisted);
-        } else if (this.ticksExisted - this.connection.getKeepAliveSent() >= 600L) {
+            this.connection.setKeepAliveId(packet.getKeepAliveId(), this.ticksExisted.get());
+        } else if (this.ticksExisted.get() - this.connection.getKeepAliveSent() >= 600L) {
             // kick the player for not responding to the keep alive within 30 seconds/600 ticks
             this.kickPlayer("Timed out!");
         }

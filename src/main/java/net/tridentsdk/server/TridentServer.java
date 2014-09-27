@@ -28,10 +28,9 @@
 package net.tridentsdk.server;
 
 import net.tridentsdk.Defaults;
-import net.tridentsdk.api.Difficulty;
-import net.tridentsdk.api.Server;
-import net.tridentsdk.api.Trident;
+import net.tridentsdk.api.*;
 import net.tridentsdk.api.config.JsonConfig;
+import net.tridentsdk.api.world.World;
 import net.tridentsdk.entity.EntityManager;
 import net.tridentsdk.server.netty.protocol.Protocol;
 import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
@@ -40,12 +39,14 @@ import net.tridentsdk.world.RegionFileCache;
 
 import javax.annotation.concurrent.ThreadSafe;
 import javax.imageio.ImageIO;
-
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Logger;
 
 /**
  * The access base to internal workings of the server
@@ -122,6 +123,10 @@ public final class TridentServer implements Server {
         this.taskExecutor.getScaledThread().addTask(task);
     }
 
+    @Override public Logger getLogger() {
+        return null;
+    }
+
     public JsonConfig getConfig(){
         return config;
     }
@@ -135,6 +140,14 @@ public final class TridentServer implements Server {
         TridentStart.close();
         this.taskExecutor.shutdown();
         ThreadsManager.stopAll();
+    }
+
+    @Override public List<World> getWorlds() {
+        return null;
+    }
+
+    @Override public InetAddress getServerIp() {
+        return null;
     }
 
     public String getVersion() {
@@ -166,6 +179,10 @@ public final class TridentServer implements Server {
         return getConfig().getInt("max-players", Defaults.MAX_PLAYERS);
     }
 
+    @Override public int getCurrentPlayerCount() {
+        return 0;
+    }
+
     public int setMotdImage(Image image) {
         // TODO: implement
         return -1;
@@ -191,5 +208,9 @@ public final class TridentServer implements Server {
 
     public void setMotd(String motd) {
         getConfig().setString("motd", motd);
+    }
+
+    @Override public File getMotdPicture() {
+        return null;
     }
 }
