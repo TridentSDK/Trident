@@ -65,6 +65,20 @@ public final class WorldThreads {
     }
 
     /**
+     * Used when the server ticks, to tell this thing to tick
+     */
+    protected static void notifyTick() {
+        for(ConcurrentTaskExecutor.TaskExecutor executor: CACHE_MAP.values()) {
+            executor.addTask(new Runnable() {
+                @Override
+                public void run() {
+                    // TODO: maybe move this somewhere else?
+                    // TODO: tick the chunk
+                }
+            });
+        }
+    }
+    /**
      * Decaches the world handler from the mappings
      *
      * @param world the world to decache

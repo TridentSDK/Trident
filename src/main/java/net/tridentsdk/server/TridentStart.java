@@ -123,9 +123,10 @@ final class TridentStart {
         //TODO: Need to run on seperate thread?
         //Server should read all settings from the loaded config
         final ConcurrentTaskExecutor<?> taskExecutor = new ConcurrentTaskExecutor<>(1);
-        taskExecutor.addTask(new Runnable() {
+        final JsonConfig innerConfig = config;
+        taskExecutor.getScaledThread().addTask(new Runnable() {
             @Override public void run() {
-                TridentServer.createServer(config, taskExecutor);
+                TridentServer.createServer(innerConfig);
             }   
         });
 

@@ -20,6 +20,9 @@ public class MainThread extends Thread {
     private volatile boolean pausedTicking = false;
 
     private volatile int ticksToWait = 0;
+
+    private final int ticksPerSecond;
+    private final int tickLength;
     
     private static MainThread instance;
 
@@ -28,9 +31,11 @@ public class MainThread extends Thread {
     }
 
 
-    public MainThread () {
+    public MainThread (int ticksPerSecond) {
         zeroBase = System.currentTimeMillis();
         instance = this;
+        this.ticksPerSecond = ticksPerSecond;
+        tickLength = 1000/ticksPerSecond;
     }
 
     @Override
@@ -59,8 +64,11 @@ public class MainThread extends Thread {
                 continue;
             }
 
+            notLostTicksElapsed ++;
 
-            // TODO: tick the worlds
+
+            // TODO: tick the worlds?
+            WorldThreads.notifyTick();
 
             // TODO: decrement all timers for later tasks
 
@@ -87,7 +95,8 @@ public class MainThread extends Thread {
      */
     private void calcAndWait(int tit) {
         correctTiming();
-        int ttw = 50 - tit;
+
+        int ttw = tickLength - tit;
 
         if(ttw <= 0) {
             return;
@@ -101,7 +110,7 @@ public class MainThread extends Thread {
     }
 
     private void correctTiming() {
-        long expectedTime = (ticksElapsed -1)*50;
+        long expectedTime = (ticksElapsed -1) * tickLength;
         long actualTime = System.currentTimeMillis() - zeroBase;
         if(actualTime != expectedTime) {
             // if there is a difference of less than two milliseconds, just update zerobase to compensate and maintain
@@ -144,5 +153,13 @@ public class MainThread extends Thread {
     @Override
     public UncaughtExceptionHandler getUncaughtExceptionHandler() {
         return super.getUncaughtExceptionHandler();
+    }
+
+    public int getTicksElapsed() {
+        return ticksElapsed;
+    }
+
+    public int getNotLostTicksElapsed() {
+        return notLostTicksElapsed;
     }
 }
