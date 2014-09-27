@@ -29,23 +29,18 @@ package net.tridentsdk.server;
 
 import com.google.common.collect.Lists;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import joptsimple.OptionException;
-import joptsimple.OptionParser;
-import joptsimple.OptionSet;
-import joptsimple.OptionSpec;
+import joptsimple.*;
 import net.tridentsdk.api.config.JsonConfig;
 import net.tridentsdk.api.util.TridentLogger;
-import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
 import net.tridentsdk.server.netty.ClientChannelInitializer;
-import org.openjdk.jmh.util.FileUtils;
+import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
 
 import javax.annotation.concurrent.ThreadSafe;
-import java.io.*;
+import java.io.File;
+import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.nio.file.Files;
 import java.util.Collection;
@@ -82,18 +77,17 @@ final class TridentStart {
         parser.acceptsAll(TridentStart.asList("h", "help"), "Show this help dialog.").forHelp();
         OptionSpec<Boolean> append =
                 parser.acceptsAll(TridentStart.asList("log-append"), "Whether to append to the log file")
-                        .withRequiredArg()
-                        .ofType(Boolean.class)
-                        .defaultsTo(true)
-                        .describedAs("Log append");
+                      .withRequiredArg()
+                      .ofType(Boolean.class)
+                      .defaultsTo(true)
+                      .describedAs("Log append");
         OptionSpec<File> properties =
                 parser.acceptsAll(TridentStart.asList("properties"), "The location for the properties file")
-                        .withRequiredArg()
-                        .ofType(File.class)
-                        .defaultsTo(new File("server.json"))
-                        .describedAs("Properties file");
+                      .withRequiredArg()
+                      .ofType(File.class)
+                      .defaultsTo(new File("server.json"))
+                      .describedAs("Properties file");
         OptionSet options = null;
-        File f;
 
         try {
             options = parser.parse(args);
@@ -102,8 +96,9 @@ final class TridentStart {
             return;
         }
 
-        if(!((f = properties.value(options)).exists())) {
-            InputStream link = (TridentServer.class.getResourceAsStream("/server.json"));
+        File f;
+        if (!(f = properties.value(options)).exists()) {
+            InputStream link = TridentServer.class.getResourceAsStream("/server.json");
             Files.copy(link, f.getAbsoluteFile().toPath());
         }
 
@@ -126,22 +121,22 @@ final class TridentStart {
         final JsonConfig innerConfig = config;
         taskExecutor.getScaledThread().addTask(new Runnable() {
             @Override public void run() {
-                TridentServer.createServer(innerConfig);
-            }   
+                TridentServer.createServer(innerConfig, taskExecutor);
+            }
         });
 
         try {
             ServerBootstrap b = new ServerBootstrap();
             b.group(TridentStart.bossGroup, TridentStart.workerGroup)
-                    .channel(NioServerSocketChannel.class)
-                    .childHandler(new ClientChannelInitializer())
-                    .option(ChannelOption.TCP_NODELAY, true);
+             .channel(NioServerSocketChannel.class)
+             .childHandler(new ClientChannelInitializer())
+             .option(ChannelOption.TCP_NODELAY, true);
 
             // Bind and start to accept incoming connections.
             ChannelFuture f = b.bind(
                     new InetSocketAddress(config.getString("address", "127.0.0.1"),
-                            config.getInt("port", 25565)))
-                    .sync();
+                                          config.getInt("port", 25565)))
+                               .sync();
 
             // Wait until the server socket is closed, to gracefully shut down your server.
             f.channel().closeFuture().sync();

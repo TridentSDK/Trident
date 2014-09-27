@@ -76,8 +76,8 @@ public final class TridentServer implements Server {
      *
      * @param config the configuration to use for option lookup
      */
-    public static TridentServer createServer(JsonConfig config) {
-        TridentServer server = new TridentServer(config);
+    public static TridentServer createServer(JsonConfig config, ConcurrentTaskExecutor<?> taskExecutor) {
+        TridentServer server = new TridentServer(config, taskExecutor);
         Trident.setServer(server);
 
         server.SERVER_THREAD.set(server.taskExecutor.getScaledThread().asThread());
@@ -102,7 +102,7 @@ public final class TridentServer implements Server {
     public EntityManager getEntityManager() {
         return this.entityManager;
     }
-    
+
     public RegionFileCache getRegionFileCache() {
         return this.regionCache;
     }
@@ -120,7 +120,7 @@ public final class TridentServer implements Server {
     /**
      * Puts a task into the execution queue
      */
-    public void addTask(Runnable task) {
+    @Override public void addTask(Runnable task) {
         this.taskExecutor.getScaledThread().addTask(task);
     }
 
@@ -128,8 +128,8 @@ public final class TridentServer implements Server {
         return null;
     }
 
-    public JsonConfig getConfig(){
-        return config;
+    public JsonConfig getConfig() {
+        return this.config;
     }
 
     /**
@@ -151,14 +151,14 @@ public final class TridentServer implements Server {
         return null;
     }
 
-    public String getVersion() {
+    @Override public String getVersion() {
         // TODO: Make this more eloquent
         return "1.0-SNAPSHOT";
     }
 
-    public Difficulty getDifficulty() {
-        byte difficulty = getConfig().getByte("difficulty", Defaults.DIFFICULTY.toByte());
-        switch(difficulty) {
+    @Override public Difficulty getDifficulty() {
+        byte difficulty = this.getConfig().getByte("difficulty", Defaults.DIFFICULTY.toByte());
+        switch (difficulty) {
             case 0:
                 return Difficulty.PEACEFUL;
             case 1:
@@ -176,23 +176,23 @@ public final class TridentServer implements Server {
         return -1;
     }
 
-    public int getMaxPlayers() {
-        return getConfig().getInt("max-players", Defaults.MAX_PLAYERS);
+    @Override public int getMaxPlayers() {
+        return this.getConfig().getInt("max-players", Defaults.MAX_PLAYERS);
     }
 
     @Override public int getCurrentPlayerCount() {
         return 0;
     }
 
-    public int setMotdImage(Image image) {
+    @Override public int setMotdImage(Image image) {
         // TODO: implement
         return -1;
     }
 
-    public BufferedImage getMotdPictureImage() {
+    @Override public BufferedImage getMotdPictureImage() {
         BufferedImage img = null;
         try {
-            img = ImageIO.read(new File(getConfig().getString("image-location",Defaults.MOTD_IMAGE_LOCATION)));
+            img = ImageIO.read(new File(this.getConfig().getString("image-location", Defaults.MOTD_IMAGE_LOCATION)));
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -200,15 +200,15 @@ public final class TridentServer implements Server {
     }
 
     public File getMotdImage() {
-        return new File(getConfig().getString("image-location",Defaults.MOTD_IMAGE_LOCATION));
+        return new File(this.getConfig().getString("image-location", Defaults.MOTD_IMAGE_LOCATION));
     }
 
-    public String getMotd() {
-        return getConfig().getString("motd", Defaults.MOTD);
+    @Override public String getMotd() {
+        return this.getConfig().getString("motd", Defaults.MOTD);
     }
 
     public void setMotd(String motd) {
-        getConfig().setString("motd", motd);
+        this.getConfig().setString("motd", motd);
     }
 
     @Override public File getMotdPicture() {

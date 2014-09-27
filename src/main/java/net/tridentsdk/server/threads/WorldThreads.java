@@ -68,7 +68,7 @@ public final class WorldThreads {
      * Used when the server ticks, to tell this thing to tick
      */
     protected static void notifyTick() {
-        for(ConcurrentTaskExecutor.TaskExecutor executor: CACHE_MAP.values()) {
+        for (ConcurrentTaskExecutor.TaskExecutor executor : WorldThreads.CACHE_MAP.values()) {
             executor.addTask(new Runnable() {
                 @Override
                 public void run() {
@@ -78,6 +78,7 @@ public final class WorldThreads {
             });
         }
     }
+
     /**
      * Decaches the world handler from the mappings
      *
@@ -89,7 +90,7 @@ public final class WorldThreads {
     }
 
     public static void notifyRedstoneTick() {
-        for(ConcurrentTaskExecutor.TaskExecutor executor: CACHE_MAP.values()) {
+        for (ConcurrentTaskExecutor.TaskExecutor executor : WorldThreads.CACHE_MAP.values()) {
             executor.addTask(new Runnable() {
                 @Override
                 public void run() {

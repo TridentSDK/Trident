@@ -24,15 +24,16 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package net.tridentsdk.world;
+
+import net.tridentsdk.api.nbt.NBTException;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.zip.DataFormatException;
-
-import net.tridentsdk.api.nbt.NBTException;
 
 /**
  * A (simple) cache for RegionFiles
@@ -46,7 +47,7 @@ public class RegionFileCache {
         int actualZ = chunkZ >> 5;
 
         File regionDir = new File(serverDirectory, "region");
-        File actualFile = new File(regionDir, "r." + actualX + "." + actualZ + ".mca");
+        File actualFile = new File(regionDir, "r." + actualX + '.' + actualZ + ".mca");
 
         RegionFile file = this.regionFiles.get(actualFile);
 
