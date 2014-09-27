@@ -31,7 +31,8 @@ import net.tridentsdk.api.docs.AccessNoDoc;
 import net.tridentsdk.packets.play.in.*;
 import net.tridentsdk.packets.play.out.*;
 
-@AccessNoDoc class Play extends PacketManager {
+@AccessNoDoc
+class Play extends PacketManager {
 
     Play() {
         super.inPackets.put(0x00, PacketPlayInKeepAlive.class);

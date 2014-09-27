@@ -28,7 +28,9 @@
 package net.tridentsdk.server.threads;
 
 import net.tridentsdk.api.Location;
-import net.tridentsdk.api.entity.*;
+import net.tridentsdk.api.entity.Entity;
+import net.tridentsdk.api.entity.EntityProperties;
+import net.tridentsdk.api.entity.Projectile;
 import net.tridentsdk.api.entity.living.Player;
 import net.tridentsdk.entity.TridentEntity;
 import net.tridentsdk.server.netty.ClientConnection;
@@ -37,7 +39,9 @@ import net.tridentsdk.server.netty.packet.Packet;
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Collection;
 import java.util.UUID;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Player handling thread manager, 4 threads by default
@@ -80,7 +84,7 @@ public final class PlayerThreads {
      */
     public static void remove(ClientConnection connection) {
         PlayerThreads.THREAD_MAP.removeAssignment(PlayerThreads.CACHE_MAP.retrieve(connection, null,
-                                                                                   PlayerThreads.SERVICE));
+                PlayerThreads.SERVICE));
         PlayerThreads.CACHE_MAP.remove(connection);
     }
 

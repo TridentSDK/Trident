@@ -41,5 +41,6 @@ public final class Defaults {
     public static final Difficulty DIFFICULTY = Difficulty.EASY;
     public static final String MOTD_IMAGE_LOCATION = "/server-icon.png";
 
-    private Defaults() {}
+    private Defaults() {
+    }
 }

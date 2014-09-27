@@ -161,11 +161,13 @@ public class AsmVsSun {
         return null;
     }
 
-    @Benchmark public void asm(Blackhole blackhole) {
+    @Benchmark
+    public void asm(Blackhole blackhole) {
         blackhole.consume(AsmVsSun.METHOD_ACCESS.invoke(AsmVsSun.OBJECT, AsmVsSun.id));
     }
 
-    @Benchmark public void sun(Blackhole blackhole) {
+    @Benchmark
+    public void sun(Blackhole blackhole) {
         blackhole.consume(AsmVsSun.METHOD_MANAGER.invoke(AsmVsSun.OBJECT));
     }
 
@@ -209,7 +211,8 @@ public class AsmVsSun {
             this.accessor = ReflectionFactory.getReflectionFactory().newMethodAccessor(this.method);
         }
 
-        @Override public T invoke(D inst, Object... args) {
+        @Override
+        public T invoke(D inst, Object... args) {
             try {
                 return (T) this.accessor.invoke(inst, args);
             } catch (IllegalArgumentException | InvocationTargetException x) {
@@ -219,7 +222,8 @@ public class AsmVsSun {
             return null;
         }
 
-        @Override public Method raw() {
+        @Override
+        public Method raw() {
             return this.method;
         }
     }

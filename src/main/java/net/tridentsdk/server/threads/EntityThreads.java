@@ -29,7 +29,9 @@ package net.tridentsdk.server.threads;
 
 import net.tridentsdk.api.entity.Entity;
 
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Entity handling thread manager, there are 2 thread by default
