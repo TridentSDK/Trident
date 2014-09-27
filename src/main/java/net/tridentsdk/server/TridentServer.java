@@ -27,6 +27,8 @@
 
 package net.tridentsdk.server;
 
+import net.tridentsdk.Defaults;
+import net.tridentsdk.api.Difficulty;
 import net.tridentsdk.api.Server;
 import net.tridentsdk.api.Trident;
 import net.tridentsdk.api.config.JsonConfig;
@@ -37,6 +39,12 @@ import net.tridentsdk.server.threads.ThreadsManager;
 import net.tridentsdk.world.RegionFileCache;
 
 import javax.annotation.concurrent.ThreadSafe;
+import javax.imageio.ImageIO;
+
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -92,7 +100,7 @@ public final class TridentServer implements Server {
     public EntityManager getEntityManager() {
         return this.entityManager;
     }
-
+    
     public RegionFileCache getRegionFileCache() {
         return this.regionCache;
     }
@@ -114,8 +122,8 @@ public final class TridentServer implements Server {
         this.taskExecutor.getScaledThread().addTask(task);
     }
 
-    public JsonConfig getConfig() {
-        return this.config;
+    public JsonConfig getConfig(){
+        return config;
     }
 
     /**
@@ -127,5 +135,61 @@ public final class TridentServer implements Server {
         TridentStart.close();
         this.taskExecutor.shutdown();
         ThreadsManager.stopAll();
+    }
+
+    public String getVersion() {
+        // TODO: Make this more eloquent
+        return "1.0-SNAPSHOT";
+    }
+
+    public Difficulty getDifficulty() {
+        byte difficulty = getConfig().getByte("difficulty", Defaults.DIFFICULTY.toByte());
+        switch(difficulty) {
+            case 0:
+                return Difficulty.PEACEFUL;
+            case 1:
+                return Difficulty.EASY;
+            case 2:
+                return Difficulty.NORMAL;
+            case 3:
+                return Difficulty.HARD;
+        }
+        return null;
+    }
+
+    public int getCurrentPlayercount() {
+        // TODO: implement
+        return -1;
+    }
+
+    public int getMaxPlayers() {
+        return getConfig().getInt("max-players", Defaults.MAX_PLAYERS);
+    }
+
+    public int setMotdImage(Image image) {
+        // TODO: implement
+        return -1;
+    }
+
+    public BufferedImage getMotdPictureImage() {
+        BufferedImage img = null;
+        try {
+            img = ImageIO.read(new File(getConfig().getString("image-location",Defaults.MOTD_IMAGE_LOCATION)));
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        return img;
+    }
+
+    public File getMotdImage() {
+        return new File(getConfig().getString("image-location",Defaults.MOTD_IMAGE_LOCATION));
+    }
+
+    public String getMotd() {
+        return getConfig().getString("motd", Defaults.MOTD);
+    }
+
+    public void setMotd(String motd) {
+        getConfig().setString("motd", motd);
     }
 }
