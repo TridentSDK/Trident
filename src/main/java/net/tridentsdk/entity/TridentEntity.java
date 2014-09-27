@@ -71,7 +71,7 @@ public abstract class TridentEntity implements Entity {
 
         for (double y = this.loc.getY(); y > 0.0; y--) {
             Location l = new Location(this.loc.getWorld(), this.loc.getX(),
-                                      y, this.loc.getZ());
+                    y, this.loc.getZ());
 
             if (l.getWorld().getBlockAt(l).getType() != Material.AIR) {
                 this.fallDistance.set((long) (this.loc.getY() - y));
@@ -105,7 +105,7 @@ public abstract class TridentEntity implements Entity {
 
         for (double y = this.loc.getY(); y > 0.0; y--) {
             Location l = new Location(this.loc.getWorld(), this.loc.getX(),
-                                      y, this.loc.getZ());
+                    y, this.loc.getZ());
 
             if (l.getWorld().getBlockAt(l).getType() != Material.AIR) {
                 this.fallDistance.set((long) (this.loc.getY() - y));
@@ -116,8 +116,8 @@ public abstract class TridentEntity implements Entity {
         }
 
         TridentPlayer.sendAll(new PacketPlayOutEntityTeleport().set("entityId", this.id)
-                                                               .set("location", this.loc)
-                                                               .set("onGround", this.onGround));
+                .set("location", this.loc)
+                .set("onGround", this.onGround));
     }
 
     @Override
@@ -141,7 +141,7 @@ public abstract class TridentEntity implements Entity {
         this.velocityChanged = true;
 
         TridentPlayer.sendAll(new PacketPlayOutEntityVelocity().set("entityId", this.id)
-                                                               .set("velocity", vector));
+                .set("velocity", vector));
     }
 
     @Override

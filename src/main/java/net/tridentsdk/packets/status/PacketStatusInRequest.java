@@ -31,7 +31,9 @@ import io.netty.buffer.ByteBuf;
 import net.tridentsdk.Defaults;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.netty.ClientConnection;
-import net.tridentsdk.server.netty.packet.*;
+import net.tridentsdk.server.netty.packet.InPacket;
+import net.tridentsdk.server.netty.packet.Packet;
+import net.tridentsdk.server.netty.packet.PacketType;
 
 /**
  * Packet sent by the client to request PacketStatusOutResponse
@@ -65,9 +67,9 @@ public class PacketStatusInRequest extends InPacket {
         // TODO: Make sure this is thread-safe
         // Set MOTD and max players based on the config TODO events
         response.description.text = TridentServer.getInstance().getConfig()
-                                                 .getString("motd", Defaults.MOTD);
+                .getString("motd", Defaults.MOTD);
         response.players.max = TridentServer.getInstance().getConfig()
-                                            .getInt("max-players", Defaults.MAX_PLAYERS);
+                .getInt("max-players", Defaults.MAX_PLAYERS);
 
         packet.response = response;
 

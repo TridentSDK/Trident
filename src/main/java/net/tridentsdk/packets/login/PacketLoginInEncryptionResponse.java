@@ -33,7 +33,9 @@ import net.tridentsdk.player.TridentPlayer;
 import net.tridentsdk.server.encryption.RSA;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
-import net.tridentsdk.server.netty.packet.*;
+import net.tridentsdk.server.netty.packet.InPacket;
+import net.tridentsdk.server.netty.packet.Packet;
+import net.tridentsdk.server.netty.packet.PacketType;
 import net.tridentsdk.server.netty.protocol.Protocol;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -43,7 +45,9 @@ import java.math.BigInteger;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 public class PacketLoginInEncryptionResponse extends InPacket {
@@ -138,7 +142,7 @@ public class PacketLoginInEncryptionResponse extends InPacket {
         // Check that we got the same verification token;
         if (!Arrays.equals(connection.getVerificationToken(), token)) {
             System.out.println("Client with IP " + connection.getAddress().getHostName() +
-                               " has sent an invalid token!");
+                    " has sent an invalid token!");
 
             connection.logout();
             return;
@@ -153,8 +157,8 @@ public class PacketLoginInEncryptionResponse extends InPacket {
         try {
             // Contact Mojang's session servers, to finalize creating the session as well as get the client's UUID
             URL url = new URL("https://sessionserver.mojang.com/session/minecraft/hasJoined?username=" +
-                              URLEncoder.encode(name, "UTF-8") + "&serverId=" +
-                              new BigInteger(HashGenerator.getHash(connection, sharedSecret)).toString(16));
+                    URLEncoder.encode(name, "UTF-8") + "&serverId=" +
+                    new BigInteger(HashGenerator.getHash(connection, sharedSecret)).toString(16));
             HttpsURLConnection c = (HttpsURLConnection) url.openConnection();
             int code = c.getResponseCode();
 
@@ -205,7 +209,8 @@ public class PacketLoginInEncryptionResponse extends InPacket {
 
     protected static final class HashGenerator {
 
-        private HashGenerator() {}
+        private HashGenerator() {
+        }
 
         /**
          * Used to generate the hash for the serverId
@@ -215,7 +220,7 @@ public class PacketLoginInEncryptionResponse extends InPacket {
          * @return Generated Hash
          */
         static byte[] getHash(ClientConnection connection, byte... secret) throws Exception {
-            byte[][] b = { secret, connection.getLoginKeyPair().getPublic().getEncoded() };
+            byte[][] b = {secret, connection.getLoginKeyPair().getPublic().getEncoded()};
             MessageDigest digest = MessageDigest.getInstance("SHA-1");
 
             for (byte[] bytes : b) {

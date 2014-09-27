@@ -28,7 +28,9 @@
 package net.tridentsdk.server;
 
 import net.tridentsdk.Defaults;
-import net.tridentsdk.api.*;
+import net.tridentsdk.api.Difficulty;
+import net.tridentsdk.api.Server;
+import net.tridentsdk.api.Trident;
 import net.tridentsdk.api.config.JsonConfig;
 import net.tridentsdk.api.world.World;
 import net.tridentsdk.entity.EntityManager;
@@ -120,11 +122,13 @@ public final class TridentServer implements Server {
     /**
      * Puts a task into the execution queue
      */
-    @Override public void addTask(Runnable task) {
+    @Override
+    public void addTask(Runnable task) {
         this.taskExecutor.getScaledThread().addTask(task);
     }
 
-    @Override public Logger getLogger() {
+    @Override
+    public Logger getLogger() {
         return null;
     }
 
@@ -143,20 +147,24 @@ public final class TridentServer implements Server {
         ThreadsManager.stopAll();
     }
 
-    @Override public List<World> getWorlds() {
+    @Override
+    public List<World> getWorlds() {
         return null;
     }
 
-    @Override public InetAddress getServerIp() {
+    @Override
+    public InetAddress getServerIp() {
         return null;
     }
 
-    @Override public String getVersion() {
+    @Override
+    public String getVersion() {
         // TODO: Make this more eloquent
         return "1.0-SNAPSHOT";
     }
 
-    @Override public Difficulty getDifficulty() {
+    @Override
+    public Difficulty getDifficulty() {
         byte difficulty = this.getConfig().getByte("difficulty", Defaults.DIFFICULTY.toByte());
         switch (difficulty) {
             case 0:
@@ -176,20 +184,24 @@ public final class TridentServer implements Server {
         return -1;
     }
 
-    @Override public int getMaxPlayers() {
+    @Override
+    public int getMaxPlayers() {
         return this.getConfig().getInt("max-players", Defaults.MAX_PLAYERS);
     }
 
-    @Override public int getCurrentPlayerCount() {
+    @Override
+    public int getCurrentPlayerCount() {
         return 0;
     }
 
-    @Override public int setMotdImage(Image image) {
+    @Override
+    public int setMotdImage(Image image) {
         // TODO: implement
         return -1;
     }
 
-    @Override public BufferedImage getMotdPictureImage() {
+    @Override
+    public BufferedImage getMotdPictureImage() {
         BufferedImage img = null;
         try {
             img = ImageIO.read(new File(this.getConfig().getString("image-location", Defaults.MOTD_IMAGE_LOCATION)));
@@ -203,7 +215,8 @@ public final class TridentServer implements Server {
         return new File(this.getConfig().getString("image-location", Defaults.MOTD_IMAGE_LOCATION));
     }
 
-    @Override public String getMotd() {
+    @Override
+    public String getMotd() {
         return this.getConfig().getString("motd", Defaults.MOTD);
     }
 
@@ -211,7 +224,8 @@ public final class TridentServer implements Server {
         this.getConfig().setString("motd", motd);
     }
 
-    @Override public File getMotdPicture() {
+    @Override
+    public File getMotdPicture() {
         return null;
     }
 }
