@@ -35,6 +35,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import joptsimple.*;
 import net.tridentsdk.api.config.JsonConfig;
 import net.tridentsdk.api.util.TridentLogger;
+import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
 import net.tridentsdk.server.netty.ClientChannelInitializer;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -116,7 +117,12 @@ final class TridentStart {
     private static void init(JsonConfig config) {
         //TODO: Need to run on seperate thread?
         //Server should read all settings from the loaded config
-        TridentServer.createServer(config);
+        final ConcurrentTaskExecutor<?> taskExecutor = new ConcurrentTaskExecutor<>(1);
+        taskExecutor.addTask(new Runnable() {
+            @Override public void run() {
+                TridentServer.createServer(config, taskExecutor);
+            }   
+        });
 
         try {
             ServerBootstrap b = new ServerBootstrap();
