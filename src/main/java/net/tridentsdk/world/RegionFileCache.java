@@ -30,6 +30,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.zip.DataFormatException;
+
+import net.tridentsdk.api.nbt.NBTException;
 
 /**
  * A (simple) cache for RegionFiles
@@ -54,7 +57,7 @@ public class RegionFileCache {
 
             try {
                 file = new RegionFile(actualFile);
-            } catch (IOException e) {
+            } catch (IOException | DataFormatException | NBTException e) {
                 e.printStackTrace();
             }
             this.regionFiles.put(actualFile, file);
