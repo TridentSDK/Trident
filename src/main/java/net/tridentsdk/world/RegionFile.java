@@ -118,7 +118,7 @@ public class RegionFile {
         }
 
         // Get the NBT tag
-        this.nbtTag = new NBTDecoder(new DataInputStream(new ByteArrayInputStream(compressedData)))
+        this.nbtTag = new NBTDecoder(new DataInputStream(new ByteArrayInputStream(chunkData)))
                 .decode();
 
         // Read and store all NBT data
