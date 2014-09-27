@@ -39,8 +39,7 @@ import net.tridentsdk.server.netty.packet.Packet;
 
 import java.util.UUID;
 
-public class TridentPlayer extends TridentInventoryHolder
-        implements Player { // abstract for now to avoid compilation errors
+public class TridentPlayer extends TridentInventoryHolder implements Player {
 
     private static final TridentPlayer[] players = { };
 

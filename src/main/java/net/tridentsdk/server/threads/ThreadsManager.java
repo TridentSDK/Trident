@@ -51,5 +51,7 @@ public final class ThreadsManager {
 
         WorldThreads.SERVICE.shutdownNow();
         WorldThreads.THREAD_MAP.shutdown();
+
+        MainThread.getInstance().interrupt();
     }
 }
