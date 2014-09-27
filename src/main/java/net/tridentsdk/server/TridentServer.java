@@ -59,13 +59,14 @@ public final class TridentServer implements Server {
 
     private final JsonConfig config;
     private final Protocol protocol;
-    private final ConcurrentTaskExecutor<?> taskExecutor = new ConcurrentTaskExecutor<>(1);
+    private final ConcurrentTaskExecutor<?> taskExecutor;
     private final EntityManager entityManager;
     private final RegionFileCache regionCache;
 
-    private TridentServer(JsonConfig config) {
+    private TridentServer(JsonConfig config, ConcurrentTaskExecutor<?> taskExecutor) {
         this.config = config;
         this.protocol = new Protocol();
+        this.taskExecutor = taskExecutor;
         this.entityManager = new EntityManager();
         this.regionCache = new RegionFileCache();
     }
