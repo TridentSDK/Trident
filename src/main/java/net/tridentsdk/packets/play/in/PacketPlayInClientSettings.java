@@ -47,9 +47,7 @@ public class PacketPlayInClientSettings extends InPacket {
      */
     protected short viewDistance;
     /**
-     * Chat settings:
-     * <p/>
-     * Bits 0-1. 00: Enabled. 01: Commands only. 10: Hidden.
+     * Chat settings: <p/> Bits 0-1. 00: Enabled. 01: Commands only. 10: Hidden.
      */
     protected byte chatFlags;
     /**
@@ -57,11 +55,9 @@ public class PacketPlayInClientSettings extends InPacket {
      */
     protected boolean chatColors;
     /**
-     * Displayed skin parts also packs several values into one byte.
-     * <p/>
-     * Bit 0: Cape enabled Bit 1: Jacket enabled Bit 2: Left Sleeve enabled Bit 3: Right Sleeve enabled Bit 4: Left
-     * Pants Leg enabled Bit 5: Right Pants Leg enabled Bit 6: Hat enabled The most significant bit (bit 7) appears to
-     * be unused.
+     * Displayed skin parts also packs several values into one byte. <p/> Bit 0: Cape enabled Bit 1: Jacket enabled Bit
+     * 2: Left Sleeve enabled Bit 3: Right Sleeve enabled Bit 4: Left Pants Leg enabled Bit 5: Right Pants Leg enabled
+     * Bit 6: Hat enabled The most significant bit (bit 7) appears to be unused.
      */
     protected byte skinParts;
 

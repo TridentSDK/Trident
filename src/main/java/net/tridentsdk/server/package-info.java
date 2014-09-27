@@ -29,7 +29,6 @@
  * The main server workings, all of what happens, happens here.
  *
  * <ul>
- *     <li>TridentConfig - The server configuration file</li>
  *     <li>TridentServer - The server loop and accessors are here</li>
  *     <li>TridentStart  - This class starts the server and the connection pool</li>
  * </ul>

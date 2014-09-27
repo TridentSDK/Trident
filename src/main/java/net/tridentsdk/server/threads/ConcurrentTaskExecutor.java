@@ -106,7 +106,7 @@ public class ConcurrentTaskExecutor<Assignment> {
     }
 
     public void shutdown() {
-        for (InnerThread thread : this.scale.keySet())
+        for (TaskExecutor thread : this.scale.keySet())
             thread.interrupt();
         this.scale.clear();
         this.assignments.clear();
@@ -138,11 +138,15 @@ public class ConcurrentTaskExecutor<Assignment> {
         Thread asThread();
     }
 
-    private static class InnerThread implements TaskExecutor {
+    private static final class InnerThread implements TaskExecutor {
         private final BlockingQueue<Runnable> tasks = new LinkedTransferQueue<>();
         private final DelegateThread thread = new DelegateThread();
         private boolean stopped;
         // Does not need to be volatile because only this thread can change it
+
+        private InnerThread() {
+            this.thread.start();
+        }
 
         @Override
         public void addTask(Runnable task) {

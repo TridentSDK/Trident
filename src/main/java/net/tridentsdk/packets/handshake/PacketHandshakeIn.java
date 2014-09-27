@@ -55,9 +55,7 @@ public class PacketHandshakeIn extends InPacket {
     protected short port;
 
     /**
-     * The next stage the client will be going into
-     * <p/>
-     * 1 for STATUS 2 for LOGIN
+     * The next stage the client will be going into <p/> 1 for STATUS 2 for LOGIN
      */
     protected int nextState;
 

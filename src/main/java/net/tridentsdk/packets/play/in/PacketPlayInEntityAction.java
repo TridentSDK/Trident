@@ -34,9 +34,8 @@ import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 
 /**
- * Sent by the client when doing any of the action types below.
- * <p/>
- * Note: Client will send ActionType#START_SPRINTING when "Leave bed" is clicked
+ * Sent by the client when doing any of the action types below. <p/> Note: Client will send ActionType#START_SPRINTING
+ * when "Leave bed" is clicked
  *
  * @see ActionType
  */

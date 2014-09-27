@@ -31,7 +31,7 @@ public final class ServerShutdownTest {
     private ServerShutdownTest() {
     }
 
-    public static void main(String... args) {
+    public static void main(String... args) throws Exception {
         TridentStart.main(args);
     }
 }

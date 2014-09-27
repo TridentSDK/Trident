@@ -38,9 +38,7 @@ import net.tridentsdk.server.netty.packet.Packet;
 public class PacketPlayInClientStatus extends InPacket {
 
     /**
-     * Action ID values:
-     * <p/>
-     * 0 - Perform Respawn 1 - Request statistics 2 - Open inventory acheivement
+     * Action ID values: <p/> 0 - Perform Respawn 1 - Request statistics 2 - Open inventory acheivement
      */
     protected short actionId;
 

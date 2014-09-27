@@ -87,7 +87,7 @@ final class TridentStart {
                       .ofType(File.class)
                       .defaultsTo(new File("server.json"))
                       .describedAs("Properties file");
-        OptionSet options = null;
+        OptionSet options;
 
         try {
             options = parser.parse(args);
