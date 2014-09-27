@@ -31,13 +31,16 @@ import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.netty.Codec;
 
 public class PropertyBuilder implements Writable {
-
-    private String key;
+    private String key; // What are these 2 fields?
     private double value;
-    private volatile String[] modifiers; // TODO: look more into this, modify accordingly
+    private volatile String[] modifiers; // Ignore volatile array warning, already fixed
 
     public PropertyBuilder() {
         this.modifiers = new String[]{};
+    }
+
+    public PropertyBuilder(int size) {
+        this.modifiers = new String[size];
     }
 
     public String getKey() {
@@ -65,13 +68,15 @@ public class PropertyBuilder implements Writable {
     }
 
     public PropertyBuilder addModifier(int index, String modifier) {
-        this.modifiers[index] = modifier;
+        String[] modifiers = this.modifiers;
+        modifiers[index] = modifier;
+        String[] read = this.modifiers; // Flush caches, make entire array visible
 
         return this;
     }
 
     public PropertyBuilder cleanup() {
-        String[] newModifiers = {};
+        String[] newModifiers = {}; // What? 0 length array for what?
 
         for (String value : this.modifiers) {
             if (value != null) {
@@ -80,6 +85,7 @@ public class PropertyBuilder implements Writable {
         }
 
         this.modifiers = newModifiers;
+        String[] read = this.modifiers;
         return this;
     }
 
