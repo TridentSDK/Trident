@@ -40,7 +40,7 @@ import java.util.UUID;
 import java.util.concurrent.*;
 
 /**
- * Player handling thread manager
+ * Player handling thread manager, 4 threads by default
  *
  * @author The TridentSDK Team
  */
@@ -79,7 +79,9 @@ public final class PlayerThreads {
      * @param connection the player to remove the wrapper cache
      */
     public static void remove(ClientConnection connection) {
-        PlayerThreads.THREAD_MAP.removeAssignment(PlayerThreads.CACHE_MAP.retrieve(connection));
+        PlayerThreads.THREAD_MAP.removeAssignment(PlayerThreads.CACHE_MAP.retrieve(connection, null,
+                                                                                   PlayerThreads.SERVICE));
+        PlayerThreads.CACHE_MAP.remove(connection);
     }
 
     public static void sendAll(Packet packet) {

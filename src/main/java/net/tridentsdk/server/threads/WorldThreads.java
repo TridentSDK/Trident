@@ -27,59 +27,50 @@
 
 package net.tridentsdk.server.threads;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import net.tridentsdk.api.world.World;
+
 import java.util.concurrent.*;
 
-public class ConcurrentCache<K, V> {
-    private final ConcurrentMap<K, Future<V>> cache = new ConcurrentHashMap<>();
+/**
+ * World handling threads, which there are by default 4
+ *
+ * @author The TridentSDK Team
+ */
+public final class WorldThreads {
+    static final ConcurrentTaskExecutor<World> THREAD_MAP = new ConcurrentTaskExecutor<>(4);
+    static final ConcurrentCache<World, ConcurrentTaskExecutor.TaskExecutor> CACHE_MAP = new ConcurrentCache<>();
 
-    public V retrieve(K k, Callable<V> callable, ExecutorService executor) {
-        while (true) {
-            Future<V> future = this.cache.get(k);
+    static final ExecutorService SERVICE = Executors.newSingleThreadExecutor();
 
-            if (future == null) {
-                Future<V> task = new FutureTask<>(callable);
-                future = this.cache.putIfAbsent(k, task);
-
-                if (future == null) future = executor.submit(callable);
-            }
-
-            try {
-                return future.get();
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-            } catch (CancellationException e) {
-                this.cache.remove(k, future);
-            }
-        }
+    private WorldThreads() {
     }
 
-    public Collection<V> values() {
-        Collection<V> list = new ArrayList<>();
+    /**
+     * Gets the management tool for the world <p/> <p>This will put in a new value for the caches if cannot find for a
+     * new world</p> <p/> <p>May block the first call</p>
+     *
+     * @param world the world to retrieve the thread handler for
+     * @return the task execution handler for the world
+     */
+    public static ConcurrentTaskExecutor.TaskExecutor worldThreadHandle(final World world) {
+        return WorldThreads.CACHE_MAP.retrieve(world, new Callable<ConcurrentTaskExecutor.TaskExecutor>() {
+            @Override
+            public ConcurrentTaskExecutor.TaskExecutor call() throws Exception {
+                ConcurrentTaskExecutor.TaskExecutor executor = WorldThreads.THREAD_MAP.getScaledThread();
+                WorldThreads.THREAD_MAP.assign(executor, world);
 
-        for (Future<V> v : this.cache.values()) {
-            try {
-                list.add(v.get());
-            } catch (InterruptedException | ExecutionException ignored) {
+                return executor;
             }
-        }
-
-        return list;
+        }, WorldThreads.SERVICE);
     }
 
-    public V remove(K k) {
-        while (true) {
-            Future<V> future = this.cache.get(k);
-
-            if (future == null) return null;
-
-            this.cache.remove(k);
-            try {
-                return future.get();
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-            }
-        }
+    /**
+     * Decaches the world handler from the mappings
+     *
+     * @param world the world to decache
+     */
+    public static void remove(World world) {
+        WorldThreads.THREAD_MAP.removeAssignment(world);
+        WorldThreads.CACHE_MAP.remove(world);
     }
 }

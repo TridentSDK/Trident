@@ -27,29 +27,50 @@
 
 package net.tridentsdk.server.threads;
 
+import net.tridentsdk.api.entity.Entity;
+
+import java.util.concurrent.*;
+
 /**
- * Handles the majority of the lifecycle for the threads
+ * Entity handling thread manager, there are 2 thread by default
  *
  * @author The TridentSDK Team
  */
-public final class ThreadsManager {
-    private ThreadsManager() {
+public final class EntityThreads {
+    static final ConcurrentTaskExecutor<Entity> THREAD_MAP = new ConcurrentTaskExecutor<>(2);
+    static final ConcurrentCache<Entity, ConcurrentTaskExecutor.TaskExecutor> CACHE_MAP = new ConcurrentCache<>();
+
+    static final ExecutorService SERVICE = Executors.newSingleThreadExecutor();
+
+    private EntityThreads() {
     }
 
     /**
-     * Stops all the executors and clears all caches of concurrent threads
+     * Gets the management tool for the entity <p/> <p>This will put in a new value for the caches if cannot find for a
+     * new entity</p> <p/> <p>May block the first call</p>
+     *
+     * @param entity the entity to retrieve the thread handler for
+     * @return the task execution handler for the entity
      */
-    public static void stopAll() {
-        BackgroundTaskExecutor.SERVICE.shutdownNow();
-        PlayerThreads.SERVICE.shutdownNow();
+    public static ConcurrentTaskExecutor.TaskExecutor entityThreadHandle(final Entity entity) {
+        return EntityThreads.CACHE_MAP.retrieve(entity, new Callable<ConcurrentTaskExecutor.TaskExecutor>() {
+            @Override
+            public ConcurrentTaskExecutor.TaskExecutor call() throws Exception {
+                ConcurrentTaskExecutor.TaskExecutor executor = EntityThreads.THREAD_MAP.getScaledThread();
+                EntityThreads.THREAD_MAP.assign(executor, entity);
 
-        PlayerThreads.SERVICE.shutdownNow();
-        PlayerThreads.THREAD_MAP.shutdown();
+                return executor;
+            }
+        }, EntityThreads.SERVICE);
+    }
 
-        EntityThreads.SERVICE.shutdownNow();
-        EntityThreads.THREAD_MAP.shutdown();
-
-        WorldThreads.SERVICE.shutdownNow();
-        WorldThreads.THREAD_MAP.shutdown();
+    /**
+     * Decaches the entity handler from the mappings
+     *
+     * @param entity the entity to decache
+     */
+    public static void remove(Entity entity) {
+        EntityThreads.THREAD_MAP.removeAssignment(entity);
+        EntityThreads.CACHE_MAP.remove(entity);
     }
 }
