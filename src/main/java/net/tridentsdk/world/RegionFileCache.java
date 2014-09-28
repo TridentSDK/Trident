@@ -24,45 +24,27 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package net.tridentsdk.world;
 
-import net.tridentsdk.api.nbt.NBTException;
-
-import java.io.File;
-import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.zip.DataFormatException;
 
 /**
  * A (simple) cache for RegionFiles
  */
 public class RegionFileCache {
 
-    private final Map<File, RegionFile> regionFiles = new ConcurrentHashMap<>();
+    private final Map<Path, RegionFile> regionFiles = new ConcurrentHashMap<>();
 
-    public RegionFile getRegionFile(File serverDirectory, int chunkX, int chunkZ) {
+    public RegionFile getRegionFile(Path worldPath, int chunkX, int chunkZ) {
         int actualX = chunkX >> 5;
         int actualZ = chunkZ >> 5;
+        
+        Path regionPath = Paths.get(worldPath.toString(), "region", "r." + actualX + "." + actualZ + ".mca");
 
-        File regionDir = new File(serverDirectory, "region");
-        File actualFile = new File(regionDir, "r." + actualX + '.' + actualZ + ".mca");
-
-        RegionFile file = this.regionFiles.get(actualFile);
-
-        if (file == null) {
-            if (!regionDir.exists()) {
-                regionDir.mkdirs();
-            }
-
-            try {
-                file = new RegionFile(actualFile);
-            } catch (IOException | DataFormatException | NBTException e) {
-                e.printStackTrace();
-            }
-            this.regionFiles.put(actualFile, file);
-        }
+        RegionFile file = this.regionFiles.get(regionPath);
 
         return file;
     }

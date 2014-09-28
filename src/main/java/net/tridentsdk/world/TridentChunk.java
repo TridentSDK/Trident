@@ -27,6 +27,7 @@
 
 package net.tridentsdk.world;
 
+import net.tridentsdk.api.nbt.CompoundTag;
 import net.tridentsdk.api.world.Chunk;
 import net.tridentsdk.api.world.ChunkLocation;
 
@@ -37,6 +38,8 @@ public class TridentChunk implements Serializable, Chunk {
     private static final long serialVersionUID = 3323137810332318805L;
     private final TridentWorld world;
     private final ChunkLocation location;
+    private CompoundTag chunkData;
+    private int lastFileAccess;
 
     public TridentChunk(TridentWorld world, int x, int z) {
         this(world, new ChunkLocation(x, z));
@@ -45,8 +48,28 @@ public class TridentChunk implements Serializable, Chunk {
     public TridentChunk(TridentWorld world, ChunkLocation coord) {
         this.world = world;
         this.location = coord;
+        this.lastFileAccess = 0;
+    }
+    
+    protected CompoundTag getData() {
+        return chunkData;
+    }
+    
+    protected void setData(CompoundTag tag) {
+        if (tag != null) {
+            this.chunkData = tag;
+        }
+    }
+    
+    protected int getLastFileAccess() {
+        return lastFileAccess;
+    }
+    
+    protected void setLastFileAccess(int last) {
+        this.lastFileAccess = last;
     }
 
+    //FIXME: This whole system needs changing
     @Override
     public void generate() {
         // this is just a no, we need chunk generators to be used instead of following on a one generator basis

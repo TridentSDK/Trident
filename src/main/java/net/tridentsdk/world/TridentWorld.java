@@ -42,7 +42,7 @@ public class TridentWorld implements Serializable, World {
     private static final int MAX_CHUNKS = -1;
     private static final long serialVersionUID = 2892463980167406259L;
 
-    private final Map<ChunkLocation, Chunk> chunks = new ConcurrentHashMap<>();
+    private final Map<ChunkLocation, Chunk> loadedChunks = new ConcurrentHashMap<>();
     private final String name;
     private final Random random;
     private final WorldLoader loader;
@@ -72,7 +72,7 @@ public class TridentWorld implements Serializable, World {
             return null;
         }
 
-        Chunk chunk = this.chunks.get(location);
+        Chunk chunk = this.loadedChunks.get(location);
 
         if (chunk == null && generateIfNotFound) {
             return this.generateChunk(location);
@@ -118,7 +118,7 @@ public class TridentWorld implements Serializable, World {
         if (location == null) {
             throw new NullPointerException("Location cannot be null");
         }
-        this.chunks.put(location, chunk);
+        this.loadedChunks.put(location, chunk);
     }
 
     @Override
@@ -131,7 +131,7 @@ public class TridentWorld implements Serializable, World {
 
     @Override
     public ChunkSnapshot getChunkSnapshot() {
-        return new ChunkSnapshot(this.chunks);
+        return new ChunkSnapshot(this.loadedChunks);
     }
 }
 
