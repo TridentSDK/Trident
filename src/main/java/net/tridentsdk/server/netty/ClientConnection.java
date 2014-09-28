@@ -51,8 +51,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author The TridentSDK Team
  */
 public class ClientConnection {
-    protected static final Map<InetSocketAddress, AtomicReference<ClientConnection>> clientData =
-            new ConcurrentHashMap<>();
+    protected static final Map<InetSocketAddress, AtomicReference<ClientConnection>> clientData = new ConcurrentHashMap<>();
 
     protected static final SecureRandom SR = new SecureRandom();
     protected static final Cipher cipher = ClientConnection.getCipher();

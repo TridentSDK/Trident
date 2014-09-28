@@ -59,15 +59,7 @@ public class PlayerThreadTest {
     //}
 
     public static void main(String... args) throws RunnerException {
-        Options opt = new OptionsBuilder()
-                .include(".*" + PlayerThreadTest.class.getSimpleName() + ".*")
-                .timeUnit(TimeUnit.NANOSECONDS)
-                .mode(Mode.AverageTime)
-                .warmupIterations(25)
-                .measurementIterations(25)
-                .forks(1)
-                .threads(4)
-                .build();
+        Options opt = new OptionsBuilder().include(".*" + PlayerThreadTest.class.getSimpleName() + ".*").timeUnit(TimeUnit.NANOSECONDS).mode(Mode.AverageTime).warmupIterations(25).measurementIterations(25).forks(1).threads(4).build();
 
         new Runner(opt).run();
         ThreadsManager.stopAll();

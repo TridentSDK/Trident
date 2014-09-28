@@ -32,30 +32,36 @@ import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.world.TridentWorldLoader;
 
 public final class WorldGenTest {
-    private WorldGenTest() {}
+    private WorldGenTest() {
+    }
 
     public static void main(String... args) {
         WorldLoader loader = new TridentWorldLoader() {
             private World world;
 
-            @Override public World load(String world) {
+            @Override
+            public World load(String world) {
                 this.world = super.load(world);
                 return this.world;
             }
 
-            @Override public boolean chunkExists(World world, ChunkLocation location) {
+            @Override
+            public boolean chunkExists(World world, ChunkLocation location) {
                 return world.getChunkAt(location, false) != null;
             }
 
-            @Override public Chunk loadChunk(World world, int x, int z) {
+            @Override
+            public Chunk loadChunk(World world, int x, int z) {
                 return world.getChunkAt(x, z, true);
             }
 
-            @Override public Chunk loadChunk(World world, ChunkLocation location) {
+            @Override
+            public Chunk loadChunk(World world, ChunkLocation location) {
                 return world.getChunkAt(location, true);
             }
 
-            @Override public void saveChunk(Chunk chunk) {
+            @Override
+            public void saveChunk(Chunk chunk) {
                 // nah
             }
         };

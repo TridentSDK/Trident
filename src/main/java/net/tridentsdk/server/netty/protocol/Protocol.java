@@ -81,6 +81,9 @@ public class Protocol {
 
     public enum ClientStage {
         // TODO Add this to a more appropriate class
-        PLAY, STATUS, LOGIN, HANDSHAKE
+        PLAY,
+        STATUS,
+        LOGIN,
+        HANDSHAKE
     }
 }

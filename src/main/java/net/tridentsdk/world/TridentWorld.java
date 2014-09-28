@@ -88,8 +88,9 @@ public class TridentWorld implements Serializable, World {
 
     @Override
     public Chunk generateChunk(ChunkLocation location) {
-        if (location == null)
+        if (location == null) {
             throw new NullPointerException("Location cannot be null");
+        }
 
         int x = location.getX();
         int z = location.getZ();
@@ -123,8 +124,9 @@ public class TridentWorld implements Serializable, World {
 
     @Override
     public Block getBlockAt(Location location) {
-        if (location.getWorld().getName().equals(this.getName()))
+        if (location.getWorld().getName().equals(this.getName())) {
             throw new IllegalArgumentException("Provided location does not have the same world!");
+        }
 
         return null;
     }

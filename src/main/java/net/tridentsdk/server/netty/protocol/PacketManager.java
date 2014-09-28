@@ -63,8 +63,9 @@ abstract class PacketManager {
 
             Class<?> cls = applicableMap.get(id);
 
-            if (cls == null)
+            if (cls == null) {
                 cls = applicableMap.get(-1);
+            }
 
             return cls.asSubclass(Packet.class).getConstructor().newInstance();
         } catch (IllegalAccessException | InstantiationException |

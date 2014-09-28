@@ -176,8 +176,7 @@ public class CTXProper implements ChannelHandlerContext {
             }
 
             @Override
-            public ChannelFuture connect(SocketAddress socketAddress, SocketAddress socketAddress2,
-                                         ChannelPromise channelPromise) {
+            public ChannelFuture connect(SocketAddress socketAddress, SocketAddress socketAddress2, ChannelPromise channelPromise) {
                 return null;
             }
 
@@ -334,8 +333,7 @@ public class CTXProper implements ChannelHandlerContext {
     }
 
     @Override
-    public ChannelFuture connect(SocketAddress socketAddress, SocketAddress socketAddress2,
-                                 ChannelPromise channelPromise) {
+    public ChannelFuture connect(SocketAddress socketAddress, SocketAddress socketAddress2, ChannelPromise channelPromise) {
         return null;
     }
 

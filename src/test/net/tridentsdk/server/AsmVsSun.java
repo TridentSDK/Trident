@@ -139,14 +139,7 @@ public class AsmVsSun {
     private static final int id = AsmVsSun.METHOD_ACCESS.getIndex("doStuff");
 
     public static void main(String... args) throws RunnerException {
-        Options opt = new OptionsBuilder()
-                .include(".*" + AsmVsSun.class.getSimpleName() + ".*")
-                .timeUnit(TimeUnit.NANOSECONDS)
-                .mode(Mode.AverageTime)
-                .warmupIterations(15)
-                .measurementIterations(10)
-                .forks(1)
-                .build();
+        Options opt = new OptionsBuilder().include(".*" + AsmVsSun.class.getSimpleName() + ".*").timeUnit(TimeUnit.NANOSECONDS).mode(Mode.AverageTime).warmupIterations(15).measurementIterations(10).forks(1).build();
 
         new Runner(opt).run();
     }

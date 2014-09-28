@@ -44,8 +44,7 @@ public class RegionFile {
     private final int[] timestamps = new int[1024];
     private final CompoundTag nbtTag;
 
-    public RegionFile(File path)
-            throws IOException, DataFormatException, NBTException {
+    public RegionFile(File path) throws IOException, DataFormatException, NBTException {
         this.file = new RandomAccessFile(path, "rw");
 
         // Packing to default size of 8192 if it isn't already that size
@@ -115,8 +114,7 @@ public class RegionFile {
         }
 
         // Get the NBT tag
-        this.nbtTag = new NBTDecoder(new DataInputStream(new ByteArrayInputStream(chunkData)))
-                .decode();
+        this.nbtTag = new NBTDecoder(new DataInputStream(new ByteArrayInputStream(chunkData))).decode();
 
         // Read and store all NBT data
         IntTag chunkX = (IntTag) this.nbtTag.getTag("xPos");

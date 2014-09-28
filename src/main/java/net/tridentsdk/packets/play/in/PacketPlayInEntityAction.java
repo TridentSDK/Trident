@@ -93,8 +93,9 @@ public class PacketPlayInEntityAction extends InPacket {
 
         public static ActionType getAction(int id) {
             for (ActionType type : ActionType.values()) {
-                if (type.id == id)
+                if (type.id == id) {
                     return type;
+                }
             }
 
             throw new IllegalArgumentException(id + " is not a valid ActionType id!");
