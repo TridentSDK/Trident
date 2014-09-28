@@ -60,6 +60,33 @@ public class PacketPlayInClientStatus extends InPacket {
 
     @Override
     public void handleReceived(ClientConnection connection) {
+        StatusType type = StatusType.getStatus(actionId);
+
         // TODO: Act accordingly
+    }
+
+    public enum StatusType {
+        RESPAWN(0),
+        STATISTICS_REQUEST(1),
+        OPEN_INVENTORY_ACHEIVEMENT(2);
+
+        private final int id;
+
+        StatusType(int id) {
+            this.id = id;
+        }
+
+        public int getId() {
+            return this.id;
+        }
+
+        public static StatusType getStatus(int id) {
+            for(StatusType type : values()) {
+                if(type.getId() == id)
+                    return type;
+            }
+
+            return null;
+        }
     }
 }

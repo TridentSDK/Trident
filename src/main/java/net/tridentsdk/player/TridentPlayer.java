@@ -44,6 +44,7 @@ import net.tridentsdk.packets.play.out.PacketPlayOutKeepAlive;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.Packet;
 
+import java.util.Locale;
 import java.util.UUID;
 
 public class TridentPlayer extends TridentInventoryHolder implements Player {
@@ -51,11 +52,14 @@ public class TridentPlayer extends TridentInventoryHolder implements Player {
     private static final TridentPlayer[] players = {};
 
     private final PlayerConnection connection;
+    private volatile Locale locale;
+    private volatile float flyingSpeed;
 
     public TridentPlayer(UUID uniqueId, Location spawnLocation, ClientConnection connection) {
         super(uniqueId, spawnLocation);
 
         this.connection = new PlayerConnection(connection, this);
+        this.flyingSpeed = 1F;
     }
 
     public static void sendAll(Packet packet) {
@@ -103,6 +107,10 @@ public class TridentPlayer extends TridentInventoryHolder implements Player {
                         .CHAT));
     }
 
+    public void setLocale(Locale locale) {
+        this.locale = locale;
+    }
+
     /*
      * @NotJavaDoc
      * TODO: Create Message API and utilize it
@@ -114,6 +122,21 @@ public class TridentPlayer extends TridentInventoryHolder implements Player {
 
     public PlayerConnection getConnection() {
         return this.connection;
+    }
+
+    @Override
+    public void setFlyingSpeed(float flyingSpeed) {
+        this.flyingSpeed = flyingSpeed;
+    }
+
+    @Override
+    public float getFlyingSpeed() {
+        return this.flyingSpeed;
+    }
+
+    @Override
+    public Locale getLocale() {
+        return locale;
     }
 
     @Override

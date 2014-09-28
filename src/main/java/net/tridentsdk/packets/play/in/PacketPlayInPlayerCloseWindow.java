@@ -28,6 +28,8 @@
 package net.tridentsdk.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.api.event.player.PlayerCloseWindowEvent;
+import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
@@ -60,6 +62,16 @@ public class PacketPlayInPlayerCloseWindow extends InPacket {
 
     @Override
     public void handleReceived(ClientConnection connection) {
-        // TODO: Act accordingly
+        PlayerCloseWindowEvent event = new PlayerCloseWindowEvent(TridentServer.getInstance().getWindow(id));
+
+        // TODO: call event
+
+        if(event.isCancelled()) {
+            // force the window to be open
+
+            return;
+        }
+
+        // process the closing of the window
     }
 }

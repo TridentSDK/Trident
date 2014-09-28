@@ -28,6 +28,9 @@
 package net.tridentsdk.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.packets.play.out.PacketPlayOutDisconnect;
+import net.tridentsdk.player.PlayerConnection;
+import net.tridentsdk.player.TridentPlayer;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
@@ -84,6 +87,14 @@ public class PacketPlayInPlayerAbilities extends InPacket {
 
     @Override
     public void handleReceived(ClientConnection connection) {
-        // TODO: Act accordingly
+        TridentPlayer player = ((PlayerConnection) connection).getPlayer();
+
+        if((player.getFlyingSpeed() * 250) != flyingSpeed) {
+            player.kickPlayer("Client sent invalid flying speed!");
+
+            return;
+        }
+
+        // TODO: act accordingly
     }
 }

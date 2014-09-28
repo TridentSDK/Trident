@@ -52,7 +52,7 @@ public class PacketPlayInEntityAction extends InPacket {
      *
      * @see ActionType#ON_HORSE
      */
-    protected int jumpBoost; // because people at Mojang are fucking retards
+    protected int jumpBoost;
 
     @Override
     public int getId() {

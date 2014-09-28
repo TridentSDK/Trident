@@ -28,6 +28,8 @@
 package net.tridentsdk.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.player.PlayerConnection;
+import net.tridentsdk.player.TridentPlayer;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.InPacket;
@@ -80,6 +82,8 @@ public class PacketPlayInClientSettings extends InPacket {
 
     @Override
     public void handleReceived(ClientConnection connection) {
-        // TODO: Act accordingly
+        TridentPlayer player = ((PlayerConnection) connection).getPlayer();
+
+        player.setLocale(locale);
     }
 }

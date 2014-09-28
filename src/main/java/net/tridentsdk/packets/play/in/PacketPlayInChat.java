@@ -28,9 +28,14 @@
 package net.tridentsdk.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.api.msg.MessageBuilder;
+import net.tridentsdk.packets.play.out.PacketPlayOutChatMessage;
+import net.tridentsdk.player.PlayerConnection;
+import net.tridentsdk.player.TridentPlayer;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.InPacket;
+import net.tridentsdk.server.netty.packet.OutPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 
 public class PacketPlayInChat extends InPacket {
@@ -58,5 +63,13 @@ public class PacketPlayInChat extends InPacket {
 
     @Override
     public void handleReceived(ClientConnection connection) {
+        PlayerConnection pc = (PlayerConnection) connection;
+        TridentPlayer player = pc.getPlayer();
+        OutPacket packet = new PacketPlayOutChatMessage();
+
+        packet.set("jsonMessage", new MessageBuilder(String
+                .format("<%s> %s", player.getDisplayName(), message)));
+
+        TridentPlayer.sendAll(packet);
     }
 }

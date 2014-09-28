@@ -32,16 +32,18 @@ import net.tridentsdk.api.Difficulty;
 import net.tridentsdk.api.Server;
 import net.tridentsdk.api.Trident;
 import net.tridentsdk.api.config.JsonConfig;
+import net.tridentsdk.api.window.Window;
 import net.tridentsdk.api.world.World;
 import net.tridentsdk.entity.EntityManager;
 import net.tridentsdk.server.netty.protocol.Protocol;
 import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
 import net.tridentsdk.server.threads.ThreadsManager;
+import net.tridentsdk.window.WindowManager;
 import net.tridentsdk.world.RegionFileCache;
 
 import javax.annotation.concurrent.ThreadSafe;
 import javax.imageio.ImageIO;
-import java.awt.*;
+import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -64,6 +66,7 @@ public final class TridentServer implements Server {
     private final ConcurrentTaskExecutor<?> taskExecutor;
     private final EntityManager entityManager;
     private final RegionFileCache regionCache;
+    private final WindowManager windowManager;
 
     private TridentServer(JsonConfig config, ConcurrentTaskExecutor<?> taskExecutor) {
         this.config = config;
@@ -71,6 +74,7 @@ public final class TridentServer implements Server {
         this.taskExecutor = taskExecutor;
         this.entityManager = new EntityManager();
         this.regionCache = new RegionFileCache();
+        this.windowManager = new WindowManager();
     }
 
     /**
@@ -228,4 +232,11 @@ public final class TridentServer implements Server {
     public File getMotdPicture() {
         return null;
     }
+
+    @Override
+    public Window getWindow(int id) {
+        return windowManager.getWindow(id);
+    }
+
+    //
 }
