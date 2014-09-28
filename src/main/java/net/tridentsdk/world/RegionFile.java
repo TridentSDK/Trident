@@ -26,30 +26,33 @@
  */
 package net.tridentsdk.world;
 
+import com.google.common.math.IntMath;
 import net.tridentsdk.api.nbt.*;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.zip.*;
-
-import com.google.common.math.IntMath;
+import java.util.zip.DataFormatException;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.Inflater;
 
 /**
  * Represents a Region File (in region/ directory) in memory
  */
 public class RegionFile {
     private final static int SECTOR_LENGTH = 4096;
-    
+
     //The path to the region file
     private final Path path;
     //A cache of the locationOffsets
     private final int[] offsets = new int[1024];
 
-    public RegionFile(Path path)
-            throws IOException, DataFormatException, NBTException {
+    public RegionFile(Path path) throws IOException, DataFormatException, NBTException {
         this.path = path;
-        
+
         RandomAccessFile access;
         //Checks whether or not the file exists
         if (!Files.isRegularFile(path)) {
@@ -57,40 +60,41 @@ public class RegionFile {
             Files.deleteIfExists(path);
             //Creates a new empty file
             Files.createFile(path);
-            access  = new RandomAccessFile(path.toFile(), "rw");
+            access = new RandomAccessFile(path.toFile(), "rw");
             createNew(access);
         } else {
-            access  = new RandomAccessFile(path.toFile(), "rw");
+            access = new RandomAccessFile(path.toFile(), "rw");
         }
-        
+
         // Packing to default size of 8192 if it isn't already that size
         // (this should really never happen, but I'll take my changes)
         if (access.length() < 8192L) {
             access.seek(access.length());
 
-            long diff = 8192L -access.length();
+            long diff = 8192L - access.length();
             for (long l = 0L; l < diff; l++) {
                 access.write(0);
             }
         }
-        
+
         packFile(access);
-        
+
         //Jump to beginning of file
         access.seek(0L);
-        
+
         //Cache the offsets of each chunk
-        for (int i = 0; i < offsets.length ; i++) {
+        for (int i = 0; i < offsets.length; i++) {
             offsets[i] = access.readInt();
         }
-        
+
         access.close();
-        
+
     }
-    
+
     /**
-     * Packs the file with empty bytes in order to fit the specifications
-     * The idea behind the packing is for speed (file systems work better with 4KiB chunks apparently)
+     * Packs the file with empty bytes in order to fit the specifications The idea behind the packing is for speed (file
+     * systems work better with 4KiB chunks apparently)
+     *
      * @throws IOException
      */
     private void packFile(RandomAccessFile access) throws IOException {
@@ -102,21 +106,21 @@ public class RegionFile {
                 access.write(0);
             }
         }
-        
+
         access.close();
     }
-    
+
     private void createNew(RandomAccessFile access) {
         /*TODO: Generate a new Region File
          * - Start off with just blank files
          * - Move on to world generation
          */
-       
+
     }
-    
+
     /**
      * Pass in a chunk to load its data from file
-     * 
+     *
      * @param chunk
      * @throws NBTException
      * @throws IOException
@@ -127,7 +131,7 @@ public class RegionFile {
 
         //The location of the offset in the cache of offsets
         int offsetLoc = (IntMath.mod(chunk.getX(), 32) + IntMath.mod(chunk.getX(), 32) * 32);
-        
+
         // Read the offset of the chunk data in the file
         int offset = offsets[offsetLoc];
         // Measured in sectors
@@ -139,18 +143,18 @@ public class RegionFile {
 
         // Read Timestamp
         int lastUpdate = access.readInt();
-        
+
 
         // Check to see whether the chunk needs the data loaded
         // Not sure why it would ever not need
         if (chunk.getLastFileAccess() > lastUpdate) {
-            chunk.setLastFileAccess((int) (System.currentTimeMillis()/1000));
+            chunk.setLastFileAccess((int) (System.currentTimeMillis() / 1000));
             access.close();
             return;
         } else {
-            chunk.setLastFileAccess((int) (System.currentTimeMillis()/1000));
+            chunk.setLastFileAccess((int) (System.currentTimeMillis() / 1000));
         }
-        
+
         //Jump to location of actual chunk data
         access.seek(offsetSectors * SECTOR_LENGTH);
 
@@ -166,7 +170,7 @@ public class RegionFile {
         byte[] chunkData;
         switch (compression) {
             case 0:
-                
+
             case 1:
                 GZIPInputStream in = new GZIPInputStream(new ByteArrayInputStream(compressedData));
                 chunkData = new byte[in.available()];
@@ -191,7 +195,7 @@ public class RegionFile {
         // Get the NBT tag
         CompoundTag nbtData = new NBTDecoder(new DataInputStream(new ByteArrayInputStream(chunkData))).decode();
         chunk.setData(nbtData);
-        
+
         //Close the stream --> stop any leaks
         access.close();
     }

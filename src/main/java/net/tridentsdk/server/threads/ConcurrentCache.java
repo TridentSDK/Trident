@@ -42,7 +42,9 @@ public class ConcurrentCache<K, V> {
                 Future<V> task = new FutureTask<>(callable);
                 future = this.cache.putIfAbsent(k, task);
 
-                if (future == null) future = executor.submit(callable);
+                if (future == null) {
+                    future = executor.submit(callable);
+                }
             }
 
             try {
@@ -72,7 +74,9 @@ public class ConcurrentCache<K, V> {
         while (true) {
             Future<V> future = this.cache.get(k);
 
-            if (future == null) return null;
+            if (future == null) {
+                return null;
+            }
 
             this.cache.remove(k);
             try {

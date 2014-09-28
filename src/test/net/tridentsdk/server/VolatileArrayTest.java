@@ -34,7 +34,8 @@ import java.net.InetSocketAddress;
 import java.security.SecureRandom;
 
 public final class VolatileArrayTest {
-    private VolatileArrayTest() {}
+    private VolatileArrayTest() {
+    }
 
     public static void main(String... args) {
         /*

@@ -52,15 +52,19 @@ public class ConcurrentTaskExecutor<Assignment> {
      * @param scale the threads to use
      */
     public ConcurrentTaskExecutor(int scale) {
-        for (int i = 0; i < scale; i++) this.scale.put(new InnerThread(), 0);
+        for (int i = 0; i < scale; i++) {
+            this.scale.put(new InnerThread(), 0);
+        }
     }
 
     private static <T> Map.Entry<T, ? extends Number> minMap(Map<T, ? extends Number> map) {
         Map.Entry<T, ? extends Number> ent = (Map.Entry<T, ? extends Number>) ConcurrentTaskExecutor.DEF_ENTRY;
 
-        for (Map.Entry<T, ? extends Number> entry : map.entrySet())
-            if (entry.getValue().longValue() < ent.getValue().longValue())
+        for (Map.Entry<T, ? extends Number> entry : map.entrySet()) {
+            if (entry.getValue().longValue() < ent.getValue().longValue()) {
                 ent = entry;
+            }
+        }
 
         return ent;
     }
@@ -104,12 +108,15 @@ public class ConcurrentTaskExecutor<Assignment> {
      */
     public void removeAssignment(Assignment assignment) {
         InnerThread thread = this.assignments.remove(assignment);
-        if (thread != null) this.scale.put(thread, this.scale.get(thread) + 1);
+        if (thread != null) {
+            this.scale.put(thread, this.scale.get(thread) + 1);
+        }
     }
 
     public void shutdown() {
-        for (TaskExecutor thread : this.scale.keySet())
+        for (TaskExecutor thread : this.scale.keySet()) {
             thread.interrupt();
+        }
         this.scale.clear();
         this.assignments.clear();
     }

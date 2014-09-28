@@ -42,8 +42,7 @@ public class PacketEncoder extends MessageToByteEncoder<ByteBuf> {
      * java.lang.Object, io.netty.buffer.ByteBuf)
      */
     @Override
-    protected void encode(ChannelHandlerContext ctx, ByteBuf msg, ByteBuf out)
-            throws Exception {
+    protected void encode(ChannelHandlerContext ctx, ByteBuf msg, ByteBuf out) throws Exception {
         // Write length of the packet to be read
         Codec.writeVarInt32(out, msg.readableBytes());
 

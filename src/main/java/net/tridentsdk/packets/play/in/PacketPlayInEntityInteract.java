@@ -100,8 +100,9 @@ public class PacketPlayInEntityInteract extends InPacket {
 
         public static InteractType fromId(int id) {
             for (InteractType type : InteractType.values()) {
-                if (type.getId() == id)
+                if (type.getId() == id) {
                     return type;
+                }
             }
 
             return null;

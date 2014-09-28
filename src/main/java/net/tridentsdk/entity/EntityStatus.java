@@ -47,7 +47,8 @@ public enum EntityStatus {
     VILLAGER_ANGRY(13),
     VILLAGER_HAPPY(14),
     WITCH_ANIMATION(15),
-    ZOMBIE_SHAKE(16), // to indicate that the zombie is converting into a Villager
+    ZOMBIE_SHAKE(16),
+    // to indicate that the zombie is converting into a Villager
     FIREWORK_EXPLODE(17),
     ANIMAL_LOVE(18);
 

@@ -66,10 +66,8 @@ public class PacketStatusInRequest extends InPacket {
 
         // TODO: Make sure this is thread-safe
         // Set MOTD and max players based on the config TODO events
-        response.description.text = TridentServer.getInstance().getConfig()
-                .getString("motd", Defaults.MOTD);
-        response.players.max = TridentServer.getInstance().getConfig()
-                .getInt("max-players", Defaults.MAX_PLAYERS);
+        response.description.text = TridentServer.getInstance().getConfig().getString("motd", Defaults.MOTD);
+        response.players.max = TridentServer.getInstance().getConfig().getInt("max-players", Defaults.MAX_PLAYERS);
 
         packet.response = response;
 

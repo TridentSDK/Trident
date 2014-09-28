@@ -62,8 +62,7 @@ public class PacketHandler extends SimpleChannelInboundHandler<PacketData> {
      * Converts the PacketData to a Packet depending on the ConnectionStage of the Client <p/> {@inheritDoc}
      */
     @Override
-    protected void messageReceived(ChannelHandlerContext context, PacketData data)
-            throws Exception {
+    protected void messageReceived(ChannelHandlerContext context, PacketData data) throws Exception {
 
         if (this.connection.isEncryptionEnabled()) {
             data.decrypt(this.connection);

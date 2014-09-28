@@ -68,13 +68,11 @@ public class TridentPlayer extends TridentInventoryHolder implements Player {
         // TODO: find player's spawn location
         TridentPlayer p = new TridentPlayer(id, new Location(null, 0.0, 0.0, 0.0), connection);
 
-        p.connection.sendPacket(new PacketPlayOutJoinGame().set("entityId", p.getId())
-                .set("gamemode", Gamemode.SURVIVAL)
-                .set("dimension", Dimension.OVERWORLD)
-                .set("difficulty", Difficulty.NORMAL)
-                .set("maxPlayers", (short) 10)
-                .set("levelType",
-                        LevelType.DEFAULT)); // code to test if client will
+        p.connection.sendPacket(
+                new PacketPlayOutJoinGame().set("entityId", p.getId()).set("gamemode", Gamemode.SURVIVAL)
+                        .set("dimension", Dimension.OVERWORLD).set("difficulty", Difficulty.NORMAL)
+                        .set("maxPlayers", (short) 10)
+                        .set("levelType", LevelType.DEFAULT)); // code to test if client will
         // move on
 
         return p;
@@ -97,10 +95,8 @@ public class TridentPlayer extends TridentInventoryHolder implements Player {
     }
 
     public void sendMessage(String message) {
-        this.connection.sendPacket(new PacketPlayOutChatMessage().set("jsonMessage", message).set("position",
-                PacketPlayOutChatMessage
-                        .ChatPosition
-                        .CHAT));
+        this.connection.sendPacket(new PacketPlayOutChatMessage().set("jsonMessage", message)
+                .set("position", PacketPlayOutChatMessage.ChatPosition.CHAT));
     }
 
     /*

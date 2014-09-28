@@ -83,14 +83,15 @@ public final class PlayerThreads {
      * @param connection the player to remove the wrapper cache
      */
     public static void remove(ClientConnection connection) {
-        PlayerThreads.THREAD_MAP.removeAssignment(PlayerThreads.CACHE_MAP.retrieve(connection, null,
-                PlayerThreads.SERVICE));
+        PlayerThreads.THREAD_MAP
+                .removeAssignment(PlayerThreads.CACHE_MAP.retrieve(connection, null, PlayerThreads.SERVICE));
         PlayerThreads.CACHE_MAP.remove(connection);
     }
 
     public static void sendAll(Packet packet) {
-        for (ThreadPlayerWrapper wrapper : PlayerThreads.wrappedPlayers())
+        for (ThreadPlayerWrapper wrapper : PlayerThreads.wrappedPlayers()) {
             wrapper.getConnection().sendPacket(packet);
+        }
     }
 
     /**

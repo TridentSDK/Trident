@@ -42,8 +42,9 @@ public final class EntityManager {
     private final Map<Integer, Entity> entities = new ConcurrentHashMap<>();
 
     public EntityManager() {
-        if (!Trident.isTrident())
+        if (!Trident.isTrident()) {
             throw new UnsupportedOperationException("EntityManager can only be initalized by TridentSDK!");
+        }
     }
 
     void registerEntity(Entity entity) {
