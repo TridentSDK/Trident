@@ -50,21 +50,21 @@ public class TridentChunk implements Serializable, Chunk {
         this.location = coord;
         this.lastFileAccess = 0;
     }
-    
+
     protected CompoundTag getData() {
         return chunkData;
     }
-    
+
     protected void setData(CompoundTag tag) {
         if (tag != null) {
             this.chunkData = tag;
         }
     }
-    
+
     protected int getLastFileAccess() {
         return lastFileAccess;
     }
-    
+
     protected void setLastFileAccess(int last) {
         this.lastFileAccess = last;
     }

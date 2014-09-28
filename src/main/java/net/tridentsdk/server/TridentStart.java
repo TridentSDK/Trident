@@ -80,8 +80,13 @@ final class TridentStart {
 
         OptionParser parser = new OptionParser();
         parser.acceptsAll(TridentStart.asList("h", "help"), "Show this help dialog.").forHelp();
-        OptionSpec<Boolean> append = parser.acceptsAll(TridentStart.asList("log-append"), "Whether to append to the log file").withRequiredArg().ofType(Boolean.class).defaultsTo(true).describedAs("Log append");
-        OptionSpec<File> properties = parser.acceptsAll(TridentStart.asList("properties"), "The location for the properties file").withRequiredArg().ofType(File.class).defaultsTo(new File("server.json")).describedAs("Properties file");
+        OptionSpec<Boolean> append =
+                parser.acceptsAll(TridentStart.asList("log-append"), "Whether to append to the log file")
+                        .withRequiredArg().ofType(Boolean.class).defaultsTo(true).describedAs("Log append");
+        OptionSpec<File> properties =
+                parser.acceptsAll(TridentStart.asList("properties"), "The location for the properties file")
+                        .withRequiredArg().ofType(File.class).defaultsTo(new File("server.json"))
+                        .describedAs("Properties file");
         OptionSet options = null;
 
         try {
@@ -123,10 +128,12 @@ final class TridentStart {
 
         try {
             ServerBootstrap b = new ServerBootstrap();
-            b.group(TridentStart.bossGroup, TridentStart.workerGroup).channel(NioServerSocketChannel.class).childHandler(new ClientChannelInitializer()).option(ChannelOption.TCP_NODELAY, true);
+            b.group(TridentStart.bossGroup, TridentStart.workerGroup).channel(NioServerSocketChannel.class)
+                    .childHandler(new ClientChannelInitializer()).option(ChannelOption.TCP_NODELAY, true);
 
             // Bind and start to accept incoming connections.
-            ChannelFuture f = b.bind(new InetSocketAddress(config.getString("address", "127.0.0.1"), config.getInt("port", 25565))).sync();
+            ChannelFuture f = b.bind(new InetSocketAddress(config.getString("address", "127.0.0.1"),
+                    config.getInt("port", 25565))).sync();
 
             // Wait until the server socket is closed, to gracefully shut down your server.
             f.channel().closeFuture().sync();

@@ -110,7 +110,8 @@ n.t.s.TestPlayerThreads.autoBox         avgt         5        7.113        0.323
 n.t.s.TestPlayerThreads.explicitBox     avgt         5        7.097        0.301    ns/op
  */
 public class TestPlayerThreads {
-    public static final ClientConnection CLIENT_CONNECTION = ClientConnection.registerConnection(new CTXProper().channel());
+    public static final ClientConnection CLIENT_CONNECTION =
+            ClientConnection.registerConnection(new CTXProper().channel());
 
     /* @Benchmark public void explicitBox(Blackhole blackhole) {
         blackhole.consume(Integer.valueOf(69));
@@ -121,7 +122,9 @@ public class TestPlayerThreads {
     } */
 
     public static void main(String... args) throws RunnerException {
-        Options opt = new OptionsBuilder().include(".*" + TestPlayerThreads.class.getSimpleName() + ".*").timeUnit(TimeUnit.NANOSECONDS).mode(Mode.AverageTime).warmupIterations(10).measurementIterations(5).forks(1).threads(10).build();
+        Options opt = new OptionsBuilder().include(".*" + TestPlayerThreads.class.getSimpleName() + ".*")
+                .timeUnit(TimeUnit.NANOSECONDS).mode(Mode.AverageTime).warmupIterations(10).measurementIterations(5)
+                .forks(1).threads(10).build();
 
         new Runner(opt).run();
         ThreadsManager.stopAll();

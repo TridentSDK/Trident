@@ -73,6 +73,7 @@ public abstract class OutPacket implements Packet {
      */
     @Override
     public void handleReceived(ClientConnection connection) {
-        throw new UnsupportedOperationException(this.getClass().getName() + " is a client-bound packet therefor cannot be handled!");
+        throw new UnsupportedOperationException(
+                this.getClass().getName() + " is a client-bound packet therefor cannot be handled!");
     }
 }

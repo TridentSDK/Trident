@@ -113,7 +113,8 @@ public abstract class TridentEntity implements Entity {
             }
         }
 
-        TridentPlayer.sendAll(new PacketPlayOutEntityTeleport().set("entityId", this.id).set("location", this.loc).set("onGround", this.onGround));
+        TridentPlayer.sendAll(new PacketPlayOutEntityTeleport().set("entityId", this.id).set("location", this.loc)
+                .set("onGround", this.onGround));
     }
 
     @Override

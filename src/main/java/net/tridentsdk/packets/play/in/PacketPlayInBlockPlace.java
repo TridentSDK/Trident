@@ -55,7 +55,8 @@ public class PacketPlayInBlockPlace extends InPacket {
     public Packet decode(ByteBuf buf) {
         long encodedLocation = buf.readLong();
 
-        this.location = new Location(null, (double) (encodedLocation >> 38), (double) (encodedLocation << 26 >> 52), (double) (encodedLocation << 38 >> 38));
+        this.location = new Location(null, (double) (encodedLocation >> 38), (double) (encodedLocation << 26 >> 52),
+                (double) (encodedLocation << 38 >> 38));
         this.direction = buf.readByte();
 
         // ignore held item
