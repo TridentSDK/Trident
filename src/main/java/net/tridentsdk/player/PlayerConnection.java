@@ -36,11 +36,15 @@ import net.tridentsdk.server.netty.protocol.Protocol;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
+/**
+ * Represents the connection the player has to the server
+ *
+ * @author The TridentSDK Team
+ */
 public class PlayerConnection extends ClientConnection {
     private final TridentPlayer player;
-    private final AtomicLong keepAliveSent = new AtomicLong(0L); // in ticks and relative to player
+    private final AtomicLong keepAliveSent = new AtomicLong(0L);
     private volatile int keepAliveId;
-    // TODO double/long may not be atomic write/read
 
     PlayerConnection(ClientConnection connection, TridentPlayer player) {
         // remove old connection, and replace it with this one
@@ -58,14 +62,30 @@ public class PlayerConnection extends ClientConnection {
         this.keepAliveId = -1;
     }
 
+    /**
+     * Gets the player that has this connection
+     *
+     * @return the player that is wrapped
+     */
     public TridentPlayer getPlayer() {
         return this.player;
     }
 
+    /**
+     * Gets the ID number of the keep alive value
+     *
+     * @return the ID for the keep alive packet
+     */
     public int getKeepAliveId() {
         return this.keepAliveId;
     }
 
+    /**
+     * Sets the keep alive ID number
+     *
+     * @param id the keep alive number to be set to
+     * @param ticksLived the amount of ticks lived
+     */
     public void setKeepAliveId(int id, long ticksLived) {
         this.keepAliveId = id;
         this.keepAliveSent.set(ticksLived);

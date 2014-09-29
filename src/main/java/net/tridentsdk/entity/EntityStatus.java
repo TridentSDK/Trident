@@ -33,25 +33,73 @@ package net.tridentsdk.entity;
 /**
  * Enum to state entity status in PacketPlayOutEntityStatus
  *
+ * @author The TridentSDK Team
  * @see net.tridentsdk.packets.play.out.PacketPlayOutEntityStatus
  */
 public enum EntityStatus {
-
+    /**
+     * Entity has been hurt
+     */
     ENTITY_HURT(2),
+    /**
+     * Entity has died
+     */
     ENTITY_DEAD(3),
+    /**
+     * An Iron Golem smashes an (unfortunate) mob
+     */
     GOLEM_MASH(4),
+    /**
+     * A wolf is being tamed
+     */
     ANIMAL_TAMING(6),
+    /**
+     * A wolf that has been tamed
+     */
     ANIMAL_TAMED(7),
+    /**
+     * A wolf that is shaking water off
+     */
     WOLF_SHAKING(8),
+    /**
+     * Occurs after food is consumed
+     */
     EATING_ACCEPTED(9),
+    /**
+     * Sheep bends down to eat grass
+     */
     SHEEP_EAT(10),
+    /**
+     * An Iron Golem picks an entity up
+     */
     GOLEM_HANDLING(11),
+    /**
+     * A villager mates
+     */
     VILLAGER_MATING(12),
+    /**
+     * A villager is displeased by something
+     */
     VILLAGER_ANGRY(13),
+    /**
+     * The villager is pleased by something
+     */
     VILLAGER_HAPPY(14),
+    /**
+     * Something the witch does
+     */
     WITCH_ANIMATION(15),
+    /**
+     * When a villager-zombie is cured and turns back into a villager
+     */
     ZOMBIE_SHAKE(16), // to indicate that the zombie is converting into a Villager
+    /**
+     * When a firework destroys itself and effects follow
+     */
     FIREWORK_EXPLODE(17),
+    /**
+     * Animals like each other
+     */
     ANIMAL_LOVE(18);
 
     private final byte b;
@@ -60,6 +108,11 @@ public enum EntityStatus {
         this.b = (byte) i;
     }
 
+    /**
+     * Gets the ID value representing the status
+     *
+     * @return the {@code byte} ID value
+     */
     public byte toByte() {
         return this.b;
     }

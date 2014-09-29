@@ -33,43 +33,92 @@ package net.tridentsdk.data;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.netty.Codec;
 
+import java.util.*;
+
+/**
+ * Builds the property attributes for entity packets
+ *
+ * @author The TridentSDK Team
+ */
 public class PropertyBuilder implements Writable {
     private String key; // What are these 2 fields?
     private double value;
     private volatile String[] modifiers; // Ignore volatile array warning, already fixed
 
+    /**
+     * Creates a 0 length property array
+     */
     public PropertyBuilder() {
         this.modifiers = new String[]{};
     }
 
+    /**
+     * Creates a property array with the specified size
+     *
+     * @param size the size of the property array
+     */
     public PropertyBuilder(int size) {
         this.modifiers = new String[size];
     }
 
+    /**
+     * The key of the property
+     *
+     * @return the property key
+     */
     public String getKey() {
         return this.key;
     }
 
+    /**
+     * Sets the key of the property builder
+     *
+     * @param key the key to set
+     * @return the current instance
+     */
     public PropertyBuilder setKey(String key) {
         this.key = key;
 
         return this;
     }
 
+    /**
+     * Gets the value of the property builder
+     *
+     * @return the value (whatever that might be) TODO
+     */
     public double getValue() {
         return this.value;
     }
 
+    /**
+     * Sets the value of the property builder
+     *
+     * @param value the value to set
+     * @return the current instance
+     */
     public PropertyBuilder setValue(double value) {
         this.value = value;
 
         return this;
     }
 
+    /**
+     * Gets the property array wrapped by the builder
+     *
+     * @return the property array
+     */
     public String[] getModifiers() {
         return this.modifiers;
     }
 
+    /**
+     * Puts an attribute property at the given index
+     *
+     * @param index the index to place the property at
+     * @param modifier the property to place
+     * @return the current instance
+     */
     public PropertyBuilder addModifier(int index, String modifier) {
         String[] modifiers = this.modifiers;
         modifiers[index] = modifier;
@@ -78,17 +127,21 @@ public class PropertyBuilder implements Writable {
         return this;
     }
 
+    /**
+     * Removes all null elements in the property array
+     *
+     * @return the current instance
+     */
     public PropertyBuilder cleanup() {
-        String[] newModifiers = {}; // What? 0 length array for what?
+        Collection<String> list = new ArrayList<>();
 
         for (String value : this.modifiers) {
             if (value != null) {
-                newModifiers[newModifiers.length] = value;
+                list.add(value);
             }
         }
 
-        this.modifiers = newModifiers;
-        String[] read = this.modifiers;
+        this.modifiers = (String[]) list.toArray(); // Not even sure if this will work...
         return this;
     }
 
@@ -100,8 +153,6 @@ public class PropertyBuilder implements Writable {
         buf.writeDouble(this.value);
         Codec.writeVarInt32(buf, this.modifiers.length);
 
-        for (String s : this.modifiers) {
-            Codec.writeString(buf, s);
-        }
+        for (String s : this.modifiers) Codec.writeString(buf, s);
     }
 }

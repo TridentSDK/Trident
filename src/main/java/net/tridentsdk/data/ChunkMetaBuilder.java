@@ -33,25 +33,51 @@ package net.tridentsdk.data;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.api.world.ChunkLocation;
 
+/**
+ * Builds chunk metadata required for chunk packet data sent to the player
+ *
+ * @author The TridentSDK Team
+ */
 public class ChunkMetaBuilder implements Writable {
-
     private ChunkLocation location;
     private short bitmap;
 
+    /**
+     * Gets the chunk location
+     *
+     * @return the location of the chunk built into the metadata
+     */
     public ChunkLocation getLocation() {
         return this.location;
     }
 
+    /**
+     * Sets the chunk meta location
+     *
+     * @param location the location to set the chunk to
+     * @return the current instance
+     */
     public ChunkMetaBuilder setLocation(ChunkLocation location) {
         this.location = location;
 
         return this;
     }
 
+    /**
+     * Reads the {@code short} value that maps the bits in the chunk
+     *
+     * @return the chunk bitmap
+     */
     public short getBitmap() {
         return this.bitmap;
     }
 
+    /**
+     * Sets the chunk bitmap
+     *
+     * @param bitmap the {@code short} that maps the chunk data
+     * @return the current instance
+     */
     public ChunkMetaBuilder setBitmap(short bitmap) {
         this.bitmap = bitmap;
 

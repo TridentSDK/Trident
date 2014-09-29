@@ -46,25 +46,75 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+/**
+ * Entity abstraction base
+ *
+ * @author The TridentSDK Team
+ */
 public abstract class TridentEntity implements Entity {
     protected final AtomicInteger counter = new AtomicInteger(-1);
+    /**
+     * The entity ID for the entity
+     */
     protected final int id;
+    /**
+     * The identifier UUID for the entity
+     */
     protected final UUID uniqueId;
+    /**
+     * The distance the entity has fallen
+     */
     protected final AtomicLong fallDistance = new AtomicLong(0L);
+    /**
+     * The ticks that have passed since the entity was spawned, and alive
+     */
     protected final AtomicLong ticksExisted = new AtomicLong(0L);
+    /**
+     * The movement vector for the entity
+     */
     protected volatile Vector velocity;
+    /**
+     * Whether or not the movement vector has changed
+     */
     protected volatile boolean velocityChanged;
+    /**
+     * The entity location
+     */
     protected volatile Location loc;
+    /**
+     * Whether or not the entity has changed position
+     */
     protected volatile boolean locationChanged;
+    /**
+     * Whether or not the entity is touching the ground
+     */
     protected volatile boolean onGround;
+    /**
+     * The entity's passenger, if there are any
+     */
     protected Entity passenger;
+    /**
+     * The name of the entity appearing above the head
+     */
     protected String displayName;
+    /**
+     * Whether or not the name of the entity is visible
+     */
     protected boolean nameVisible;
+    /**
+     * TODO
+     */
     protected boolean silent;
 
+    /**
+     * Creates a new entity
+     *
+     * @param uniqueId the UUID of the entity
+     * @param spawnLocation the location which the entity is to be spawned
+     */
     public TridentEntity(UUID uniqueId, Location spawnLocation) {
         this.uniqueId = uniqueId;
-        this.id = this.counter.addAndGet(1);
+        this.id = this.counter.addAndGet(1); // ?? static?
 
         this.velocity = new Vector(0.0D, 0.0D, 0.0D);
         this.velocityChanged = false;
@@ -89,6 +139,7 @@ public abstract class TridentEntity implements Entity {
         this.passenger = null;
 
         TridentServer.getInstance().getEntityManager().registerEntity(this);
+        // TODO Perhaps we should spawn it in a different method?
     }
 
     @Override

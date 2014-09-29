@@ -37,15 +37,45 @@ import net.tridentsdk.api.util.Vector;
 
 import java.util.UUID;
 
+/**
+ * An entity that has health
+ *
+ * @author The TridentSDK Team
+ */
 public abstract class TridentLivingEntity extends TridentEntity implements LivingEntity {
-
+    /**
+     * Whether the entity is dead
+     */
     protected final boolean dead;
+    /**
+     * Whether the entity can pick up items
+     */
     protected final boolean canPickup = true;
+    /**
+     * The entity health
+     */
     protected final AtomicDouble health = new AtomicDouble(0.0);
+    /**
+     * The maximum available health
+     */
     protected double maxHealth;
+    /**
+     * Ticks since the entity was last set on fire and when the fire burned out
+     */
     protected volatile AtomicDouble fireTicks = new AtomicDouble(0.0);
+    /**
+     * The amount of air the entity has, depleted when in water
+     */
     protected volatile AtomicDouble airTicks = new AtomicDouble(0.0);
 
+    /**
+     * Inherits from {@link net.tridentsdk.entity.TridentEntity}
+     *
+     * <p>The entity is immediately set "non-dead" after {@code super} call</p>
+     *
+     * @param id
+     * @param spawnLocation
+     */
     public TridentLivingEntity(UUID id, Location spawnLocation) {
         super(id, spawnLocation);
 

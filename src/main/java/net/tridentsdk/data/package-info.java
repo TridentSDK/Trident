@@ -28,6 +28,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 /**
+ * Metadata and abstract writable implementations designed to serialize data for the protocol
+ *
  * @author The TridentSDK Team
  */
 package net.tridentsdk.data;

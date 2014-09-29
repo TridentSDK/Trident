@@ -38,8 +38,19 @@ import net.tridentsdk.api.entity.projectile.Egg;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
+/**
+ * Represents an egg after being thrown
+ *
+ * @author The TridentSDK Team
+ */
 public class TridentEgg extends TridentProjectile implements Egg {
-
+    /**
+     * Inherits constructor from {@link net.tridentsdk.entity.TridentProjectile}
+     *
+     * @param uniqueId
+     * @param spawnLocation
+     * @param source
+     */
     public TridentEgg(UUID uniqueId, Location spawnLocation, ProjectileSource source) {
         super(uniqueId, spawnLocation, source);
     }

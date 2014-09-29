@@ -37,8 +37,12 @@ import net.tridentsdk.api.nbt.CompoundTag;
 import net.tridentsdk.api.nbt.NBTDecoder;
 import net.tridentsdk.api.nbt.NBTException;
 
+/**
+ * Represents one of the slots in an inventory
+ *
+ * @author The TridentSDK Team
+ */
 public class Slot implements Writable {
-
     private final int id;
     private final Material mat;
 
@@ -46,6 +50,11 @@ public class Slot implements Writable {
     private volatile short damageValue;
     private volatile CompoundTag compoundTag;
 
+    /**
+     * Creates a new slot based on serialized data from a ByteBuf
+     *
+     * @param buf the buffer to deserialize information from
+     */
     public Slot(ByteBuf buf) {
         this.id = (int) buf.readByte();
         this.mat = Material.fromString(String.valueOf(this.id));
@@ -69,22 +78,47 @@ public class Slot implements Writable {
         }
     }
 
+    /**
+     * Gets the ID of the current item in the slot
+     *
+     * @return the item ID occupying the slot
+     */
     public int getId() {
         return this.id;
     }
 
+    /**
+     * Gets the type of the current item in the slot
+     *
+     * @return the item type occupying the slot
+     */
     public Material getType() {
         return this.mat;
     }
 
+    /**
+     * Gets the amount of the current item in the slot
+     *
+     * @return the amount of the item occupying the slot
+     */
     public short getQuantity() {
         return this.quantity;
     }
 
+    /**
+     * Gets the damage of the current item in the slot
+     *
+     * @return the damage of the item occupying the slot
+     */
     public short getDamageValue() {
         return this.damageValue;
     }
 
+    /**
+     * Gets the NBT data of the current item in the slot
+     *
+     * @return the item NBT occupying the slot
+     */
     public CompoundTag getCompoundTag() {
         return this.compoundTag;
     }

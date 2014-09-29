@@ -40,11 +40,28 @@ import net.tridentsdk.api.entity.living.ProjectileSource;
 import java.lang.ref.WeakReference;
 import java.util.UUID;
 
+/**
+ * Represents an entity that is thrown or launched
+ *
+ * @author The TridentSDK Team
+ */
 public abstract class TridentProjectile extends TridentEntity implements Projectile {
-
+    /**
+     * The source that fires the projectile
+     */
     protected final WeakReference<ProjectileSource> source;
+    /**
+     * The entity that the projectile hit, if any
+     */
     protected Entity entityHit;
 
+    /**
+     * Inherits UUID and spawnLocation from {@link net.tridentsdk.entity.TridentEntity}
+     *
+     * @param uniqueId
+     * @param spawnLocation
+     * @param source the entity which fired the projectile
+     */
     public TridentProjectile(UUID uniqueId, Location spawnLocation, ProjectileSource source) {
         super(uniqueId, spawnLocation);
         this.source = new WeakReference<>(source);
@@ -68,5 +85,8 @@ public abstract class TridentProjectile extends TridentEntity implements Project
         return this.loc.getWorld().getBlockAt(this.loc);
     }
 
+    /**
+     * Performed when the projectile hits something
+     */
     protected abstract void hit();
 }

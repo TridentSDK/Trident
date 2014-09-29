@@ -33,18 +33,40 @@ package net.tridentsdk.data;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.api.Location;
 
+/**
+ * Represents a writable form of a {@link net.tridentsdk.api.Location}
+ *
+ * @author The TridentSDK Team
+ */
 public class Position implements Writable {
-
     private Location loc;
 
+    /**
+     * Creates a new position based from an existing location
+     *
+     * @param loc the location to wrap with writable format
+     */
     public Position(Location loc) {
         this.loc = loc;
     }
 
+    /**
+     * Gets the wrapped, original location
+     *
+     * @return the location passed in by constructor or by {@link #setLoc(net.tridentsdk.api.Location)}
+     */
     public Location getLoc() {
         return this.loc;
     }
 
+    /**
+     * Sets the wrapped position
+     *
+     * <p>This does not change the value of already written locations. This is purely for
+     * purposes of performance, but removes concurrency.</p>
+     *
+     * @param loc the location to wrap with writable format
+     */
     public void setLoc(Location loc) {
         this.loc = loc;
     }

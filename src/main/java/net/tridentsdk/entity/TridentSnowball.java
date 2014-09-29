@@ -39,8 +39,19 @@ import net.tridentsdk.api.entity.living.ProjectileSource;
 
 import java.util.UUID;
 
+/**
+ * Represents a snowball which is thrown
+ *
+ * @author The TridentSDK Team
+ */
 public class TridentSnowball extends TridentProjectile {
-
+    /**
+     * Inherits from {@link net.tridentsdk.entity.TridentProjectile}
+     *
+     * @param uniqueId
+     * @param spawnLocation
+     * @param source
+     */
     public TridentSnowball(UUID uniqueId, Location spawnLocation, ProjectileSource source) {
         super(uniqueId, spawnLocation, source);
     }

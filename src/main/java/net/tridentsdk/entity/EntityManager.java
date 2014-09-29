@@ -44,6 +44,11 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class EntityManager {
     private final Map<Integer, Entity> entities = new ConcurrentHashMap<>();
 
+    /**
+     * Constructs the EntityManager for use by the server ONLY
+     *
+     * <p>In other words, DON'T USE IT</p>
+     */
     public EntityManager() {
         if (!Trident.isTrident())
             throw new UnsupportedOperationException("EntityManager can only be initalized by TridentSDK!");
@@ -53,10 +58,23 @@ public final class EntityManager {
         this.entities.put(entity.getId(), entity);
     }
 
+    /**
+     * Gets the entity with the given ID
+     *
+     * @param id the ID to find the entity by
+     * @return the entity with the ID specified
+     */
     public Entity getEntity(int id) {
         return this.entities.get(id);
     }
 
+    /**
+     * Gets all entities with the given type class
+     *
+     * @param type the type to search for entities
+     * @param <T> the entity type
+     * @return the list of entities with the specified type
+     */
     public <T> ArrayList<T> getEntities(final Class<T> type) {
         Predicate<Entity> pred = new Predicate<Entity>() {
             @Override

@@ -37,10 +37,23 @@ import net.tridentsdk.api.inventory.ItemStack;
 
 import java.util.UUID;
 
+/**
+ * An entity that is able to hold an inventory
+ *
+ * @author The TridentSDK Team
+ */
 public abstract class TridentInventoryHolder extends TridentLivingEntity implements InventoryHolder {
-
+    /**
+     * The inventory held by the entity
+     */
     protected Inventory inventory;
 
+    /**
+     * Inherits constructor from {@link net.tridentsdk.entity.TridentLivingEntity}
+     *
+     * @param id
+     * @param spawnLocation
+     */
     public TridentInventoryHolder(UUID id, Location spawnLocation) {
         super(id, spawnLocation);
     }

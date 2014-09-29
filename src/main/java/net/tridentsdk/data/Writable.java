@@ -32,7 +32,19 @@ package net.tridentsdk.data;
 
 import io.netty.buffer.ByteBuf;
 
+/**
+ * A metadata abstraction that allows the data to be written to provided {@link io.netty.buffer.ByteBuf}
+ *
+ * @author The TridentSDK Team
+ */
 public interface Writable {
-
+    /**
+     * Writes the data contained by the current implementation into serialized form in the provided
+     * {@link io.netty.buffer.ByteBuf}
+     *
+     * <p>Check the implementation source to see serialization spec</p>
+     *
+     * @param buf the buffer to write the serialized form to
+     */
     void write(ByteBuf buf);
 }
