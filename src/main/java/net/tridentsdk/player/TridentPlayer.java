@@ -38,6 +38,7 @@ import net.tridentsdk.api.entity.Entity;
 import net.tridentsdk.api.entity.EntityProperties;
 import net.tridentsdk.api.entity.Projectile;
 import net.tridentsdk.api.entity.living.Player;
+import net.tridentsdk.api.inventory.ItemStack;
 import net.tridentsdk.api.world.Dimension;
 import net.tridentsdk.api.world.LevelType;
 import net.tridentsdk.entity.TridentInventoryHolder;
@@ -58,6 +59,7 @@ public class TridentPlayer extends TridentInventoryHolder implements Player {
     private final PlayerConnection connection;
     private volatile Locale locale;
     private volatile float flyingSpeed;
+    private volatile short heldSlot = 0;
 
     public TridentPlayer(UUID uniqueId, Location spawnLocation, ClientConnection connection) {
         super(uniqueId, spawnLocation);
@@ -126,6 +128,19 @@ public class TridentPlayer extends TridentInventoryHolder implements Player {
 
     public PlayerConnection getConnection() {
         return this.connection;
+    }
+
+    public void setSlot(short slot) {
+        if(slot > 8) {
+            throw new IllegalArgumentException("Slot must be within the ranges of 0-8");
+        }
+
+        this.heldSlot = slot;
+    }
+
+    @Override
+    public ItemStack getItemInHand() {
+        return getInventory().getContents()[heldSlot + 36];
     }
 
     @Override

@@ -36,9 +36,13 @@ import net.tridentsdk.api.Difficulty;
 import net.tridentsdk.api.Server;
 import net.tridentsdk.api.Trident;
 import net.tridentsdk.api.config.JsonConfig;
+import net.tridentsdk.api.event.EventManager;
 import net.tridentsdk.api.window.Window;
 import net.tridentsdk.api.world.World;
 import net.tridentsdk.entity.EntityManager;
+import net.tridentsdk.packets.play.out.PacketPlayOutPluginMessage;
+import net.tridentsdk.player.TridentPlayer;
+import net.tridentsdk.plugin.TridentPluginHandler;
 import net.tridentsdk.server.netty.protocol.Protocol;
 import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
 import net.tridentsdk.server.threads.ThreadsManager;
@@ -67,10 +71,15 @@ public final class TridentServer implements Server {
 
     private final JsonConfig config;
     private final Protocol protocol;
+
     private final ConcurrentTaskExecutor<?> taskExecutor;
-    private final EntityManager entityManager;
     private final RegionFileCache regionCache;
+
+    private final EntityManager entityManager;
     private final WindowManager windowManager;
+    private final EventManager eventManager;
+
+    private final TridentPluginHandler pluginHandler;
 
     private TridentServer(JsonConfig config, ConcurrentTaskExecutor<?> taskExecutor) {
         this.config = config;
@@ -79,6 +88,8 @@ public final class TridentServer implements Server {
         this.entityManager = new EntityManager();
         this.regionCache = new RegionFileCache();
         this.windowManager = new WindowManager();
+        this.eventManager = new EventManager();
+        this.pluginHandler = new TridentPluginHandler();
     }
 
     /**
@@ -242,5 +253,19 @@ public final class TridentServer implements Server {
         return windowManager.getWindow(id);
     }
 
-    //
+    @Override
+    public EventManager getEventManager() {
+        return eventManager;
+    }
+
+    @Override
+    public void sendPluginMessage(String channel, byte[] data) {
+        TridentPlayer.sendAll(new PacketPlayOutPluginMessage().set("channel", channel)
+                .set("data", data));
+    }
+
+    @Override
+    public TridentPluginHandler getPluginHandler() {
+        return pluginHandler;
+    }
 }

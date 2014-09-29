@@ -118,7 +118,7 @@ public class PacketPlayInPlayerClickWindow extends InPacket {
         Window window = TridentServer.getInstance().getWindow(windowId);
         PlayerClickItemEvent clickEvent = new PlayerClickItemEvent(window, clickedSlot, actionNumber);
 
-        // TODO: call event
+        TridentServer.getInstance().getEventManager().call(clickEvent);
 
         if(clickEvent.isCancelled()) {
             return;

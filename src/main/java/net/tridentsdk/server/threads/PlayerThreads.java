@@ -36,12 +36,14 @@ import net.tridentsdk.api.entity.Entity;
 import net.tridentsdk.api.entity.EntityProperties;
 import net.tridentsdk.api.entity.Projectile;
 import net.tridentsdk.api.entity.living.Player;
+import net.tridentsdk.api.inventory.ItemStack;
 import net.tridentsdk.entity.TridentEntity;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.Packet;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Collection;
+import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -195,6 +197,26 @@ public final class PlayerThreads {
 
         @Override
         public <T extends Projectile> T launchProjectile(EntityProperties properties) {
+            return null;
+        }
+
+        @Override
+        public float getFlyingSpeed() {
+            return 0;
+        }
+
+        @Override
+        public void setFlyingSpeed(float flyingSpeed) {
+
+        }
+
+        @Override
+        public Locale getLocale() {
+            return null;
+        }
+
+        @Override
+        public ItemStack getItemInHand() {
             return null;
         }
     }

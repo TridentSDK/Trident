@@ -220,4 +220,8 @@ public abstract class TridentEntity implements Entity {
     public EntityType getType() {
         return null;
     }
+
+    public void setLocation(Location loc) {
+        this.loc = loc;
+    }
 }

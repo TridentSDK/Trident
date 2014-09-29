@@ -32,6 +32,7 @@
 package net.tridentsdk.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.player.PlayerConnection;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
@@ -64,6 +65,6 @@ public class PacketPlayInPlayerHeldItemChange extends InPacket {
 
     @Override
     public void handleReceived(ClientConnection connection) {
-        // TODO: Act accordingly
+        ((PlayerConnection) connection).getPlayer().setSlot(slot);
     }
 }

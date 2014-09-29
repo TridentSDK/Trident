@@ -33,6 +33,13 @@ package net.tridentsdk.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.api.Location;
+import net.tridentsdk.api.event.player.PlayerMoveEvent;
+import net.tridentsdk.packets.play.out.PacketPlayOutEntityCompleteMove;
+import net.tridentsdk.packets.play.out.PacketPlayOutEntityLook;
+import net.tridentsdk.packets.play.out.PacketPlayOutEntityTeleport;
+import net.tridentsdk.player.PlayerConnection;
+import net.tridentsdk.player.TridentPlayer;
+import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
@@ -79,6 +86,33 @@ public class PacketPlayInPlayerMove extends InPacket {
 
     @Override
     public void handleReceived(ClientConnection connection) {
-        // TODO: Act accordingly
+        TridentPlayer player = ((PlayerConnection) connection).getPlayer();
+        location.setWorld(player.getWorld());
+        Location from = player.getLocation();
+        Location to = location;
+
+        PlayerMoveEvent event = new PlayerMoveEvent(player, from, to);
+
+        TridentServer.getInstance().getEventManager().call(event);
+
+        if(event.isCancelled()) {
+            PacketPlayOutEntityTeleport cancel = new PacketPlayOutEntityTeleport();
+
+            cancel.set("entityId", player.getId())
+                    .set("location", from)
+                    .set("onGround", player.isOnGround());
+
+            TridentPlayer.sendAll(cancel);
+            return;
+        }
+
+        player.setLocation(to);
+
+        PacketPlayOutEntityCompleteMove move = new PacketPlayOutEntityCompleteMove();
+
+        // set fields
+
+        TridentPlayer.sendAll(move);
+
     }
 }

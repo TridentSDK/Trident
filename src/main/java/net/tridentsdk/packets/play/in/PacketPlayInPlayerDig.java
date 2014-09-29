@@ -31,6 +31,148 @@
 
 package net.tridentsdk.packets.play.in;
 
-public class PacketPlayInPlayerDig {
-    // TODO: Needs some research on its own
+import io.netty.buffer.ByteBuf;
+import net.tridentsdk.api.BlockFace;
+import net.tridentsdk.api.Location;
+import net.tridentsdk.api.event.Cancellable;
+import net.tridentsdk.api.event.Event;
+import net.tridentsdk.api.event.player.PlayerDigEvent;
+import net.tridentsdk.api.event.player.PlayerDropItemEvent;
+import net.tridentsdk.player.PlayerConnection;
+import net.tridentsdk.player.TridentPlayer;
+import net.tridentsdk.server.TridentServer;
+import net.tridentsdk.server.netty.ClientConnection;
+import net.tridentsdk.server.netty.packet.InPacket;
+import net.tridentsdk.server.netty.packet.Packet;
+
+public class PacketPlayInPlayerDig extends InPacket {
+    private short status;
+    private Location location;
+    private short blockFace;
+
+    @Override
+    public int getId() {
+        return 0x07;
+    }
+
+    public short getStatus() {
+        return status;
+    }
+
+    public Location getLocation() {
+        return location;
+    }
+
+    public short getBlockFace() {
+        return blockFace;
+    }
+
+    @Override
+    public Packet decode(ByteBuf buf) {
+        this.status = buf.readByte();
+        long encodedLocation = buf.readLong();
+
+        this.location = new Location(null, (double) (encodedLocation >> 38), (double) (encodedLocation << 26 >> 52),
+                (double) (encodedLocation << 38 >> 38));
+        this.blockFace = buf.readByte();
+
+        return this;
+    }
+
+    @Override
+    public void handleReceived(ClientConnection connection) {
+        TridentPlayer player = ((PlayerConnection) connection).getPlayer();
+        DigStatus digStatus = DigStatus.getStatus(status);
+        BlockFace face = null;
+
+        switch(blockFace) {
+            case 0:
+                face = BlockFace.BOTTOM;
+                break;
+
+            case 1:
+                face = BlockFace.TOP;
+                break;
+
+            case 2:
+                // z--
+                break;
+
+            case 3:
+                // z++
+                break;
+
+            case 4:
+                // x--
+                break;
+
+            case 5:
+                // x++
+                break;
+
+            default:
+                player.kickPlayer("java.lang.IllegalArgumentException: Client sent invalid BlockFace!");
+                return;
+        }
+
+        Cancellable event = null;
+
+        switch(digStatus) {
+            case DIG_START:
+            case DIG_CANCEL:
+            case DIG_FINISH:
+                event = new PlayerDigEvent(player, face, status);
+                break;
+
+            case DROP_ITEMSTACK:
+                event = new PlayerDropItemEvent(player, null); // todo: spawn item and call the event
+                break;
+
+            case DROP_ITEM:
+                event = new PlayerDropItemEvent(player, null);
+                break;
+
+            case SHOOT_ARROW:
+                // shoot bow, if player has a food item finish eating
+                break;
+        }
+
+        TridentServer.getInstance().getEventManager().call((Event) event);
+
+        if(event == null || event.isCancelled())
+            return;
+
+
+
+        location.setWorld(player.getWorld());
+    }
+
+    public enum DigStatus {
+        DIG_START(0),
+        DIG_CANCEL(1),
+        DIG_FINISH(2),
+        DROP_ITEMSTACK(3),
+        DROP_ITEM(4),
+        SHOOT_ARROW(5);
+
+        private final short id;
+
+        DigStatus(int id) {
+           this.id = (short) id;
+        }
+
+        public static DigStatus getStatus(short id) {
+            for(DigStatus status : values()) {
+                if(status.id == id) {
+                    return status;
+                }
+            }
+
+            return null;
+        }
+
+        public short getId() {
+            return id;
+        }
+    }
 }

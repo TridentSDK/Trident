@@ -33,6 +33,9 @@ package net.tridentsdk.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.api.Location;
+import net.tridentsdk.api.event.player.PlayerTabCompleteEvent;
+import net.tridentsdk.packets.play.out.PacketPlayOutTabComplete;
+import net.tridentsdk.player.PlayerConnection;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.InPacket;
@@ -92,6 +95,11 @@ public class PacketPlayInTabComplete extends InPacket {
 
     @Override
     public void handleReceived(ClientConnection connection) {
-        // TODO: Act accordingly
+        PlayerTabCompleteEvent event = new PlayerTabCompleteEvent(
+                ((PlayerConnection) connection).getPlayer(), text);
+
+        if(event.getSuggestions().length > 0) {
+            connection.sendPacket(new PacketPlayOutTabComplete().set("matches", event.getSuggestions()));
+        }
     }
 }
