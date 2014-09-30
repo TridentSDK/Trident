@@ -58,9 +58,7 @@ public class PacketDecoder extends ReplayingDecoder<Void> {
 
     @Override
     protected void decode(ChannelHandlerContext context, ByteBuf buf, List<Object> objects) throws Exception {
-
         this.rawLength = Codec.readVarInt32(buf);
-
         ByteBuf data = buf.readBytes(this.rawLength);
 
         objects.add(new PacketData(data));

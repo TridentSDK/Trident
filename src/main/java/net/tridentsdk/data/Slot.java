@@ -33,16 +33,13 @@ package net.tridentsdk.data;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import net.tridentsdk.api.Material;
+import net.tridentsdk.api.inventory.ItemStack;
 import net.tridentsdk.api.nbt.CompoundTag;
 import net.tridentsdk.api.nbt.NBTDecoder;
 import net.tridentsdk.api.nbt.NBTException;
 
-/**
- * Represents one of the slots in an inventory
- *
- * @author The TridentSDK Team
- */
 public class Slot implements Writable {
+
     private final int id;
     private final Material mat;
 
@@ -50,11 +47,6 @@ public class Slot implements Writable {
     private volatile short damageValue;
     private volatile CompoundTag compoundTag;
 
-    /**
-     * Creates a new slot based on serialized data from a ByteBuf
-     *
-     * @param buf the buffer to deserialize information from
-     */
     public Slot(ByteBuf buf) {
         this.id = (int) buf.readByte();
         this.mat = Material.fromString(String.valueOf(this.id));
@@ -76,6 +68,16 @@ public class Slot implements Writable {
                 // do something
             }
         }
+    }
+
+    public Slot(ItemStack is) {
+        this.id = is.getId();
+        this.mat = is.getType();
+
+        this.quantity = is.getQuantity();
+        this.damageValue = is.getDamageValue();
+
+        // TODO: build NBT data
     }
 
     /**

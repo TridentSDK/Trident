@@ -32,6 +32,11 @@
 package net.tridentsdk.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.api.world.World;
+import net.tridentsdk.packets.play.out.PacketPlayOutPlayerRespawn;
+import net.tridentsdk.packets.play.out.PacketPlayOutStatistics;
+import net.tridentsdk.player.PlayerConnection;
+import net.tridentsdk.player.TridentPlayer;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
@@ -64,9 +69,39 @@ public class PacketPlayInClientStatus extends InPacket {
 
     @Override
     public void handleReceived(ClientConnection connection) {
+        TridentPlayer player = ((PlayerConnection) connection).getPlayer();
+        World world = player.getWorld();
         StatusType type = StatusType.getStatus(actionId);
 
-        // TODO: Act accordingly
+        switch(type) {
+            case RESPAWN:
+                PacketPlayOutPlayerRespawn respawn = new PacketPlayOutPlayerRespawn();
+
+                respawn.set("dimesion", (int) world.getDimesion().toByte())
+                        .set("difficulity", (int) world.getDifficulity().toByte())
+                        .set("gameMode", (int) world.getDefaultGamemode().toByte()
+                        /* todo make this specific to the player */);
+
+                connection.sendPacket(respawn);
+                break;
+
+            case STATISTICS_REQUEST:
+                PacketPlayOutStatistics statistics = new PacketPlayOutStatistics();
+
+                // TODO prepare statistics for the player
+                statistics.set("entries", null);
+
+                connection.sendPacket(statistics); // inb4 NPE
+                break;
+
+            case OPEN_INVENTORY_ACHEIVEMENT:
+                // no packet existing for this, are we missing said packet?
+
+                break;
+
+            default:
+                throw new IllegalArgumentException("Client sent invalid status, maybe modified?"); // catched by PacketHandler
+        }
     }
 
     public enum StatusType {

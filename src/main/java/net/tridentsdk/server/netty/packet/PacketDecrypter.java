@@ -60,11 +60,13 @@ public class PacketDecrypter extends ByteToMessageDecoder {
     protected void decode(ChannelHandlerContext ctx, ByteBuf in,
                           List<Object> out) throws Exception {
         ByteBuf bufOut = ctx.alloc().buffer(in.readableBytes());
+
         if (this.connection.isEncryptionEnabled()) {
             bufOut.writeBytes(this.connection.decrypt(Codec.toArray(in)));
         } else {
             bufOut.writeBytes(in);
         }
+        
         out.add(bufOut);
     }
 }

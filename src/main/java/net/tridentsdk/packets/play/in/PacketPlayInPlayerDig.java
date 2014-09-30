@@ -111,8 +111,7 @@ public class PacketPlayInPlayerDig extends InPacket {
                 break;
 
             default:
-                player.kickPlayer("java.lang.IllegalArgumentException: Client sent invalid BlockFace!");
-                return;
+                throw new IllegalArgumentException("Client sent invalid BlockFace!");
         }
 
         Cancellable event = null;

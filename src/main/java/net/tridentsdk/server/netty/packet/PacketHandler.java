@@ -34,6 +34,8 @@ package net.tridentsdk.server.netty.packet;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import net.tridentsdk.api.Trident;
+import net.tridentsdk.packets.login.PacketLoginOutDisconnect;
+import net.tridentsdk.packets.play.out.PacketPlayOutDisconnect;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.protocol.Protocol;
@@ -87,7 +89,37 @@ public class PacketHandler extends SimpleChannelInboundHandler<PacketData> {
 
         // decode and handle the packet
         packet.decode(data.getData());
-        packet.handleReceived(this.connection);
+
+        try {
+            packet.handleReceived(this.connection);
+        } catch (Exception ex) {
+            switch(connection.getStage()) {
+                case LOGIN:
+                    PacketLoginOutDisconnect disconnect = new PacketLoginOutDisconnect();
+
+                    disconnect.setJsonMessage(ex.getMessage());
+
+                    connection.sendPacket(disconnect);
+                    connection.logout();
+
+                    break;
+
+                case PLAY:
+                    PacketPlayOutDisconnect quit = new PacketPlayOutDisconnect();
+
+                    quit.set("reason", ex.getMessage());
+
+                    connection.sendPacket(quit);
+                    connection.logout();
+
+                    break;
+
+                default:
+                    // can't do much but print the stacktrace
+                    ex.printStackTrace();
+                    break;
+            }
+        }
 
         final ClientConnection finalConnection = this.connection;
         BackgroundTaskExecutor.execute(new Runnable() {

@@ -31,6 +31,7 @@
 
 package net.tridentsdk.server.netty.protocol;
 
+import net.tridentsdk.api.reflect.FastClass;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.packet.PacketType;
 import net.tridentsdk.server.netty.packet.UnknownPacket;
@@ -70,9 +71,10 @@ abstract class PacketManager {
             if (cls == null)
                 cls = applicableMap.get(-1);
 
-            return cls.asSubclass(Packet.class).getConstructor().newInstance();
-        } catch (IllegalAccessException | InstantiationException |
-                NoSuchMethodException | InvocationTargetException ex) {
+            FastClass fastClass = FastClass.get(cls);
+
+            return fastClass.getConstructor().newInstance();
+        } catch (Exception ex) {
             throw new RuntimeException(ex.getMessage());
         }
     }

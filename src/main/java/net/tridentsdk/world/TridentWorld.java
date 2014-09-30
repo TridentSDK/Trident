@@ -32,6 +32,8 @@
 package net.tridentsdk.world;
 
 import net.tridentsdk.api.Block;
+import net.tridentsdk.api.Difficulty;
+import net.tridentsdk.api.Gamemode;
 import net.tridentsdk.api.Location;
 import net.tridentsdk.api.world.*;
 
@@ -136,6 +138,26 @@ public class TridentWorld implements Serializable, World {
     @Override
     public ChunkSnapshot getChunkSnapshot() {
         return new ChunkSnapshot(this.loadedChunks);
+    }
+
+    @Override
+    public Dimension getDimesion() {
+        return Dimension.OVERWORLD; // psuedo return
+    }
+
+    @Override
+    public Difficulty getDifficulity() {
+        return Difficulty.NORMAL; // psuedo return
+    }
+
+    @Override
+    public Gamemode getDefaultGamemode() {
+        return Gamemode.SURVIVAL; // psuedo return
+    }
+
+    @Override
+    public LevelType getLevelType() {
+        return LevelType.DEFAULT; // psuedo return
     }
 }
 

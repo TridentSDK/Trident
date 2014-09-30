@@ -38,6 +38,7 @@ import net.tridentsdk.api.entity.Entity;
 import net.tridentsdk.api.entity.EntityProperties;
 import net.tridentsdk.api.entity.Projectile;
 import net.tridentsdk.api.entity.living.Player;
+import net.tridentsdk.api.event.entity.EntityDamageEvent;
 import net.tridentsdk.api.inventory.ItemStack;
 import net.tridentsdk.api.world.Dimension;
 import net.tridentsdk.api.world.LevelType;
@@ -48,6 +49,7 @@ import net.tridentsdk.packets.play.out.PacketPlayOutJoinGame;
 import net.tridentsdk.packets.play.out.PacketPlayOutKeepAlive;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.Packet;
+import net.tridentsdk.window.TridentWindow;
 
 import java.util.Locale;
 import java.util.UUID;
@@ -181,6 +183,16 @@ public class TridentPlayer extends TridentInventoryHolder implements Player {
     @Override
     public <T extends Projectile> T launchProjectile(EntityProperties properties) {
         // TODO
+        return null;
+    }
+
+    @Override
+    public EntityDamageEvent getLastDamageCause() {
+        return null;
+    }
+
+    @Override
+    public Player hurtByPlayer() {
         return null;
     }
 }

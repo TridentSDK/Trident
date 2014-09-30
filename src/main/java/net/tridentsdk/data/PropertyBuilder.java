@@ -41,9 +41,9 @@ import java.util.*;
  * @author The TridentSDK Team
  */
 public class PropertyBuilder implements Writable {
-    private String key; // What are these 2 fields?
+    private String key;
     private double value;
-    private volatile String[] modifiers; // Ignore volatile array warning, already fixed
+    private volatile String[] modifiers;
 
     /**
      * Creates a 0 length property array

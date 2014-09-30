@@ -33,6 +33,8 @@ package net.tridentsdk.window;
 
 import net.tridentsdk.api.inventory.ItemStack;
 import net.tridentsdk.api.window.Window;
+import net.tridentsdk.player.PlayerConnection;
+import net.tridentsdk.player.TridentPlayer;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -83,4 +85,6 @@ public abstract class TridentWindow implements Window {
         contents[index] = value;
         // TODO: update client
     }
+
+    public abstract void sendTo(TridentPlayer player);
 }
