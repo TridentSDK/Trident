@@ -60,42 +60,52 @@ package net.tridentsdk.server.threads;
 
 // TODO: probably rename this
 
-import javax.annotation.concurrent.ThreadSafe;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Handles the running of the server, the "ticks" that occur 20 times a second
+ *
+ * @author The TridentSDK Team
  */
 public class MainThread extends Thread {
-
     /**
      * system.currenttimemillis() when the server's first tick happened, used to keep on schedule, subject
      * to change when the server is running slow
      */
-    private long zeroBase = 0;
-    private volatile int ticksElapsed = 0;
-    private volatile int notLostTicksElapsed = 0;
+    private long zeroBase;
+    private final AtomicInteger ticksElapsed = new AtomicInteger();
+    private final AtomicInteger notLostTicksElapsed = new AtomicInteger();
 
-    private volatile boolean pausedTicking = false;
+    private volatile boolean pausedTicking;
 
-    private volatile int ticksToWait = 0;
+    private final AtomicInteger ticksToWait = new AtomicInteger();
 
-    private volatile boolean redstoneTick = false;
+    private volatile boolean redstoneTick;
 
     private final int ticksPerSecond;
     private final int tickLength;
 
     private static MainThread instance;
 
+    /**
+     * Gets the main instance of the thread runner
+     *
+     * @return
+     */
     public static MainThread getInstance() {
-        return instance;
+        return MainThread.instance;
     }
 
-
-    public MainThread (int ticksPerSecond) {
-        zeroBase = System.currentTimeMillis();
-        instance = this;
+    /**
+     * Creates the MainThread runner from the amount of heartbeats the server should take per second the server runs
+     *
+     * @param ticksPerSecond the amount of heartbeats per second
+     */
+    public MainThread(int ticksPerSecond) {
+        this.zeroBase = System.currentTimeMillis();
+        MainThread.instance = this;
         this.ticksPerSecond = ticksPerSecond;
-        tickLength = 1000/ticksPerSecond;
+        this.tickLength = 1000/ticksPerSecond;
     }
 
     @Override
@@ -103,40 +113,40 @@ public class MainThread extends Thread {
         super.run();
 
         while(true) {
-            if(isInterrupted()) {
+            if(this.isInterrupted()) {
                 break;
             }
 
             long startTime = System.currentTimeMillis();
 
-            ticksElapsed ++;
+            this.ticksElapsed.getAndIncrement();
 
             // if we've paused, wait and then skip the rest
-            if (pausedTicking) {
-                calcAndWait(0);
+            if (this.pausedTicking) {
+                this.calcAndWait(0);
                 continue;
             }
 
 
-            if(ticksToWait > 0) {
-                ticksToWait--;
-                calcAndWait(0);
+            if(this.ticksToWait.get() > 0) {
+                this.ticksToWait.getAndDecrement();
+                this.calcAndWait(0);
                 continue;
             }
 
-            notLostTicksElapsed ++;
+            this.notLostTicksElapsed.getAndIncrement();
 
 
             // TODO: tick the worlds?
             WorldThreads.notifyTick();
 
             // alternate redstone ticks between ticks
-            if(redstoneTick) {
+            if(this.redstoneTick) {
                 WorldThreads.notifyRedstoneTick();
-                redstoneTick = false;
+                this.redstoneTick = false;
             }
             else {
-                redstoneTick = true;
+                this.redstoneTick = true;
             }
 
             // TODO: decrement all timers for later tasks
@@ -145,8 +155,7 @@ public class MainThread extends Thread {
 
             // TODO: run tasks that are scheduled to be run on the main thread
 
-            calcAndWait((int) (System.currentTimeMillis() - startTime));
-
+            this.calcAndWait((int) (System.currentTimeMillis() - startTime));
         }
     }
 
@@ -154,7 +163,7 @@ public class MainThread extends Thread {
      * Interesting new feature (relative to other implementations) that would allow it to pause ticking
      */
     public boolean pauseTicking() {
-        pausedTicking = true;
+        this.pausedTicking = true;
         return true;
     }
 
@@ -163,47 +172,45 @@ public class MainThread extends Thread {
      * @param tit the Time in Tick (tit)
      */
     private void calcAndWait(int tit) {
-        correctTiming();
+        this.correctTiming();
 
-        int ttw = tickLength - tit;
+        int ttw = this.tickLength - tit;
 
         if(ttw <= 0) {
             return;
         }
 
         try {
-            sleep(ttw);
+            Thread.sleep((long) ttw);
         } catch (InterruptedException ex) {
             this.interrupt();
         }
     }
 
     private void correctTiming() {
-        long expectedTime = (ticksElapsed -1) * tickLength;
-        long actualTime = System.currentTimeMillis() - zeroBase;
+        long expectedTime = (long) ((this.ticksElapsed.get() - 1) * this.tickLength);
+        long actualTime = System.currentTimeMillis() - this.zeroBase;
         if(actualTime != expectedTime) {
             // if there is a difference of less than two milliseconds, just update zerobase to compensate and maintain
             // accuracy
-            if(actualTime - expectedTime <= 2) {
-                zeroBase += actualTime - expectedTime;
+            if(actualTime - expectedTime <= 2L) {
+                this.zeroBase += actualTime - expectedTime;
                 return;
             }
-            else {
-                // handle more advanced divergences
-            }
 
+            // handle more advanced divergences
         }
     }
 
     /**
      * Instead of needing to be resumed, it will instead just skip this many ticks and resume
-     * @param ticks
+     *
+     * @param ticks the ticks to pause for
      * @return whether the server allows the pausing of ticking
      * @see MainThread#pauseTicking()
      */
     public boolean pauseTicking(int ticks) {
-
-        ticksToWait += ticks;
+        this.ticksToWait.addAndGet(ticks);
         return true;
     }
 
@@ -211,7 +218,7 @@ public class MainThread extends Thread {
      * Compliment to MainThread#pauseTicking(), resumes the ticking of the server
      */
     public void resumeTicking() {
-        pausedTicking = false;
+        this.pausedTicking = false;
     }
 
     @Override
@@ -224,11 +231,21 @@ public class MainThread extends Thread {
         return super.getUncaughtExceptionHandler();
     }
 
+    /**
+     * Gets the elapsed ticks
+     *
+     * @return the ticks elapsed
+     */
     public int getTicksElapsed() {
-        return ticksElapsed;
+        return this.ticksElapsed.get();
     }
 
+    /**
+     * Gets the ticks that were not lost in the time elapsed
+     *
+     * @return the ticks not lost
+     */
     public int getNotLostTicksElapsed() {
-        return notLostTicksElapsed;
+        return this.notLostTicksElapsed.get();
     }
 }

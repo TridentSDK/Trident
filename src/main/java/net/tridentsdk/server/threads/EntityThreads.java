@@ -53,7 +53,9 @@ public final class EntityThreads {
 
     /**
      * Gets the management tool for the entity <p/> <p>This will put in a new value for the caches if cannot find for a
-     * new entity</p> <p/> <p>May block the first call</p>
+     * new entity</p>
+     *
+     * <p>May block the first call</p>
      *
      * @param entity the entity to retrieve the thread handler for
      * @return the task execution handler for the entity

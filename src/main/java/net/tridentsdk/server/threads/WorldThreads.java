@@ -52,8 +52,12 @@ public final class WorldThreads {
     }
 
     /**
-     * Gets the management tool for the world <p/> <p>This will put in a new value for the caches if cannot find for a
-     * new world</p> <p/> <p>May block the first call</p>
+     * Gets the management tool for the world
+     *
+     * <p>This will put in a new value for the caches if cannot find for a
+     * new world</p>
+     *
+     * <p>May block the first call</p>
      *
      * @param world the world to retrieve the thread handler for
      * @return the task execution handler for the world
@@ -95,6 +99,9 @@ public final class WorldThreads {
         WorldThreads.CACHE_MAP.remove(world);
     }
 
+    /**
+     * Notifies the server to tick redstone activities
+     */
     public static void notifyRedstoneTick() {
         for (ConcurrentTaskExecutor.TaskExecutor executor : WorldThreads.CACHE_MAP.values()) {
             executor.addTask(new Runnable() {

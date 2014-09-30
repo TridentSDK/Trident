@@ -35,9 +35,24 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.*;
 
+/**
+ * Cache wrapping {@link java.util.concurrent.ConcurrentHashMap}
+ *
+ * @author The TridentSDK Team
+ * @param <K> the key type
+ * @param <V> the value type
+ */
 public class ConcurrentCache<K, V> {
     private final ConcurrentMap<K, Future<V>> cache = new ConcurrentHashMap<>();
 
+    /**
+     * Retrieves the key in the cache, or adds the return value of the callable provided, run in the executor provided
+     *
+     * @param k the key to retrieve the value from, or assign it to
+     * @param callable the result of which to assign the key a value if the key is not in the cache
+     * @param executor the executor the run the callable in
+     * @return the return value of the callable
+     */
     public V retrieve(K k, Callable<V> callable, ExecutorService executor) {
         while (true) {
             Future<V> future = this.cache.get(k);
@@ -59,6 +74,11 @@ public class ConcurrentCache<K, V> {
         }
     }
 
+    /**
+     * The values of the cache
+     *
+     * @return the cache values
+     */
     public Collection<V> values() {
         Collection<V> list = new ArrayList<>();
 
@@ -72,6 +92,12 @@ public class ConcurrentCache<K, V> {
         return list;
     }
 
+    /**
+     * Removes the entry assigned to the specified key
+     *
+     * @param k the key to remove the entry for
+     * @return the old value assigned to the key, otherwise, {@code null} if not in the cache
+     */
     public V remove(K k) {
         while (true) {
             Future<V> future = this.cache.get(k);

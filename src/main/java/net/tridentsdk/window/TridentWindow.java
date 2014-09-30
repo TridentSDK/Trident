@@ -37,7 +37,6 @@ import net.tridentsdk.api.window.Window;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class TridentWindow implements Window {
-
     /**
      * Counter for window ids, inital value is 2 to avoid confusion with a window and a player inventory
      */

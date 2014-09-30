@@ -55,22 +55,55 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author The TridentSDK Team
  */
 public class ClientConnection {
+    /**
+     * Map of client connections registered
+     */
     protected static final Map<InetSocketAddress, AtomicReference<ClientConnection>> clientData =
             new ConcurrentHashMap<>();
 
+    /**
+     * Random for generating the verification token
+     */
     protected static final SecureRandom SR = new SecureRandom();
+    /**
+     * The RSA cipher used to encrypt client data
+     */
     protected static final Cipher cipher = ClientConnection.getCipher();
 
     /* Network fields */
+    /**
+     * The client's connection address
+     */
     protected InetSocketAddress address;
+    /**
+     * The data channel
+     */
     protected Channel channel;
 
     /* Encryption and client data fields */
+    /**
+     * The login key pair
+     */
     protected volatile KeyPair loginKeyPair;
+    /**
+     * The client stage during login
+     */
     protected volatile Protocol.ClientStage stage;
+    /**
+     * Whether or not encryption is enabled for the client
+     */
     protected volatile boolean encryptionEnabled;
+    /**
+     * The secret key shared between the client and server
+     */
     protected volatile SecretKey sharedSecret;
+    /**
+     * The verification token
+     */
     protected volatile byte[] verificationToken; // DO NOT WRITE INDIVIDUAL ELEMENTS TO IT. Consult AgentTroll
+    /**
+     * Encryption IV specification
+     */
     private IvParameterSpec ivSpec;
 
     /**
@@ -110,7 +143,7 @@ public class ClientConnection {
      * Gets the connection by the IP address
      *
      * @param address the IP to lookup the connection handler
-     * @return the instance of the client handler associated with the IP
+     * @return the instance of the client handler associated with the IP, or {@code null} if not registered
      */
     public static ClientConnection getConnection(InetSocketAddress address) {
         // Get the connection reference
@@ -125,10 +158,22 @@ public class ClientConnection {
         return reference.get();
     }
 
+    /**
+     * Gets the connection of a channel handler context
+     *
+     * @param chx the context of which to find the client from
+     * @return the client connection given the handler context, or {@code null} if not registered
+     */
     public static ClientConnection getConnection(ChannelHandlerContext chx) {
         return ClientConnection.getConnection((InetSocketAddress) chx.channel().remoteAddress());
     }
 
+    /**
+     * Registers the client channel with a protocol connection wrapper
+     *
+     * @param channel the channel of which the player is connected by
+     * @return the client connection that was registered
+     */
     public static ClientConnection registerConnection(Channel channel) {
         // Make a new instance of ClientConnection
         ClientConnection newConnection = new ClientConnection(channel);
@@ -157,23 +202,46 @@ public class ClientConnection {
         this.channel.flush();
     }
 
+    /**
+     * Encrypts the given {@code byte} data
+     *
+     * @param data the data to encrypt
+     * @return the encrypted data
+     * @throws Exception if something wrong occurs
+     */
     public byte[] encrypt(byte... data) throws Exception {
         ClientConnection.cipher.init(Cipher.ENCRYPT_MODE, this.sharedSecret, this.ivSpec);
 
         return ClientConnection.cipher.doFinal(data);
     }
 
+    /**
+     * Decrypts the given {@code byte} encryption data
+     *
+     * @param data the data to decrypt
+     * @return the decrypted data
+     * @throws Exception if something wrong occurs
+     */
     public byte[] decrypt(byte... data) throws Exception {
         ClientConnection.cipher.init(Cipher.DECRYPT_MODE, this.sharedSecret, this.ivSpec);
 
         return ClientConnection.cipher.doFinal(data);
     }
 
+    /**
+     * Generates the client token and stores it in the {@link #verificationToken}
+     */
     public void generateToken() {
-        this.verificationToken = new byte[4];
-        ClientConnection.SR.nextBytes(this.verificationToken);
+        byte[] localToken = new byte[4];
+        ClientConnection.SR.nextBytes(localToken);
+        this.verificationToken = localToken;
     }
 
+    /**
+     * Enables client data encryption
+     *
+     * @param secret the client secret to encrypt data with
+     */
     public void enableEncryption(byte... secret) {
         //Makes sure the secret is only set once
         if (!this.encryptionEnabled) {
@@ -219,22 +287,47 @@ public class ClientConnection {
         this.stage = stage;
     }
 
+    /**
+     * Gets the client verification token
+     *
+     * @return the token of which to verify the client
+     */
     public byte[] getVerificationToken() {
         return this.verificationToken;
     }
 
+    /**
+     * Whether or not encryption is enabled
+     *
+     * @return {@code true} if encryption is enabled, {@code false} if it is not
+     */
     public boolean isEncryptionEnabled() {
         return this.encryptionEnabled;
     }
 
+    /**
+     * Gets the key pair for client login
+     *
+     * @return the {@link java.security.KeyPair} for the client
+     */
     public KeyPair getLoginKeyPair() {
         return this.loginKeyPair;
     }
 
+    /**
+     * Sets the client login key pair
+     *
+     * @param keyPair the key pair used by the client
+     */
     public void setLoginKeyPair(KeyPair keyPair) {
         this.loginKeyPair = keyPair;
     }
 
+    /**
+     * The protocol login encryption secret
+     *
+     * @return the {@link javax.crypto.SecretKey} shared between the server and client
+     */
     public SecretKey getSharedSecret() {
         return this.sharedSecret;
     }

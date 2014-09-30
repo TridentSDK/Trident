@@ -107,6 +107,11 @@ public final class TridentServer implements Server {
         // We CANNOT let the "this" instance escape during creation, else we lose thread-safety
     }
 
+    /**
+     * Gets the instance of the server
+     *
+     * @return the server singleton
+     */
     public static TridentServer getInstance() {
         return (TridentServer) Trident.getServer();
     }
@@ -198,6 +203,11 @@ public final class TridentServer implements Server {
         return null;
     }
 
+    /**
+     * The current amount of players on the server
+     *
+     * @return the players that are connected to the server
+     */
     public int getCurrentPlayercount() {
         // TODO: implement
         return -1;
@@ -239,6 +249,11 @@ public final class TridentServer implements Server {
         return this.getConfig().getString("motd", Defaults.MOTD);
     }
 
+    /**
+     * Sets the server MOTD
+     *
+     * @param motd the MOTD to set for the server
+     */
     public void setMotd(String motd) {
         this.getConfig().setString("motd", motd);
     }
