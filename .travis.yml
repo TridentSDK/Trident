@@ -1,0 +1,9 @@
+language: java
+notifications:
+  email: false
+install: true
+script:
+  - mvn clean install
+matrix:
+  include:
+  - jdk: openjdk7
