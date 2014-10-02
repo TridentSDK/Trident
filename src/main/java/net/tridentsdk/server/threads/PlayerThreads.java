@@ -31,11 +31,13 @@
 
 package net.tridentsdk.server.threads;
 
+import net.tridentsdk.api.GameMode;
 import net.tridentsdk.api.Location;
 import net.tridentsdk.api.entity.Entity;
 import net.tridentsdk.api.entity.EntityProperties;
 import net.tridentsdk.api.entity.Projectile;
 import net.tridentsdk.api.entity.living.Player;
+import net.tridentsdk.api.event.entity.EntityDamageEvent;
 import net.tridentsdk.api.inventory.ItemStack;
 import net.tridentsdk.entity.TridentEntity;
 import net.tridentsdk.server.netty.ClientConnection;
@@ -185,6 +187,16 @@ public final class PlayerThreads {
         }
 
         @Override
+        public EntityDamageEvent getLastDamageCause() {
+            return null;
+        }
+
+        @Override
+        public Player hurtByPlayer() {
+            return null;
+        }
+
+        @Override
         public boolean isDead() {
             return false;
         }
@@ -222,6 +234,41 @@ public final class PlayerThreads {
         @Override
         public ItemStack getItemInHand() {
             return null;
+        }
+
+        @Override
+        public GameMode getGameMode() {
+            return null;
+        }
+
+        @Override
+        public float getMoveSpeed() {
+            return 0;
+        }
+
+        @Override
+        public void setMoveSpeed(float speed) {
+
+        }
+
+        @Override
+        public float getSneakSpeed() {
+            return 0;
+        }
+
+        @Override
+        public void setSneakSpeed(float speed) {
+
+        }
+
+        @Override
+        public void setWalkSpeed(float speed) {
+
+        }
+
+        @Override
+        public float getWalkSpeed() {
+            return 0;
         }
     }
 }

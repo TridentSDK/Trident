@@ -37,6 +37,7 @@ import net.tridentsdk.api.Server;
 import net.tridentsdk.api.Trident;
 import net.tridentsdk.api.config.JsonConfig;
 import net.tridentsdk.api.event.EventManager;
+import net.tridentsdk.api.scheduling.Scheduler;
 import net.tridentsdk.api.window.Window;
 import net.tridentsdk.api.world.World;
 import net.tridentsdk.entity.EntityManager;
@@ -80,6 +81,7 @@ public final class TridentServer implements Server {
     private final EventManager eventManager;
 
     private final TridentPluginHandler pluginHandler;
+    private final TridentScheduler scheduler;
 
     private TridentServer(JsonConfig config, ConcurrentTaskExecutor<?> taskExecutor) {
         this.config = config;
@@ -90,6 +92,7 @@ public final class TridentServer implements Server {
         this.windowManager = new WindowManager();
         this.eventManager = new EventManager();
         this.pluginHandler = new TridentPluginHandler();
+        this.scheduler = new TridentScheduler();
     }
 
     /**
@@ -282,5 +285,10 @@ public final class TridentServer implements Server {
     @Override
     public TridentPluginHandler getPluginHandler() {
         return pluginHandler;
+    }
+
+    @Override
+    public Scheduler getScheduler() {
+        return scheduler;
     }
 }
