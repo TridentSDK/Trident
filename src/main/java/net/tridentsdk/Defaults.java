@@ -44,6 +44,7 @@ public final class Defaults {
     public static final String MOTD = "Just another Trident server...";
     public static final Difficulty DIFFICULTY = Difficulty.EASY;
     public static final String MOTD_IMAGE_LOCATION = "/server-icon.png";
+    public static final boolean IN_A_HURRY_MODE = true;
 
     private Defaults() {
     }

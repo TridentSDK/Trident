@@ -159,6 +159,7 @@ public final class TridentServer implements Server {
         return null;
     }
 
+    @Override
     public JsonConfig getConfig() {
         return this.config;
     }

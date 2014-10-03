@@ -60,6 +60,9 @@ package net.tridentsdk.server.threads;
 
 // TODO: probably rename this
 
+import net.tridentsdk.api.Trident;
+import net.tridentsdk.server.TridentScheduler;
+
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -149,11 +152,9 @@ public class MainThread extends Thread {
                 this.redstoneTick = true;
             }
 
-            // TODO: decrement all timers for later tasks
-
             // TODO: check the worlds to make sure they're not suffering
 
-            // TODO: run tasks that are scheduled to be run on the main thread
+            ((TridentScheduler)Trident.getServer().getScheduler()).tick();
 
             this.calcAndWait((int) (System.currentTimeMillis() - startTime));
         }
