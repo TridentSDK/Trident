@@ -31,7 +31,6 @@
 
 package net.tridentsdk.server;
 
-import com.google.common.collect.Lists;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
@@ -52,9 +51,9 @@ import java.io.File;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.nio.file.Files;
-import java.util.Collection;
 import java.util.logging.Logger;
 
+import static com.google.common.collect.Lists.newArrayList;
 /**
  * Server class that starts the connection listener. <p/> <p>Despite the fact that this class is under protected access,
  * it is documented anyways because of its significance in the server</p>
@@ -83,15 +82,15 @@ final class TridentStart {
          */
 
         OptionParser parser = new OptionParser();
-        parser.acceptsAll(TridentStart.asList("h", "help"), "Show this help dialog.").forHelp();
+        parser.acceptsAll(newArrayList("h", "help"), "Show this help dialog.").forHelp();
         OptionSpec<Boolean> append =
-                parser.acceptsAll(TridentStart.asList("log-append"), "Whether to append to the log file")
+                parser.acceptsAll(newArrayList("log-append"), "Whether to append to the log file")
                         .withRequiredArg()
                         .ofType(Boolean.class)
                         .defaultsTo(true)
                         .describedAs("Log append");
         OptionSpec<File> properties =
-                parser.acceptsAll(TridentStart.asList("properties"), "The location for the properties file")
+                parser.acceptsAll(newArrayList("properties"), "The location for the properties file")
                         .withRequiredArg()
                         .ofType(File.class)
                         .defaultsTo(new File("server.json"))
@@ -106,16 +105,13 @@ final class TridentStart {
         }
 
         File f;
+
         if (!(f = properties.value(options)).exists()) {
             InputStream link = TridentServer.class.getResourceAsStream("/server.json");
             Files.copy(link, f.getAbsoluteFile().toPath());
         }
 
         TridentStart.init(new JsonConfig(f));
-    }
-
-    private static Collection<String> asList(String... params) {
-        return Lists.newArrayList(params);
     }
 
     /**
@@ -128,6 +124,7 @@ final class TridentStart {
         //Server should read all settings from the loaded config
         final ConcurrentTaskExecutor<?> taskExecutor = new ConcurrentTaskExecutor<>(1);
         final JsonConfig innerConfig = config;
+
         taskExecutor.getScaledThread().addTask(new Runnable() {
             @Override
             public void run() {
