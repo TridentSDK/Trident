@@ -33,7 +33,7 @@ package net.tridentsdk.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.api.Difficulty;
-import net.tridentsdk.api.Gamemode;
+import net.tridentsdk.api.GameMode;
 import net.tridentsdk.api.world.Dimension;
 import net.tridentsdk.api.world.LevelType;
 import net.tridentsdk.server.netty.Codec;
@@ -42,7 +42,7 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 public class PacketPlayOutJoinGame extends OutPacket {
 
     protected int entityId;
-    protected Gamemode gamemode;
+    protected GameMode gamemode;
     protected Dimension dimension;
 
     protected Difficulty difficulty;
@@ -58,7 +58,7 @@ public class PacketPlayOutJoinGame extends OutPacket {
         return this.entityId;
     }
 
-    public Gamemode getGamemode() {
+    public GameMode getGamemode() {
         return this.gamemode;
     }
 

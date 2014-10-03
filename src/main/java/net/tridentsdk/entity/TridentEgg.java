@@ -71,4 +71,40 @@ public class TridentEgg extends TridentProjectile implements Egg {
             }
         }
     }
+
+    /* (non-Javadoc)
+     * @see net.tridentsdk.api.entity.Projectile#getShooter()
+     */
+    @Override
+    public ProjectileSource getShooter() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see net.tridentsdk.api.entity.Projectile#setShooter(net.tridentsdk.api.entity.living.ProjectileSource)
+     */
+    @Override
+    public void setShooter(ProjectileSource shooter) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see net.tridentsdk.api.entity.Projectile#doesBounce()
+     */
+    @Override
+    public boolean doesBounce() {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    /* (non-Javadoc)
+     * @see net.tridentsdk.api.entity.Projectile#setBounce(boolean)
+     */
+    @Override
+    public void setBounce(boolean bouncy) {
+        // TODO Auto-generated method stub
+        
+    }
 }

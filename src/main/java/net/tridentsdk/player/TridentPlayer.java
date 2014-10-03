@@ -32,7 +32,7 @@
 package net.tridentsdk.player;
 
 import net.tridentsdk.api.Difficulty;
-import net.tridentsdk.api.Gamemode;
+import net.tridentsdk.api.GameMode;
 import net.tridentsdk.api.Location;
 import net.tridentsdk.api.entity.Entity;
 import net.tridentsdk.api.entity.EntityProperties;
@@ -81,7 +81,7 @@ public class TridentPlayer extends TridentInventoryHolder implements Player {
         TridentPlayer p = new TridentPlayer(id, new Location(null, 0.0, 0.0, 0.0), connection);
 
         p.connection.sendPacket(new PacketPlayOutJoinGame().set("entityId", p.getId())
-                .set("gamemode", Gamemode.SURVIVAL)
+                .set("gamemode", GameMode.SURVIVAL)
                 .set("dimension", Dimension.OVERWORLD)
                 .set("difficulty", Difficulty.NORMAL)
                 .set("maxPlayers", (short) 10)
@@ -194,5 +194,68 @@ public class TridentPlayer extends TridentInventoryHolder implements Player {
     @Override
     public Player hurtByPlayer() {
         return null;
+    }
+
+    /* (non-Javadoc)
+     * @see net.tridentsdk.api.entity.living.Player#getGameMode()
+     */
+    @Override
+    public GameMode getGameMode() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see net.tridentsdk.api.entity.living.Player#getMoveSpeed()
+     */
+    @Override
+    public float getMoveSpeed() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    /* (non-Javadoc)
+     * @see net.tridentsdk.api.entity.living.Player#setMoveSpeed(float)
+     */
+    @Override
+    public void setMoveSpeed(float speed) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see net.tridentsdk.api.entity.living.Player#getSneakSpeed()
+     */
+    @Override
+    public float getSneakSpeed() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    /* (non-Javadoc)
+     * @see net.tridentsdk.api.entity.living.Player#setSneakSpeed(float)
+     */
+    @Override
+    public void setSneakSpeed(float speed) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see net.tridentsdk.api.entity.living.Player#setWalkSpeed(float)
+     */
+    @Override
+    public void setWalkSpeed(float speed) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see net.tridentsdk.api.entity.living.Player#getWalkSpeed()
+     */
+    @Override
+    public float getWalkSpeed() {
+        // TODO Auto-generated method stub
+        return 0;
     }
 }

@@ -97,7 +97,7 @@ public class PacketLoginInStart extends InPacket {
             // Update the packet with the new key
             p.set("publicKey", pair.getPublic().getEncoded());
             connection.setLoginKeyPair(pair);
-        } catch (NoSuchAlgorithmException | InvalidAlgorithmParameterException ignored) {
+        } catch (NoSuchAlgorithmException ignored) {
         }
 
         // Send the packet to the client

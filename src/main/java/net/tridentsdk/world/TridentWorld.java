@@ -33,7 +33,7 @@ package net.tridentsdk.world;
 
 import net.tridentsdk.api.Block;
 import net.tridentsdk.api.Difficulty;
-import net.tridentsdk.api.Gamemode;
+import net.tridentsdk.api.GameMode;
 import net.tridentsdk.api.Location;
 import net.tridentsdk.api.world.*;
 
@@ -151,8 +151,8 @@ public class TridentWorld implements Serializable, World {
     }
 
     @Override
-    public Gamemode getDefaultGamemode() {
-        return Gamemode.SURVIVAL; // psuedo return
+    public GameMode getDefaultGamemode() {
+        return GameMode.SURVIVAL; // psuedo return
     }
 
     @Override
