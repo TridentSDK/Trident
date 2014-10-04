@@ -217,6 +217,11 @@ public final class PlayerThreads {
         }
 
         @Override
+        public void sendMessage(String... messages) {
+            // TODO - What is meant to go here?
+        }
+
+        @Override
         public float getFlyingSpeed() {
             return 0;
         }

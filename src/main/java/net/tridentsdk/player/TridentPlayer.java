@@ -49,7 +49,6 @@ import net.tridentsdk.packets.play.out.PacketPlayOutJoinGame;
 import net.tridentsdk.packets.play.out.PacketPlayOutKeepAlive;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.Packet;
-import net.tridentsdk.window.TridentWindow;
 
 import java.util.Locale;
 import java.util.UUID;
@@ -108,13 +107,6 @@ public class TridentPlayer extends TridentInventoryHolder implements Player {
         }
     }
 
-    public void sendMessage(String message) {
-        this.connection.sendPacket(new PacketPlayOutChatMessage().set("jsonMessage", message).set("position",
-                PacketPlayOutChatMessage
-                        .ChatPosition
-                        .CHAT));
-    }
-
     public void setLocale(Locale locale) {
         this.locale = locale;
     }
@@ -133,7 +125,7 @@ public class TridentPlayer extends TridentInventoryHolder implements Player {
     }
 
     public void setSlot(short slot) {
-        if(slot > 8) {
+        if (slot > 8 || slot < 0) {
             throw new IllegalArgumentException("Slot must be within the ranges of 0-8");
         }
 
@@ -148,6 +140,16 @@ public class TridentPlayer extends TridentInventoryHolder implements Player {
     @Override
     public void setFlyingSpeed(float flyingSpeed) {
         this.flyingSpeed = flyingSpeed;
+    }
+
+    @Override
+    public void sendMessage(String... messages) {
+        // TODO: Verify proper implementation
+        for (String message : messages) {
+            if (message != null) {
+                this.connection.sendPacket(new PacketPlayOutChatMessage().set("jsonMessage", message).set("position", PacketPlayOutChatMessage.ChatPosition.CHAT));
+            }
+        }
     }
 
     @Override
