@@ -55,6 +55,8 @@ public abstract class TridentProjectile extends TridentEntity implements Project
      */
     protected Entity entityHit;
 
+    protected boolean bounce;
+
     /**
      * Inherits UUID and spawnLocation from {@link net.tridentsdk.entity.TridentEntity}
      *
@@ -62,9 +64,10 @@ public abstract class TridentProjectile extends TridentEntity implements Project
      * @param spawnLocation
      * @param source the entity which fired the projectile
      */
-    public TridentProjectile(UUID uniqueId, Location spawnLocation, ProjectileSource source) {
+    public TridentProjectile(UUID uniqueId, Location spawnLocation, ProjectileSource source, boolean bouncy) {
         super(uniqueId, spawnLocation);
         this.source = new WeakReference<>(source);
+        this.bounce = bouncy;
     }
 
     @Override
@@ -75,9 +78,24 @@ public abstract class TridentProjectile extends TridentEntity implements Project
     @Override
     public abstract void applyProperties(EntityProperties properties);
 
-    @Override
+
     public ProjectileSource getProjectileSource() {
         return this.source.get();
+    }
+
+    @Override
+    public ProjectileSource getShooter() {
+        return source.get();
+    }
+
+    @Override
+    public boolean doesBounce() {
+        return bounce;
+    }
+
+    @Override
+    public void setBounce(boolean bouncy) {
+        bounce = bouncy;
     }
 
     @Override

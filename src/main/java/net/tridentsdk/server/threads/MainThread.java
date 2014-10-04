@@ -164,6 +164,7 @@ public class MainThread extends Thread {
      * Interesting new feature (relative to other implementations) that would allow it to pause ticking
      */
     public boolean pauseTicking() {
+        // TODO: configurable
         this.pausedTicking = true;
         return true;
     }

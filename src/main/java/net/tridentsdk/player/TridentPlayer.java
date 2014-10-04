@@ -49,7 +49,6 @@ import net.tridentsdk.packets.play.out.PacketPlayOutJoinGame;
 import net.tridentsdk.packets.play.out.PacketPlayOutKeepAlive;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.Packet;
-import net.tridentsdk.window.TridentWindow;
 
 import java.util.Locale;
 import java.util.UUID;
@@ -143,6 +142,41 @@ public class TridentPlayer extends TridentInventoryHolder implements Player {
     @Override
     public ItemStack getItemInHand() {
         return getInventory().getContents()[heldSlot + 36];
+    }
+
+    @Override
+    public GameMode getGameMode() {
+        return null;
+    }
+
+    @Override
+    public float getMoveSpeed() {
+        return 0;
+    }
+
+    @Override
+    public void setMoveSpeed(float speed) {
+
+    }
+
+    @Override
+    public float getSneakSpeed() {
+        return 0;
+    }
+
+    @Override
+    public void setSneakSpeed(float speed) {
+
+    }
+
+    @Override
+    public void setWalkSpeed(float speed) {
+
+    }
+
+    @Override
+    public float getWalkSpeed() {
+        return 0;
     }
 
     @Override
