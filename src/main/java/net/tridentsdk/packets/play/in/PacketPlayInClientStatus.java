@@ -28,7 +28,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 package net.tridentsdk.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
@@ -71,9 +70,9 @@ public class PacketPlayInClientStatus extends InPacket {
     public void handleReceived(ClientConnection connection) {
         TridentPlayer player = ((PlayerConnection) connection).getPlayer();
         World world = player.getWorld();
-        StatusType type = StatusType.getStatus(actionId);
+        StatusType type = StatusType.getStatus(this.actionId);
 
-        switch(type) {
+        switch (type) {
             case RESPAWN:
                 PacketPlayOutPlayerRespawn respawn = new PacketPlayOutPlayerRespawn();
 
@@ -100,7 +99,8 @@ public class PacketPlayInClientStatus extends InPacket {
                 break;
 
             default:
-                throw new IllegalArgumentException("Client sent invalid status, maybe modified?"); // catched by PacketHandler
+                throw new IllegalArgumentException("Client sent invalid status, maybe modified?"); // catched by
+                // PacketHandler
         }
     }
 
@@ -115,17 +115,17 @@ public class PacketPlayInClientStatus extends InPacket {
             this.id = id;
         }
 
-        public int getId() {
-            return this.id;
-        }
-
         public static StatusType getStatus(int id) {
-            for(StatusType type : values()) {
-                if(type.getId() == id)
+            for (StatusType type : StatusType.values()) {
+                if (type.getId() == id)
                     return type;
             }
 
             return null;
+        }
+
+        public int getId() {
+            return this.id;
         }
     }
 }

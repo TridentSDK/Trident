@@ -28,7 +28,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 package net.tridentsdk.server.threads;
 
 import java.util.ArrayList;
@@ -38,9 +37,9 @@ import java.util.concurrent.*;
 /**
  * Cache wrapping {@link java.util.concurrent.ConcurrentHashMap}
  *
- * @author The TridentSDK Team
  * @param <K> the key type
  * @param <V> the value type
+ * @author The TridentSDK Team
  */
 public class ConcurrentCache<K, V> {
     private final ConcurrentMap<K, Future<V>> cache = new ConcurrentHashMap<>();
@@ -48,7 +47,7 @@ public class ConcurrentCache<K, V> {
     /**
      * Retrieves the key in the cache, or adds the return value of the callable provided, run in the executor provided
      *
-     * @param k the key to retrieve the value from, or assign it to
+     * @param k        the key to retrieve the value from, or assign it to
      * @param callable the result of which to assign the key a value if the key is not in the cache
      * @param executor the executor the run the callable in
      * @return the return value of the callable

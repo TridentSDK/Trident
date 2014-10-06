@@ -28,13 +28,10 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 package net.tridentsdk.server;
 
 import net.tridentsdk.Defaults;
-import net.tridentsdk.api.Difficulty;
-import net.tridentsdk.api.Server;
-import net.tridentsdk.api.Trident;
+import net.tridentsdk.api.*;
 import net.tridentsdk.api.config.JsonConfig;
 import net.tridentsdk.api.event.EventManager;
 import net.tridentsdk.api.scheduling.Scheduler;
@@ -52,7 +49,7 @@ import net.tridentsdk.world.RegionFileCache;
 
 import javax.annotation.concurrent.ThreadSafe;
 import javax.imageio.ImageIO;
-import java.awt.Image;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -269,12 +266,12 @@ public final class TridentServer implements Server {
 
     @Override
     public Window getWindow(int id) {
-        return windowManager.getWindow(id);
+        return this.windowManager.getWindow(id);
     }
 
     @Override
     public EventManager getEventManager() {
-        return eventManager;
+        return this.eventManager;
     }
 
     @Override
@@ -285,11 +282,11 @@ public final class TridentServer implements Server {
 
     @Override
     public TridentPluginHandler getPluginHandler() {
-        return pluginHandler;
+        return this.pluginHandler;
     }
 
     @Override
     public Scheduler getScheduler() {
-        return scheduler;
+        return this.scheduler;
     }
 }

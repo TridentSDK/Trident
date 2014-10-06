@@ -28,7 +28,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 package net.tridentsdk.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
@@ -80,8 +79,8 @@ public class PacketPlayInPluginMessage extends InPacket {
     public void handleReceived(ClientConnection connection) {
         PluginChannel channel = ChannelManager.getInstance().getPluginChannel(this.channel);
 
-        if(channel != null) {
-            channel.process(data);
+        if (channel != null) {
+            channel.process(this.data);
         }
     }
 }

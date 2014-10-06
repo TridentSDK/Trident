@@ -28,11 +28,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 package net.tridentsdk.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.api.Location;
+import net.tridentsdk.api.event.Cancellable;
 import net.tridentsdk.api.event.player.PlayerMoveEvent;
 import net.tridentsdk.packets.play.out.PacketPlayOutEntityTeleport;
 import net.tridentsdk.player.PlayerConnection;
@@ -79,9 +79,9 @@ public class PacketPlayInPlayerCompleteMove extends PacketPlayInPlayerMove {
         TridentPlayer player = ((PlayerConnection) connection).getPlayer();
         super.location.setWorld(player.getWorld());
 
-        PlayerMoveEvent event = new PlayerMoveEvent(player, player.getLocation(), super.location);
+        Cancellable event = new PlayerMoveEvent(player, player.getLocation(), super.location);
 
-        if(event.isCancelled()) {
+        if (event.isCancelled()) {
             PacketPlayOutEntityTeleport packet = new PacketPlayOutEntityTeleport();
 
             packet.set("entityId", player.getId());
@@ -89,7 +89,6 @@ public class PacketPlayInPlayerCompleteMove extends PacketPlayInPlayerMove {
             packet.set("onGround", player.isOnGround());
 
             connection.sendPacket(packet);
-            return;
         }
 
         // process move

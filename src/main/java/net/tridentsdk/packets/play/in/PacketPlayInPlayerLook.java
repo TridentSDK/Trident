@@ -28,7 +28,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 package net.tridentsdk.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
@@ -82,14 +81,14 @@ public class PacketPlayInPlayerLook extends InPacket {
         Location from = player.getLocation();
         Location to = player.getLocation();
 
-        to.setYaw(newYaw);
-        to.setPitch(newPitch);
+        to.setYaw(this.newYaw);
+        to.setPitch(this.newPitch);
 
         PlayerMoveEvent event = new PlayerMoveEvent(player, from, to);
 
         TridentServer.getInstance().getEventManager().call(event);
 
-        if(event.isCancelled()) {
+        if (event.isCancelled()) {
             PacketPlayOutEntityTeleport cancel = new PacketPlayOutEntityTeleport();
 
             cancel.set("entityId", player.getId())

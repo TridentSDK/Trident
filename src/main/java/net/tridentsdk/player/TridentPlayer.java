@@ -28,25 +28,17 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 package net.tridentsdk.player;
 
-import net.tridentsdk.api.Difficulty;
-import net.tridentsdk.api.GameMode;
-import net.tridentsdk.api.Location;
-import net.tridentsdk.api.entity.Entity;
-import net.tridentsdk.api.entity.EntityProperties;
-import net.tridentsdk.api.entity.Projectile;
+import net.tridentsdk.api.*;
+import net.tridentsdk.api.entity.*;
 import net.tridentsdk.api.entity.living.Player;
 import net.tridentsdk.api.event.entity.EntityDamageEvent;
 import net.tridentsdk.api.inventory.ItemStack;
 import net.tridentsdk.api.world.Dimension;
 import net.tridentsdk.api.world.LevelType;
 import net.tridentsdk.entity.TridentInventoryHolder;
-import net.tridentsdk.packets.play.out.PacketPlayOutChatMessage;
-import net.tridentsdk.packets.play.out.PacketPlayOutDisconnect;
-import net.tridentsdk.packets.play.out.PacketPlayOutJoinGame;
-import net.tridentsdk.packets.play.out.PacketPlayOutKeepAlive;
+import net.tridentsdk.packets.play.out.*;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.Packet;
 
@@ -55,12 +47,12 @@ import java.util.UUID;
 
 public class TridentPlayer extends TridentInventoryHolder implements Player {
 
-    private static final TridentPlayer[] players = {};
+    private static final TridentPlayer[] players = { };
 
     private final PlayerConnection connection;
     private volatile Locale locale;
     private volatile float flyingSpeed;
-    private volatile short heldSlot = 0;
+    private volatile short heldSlot;
 
     public TridentPlayer(UUID uniqueId, Location spawnLocation, ClientConnection connection) {
         super(uniqueId, spawnLocation);
@@ -107,10 +99,6 @@ public class TridentPlayer extends TridentInventoryHolder implements Player {
         }
     }
 
-    public void setLocale(Locale locale) {
-        this.locale = locale;
-    }
-
     /*
      * @NotJavaDoc
      * TODO: Create Message API and utilize it
@@ -134,12 +122,7 @@ public class TridentPlayer extends TridentInventoryHolder implements Player {
 
     @Override
     public ItemStack getItemInHand() {
-        return getInventory().getContents()[heldSlot + 36];
-    }
-
-    @Override
-    public void setFlyingSpeed(float flyingSpeed) {
-        this.flyingSpeed = flyingSpeed;
+        return this.getInventory().getContents()[this.heldSlot + 36];
     }
 
     @Override
@@ -147,7 +130,8 @@ public class TridentPlayer extends TridentInventoryHolder implements Player {
         // TODO: Verify proper implementation
         for (String message : messages) {
             if (message != null) {
-                this.connection.sendPacket(new PacketPlayOutChatMessage().set("jsonMessage", message).set("position", PacketPlayOutChatMessage.ChatPosition.CHAT));
+                this.connection.sendPacket(new PacketPlayOutChatMessage().set("jsonMessage", message)
+                        .set("position", PacketPlayOutChatMessage.ChatPosition.CHAT));
             }
         }
     }
@@ -158,8 +142,17 @@ public class TridentPlayer extends TridentInventoryHolder implements Player {
     }
 
     @Override
+    public void setFlyingSpeed(float flyingSpeed) {
+        this.flyingSpeed = flyingSpeed;
+    }
+
+    @Override
     public Locale getLocale() {
-        return locale;
+        return this.locale;
+    }
+
+    public void setLocale(Locale locale) {
+        this.locale = locale;
     }
 
     @Override
@@ -222,7 +215,7 @@ public class TridentPlayer extends TridentInventoryHolder implements Player {
     @Override
     public void setMoveSpeed(float speed) {
         // TODO Auto-generated method stub
-        
+
     }
 
     /* (non-Javadoc)
@@ -240,16 +233,7 @@ public class TridentPlayer extends TridentInventoryHolder implements Player {
     @Override
     public void setSneakSpeed(float speed) {
         // TODO Auto-generated method stub
-        
-    }
 
-    /* (non-Javadoc)
-     * @see net.tridentsdk.api.entity.living.Player#setWalkSpeed(float)
-     */
-    @Override
-    public void setWalkSpeed(float speed) {
-        // TODO Auto-generated method stub
-        
     }
 
     /* (non-Javadoc)
@@ -259,5 +243,14 @@ public class TridentPlayer extends TridentInventoryHolder implements Player {
     public float getWalkSpeed() {
         // TODO Auto-generated method stub
         return 0;
+    }
+
+    /* (non-Javadoc)
+     * @see net.tridentsdk.api.entity.living.Player#setWalkSpeed(float)
+     */
+    @Override
+    public void setWalkSpeed(float speed) {
+        // TODO Auto-generated method stub
+
     }
 }

@@ -28,20 +28,16 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 package net.tridentsdk.server.threads;
 
-import java.util.AbstractMap;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedTransferQueue;
 
 /**
  * Thread list to allow task execution in a shared thread scaled with removal
  *
- * <p>Allows assignment of a worker to
- * the user</p>
+ * <p>Allows assignment of a worker to the user</p>
  *
  * @param <Assignment> the assignment type, if used
  * @author The TridentSDK Team
@@ -84,8 +80,7 @@ public class ConcurrentTaskExecutor<Assignment> {
     /**
      * Assigns the scaled thread to the assignment
      *
-     * <p>If already assigned, the executor is returned for the
-     * fast-path</p>
+     * <p>If already assigned, the executor is returned for the fast-path</p>
      *
      * @param executor   the executor associated with the assignment
      * @param assignment the assignment that uses the executor

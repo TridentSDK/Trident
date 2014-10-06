@@ -34,9 +34,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import net.tridentsdk.api.Material;
 import net.tridentsdk.api.inventory.ItemStack;
-import net.tridentsdk.api.nbt.CompoundTag;
-import net.tridentsdk.api.nbt.NBTDecoder;
-import net.tridentsdk.api.nbt.NBTException;
+import net.tridentsdk.api.nbt.*;
 
 public class Slot implements Writable {
 

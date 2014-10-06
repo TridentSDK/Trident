@@ -50,9 +50,6 @@ public abstract class TridentInventoryHolder extends TridentLivingEntity impleme
 
     /**
      * Inherits constructor from {@link net.tridentsdk.entity.TridentLivingEntity}
-     *
-     * @param id
-     * @param spawnLocation
      */
     public TridentInventoryHolder(UUID id, Location spawnLocation) {
         super(id, spawnLocation);

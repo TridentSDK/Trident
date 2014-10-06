@@ -28,14 +28,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 package net.tridentsdk.server.threads;
 
 import net.tridentsdk.api.GameMode;
 import net.tridentsdk.api.Location;
-import net.tridentsdk.api.entity.Entity;
-import net.tridentsdk.api.entity.EntityProperties;
-import net.tridentsdk.api.entity.Projectile;
+import net.tridentsdk.api.entity.*;
 import net.tridentsdk.api.entity.living.Player;
 import net.tridentsdk.api.event.entity.EntityDamageEvent;
 import net.tridentsdk.api.inventory.ItemStack;
@@ -44,12 +41,8 @@ import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.Packet;
 
 import javax.annotation.concurrent.ThreadSafe;
-import java.util.Collection;
-import java.util.Locale;
-import java.util.UUID;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.*;
+import java.util.concurrent.*;
 
 /**
  * Player handling thread manager, 4 threads by default
@@ -69,8 +62,7 @@ public final class PlayerThreads {
     /**
      * Gets the management tool for the player
      *
-     * <p>This will put in a new value for the caches if cannot find for a
-     * new player</p>
+     * <p>This will put in a new value for the caches if cannot find for a new player</p>
      *
      * <p>May block the first call</p>
      *
@@ -267,13 +259,13 @@ public final class PlayerThreads {
         }
 
         @Override
-        public void setWalkSpeed(float speed) {
-
+        public float getWalkSpeed() {
+            return 0;
         }
 
         @Override
-        public float getWalkSpeed() {
-            return 0;
+        public void setWalkSpeed(float speed) {
+
         }
     }
 }

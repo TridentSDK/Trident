@@ -28,7 +28,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 package net.tridentsdk;
 
 // if these shouldn't exist, or should go somewhere else, just move them
@@ -38,12 +37,29 @@ import net.tridentsdk.api.Difficulty;
 
 /**
  * Contains the default values used in server.json
+ *
+ * @author The TridentSDK Team
  */
 public final class Defaults {
+    /**
+     * Maximum allowed players on the server
+     */
     public static final int MAX_PLAYERS = 10;
+    /**
+     * The text displayed below the server name in the multiplayer menu
+     */
     public static final String MOTD = "Just another Trident server...";
+    /**
+     * The difficulty of the game
+     */
     public static final Difficulty DIFFICULTY = Difficulty.EASY;
+    /**
+     * The icon on the left of the server
+     */
     public static final String MOTD_IMAGE_LOCATION = "/server-icon.png";
+    /**
+     * Scheduler mode
+     */
     public static final boolean IN_A_HURRY_MODE = true;
 
     private Defaults() {

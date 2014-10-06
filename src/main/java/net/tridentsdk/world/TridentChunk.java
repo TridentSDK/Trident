@@ -28,7 +28,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 package net.tridentsdk.world;
 
 import net.tridentsdk.api.nbt.CompoundTag;
@@ -54,21 +53,21 @@ public class TridentChunk implements Serializable, Chunk {
         this.location = coord;
         this.lastFileAccess = 0;
     }
-    
+
     protected CompoundTag getData() {
-        return chunkData;
+        return this.chunkData;
     }
-    
+
     protected void setData(CompoundTag tag) {
         if (tag != null) {
             this.chunkData = tag;
         }
     }
-    
+
     protected int getLastFileAccess() {
-        return lastFileAccess;
+        return this.lastFileAccess;
     }
-    
+
     protected void setLastFileAccess(int last) {
         this.lastFileAccess = last;
     }

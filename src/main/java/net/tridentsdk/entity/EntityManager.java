@@ -72,7 +72,7 @@ public final class EntityManager {
      * Gets all entities with the given type class
      *
      * @param type the type to search for entities
-     * @param <T> the entity type
+     * @param <T>  the entity type
      * @return the list of entities with the specified type
      */
     public <T> ArrayList<T> getEntities(final Class<T> type) {

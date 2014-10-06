@@ -28,7 +28,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 package net.tridentsdk.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
@@ -65,6 +64,6 @@ public class PacketPlayInPlayerHeldItemChange extends InPacket {
 
     @Override
     public void handleReceived(ClientConnection connection) {
-        ((PlayerConnection) connection).getPlayer().setSlot(slot);
+        ((PlayerConnection) connection).getPlayer().setSlot(this.slot);
     }
 }
