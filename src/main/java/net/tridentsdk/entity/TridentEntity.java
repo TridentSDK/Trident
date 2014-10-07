@@ -52,7 +52,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author The TridentSDK Team
  */
 public abstract class TridentEntity implements Entity {
-    protected final AtomicInteger counter = new AtomicInteger(-1);
+    protected static final AtomicInteger counter = new AtomicInteger(-1);
     /**
      * The entity ID for the entity
      */
@@ -114,7 +114,7 @@ public abstract class TridentEntity implements Entity {
      */
     public TridentEntity(UUID uniqueId, Location spawnLocation) {
         this.uniqueId = uniqueId;
-        this.id = this.counter.addAndGet(1); // ?? static?
+        this.id = counter.incrementAndGet();
 
         this.velocity = new Vector(0.0D, 0.0D, 0.0D);
         this.velocityChanged = false;
