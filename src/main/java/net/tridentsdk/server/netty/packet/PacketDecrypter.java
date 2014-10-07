@@ -28,7 +28,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 package net.tridentsdk.server.netty.packet;
 
 import io.netty.buffer.ByteBuf;
@@ -58,7 +57,7 @@ public class PacketDecrypter extends ByteToMessageDecoder {
      */
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in,
-                          List<Object> out) throws Exception {
+            List<Object> out) throws Exception {
         ByteBuf bufOut = ctx.alloc().buffer(in.readableBytes());
 
         if (this.connection.isEncryptionEnabled()) {
@@ -66,7 +65,7 @@ public class PacketDecrypter extends ByteToMessageDecoder {
         } else {
             bufOut.writeBytes(in);
         }
-        
+
         out.add(bufOut);
     }
 }

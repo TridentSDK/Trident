@@ -28,7 +28,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 package net.tridentsdk.server.netty.packet;
 
 import io.netty.channel.ChannelHandlerContext;
@@ -93,14 +92,14 @@ public class PacketHandler extends SimpleChannelInboundHandler<PacketData> {
         try {
             packet.handleReceived(this.connection);
         } catch (Exception ex) {
-            switch(connection.getStage()) {
+            switch (this.connection.getStage()) {
                 case LOGIN:
                     PacketLoginOutDisconnect disconnect = new PacketLoginOutDisconnect();
 
                     disconnect.setJsonMessage(ex.getMessage());
 
-                    connection.sendPacket(disconnect);
-                    connection.logout();
+                    this.connection.sendPacket(disconnect);
+                    this.connection.logout();
 
                     break;
 
@@ -109,8 +108,8 @@ public class PacketHandler extends SimpleChannelInboundHandler<PacketData> {
 
                     quit.set("reason", ex.getMessage());
 
-                    connection.sendPacket(quit);
-                    connection.logout();
+                    this.connection.sendPacket(quit);
+                    this.connection.logout();
 
                     break;
 

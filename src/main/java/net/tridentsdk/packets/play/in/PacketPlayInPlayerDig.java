@@ -28,7 +28,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 package net.tridentsdk.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
@@ -56,15 +55,15 @@ public class PacketPlayInPlayerDig extends InPacket {
     }
 
     public short getStatus() {
-        return status;
+        return this.status;
     }
 
     public Location getLocation() {
-        return location;
+        return this.location;
     }
 
     public short getBlockFace() {
-        return blockFace;
+        return this.blockFace;
     }
 
     @Override
@@ -82,10 +81,10 @@ public class PacketPlayInPlayerDig extends InPacket {
     @Override
     public void handleReceived(ClientConnection connection) {
         TridentPlayer player = ((PlayerConnection) connection).getPlayer();
-        DigStatus digStatus = DigStatus.getStatus(status);
+        DigStatus digStatus = DigStatus.getStatus(this.status);
         BlockFace face = null;
 
-        switch(blockFace) {
+        switch (this.blockFace) {
             case 0:
                 face = BlockFace.BOTTOM;
                 break;
@@ -116,11 +115,11 @@ public class PacketPlayInPlayerDig extends InPacket {
 
         Cancellable event = null;
 
-        switch(digStatus) {
+        switch (digStatus) {
             case DIG_START:
             case DIG_CANCEL:
             case DIG_FINISH:
-                event = new PlayerDigEvent(player, face, status);
+                event = new PlayerDigEvent(player, face, this.status);
                 break;
 
             case DROP_ITEMSTACK:
@@ -138,12 +137,10 @@ public class PacketPlayInPlayerDig extends InPacket {
 
         TridentServer.getInstance().getEventManager().call((Event) event);
 
-        if(event == null || event.isCancelled())
+        if (event == null || event.isCancelled())
             return;
 
-
-
-        location.setWorld(player.getWorld());
+        this.location.setWorld(player.getWorld());
     }
 
     public enum DigStatus {
@@ -157,12 +154,12 @@ public class PacketPlayInPlayerDig extends InPacket {
         private final short id;
 
         DigStatus(int id) {
-           this.id = (short) id;
+            this.id = (short) id;
         }
 
         public static DigStatus getStatus(short id) {
-            for(DigStatus status : values()) {
-                if(status.id == id) {
+            for (DigStatus status : DigStatus.values()) {
+                if (status.id == id) {
                     return status;
                 }
             }
@@ -171,7 +168,7 @@ public class PacketPlayInPlayerDig extends InPacket {
         }
 
         public short getId() {
-            return id;
+            return this.id;
         }
     }
 }

@@ -28,15 +28,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 package net.tridentsdk.server.netty.protocol;
 
 import net.tridentsdk.api.reflect.FastClass;
-import net.tridentsdk.server.netty.packet.Packet;
-import net.tridentsdk.server.netty.packet.PacketType;
-import net.tridentsdk.server.netty.packet.UnknownPacket;
+import net.tridentsdk.server.netty.packet.*;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 

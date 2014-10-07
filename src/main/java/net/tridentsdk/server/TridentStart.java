@@ -28,19 +28,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 package net.tridentsdk.server;
 
+import static com.google.common.collect.Lists.newArrayList;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import joptsimple.OptionException;
-import joptsimple.OptionParser;
-import joptsimple.OptionSet;
-import joptsimple.OptionSpec;
+import joptsimple.*;
 import net.tridentsdk.api.config.JsonConfig;
 import net.tridentsdk.api.util.TridentLogger;
 import net.tridentsdk.server.netty.ClientChannelInitializer;
@@ -53,7 +48,6 @@ import java.net.InetSocketAddress;
 import java.nio.file.Files;
 import java.util.logging.Logger;
 
-import static com.google.common.collect.Lists.newArrayList;
 /**
  * Server class that starts the connection listener. <p/> <p>Despite the fact that this class is under protected access,
  * it is documented anyways because of its significance in the server</p>
@@ -95,7 +89,7 @@ final class TridentStart {
                         .ofType(File.class)
                         .defaultsTo(new File("server.json"))
                         .describedAs("Properties file");
-        OptionSet options = null;
+        OptionSet options;
 
         try {
             options = parser.parse(args);

@@ -28,7 +28,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 package net.tridentsdk.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
@@ -115,13 +114,12 @@ public class PacketPlayInPlayerClickWindow extends InPacket {
 
     @Override
     public void handleReceived(ClientConnection connection) {
-        Window window = TridentServer.getInstance().getWindow(windowId);
-        PlayerClickItemEvent clickEvent = new PlayerClickItemEvent(window, clickedSlot, actionNumber);
+        Window window = TridentServer.getInstance().getWindow(this.windowId);
+        PlayerClickItemEvent clickEvent = new PlayerClickItemEvent(window, this.clickedSlot, this.actionNumber);
 
         TridentServer.getInstance().getEventManager().call(clickEvent);
 
-        if(clickEvent.isCancelled()) {
-            return;
+        if (clickEvent.isCancelled()) {
         }
     }
 }

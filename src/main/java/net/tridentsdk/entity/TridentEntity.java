@@ -109,7 +109,7 @@ public abstract class TridentEntity implements Entity {
     /**
      * Creates a new entity
      *
-     * @param uniqueId the UUID of the entity
+     * @param uniqueId      the UUID of the entity
      * @param spawnLocation the location which the entity is to be spawned
      */
     public TridentEntity(UUID uniqueId, Location spawnLocation) {
@@ -182,6 +182,10 @@ public abstract class TridentEntity implements Entity {
     @Override
     public Location getLocation() {
         return this.loc;
+    }
+
+    public void setLocation(Location loc) {
+        this.loc = loc;
     }
 
     @Override
@@ -270,9 +274,5 @@ public abstract class TridentEntity implements Entity {
     @Override
     public EntityType getType() {
         return null;
-    }
-
-    public void setLocation(Location loc) {
-        this.loc = loc;
     }
 }

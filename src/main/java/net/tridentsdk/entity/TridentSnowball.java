@@ -33,9 +33,7 @@ package net.tridentsdk.entity;
 import net.tridentsdk.api.Location;
 import net.tridentsdk.api.entity.EntityProperties;
 import net.tridentsdk.api.entity.LivingEntity;
-import net.tridentsdk.api.entity.living.Blaze;
-import net.tridentsdk.api.entity.living.EnderDragon;
-import net.tridentsdk.api.entity.living.ProjectileSource;
+import net.tridentsdk.api.entity.living.*;
 
 import java.util.UUID;
 
@@ -47,10 +45,6 @@ import java.util.UUID;
 public class TridentSnowball extends TridentProjectile {
     /**
      * Inherits from {@link net.tridentsdk.entity.TridentProjectile}
-     *
-     * @param uniqueId
-     * @param spawnLocation
-     * @param source
      */
     public TridentSnowball(UUID uniqueId, Location spawnLocation, ProjectileSource source) {
         super(uniqueId, spawnLocation, source);
@@ -94,7 +88,7 @@ public class TridentSnowball extends TridentProjectile {
     @Override
     public void setShooter(ProjectileSource shooter) {
         // TODO Auto-generated method stub
-        
+
     }
 
     /* (non-Javadoc)
@@ -112,6 +106,6 @@ public class TridentSnowball extends TridentProjectile {
     @Override
     public void setBounce(boolean bouncy) {
         // TODO Auto-generated method stub
-        
+
     }
 }

@@ -46,10 +46,6 @@ import java.util.concurrent.ThreadLocalRandom;
 public class TridentEgg extends TridentProjectile implements Egg {
     /**
      * Inherits constructor from {@link net.tridentsdk.entity.TridentProjectile}
-     *
-     * @param uniqueId
-     * @param spawnLocation
-     * @param source
      */
     public TridentEgg(UUID uniqueId, Location spawnLocation, ProjectileSource source) {
         super(uniqueId, spawnLocation, source);
@@ -87,7 +83,7 @@ public class TridentEgg extends TridentProjectile implements Egg {
     @Override
     public void setShooter(ProjectileSource shooter) {
         // TODO Auto-generated method stub
-        
+
     }
 
     /* (non-Javadoc)
@@ -105,6 +101,6 @@ public class TridentEgg extends TridentProjectile implements Egg {
     @Override
     public void setBounce(boolean bouncy) {
         // TODO Auto-generated method stub
-        
+
     }
 }

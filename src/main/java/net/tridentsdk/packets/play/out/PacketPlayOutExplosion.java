@@ -28,7 +28,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 package net.tridentsdk.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
@@ -66,7 +65,7 @@ public class PacketPlayOutExplosion extends OutPacket {
     }
 
     public void cleanup() {
-        RecordBuilder[] newRecords = {};
+        RecordBuilder[] newRecords = { };
 
         for (RecordBuilder builder : this.records) {
             if (builder != null) {

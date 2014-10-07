@@ -28,25 +28,47 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 package net.tridentsdk.window;
+
+import net.tridentsdk.api.window.Window;
 
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Manages the inventory windows on the server, whether being viewed or not
+ *
+ * @author The TridentSDK Team
+ */
 public class WindowManager {
     private static final Map<Integer, TridentWindow> windows = new ConcurrentHashMap<>();
 
-    public TridentWindow getWindow(int id) {
-        return windows.get(id);
+    /**
+     * Gets a window by its ID
+     *
+     * @param id the ID of a window
+     * @return the window with the ID, or {@code null} if it doesn't exist
+     */
+    public Window getWindow(int id) {
+        return WindowManager.windows.get(id);
     }
 
+    /**
+     * Registers the window with the manager
+     *
+     * @param window the window to be registered
+     */
     public void registerWindow(TridentWindow window) {
-        windows.put(window.getId(), window);
+        WindowManager.windows.put(window.getId(), window);
     }
 
+    /**
+     * Gets all registered windows with the manager
+     *
+     * @return the windows registered
+     */
     public Collection<TridentWindow> getWindows() {
-        return windows.values();
+        return WindowManager.windows.values();
     }
 }

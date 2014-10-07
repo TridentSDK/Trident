@@ -83,7 +83,7 @@ public class PlayerConnection extends ClientConnection {
     /**
      * Sets the keep alive ID number
      *
-     * @param id the keep alive number to be set to
+     * @param id         the keep alive number to be set to
      * @param ticksLived the amount of ticks lived
      */
     public void setKeepAliveId(int id, long ticksLived) {

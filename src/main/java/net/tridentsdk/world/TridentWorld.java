@@ -28,13 +28,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 package net.tridentsdk.world;
 
-import net.tridentsdk.api.Block;
-import net.tridentsdk.api.Difficulty;
-import net.tridentsdk.api.GameMode;
-import net.tridentsdk.api.Location;
+import net.tridentsdk.api.*;
 import net.tridentsdk.api.world.*;
 
 import java.io.Serializable;

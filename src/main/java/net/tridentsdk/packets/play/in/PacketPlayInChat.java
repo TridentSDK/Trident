@@ -28,7 +28,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 package net.tridentsdk.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
@@ -38,9 +37,7 @@ import net.tridentsdk.player.PlayerConnection;
 import net.tridentsdk.player.TridentPlayer;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
-import net.tridentsdk.server.netty.packet.InPacket;
-import net.tridentsdk.server.netty.packet.OutPacket;
-import net.tridentsdk.server.netty.packet.Packet;
+import net.tridentsdk.server.netty.packet.*;
 
 public class PacketPlayInChat extends InPacket {
 
@@ -72,7 +69,7 @@ public class PacketPlayInChat extends InPacket {
         OutPacket packet = new PacketPlayOutChatMessage();
 
         packet.set("jsonMessage", new MessageBuilder(String
-                .format("<%s> %s", player.getDisplayName(), message)));
+                .format("<%s> %s", player.getDisplayName(), this.message)));
 
         TridentPlayer.sendAll(packet);
     }

@@ -28,7 +28,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 package net.tridentsdk.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
@@ -88,6 +87,6 @@ public class PacketPlayInClientSettings extends InPacket {
     public void handleReceived(ClientConnection connection) {
         TridentPlayer player = ((PlayerConnection) connection).getPlayer();
 
-        player.setLocale(locale);
+        player.setLocale(this.locale);
     }
 }

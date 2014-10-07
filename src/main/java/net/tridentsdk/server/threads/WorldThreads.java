@@ -28,14 +28,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 package net.tridentsdk.server.threads;
 
 import net.tridentsdk.api.world.World;
 
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 /**
  * World handling threads, which there are by default 4
@@ -54,8 +51,7 @@ public final class WorldThreads {
     /**
      * Gets the management tool for the world
      *
-     * <p>This will put in a new value for the caches if cannot find for a
-     * new world</p>
+     * <p>This will put in a new value for the caches if cannot find for a new world</p>
      *
      * <p>May block the first call</p>
      *

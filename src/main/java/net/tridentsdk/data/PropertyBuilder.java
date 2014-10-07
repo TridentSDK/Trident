@@ -33,7 +33,8 @@ package net.tridentsdk.data;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.netty.Codec;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * Builds the property attributes for entity packets
@@ -49,7 +50,7 @@ public class PropertyBuilder implements Writable {
      * Creates a 0 length property array
      */
     public PropertyBuilder() {
-        this.modifiers = new String[]{};
+        this.modifiers = new String[] { };
     }
 
     /**
@@ -115,7 +116,7 @@ public class PropertyBuilder implements Writable {
     /**
      * Puts an attribute property at the given index
      *
-     * @param index the index to place the property at
+     * @param index    the index to place the property at
      * @param modifier the property to place
      * @return the current instance
      */

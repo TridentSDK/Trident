@@ -28,7 +28,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 package net.tridentsdk.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
@@ -38,7 +37,7 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutChunkData extends OutPacket {
 
-    protected final byte[] data = {};
+    protected final byte[] data = { };
     protected ChunkLocation chunkLocation;
     protected boolean continuous;
     protected short primaryBitMap;

@@ -71,33 +71,19 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author The TridentSDK Team
  */
 public class MainThread extends Thread {
-    /**
-     * system.currenttimemillis() when the server's first tick happened, used to keep on schedule, subject
-     * to change when the server is running slow
-     */
-    private long zeroBase;
+    private static MainThread instance;
     private final AtomicInteger ticksElapsed = new AtomicInteger();
     private final AtomicInteger notLostTicksElapsed = new AtomicInteger();
-
-    private volatile boolean pausedTicking;
-
     private final AtomicInteger ticksToWait = new AtomicInteger();
-
-    private volatile boolean redstoneTick;
-
     private final int ticksPerSecond;
     private final int tickLength;
-
-    private static MainThread instance;
-
     /**
-     * Gets the main instance of the thread runner
-     *
-     * @return
+     * system.currenttimemillis() when the server's first tick happened, used to keep on schedule, subject to change
+     * when the server is running slow
      */
-    public static MainThread getInstance() {
-        return MainThread.instance;
-    }
+    private long zeroBase;
+    private volatile boolean pausedTicking;
+    private volatile boolean redstoneTick;
 
     /**
      * Creates the MainThread runner from the amount of heartbeats the server should take per second the server runs
@@ -108,15 +94,22 @@ public class MainThread extends Thread {
         this.zeroBase = System.currentTimeMillis();
         MainThread.instance = this;
         this.ticksPerSecond = ticksPerSecond;
-        this.tickLength = 1000/ticksPerSecond;
+        this.tickLength = 1000 / ticksPerSecond;
+    }
+
+    /**
+     * Gets the main instance of the thread runner
+     */
+    public static MainThread getInstance() {
+        return MainThread.instance;
     }
 
     @Override
     public void run() {
         super.run();
 
-        while(true) {
-            if(this.isInterrupted()) {
+        while (true) {
+            if (this.isInterrupted()) {
                 break;
             }
 
@@ -130,8 +123,7 @@ public class MainThread extends Thread {
                 continue;
             }
 
-
-            if(this.ticksToWait.get() > 0) {
+            if (this.ticksToWait.get() > 0) {
                 this.ticksToWait.getAndDecrement();
                 this.calcAndWait(0);
                 continue;
@@ -139,22 +131,20 @@ public class MainThread extends Thread {
 
             this.notLostTicksElapsed.getAndIncrement();
 
-
             // TODO: tick the worlds?
             WorldThreads.notifyTick();
 
             // alternate redstone ticks between ticks
-            if(this.redstoneTick) {
+            if (this.redstoneTick) {
                 WorldThreads.notifyRedstoneTick();
                 this.redstoneTick = false;
-            }
-            else {
+            } else {
                 this.redstoneTick = true;
             }
 
             // TODO: check the worlds to make sure they're not suffering
 
-            ((TridentScheduler)Trident.getServer().getScheduler()).tick();
+            ((TridentScheduler) Trident.getServer().getScheduler()).tick();
 
             this.calcAndWait((int) (System.currentTimeMillis() - startTime));
         }
@@ -171,6 +161,7 @@ public class MainThread extends Thread {
 
     /**
      * Calculates how long it should wait, and waits for that amount of time
+     *
      * @param tit the Time in Tick (tit)
      */
     private void calcAndWait(int tit) {
@@ -178,7 +169,7 @@ public class MainThread extends Thread {
 
         int ttw = this.tickLength - tit;
 
-        if(ttw <= 0) {
+        if (ttw <= 0) {
             return;
         }
 
@@ -192,12 +183,11 @@ public class MainThread extends Thread {
     private void correctTiming() {
         long expectedTime = (long) ((this.ticksElapsed.get() - 1) * this.tickLength);
         long actualTime = System.currentTimeMillis() - this.zeroBase;
-        if(actualTime != expectedTime) {
+        if (actualTime != expectedTime) {
             // if there is a difference of less than two milliseconds, just update zerobase to compensate and maintain
             // accuracy
-            if(actualTime - expectedTime <= 2L) {
+            if (actualTime - expectedTime <= 2L) {
                 this.zeroBase += actualTime - expectedTime;
-                return;
             }
 
             // handle more advanced divergences

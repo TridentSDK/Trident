@@ -36,9 +36,7 @@ import net.tridentsdk.player.TridentPlayer;
 import net.tridentsdk.server.encryption.RSA;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
-import net.tridentsdk.server.netty.packet.InPacket;
-import net.tridentsdk.server.netty.packet.Packet;
-import net.tridentsdk.server.netty.packet.PacketType;
+import net.tridentsdk.server.netty.packet.*;
 import net.tridentsdk.server.netty.protocol.Protocol;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -48,9 +46,7 @@ import java.math.BigInteger;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Pattern;
 
 public class PacketLoginInEncryptionResponse extends InPacket {
@@ -223,7 +219,7 @@ public class PacketLoginInEncryptionResponse extends InPacket {
          * @return Generated Hash
          */
         static byte[] getHash(ClientConnection connection, byte... secret) throws Exception {
-            byte[][] b = {secret, connection.getLoginKeyPair().getPublic().getEncoded()};
+            byte[][] b = { secret, connection.getLoginKeyPair().getPublic().getEncoded() };
             MessageDigest digest = MessageDigest.getInstance("SHA-1");
 
             for (byte[] bytes : b) {

@@ -28,61 +28,75 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 package net.tridentsdk.window;
 
 import net.tridentsdk.api.inventory.ItemStack;
 import net.tridentsdk.api.window.Window;
-import net.tridentsdk.player.PlayerConnection;
 import net.tridentsdk.player.TridentPlayer;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * An inventory window, wherever and whatever is holding it or having it open
+ *
+ * @author The TridentSDK Team
+ */
 public abstract class TridentWindow implements Window {
     /**
-     * Counter for window ids, inital value is 2 to avoid confusion with a window and a player inventory
+     * Counter for window ids, initial value is 2 to avoid confusion with a window and a player inventory
      */
     private static final AtomicInteger counter = new AtomicInteger(2);
 
     private final int id;
     private final String name;
     private final int length;
-    private ItemStack[] contents;
+    private final ItemStack[] contents;
 
+    /**
+     * Builds a new inventory window
+     *
+     * @param name   the title of the inventory
+     * @param length the amount of slots in the inventory (should be multiple of 9)
+     */
     public TridentWindow(String name, int length) {
         this.name = name;
         this.length = length;
-        this.id = counter.addAndGet(1);
+        this.id = TridentWindow.counter.addAndGet(1);
         this.contents = new ItemStack[length];
     }
 
+    /**
+     * Builds a new inventory window
+     *
+     * @param length the amount of slots in the inventory (should be multiple of 9)
+     */
     public TridentWindow(int length) {
         this("", length);
     }
 
     @Override
     public int getId() {
-        return id;
+        return this.id;
     }
 
     @Override
     public ItemStack[] getContents() {
-        return contents;
+        return this.contents;
     }
 
     @Override
     public int getLength() {
-        return length;
+        return this.length;
     }
 
     @Override
     public String getName() {
-        return name;
+        return this.name;
     }
 
     @Override
     public void setSlot(int index, ItemStack value) {
-        contents[index] = value;
+        this.contents[index] = value;
         // TODO: update client
     }
 

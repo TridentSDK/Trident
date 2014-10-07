@@ -28,14 +28,12 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 package net.tridentsdk.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.api.Location;
 import net.tridentsdk.api.event.player.PlayerMoveEvent;
 import net.tridentsdk.packets.play.out.PacketPlayOutEntityCompleteMove;
-import net.tridentsdk.packets.play.out.PacketPlayOutEntityLook;
 import net.tridentsdk.packets.play.out.PacketPlayOutEntityTeleport;
 import net.tridentsdk.player.PlayerConnection;
 import net.tridentsdk.player.TridentPlayer;
@@ -87,15 +85,15 @@ public class PacketPlayInPlayerMove extends InPacket {
     @Override
     public void handleReceived(ClientConnection connection) {
         TridentPlayer player = ((PlayerConnection) connection).getPlayer();
-        location.setWorld(player.getWorld());
+        this.location.setWorld(player.getWorld());
         Location from = player.getLocation();
-        Location to = location;
+        Location to = this.location;
 
         PlayerMoveEvent event = new PlayerMoveEvent(player, from, to);
 
         TridentServer.getInstance().getEventManager().call(event);
 
-        if(event.isCancelled()) {
+        if (event.isCancelled()) {
             PacketPlayOutEntityTeleport cancel = new PacketPlayOutEntityTeleport();
 
             cancel.set("entityId", player.getId())
@@ -108,11 +106,10 @@ public class PacketPlayInPlayerMove extends InPacket {
 
         player.setLocation(to);
 
-        PacketPlayOutEntityCompleteMove move = new PacketPlayOutEntityCompleteMove();
+        Packet move = new PacketPlayOutEntityCompleteMove();
 
         // set fields
 
         TridentPlayer.sendAll(move);
-
     }
 }

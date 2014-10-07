@@ -28,11 +28,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 package net.tridentsdk.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.packets.play.out.PacketPlayOutDisconnect;
 import net.tridentsdk.player.PlayerConnection;
 import net.tridentsdk.player.TridentPlayer;
 import net.tridentsdk.server.netty.ClientConnection;
@@ -93,7 +91,7 @@ public class PacketPlayInPlayerAbilities extends InPacket {
     public void handleReceived(ClientConnection connection) {
         TridentPlayer player = ((PlayerConnection) connection).getPlayer();
 
-        if((player.getFlyingSpeed() * 250) != flyingSpeed) {
+        if (player.getFlyingSpeed() * 250 != this.flyingSpeed) {
             throw new IllegalArgumentException("Client sent invalid flying speed, possibly hack installed");
         }
 

@@ -28,13 +28,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 package net.tridentsdk.server.netty;
 
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.ChannelPromise;
+import io.netty.channel.*;
 import io.netty.channel.socket.SocketChannel;
 import net.tridentsdk.server.netty.packet.*;
 

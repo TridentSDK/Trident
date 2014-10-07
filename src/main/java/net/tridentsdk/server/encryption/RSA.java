@@ -28,7 +28,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 package net.tridentsdk.server.encryption;
 
 import javax.crypto.Cipher;
@@ -61,7 +60,7 @@ public final class RSA {
      * Encrypts the data into the cipher with the given key
      *
      * @param data the data to be ciphered
-     * @param key the key to use for initialization
+     * @param key  the key to use for initialization
      * @return the encrypted bytes
      * @throws Exception if something happens to occur
      */
@@ -76,7 +75,7 @@ public final class RSA {
      * Encrypts the data into the cipher with the given key, which is copied to a single element byte array
      *
      * @param data the data to be ciphered
-     * @param key the key to use for initialization
+     * @param key  the key to use for initialization
      * @return the encrypted bytes
      * @throws Exception if something happens to occur
      */
@@ -84,14 +83,14 @@ public final class RSA {
         Cipher cipher = Cipher.getInstance("RSA");
         cipher.init(Cipher.ENCRYPT_MODE, key);
 
-        return cipher.doFinal(new byte[]{data});
+        return cipher.doFinal(new byte[] { data });
     }
 
     /**
      * Decrypts the data into the cipher with the given key
      *
      * @param data the data to be ciphered
-     * @param key the key to use for initialization
+     * @param key  the key to use for initialization
      * @return the decrypted bytes
      * @throws Exception if something happens to occur
      */
@@ -106,7 +105,7 @@ public final class RSA {
      * Decrypts the data into the cipher with the given key, copied into a single element byte array
      *
      * @param data the data to be ciphered
-     * @param key the key to use for initialization
+     * @param key  the key to use for initialization
      * @return the decrypted bytes
      * @throws Exception if something happens to occur
      */
@@ -114,6 +113,6 @@ public final class RSA {
         Cipher cipher = Cipher.getInstance("RSA");
         cipher.init(Cipher.DECRYPT_MODE, key);
 
-        return cipher.doFinal(new byte[]{data});
+        return cipher.doFinal(new byte[] { data });
     }
 }

@@ -39,8 +39,8 @@ import io.netty.buffer.ByteBuf;
  */
 public interface Writable {
     /**
-     * Writes the data contained by the current implementation into serialized form in the provided
-     * {@link io.netty.buffer.ByteBuf}
+     * Writes the data contained by the current implementation into serialized form in the provided {@link
+     * io.netty.buffer.ByteBuf}
      *
      * <p>Check the implementation source to see serialization spec</p>
      *

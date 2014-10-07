@@ -28,7 +28,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 package net.tridentsdk.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
@@ -96,9 +95,9 @@ public class PacketPlayInTabComplete extends InPacket {
     @Override
     public void handleReceived(ClientConnection connection) {
         PlayerTabCompleteEvent event = new PlayerTabCompleteEvent(
-                ((PlayerConnection) connection).getPlayer(), text);
+                ((PlayerConnection) connection).getPlayer(), this.text);
 
-        if(event.getSuggestions().length > 0) {
+        if (event.getSuggestions().length > 0) {
             connection.sendPacket(new PacketPlayOutTabComplete().set("matches", event.getSuggestions()));
         }
     }
