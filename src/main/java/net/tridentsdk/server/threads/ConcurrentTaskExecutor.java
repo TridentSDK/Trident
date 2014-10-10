@@ -30,9 +30,16 @@
 
 package net.tridentsdk.server.threads;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
 import net.tridentsdk.api.threads.TaskExecutor;
 
-import java.util.*;
+import javax.annotation.Nullable;
+import java.util.AbstractMap;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedTransferQueue;
 
@@ -119,6 +126,22 @@ public class ConcurrentTaskExecutor<Assignment> {
      */
     public Collection<Assignment> values() {
         return this.assignments.keySet();
+    }
+
+    /**
+     * Lists all available task executors from the threads
+     *
+     * @return the thread list
+     */
+    public Collection<TaskExecutor> threadList() {
+        return Lists.newArrayList(Iterators.transform(this.scale.keySet().iterator(), new Function<InnerThread,
+                TaskExecutor>() {
+            @Nullable
+            @Override
+            public TaskExecutor apply(@Nullable InnerThread innerThread) {
+                return innerThread;
+            }
+        }));
     }
 
     /**
