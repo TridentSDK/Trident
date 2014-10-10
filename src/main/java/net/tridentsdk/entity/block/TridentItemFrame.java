@@ -51,7 +51,7 @@ public class TridentItemFrame extends TridentEntity implements ItemFrame {
 
     @Override
     public byte getItemStackRotation() {
-        return 0;
+        return (byte) 0;
     }
 
     @Override

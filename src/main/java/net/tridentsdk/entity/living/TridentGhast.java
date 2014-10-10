@@ -30,9 +30,7 @@
 package net.tridentsdk.entity.living;
 
 import net.tridentsdk.api.Location;
-import net.tridentsdk.api.entity.Entity;
-import net.tridentsdk.api.entity.EntityProperties;
-import net.tridentsdk.api.entity.Projectile;
+import net.tridentsdk.api.entity.*;
 import net.tridentsdk.api.entity.living.Ghast;
 import net.tridentsdk.api.entity.living.Player;
 import net.tridentsdk.api.event.entity.EntityDamageEvent;
@@ -48,7 +46,7 @@ public class TridentGhast extends TridentLivingEntity implements Ghast {
 
     @Override
     public float getFireballRadius() {
-        return 0;
+        return 0.0F;
     }
 
     @Override

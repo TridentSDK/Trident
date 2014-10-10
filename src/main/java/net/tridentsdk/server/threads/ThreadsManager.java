@@ -30,15 +30,19 @@
 
 package net.tridentsdk.server.threads;
 
+import net.tridentsdk.api.entity.Entity;
+import net.tridentsdk.api.entity.living.Player;
+import net.tridentsdk.api.threads.TaskExecutor;
+import net.tridentsdk.api.threads.ThreadProvider;
+import net.tridentsdk.api.world.World;
+import net.tridentsdk.plugin.TridentPlugin;
+
 /**
  * Handles the majority of the lifecycle for the threads
  *
  * @author The TridentSDK Team
  */
-public final class ThreadsManager {
-    private ThreadsManager() {
-    }
-
+public final class ThreadsManager implements ThreadProvider {
     /**
      * Stops all the executors and clears all caches of concurrent threads
      */
@@ -49,6 +53,9 @@ public final class ThreadsManager {
         PlayerThreads.SERVICE.shutdownNow();
         PlayerThreads.THREAD_MAP.shutdown();
 
+        PluginThreads.SERVICE.shutdownNow();
+        PluginThreads.THREAD_MAP.shutdown();
+
         EntityThreads.SERVICE.shutdownNow();
         EntityThreads.THREAD_MAP.shutdown();
 
@@ -56,5 +63,21 @@ public final class ThreadsManager {
         WorldThreads.THREAD_MAP.shutdown();
 
         MainThread.getInstance().interrupt();
+    }
+
+    @Override public TaskExecutor provideEntityThread(Entity entity) {
+        return EntityThreads.entityThreadHandle(entity);
+    }
+
+    @Override public TaskExecutor providePlayerThread(Player player) {
+        return PlayerThreads.clientThreadHandle(player);
+    }
+
+    @Override public TaskExecutor providePluginThread(TridentPlugin plugin) {
+        return PluginThreads.pluginThreadHandle(plugin);
+    }
+
+    @Override public TaskExecutor provideWorldThread(World world) {
+        return WorldThreads.worldThreadHandle(world);
     }
 }

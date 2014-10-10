@@ -46,7 +46,7 @@ public class RegionFileCache {
         int actualX = chunkX >> 5;
         int actualZ = chunkZ >> 5;
 
-        Path regionPath = Paths.get(worldPath.toString(), "region", "r." + actualX + "." + actualZ + ".mca");
+        Path regionPath = Paths.get(worldPath.toString(), "region", "r." + actualX + '.' + actualZ + ".mca");
 
         return this.regionFiles.get(regionPath);
     }

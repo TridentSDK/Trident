@@ -68,12 +68,12 @@ public class PacketPlayInPlayerDig extends InPacket {
 
     @Override
     public Packet decode(ByteBuf buf) {
-        this.status = buf.readByte();
+        this.status = (short) buf.readByte();
         long encodedLocation = buf.readLong();
 
         this.location = new Location(null, (double) (encodedLocation >> 38), (double) (encodedLocation << 26 >> 52),
                 (double) (encodedLocation << 38 >> 38));
-        this.blockFace = buf.readByte();
+        this.blockFace = (short) buf.readByte();
 
         return this;
     }

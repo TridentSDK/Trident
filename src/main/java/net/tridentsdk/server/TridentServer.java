@@ -35,6 +35,7 @@ import net.tridentsdk.api.*;
 import net.tridentsdk.api.config.JsonConfig;
 import net.tridentsdk.api.event.EventManager;
 import net.tridentsdk.api.scheduling.Scheduler;
+import net.tridentsdk.api.threads.ThreadProvider;
 import net.tridentsdk.api.window.Window;
 import net.tridentsdk.api.world.World;
 import net.tridentsdk.entity.EntityManager;
@@ -79,6 +80,8 @@ public final class TridentServer implements Server {
 
     private final TridentPluginHandler pluginHandler;
     private final TridentScheduler scheduler;
+
+    private final ThreadProvider provider = new ThreadsManager();
 
     private TridentServer(JsonConfig config, ConcurrentTaskExecutor<?> taskExecutor) {
         this.config = config;
@@ -159,6 +162,10 @@ public final class TridentServer implements Server {
     @Override
     public JsonConfig getConfig() {
         return this.config;
+    }
+
+    @Override public ThreadProvider provideThreads() {
+        return this.provider;
     }
 
     /**
@@ -275,7 +282,7 @@ public final class TridentServer implements Server {
     }
 
     @Override
-    public void sendPluginMessage(String channel, byte[] data) {
+    public void sendPluginMessage(String channel, byte... data) {
         TridentPlayer.sendAll(new PacketPlayOutPluginMessage().set("channel", channel)
                 .set("data", data));
     }

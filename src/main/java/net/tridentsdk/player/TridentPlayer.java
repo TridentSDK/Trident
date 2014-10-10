@@ -35,6 +35,8 @@ import net.tridentsdk.api.entity.*;
 import net.tridentsdk.api.entity.living.Player;
 import net.tridentsdk.api.event.entity.EntityDamageEvent;
 import net.tridentsdk.api.inventory.ItemStack;
+import net.tridentsdk.api.threads.TaskExecutor;
+import net.tridentsdk.api.threads.ThreadProvider;
 import net.tridentsdk.api.world.Dimension;
 import net.tridentsdk.api.world.LevelType;
 import net.tridentsdk.entity.TridentInventoryHolder;
@@ -46,10 +48,10 @@ import java.util.Locale;
 import java.util.UUID;
 
 public class TridentPlayer extends TridentInventoryHolder implements Player {
-
     private static final TridentPlayer[] players = { };
 
     private final PlayerConnection connection;
+    private final TaskExecutor executor = ThreadProvider.getDefault().providePlayerThread(this);
     private volatile Locale locale;
     private volatile float flyingSpeed;
     private volatile short heldSlot;
@@ -57,8 +59,8 @@ public class TridentPlayer extends TridentInventoryHolder implements Player {
     public TridentPlayer(UUID uniqueId, Location spawnLocation, ClientConnection connection) {
         super(uniqueId, spawnLocation);
 
-        this.connection = new PlayerConnection(connection, this);
-        this.flyingSpeed = 1F;
+        this.connection = PlayerConnection.createPlayerConnection(connection, this);
+        this.flyingSpeed = 1.0F;
     }
 
     public static void sendAll(Packet packet) {
@@ -85,55 +87,74 @@ public class TridentPlayer extends TridentInventoryHolder implements Player {
 
     @Override
     public void tick() {
-        super.tick();
+        this.executor.addTask(new Runnable() {
+            @Override public void run() {
+                TridentPlayer.super.tick();
 
-        if (this.connection.getKeepAliveId() == -1) {
-            // send Keep Alive packet if not sent already
-            PacketPlayOutKeepAlive packet = new PacketPlayOutKeepAlive();
+                if (TridentPlayer.this.connection.getKeepAliveId() == -1) {
+                    // send Keep Alive packet if not sent already
+                    PacketPlayOutKeepAlive packet = new PacketPlayOutKeepAlive();
 
-            this.connection.sendPacket(packet);
-            this.connection.setKeepAliveId(packet.getKeepAliveId(), this.ticksExisted.get());
-        } else if (this.ticksExisted.get() - this.connection.getKeepAliveSent() >= 600L) {
-            // kick the player for not responding to the keep alive within 30 seconds/600 ticks
-            this.kickPlayer("Timed out!");
-        }
+                    TridentPlayer.this.connection.sendPacket(packet);
+                    TridentPlayer.this.connection.setKeepAliveId(packet.getKeepAliveId(),
+                            TridentPlayer.this.ticksExisted.get());
+                } else if (TridentPlayer.this.ticksExisted.get() -
+                        TridentPlayer.this.connection.getKeepAliveSent() >= 600L) {
+                    // kick the player for not responding to the keep alive within 30 seconds/600 ticks
+                    TridentPlayer.this.kickPlayer("Timed out!");
+                }
+            }
+        });
     }
 
     /*
      * @NotJavaDoc
      * TODO: Create Message API and utilize it
      */
-    public void kickPlayer(String reason) {
-        this.connection.sendPacket(new PacketPlayOutDisconnect().set("reason", reason));
-        this.connection.logout();
+    public void kickPlayer(final String reason) {
+        this.executor.addTask(new Runnable() {
+            @Override public void run() {
+                TridentPlayer.this.connection.sendPacket(new PacketPlayOutDisconnect().set("reason", reason));
+                TridentPlayer.this.connection.logout();
+            }
+        });
     }
 
     public PlayerConnection getConnection() {
         return this.connection;
     }
 
-    public void setSlot(short slot) {
-        if (slot > 8 || slot < 0) {
-            throw new IllegalArgumentException("Slot must be within the ranges of 0-8");
-        }
+    public void setSlot(final short slot) {
+        this.executor.addTask(new Runnable() {
+            @Override public void run() {
+                if ((int) slot > 8 || (int) slot < 0) {
+                    throw new IllegalArgumentException("Slot must be within the ranges of 0-8");
+                }
 
-        this.heldSlot = slot;
+                TridentPlayer.this.heldSlot = slot;
+            }
+        });
     }
 
     @Override
     public ItemStack getItemInHand() {
-        return this.getInventory().getContents()[this.heldSlot + 36];
+        return this.getInventory().getContents()[(int) this.heldSlot + 36];
     }
 
     @Override
-    public void sendMessage(String... messages) {
+    public void sendMessage(final String... messages) {
         // TODO: Verify proper implementation
-        for (String message : messages) {
-            if (message != null) {
-                this.connection.sendPacket(new PacketPlayOutChatMessage().set("jsonMessage", message)
-                        .set("position", PacketPlayOutChatMessage.ChatPosition.CHAT));
+        this.executor.addTask(new Runnable() {
+            @Override public void run() {
+                for (String message : messages) {
+                    if (message != null) {
+                        TridentPlayer.this.connection.sendPacket(new PacketPlayOutChatMessage().set("jsonMessage",
+                                message)
+                                .set("position", PacketPlayOutChatMessage.ChatPosition.CHAT));
+                    }
+                }
             }
-        }
+        });
     }
 
     @Override
@@ -206,7 +227,7 @@ public class TridentPlayer extends TridentInventoryHolder implements Player {
     @Override
     public float getMoveSpeed() {
         // TODO Auto-generated method stub
-        return 0;
+        return 0.0F;
     }
 
     /* (non-Javadoc)
@@ -224,7 +245,7 @@ public class TridentPlayer extends TridentInventoryHolder implements Player {
     @Override
     public float getSneakSpeed() {
         // TODO Auto-generated method stub
-        return 0;
+        return 0.0F;
     }
 
     /* (non-Javadoc)
@@ -242,7 +263,7 @@ public class TridentPlayer extends TridentInventoryHolder implements Player {
     @Override
     public float getWalkSpeed() {
         // TODO Auto-generated method stub
-        return 0;
+        return 0.0F;
     }
 
     /* (non-Javadoc)

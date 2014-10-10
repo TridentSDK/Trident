@@ -37,7 +37,6 @@ import net.tridentsdk.api.inventory.ItemStack;
 import net.tridentsdk.api.util.PartRotation;
 import net.tridentsdk.entity.TridentEntity;
 
-
 import java.util.UUID;
 
 public class TridentArmorStand extends TridentEntity implements ArmorStand {

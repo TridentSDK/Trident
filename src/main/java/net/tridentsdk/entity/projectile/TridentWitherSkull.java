@@ -31,8 +31,8 @@ package net.tridentsdk.entity.projectile;
 
 import net.tridentsdk.api.Location;
 import net.tridentsdk.api.entity.EntityProperties;
-import net.tridentsdk.api.entity.projectile.WitherSkull;
 import net.tridentsdk.api.entity.living.ProjectileSource;
+import net.tridentsdk.api.entity.projectile.WitherSkull;
 import net.tridentsdk.entity.TridentProjectile;
 
 import java.util.UUID;

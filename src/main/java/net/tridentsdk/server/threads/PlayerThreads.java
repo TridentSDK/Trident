@@ -30,18 +30,11 @@
 
 package net.tridentsdk.server.threads;
 
-import net.tridentsdk.api.GameMode;
-import net.tridentsdk.api.Location;
-import net.tridentsdk.api.entity.*;
 import net.tridentsdk.api.entity.living.Player;
-import net.tridentsdk.api.event.entity.EntityDamageEvent;
-import net.tridentsdk.api.inventory.ItemStack;
-import net.tridentsdk.entity.TridentEntity;
-import net.tridentsdk.server.netty.ClientConnection;
-import net.tridentsdk.server.netty.packet.Packet;
+import net.tridentsdk.api.threads.TaskExecutor;
 
 import javax.annotation.concurrent.ThreadSafe;
-import java.util.*;
+import java.util.Collection;
 import java.util.concurrent.*;
 
 /**
@@ -51,8 +44,8 @@ import java.util.concurrent.*;
  */
 @ThreadSafe
 public final class PlayerThreads {
-    static final ConcurrentTaskExecutor<ThreadPlayerWrapper> THREAD_MAP = new ConcurrentTaskExecutor<>(4);
-    static final ConcurrentCache<ClientConnection, ThreadPlayerWrapper> CACHE_MAP = new ConcurrentCache<>();
+    static final ConcurrentTaskExecutor<Player> THREAD_MAP = new ConcurrentTaskExecutor<>(4);
+    static final ConcurrentCache<Player, TaskExecutor> CACHE_MAP = new ConcurrentCache<>();
 
     static final ExecutorService SERVICE = Executors.newSingleThreadExecutor();
 
@@ -66,35 +59,29 @@ public final class PlayerThreads {
      *
      * <p>May block the first call</p>
      *
-     * @param connection the player to find the wrapper for
+     * @param player the player to find the wrapper for
+     * @return the execution tool for the player
      */
-    public static Player clientThreadHandle(final ClientConnection connection) {
-        return PlayerThreads.CACHE_MAP.retrieve(connection, new Callable<ThreadPlayerWrapper>() {
+    public static TaskExecutor clientThreadHandle(final Player player) {
+        return PlayerThreads.CACHE_MAP.retrieve(player, new Callable<TaskExecutor>() {
             @Override
-            public ThreadPlayerWrapper call() throws Exception {
-                ConcurrentTaskExecutor.TaskExecutor executor = PlayerThreads.THREAD_MAP.getScaledThread();
-                ThreadPlayerWrapper wrapper = new ThreadPlayerWrapper(executor, connection);
-                PlayerThreads.THREAD_MAP.assign(executor, wrapper);
+            public TaskExecutor call() throws Exception {
+                TaskExecutor executor = PlayerThreads.THREAD_MAP.getScaledThread();
+                PlayerThreads.THREAD_MAP.assign(executor, player);
 
-                return wrapper;
+                return executor;
             }
-        }, PlayerThreads.SERVICE);
+        }, EntityThreads.SERVICE);
     }
 
     /**
      * Decaches the player connection handler from the mappings
      *
-     * @param connection the player to remove the wrapper cache
+     * @param player the player to remove the wrapper cache
      */
-    public static void remove(ClientConnection connection) {
-        PlayerThreads.THREAD_MAP.removeAssignment(PlayerThreads.CACHE_MAP.retrieve(connection, null,
-                PlayerThreads.SERVICE));
-        PlayerThreads.CACHE_MAP.remove(connection);
-    }
-
-    public static void sendAll(Packet packet) {
-        for (ThreadPlayerWrapper wrapper : PlayerThreads.wrappedPlayers())
-            wrapper.getConnection().sendPacket(packet);
+    public static void remove(Player player) {
+        PlayerThreads.THREAD_MAP.removeAssignment(player);
+        PlayerThreads.CACHE_MAP.remove(player);
     }
 
     /**
@@ -102,170 +89,7 @@ public final class PlayerThreads {
      *
      * @return the values of the concurrent cache
      */
-    public static Collection<ThreadPlayerWrapper> wrappedPlayers() {
-        return PlayerThreads.CACHE_MAP.values();
-    }
-
-    private static class ThreadPlayerWrapper extends TridentEntity implements Player {
-        private final ConcurrentTaskExecutor.TaskExecutor executor;
-        private final ClientConnection connection;
-
-        /**
-         * Wraps the thread player handling thread
-         *
-         * @param executor the handling thread to delegate actions to
-         */
-        ThreadPlayerWrapper(ConcurrentTaskExecutor.TaskExecutor executor, ClientConnection connection) {
-            super(UUID.randomUUID(), new Location(null, 0.0, 0.0, 0.0));
-            this.executor = executor;
-            this.connection = connection;
-        }
-
-        public ClientConnection getConnection() {
-            return this.connection;
-        }
-
-        public ConcurrentTaskExecutor.TaskExecutor getExecutor() {
-            return this.executor;
-        }
-
-        @Override
-        public void hide(Entity entity) {
-        }
-
-        @Override
-        public void show(Entity entity) {
-
-        }
-
-        @Override
-        public double getHealth() {
-            return 0.0;
-        }
-
-        @Override
-        public void setHealth(double health) {
-
-        }
-
-        @Override
-        public double getMaxHealth() {
-            return 0.0;
-        }
-
-        @Override
-        public void setMaxHealth(double maxHealth) {
-
-        }
-
-        @Override
-        public long getRemainingAir() {
-            return 0L;
-        }
-
-        @Override
-        public void setRemainingAir(long ticks) {
-
-        }
-
-        @Override
-        public Location getEyeLocation() {
-            return null;
-        }
-
-        @Override
-        public boolean canPickupItems() {
-            return false;
-        }
-
-        @Override
-        public EntityDamageEvent getLastDamageCause() {
-            return null;
-        }
-
-        @Override
-        public Player hurtByPlayer() {
-            return null;
-        }
-
-        @Override
-        public boolean isDead() {
-            return false;
-        }
-
-        @Override
-        public boolean isNameVisible() {
-            return false;
-        }
-
-        @Override
-        public void applyProperties(EntityProperties properties) {
-
-        }
-
-        @Override
-        public <T extends Projectile> T launchProjectile(EntityProperties properties) {
-            return null;
-        }
-
-        @Override
-        public void sendMessage(String... messages) {
-            // TODO - What is meant to go here?
-        }
-
-        @Override
-        public float getFlyingSpeed() {
-            return 0;
-        }
-
-        @Override
-        public void setFlyingSpeed(float flyingSpeed) {
-
-        }
-
-        @Override
-        public Locale getLocale() {
-            return null;
-        }
-
-        @Override
-        public ItemStack getItemInHand() {
-            return null;
-        }
-
-        @Override
-        public GameMode getGameMode() {
-            return null;
-        }
-
-        @Override
-        public float getMoveSpeed() {
-            return 0;
-        }
-
-        @Override
-        public void setMoveSpeed(float speed) {
-
-        }
-
-        @Override
-        public float getSneakSpeed() {
-            return 0;
-        }
-
-        @Override
-        public void setSneakSpeed(float speed) {
-
-        }
-
-        @Override
-        public float getWalkSpeed() {
-            return 0;
-        }
-
-        @Override
-        public void setWalkSpeed(float speed) {
-
-        }
+    public static Collection<Player> wrappedPlayers() {
+        return PlayerThreads.THREAD_MAP.values();
     }
 }

@@ -30,9 +30,7 @@
 package net.tridentsdk.entity.living;
 
 import net.tridentsdk.api.Location;
-import net.tridentsdk.api.entity.Entity;
-import net.tridentsdk.api.entity.EntityProperties;
-import net.tridentsdk.api.entity.Projectile;
+import net.tridentsdk.api.entity.*;
 import net.tridentsdk.api.entity.living.Endermite;
 import net.tridentsdk.api.entity.living.Player;
 import net.tridentsdk.api.event.entity.EntityDamageEvent;
