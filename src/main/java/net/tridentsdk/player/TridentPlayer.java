@@ -30,17 +30,24 @@
 
 package net.tridentsdk.player;
 
-import net.tridentsdk.api.*;
-import net.tridentsdk.api.entity.*;
+import net.tridentsdk.api.Difficulty;
+import net.tridentsdk.api.GameMode;
+import net.tridentsdk.api.Location;
+import net.tridentsdk.api.entity.Entity;
+import net.tridentsdk.api.entity.EntityProperties;
+import net.tridentsdk.api.entity.Projectile;
 import net.tridentsdk.api.entity.living.Player;
 import net.tridentsdk.api.event.entity.EntityDamageEvent;
 import net.tridentsdk.api.inventory.ItemStack;
 import net.tridentsdk.api.threads.TaskExecutor;
-import net.tridentsdk.api.threads.ThreadProvider;
 import net.tridentsdk.api.world.Dimension;
 import net.tridentsdk.api.world.LevelType;
 import net.tridentsdk.entity.TridentInventoryHolder;
-import net.tridentsdk.packets.play.out.*;
+import net.tridentsdk.packets.play.out.PacketPlayOutChatMessage;
+import net.tridentsdk.packets.play.out.PacketPlayOutDisconnect;
+import net.tridentsdk.packets.play.out.PacketPlayOutJoinGame;
+import net.tridentsdk.packets.play.out.PacketPlayOutKeepAlive;
+import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.Packet;
 
@@ -51,7 +58,7 @@ public class TridentPlayer extends TridentInventoryHolder implements Player {
     private static final TridentPlayer[] players = { };
 
     private final PlayerConnection connection;
-    private final TaskExecutor executor = ThreadProvider.getDefault().providePlayerThread(this);
+    private final TaskExecutor executor = TridentServer.getInstance().provideThreads().providePlayerThread(this);
     private volatile Locale locale;
     private volatile float flyingSpeed;
     private volatile short heldSlot;

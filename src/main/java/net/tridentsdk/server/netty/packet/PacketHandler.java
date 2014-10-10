@@ -38,8 +38,6 @@ import net.tridentsdk.packets.play.out.PacketPlayOutDisconnect;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.protocol.Protocol;
-import net.tridentsdk.server.threads.BackgroundTaskExecutor;
-import net.tridentsdk.server.threads.PlayerThreads;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -119,13 +117,5 @@ public class PacketHandler extends SimpleChannelInboundHandler<PacketData> {
                     break;
             }
         }
-
-        final ClientConnection finalConnection = this.connection;
-        BackgroundTaskExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                PlayerThreads.clientThreadHandle(finalConnection);
-            }
-        });
     }
 }
