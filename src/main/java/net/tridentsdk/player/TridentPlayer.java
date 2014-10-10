@@ -95,7 +95,8 @@ public class TridentPlayer extends TridentInventoryHolder implements Player {
     @Override
     public void tick() {
         this.executor.addTask(new Runnable() {
-            @Override public void run() {
+            @Override
+    public void run() {
                 TridentPlayer.super.tick();
 
                 if (TridentPlayer.this.connection.getKeepAliveId() == -1) {
@@ -120,7 +121,8 @@ public class TridentPlayer extends TridentInventoryHolder implements Player {
      */
     public void kickPlayer(final String reason) {
         this.executor.addTask(new Runnable() {
-            @Override public void run() {
+            @Override
+    public void run() {
                 TridentPlayer.this.connection.sendPacket(new PacketPlayOutDisconnect().set("reason", reason));
                 TridentPlayer.this.connection.logout();
             }
@@ -133,7 +135,8 @@ public class TridentPlayer extends TridentInventoryHolder implements Player {
 
     public void setSlot(final short slot) {
         this.executor.addTask(new Runnable() {
-            @Override public void run() {
+            @Override
+    public void run() {
                 if ((int) slot > 8 || (int) slot < 0) {
                     throw new IllegalArgumentException("Slot must be within the ranges of 0-8");
                 }
@@ -152,7 +155,8 @@ public class TridentPlayer extends TridentInventoryHolder implements Player {
     public void sendMessage(final String... messages) {
         // TODO: Verify proper implementation
         this.executor.addTask(new Runnable() {
-            @Override public void run() {
+            @Override
+    public void run() {
                 for (String message : messages) {
                     if (message != null) {
                         TridentPlayer.this.connection.sendPacket(new PacketPlayOutChatMessage().set("jsonMessage",

@@ -65,19 +65,23 @@ public final class ThreadsManager implements ThreadProvider {
         MainThread.getInstance().interrupt();
     }
 
-    @Override public TaskExecutor provideEntityThread(Entity entity) {
+    @Override
+    public TaskExecutor provideEntityThread(Entity entity) {
         return EntityThreads.entityThreadHandle(entity);
     }
 
-    @Override public TaskExecutor providePlayerThread(Player player) {
+    @Override
+    public TaskExecutor providePlayerThread(Player player) {
         return PlayerThreads.clientThreadHandle(player);
     }
 
-    @Override public TaskExecutor providePluginThread(TridentPlugin plugin) {
+    @Override
+    public TaskExecutor providePluginThread(TridentPlugin plugin) {
         return PluginThreads.pluginThreadHandle(plugin);
     }
 
-    @Override public TaskExecutor provideWorldThread(World world) {
+    @Override
+    public TaskExecutor provideWorldThread(World world) {
         return WorldThreads.worldThreadHandle(world);
     }
 }

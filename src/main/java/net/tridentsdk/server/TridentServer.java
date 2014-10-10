@@ -164,7 +164,8 @@ public final class TridentServer implements Server {
         return this.config;
     }
 
-    @Override public ThreadProvider provideThreads() {
+    @Override
+    public ThreadProvider provideThreads() {
         return this.provider;
     }
 
