@@ -69,8 +69,8 @@ public final class VolatileArrayTest {
         protected final Channel channel;
 
         /* Encryption and client data fields */
-        protected final volatile Protocol.ClientStage stage;
-        protected final volatile boolean encryptionEnabled;
+        protected final Protocol.ClientStage stage;
+        protected final boolean encryptionEnabled;
         protected volatile byte[] verificationToken; // DO NOT WRITE INDIVIDUAL ELEMENTS TO IT. Consult AgentTroll
 
         /**
