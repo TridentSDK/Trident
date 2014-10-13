@@ -128,7 +128,11 @@ public class TridentWorld implements Serializable, World {
         if (!location.getWorld().getName().equals(this.getName()))
             throw new IllegalArgumentException("Provided location does not have the same world!");
 
-        return null;
+        int x = (int) Math.round(location.getX());
+        int y = (int) Math.round(location.getY());
+        int z = (int) Math.round(location.getZ());
+
+        return this.getChunkAt(WorldUtils.getChunkLocation(x,z),true).getBlockAt(x%16,y,z%16);
     }
 
     @Override

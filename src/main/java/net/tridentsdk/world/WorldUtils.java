@@ -40,8 +40,17 @@ public class WorldUtils {
      */
     public static String getRegionFile (int x, int z) {
         return "r." + (x >> 9) + "." + (z >> 9) + ".mca";
-
     }
 
+    /**
+     * Gets the index of a block in a section
+     * @param x
+     * @param y
+     * @param z
+     * @return
+     */
+    public static int getBlockArrayIndex(int x, int y, int z) {
+        return y << 8 + z << 4 + x;
+    }
 
 }
