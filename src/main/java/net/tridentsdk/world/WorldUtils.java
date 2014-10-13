@@ -58,10 +58,10 @@ public class WorldUtils {
 
     public static byte getFromNibbleArray(byte[] nibbleArray, int index) {
         boolean off = index%2 == 1;
+
         if(off) {
             return (byte) (nibbleArray[index/2] >>> 4);
-        }
-        else {
+        } else {
             return (byte) (nibbleArray[index/2]&NIBBLE_MASK);
         }
     }

@@ -32,19 +32,13 @@ package net.tridentsdk.world;
 
 import net.tridentsdk.api.Block;
 import net.tridentsdk.api.Location;
-import net.tridentsdk.api.nbt.CompoundTag;
-import net.tridentsdk.api.nbt.NBTField;
-import net.tridentsdk.api.nbt.NBTSerializable;
-import net.tridentsdk.api.nbt.TagType;
+import net.tridentsdk.api.nbt.*;
 import net.tridentsdk.api.world.Chunk;
 import net.tridentsdk.api.world.ChunkLocation;
 
-import java.io.Serializable;
-import java.util.List;
 import java.util.Random;
 
-public class TridentChunk implements Serializable, Chunk, NBTSerializable {
-    private static final long serialVersionUID = 3323137810332318805L;
+public class TridentChunk implements Chunk, NBTSerializable {
     private final TridentWorld world;
     private final ChunkLocation location;
     private CompoundTag chunkData;
@@ -66,29 +60,26 @@ public class TridentChunk implements Serializable, Chunk, NBTSerializable {
     @NBTField(name = "TerrainPopulated", type = TagType.BYTE)
     protected byte terrainPopulated;
 
-    @NBTField(name = "V", type = TagType.BYTE)
-    protected byte vagina;
-
     @NBTField(name = "InhabitedTime", type = TagType.LONG)
     protected long inhabitedtime;
 
     @NBTField(name = "Biomes", type = TagType.BYTE_ARRAY)
-    protected byte [] biomes;
+    protected byte[] biomes;
 
     @NBTField(name = "HeightMap", type = TagType.INT_ARRAY)
-    protected int [] heightMap;
+    protected int[] heightMap;
 
     @NBTField(name = "Sections", type = TagType.LIST)
-    protected List<?> sections;
+    protected ListTag sections;
 
     @NBTField(name = "Entities",type = TagType.LIST)
-    protected List<?> entities;
+    protected ListTag entities;
 
     @NBTField(name = "TileEntities", type = TagType.LIST)
-    protected List<?> tileEnts;
+    protected ListTag tileEnts;
 
     @NBTField(name = "TileTicks", type = TagType.LIST)
-    protected List<?> tileTicks;
+    protected ListTag tileTicks;
 
     public TridentChunk(TridentWorld world, int x, int z) {
         this(world, new ChunkLocation(x, z));

@@ -12,17 +12,17 @@ public class TridentSection implements NBTSerializable{
     protected byte y;
 
     @NBTField(name = "Blocks", type = TagType.BYTE_ARRAY)
-    protected byte [] blocks;
+    protected byte[] blocks;
 
     @NBTField(name = "Add", type = TagType.BYTE_ARRAY)
-    protected byte [] additionalData;
+    protected byte[] additionalData;
 
     @NBTField(name = "Data", type = TagType.BYTE_ARRAY)
-    protected byte [] blockData;
+    protected byte[] blockData;
 
     @NBTField(name = "BlockLight", type = TagType.BYTE_ARRAY)
-    protected byte [] blockLight;
+    protected byte[] blockLight;
 
     @NBTField(name = "SkyLight", type = TagType.BYTE_ARRAY)
-    protected byte [] skyLight;
+    protected byte[] skyLight;
 }
