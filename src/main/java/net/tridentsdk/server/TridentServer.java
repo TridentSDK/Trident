@@ -72,6 +72,7 @@ public final class TridentServer implements Server {
 
     private final JsonConfig config;
     private final Protocol protocol;
+    private final Logger logger;
 
     private final ConcurrentTaskExecutor<?> taskExecutor;
     private final RegionFileCache regionCache;
@@ -85,7 +86,7 @@ public final class TridentServer implements Server {
 
     private final ThreadProvider provider = new ThreadsManager();
 
-    private TridentServer(JsonConfig config, ConcurrentTaskExecutor<?> taskExecutor) {
+    private TridentServer(JsonConfig config, ConcurrentTaskExecutor<?> taskExecutor, Logger logger) {
         this.config = config;
         this.protocol = new Protocol();
         this.taskExecutor = taskExecutor;
@@ -95,15 +96,17 @@ public final class TridentServer implements Server {
         this.eventManager = new EventManager();
         this.pluginHandler = new TridentPluginHandler();
         this.scheduler = new TridentScheduler();
+        this.logger = logger;
     }
 
     /**
      * Creates the server access base, distributing information to the fields available
      *
      * @param config the configuration to use for option lookup
+     * @param logger the server logger
      */
-    public static TridentServer createServer(JsonConfig config, ConcurrentTaskExecutor<?> taskExecutor) {
-        TridentServer server = new TridentServer(config, taskExecutor);
+    public static TridentServer createServer(JsonConfig config, ConcurrentTaskExecutor<?> taskExecutor, Logger logger) {
+        TridentServer server = new TridentServer(config, taskExecutor, logger);
         Trident.setServer(server);
 
         server.SERVER_THREAD.set(server.taskExecutor.getScaledThread().asThread());
@@ -158,7 +161,7 @@ public final class TridentServer implements Server {
 
     @Override
     public Logger getLogger() {
-        return null;
+        return this.logger;
     }
 
     @Override
@@ -177,9 +180,15 @@ public final class TridentServer implements Server {
     @Override
     public void shutdown() {
         //TODO: Cleanup stuff...
+        Trident.getLogger().info("Shutting down server connections...");
         TridentStart.close();
+        Trident.getLogger().info("Shutting down worker threads...");
         this.taskExecutor.shutdown();
+        Trident.getLogger().info("Shutting down server process...");
         ThreadsManager.stopAll();
+        Trident.getLogger().info("Server shutdown successfully.");
+
+        System.exit(0);
     }
 
     @Override
