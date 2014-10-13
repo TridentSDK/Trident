@@ -49,7 +49,7 @@ public class TridentEgg extends TridentProjectile implements Egg {
      * Inherits constructor from {@link net.tridentsdk.entity.TridentProjectile}
      */
     public TridentEgg(UUID uniqueId, Location spawnLocation, ProjectileSource source) {
-        super(uniqueId, spawnLocation, source);
+        super(uniqueId, spawnLocation, source, false);
     }
 
     @Override
