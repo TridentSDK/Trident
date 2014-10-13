@@ -146,7 +146,7 @@ public class TridentWorld implements Serializable, World {
     }
 
     @Override
-    public Difficulty getDifficulity() {
+    public Difficulty getDifficulty() {
         return Difficulty.NORMAL; // psuedo return
     }
 

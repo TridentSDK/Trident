@@ -77,7 +77,7 @@ public class PacketPlayInClientStatus extends InPacket {
                 PacketPlayOutPlayerRespawn respawn = new PacketPlayOutPlayerRespawn();
 
                 respawn.set("dimesion", (int) world.getDimesion().toByte())
-                        .set("difficulity", (int) world.getDifficulity().toByte())
+                        .set("difficulity", (int) world.getDifficulty().toByte())
                         .set("gameMode", (int) world.getDefaultGamemode().toByte()
                         /* todo make this specific to the player */);
 
