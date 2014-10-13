@@ -40,6 +40,7 @@ import net.tridentsdk.api.world.Chunk;
 import net.tridentsdk.api.world.ChunkLocation;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Random;
 
 public class TridentChunk implements Serializable, Chunk, NBTSerializable {
@@ -77,8 +78,17 @@ public class TridentChunk implements Serializable, Chunk, NBTSerializable {
     @NBTField(name = "HeightMap", type = TagType.INT_ARRAY)
     protected int [] heightMap;
 
+    @NBTField(name = "Sections", type = TagType.LIST)
+    protected List<?> sections;
 
+    @NBTField(name = "Entities",type = TagType.LIST)
+    protected List<?> entities;
 
+    @NBTField(name = "TileEntities", type = TagType.LIST)
+    protected List<?> tileEnts;
+
+    @NBTField(name = "TileTicks", type = TagType.LIST)
+    protected List<?> tileTicks;
 
     public TridentChunk(TridentWorld world, int x, int z) {
         this(world, new ChunkLocation(x, z));
