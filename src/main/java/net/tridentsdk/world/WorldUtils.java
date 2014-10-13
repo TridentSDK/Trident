@@ -1,8 +1,11 @@
 package net.tridentsdk.world;
 
+import com.google.common.primitives.UnsignedBytes;
 import net.tridentsdk.api.world.ChunkLocation;
 
 public class WorldUtils {
+
+    public static final byte NIBBLE_MASK = (byte)0x0F;
 
     /**
      * Get section index from y height
@@ -51,6 +54,16 @@ public class WorldUtils {
      */
     public static int getBlockArrayIndex(int x, int y, int z) {
         return y << 8 + z << 4 + x;
+    }
+
+    public static byte getFromNibbleArray(byte[] nibbleArray, int index) {
+        boolean off = index%2 == 1;
+        if(off) {
+            return (byte) (nibbleArray[index/2] >>> 4);
+        }
+        else {
+            return (byte) (nibbleArray[index/2]&NIBBLE_MASK);
+        }
     }
 
 }
