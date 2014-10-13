@@ -1,11 +1,12 @@
 package net.tridentsdk.world;
 
-import com.google.common.primitives.UnsignedBytes;
 import net.tridentsdk.api.world.ChunkLocation;
 
-public class WorldUtils {
+public final class WorldUtils {
 
     public static final byte NIBBLE_MASK = (byte)0x0F;
+
+    private WorldUtils() {}
 
     /**
      * Get section index from y height
@@ -32,7 +33,7 @@ public class WorldUtils {
      * @return
      */
     public static String getRegionFile (ChunkLocation location) {
-        return "r." + (location.getX() >> 5) + "." + (location.getZ() >> 5) + ".mca";
+        return "r." + (location.getX() >> 5) + '.' + (location.getZ() >> 5) + ".mca";
     }
 
     /**
@@ -42,7 +43,7 @@ public class WorldUtils {
      * @return
      */
     public static String getRegionFile (int x, int z) {
-        return "r." + (x >> 9) + "." + (z >> 9) + ".mca";
+        return "r." + (x >> 9) + '.' + (z >> 9) + ".mca";
     }
 
     /**
@@ -57,12 +58,12 @@ public class WorldUtils {
     }
 
     public static byte getFromNibbleArray(byte[] nibbleArray, int index) {
-        boolean off = index%2 == 1;
+        boolean off = index % 2 == 1;
 
         if(off) {
             return (byte) (nibbleArray[index/2] >>> 4);
         } else {
-            return (byte) (nibbleArray[index/2]&NIBBLE_MASK);
+            return (byte) (nibbleArray[index/2]& WorldUtils.NIBBLE_MASK);
         }
     }
 

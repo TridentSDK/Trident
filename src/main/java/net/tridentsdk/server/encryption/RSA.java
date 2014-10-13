@@ -31,7 +31,10 @@
 package net.tridentsdk.server.encryption;
 
 import javax.crypto.Cipher;
-import java.security.*;
+import java.security.Key;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * Produces RSA encryption digests

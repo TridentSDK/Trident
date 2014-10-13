@@ -80,11 +80,11 @@ public class PacketStatusOutResponse extends OutPacket {
         /**
          * Information regarding players
          */
-        Players players = new Players();
+        final Players players = new Players();
         /**
          * Description is the MOTD
          */
-        Description description = new Description();
+        final Description description = new Description();
 
         public static class Version {
             /**

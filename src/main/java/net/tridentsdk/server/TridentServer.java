@@ -31,7 +31,9 @@
 package net.tridentsdk.server;
 
 import net.tridentsdk.Defaults;
-import net.tridentsdk.api.*;
+import net.tridentsdk.api.Difficulty;
+import net.tridentsdk.api.Server;
+import net.tridentsdk.api.Trident;
 import net.tridentsdk.api.config.JsonConfig;
 import net.tridentsdk.api.event.EventManager;
 import net.tridentsdk.api.scheduling.Scheduler;

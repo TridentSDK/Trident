@@ -37,7 +37,9 @@ import net.tridentsdk.player.PlayerConnection;
 import net.tridentsdk.player.TridentPlayer;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
-import net.tridentsdk.server.netty.packet.*;
+import net.tridentsdk.server.netty.packet.InPacket;
+import net.tridentsdk.server.netty.packet.OutPacket;
+import net.tridentsdk.server.netty.packet.Packet;
 
 public class PacketPlayInChat extends InPacket {
 

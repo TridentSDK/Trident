@@ -32,7 +32,9 @@ package net.tridentsdk.entity;
 
 import net.tridentsdk.api.Block;
 import net.tridentsdk.api.Location;
-import net.tridentsdk.api.entity.*;
+import net.tridentsdk.api.entity.Entity;
+import net.tridentsdk.api.entity.EntityProperties;
+import net.tridentsdk.api.entity.Projectile;
 import net.tridentsdk.api.entity.living.ProjectileSource;
 
 import java.lang.ref.WeakReference;
@@ -75,23 +77,23 @@ public abstract class TridentProjectile extends TridentEntity implements Project
     public abstract void applyProperties(EntityProperties properties);
 
 
-    public ProjectileSource getProjectileSource() {
+    @Override public ProjectileSource getProjectileSource() {
         return this.source.get();
     }
 
     @Override
     public ProjectileSource getShooter() {
-        return source.get();
+        return this.source.get();
     }
 
     @Override
     public boolean doesBounce() {
-        return bounce;
+        return this.bounce;
     }
 
     @Override
     public void setBounce(boolean bouncy) {
-        bounce = bouncy;
+        this.bounce = bouncy;
     }
 
     @Override

@@ -32,7 +32,11 @@ package net.tridentsdk.world;
 
 import net.tridentsdk.api.Block;
 import net.tridentsdk.api.Location;
-import net.tridentsdk.api.nbt.*;
+import net.tridentsdk.api.nbt.CompoundTag;
+import net.tridentsdk.api.nbt.ListTag;
+import net.tridentsdk.api.nbt.NBTField;
+import net.tridentsdk.api.nbt.NBTSerializable;
+import net.tridentsdk.api.nbt.TagType;
 import net.tridentsdk.api.world.Chunk;
 import net.tridentsdk.api.world.ChunkLocation;
 
@@ -153,7 +157,7 @@ public class TridentChunk implements Chunk, NBTSerializable {
     public Block getBlockAt(int relX, int y, int relZ) {
         int index = WorldUtils.getBlockArrayIndex(relX, y, relZ);
 
-        return new TridentBlock(new Location(world, relX + this.getX()*16, y, relZ + this.getZ()*16)
+        return new TridentBlock(new Location(this.world, relX + this.getX()*16, y, relZ + this.getZ()*16)
                 //TODO
                 ,null,(byte)0);
     }

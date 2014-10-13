@@ -30,8 +30,17 @@
 
 package net.tridentsdk.world;
 
-import net.tridentsdk.api.*;
-import net.tridentsdk.api.world.*;
+import net.tridentsdk.api.Block;
+import net.tridentsdk.api.Difficulty;
+import net.tridentsdk.api.GameMode;
+import net.tridentsdk.api.Location;
+import net.tridentsdk.api.world.Chunk;
+import net.tridentsdk.api.world.ChunkLocation;
+import net.tridentsdk.api.world.ChunkSnapshot;
+import net.tridentsdk.api.world.Dimension;
+import net.tridentsdk.api.world.LevelType;
+import net.tridentsdk.api.world.World;
+import net.tridentsdk.api.world.WorldLoader;
 
 import java.io.Serializable;
 import java.util.Map;

@@ -33,7 +33,9 @@ package net.tridentsdk.entity.projectile;
 import net.tridentsdk.api.Location;
 import net.tridentsdk.api.entity.EntityProperties;
 import net.tridentsdk.api.entity.LivingEntity;
-import net.tridentsdk.api.entity.living.*;
+import net.tridentsdk.api.entity.living.Blaze;
+import net.tridentsdk.api.entity.living.EnderDragon;
+import net.tridentsdk.api.entity.living.ProjectileSource;
 import net.tridentsdk.entity.TridentProjectile;
 
 import java.util.UUID;

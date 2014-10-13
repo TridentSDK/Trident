@@ -31,7 +31,9 @@
 package net.tridentsdk.server.netty.protocol;
 
 import net.tridentsdk.api.reflect.FastClass;
-import net.tridentsdk.server.netty.packet.*;
+import net.tridentsdk.server.netty.packet.Packet;
+import net.tridentsdk.server.netty.packet.PacketType;
+import net.tridentsdk.server.netty.packet.UnknownPacket;
 
 import java.util.HashMap;
 import java.util.Map;

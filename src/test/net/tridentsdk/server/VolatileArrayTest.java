@@ -65,12 +65,12 @@ public final class VolatileArrayTest {
         protected final SecureRandom SR = new SecureRandom();
 
         /* Network fields */
-        protected InetSocketAddress address;
-        protected Channel channel;
+        protected final InetSocketAddress address;
+        protected final Channel channel;
 
         /* Encryption and client data fields */
-        protected volatile Protocol.ClientStage stage;
-        protected volatile boolean encryptionEnabled;
+        protected final volatile Protocol.ClientStage stage;
+        protected final volatile boolean encryptionEnabled;
         protected volatile byte[] verificationToken; // DO NOT WRITE INDIVIDUAL ELEMENTS TO IT. Consult AgentTroll
 
         /**

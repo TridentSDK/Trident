@@ -76,7 +76,7 @@ public class TridentPlayer extends TridentInventoryHolder implements Player {
         }
     }
 
-    public static TridentPlayer spawnPlayer(ClientConnection connection, UUID id) {
+    public static Player spawnPlayer(ClientConnection connection, UUID id) {
         // TODO: find player's spawn location
         TridentPlayer p = new TridentPlayer(id, new Location(null, 0.0, 0.0, 0.0), connection);
 

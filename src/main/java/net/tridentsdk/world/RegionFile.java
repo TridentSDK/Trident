@@ -31,15 +31,26 @@
 package net.tridentsdk.world;
 
 import com.google.common.math.IntMath;
-import net.tridentsdk.api.nbt.*;
+import net.tridentsdk.api.nbt.CompoundTag;
+import net.tridentsdk.api.nbt.NBTDecoder;
+import net.tridentsdk.api.nbt.NBTEncoder;
+import net.tridentsdk.api.nbt.NBTException;
 import net.tridentsdk.api.world.Chunk;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.math.RoundingMode;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.BitSet;
-import java.util.zip.*;
+import java.util.zip.DataFormatException;
+import java.util.zip.Deflater;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.Inflater;
 
 /**
  * Represents a Region File (in region/ directory) in memory
@@ -55,7 +66,7 @@ public class RegionFile {
     private final Object readWriteLock = new Object();
 
     public RegionFile(Path path)
-            throws IOException, DataFormatException, NBTException {
+            throws IOException {
         this.path = path;
 
         synchronized (this.readWriteLock) {
@@ -361,7 +372,7 @@ public class RegionFile {
          * @param c chunk
          * @return location in bytes
          */
-        int getDataLocation(TridentChunk c) {
+        int getDataLocation(Chunk c) {
             return this.getSectorOffset(c) * SectorStorage.SECTOR_LENGTH;
         }
 

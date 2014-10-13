@@ -69,12 +69,12 @@ public class TridentWorldLoader implements WorldLoader {
 
     @Override
     public boolean chunkExists(World world, ChunkLocation location) {
-        return chunkExists(world, location.getX(), location.getZ());
+        return this.chunkExists(world, location.getX(), location.getZ());
     }
 
     @Override
     public Chunk loadChunk(World world, int x, int z) {
-        return loadChunk(world, new ChunkLocation(x, z));
+        return this.loadChunk(world, new ChunkLocation(x, z));
     }
 
     @Override

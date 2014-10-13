@@ -13,8 +13,10 @@ Thread-2
 
 Process finished with exit code 0
  */
-public class TaskExecTest {
-    public static void main(String[] args) {
+public final class TaskExecTest {
+    private TaskExecTest() {}
+
+    public static void main(String... args) {
         ConcurrentTaskExecutor<String> concurrentTaskExecutor = new ConcurrentTaskExecutor<>(4);
         Collection<TaskExecutor> taskExecutors = concurrentTaskExecutor.threadList();
         for (TaskExecutor taskExecutor : taskExecutors) {
