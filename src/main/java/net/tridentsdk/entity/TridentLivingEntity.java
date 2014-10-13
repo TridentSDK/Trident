@@ -66,7 +66,7 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
     /**
      * The amount of air the entity has, depleted when in water
      */
-    protected final volatile AtomicDouble airTicks = new AtomicDouble(0.0);
+    protected final AtomicDouble airTicks = new AtomicDouble(0.0);
 
     /**
      * Inherits from {@link net.tridentsdk.entity.TridentEntity}
