@@ -33,18 +33,52 @@ package net.tridentsdk.world;
 import net.tridentsdk.api.Block;
 import net.tridentsdk.api.Location;
 import net.tridentsdk.api.nbt.CompoundTag;
+import net.tridentsdk.api.nbt.NBTField;
+import net.tridentsdk.api.nbt.NBTSerializable;
+import net.tridentsdk.api.nbt.TagType;
 import net.tridentsdk.api.world.Chunk;
 import net.tridentsdk.api.world.ChunkLocation;
 
 import java.io.Serializable;
 import java.util.Random;
 
-public class TridentChunk implements Serializable, Chunk {
+public class TridentChunk implements Serializable, Chunk, NBTSerializable {
     private static final long serialVersionUID = 3323137810332318805L;
     private final TridentWorld world;
     private final ChunkLocation location;
     private CompoundTag chunkData;
     private int lastFileAccess;
+
+    @NBTField(name = "xPos", type = TagType.INT)
+    protected int x;
+
+    @NBTField(name = "zPos", type = TagType.INT)
+    protected int z;
+
+    // the last tick that this chunk was saved on
+    @NBTField(name = "LastModified", type = TagType.LONG)
+    protected long lastModified;
+
+    @NBTField(name = "LightPopulated", type = TagType.BYTE)
+    protected byte lightPopulated;
+
+    @NBTField(name = "TerrainPopulated", type = TagType.BYTE)
+    protected byte terrainPopulated;
+
+    @NBTField(name = "V", type = TagType.BYTE)
+    protected byte vagina;
+
+    @NBTField(name = "InhabitedTime", type = TagType.LONG)
+    protected long inhabitedtime;
+
+    @NBTField(name = "Biomes", type = TagType.BYTE_ARRAY)
+    protected byte [] biomes;
+
+    @NBTField(name = "HeightMap", type = TagType.INT_ARRAY)
+    protected int [] heightMap;
+
+
+
 
     public TridentChunk(TridentWorld world, int x, int z) {
         this(world, new ChunkLocation(x, z));
