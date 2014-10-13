@@ -30,6 +30,8 @@
 
 package net.tridentsdk.world;
 
+import net.tridentsdk.api.world.ChunkLocation;
+
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
@@ -42,11 +44,9 @@ public class RegionFileCache {
 
     private final Map<Path, RegionFile> regionFiles = new ConcurrentHashMap<>();
 
-    public RegionFile getRegionFile(Path worldPath, int chunkX, int chunkZ) {
-        int actualX = chunkX >> 5;
-        int actualZ = chunkZ >> 5;
+    public RegionFile getRegionFile(Path worldPath,ChunkLocation location) {
 
-        Path regionPath = Paths.get(worldPath.toString(), "region", "r." + actualX + '.' + actualZ + ".mca");
+        Path regionPath = Paths.get(worldPath.toString(), "region", WorldUtils.getRegionFile(location));
 
         return this.regionFiles.get(regionPath);
     }

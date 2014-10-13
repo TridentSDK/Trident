@@ -74,24 +74,24 @@ public class TridentWorldLoader implements WorldLoader {
 
     @Override
     public Chunk loadChunk(World world, int x, int z) {
+        return loadChunk(world, new ChunkLocation(x, z));
+    }
+
+    @Override
+    public Chunk loadChunk(World world, ChunkLocation location) {
+
         try {
             RegionFile file =
                     new RegionFile(FileSystems.getDefault().getPath(
-                            world.getName() + "/region/", (x >> 5) + "." + (z >> 5) + ".mca"));
-            TridentChunk chunk = new TridentChunk((TridentWorld) world, x, z);
+                            world.getName() + "/region/", WorldUtils.getRegionFile(location)));
+            TridentChunk chunk = new TridentChunk((TridentWorld) world, location);
 
             file.loadChunkData(chunk);
             return chunk;
         } catch (IOException | DataFormatException | NBTException ex) {
             ex.printStackTrace();
         }
-
         return null;
-    }
-
-    @Override
-    public Chunk loadChunk(World world, ChunkLocation location) {
-        return loadChunk(world, location.getX(), location.getZ());
     }
 
     @Override
