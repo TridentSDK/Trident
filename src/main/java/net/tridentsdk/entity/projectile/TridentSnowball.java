@@ -48,7 +48,7 @@ public class TridentSnowball extends TridentProjectile {
      * Inherits from {@link net.tridentsdk.entity.TridentProjectile}
      */
     public TridentSnowball(UUID uniqueId, Location spawnLocation, ProjectileSource source) {
-        super(uniqueId, spawnLocation, source);
+        super(uniqueId, spawnLocation, source, false);
     }
 
     @Override

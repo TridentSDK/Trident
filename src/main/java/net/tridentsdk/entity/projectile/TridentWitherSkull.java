@@ -40,7 +40,7 @@ import java.util.UUID;
 public class TridentWitherSkull extends TridentProjectile implements WitherSkull {
 
     public TridentWitherSkull(UUID uniqueId, Location spawnLocation, ProjectileSource source) {
-        super(uniqueId, spawnLocation, source);
+        super(uniqueId, spawnLocation, source, false);
     }
 
     @Override
