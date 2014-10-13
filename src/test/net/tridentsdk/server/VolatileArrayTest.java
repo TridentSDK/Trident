@@ -42,7 +42,8 @@ public final class VolatileArrayTest {
         for (int i = 0; i < 100; i++) {
             final int i1 = i;
             new Thread(new Runnable() {
-                @Override public void run() {
+                @Override
+                public void run() {
                     builder.addModifier(i1, String.valueOf(i1));
                 }
             }).start();

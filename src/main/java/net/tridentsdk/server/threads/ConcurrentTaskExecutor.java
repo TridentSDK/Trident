@@ -30,7 +30,16 @@
 
 package net.tridentsdk.server.threads;
 
-import java.util.*;
+import com.google.common.base.Function;
+import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
+import net.tridentsdk.api.threads.TaskExecutor;
+
+import javax.annotation.Nullable;
+import java.util.AbstractMap;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedTransferQueue;
 
@@ -110,37 +119,39 @@ public class ConcurrentTaskExecutor<Assignment> {
         if (thread != null) this.scale.put(thread, this.scale.get(thread) + 1);
     }
 
+    /**
+     * Returns the assigned objects
+     *
+     * @return the assignments in the maps
+     */
+    public Collection<Assignment> values() {
+        return this.assignments.keySet();
+    }
+
+    /**
+     * Lists all available task executors from the threads
+     *
+     * @return the thread list
+     */
+    public Collection<TaskExecutor> threadList() {
+        return Lists.newArrayList(Iterators.transform(this.scale.keySet().iterator(), new Function<InnerThread,
+                TaskExecutor>() {
+            @Nullable
+            @Override
+            public TaskExecutor apply(@Nullable InnerThread innerThread) {
+                return innerThread;
+            }
+        }));
+    }
+
+    /**
+     * Shuts down the thread processes
+     */
     public void shutdown() {
         for (TaskExecutor thread : this.scale.keySet())
             thread.interrupt();
         this.scale.clear();
         this.assignments.clear();
-    }
-
-    /**
-     * Execution abstraction
-     *
-     * @author The TridentSDK Team
-     */
-    public interface TaskExecutor {
-        /**
-         * Adds the task to the queue
-         *
-         * @param task the task to add
-         */
-        void addTask(Runnable task);
-
-        /**
-         * Closes the thread and stops execution of new / remaining tasks
-         */
-        void interrupt();
-
-        /**
-         * Thread form
-         *
-         * @return the thread that is running
-         */
-        Thread asThread();
     }
 
     private static final class InnerThread implements TaskExecutor {

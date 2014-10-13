@@ -27,27 +27,45 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+package net.tridentsdk.entity.block;
 
-package net.tridentsdk.world;
+import net.tridentsdk.api.Block;
+import net.tridentsdk.api.Location;
+import net.tridentsdk.api.entity.EntityProperties;
+import net.tridentsdk.api.entity.block.ItemFrame;
+import net.tridentsdk.api.inventory.ItemStack;
+import net.tridentsdk.entity.TridentEntity;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.UUID;
 
-/**
- * A (simple) cache for RegionFiles
- */
-public class RegionFileCache {
+public class TridentItemFrame extends TridentEntity implements ItemFrame {
 
-    private final Map<Path, RegionFile> regionFiles = new ConcurrentHashMap<>();
+    public TridentItemFrame(UUID id, Location spawnLocation) {
+        super(id, spawnLocation);
+    }
 
-    public RegionFile getRegionFile(Path worldPath, int chunkX, int chunkZ) {
-        int actualX = chunkX >> 5;
-        int actualZ = chunkZ >> 5;
+    @Override
+    public ItemStack getCurrentItem() {
+        return null;
+    }
 
-        Path regionPath = Paths.get(worldPath.toString(), "region", "r." + actualX + '.' + actualZ + ".mca");
+    @Override
+    public byte getItemStackRotation() {
+        return (byte) 0;
+    }
 
-        return this.regionFiles.get(regionPath);
+    @Override
+    public Block getBlockPlacedOn() {
+        return null;
+    }
+
+    @Override
+    public boolean isNameVisible() {
+        return false;
+    }
+
+    @Override
+    public void applyProperties(EntityProperties properties) {
+
     }
 }

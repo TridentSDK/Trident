@@ -30,9 +30,13 @@
 
 package net.tridentsdk.player;
 
+import net.tridentsdk.api.entity.living.Player;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.protocol.Protocol;
 
+import java.net.InetSocketAddress;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -42,11 +46,13 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author The TridentSDK Team
  */
 public class PlayerConnection extends ClientConnection {
+    private static final Map<Player, PlayerConnection> PLAYER_MAP = new ConcurrentHashMap<>();
+
     private final TridentPlayer player;
     private final AtomicLong keepAliveSent = new AtomicLong(0L);
     private volatile int keepAliveId;
 
-    PlayerConnection(ClientConnection connection, TridentPlayer player) {
+    private PlayerConnection(ClientConnection connection, TridentPlayer player) {
         // remove old connection, and replace it with this one
         ClientConnection.clientData.remove(connection.getAddress());
         ClientConnection.clientData.put(connection.getAddress(), new AtomicReference<ClientConnection>(this));
@@ -60,6 +66,20 @@ public class PlayerConnection extends ClientConnection {
 
         this.player = player;
         this.keepAliveId = -1;
+    }
+
+    public static PlayerConnection createPlayerConnection(ClientConnection connection, TridentPlayer player) {
+        PlayerConnection conn = new PlayerConnection(connection, player);
+        PlayerConnection.PLAYER_MAP.put(player, conn);
+        return conn;
+    }
+
+    public static PlayerConnection getConnection(Player player) {
+        return PlayerConnection.PLAYER_MAP.get(player);
+    }
+
+    public static PlayerConnection getConnection(InetSocketAddress adress) {
+        return (PlayerConnection) ClientConnection.getConnection(adress);
     }
 
     /**

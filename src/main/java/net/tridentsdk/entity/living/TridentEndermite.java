@@ -27,27 +27,55 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+package net.tridentsdk.entity.living;
 
-package net.tridentsdk.world;
+import net.tridentsdk.api.Location;
+import net.tridentsdk.api.entity.*;
+import net.tridentsdk.api.entity.living.Endermite;
+import net.tridentsdk.api.entity.living.Player;
+import net.tridentsdk.api.event.entity.EntityDamageEvent;
+import net.tridentsdk.entity.TridentLivingEntity;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.UUID;
 
-/**
- * A (simple) cache for RegionFiles
- */
-public class RegionFileCache {
+public class TridentEndermite extends TridentLivingEntity implements Endermite {
 
-    private final Map<Path, RegionFile> regionFiles = new ConcurrentHashMap<>();
+    public TridentEndermite(UUID id, Location spawnLocation) {
+        super(id, spawnLocation);
+    }
 
-    public RegionFile getRegionFile(Path worldPath, int chunkX, int chunkZ) {
-        int actualX = chunkX >> 5;
-        int actualZ = chunkZ >> 5;
+    @Override
+    public void hide(Entity entity) {
 
-        Path regionPath = Paths.get(worldPath.toString(), "region", "r." + actualX + '.' + actualZ + ".mca");
+    }
 
-        return this.regionFiles.get(regionPath);
+    @Override
+    public void show(Entity entity) {
+
+    }
+
+    @Override
+    public EntityDamageEvent getLastDamageCause() {
+        return null;
+    }
+
+    @Override
+    public Player hurtByPlayer() {
+        return null;
+    }
+
+    @Override
+    public boolean isNameVisible() {
+        return false;
+    }
+
+    @Override
+    public void applyProperties(EntityProperties properties) {
+
+    }
+
+    @Override
+    public <T extends Projectile> T launchProjectile(EntityProperties properties) {
+        return null;
     }
 }

@@ -30,13 +30,19 @@
 
 package net.tridentsdk.world;
 
+import net.tridentsdk.api.nbt.NBTException;
+import net.tridentsdk.api.world.Chunk;
+import net.tridentsdk.api.world.ChunkLocation;
 import net.tridentsdk.api.world.World;
 import net.tridentsdk.api.world.WorldLoader;
 
+import java.io.IOException;
+import java.nio.file.FileSystems;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.zip.DataFormatException;
 
-public abstract class TridentWorldLoader implements WorldLoader {
+public class TridentWorldLoader implements WorldLoader {
     private final Map<String, World> worlds = new ConcurrentHashMap<>();
 
     @Override
@@ -59,5 +65,37 @@ public abstract class TridentWorldLoader implements WorldLoader {
     @Override
     public boolean chunkExists(World world, int x, int z) {
         return world.getChunkAt(x, z, false) != null;
+    }
+
+    @Override
+    public boolean chunkExists(World world, ChunkLocation location) {
+        return chunkExists(world, location.getX(), location.getZ());
+    }
+
+    @Override
+    public Chunk loadChunk(World world, int x, int z) {
+        try {
+            RegionFile file =
+                    new RegionFile(FileSystems.getDefault().getPath(
+                            world.getName() + "/region/", (x >> 5) + "." + (z >> 5) + ".mca"));
+            TridentChunk chunk = new TridentChunk((TridentWorld) world, x, z);
+
+            file.loadChunkData(chunk);
+            return chunk;
+        } catch (IOException | DataFormatException | NBTException ex) {
+            ex.printStackTrace();
+        }
+
+        return null;
+    }
+
+    @Override
+    public Chunk loadChunk(World world, ChunkLocation location) {
+        return loadChunk(world, location.getX(), location.getZ());
+    }
+
+    @Override
+    public void saveChunk(Chunk chunk) {
+        // TODO
     }
 }

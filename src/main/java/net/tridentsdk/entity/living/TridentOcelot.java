@@ -27,61 +27,95 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+package net.tridentsdk.entity.living;
 
-package net.tridentsdk.server.threads;
-
-import net.tridentsdk.api.entity.Entity;
+import net.tridentsdk.api.Location;
+import net.tridentsdk.api.entity.*;
+import net.tridentsdk.api.entity.living.Ocelot;
 import net.tridentsdk.api.entity.living.Player;
-import net.tridentsdk.api.threads.TaskExecutor;
-import net.tridentsdk.api.threads.ThreadProvider;
-import net.tridentsdk.api.world.World;
-import net.tridentsdk.plugin.TridentPlugin;
+import net.tridentsdk.api.event.entity.EntityDamageEvent;
+import net.tridentsdk.entity.TridentLivingEntity;
 
-/**
- * Handles the majority of the lifecycle for the threads
- *
- * @author The TridentSDK Team
- */
-public final class ThreadsManager implements ThreadProvider {
-    /**
-     * Stops all the executors and clears all caches of concurrent threads
-     */
-    public static void stopAll() {
-        BackgroundTaskExecutor.SERVICE.shutdownNow();
-        PlayerThreads.SERVICE.shutdownNow();
+import java.util.UUID;
 
-        PlayerThreads.SERVICE.shutdownNow();
-        PlayerThreads.THREAD_MAP.shutdown();
+public class TridentOcelot extends TridentLivingEntity implements Ocelot {
 
-        PluginThreads.SERVICE.shutdownNow();
-        PluginThreads.THREAD_MAP.shutdown();
-
-        EntityThreads.SERVICE.shutdownNow();
-        EntityThreads.THREAD_MAP.shutdown();
-
-        WorldThreads.SERVICE.shutdownNow();
-        WorldThreads.THREAD_MAP.shutdown();
-
-        MainThread.getInstance().interrupt();
+    public TridentOcelot(UUID id, Location spawnLocation) {
+        super(id, spawnLocation);
     }
 
     @Override
-    public TaskExecutor provideEntityThread(Entity entity) {
-        return EntityThreads.entityThreadHandle(entity);
+    public OcelotType getBreed() {
+        return null;
     }
 
     @Override
-    public TaskExecutor providePlayerThread(Player player) {
-        return PlayerThreads.clientThreadHandle(player);
+    public boolean isTamed() {
+        return false;
     }
 
     @Override
-    public TaskExecutor providePluginThread(TridentPlugin plugin) {
-        return PluginThreads.pluginThreadHandle(plugin);
+    public UUID getOwner() {
+        return null;
     }
 
     @Override
-    public TaskExecutor provideWorldThread(World world) {
-        return WorldThreads.worldThreadHandle(world);
+    public boolean isSitting() {
+        return false;
+    }
+
+    @Override
+    public int getAge() {
+        return 0;
+    }
+
+    @Override
+    public void setAge(int ticks) {
+
+    }
+
+    @Override
+    public boolean canBreed() {
+        return false;
+    }
+
+    @Override
+    public boolean isInLove() {
+        return false;
+    }
+
+    @Override
+    public void hide(Entity entity) {
+
+    }
+
+    @Override
+    public void show(Entity entity) {
+
+    }
+
+    @Override
+    public EntityDamageEvent getLastDamageCause() {
+        return null;
+    }
+
+    @Override
+    public Player hurtByPlayer() {
+        return null;
+    }
+
+    @Override
+    public boolean isNameVisible() {
+        return false;
+    }
+
+    @Override
+    public void applyProperties(EntityProperties properties) {
+
+    }
+
+    @Override
+    public <T extends Projectile> T launchProjectile(EntityProperties properties) {
+        return null;
     }
 }

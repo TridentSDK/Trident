@@ -28,6 +28,7 @@
 package net.tridentsdk.server;
 
 import net.tridentsdk.api.entity.living.Player;
+import net.tridentsdk.player.TridentPlayer;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.threads.PlayerThreads;
 import net.tridentsdk.server.threads.ThreadsManager;
@@ -37,6 +38,7 @@ import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @State(Scope.Benchmark)
@@ -47,7 +49,8 @@ public class PlayerThreadTest {
     @Setup
     public static void setup() {
         for (int i = 0; i < 6_000; i++) {
-            PlayerThreads.clientThreadHandle(ClientConnection.registerConnection(new CTXProper().channel()));
+            PlayerThreads.clientThreadHandle(TridentPlayer.spawnPlayer(
+                    ClientConnection.registerConnection(new CTXProper().channel()), UUID.randomUUID()));
             // PlayerThreadTest.QUEUE.add(new CTXProper());
         }
 

@@ -27,6 +27,8 @@
 
 package net.tridentsdk.server;
 
+import net.tridentsdk.api.entity.living.Player;
+import net.tridentsdk.player.TridentPlayer;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.threads.PlayerThreads;
 import net.tridentsdk.server.threads.ThreadsManager;
@@ -38,6 +40,7 @@ import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /*
@@ -110,8 +113,8 @@ n.t.s.TestPlayerThreads.autoBox         avgt         5        7.113        0.323
 n.t.s.TestPlayerThreads.explicitBox     avgt         5        7.097        0.301    ns/op
  */
 public class TestPlayerThreads {
-    public static final ClientConnection CLIENT_CONNECTION = ClientConnection.registerConnection(
-            new CTXProper().channel());
+    public static final Player PLAYER = TridentPlayer.spawnPlayer(ClientConnection.registerConnection(
+            new CTXProper().channel()), UUID.randomUUID());
 
     /* @Benchmark public void explicitBox(Blackhole blackhole) {
         blackhole.consume(Integer.valueOf(69));
@@ -138,11 +141,11 @@ public class TestPlayerThreads {
 
     @Benchmark
     public void put(Blackhole blackhole) {
-        blackhole.consume(PlayerThreads.clientThreadHandle(TestPlayerThreads.CLIENT_CONNECTION));
+        blackhole.consume(PlayerThreads.clientThreadHandle(TestPlayerThreads.PLAYER));
     }
 
     @Benchmark
     public void remove(Blackhole blackhole) {
-        PlayerThreads.remove(TestPlayerThreads.CLIENT_CONNECTION);
+        PlayerThreads.remove(TestPlayerThreads.PLAYER);
     }
 }

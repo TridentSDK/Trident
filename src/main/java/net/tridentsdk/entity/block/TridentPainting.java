@@ -27,27 +27,39 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+package net.tridentsdk.entity.block;
 
-package net.tridentsdk.world;
+import net.tridentsdk.api.Block;
+import net.tridentsdk.api.Location;
+import net.tridentsdk.api.entity.EntityProperties;
+import net.tridentsdk.api.entity.block.Painting;
+import net.tridentsdk.entity.TridentEntity;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.UUID;
 
-/**
- * A (simple) cache for RegionFiles
- */
-public class RegionFileCache {
+public class TridentPainting extends TridentEntity implements Painting {
 
-    private final Map<Path, RegionFile> regionFiles = new ConcurrentHashMap<>();
+    public TridentPainting(UUID uniqueId, Location spawnLocation) {
+        super(uniqueId, spawnLocation);
+    }
 
-    public RegionFile getRegionFile(Path worldPath, int chunkX, int chunkZ) {
-        int actualX = chunkX >> 5;
-        int actualZ = chunkZ >> 5;
+    @Override
+    public String getMotive() {
+        return null;
+    }
 
-        Path regionPath = Paths.get(worldPath.toString(), "region", "r." + actualX + '.' + actualZ + ".mca");
+    @Override
+    public Block getBlockPlacedOn() {
+        return null;
+    }
 
-        return this.regionFiles.get(regionPath);
+    @Override
+    public boolean isNameVisible() {
+        return false;
+    }
+
+    @Override
+    public void applyProperties(EntityProperties properties) {
+
     }
 }

@@ -70,7 +70,7 @@ public class PacketPlayInClientStatus extends InPacket {
     public void handleReceived(ClientConnection connection) {
         TridentPlayer player = ((PlayerConnection) connection).getPlayer();
         World world = player.getWorld();
-        StatusType type = StatusType.getStatus(this.actionId);
+        StatusType type = StatusType.getStatus((int) this.actionId);
 
         switch (type) {
             case RESPAWN:

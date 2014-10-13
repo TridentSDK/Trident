@@ -42,25 +42,17 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class TridentScheduler implements Scheduler {
 
-    private final ConcurrentHashMap<RunnableWrapper, AtomicLong> asyncTasks;
-    private final ConcurrentHashMap<RunnableWrapper, AtomicLong> syncTasks;
+    private final Map<RunnableWrapper, AtomicLong> asyncTasks = new ConcurrentHashMap<>();
+    private final Map<RunnableWrapper, AtomicLong> syncTasks = new ConcurrentHashMap<>();
     // basically a thread pool that has an entry for a thread, and the number of plugins assigned to it
-    private final ConcurrentHashMap<ExecutorService, AtomicInteger> threads;
-    private final ConcurrentHashMap<TridentPlugin, ExecutorService> threadAssignments;
-    private final CopyOnWriteArraySet<Integer> cancelledId;
-    private final ConcurrentHashMap<Future<?>, RunnableWrapper> asyncReturns;
-    private final HashSet<Map.Entry<Future<?>, String>> syncReturns;
+    private final Map<ExecutorService, AtomicInteger> threads = new ConcurrentHashMap<>();
+    private final Map<TridentPlugin, ExecutorService> threadAssignments = new ConcurrentHashMap<>();
+    private final Collection<Integer> cancelledId = new CopyOnWriteArraySet<>();
+    private final Map<Future<?>, RunnableWrapper> asyncReturns = new ConcurrentHashMap<>();
+    private final Collection<Map.Entry<Future<?>, String>> syncReturns = new HashSet<>();
     private int currentId;
 
     public TridentScheduler() {
-        this.asyncTasks = new ConcurrentHashMap<>();
-        this.threads = new ConcurrentHashMap<>();
-        this.threadAssignments = new ConcurrentHashMap<>();
-        this.syncTasks = new ConcurrentHashMap<>();
-        this.cancelledId = new CopyOnWriteArraySet<>();
-        this.asyncReturns = new ConcurrentHashMap<>();
-        this.syncReturns = new HashSet<>();
-
         // use two for now, can be more later
         this.threads.put(Executors.newSingleThreadExecutor(), new AtomicInteger(0));
         this.threads.put(Executors.newSingleThreadExecutor(), new AtomicInteger(0));
@@ -166,7 +158,6 @@ public class TridentScheduler implements Scheduler {
      * want difficulties
      */
     public void tick() {
-
         for (Map.Entry<Future<?>, RunnableWrapper> entry : this.asyncReturns.entrySet()) {
             if (entry.getKey().isDone()) {
                 entry.getValue().getRunnable().runAfterSync();

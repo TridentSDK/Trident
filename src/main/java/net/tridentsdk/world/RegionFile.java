@@ -44,6 +44,8 @@ import java.util.zip.*;
 /**
  * Represents a Region File (in region/ directory) in memory
  */
+
+// TODO stop using locks on native methods
 public class RegionFile {
     //The path to the region file
     private final Path path;
@@ -133,7 +135,7 @@ public class RegionFile {
             RandomAccessFile access = new RandomAccessFile(this.path.toFile(), "rw");
 
             //Jump to timestamp location
-            access.seek(this.sectors.getTimeStampLocation(chunk));
+            access.seek((long) this.sectors.getTimeStampLocation(chunk));
 
             // Read Timestamp
             int lastUpdate = access.readInt();
@@ -141,15 +143,15 @@ public class RegionFile {
             // Check to see whether the chunk needs the data loaded
             // Not sure why it would ever not need
             if (chunk.getLastFileAccess() > lastUpdate) {
-                chunk.setLastFileAccess((int) (System.currentTimeMillis() / 1000));
+                chunk.setLastFileAccess((int) (System.currentTimeMillis() / 1000L));
                 access.close();
                 return;
             } else {
-                chunk.setLastFileAccess((int) (System.currentTimeMillis() / 1000));
+                chunk.setLastFileAccess((int) (System.currentTimeMillis() / 1000L));
             }
 
             //Jump to location of actual chunk data
-            access.seek(this.sectors.getDataLocation(chunk));
+            access.seek((long) this.sectors.getDataLocation(chunk));
 
             // Read the length, and the compression type
             int length = access.readInt();
@@ -239,10 +241,10 @@ public class RegionFile {
             /* Write the actual chunk data */
             //Initialize access to the file
             RandomAccessFile access = new RandomAccessFile(this.path.toFile(), "rw");
-            access.seek(this.sectors.getDataLocation(chunk));
+            access.seek((long) this.sectors.getDataLocation(chunk));
             access.write(actualLength);
             //We only use compression type 1 (zlib)
-            access.write((byte) 1);
+            access.write((int) (byte) 1);
             access.write(compressed);
             //Now we pad to the end of the sector... just in-case
             int paddingNeeded = actualLength % SectorStorage.SECTOR_LENGTH;
@@ -252,7 +254,7 @@ public class RegionFile {
             }
 
             //Write the new offset data to the header
-            access.seek(4 * this.sectors.getOffsetLoc(chunk));
+            access.seek((long) (4 * this.sectors.getOffsetLoc(chunk)));
             access.write(this.sectors.getRawOffset(chunk));
 
             //Pack the file as in the specifications
@@ -275,7 +277,7 @@ public class RegionFile {
         //A cache of the locationOffsets
         private final int[] offsets;
 
-        private SectorStorage(int[] offsets) {
+        private SectorStorage(int... offsets) {
             this.offsets = offsets;
 
             //Random starting capacity for now
@@ -284,9 +286,9 @@ public class RegionFile {
             this.sectorMapping.set(0);
             this.sectorMapping.set(1);
             //Set what sectors are initially taken up
-            for (int i = 0; i < offsets.length; i++) {
-                int loc = offsets[i] >> 8;
-                int length = offsets[i] & 0xFF;
+            for (int offset : offsets) {
+                int loc = offset >> 8;
+                int length = offset & 0xFF;
                 for (int j = loc; j < loc + length; j++) {
                     this.sectorMapping.set(j);
                 }
@@ -349,7 +351,7 @@ public class RegionFile {
          * @param c chunk
          * @return location in bytes
          */
-        int getTimeStampLocation(TridentChunk c) {
+        int getTimeStampLocation(Chunk c) {
             return 4 * this.getOffsetLoc(c) + SectorStorage.SECTOR_LENGTH;
         }
 
@@ -369,7 +371,7 @@ public class RegionFile {
          * @param c chunk
          * @return amount the amount of sectors
          */
-        int getDataSectors(TridentChunk c) {
+        int getDataSectors(Chunk c) {
             return this.offsets[this.getOffsetLoc(c)] & 0xFF;
         }
 
@@ -379,7 +381,7 @@ public class RegionFile {
          * @param c     chunk
          * @param toSet the amount to set
          */
-        void setDataSectors(TridentChunk c, int toSet) {
+        void setDataSectors(Chunk c, int toSet) {
             int old = this.offsets[this.getOffsetLoc(c)];
             this.offsets[this.getOffsetLoc(c)] = old & 0xFFFFFF00 | toSet;
         }
@@ -390,7 +392,7 @@ public class RegionFile {
          * @param c chunk
          * @return amount the amount of sectors
          */
-        int getSectorOffset(TridentChunk c) {
+        int getSectorOffset(Chunk c) {
             return this.offsets[this.getOffsetLoc(c)] >> 8;
         }
 
@@ -400,7 +402,7 @@ public class RegionFile {
          * @param c     chunk
          * @param toSet the amount to set
          */
-        void setSectorOffset(TridentChunk c, int toSet) {
+        void setSectorOffset(Chunk c, int toSet) {
             int old = this.offsets[this.getOffsetLoc(c)];
             this.offsets[this.getOffsetLoc(c)] = old & 0x000000FF | toSet << 8;
         }
@@ -411,7 +413,7 @@ public class RegionFile {
          * @param c chunk
          * @return offset
          */
-        private int getRawOffset(TridentChunk c) {
+        private int getRawOffset(Chunk c) {
             return this.offsets[this.getOffsetLoc(c)];
         }
 

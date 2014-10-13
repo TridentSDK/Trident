@@ -78,7 +78,7 @@ public class ConcurrentCache<K, V> {
      *
      * @return the cache values
      */
-    public Collection<V> values() {
+    public Iterable<V> values() {
         Collection<V> list = new ArrayList<>();
 
         for (Future<V> v : this.cache.values()) {

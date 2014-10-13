@@ -77,6 +77,7 @@ public class MainThread extends Thread {
     private final AtomicInteger ticksToWait = new AtomicInteger();
     private final int ticksPerSecond;
     private final int tickLength;
+
     /**
      * system.currenttimemillis() when the server's first tick happened, used to keep on schedule, subject to change
      * when the server is running slow

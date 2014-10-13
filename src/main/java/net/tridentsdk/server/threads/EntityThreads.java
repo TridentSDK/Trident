@@ -31,6 +31,7 @@
 package net.tridentsdk.server.threads;
 
 import net.tridentsdk.api.entity.Entity;
+import net.tridentsdk.api.threads.TaskExecutor;
 
 import java.util.concurrent.*;
 
@@ -41,7 +42,7 @@ import java.util.concurrent.*;
  */
 public final class EntityThreads {
     static final ConcurrentTaskExecutor<Entity> THREAD_MAP = new ConcurrentTaskExecutor<>(2);
-    static final ConcurrentCache<Entity, ConcurrentTaskExecutor.TaskExecutor> CACHE_MAP = new ConcurrentCache<>();
+    static final ConcurrentCache<Entity, TaskExecutor> CACHE_MAP = new ConcurrentCache<>();
 
     static final ExecutorService SERVICE = Executors.newSingleThreadExecutor();
 
@@ -57,11 +58,11 @@ public final class EntityThreads {
      * @param entity the entity to retrieve the thread handler for
      * @return the task execution handler for the entity
      */
-    public static ConcurrentTaskExecutor.TaskExecutor entityThreadHandle(final Entity entity) {
-        return EntityThreads.CACHE_MAP.retrieve(entity, new Callable<ConcurrentTaskExecutor.TaskExecutor>() {
+    public static TaskExecutor entityThreadHandle(final Entity entity) {
+        return EntityThreads.CACHE_MAP.retrieve(entity, new Callable<TaskExecutor>() {
             @Override
-            public ConcurrentTaskExecutor.TaskExecutor call() throws Exception {
-                ConcurrentTaskExecutor.TaskExecutor executor = EntityThreads.THREAD_MAP.getScaledThread();
+            public TaskExecutor call() throws Exception {
+                TaskExecutor executor = EntityThreads.THREAD_MAP.getScaledThread();
                 EntityThreads.THREAD_MAP.assign(executor, entity);
 
                 return executor;
