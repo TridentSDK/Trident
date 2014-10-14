@@ -49,6 +49,7 @@ import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
 import net.tridentsdk.server.threads.ThreadsManager;
 import net.tridentsdk.window.WindowManager;
 import net.tridentsdk.world.RegionFileCache;
+import org.slf4j.Logger;
 
 import javax.annotation.concurrent.ThreadSafe;
 import javax.imageio.ImageIO;
@@ -59,7 +60,6 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.logging.Logger;
 
 /**
  * The access base to internal workings of the server

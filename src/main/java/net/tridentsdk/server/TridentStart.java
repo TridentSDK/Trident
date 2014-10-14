@@ -44,13 +44,14 @@ import joptsimple.OptionSpec;
 import net.tridentsdk.api.config.JsonConfig;
 import net.tridentsdk.server.netty.ClientChannelInitializer;
 import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.io.File;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.nio.file.Files;
-import java.util.logging.Logger;
 
 /**
  * Server class that starts the connection listener. <p/> <p>Despite the fact that this class is under protected access,
@@ -62,7 +63,7 @@ import java.util.logging.Logger;
 final class TridentStart {
     private static final EventLoopGroup bossGroup = new NioEventLoopGroup();
     private static final EventLoopGroup workerGroup = new NioEventLoopGroup();
-    private static final Logger LOGGER = Logger.getLogger("Trident");
+    private static final Logger LOGGER = LoggerFactory.getLogger(TridentStart.class);
 
     private TridentStart() {
     } // Do not initialize
@@ -161,8 +162,8 @@ final class TridentStart {
         } catch (InterruptedException e) {
             //This exception is caught if server is closed.
         } catch (Exception e) {
-            TridentStart.LOGGER.severe("Server closed, error occurred");
-            TridentStart.LOGGER.severe("Printing stacktrace: \n");
+            TridentStart.LOGGER.error("Server closed, error occurred");
+            TridentStart.LOGGER.error("Printing stacktrace: \n");
             e.printStackTrace();
         } finally {
             TridentStart.LOGGER.info("Server shutting down...");
