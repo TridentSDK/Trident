@@ -35,7 +35,7 @@ import net.tridentsdk.api.Material;
 
 public class TridentBlock extends Block {
     public TridentBlock(Location location, Material material1, byte data) {
-        super(location,true);
+        super(location, true);
         super.material = material1;
         super.data = data;
     }

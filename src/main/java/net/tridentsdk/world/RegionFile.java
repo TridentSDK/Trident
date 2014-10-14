@@ -142,6 +142,7 @@ public class RegionFile {
     public void loadChunkData(TridentChunk chunk) throws NBTException, IOException, DataFormatException {
         short compression;
         byte[] compressedData;
+
         synchronized (this.readWriteLock) {
             RandomAccessFile access = new RandomAccessFile(this.path.toFile(), "rw");
 
@@ -175,8 +176,10 @@ public class RegionFile {
             //Close the stream as fast as possible: allows other chunks to read as soon as possible
             access.close();
         }
+
         // Decompress the data using rather the GZIP or Zlib
         byte[] chunkData;
+
         switch (compression) {
             case 0:
 
@@ -228,6 +231,7 @@ public class RegionFile {
         int sectorLength = IntMath.divide(actualLength, SectorStorage.SECTOR_LENGTH, RoundingMode.CEILING);
         //Checks if offsets need to change
         int oldSectorLength = this.sectors.getDataSectors(chunk);
+
         //If the length is smaller, we can free up a sector
         if (sectorLength < oldSectorLength) {
             this.sectors.setDataSectors(chunk, sectorLength);
@@ -245,6 +249,7 @@ public class RegionFile {
             //Finds a new free location
             this.sectors.setSectorOffset(chunk, this.sectors.findFreeSectors(sectorLength));
         }
+
         //Update what sectors are being used
         this.sectors.addSectors(this.sectors.getSectorOffset(chunk), this.sectors.getDataSectors(chunk));
 
@@ -254,11 +259,14 @@ public class RegionFile {
             RandomAccessFile access = new RandomAccessFile(this.path.toFile(), "rw");
             access.seek((long) this.sectors.getDataLocation(chunk));
             access.write(actualLength);
+
             //We only use compression type 1 (zlib)
             access.write((int) (byte) 1);
             access.write(compressed);
+
             //Now we pad to the end of the sector... just in-case
             int paddingNeeded = actualLength % SectorStorage.SECTOR_LENGTH;
+
             if (paddingNeeded != 0) {
                 byte[] padding = new byte[paddingNeeded];
                 access.write(padding);
@@ -297,9 +305,11 @@ public class RegionFile {
             this.sectorMapping.set(0);
             this.sectorMapping.set(1);
             //Set what sectors are initially taken up
+
             for (int offset : offsets) {
                 int loc = offset >> 8;
                 int length = offset & 0xFF;
+
                 for (int j = loc; j < loc + length; j++) {
                     this.sectorMapping.set(j);
                 }
@@ -313,15 +323,15 @@ public class RegionFile {
          * @return offset the location of the free space (in sectors)
          */
         int findFreeSectors(int length) {
-            boolean found = false;
             //Start searching after the header
             int counter = 2;
             int consecutive = 0;
-            while (!found) {
+
+            while (true) {
                 if (!this.sectorMapping.get(counter)) {
                     consecutive++;
+
                     if (consecutive >= length) {
-                        found = true;
                         break;
                     }
                 } else {

@@ -122,6 +122,7 @@ public class TridentWorld implements Serializable, World {
                 chunk.generate();
             }
         }
+
         return this.getChunkAt(location, false);
     }
 
@@ -129,6 +130,7 @@ public class TridentWorld implements Serializable, World {
         if (location == null) {
             throw new NullPointerException("Location cannot be null");
         }
+
         this.loadedChunks.put(location, chunk);
     }
 

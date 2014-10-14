@@ -79,7 +79,6 @@ public class TridentWorldLoader implements WorldLoader {
 
     @Override
     public Chunk loadChunk(World world, ChunkLocation location) {
-
         try {
             RegionFile file =
                     new RegionFile(FileSystems.getDefault().getPath(

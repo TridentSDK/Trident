@@ -116,21 +116,6 @@ public class TridentChunk implements Chunk, NBTSerializable {
     //FIXME: This whole system needs changing
     @Override
     public void generate() {
-        // this is just a no, we need chunk generators to be used instead of following on a one generator basis
-        int chunkX = this.getX() * 16;
-        int chunkZ = this.getZ() * 16;
-
-        Random r = new Random();
-
-        for (int x = 0; x < 16; x++) {
-            for (int z = 0; z < 16; z++) {
-                //TODO y
-
-                int y = 0;
-
-                //TODO Place blocks
-            }
-        }
     }
 
     @Override
