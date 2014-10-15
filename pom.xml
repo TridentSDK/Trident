@@ -212,7 +212,7 @@
                             <quiet>true</quiet>
                             <encoding>UTF-8</encoding>
                             <strictCheck>true</strictCheck>
-                            <header>./LICENSE.txt</header>
+                            <header>./LICENSEHEADER.txt</header>
                             <mapping>
                                 <java>SLASHSTAR_STYLE</java>
                             </mapping>
