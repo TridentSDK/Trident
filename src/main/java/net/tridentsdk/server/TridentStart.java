@@ -41,6 +41,7 @@ import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
+import net.tridentsdk.Defaults;
 import net.tridentsdk.api.config.JsonConfig;
 import net.tridentsdk.server.netty.ClientChannelInitializer;
 import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
@@ -152,8 +153,8 @@ final class TridentStart {
             int port = config.getInt("port", 25565);
             TridentStart.LOGGER.info("Binding socket to server address, using port: " + port);
             ChannelFuture f = b.bind(
-                    new InetSocketAddress(config.getString("address", "127.0.0.1"),
-                            port))
+                    new InetSocketAddress(config.getString("address", Defaults.ADDRESS),
+                            config.getInt("port", Defaults.PORT)))
                     .sync();
 
             // Wait until the server socket is closed, to gracefully shut down your server.

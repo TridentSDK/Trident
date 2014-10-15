@@ -62,6 +62,9 @@ public final class Defaults {
      */
     public static final boolean IN_A_HURRY_MODE = true;
 
+    public static final int PORT = 25565;
+    public static final String ADDRESS = "localhost";
+
     private Defaults() {
     }
 }
