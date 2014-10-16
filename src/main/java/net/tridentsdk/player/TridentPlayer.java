@@ -134,6 +134,17 @@ public class TridentPlayer extends TridentInventoryHolder implements Player {
     }
 
     @Override
+    public void invokeCommand(String message) {
+        //TODO
+    }
+
+    @Override
+    public String getLastCommand() {
+        //TODO
+        return null;
+    }
+
+    @Override
     public ItemStack getItemInHand() {
         return this.getInventory().getContents()[(int) this.heldSlot + 36];
     }
