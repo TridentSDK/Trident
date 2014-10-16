@@ -54,7 +54,7 @@ public class TridentScheduler implements Scheduler {
     }
 
     private ExecutorService getMostUsed() {
-        return Collections.max(this.threads.entrySet(),
+        Map.Entry<ExecutorService, AtomicInteger> val = Collections.max(this.threads.entrySet(),
                 new Comparator<Map.Entry<ExecutorService, AtomicInteger>>(){
 
             @Override
@@ -64,7 +64,9 @@ public class TridentScheduler implements Scheduler {
                 return o1.getValue().get() - o2.getValue().get();
 
             }
-        }).getKey();
+        });
+
+        return val == null ? null : val.getKey();
     }
 
     private void addUse(ExecutorService service) {
