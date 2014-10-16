@@ -23,10 +23,7 @@ import net.tridentsdk.api.scheduling.Scheduler;
 import net.tridentsdk.api.scheduling.TridentRunnable;
 import net.tridentsdk.plugin.TridentPlugin;
 
-import java.util.AbstractMap;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -56,18 +53,23 @@ public class TridentScheduler implements Scheduler {
         this.threads.put(Executors.newSingleThreadExecutor(), new AtomicInteger(0));
     }
 
-    private ExecutorService getMostUsed() {
-        ExecutorService retVal = null;
-        int used = -1;
+    private ExecutorService getLeastUsed() {
 
-        for (Map.Entry<ExecutorService, AtomicInteger> entry : this.threads.entrySet()) {
-            if (entry.getValue().get() > used) {
-                retVal = entry.getKey();
-                used = entry.getValue().get();
+        if(this.threads.isEmpty())
+            return null;
+
+        return Collections.min(this.threads.entrySet(),
+                new Comparator<Map.Entry<ExecutorService, AtomicInteger>>(){
+
+            @Override
+            public int compare(Map.Entry<ExecutorService, AtomicInteger> o1,
+                               Map.Entry<ExecutorService, AtomicInteger> o2){
+
+                return o1.getValue().get() - o2.getValue().get();
+
             }
-        }
+        }).getKey();
 
-        return retVal;
     }
 
     private void addUse(ExecutorService service) {
@@ -78,7 +80,7 @@ public class TridentScheduler implements Scheduler {
         if (this.threadAssignments.containsKey(plugin)) {
             return this.threadAssignments.get(plugin);
         } else {
-            ExecutorService retVal = this.getMostUsed();
+            ExecutorService retVal = this.getLeastUsed();
 
             this.addUse(retVal);
             this.threadAssignments.put(plugin, retVal);
