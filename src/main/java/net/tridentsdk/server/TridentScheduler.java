@@ -57,31 +57,33 @@ public class TridentScheduler implements Scheduler {
         this.threads.put(Executors.newSingleThreadExecutor(), new AtomicInteger(0));
     }
 
-    private ExecutorService getLeastUsed() {
+    private ExecutorService getMostUsed() {
         ExecutorService retVal = null;
         int used = -1;
+
         for (Map.Entry<ExecutorService, AtomicInteger> entry : this.threads.entrySet()) {
             if (entry.getValue().get() > used) {
                 retVal = entry.getKey();
                 used = entry.getValue().get();
             }
         }
+
         return retVal;
     }
 
     private void addUse(ExecutorService service) {
-        AtomicInteger integer = this.threads.get(service);
-        integer.getAndIncrement();
-        this.threads.put(service, integer);
+        this.threads.get(service).incrementAndGet();
     }
 
     private ExecutorService getCachedAssignment(TridentPlugin plugin) {
         if (this.threadAssignments.containsKey(plugin)) {
             return this.threadAssignments.get(plugin);
         } else {
-            ExecutorService retVal = this.getLeastUsed();
+            ExecutorService retVal = this.getMostUsed();
+
             this.addUse(retVal);
             this.threadAssignments.put(plugin, retVal);
+
             return retVal;
         }
     }
@@ -91,6 +93,7 @@ public class TridentScheduler implements Scheduler {
         synchronized (this) {
             this.assignId(runnable);
             this.executeAsync(new RunnableWrapper(runnable, plugin));
+
             return runnable;
         }
     }
@@ -100,6 +103,7 @@ public class TridentScheduler implements Scheduler {
         synchronized (this) {
             this.assignId(runnable);
             this.syncTasks.put(new RunnableWrapper(runnable, plugin), new AtomicLong(0L));
+
             return runnable;
         }
     }
@@ -109,6 +113,7 @@ public class TridentScheduler implements Scheduler {
         synchronized (this) {
             this.assignId(runnable);
             this.asyncTasks.put(new RunnableWrapper(runnable, plugin), new AtomicLong(delay));
+
             return runnable;
         }
     }
@@ -118,6 +123,7 @@ public class TridentScheduler implements Scheduler {
         synchronized (this) {
             this.assignId(runnable);
             this.syncTasks.put(new RunnableWrapper(runnable, plugin), new AtomicLong(delay));
+
             return runnable;
         }
     }
@@ -128,6 +134,7 @@ public class TridentScheduler implements Scheduler {
         synchronized (this) {
             this.assignId(runnable);
             this.syncTasks.put(new RunnableWrapper(runnable, plugin, true), new AtomicLong(initialInterval));
+
             return null;
         }
     }
@@ -138,6 +145,7 @@ public class TridentScheduler implements Scheduler {
         synchronized (this) {
             this.assignId(runnable);
             this.asyncTasks.put(new RunnableWrapper(runnable, plugin, true), new AtomicLong(initialInterval));
+
             return null;
         }
     }
@@ -169,11 +177,15 @@ public class TridentScheduler implements Scheduler {
                 this.asyncTasks.remove(entry.getKey());
                 continue;
             }
+
             long time = entry.getValue().decrementAndGet();
+
             if (time <= 0L) {
                 RunnableWrapper wrapper = entry.getKey();
+
                 this.executeAsync(wrapper);
                 this.asyncTasks.remove(wrapper);
+
                 if (wrapper.isRepeating()) {
                     this.asyncTasks.put(wrapper, new AtomicLong(wrapper.getRunnable().getInterval()));
                 }
@@ -185,11 +197,15 @@ public class TridentScheduler implements Scheduler {
                 this.syncTasks.remove(entry.getKey());
                 continue;
             }
+
             long time = entry.getValue().decrementAndGet();
+
             if (time <= 0L) {
                 RunnableWrapper wrapper = entry.getKey();
+
                 this.executeSync(wrapper, false);
                 this.syncTasks.remove(wrapper);
+
                 if (wrapper.isRepeating()) {
                     this.syncTasks.put(wrapper, new AtomicLong(wrapper.getRunnable().getInterval()));
                 }
@@ -200,11 +216,13 @@ public class TridentScheduler implements Scheduler {
     private void executeAsync(RunnableWrapper wrapper) {
         wrapper.getRunnable().prerunSync();
         final TridentRunnable runnable = wrapper.getRunnable();
-        this.asyncReturns.put(this.getCachedAssignment(wrapper.getPlugin()).submit(new Callable<Object>() {
+
+        this.asyncReturns.put(this.getCachedAssignment(wrapper.getPlugin()).submit(new Callable() {
             @Override
             public Object call() throws Exception {
                 runnable.run();
                 runnable.runAfterAsync();
+
                 return null;
             }
         }), wrapper);
@@ -214,14 +232,17 @@ public class TridentScheduler implements Scheduler {
         wrapper.getRunnable().prerunSync();
         wrapper.getRunnable().run();
         wrapper.getRunnable().runAfterSync();
+
         final TridentRunnable runnable = wrapper.getRunnable();
-        Future<?> future = this.getCachedAssignment(wrapper.getPlugin()).submit(new Callable<Object>() {
+
+        Future<?> future = this.getCachedAssignment(wrapper.getPlugin()).submit(new Callable() {
             @Override
             public Object call() throws Exception {
                 runnable.runAfterAsync();
                 return null;
             }
         });
+
         if (addToSync) {
             this.syncReturns.add(new AbstractMap.SimpleEntry<Future<?>, String>(future,
                     wrapper.getPlugin().getDescription().name()));
