@@ -53,8 +53,12 @@ public class TridentScheduler implements Scheduler {
         this.threads.put(Executors.newSingleThreadExecutor(), new AtomicInteger(0));
     }
 
-    private ExecutorService getMostUsed() {
-        Map.Entry<ExecutorService, AtomicInteger> val = Collections.max(this.threads.entrySet(),
+    private ExecutorService getLeastUsed() {
+
+        if(this.threads.isEmpty())
+            return null;
+
+        return Collections.min(this.threads.entrySet(),
                 new Comparator<Map.Entry<ExecutorService, AtomicInteger>>(){
 
             @Override
@@ -64,9 +68,8 @@ public class TridentScheduler implements Scheduler {
                 return o1.getValue().get() - o2.getValue().get();
 
             }
-        });
+        }).getKey();
 
-        return val == null ? null : val.getKey();
     }
 
     private void addUse(ExecutorService service) {
@@ -77,7 +80,7 @@ public class TridentScheduler implements Scheduler {
         if (this.threadAssignments.containsKey(plugin)) {
             return this.threadAssignments.get(plugin);
         } else {
-            ExecutorService retVal = this.getMostUsed();
+            ExecutorService retVal = this.getLeastUsed();
 
             this.addUse(retVal);
             this.threadAssignments.put(plugin, retVal);
