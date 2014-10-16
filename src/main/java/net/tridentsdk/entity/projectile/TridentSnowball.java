@@ -46,7 +46,7 @@ public class TridentSnowball extends TridentProjectile {
 
     @Override
     protected void hit() {
-        if (this.impaled != null && this.impaled.isEntity()) {
+        if (this.impaled != null && this.impaled.isImpaledEntity()) {
             if (this.impaled.impaledEntity() instanceof LivingEntity) {
                 LivingEntity ent = (LivingEntity) this.impaled.impaledEntity();
 

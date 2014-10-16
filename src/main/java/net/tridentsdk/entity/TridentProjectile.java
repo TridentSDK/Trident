@@ -59,6 +59,12 @@ public abstract class TridentProjectile extends TridentEntity implements Project
     @Override
     public abstract void applyProperties(EntityProperties properties);
 
+    @Override
+    public void doHit() {
+        // TODO Perform impaling logic
+        this.hit();
+    }
+
     /**
      * Performed when the projectile hits something
      */

@@ -18,8 +18,11 @@
 package net.tridentsdk.entity;
 
 import com.google.common.util.concurrent.AtomicDouble;
+import net.tridentsdk.api.Block;
 import net.tridentsdk.api.Location;
+import net.tridentsdk.api.entity.Entity;
 import net.tridentsdk.api.entity.LivingEntity;
+import net.tridentsdk.api.entity.Projectile;
 import net.tridentsdk.api.util.Vector;
 
 import java.util.UUID;
@@ -54,6 +57,11 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
      * The amount of air the entity has, depleted when in water
      */
     protected final AtomicDouble airTicks = new AtomicDouble(0.0);
+
+    /**
+     * Describes projectile logic
+     */
+    public Projectile hit;
 
     /**
      * Inherits from {@link net.tridentsdk.entity.TridentEntity}
@@ -109,5 +117,32 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
     @Override
     public boolean isDead() {
         return this.dead;
+    }
+
+    @Override
+    public boolean isImpaledEntity() {
+        return this.hit != null;
+    }
+
+    @Override
+    public boolean isImpaledTile() {
+        return false;
+    }
+
+    @Override
+    public Entity impaledEntity() {
+        if (!this.isImpaledEntity())
+            return null;
+        return this;
+    }
+
+    @Override
+    public Block impaledTile() {
+        return null;
+    }
+
+    @Override
+    public Projectile projectile() {
+        return this.hit;
     }
 }
