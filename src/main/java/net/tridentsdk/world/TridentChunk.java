@@ -26,8 +26,7 @@ import net.tridentsdk.api.nbt.NBTSerializable;
 import net.tridentsdk.api.nbt.TagType;
 import net.tridentsdk.api.world.Chunk;
 import net.tridentsdk.api.world.ChunkLocation;
-
-import java.util.Random;
+import net.tridentsdk.api.world.WorldGen;
 
 public class TridentChunk implements Chunk, NBTSerializable {
     private final TridentWorld world;
@@ -101,8 +100,16 @@ public class TridentChunk implements Chunk, NBTSerializable {
     }
 
     //FIXME: This whole system needs changing
+    WorldGen gen = new TempWorldGen();
     @Override
     public void generate() {
+        for (int x = this.location.getX(); x <= this.location.getX() >> 4; x++) {
+            for (int y = 0; y <= 64 >> 4; y++) {
+                for (int z = this.location.getZ(); z <= this.location.getZ() >> 4; z++) {
+                    this.getBlockAt(x, y, z).setMaterial(this.gen.gen(x, y, z));
+                }
+            }
+        }
     }
 
     @Override
@@ -129,8 +136,8 @@ public class TridentChunk implements Chunk, NBTSerializable {
     public Block getBlockAt(int relX, int y, int relZ) {
         int index = WorldUtils.getBlockArrayIndex(relX, y, relZ);
 
-        return new TridentBlock(new Location(this.world, relX + this.getX()*16, y, relZ + this.getZ()*16)
+        return new TridentBlock(new Location(this.world, relX + this.getX() * 16, y, relZ + this.getZ() * 16)
                 //TODO
-                ,null,(byte)0);
+                , null, (byte)0);
     }
 }

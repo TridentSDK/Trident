@@ -124,7 +124,7 @@ public class TridentPlayer extends TridentInventoryHolder implements Player {
         this.executor.addTask(new Runnable() {
             @Override
     public void run() {
-                if (slot > 8 || slot < 0) {
+                if ((int) slot > 8 || (int) slot < 0) {
                     throw new IllegalArgumentException("Slot must be within the ranges of 0-8");
                 }
 

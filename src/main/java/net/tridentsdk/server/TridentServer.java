@@ -25,7 +25,6 @@ import net.tridentsdk.api.config.JsonConfig;
 import net.tridentsdk.api.event.EventManager;
 import net.tridentsdk.api.scheduling.Scheduler;
 import net.tridentsdk.api.threads.ThreadProvider;
-import net.tridentsdk.api.util.TridentLogger;
 import net.tridentsdk.api.window.Window;
 import net.tridentsdk.api.world.World;
 import net.tridentsdk.entity.EntityManager;
@@ -60,7 +59,7 @@ public final class TridentServer implements Server {
 
     private final JsonConfig config;
     private final Protocol protocol;
-    private final org.slf4j.Logger logger;
+    private final Logger logger;
 
     private final ConcurrentTaskExecutor<?> taskExecutor;
     private final RegionFileCache regionCache;
@@ -148,7 +147,7 @@ public final class TridentServer implements Server {
     }
 
     @Override
-    public org.slf4j.Logger getLogger() {
+    public Logger getLogger() {
         return this.logger;
     }
 

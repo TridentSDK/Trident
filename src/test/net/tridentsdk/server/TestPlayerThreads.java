@@ -146,6 +146,6 @@ public class TestPlayerThreads {
 
     @Benchmark
     public void remove(Blackhole blackhole) {
-        PlayerThreads.remove(TestPlayerThreads.PLAYER);
+        //PlayerThreads.remove(TestPlayerThreads.PLAYER);
     }
 }

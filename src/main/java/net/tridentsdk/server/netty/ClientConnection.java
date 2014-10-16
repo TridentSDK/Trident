@@ -20,7 +20,6 @@ package net.tridentsdk.server.netty;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
-import net.tridentsdk.player.PlayerConnection;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.protocol.Protocol;
 import net.tridentsdk.server.threads.PlayerThreads;
@@ -324,7 +323,7 @@ public class ClientConnection {
      */
     public void logout() {
         ClientConnection.clientData.remove(this.address);
-        PlayerThreads.remove(PlayerConnection.getConnection(this.address).getPlayer());
+        PlayerThreads.remove(this);
         this.channel.close();
     }
 }

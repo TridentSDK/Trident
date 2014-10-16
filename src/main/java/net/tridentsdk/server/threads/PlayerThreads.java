@@ -19,6 +19,8 @@ package net.tridentsdk.server.threads;
 
 import net.tridentsdk.api.entity.living.Player;
 import net.tridentsdk.api.threads.TaskExecutor;
+import net.tridentsdk.player.PlayerConnection;
+import net.tridentsdk.server.netty.ClientConnection;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Collection;
@@ -66,11 +68,15 @@ public final class PlayerThreads {
     /**
      * Decaches the player connection handler from the mappings
      *
-     * @param player the player to remove the wrapper cache
+     * @param connection the player to remove the wrapper cache
      */
-    public static void remove(Player player) {
-        PlayerThreads.THREAD_MAP.removeAssignment(player);
-        PlayerThreads.CACHE_MAP.remove(player);
+    public static void remove(ClientConnection connection) {
+        PlayerConnection pc = PlayerConnection.getConnection(connection.getAddress());
+        if (pc != null) {
+            Player player = pc.getPlayer();
+            PlayerThreads.THREAD_MAP.removeAssignment(player);
+            PlayerThreads.CACHE_MAP.remove(player);
+        }
     }
 
     /**

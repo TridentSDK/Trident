@@ -21,14 +21,15 @@ import net.tridentsdk.api.world.ChunkLocation;
 
 public final class WorldUtils {
 
-    public static final byte NIBBLE_MASK = (byte)0x0F;
+    public static final byte NIBBLE_MASK = (byte) 0x0F;
 
     private WorldUtils() {}
 
     /**
      * Get section index from y height
-     * @param y
-     * @return
+     *
+     * @param y the y height specified
+     * @return the section index
      */
     public static int getSection (int y) {
         return y >> 4;
@@ -36,51 +37,62 @@ public final class WorldUtils {
 
     /**
      * Gets the chunk location from a position X and Y
-     * @param x
-     * @param z
-     * @return
+     *
+     * @param x the specified x
+     * @param z the specified z
+     * @return the chunk location
      */
     public static ChunkLocation getChunkLocation(int x, int z) {
-        return new ChunkLocation( x >> 4, z >> 4);
+        return new ChunkLocation(x >> 4, z >> 4);
     }
 
     /**
      * Gets the name of a region file for a given chunklocation
-     * @param location
-     * @return
+     *
+     * @param location the location to get the region file for
+     * @return the region file containing the location
      */
-    public static String getRegionFile (ChunkLocation location) {
+    public static String getRegionFile(ChunkLocation location) {
         return "r." + (location.getX() >> 5) + '.' + (location.getZ() >> 5) + ".mca";
     }
 
     /**
      * Gets a region file name for a given x and y location in the world
-     * @param x
-     * @param z
-     * @return
+     *
+     * @param x the specified x
+     * @param z the specified z
+     * @return the region file containing the x and y
      */
-    public static String getRegionFile (int x, int z) {
+    public static String getRegionFile(int x, int z) {
         return "r." + (x >> 9) + '.' + (z >> 9) + ".mca";
     }
 
     /**
      * Gets the index of a block in a section
-     * @param x
-     * @param y
-     * @param z
-     * @return
+     *
+     * @param x the specified x
+     * @param y the y height specified
+     * @param z the specified z
+     * @return the index of the block array containing the coordinates given
      */
     public static int getBlockArrayIndex(int x, int y, int z) {
         return y << 8 + z << 4 + x;
     }
 
+    /**
+     * The byte world nibble array byte search
+     *
+     * @param nibbleArray the nibble array to search from
+     * @param index the nibble index
+     * @return the index of the nibble byte
+     */
     public static byte getFromNibbleArray(byte[] nibbleArray, int index) {
         boolean off = index % 2 == 1;
 
         if(off) {
-            return (byte) (nibbleArray[index/2] >>> 4);
+            return (byte) (nibbleArray[index / 2] >>> 4);
         } else {
-            return (byte) (nibbleArray[index/2]& WorldUtils.NIBBLE_MASK);
+            return (byte) (nibbleArray[index / 2] & WorldUtils.NIBBLE_MASK);
         }
     }
 

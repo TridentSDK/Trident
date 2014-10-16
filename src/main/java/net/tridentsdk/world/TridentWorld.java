@@ -37,7 +37,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class TridentWorld implements Serializable, World {
     private static final int SIZE = 1;
     private static final int MAX_HEIGHT = 255;
-    private static final int MAX_CHUNKS = -1;
+    private static final int MAX_CHUNKS = 49; // TODO changed temp for packet compatibility
     private static final long serialVersionUID = 2892463980167406259L;
 
     private final Map<ChunkLocation, Chunk> loadedChunks = new ConcurrentHashMap<>();
@@ -130,7 +130,7 @@ public class TridentWorld implements Serializable, World {
         int y = (int) Math.round(location.getY());
         int z = (int) Math.round(location.getZ());
 
-        return this.getChunkAt(WorldUtils.getChunkLocation(x,z),true).getBlockAt(x%16,y,z%16);
+        return this.getChunkAt(WorldUtils.getChunkLocation(x, z),true).getBlockAt(x % 16, y, z % 16);
     }
 
     @Override

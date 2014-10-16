@@ -40,7 +40,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class TridentScheduler implements Scheduler {
-
     private final Map<RunnableWrapper, AtomicLong> asyncTasks = new ConcurrentHashMap<>();
     private final Map<RunnableWrapper, AtomicLong> syncTasks = new ConcurrentHashMap<>();
     // basically a thread pool that has an entry for a thread, and the number of plugins assigned to it
