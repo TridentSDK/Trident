@@ -155,6 +155,11 @@ public class TridentPlayer extends TridentInventoryHolder implements Player {
         });
     }
 
+    @Override public String getLastMessage() {
+        // TODO
+        return null;
+    }
+
     @Override
     public float getFlyingSpeed() {
         return this.flyingSpeed;

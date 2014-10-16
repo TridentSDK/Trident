@@ -86,7 +86,7 @@ public abstract class TridentProjectile extends TridentEntity implements Project
     }
 
     @Override
-    public ProjectileSource getSource() {
+    public ProjectileSource getProjectileSource() {
         return this.source.get();
     }
 }
