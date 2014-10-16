@@ -17,10 +17,9 @@
  */
 package net.tridentsdk.entity;
 
-import net.tridentsdk.api.Block;
 import net.tridentsdk.api.Location;
-import net.tridentsdk.api.entity.Entity;
 import net.tridentsdk.api.entity.EntityProperties;
+import net.tridentsdk.api.entity.Impalable;
 import net.tridentsdk.api.entity.Projectile;
 import net.tridentsdk.api.entity.living.ProjectileSource;
 
@@ -36,23 +35,20 @@ public abstract class TridentProjectile extends TridentEntity implements Project
     /**
      * The source that fires the projectile
      */
-    protected final WeakReference<ProjectileSource> source;
+    protected volatile WeakReference<ProjectileSource> source;
     /**
-     * The entity that the projectile hit, if any
+     * The impalable that the projectile hit, if any
      */
-    protected Entity entityHit;
-
-    protected boolean bounce;
+    protected Impalable impaled;
 
     /**
      * Inherits UUID and spawnLocation from {@link net.tridentsdk.entity.TridentEntity}
      *
      * @param source the entity which fired the projectile
      */
-    public TridentProjectile(UUID uniqueId, Location spawnLocation, ProjectileSource source, boolean bouncy) {
+    public TridentProjectile(UUID uniqueId, Location spawnLocation, ProjectileSource source) {
         super(uniqueId, spawnLocation);
         this.source = new WeakReference<>(source);
-        this.bounce = bouncy;
     }
 
     @Override
@@ -63,33 +59,28 @@ public abstract class TridentProjectile extends TridentEntity implements Project
     @Override
     public abstract void applyProperties(EntityProperties properties);
 
-
-    @Override public ProjectileSource getProjectileSource() {
-        return this.source.get();
-    }
-
-    @Override
-    public ProjectileSource getShooter() {
-        return this.source.get();
-    }
-
-    @Override
-    public boolean doesBounce() {
-        return this.bounce;
-    }
-
-    @Override
-    public void setBounce(boolean bouncy) {
-        this.bounce = bouncy;
-    }
-
-    @Override
-    public Block getCurrentTile() {
-        return this.loc.getWorld().getBlockAt(this.loc);
-    }
-
     /**
      * Performed when the projectile hits something
      */
     protected abstract void hit();
+
+    @Override
+    public Impalable getImpaled() {
+        return this.impaled;
+    }
+
+    @Override
+    public void setSource(final ProjectileSource shooter) {
+        super.executor.addTask(new Runnable() {
+            @Override
+            public void run() {
+                TridentProjectile.this.source = new WeakReference<>(shooter);
+            }
+        });
+    }
+
+    @Override
+    public ProjectileSource getSource() {
+        return this.source.get();
+    }
 }

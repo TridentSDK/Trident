@@ -26,38 +26,15 @@ import net.tridentsdk.entity.TridentProjectile;
 import java.util.UUID;
 
 public class TridentWitherSkull extends TridentProjectile implements WitherSkull {
-
     public TridentWitherSkull(UUID uniqueId, Location spawnLocation, ProjectileSource source) {
-        super(uniqueId, spawnLocation, source, false);
+        super(uniqueId, spawnLocation, source);
     }
 
     @Override
     public void applyProperties(EntityProperties properties) {
-
     }
 
     @Override
     protected void hit() {
-
-    }
-
-    @Override
-    public ProjectileSource getShooter() {
-        return null;
-    }
-
-    @Override
-    public void setShooter(ProjectileSource shooter) {
-
-    }
-
-    @Override
-    public boolean doesBounce() {
-        return false;
-    }
-
-    @Override
-    public void setBounce(boolean bouncy) {
-
     }
 }
