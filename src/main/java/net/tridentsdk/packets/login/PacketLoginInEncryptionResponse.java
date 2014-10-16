@@ -92,11 +92,6 @@ public class PacketLoginInEncryptionResponse extends InPacket {
         return this;
     }
 
-    @Override
-    public PacketType getType() {
-        return PacketType.IN;
-    }
-
     /**
      * Gets the length of the secret
      *

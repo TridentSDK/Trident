@@ -28,6 +28,11 @@ import net.tridentsdk.server.netty.packet.PacketType;
  * @see net.tridentsdk.packets.status.PacketStatusInPing
  */
 public class PacketStatusOutPing extends OutPacket {
+    /**
+     * Time of the client
+     */
+    protected int clientTime;
+
     @Override
     public int getId() {
         return 0x01;
@@ -35,7 +40,7 @@ public class PacketStatusOutPing extends OutPacket {
 
     @Override
     public void encode(ByteBuf buf) {
-        buf.writeLong(System.currentTimeMillis());
+        buf.writeLong(clientTime);
     }
 
     @Override

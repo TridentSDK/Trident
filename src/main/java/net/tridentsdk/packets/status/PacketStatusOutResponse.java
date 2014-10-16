@@ -54,11 +54,6 @@ public class PacketStatusOutResponse extends OutPacket {
         Codec.writeString(buf, json);
     }
 
-    @Override
-    public PacketType getType() {
-        return PacketType.OUT;
-    }
-
     public static class Response {
         /**
          * Version information
