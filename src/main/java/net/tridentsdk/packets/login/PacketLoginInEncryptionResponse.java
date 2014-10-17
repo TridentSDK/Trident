@@ -133,9 +133,6 @@ public class PacketLoginInEncryptionResponse extends InPacket {
             return;
         }
 
-        // Enable encryption from hereon out
-        connection.enableEncryption(sharedSecret);
-
         String name = LoginManager.getInstance().getName(connection.getAddress());
         StringBuilder sb = new StringBuilder();
 
@@ -149,7 +146,6 @@ public class PacketLoginInEncryptionResponse extends InPacket {
 
             // If the code isn't 200 OK, logout and inform the client of so
             if (code != 200) {
-                //TODO: No encryption
                 connection.sendPacket(new PacketLoginOutDisconnect().setJsonMessage("Unable to create session"));
 
                 connection.logout();
@@ -171,6 +167,9 @@ public class PacketLoginInEncryptionResponse extends InPacket {
             connection.logout();
             return;
         }
+
+        // Enable encryption from hereon out
+        connection.enableEncryption(sharedSecret);
 
         // Read the JSON response
         SessionResponse response = PacketLoginInEncryptionResponse.GSON.fromJson(sb.toString(), SessionResponse.class);
