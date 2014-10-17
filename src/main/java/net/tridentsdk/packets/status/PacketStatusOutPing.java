@@ -31,7 +31,7 @@ public class PacketStatusOutPing extends OutPacket {
     /**
      * Time of the client
      */
-    protected long clientTime;Uod
+    protected long clientTime;
 
     @Override
     public int getId() {
