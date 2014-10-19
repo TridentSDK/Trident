@@ -71,10 +71,10 @@
             <url>http://oss.sonatype.org/content/groups/public/</url>
         </repository>
 	
-	<repository>
-	    <id>TridentSDK</id>
-	    <url>http://repo.tridentsdk.net/nexus/content/groups/public/</url>
-	</repository>
+        <repository>
+            <id>TridentSDK</id>
+            <url>http://repo.tridentsdk.net/nexus/content/groups/public/</url>
+        </repository>
     </repositories>
 
     <dependencies>

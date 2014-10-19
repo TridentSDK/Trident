@@ -25,7 +25,11 @@ import net.tridentsdk.api.entity.LivingEntity;
 import net.tridentsdk.api.entity.Projectile;
 import net.tridentsdk.api.util.Vector;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
 import java.util.UUID;
+import java.util.WeakHashMap;
 
 /**
  * An entity that has health
@@ -61,7 +65,7 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
     /**
      * Describes projectile logic
      */
-    public Projectile hit;
+    public final Map<Integer, Projectile> hit = Collections.synchronizedMap(new WeakHashMap<Integer, Projectile>());
 
     /**
      * Inherits from {@link net.tridentsdk.entity.TridentEntity}
@@ -142,7 +146,7 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
     }
 
     @Override
-    public Projectile projectile() {
-        return this.hit;
+    public Collection<Projectile> projectiles() {
+        return this.hit.values();
     }
 }

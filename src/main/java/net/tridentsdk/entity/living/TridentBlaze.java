@@ -29,7 +29,6 @@ import net.tridentsdk.entity.TridentLivingEntity;
 import java.util.UUID;
 
 public class TridentBlaze extends TridentLivingEntity implements Blaze {
-
     public TridentBlaze(UUID id, Location spawnLocation) {
         super(id, spawnLocation);
     }
