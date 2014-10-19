@@ -63,7 +63,7 @@ public abstract class TridentProjectile extends TridentEntity implements Project
     public void doHit() {
         // TODO Perform impaling logic
         Impalable impalable = null;
-        impalable.projectiles().add(this);
+        impalable.put(this);
         this.hit();
     }
 

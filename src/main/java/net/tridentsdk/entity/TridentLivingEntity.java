@@ -17,6 +17,9 @@
  */
 package net.tridentsdk.entity;
 
+import com.google.common.base.Function;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.AtomicDouble;
 import net.tridentsdk.api.Block;
 import net.tridentsdk.api.Location;
@@ -25,11 +28,10 @@ import net.tridentsdk.api.entity.LivingEntity;
 import net.tridentsdk.api.entity.Projectile;
 import net.tridentsdk.api.util.Vector;
 
-import java.util.Collection;
+import java.lang.ref.WeakReference;
 import java.util.Collections;
-import java.util.Map;
+import java.util.List;
 import java.util.UUID;
-import java.util.WeakHashMap;
 
 /**
  * An entity that has health
@@ -65,7 +67,8 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
     /**
      * Describes projectile logic
      */
-    public final Map<Integer, Projectile> hit = Collections.synchronizedMap(new WeakHashMap<Integer, Projectile>());
+    public final List<WeakReference<Projectile>> hit = Collections.synchronizedList(
+            Lists.<WeakReference<Projectile>>newArrayList());
 
     /**
      * Inherits from {@link net.tridentsdk.entity.TridentEntity}
@@ -146,7 +149,30 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
     }
 
     @Override
-    public Collection<Projectile> projectiles() {
-        return this.hit.values();
+    public void put(Projectile projectile) {
+        this.hit.add(new WeakReference<>(projectile));
+    }
+
+    @Override
+    public boolean remove(Projectile projectile) {
+        return this.hit.remove(new WeakReference<>(projectile));
+    }
+
+    @Override
+    public void clear() {
+        // TODO remove the projectile entities
+        this.hit.clear();
+    }
+
+    @Override
+    public List<Projectile> projectiles() {
+        return new ImmutableList.Builder<Projectile>().addAll(Lists.transform(this.hit,
+                new Function<WeakReference<Projectile>,
+                        Projectile>() {
+                    @Override
+                    public Projectile apply(WeakReference<Projectile> projectileWeakReference) {
+                        return projectileWeakReference.get();
+                    }
+                })).build();
     }
 }
