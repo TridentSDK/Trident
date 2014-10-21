@@ -107,7 +107,7 @@ public abstract class TridentEntity implements Entity {
      */
     public TridentEntity(UUID uniqueId, Location spawnLocation) {
         this.uniqueId = uniqueId;
-        this.id = TridentEntity.counter.incrementAndGet();
+        this.id = counter.incrementAndGet();
 
         this.velocity = new Vector(0.0D, 0.0D, 0.0D);
         this.velocityChanged = false;

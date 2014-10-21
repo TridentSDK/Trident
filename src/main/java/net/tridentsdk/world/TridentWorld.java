@@ -92,11 +92,11 @@ public class TridentWorld implements Serializable, World {
         int x = location.getX();
         int z = location.getZ();
 
-        if (x > TridentWorld.MAX_CHUNKS || x < -TridentWorld.MAX_CHUNKS) {
+        if (x > MAX_CHUNKS || x < -MAX_CHUNKS) {
             return null;
         }
 
-        if (z > TridentWorld.MAX_CHUNKS || z < -TridentWorld.MAX_CHUNKS) {
+        if (z > MAX_CHUNKS || z < -MAX_CHUNKS) {
             return null;
         }
 

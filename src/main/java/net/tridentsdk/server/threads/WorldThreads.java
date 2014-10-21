@@ -49,22 +49,22 @@ public final class WorldThreads {
      * @return the task execution handler for the world
      */
     public static TaskExecutor worldThreadHandle(final World world) {
-        return WorldThreads.CACHE_MAP.retrieve(world, new Callable<TaskExecutor>() {
+        return CACHE_MAP.retrieve(world, new Callable<TaskExecutor>() {
             @Override
             public TaskExecutor call() throws Exception {
-                TaskExecutor executor = WorldThreads.THREAD_MAP.getScaledThread();
-                WorldThreads.THREAD_MAP.assign(executor, world);
+                TaskExecutor executor = THREAD_MAP.getScaledThread();
+                THREAD_MAP.assign(executor, world);
 
                 return executor;
             }
-        }, WorldThreads.SERVICE);
+        }, SERVICE);
     }
 
     /**
      * Used when the server ticks, to tell this thing to tick
      */
     protected static void notifyTick() {
-        for (TaskExecutor executor : WorldThreads.CACHE_MAP.values()) {
+        for (TaskExecutor executor : CACHE_MAP.values()) {
             executor.addTask(new Runnable() {
                 @Override
                 public void run() {
@@ -81,15 +81,15 @@ public final class WorldThreads {
      * @param world the world to decache
      */
     public static void remove(World world) {
-        WorldThreads.THREAD_MAP.removeAssignment(world);
-        WorldThreads.CACHE_MAP.remove(world);
+        THREAD_MAP.removeAssignment(world);
+        CACHE_MAP.remove(world);
     }
 
     /**
      * Notifies the server to tick redstone activities
      */
     public static void notifyRedstoneTick() {
-        for (TaskExecutor executor : WorldThreads.CACHE_MAP.values()) {
+        for (TaskExecutor executor : CACHE_MAP.values()) {
             executor.addTask(new Runnable() {
                 @Override
                 public void run() {

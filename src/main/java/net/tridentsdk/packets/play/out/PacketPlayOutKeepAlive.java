@@ -27,7 +27,7 @@ public class PacketPlayOutKeepAlive extends OutPacket {
 
     protected static final AtomicInteger counter = new AtomicInteger(-1);
 
-    protected final int keepAliveId = PacketPlayOutKeepAlive.counter.addAndGet(1);
+    protected final int keepAliveId = counter.addAndGet(1);
 
     @Override
     public int getId() {

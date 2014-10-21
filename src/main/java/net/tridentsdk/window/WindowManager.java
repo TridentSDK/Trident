@@ -38,7 +38,7 @@ public class WindowManager {
      * @return the window with the ID, or {@code null} if it doesn't exist
      */
     public Window getWindow(int id) {
-        return WindowManager.windows.get(id);
+        return windows.get(id);
     }
 
     /**
@@ -47,7 +47,7 @@ public class WindowManager {
      * @param window the window to be registered
      */
     public void registerWindow(TridentWindow window) {
-        WindowManager.windows.put(window.getId(), window);
+        windows.put(window.getId(), window);
     }
 
     /**
@@ -56,6 +56,6 @@ public class WindowManager {
      * @return the windows registered
      */
     public Collection<TridentWindow> getWindows() {
-        return WindowManager.windows.values();
+        return windows.values();
     }
 }

@@ -43,11 +43,11 @@ public final class PluginThreads {
      * @return the plugin thread handler
      */
     public static TaskExecutor pluginThreadHandle(final TridentPlugin plugin) {
-        return PluginThreads.CACHE_MAP.retrieve(plugin, new Callable<TaskExecutor>() {
+        return CACHE_MAP.retrieve(plugin, new Callable<TaskExecutor>() {
             @Override
             public TaskExecutor call() throws Exception {
-                TaskExecutor executor = PluginThreads.THREAD_MAP.getScaledThread();
-                PluginThreads.THREAD_MAP.assign(executor, plugin);
+                TaskExecutor executor = THREAD_MAP.getScaledThread();
+                THREAD_MAP.assign(executor, plugin);
 
                 return executor;
             }
@@ -60,8 +60,8 @@ public final class PluginThreads {
      * @param plugin the plugin to remove from the cache
      */
     public static void remove(TridentPlugin plugin) {
-        PluginThreads.THREAD_MAP.removeAssignment(plugin);
-        PluginThreads.CACHE_MAP.remove(plugin);
+        THREAD_MAP.removeAssignment(plugin);
+        CACHE_MAP.remove(plugin);
     }
 
     /**
@@ -69,7 +69,7 @@ public final class PluginThreads {
      *
      * @return the values of the concurrent cache
      */
-    public static Collection<TridentPlugin> wrappedPlayers() {
-        return PluginThreads.THREAD_MAP.values();
+    public static Collection<TridentPlugin> wrappedPlugins() {
+        return THREAD_MAP.values();
     }
 }

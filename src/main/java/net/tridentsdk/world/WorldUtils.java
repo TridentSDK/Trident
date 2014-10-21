@@ -92,7 +92,7 @@ public final class WorldUtils {
         if(off) {
             return (byte) (nibbleArray[index / 2] >>> 4);
         } else {
-            return (byte) (nibbleArray[index / 2] & WorldUtils.NIBBLE_MASK);
+            return (byte) (nibbleArray[index / 2] & NIBBLE_MASK);
         }
     }
 

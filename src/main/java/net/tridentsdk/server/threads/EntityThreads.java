@@ -48,15 +48,15 @@ public final class EntityThreads {
      * @return the task execution handler for the entity
      */
     public static TaskExecutor entityThreadHandle(final Entity entity) {
-        return EntityThreads.CACHE_MAP.retrieve(entity, new Callable<TaskExecutor>() {
+        return CACHE_MAP.retrieve(entity, new Callable<TaskExecutor>() {
             @Override
             public TaskExecutor call() throws Exception {
-                TaskExecutor executor = EntityThreads.THREAD_MAP.getScaledThread();
-                EntityThreads.THREAD_MAP.assign(executor, entity);
+                TaskExecutor executor = THREAD_MAP.getScaledThread();
+                THREAD_MAP.assign(executor, entity);
 
                 return executor;
             }
-        }, EntityThreads.SERVICE);
+        }, SERVICE);
     }
 
     /**
@@ -65,7 +65,7 @@ public final class EntityThreads {
      * @param entity the entity to decache
      */
     public static void remove(Entity entity) {
-        EntityThreads.THREAD_MAP.removeAssignment(entity);
-        EntityThreads.CACHE_MAP.remove(entity);
+        THREAD_MAP.removeAssignment(entity);
+        CACHE_MAP.remove(entity);
     }
 }

@@ -48,7 +48,7 @@ public abstract class TridentWindow implements Window {
     public TridentWindow(String name, int length) {
         this.name = name;
         this.length = length;
-        this.id = TridentWindow.counter.addAndGet(1);
+        this.id = counter.addAndGet(1);
         this.contents = new ItemStack[length];
     }
 

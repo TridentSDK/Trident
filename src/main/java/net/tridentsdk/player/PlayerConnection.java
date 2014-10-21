@@ -57,12 +57,12 @@ public class PlayerConnection extends ClientConnection {
 
     public static PlayerConnection createPlayerConnection(ClientConnection connection, TridentPlayer player) {
         PlayerConnection conn = new PlayerConnection(connection, player);
-        PlayerConnection.PLAYER_MAP.put(player, conn);
+        PLAYER_MAP.put(player, conn);
         return conn;
     }
 
     public static PlayerConnection getConnection(Player player) {
-        return PlayerConnection.PLAYER_MAP.get(player);
+        return PLAYER_MAP.get(player);
     }
 
     public static PlayerConnection getConnection(InetSocketAddress adress) {

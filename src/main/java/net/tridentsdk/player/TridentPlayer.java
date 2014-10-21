@@ -58,7 +58,7 @@ public class TridentPlayer extends TridentInventoryHolder implements Player {
     }
 
     public static void sendAll(Packet packet) {
-        for (TridentPlayer p : TridentPlayer.players) {
+        for (TridentPlayer p : players) {
             p.connection.sendPacket(packet);
         }
     }

@@ -169,21 +169,21 @@ public class EventBusPerformance {
 
     @Benchmark
     public void AregisterEb() {
-        EventBusPerformance.EVENT_BUS.register(EventBusPerformance.HANDLER);
+        EVENT_BUS.register(HANDLER);
     }
 
     @Benchmark
     public void AregisterEm() {
-        EventBusPerformance.EVENT_MANAGER.registerListener(EventBusPerformance.LISTENER);
+        EVENT_MANAGER.registerListener(LISTENER);
     }
 
     @Benchmark
     public void BdoCallEb() {
-        EventBusPerformance.EVENT_BUS.post(EventBusPerformance.EVENT);
+        EVENT_BUS.post(EVENT);
     }
 
     @Benchmark public void BdoCallEm() {
-        EventBusPerformance.EVENT_MANAGER.call(EventBusPerformance.EVENT);
+        EVENT_MANAGER.call(EVENT);
     }
 
     private static class Event extends net.tridentsdk.api.event.Event {

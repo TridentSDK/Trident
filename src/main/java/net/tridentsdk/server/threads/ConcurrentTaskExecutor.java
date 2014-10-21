@@ -26,6 +26,7 @@ import javax.annotation.Nullable;
 import java.util.AbstractMap;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedTransferQueue;
@@ -44,6 +45,8 @@ public class ConcurrentTaskExecutor<Assignment> {
     private final Map<InnerThread, Integer> scale = new HashMap<>();
     private final Map<Assignment, InnerThread> assignments = new HashMap<>();
 
+    private final List<TaskExecutor> executors;
+
     /**
      * Create a new executor using the number of threads to scale
      *
@@ -51,10 +54,18 @@ public class ConcurrentTaskExecutor<Assignment> {
      */
     public ConcurrentTaskExecutor(int scale) {
         for (int i = 0; i < scale; i++) this.scale.put(new InnerThread(), 0);
+        this.executors = Lists.newArrayList(Iterators.transform(this.scale.keySet().iterator(), new Function
+                <InnerThread, TaskExecutor>() {
+            @Nullable
+            @Override
+            public TaskExecutor apply(@Nullable InnerThread innerThread) {
+                return innerThread;
+            }
+        }));
     }
 
     private static <T> Map.Entry<T, ? extends Number> minMap(Map<T, ? extends Number> map) {
-        Map.Entry<T, ? extends Number> ent = (Map.Entry<T, ? extends Number>) ConcurrentTaskExecutor.DEF_ENTRY;
+        Map.Entry<T, ? extends Number> ent = (Map.Entry<T, ? extends Number>) DEF_ENTRY;
 
         for (Map.Entry<T, ? extends Number> entry : map.entrySet())
             if (entry.getValue().longValue() < ent.getValue().longValue())
@@ -69,7 +80,7 @@ public class ConcurrentTaskExecutor<Assignment> {
      * @return the thread with the lowest assignments
      */
     public TaskExecutor getScaledThread() {
-        Map.Entry<InnerThread, ? extends Number> handler = ConcurrentTaskExecutor.minMap(this.scale);
+        Map.Entry<InnerThread, ? extends Number> handler = minMap(this.scale);
         return handler.getKey();
     }
 
@@ -84,7 +95,7 @@ public class ConcurrentTaskExecutor<Assignment> {
      */
     public TaskExecutor assign(TaskExecutor executor, Assignment assignment) {
         if (!this.assignments.containsKey(assignment)) {
-            Map.Entry<InnerThread, ? extends Number> handler = ConcurrentTaskExecutor.minMap(this.scale);
+            Map.Entry<InnerThread, ? extends Number> handler = minMap(this.scale);
             InnerThread thread = handler.getKey();
 
             this.assignments.put(assignment, thread);
@@ -120,15 +131,8 @@ public class ConcurrentTaskExecutor<Assignment> {
      *
      * @return the thread list
      */
-    public Collection<TaskExecutor> threadList() {
-        return Lists.newArrayList(Iterators.transform(this.scale.keySet().iterator(), new Function<InnerThread,
-                TaskExecutor>() {
-            @Nullable
-            @Override
-            public TaskExecutor apply(@Nullable InnerThread innerThread) {
-                return innerThread;
-            }
-        }));
+    public List<TaskExecutor> threadList() {
+        return this.executors;
     }
 
     /**

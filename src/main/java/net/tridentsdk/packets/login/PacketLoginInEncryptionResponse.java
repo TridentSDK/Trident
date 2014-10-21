@@ -172,11 +172,11 @@ public class PacketLoginInEncryptionResponse extends InPacket {
         connection.enableEncryption(sharedSecret);
 
         // Read the JSON response
-        SessionResponse response = PacketLoginInEncryptionResponse.GSON.fromJson(sb.toString(), SessionResponse.class);
+        SessionResponse response = GSON.fromJson(sb.toString(), SessionResponse.class);
         PacketLoginOutSuccess packet = new PacketLoginOutSuccess();
 
         //Replaces the '-' less UUID from session server, with the required '-' filled UUID
-        packet.set("uuid", PacketLoginInEncryptionResponse.idDash.matcher(response.id).replaceAll("$1-$2-$3-$4-$5"));
+        packet.set("uuid", idDash.matcher(response.id).replaceAll("$1-$2-$3-$4-$5"));
         packet.set("username", response.name);
 
         // Send the client PacketLoginOutSuccess and set the new stage to PLAY

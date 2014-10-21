@@ -50,7 +50,7 @@ public class PacketStatusInPing extends InPacket {
 
     @Override
     public void handleReceived(ClientConnection connection) {
-        connection.sendPacket(new PacketStatusOutPing().set("clientTime", time));
+        connection.sendPacket(new PacketStatusOutPing().set("clientTime", this.time));
         connection.setStage(Protocol.ClientStage.LOGIN);
     }
 

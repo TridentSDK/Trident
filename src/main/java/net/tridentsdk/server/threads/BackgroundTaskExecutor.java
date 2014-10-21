@@ -37,6 +37,6 @@ public final class BackgroundTaskExecutor {
      * @param runnable the task to execute
      */
     public static void execute(Runnable runnable) {
-        BackgroundTaskExecutor.SERVICE.execute(runnable);
+        SERVICE.execute(runnable);
     }
 }

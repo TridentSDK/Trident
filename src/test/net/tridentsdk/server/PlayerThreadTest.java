@@ -58,7 +58,7 @@ public class PlayerThreadTest {
             // PlayerThreadTest.QUEUE.add(new CTXProper());
         }
 
-        PlayerThreadTest.player = (Player) PlayerThreads.wrappedPlayers().toArray()[0];
+        player = (Player) PlayerThreads.wrappedPlayers().toArray()[0];
     }
 
     //@Benchmark public void aRetrieval(Blackhole blackhole) {

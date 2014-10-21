@@ -133,10 +133,10 @@ n.t.s.AsmVsSun.sun     avgt        10        3.961        0.059    ns/op
  */
 public class AsmVsSun {
     private static final Obj OBJECT = new Obj();
-    private static final Method METHOD = AsmVsSun.getMethod();
-    private static final MethodManager<Object, Integer> METHOD_MANAGER = new MethodImpl<>(AsmVsSun.METHOD);
-    private static final MethodAccess METHOD_ACCESS = MethodAccess.get(AsmVsSun.OBJECT.getClass());
-    private static final int id = AsmVsSun.METHOD_ACCESS.getIndex("doStuff");
+    private static final Method METHOD = getMethod();
+    private static final MethodManager<Object, Integer> METHOD_MANAGER = new MethodImpl<>(METHOD);
+    private static final MethodAccess METHOD_ACCESS = MethodAccess.get(OBJECT.getClass());
+    private static final int id = METHOD_ACCESS.getIndex("doStuff");
 
     public static void main(String... args) throws RunnerException {
         Options opt = new OptionsBuilder()
@@ -153,7 +153,7 @@ public class AsmVsSun {
 
     private static Method getMethod() {
         try {
-            return AsmVsSun.OBJECT.getClass().getDeclaredMethod("doStuff");
+            return OBJECT.getClass().getDeclaredMethod("doStuff");
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
         }
@@ -163,12 +163,12 @@ public class AsmVsSun {
 
     @Benchmark
     public void asm(Blackhole blackhole) {
-        blackhole.consume(AsmVsSun.METHOD_ACCESS.invoke(AsmVsSun.OBJECT, AsmVsSun.id));
+        blackhole.consume(METHOD_ACCESS.invoke(OBJECT, id));
     }
 
     @Benchmark
     public void sun(Blackhole blackhole) {
-        blackhole.consume(AsmVsSun.METHOD_MANAGER.invoke(AsmVsSun.OBJECT));
+        blackhole.consume(METHOD_MANAGER.invoke(OBJECT));
     }
 
     public interface MethodManager<Declaring, T> {

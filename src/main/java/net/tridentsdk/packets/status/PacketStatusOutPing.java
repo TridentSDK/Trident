@@ -40,7 +40,7 @@ public class PacketStatusOutPing extends OutPacket {
 
     @Override
     public void encode(ByteBuf buf) {
-        buf.writeLong(clientTime);
+        buf.writeLong(this.clientTime);
     }
 
     @Override

@@ -54,11 +54,11 @@ public final class PlayerThreads {
      * @return the execution tool for the player
      */
     public static TaskExecutor clientThreadHandle(final Player player) {
-        return PlayerThreads.CACHE_MAP.retrieve(player, new Callable<TaskExecutor>() {
+        return CACHE_MAP.retrieve(player, new Callable<TaskExecutor>() {
             @Override
             public TaskExecutor call() throws Exception {
-                TaskExecutor executor = PlayerThreads.THREAD_MAP.getScaledThread();
-                PlayerThreads.THREAD_MAP.assign(executor, player);
+                TaskExecutor executor = THREAD_MAP.getScaledThread();
+                THREAD_MAP.assign(executor, player);
 
                 return executor;
             }
@@ -74,8 +74,8 @@ public final class PlayerThreads {
         PlayerConnection pc = PlayerConnection.getConnection(connection.getAddress());
         if (pc != null) {
             Player player = pc.getPlayer();
-            PlayerThreads.THREAD_MAP.removeAssignment(player);
-            PlayerThreads.CACHE_MAP.remove(player);
+            THREAD_MAP.removeAssignment(player);
+            CACHE_MAP.remove(player);
         }
     }
 
@@ -85,6 +85,6 @@ public final class PlayerThreads {
      * @return the values of the concurrent cache
      */
     public static Collection<Player> wrappedPlayers() {
-        return PlayerThreads.THREAD_MAP.values();
+        return THREAD_MAP.values();
     }
 }

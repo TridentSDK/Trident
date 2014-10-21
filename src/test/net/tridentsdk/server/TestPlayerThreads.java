@@ -141,7 +141,7 @@ public class TestPlayerThreads {
 
     @Benchmark
     public void put(Blackhole blackhole) {
-        blackhole.consume(PlayerThreads.clientThreadHandle(TestPlayerThreads.PLAYER));
+        blackhole.consume(PlayerThreads.clientThreadHandle(PLAYER));
     }
 
     @Benchmark

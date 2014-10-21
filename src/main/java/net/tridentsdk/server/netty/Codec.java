@@ -48,11 +48,11 @@ public final class Codec {
      */
     public static String readString(ByteBuf buf) {
         //Reads the length of the string
-        int length = Codec.readVarInt32(buf);
+        int length = readVarInt32(buf);
         byte[] bytes = new byte[length];
         buf.readBytes(bytes);
 
-        return new String(bytes, Codec.CHARSET);
+        return new String(bytes, CHARSET);
     }
 
     /**
@@ -62,10 +62,10 @@ public final class Codec {
      */
     public static void writeString(ByteBuf buf, String string) {
         //Writes the length of the string
-        Codec.writeVarInt32(buf, string.length());
+        writeVarInt32(buf, string.length());
 
         //Writes the bytes of the string
-        byte[] bytes = string.getBytes(Codec.CHARSET);
+        byte[] bytes = string.getBytes(CHARSET);
         buf.writeBytes(bytes);
     }
 
@@ -174,7 +174,7 @@ public final class Codec {
      * @return bytes the array of bytes
      */
     public static byte[] toArray(ByteBuf buf) {
-        return Codec.toArray(buf, buf.readableBytes());
+        return toArray(buf, buf.readableBytes());
     }
 
     /**

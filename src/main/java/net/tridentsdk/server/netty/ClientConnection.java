@@ -54,7 +54,7 @@ public class ClientConnection {
     /**
      * The RSA cipher used to encrypt client data
      */
-    protected static final Cipher cipher = ClientConnection.getCipher();
+    protected static final Cipher cipher = getCipher();
 
     /* Network fields */
     /**
@@ -122,7 +122,7 @@ public class ClientConnection {
      * @return {@code true} if the IP is on the server, {@code false} if not
      */
     public static boolean isLoggedIn(InetSocketAddress address) {
-        return ClientConnection.clientData.containsKey(address);
+        return clientData.containsKey(address);
     }
 
     /**
@@ -133,7 +133,7 @@ public class ClientConnection {
      */
     public static ClientConnection getConnection(InetSocketAddress address) {
         // Get the connection reference
-        AtomicReference<ClientConnection> reference = ClientConnection.clientData.get(address);
+        AtomicReference<ClientConnection> reference = clientData.get(address);
 
         // return null if connection is not found
         if (reference == null) {
@@ -151,7 +151,7 @@ public class ClientConnection {
      * @return the client connection given the handler context, or {@code null} if not registered
      */
     public static ClientConnection getConnection(ChannelHandlerContext chx) {
-        return ClientConnection.getConnection((InetSocketAddress) chx.channel().remoteAddress());
+        return getConnection((InetSocketAddress) chx.channel().remoteAddress());
     }
 
     /**
@@ -165,7 +165,7 @@ public class ClientConnection {
         ClientConnection newConnection = new ClientConnection(channel);
 
         // Register data and return the new instance
-        ClientConnection.clientData.put(newConnection.getAddress(), new AtomicReference<>(newConnection));
+        clientData.put(newConnection.getAddress(), new AtomicReference<>(newConnection));
         return newConnection;
     }
 
@@ -196,9 +196,9 @@ public class ClientConnection {
      * @throws Exception if something wrong occurs
      */
     public byte[] encrypt(byte... data) throws Exception {
-        ClientConnection.cipher.init(Cipher.ENCRYPT_MODE, this.sharedSecret, this.ivSpec);
+        cipher.init(Cipher.ENCRYPT_MODE, this.sharedSecret, this.ivSpec);
 
-        return ClientConnection.cipher.doFinal(data);
+        return cipher.doFinal(data);
     }
 
     /**
@@ -209,9 +209,9 @@ public class ClientConnection {
      * @throws Exception if something wrong occurs
      */
     public byte[] decrypt(byte... data) throws Exception {
-        ClientConnection.cipher.init(Cipher.DECRYPT_MODE, this.sharedSecret, this.ivSpec);
+        cipher.init(Cipher.DECRYPT_MODE, this.sharedSecret, this.ivSpec);
 
-        return ClientConnection.cipher.doFinal(data);
+        return cipher.doFinal(data);
     }
 
     /**
@@ -219,7 +219,7 @@ public class ClientConnection {
      */
     public void generateToken() {
         byte[] localToken = new byte[4];
-        ClientConnection.SR.nextBytes(localToken);
+        SR.nextBytes(localToken);
         this.verificationToken = localToken;
     }
 
@@ -322,7 +322,7 @@ public class ClientConnection {
      * Removes the client's server side client handler
      */
     public void logout() {
-        ClientConnection.clientData.remove(this.address);
+        clientData.remove(this.address);
         PlayerThreads.remove(this);
         this.channel.close();
     }

@@ -39,7 +39,7 @@ public final class LoginManager {
     }
 
     public static LoginManager getInstance() {
-        return LoginManager.instance;
+        return instance;
     }
 
     public void initLogin(InetSocketAddress address, String name) {

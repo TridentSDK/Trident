@@ -360,7 +360,7 @@ public class RegionFile {
          * @return location in bytes
          */
         int getTimeStampLocation(Chunk c) {
-            return 4 * this.getOffsetLoc(c) + SectorStorage.SECTOR_LENGTH;
+            return 4 * this.getOffsetLoc(c) + SECTOR_LENGTH;
         }
 
         /**
@@ -370,7 +370,7 @@ public class RegionFile {
          * @return location in bytes
          */
         int getDataLocation(Chunk c) {
-            return this.getSectorOffset(c) * SectorStorage.SECTOR_LENGTH;
+            return this.getSectorOffset(c) * SECTOR_LENGTH;
         }
 
         /**

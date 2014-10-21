@@ -17,328 +17,272 @@
  */
 package net.tridentsdk.server;
 
-import net.tridentsdk.api.Trident;
-import net.tridentsdk.api.reflect.FastClass;
+import com.google.common.collect.Iterators;
 import net.tridentsdk.api.scheduling.Scheduler;
 import net.tridentsdk.api.scheduling.TridentRunnable;
+import net.tridentsdk.api.threads.TaskExecutor;
 import net.tridentsdk.plugin.TridentPlugin;
+import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
+import net.tridentsdk.server.threads.MainThread;
+import net.tridentsdk.server.threads.PluginThreads;
 
-import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Deque;
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class TridentScheduler implements Scheduler {
-    private final Map<RunnableWrapper, AtomicLong> asyncTasks = new ConcurrentHashMap<>();
-    private final Map<RunnableWrapper, AtomicLong> syncTasks = new ConcurrentHashMap<>();
-    // basically a thread pool that has an entry for a thread, and the number of plugins assigned to it
-    private final Map<ExecutorService, AtomicInteger> threads = new ConcurrentHashMap<>();
-    private final Map<TridentPlugin, ExecutorService> threadAssignments = new ConcurrentHashMap<>();
-    private final Collection<Integer> cancelledId = new CopyOnWriteArraySet<>();
-    private final Map<Future<?>, RunnableWrapper> asyncReturns = new ConcurrentHashMap<>();
-    private final Collection<Map.Entry<Future<?>, String>> syncReturns = new HashSet<>();
-    private int currentId;
-
-    public TridentScheduler() {
-        // use two for now, can be more later
-        this.threads.put(Executors.newSingleThreadExecutor(), new AtomicInteger(0));
-        this.threads.put(Executors.newSingleThreadExecutor(), new AtomicInteger(0));
-    }
-
-    private ExecutorService getLeastUsed() {
-
-        if(this.threads.isEmpty())
-            return null;
-
-        return Collections.min(this.threads.entrySet(),
-                new Comparator<Map.Entry<ExecutorService, AtomicInteger>>(){
-
-            @Override
-            public int compare(Map.Entry<ExecutorService, AtomicInteger> o1,
-                               Map.Entry<ExecutorService, AtomicInteger> o2){
-
-                return o1.getValue().get() - o2.getValue().get();
-
+    private static final Runnable INVERSE_RUN = new Runnable() {
+        @Override
+        public void run() {
+            Iterator<TaskWrapper> iterator = reverse.get();
+            for (TaskWrapper task = null; iterator.hasNext(); task = iterator.next()) {
+                if (task == null) continue;
+                if (!task.hasRan()) task.run();
+                System.out.println("Ran by inverse run");
             }
-        }).getKey();
+        }
+    };
+    private static final Runnable FORWARD_RUN = new Runnable() {
+        @Override
+        public void run() {
+            Iterator<TaskWrapper> iterator = forward.get();
+            for (TaskWrapper task = null; iterator.hasNext(); task = iterator.next()) {
+                if (task == null) continue;
+                if (!task.hasRan()) task.run();
+                System.out.println("Ran by forward run");
+            }
+        }
+    };
 
+    private static final Deque<TaskWrapper> taskList = new ConcurrentLinkedDeque<>();
+    private static final ConcurrentTaskExecutor<TaskWrapper> concurrentTaskExecutor = new ConcurrentTaskExecutor<>(2);
+    private static final ConcurrentTaskExecutor<TaskWrapper> taskQueue = new ConcurrentTaskExecutor<>(2);
+
+    private static final AtomicReference<Iterator<TaskWrapper>> reverse = new AtomicReference<>();
+    private static final AtomicReference<Iterator<TaskWrapper>> forward = new AtomicReference<>();
+
+    public static void main(String[] args) {
+        final TridentScheduler s = new TridentScheduler();
+        for (int i = 0; i < 1000; i++) {
+            final int finalI = i;
+            s.runTaskAsyncLater(null, new TridentRunnable() {
+                @Override
+                public void run() {
+                    System.out.println(finalI);
+                }
+            }, 100L);
+        }
+        new MainThread(20, s).start();
+
+        //s.stop();
     }
 
-    private void addUse(ExecutorService service) {
-        this.threads.get(service).incrementAndGet();
-    }
-
-    private ExecutorService getCachedAssignment(TridentPlugin plugin) {
-        if (this.threadAssignments.containsKey(plugin)) {
-            return this.threadAssignments.get(plugin);
-        } else {
-            ExecutorService retVal = this.getLeastUsed();
-
-            this.addUse(retVal);
-            this.threadAssignments.put(plugin, retVal);
-
-            return retVal;
+    public void tick() {
+        List<TaskExecutor> executors = concurrentTaskExecutor.threadList();
+        for (int i = 0; i < executors.size(); i++) {
+            TaskExecutor ex = executors.get(i);
+            if (i % 2 == 0) {
+                ex.addTask(INVERSE_RUN);
+            } else {
+                ex.addTask(FORWARD_RUN);
+            }
         }
     }
 
     @Override
     public TridentRunnable runTaskAsynchronously(TridentPlugin plugin, TridentRunnable runnable) {
-        synchronized (this) {
-            this.assignId(runnable);
-            this.executeAsync(new RunnableWrapper(runnable, plugin));
-
-            return runnable;
-        }
+        Type type = Type.ASYNC_RUN;
+        return this.doAdd(new TaskWrapper(plugin, type, runnable, -1));
     }
 
     @Override
     public TridentRunnable runTaskSynchronously(TridentPlugin plugin, TridentRunnable runnable) {
-        synchronized (this) {
-            this.assignId(runnable);
-            this.syncTasks.put(new RunnableWrapper(runnable, plugin), new AtomicLong(0L));
-
-            return runnable;
-        }
+        Type type = Type.SYNC_RUN;
+        return this.doAdd(new TaskWrapper(plugin, type, runnable, -1));
     }
 
     @Override
     public TridentRunnable runTaskAsyncLater(TridentPlugin plugin, TridentRunnable runnable, long delay) {
-        synchronized (this) {
-            this.assignId(runnable);
-            this.asyncTasks.put(new RunnableWrapper(runnable, plugin), new AtomicLong(delay));
-
-            return runnable;
-        }
+        Type type = Type.ASYNC_LATER;
+        return this.doAdd(new TaskWrapper(plugin, type, runnable, delay));
     }
 
     @Override
     public TridentRunnable runTaskSyncLater(TridentPlugin plugin, TridentRunnable runnable, long delay) {
-        synchronized (this) {
-            this.assignId(runnable);
-            this.syncTasks.put(new RunnableWrapper(runnable, plugin), new AtomicLong(delay));
-
-            return runnable;
-        }
+        Type type = Type.SYNC_LATER;
+        return this.doAdd(new TaskWrapper(plugin, type, runnable, delay));
     }
 
     @Override
-    public TridentRunnable runTaskAsyncRepeating(TridentPlugin plugin, TridentRunnable runnable,
-            long delay, long initialInterval) {
-        synchronized (this) {
-            this.assignId(runnable);
-            this.syncTasks.put(new RunnableWrapper(runnable, plugin, true), new AtomicLong(initialInterval));
-
-            return null;
-        }
+    public TridentRunnable runTaskAsyncRepeating(final TridentPlugin plugin, final TridentRunnable runnable, long delay,
+            final long initialInterval) {
+        // Add repeating task later
+        return this.runTaskAsyncLater(plugin, new TridentRunnable() {
+            @Override
+            public void run() {
+                doAdd(new TaskWrapper(plugin, Type.ASYNC_REPEAT, runnable, initialInterval));
+            }
+        }, delay);
     }
 
     @Override
-    public TridentRunnable runTaskSyncRepeating(TridentPlugin plugin, TridentRunnable runnable,
-            long delay, long initialInterval) {
-        synchronized (this) {
-            this.assignId(runnable);
-            this.asyncTasks.put(new RunnableWrapper(runnable, plugin, true), new AtomicLong(initialInterval));
+    public TridentRunnable runTaskSyncRepeating(final TridentPlugin plugin, final TridentRunnable runnable, long delay,
+            final long initialInterval) {
+        // Add repeating task later
+        return this.runTaskSyncLater(plugin, new TridentRunnable() {
+            @Override
+            public void run() {
+                doAdd(new TaskWrapper(plugin, Type.SYNC_REPEAT, runnable, initialInterval));
+            }
+        }, delay);
+    }
 
-            return null;
-        }
+    private TridentRunnable doAdd(TaskWrapper wrap) {
+        taskList.add(wrap);
+        this.update();
+        return wrap.getRunnable();
+    }
+
+    private void update() {
+        forward.set(Iterators.peekingIterator(taskList.iterator()));
+        reverse.set(Iterators.peekingIterator(taskList.descendingIterator()));
     }
 
     @Override
     public void cancel(int id) {
-        this.cancelledId.add(id);
+        for (TaskWrapper wrapper = null; forward.get().hasNext(); wrapper = forward.get().next()) {
+            if (wrapper == null) continue;
+            if (wrapper.getRunnable().getId() == id) {
+                taskList.remove(wrapper);
+                this.update();
+            }
+        }
     }
 
     @Override
     public void cancel(TridentRunnable runnable) {
-        this.cancelledId.add(runnable.getId());
-    }
-
-    /**
-     * Called when the server ticks, the lifeblood of this class, should only be called on the main thread unless you
-     * want difficulties
-     */
-    public void tick() {
-        for (Map.Entry<Future<?>, RunnableWrapper> entry : this.asyncReturns.entrySet()) {
-            if (entry.getKey().isDone()) {
-                entry.getValue().getRunnable().runAfterSync();
-                this.asyncReturns.remove(entry.getKey());
-            }
-        }
-
-        for (Map.Entry<RunnableWrapper, AtomicLong> entry : this.asyncTasks.entrySet()) {
-            if (this.cancelledId.contains(entry.getKey().getRunnable().getId())) {
-                this.asyncTasks.remove(entry.getKey());
-                continue;
-            }
-
-            long time = entry.getValue().decrementAndGet();
-
-            if (time <= 0L) {
-                RunnableWrapper wrapper = entry.getKey();
-
-                this.executeAsync(wrapper);
-                this.asyncTasks.remove(wrapper);
-
-                if (wrapper.isRepeating()) {
-                    this.asyncTasks.put(wrapper, new AtomicLong(wrapper.getRunnable().getInterval()));
-                }
-            }
-        }
-
-        for (Map.Entry<RunnableWrapper, AtomicLong> entry : this.syncTasks.entrySet()) {
-            if (this.cancelledId.contains(entry.getKey().getRunnable().getId())) {
-                this.syncTasks.remove(entry.getKey());
-                continue;
-            }
-
-            long time = entry.getValue().decrementAndGet();
-
-            if (time <= 0L) {
-                RunnableWrapper wrapper = entry.getKey();
-
-                this.executeSync(wrapper, false);
-                this.syncTasks.remove(wrapper);
-
-                if (wrapper.isRepeating()) {
-                    this.syncTasks.put(wrapper, new AtomicLong(wrapper.getRunnable().getInterval()));
-                }
+        for (TaskWrapper wrapper = null; forward.get().hasNext(); wrapper = forward.get().next()) {
+            if (wrapper == null) continue;
+            if (wrapper.getRunnable().equals(runnable)) {
+                taskList.remove(wrapper);
+                this.update();
             }
         }
     }
 
-    private void executeAsync(RunnableWrapper wrapper) {
-        wrapper.getRunnable().prerunSync();
-        final TridentRunnable runnable = wrapper.getRunnable();
-
-        this.asyncReturns.put(this.getCachedAssignment(wrapper.getPlugin()).submit(new Callable() {
-            @Override
-            public Object call() throws Exception {
-                runnable.run();
-                runnable.runAfterAsync();
-
-                return null;
-            }
-        }), wrapper);
+    public void stop() {
+        concurrentTaskExecutor.shutdown();
+        taskQueue.shutdown();
     }
 
-    private void executeSync(RunnableWrapper wrapper, boolean addToSync) {
-        wrapper.getRunnable().prerunSync();
-        wrapper.getRunnable().run();
-        wrapper.getRunnable().runAfterSync();
-
-        final TridentRunnable runnable = wrapper.getRunnable();
-
-        Future<?> future = this.getCachedAssignment(wrapper.getPlugin()).submit(new Callable() {
-            @Override
-            public Object call() throws Exception {
-                runnable.runAfterAsync();
-                return null;
-            }
-        });
-
-        if (addToSync) {
-            this.syncReturns.add(new AbstractMap.SimpleEntry<Future<?>, String>(future,
-                    wrapper.getPlugin().getDescription().name()));
-        }
-    }
-
-    /**
-     * Uses fast reflection to assign an ID to each runnable, that way there is no publicly exposed "setId()" that could
-     * break things
-     */
-    private void assignId(TridentRunnable runnable) {
-        FastClass.get(TridentRunnable.class).getField(runnable, "id").set(this.currentId);
-        this.currentId++;
-    }
-
-    public void shutdown() {
-        if (Trident.getServer().getConfig().getBoolean("in-a-hurry-mode")) {
-            for (Map.Entry<RunnableWrapper, AtomicLong> entry : this.asyncTasks.entrySet()) {
-                if (entry.getKey().getRunnable().usesInAHurry()) {
-                    FastClass.get(TridentRunnable.class).getField(entry.getKey().getRunnable(), "inAHurry").set(true);
-                    this.executeAsync(entry.getKey());
-                }
-            }
-
-            for (Map.Entry<RunnableWrapper, AtomicLong> entry : this.syncTasks.entrySet()) {
-                if (entry.getKey().getRunnable().usesInAHurry()) {
-                    FastClass.get(TridentRunnable.class).getField(entry.getKey().getRunnable(), "inAHurry").set(true);
-                    this.executeSync(entry.getKey(), true);
-                }
-            }
-
-            for (Map.Entry<Future<?>, String> future : this.syncReturns) {
-                try {
-                    future.getKey().get(3L, TimeUnit.SECONDS);
-                } catch (InterruptedException e) {
-                    // ignored exception
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
-                } catch (TimeoutException e) {
-                    Trident.getLogger().warning("Runnable from " + future.getValue()
-                            + " took more than 3 seconds in a hurry, going ahead with cancellation!");
-                }
-            }
-
-            for (Map.Entry<Future<?>, RunnableWrapper> entry : this.asyncReturns.entrySet()) {
-                try {
-                    entry.getKey().get(3L, TimeUnit.SECONDS);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (ExecutionException e) {
-                    // ignored exception
-                } catch (TimeoutException e) {
-                    Trident.getLogger().warning("Runnable from " + entry.getValue().getPlugin().getDescription().name()
-                            + " took more than 3 seconds in a hurry, going ahead with cancellation!");
-                }
-            }
-
-            for (Map.Entry<Future<?>, RunnableWrapper> entry : this.asyncReturns.entrySet()) {
-                if (entry.getKey().isDone()) {
-                    entry.getValue().getRunnable().runAfterSync();
-                    this.asyncReturns.remove(entry.getKey());
-                }
-            }
-        }
-
-        for (Map.Entry<ExecutorService, AtomicInteger> entry : this.threads.entrySet()) {
-            entry.getKey().shutdownNow();
-        }
-    }
-
-    private class RunnableWrapper {
-        private final TridentRunnable runnable;
+    private class TaskWrapper implements Runnable {
         private final TridentPlugin plugin;
-        private final boolean repeating;
+        private final Type type;
+        private final AtomicLong run = new AtomicLong(0);
+        private final long interval;
+        private final TridentRunnable runnable;
 
-        private RunnableWrapper(TridentRunnable runnable, TridentPlugin plugin) {
-            this(runnable, plugin, false);
-        }
+        private final Runnable ifUsed;
+        private volatile boolean ran;
 
-        private RunnableWrapper(TridentRunnable runnable, TridentPlugin plugin, boolean repeating) {
+        public TaskWrapper(TridentPlugin plugin, Type type, final TridentRunnable runnable, final long interval) {
             this.plugin = plugin;
+            this.type = type;
+            this.interval = interval;
             this.runnable = runnable;
-            this.repeating = repeating;
+
+            switch (type) {
+                case SYNC_RUN:
+                    this.ifUsed = new Runnable() {
+                        @Override
+                        public void run() {
+                            runnable.run();
+                            cancel(runnable);
+                        }
+                    };
+                    break;
+                case SYNC_LATER:
+                    this.ifUsed = new Runnable() {
+                        @Override
+                        public void run() {
+                            if (run.get() == interval) {
+                                runnable.run();
+                                cancel(runnable);
+                            } else {
+                                run.incrementAndGet();
+                            }
+                        }
+                    };
+                    break;
+                case SYNC_REPEAT:
+                    this.ifUsed = new Runnable() {
+                        @Override
+                        public void run() {
+                            if (run.compareAndSet(interval, 0)) {
+                                runnable.run();
+                            } else {
+                                run.incrementAndGet();
+                            }
+                        }
+                    };
+                    break;
+                default:
+                    this.ifUsed = null;
+            }
         }
 
-        public boolean isRepeating() {
-            return this.repeating;
+        public Type getType() {
+            return this.type;
         }
 
         public TridentRunnable getRunnable() {
             return this.runnable;
         }
 
-        public TridentPlugin getPlugin() {
-            return this.plugin;
+        public boolean hasRan() {
+            return this.ran;
         }
+
+        @Override
+        public void run() {
+            switch (this.type) {
+                case ASYNC_RUN:
+                    taskQueue.getScaledThread().addTask(this.runnable);
+                    cancel(this.runnable);
+                    break;
+                case ASYNC_LATER:
+                    if (this.run.get() == this.interval) {
+                        taskQueue.getScaledThread().addTask(this.runnable);
+                        cancel(this.runnable);
+                    } else {
+                        this.run.incrementAndGet();
+                    }
+                    break;
+                case ASYNC_REPEAT:
+                    if (this.run.compareAndSet(this.interval, 0)) {
+                        taskQueue.getScaledThread().addTask(this.runnable);
+                    } else {
+                        this.run.incrementAndGet();
+                    }
+                    break;
+                case SYNC_RUN:
+                    PluginThreads.pluginThreadHandle(this.plugin).addTask(this.ifUsed);
+                    break;
+                case SYNC_LATER:
+                    PluginThreads.pluginThreadHandle(this.plugin).addTask(this.ifUsed);
+                    break;
+                case SYNC_REPEAT:
+                    PluginThreads.pluginThreadHandle(this.plugin).addTask(this.ifUsed);
+                    break;
+            }
+            this.ran = true;
+        }
+    }
+
+    private enum Type {
+        ASYNC_RUN, ASYNC_LATER, ASYNC_REPEAT, SYNC_RUN, SYNC_LATER, SYNC_REPEAT
     }
 }
