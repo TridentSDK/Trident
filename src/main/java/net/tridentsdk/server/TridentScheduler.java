@@ -23,7 +23,6 @@ import net.tridentsdk.api.scheduling.TridentRunnable;
 import net.tridentsdk.api.threads.TaskExecutor;
 import net.tridentsdk.plugin.TridentPlugin;
 import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
-import net.tridentsdk.server.threads.MainThread;
 import net.tridentsdk.server.threads.PluginThreads;
 
 import java.util.Deque;
@@ -63,22 +62,6 @@ public class TridentScheduler implements Scheduler {
 
     private static final AtomicReference<Iterator<TaskWrapper>> reverse = new AtomicReference<>();
     private static final AtomicReference<Iterator<TaskWrapper>> forward = new AtomicReference<>();
-
-    public static void main(String[] args) {
-        final TridentScheduler s = new TridentScheduler();
-        for (int i = 0; i < 1000; i++) {
-            final int finalI = i;
-            s.runTaskAsyncLater(null, new TridentRunnable() {
-                @Override
-                public void run() {
-                    System.out.println(finalI);
-                }
-            }, 100L);
-        }
-        new MainThread(20, s).start();
-
-        //s.stop();
-    }
 
     public void tick() {
         List<TaskExecutor> executors = concurrentTaskExecutor.threadList();

@@ -50,7 +50,7 @@ public class MainThread extends Thread {
      *
      * @param ticksPerSecond the amount of heartbeats per second
      */
-    public MainThread(int ticksPerSecond, TridentScheduler s) {
+    public MainThread(int ticksPerSecond) {
         this.zeroBase = System.currentTimeMillis();
         instance = this;
         this.ticksPerSecond = ticksPerSecond;
