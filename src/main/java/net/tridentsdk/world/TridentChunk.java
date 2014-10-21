@@ -29,8 +29,7 @@ import net.tridentsdk.api.world.ChunkLocation;
 
 public class TridentChunk implements Chunk, NBTSerializable {
     private final TridentWorld world;
-    private final ChunkLocation location;
-    private CompoundTag chunkData;
+    private volatile ChunkLocation location;
     private int lastFileAccess;
 
     @NBTField(name = "xPos", type = TagType.INT)
@@ -80,16 +79,6 @@ public class TridentChunk implements Chunk, NBTSerializable {
         this.lastFileAccess = 0;
     }
 
-    protected CompoundTag getData() {
-        return this.chunkData;
-    }
-
-    protected void setData(CompoundTag tag) {
-        if (tag != null) {
-            this.chunkData = tag;
-        }
-    }
-
     protected int getLastFileAccess() {
         return this.lastFileAccess;
     }
@@ -98,19 +87,18 @@ public class TridentChunk implements Chunk, NBTSerializable {
         this.lastFileAccess = last;
     }
 
-    //FIXME: This whole system needs changing
     @Override
     public void generate() {
     }
 
     @Override
     public int getX() {
-        return this.location.getX();
+        return this.x;
     }
 
     @Override
     public int getZ() {
-        return this.location.getX();
+        return this.z;
     }
 
     @Override

@@ -39,10 +39,12 @@ import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.Packet;
 
 import java.util.Locale;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 public class TridentPlayer extends TridentInventoryHolder implements Player {
-    private static final TridentPlayer[] players = { };
+    private static final Set<TridentPlayer> players = new ConcurrentSkipListSet<>(); // TODO: Check if best choice for Players
 
     private final PlayerConnection connection;
     private final TaskExecutor executor = TridentServer.getInstance().provideThreads().providePlayerThread(this);
@@ -75,6 +77,8 @@ public class TridentPlayer extends TridentInventoryHolder implements Player {
                 .set("levelType",
                         LevelType.DEFAULT)); // code to test if client will
         // move on
+
+        players.add(p);
 
         return p;
     }

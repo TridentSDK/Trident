@@ -18,10 +18,7 @@
 package net.tridentsdk.world;
 
 import com.google.common.math.IntMath;
-import net.tridentsdk.api.nbt.CompoundTag;
-import net.tridentsdk.api.nbt.NBTDecoder;
-import net.tridentsdk.api.nbt.NBTEncoder;
-import net.tridentsdk.api.nbt.NBTException;
+import net.tridentsdk.api.nbt.*;
 import net.tridentsdk.api.world.Chunk;
 
 import java.io.ByteArrayInputStream;
@@ -126,7 +123,8 @@ public class RegionFile {
     /**
      * Pass in a chunk to load its data from file
      */
-    public void loadChunkData(TridentChunk chunk) throws NBTException, IOException, DataFormatException {
+    public TridentChunk loadChunkData(TridentWorld owner) throws NBTException, IOException, DataFormatException {
+        TridentChunk chunk = new TridentChunk(owner, null);
         short compression;
         byte[] compressedData;
 
@@ -143,8 +141,9 @@ public class RegionFile {
             // Not sure why it would ever not need
             if (chunk.getLastFileAccess() > lastUpdate) {
                 chunk.setLastFileAccess((int) (System.currentTimeMillis() / 1000L));
+
                 access.close();
-                return;
+                return chunk;
             } else {
                 chunk.setLastFileAccess((int) (System.currentTimeMillis() / 1000L));
             }
@@ -193,7 +192,9 @@ public class RegionFile {
 
         // Get the NBT tag
         CompoundTag nbtData = new NBTDecoder(new DataInputStream(new ByteArrayInputStream(chunkData))).decode();
-        chunk.setData(nbtData);
+        NBTSerializer.deserialize(chunk, nbtData);
+
+        return chunk;
     }
 
     /**
@@ -202,7 +203,7 @@ public class RegionFile {
     public void saveChunkData(TridentChunk chunk) throws IOException, NBTException {
         /* Gets the ChunkData in a byte array form */
         ByteArrayOutputStream nbtStream = new ByteArrayOutputStream();
-        new NBTEncoder(new DataOutputStream(new ByteArrayOutputStream())).encode(chunk.getData());
+        new NBTEncoder(new DataOutputStream(new ByteArrayOutputStream())).encode(NBTSerializer.serialize(chunk));
         byte[] uncompressed = nbtStream.toByteArray();
         
         /* Gonna only use Zlib compression by default */

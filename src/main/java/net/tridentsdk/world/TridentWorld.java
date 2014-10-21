@@ -40,7 +40,7 @@ public class TridentWorld implements Serializable, World {
     private static final int MAX_CHUNKS = 49; // TODO changed temp for packet compatibility
     private static final long serialVersionUID = 2892463980167406259L;
 
-    private final Map<ChunkLocation, Chunk> loadedChunks = new ConcurrentHashMap<>();
+    private final Map<ChunkLocation, TridentChunk> loadedChunks = new ConcurrentHashMap<>();
     private final String name;
     private final Random random;
     private final WorldLoader loader;
@@ -65,12 +65,12 @@ public class TridentWorld implements Serializable, World {
     }
 
     @Override
-    public Chunk getChunkAt(ChunkLocation location, boolean generateIfNotFound) {
+    public TridentChunk getChunkAt(ChunkLocation location, boolean generateIfNotFound) {
         if (location == null) {
             return null;
         }
 
-        Chunk chunk = this.loadedChunks.get(location);
+        TridentChunk chunk = this.loadedChunks.get(location);
 
         if (chunk == null && generateIfNotFound) {
             return this.generateChunk(location);
@@ -85,7 +85,7 @@ public class TridentWorld implements Serializable, World {
     }
 
     @Override
-    public Chunk generateChunk(ChunkLocation location) {
+    public TridentChunk generateChunk(ChunkLocation location) {
         if (location == null)
             throw new NullPointerException("Location cannot be null");
 
@@ -104,7 +104,7 @@ public class TridentWorld implements Serializable, World {
             if (this.loader.chunkExists(this, x, z)) {
                 this.addChunkAt(location, this.loader.loadChunk(this, x, z));
             } else {
-                Chunk chunk = new TridentChunk(this, x, z);
+                TridentChunk chunk = new TridentChunk(this, x, z);
                 this.addChunkAt(location, chunk);
                 chunk.generate();
             }
@@ -118,7 +118,7 @@ public class TridentWorld implements Serializable, World {
             throw new NullPointerException("Location cannot be null");
         }
 
-        this.loadedChunks.put(location, chunk);
+        this.loadedChunks.put(location, (TridentChunk) chunk);
     }
 
     @Override
@@ -135,7 +135,7 @@ public class TridentWorld implements Serializable, World {
 
     @Override
     public ChunkSnapshot getChunkSnapshot() {
-        return new ChunkSnapshot(this.loadedChunks);
+        return new ChunkSnapshot(new ConcurrentHashMap<ChunkLocation, Chunk>(loadedChunks));
     }
 
     @Override

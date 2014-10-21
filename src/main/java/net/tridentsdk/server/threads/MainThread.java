@@ -17,8 +17,6 @@
  */
 package net.tridentsdk.server.threads;
 
-// TODO: probably rename this
-
 import net.tridentsdk.api.Trident;
 import net.tridentsdk.server.TridentScheduler;
 

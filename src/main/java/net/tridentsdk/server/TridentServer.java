@@ -33,6 +33,7 @@ import net.tridentsdk.player.TridentPlayer;
 import net.tridentsdk.plugin.TridentPluginHandler;
 import net.tridentsdk.server.netty.protocol.Protocol;
 import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
+import net.tridentsdk.server.threads.MainThread;
 import net.tridentsdk.server.threads.ThreadsManager;
 import net.tridentsdk.window.WindowManager;
 import net.tridentsdk.world.RegionFileCache;
@@ -55,7 +56,8 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 @ThreadSafe
 public final class TridentServer implements Server {
-    private final AtomicReference<Thread> SERVER_THREAD = new AtomicReference<>();
+    private static final AtomicReference<Thread> SERVER_THREAD = new AtomicReference<>();
+    private final MainThread mainThread;
 
     private final JsonConfig config;
     private final Protocol protocol;
@@ -84,6 +86,7 @@ public final class TridentServer implements Server {
         this.pluginHandler = new TridentPluginHandler();
         this.scheduler = new TridentScheduler();
         this.logger = logger;
+        this.mainThread = new MainThread(20);
     }
 
     /**
@@ -96,7 +99,7 @@ public final class TridentServer implements Server {
         TridentServer server = new TridentServer(config, taskExecutor, logger);
         Trident.setServer(server);
 
-        server.SERVER_THREAD.set(server.taskExecutor.getScaledThread().asThread());
+        SERVER_THREAD.set(server.taskExecutor.getScaledThread().asThread());
 
         return server;
         // We CANNOT let the "this" instance escape during creation, else we lose thread-safety
