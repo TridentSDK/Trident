@@ -1,4 +1,4 @@
-package net.tridentsdk.server;
+package test.net.tridentsdk.server;
 
 import net.tridentsdk.api.threads.TaskExecutor;
 import net.tridentsdk.server.threads.ConcurrentTaskExecutor;

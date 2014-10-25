@@ -25,7 +25,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package net.tridentsdk.server;
+package test.net.tridentsdk.server;
 
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.*;
