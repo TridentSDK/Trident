@@ -20,7 +20,9 @@ package net.tridentsdk.entity;
 import net.tridentsdk.api.Location;
 import net.tridentsdk.api.Material;
 import net.tridentsdk.api.entity.Entity;
+import net.tridentsdk.api.entity.EntityProperties;
 import net.tridentsdk.api.entity.EntityType;
+import net.tridentsdk.api.nbt.*;
 import net.tridentsdk.api.threads.TaskExecutor;
 import net.tridentsdk.api.util.Vector;
 import net.tridentsdk.api.world.World;
@@ -40,16 +42,16 @@ import java.util.concurrent.atomic.AtomicLong;
  *
  * @author The TridentSDK Team
  */
-public abstract class TridentEntity implements Entity {
+public class TridentEntity implements Entity {
     protected static final AtomicInteger counter = new AtomicInteger(-1);
     /**
      * The entity ID for the entity
      */
-    protected final int id;
+    protected int id;
     /**
      * The identifier UUID for the entity
      */
-    protected final UUID uniqueId;
+    protected UUID uniqueId;
     /**
      * The distance the entity has fallen
      */
@@ -98,6 +100,20 @@ public abstract class TridentEntity implements Entity {
      * TODO
      */
     protected boolean silent;
+    /**
+     *
+     */
+    protected final AtomicInteger fireTicks = new AtomicInteger(0);
+    /**
+     *
+     */
+    protected final AtomicInteger airTicks = new AtomicInteger(0);
+    /**
+     *
+     */
+    protected boolean godMode;
+
+    protected final AtomicInteger portalCooldown = new AtomicInteger(900);
 
     /**
      * Creates a new entity
@@ -133,6 +149,11 @@ public abstract class TridentEntity implements Entity {
 
         TridentServer.getInstance().getEntityManager().registerEntity(this);
         // TODO Perhaps we should spawn it in a different method?
+    }
+
+    @Deprecated
+    protected TridentEntity() {
+        // contructor for deserializing
     }
 
     @Override
@@ -267,5 +288,87 @@ public abstract class TridentEntity implements Entity {
     @Override
     public EntityType getType() {
         return null;
+    }
+
+    @Override
+    public boolean isNameVisible() {
+        return nameVisible;
+    }
+
+    @Override
+    public void applyProperties(EntityProperties properties) {
+    }
+
+    public void load(CompoundTag tag) {
+        /* IDs */
+        StringTag id = tag.getTagAs("id"); // ID of the entity, in form of an integer
+        LongTag uuidMost = tag.getTagAs("UUIDMost"); // most signifigant bits of UUID
+        LongTag uuidLeast = tag.getTagAs("UUIDLeast"); // least signifigant bits of UUID
+
+        /* Location and Velocity */
+        List<NBTTag> pos = ((ListTag) tag.getTagAs("Pos")).listTags(); // 3 double tags describing x, y, z
+        List<NBTTag> motion = ((ListTag) tag.getTagAs("Motion")).listTags(); // 3 double tags describing velocity
+        List<NBTTag> rotation = ((ListTag) tag.getTagAs("Rotation")).listTags(); // 2 float tags describing yaw and pitch
+
+        FloatTag fallDistance = tag.getTagAs("FallDistance"); // distance from the entity to the ground
+        ShortTag fireTicks = tag.getTagAs("Fire"); // number of ticks until fire goes out
+        ShortTag airTicks = tag.getTagAs("Air"); // how much air the entity has, in ticks. Tag is inverted for squids
+
+        ByteTag onGround = tag.getTagAs("OnGround"); // 0 = false, 1 = true - True if entity is on the ground
+        ByteTag invulnerable = tag.getTagAs("Invulnerable"); // 0 = false, 1 = true If god mode is enabled, essentially.
+
+        /* Dimensions */
+        IntTag dimension = tag.getTagAs("Dimension"); // no found usage; -1 for nether, 0 for overworld, 1 for end
+        IntTag portalCooldown = tag.getTagAs("PortalCooldown"); // amount of ticks until entity can use a portal, starts at 900
+
+        /* Display Name */
+        StringTag displayName = tag.getTagAs("CustomName"); // Custom name for the entity, other known as display name.
+        ByteTag dnVisible = tag.getTagAs("CustomNameVisible"); // 0 = false, 1 = true - If true, it will always appear above them
+
+        ByteTag silent = tag.getTagAs("Silent"); // 0 = false, 1 = true - If true, the entity will not make a sound
+
+        CompoundTag riding = tag.getTagAs("Riding"); // CompoundTag of the entity being ridden, contents are recursive
+        CompoundTag commandStats = tag.getTagAs("CommandStats"); // Information to modify relative to the last command run
+
+        /* Set data */
+        this.id = Integer.parseInt(id.getValue());
+        this.uniqueId = new UUID(uuidMost.getValue(), uuidLeast.getValue());
+
+        int[] location = new int[3];
+
+        for(int i = 0; i < 3; i += 1) {
+            location[i] = ((IntTag) pos.get(i)).getValue();
+        }
+
+        // set x, y, and z cordinates from array
+        loc.setX(location[0]);
+        loc.setY(location[1]);
+        loc.setZ(location[2]);
+
+        int[] velocity = new int[3];
+
+        for(int i = 0; i < 3; i += 1) {
+            velocity[i] = ((IntTag) motion.get(i)).getValue();
+        }
+
+        // set velocity from array
+        this.velocity.setX(velocity[0]);
+        this.velocity.setY(velocity[1]);
+        this.velocity.setZ(velocity[2]);
+
+        // set yaw and pitch from NBTTag
+        loc.setYaw(((IntTag) rotation.get(0)).getValue());
+        loc.setPitch(((IntTag) rotation.get(0)).getValue());
+
+        this.fallDistance.set((long) fallDistance.getValue()); // FIXME: may lose precision, consider changing AtomicLong
+        this.fireTicks.set(fireTicks.getValue());
+        this.airTicks.set(airTicks.getValue());
+        this.portalCooldown.set(portalCooldown.getValue());
+
+        this.onGround = onGround.getValue() == 1;
+        this.godMode = invulnerable.getValue() == 1;
+
+        this.nameVisible = dnVisible.getValue() == 1;
+        this.silent = silent.getValue() == 1;
     }
 }

@@ -20,11 +20,12 @@ package net.tridentsdk.world;
 import net.tridentsdk.api.Block;
 import net.tridentsdk.api.Location;
 import net.tridentsdk.api.Material;
-import net.tridentsdk.api.entity.Entity;
 import net.tridentsdk.api.nbt.*;
+import net.tridentsdk.api.reflect.FastClass;
 import net.tridentsdk.api.util.NibbleArray;
 import net.tridentsdk.api.world.Chunk;
 import net.tridentsdk.api.world.ChunkLocation;
+import net.tridentsdk.entity.TridentEntity;
 import net.tridentsdk.packets.play.out.PacketPlayOutChunkData;
 
 import java.util.List;
@@ -42,7 +43,7 @@ public class TridentChunk implements Chunk {
 
     private ChunkSection[] sections;
 
-    private final Set<Entity> entities = new ConcurrentSkipListSet<>(); // TODO: confirm if correct set implementation
+    private final Set<TridentEntity> entities = new ConcurrentSkipListSet<>(); // TODO: confirm if correct set implementation
 
     public TridentChunk(TridentWorld world, int x, int z) {
         this(world, new ChunkLocation(x, z));
@@ -127,7 +128,18 @@ public class TridentChunk implements Chunk {
                 CompoundTag ct = (CompoundTag) t;
 
                 this.sections[i] = NBTSerializer.deserialize(ChunkSection.class, ct);
+                this.sections[i].loadBlocks();
             }
+        }
+
+        /* Load Entities */
+        FastClass entityClass = FastClass.get(TridentEntity.class);
+
+        for(NBTTag t : entities.listTags()) {
+            TridentEntity entity = entityClass.getConstructor().newInstance();
+
+            entity.load((CompoundTag) t);
+            this.entities.add(entity);
         }
     }
 
@@ -182,6 +194,10 @@ public class TridentChunk implements Chunk {
 
                 blcks[i] = block;
             }
+        }
+
+        public Block[] getBlocks() {
+            return blcks;
         }
     }
 }
