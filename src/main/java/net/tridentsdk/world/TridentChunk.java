@@ -19,55 +19,20 @@ package net.tridentsdk.world;
 
 import net.tridentsdk.api.Block;
 import net.tridentsdk.api.Location;
-import net.tridentsdk.api.nbt.CompoundTag;
-import net.tridentsdk.api.nbt.ListTag;
-import net.tridentsdk.api.nbt.NBTField;
-import net.tridentsdk.api.nbt.NBTSerializable;
-import net.tridentsdk.api.nbt.TagType;
+import net.tridentsdk.api.nbt.*;
 import net.tridentsdk.api.world.Chunk;
 import net.tridentsdk.api.world.ChunkLocation;
+import net.tridentsdk.packets.play.out.PacketPlayOutChunkData;
 
-public class TridentChunk implements Chunk, NBTSerializable {
+public class TridentChunk implements Chunk {
     private final TridentWorld world;
     private volatile ChunkLocation location;
     private int lastFileAccess;
 
-    @NBTField(name = "xPos", type = TagType.INT)
-    protected int x;
+    private volatile int lastModified;
+    private byte lightPopulated;
+    private byte terrainPopulated;
 
-    @NBTField(name = "zPos", type = TagType.INT)
-    protected int z;
-
-    // the last tick that this chunk was saved on
-    @NBTField(name = "LastModified", type = TagType.LONG)
-    protected long lastModified;
-
-    @NBTField(name = "LightPopulated", type = TagType.BYTE)
-    protected byte lightPopulated;
-
-    @NBTField(name = "TerrainPopulated", type = TagType.BYTE)
-    protected byte terrainPopulated;
-
-    @NBTField(name = "InhabitedTime", type = TagType.LONG)
-    protected long inhabitedtime;
-
-    @NBTField(name = "Biomes", type = TagType.BYTE_ARRAY)
-    protected byte[] biomes;
-
-    @NBTField(name = "HeightMap", type = TagType.INT_ARRAY)
-    protected int[] heightMap;
-
-    @NBTField(name = "Sections", type = TagType.LIST)
-    protected ListTag sections;
-
-    @NBTField(name = "Entities",type = TagType.LIST)
-    protected ListTag entities;
-
-    @NBTField(name = "TileEntities", type = TagType.LIST)
-    protected ListTag tileEnts;
-
-    @NBTField(name = "TileTicks", type = TagType.LIST)
-    protected ListTag tileTicks;
 
     public TridentChunk(TridentWorld world, int x, int z) {
         this(world, new ChunkLocation(x, z));
@@ -93,12 +58,12 @@ public class TridentChunk implements Chunk, NBTSerializable {
 
     @Override
     public int getX() {
-        return this.x;
+        return location.getX();
     }
 
     @Override
     public int getZ() {
-        return this.z;
+        return location.getZ();
     }
 
     @Override
@@ -118,5 +83,37 @@ public class TridentChunk implements Chunk, NBTSerializable {
         return new TridentBlock(new Location(this.world, relX + this.getX() * 16, y, relZ + this.getZ() * 16)
                 //TODO
                 , null, (byte)0);
+    }
+
+    public void write(PacketPlayOutChunkData packet) {
+
+    }
+
+    public void load(CompoundTag tag) {
+        IntTag x = tag.getTagAs("xPos");
+        IntTag z = tag.getTagAs("zPos");
+
+        LongTag lastModifed = tag.getTagAs("LastModified");
+        ByteTag lightPopulated = tag.getTagAs("LightPopulated");
+        ByteTag terrainPopulated = tag.getTagAs("TerrainPopulated");
+
+        LongTag inhabitedTime = tag.getTagAs("InhabitedTime");
+        ByteArrayTag biomes = tag.getTagAs("HeightMap");
+
+        ListTag sections = tag.getTagAs("Sections");
+        ListTag entities = tag.getTagAs("Entities");
+        ListTag tileEntities = tag.getTagAs("TileEntities");
+        ListTag tileTicks = tag.getTagAs("TileTicks");
+
+
+    }
+
+    public CompoundTag toNbt() {
+        return null;
+    }
+
+    public class TridentChunkSection implements NBTSerializable {
+
+
     }
 }

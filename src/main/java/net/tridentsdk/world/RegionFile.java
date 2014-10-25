@@ -192,7 +192,7 @@ public class RegionFile {
 
         // Get the NBT tag
         CompoundTag nbtData = new NBTDecoder(new DataInputStream(new ByteArrayInputStream(chunkData))).decode();
-        NBTSerializer.deserialize(chunk, nbtData);
+        chunk.load(nbtData);
 
         return chunk;
     }
@@ -203,7 +203,7 @@ public class RegionFile {
     public void saveChunkData(TridentChunk chunk) throws IOException, NBTException {
         /* Gets the ChunkData in a byte array form */
         ByteArrayOutputStream nbtStream = new ByteArrayOutputStream();
-        new NBTEncoder(new DataOutputStream(new ByteArrayOutputStream())).encode(NBTSerializer.serialize(chunk));
+        new NBTEncoder(new DataOutputStream(new ByteArrayOutputStream())).encode(chunk.toNbt());
         byte[] uncompressed = nbtStream.toByteArray();
         
         /* Gonna only use Zlib compression by default */
