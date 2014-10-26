@@ -25,6 +25,7 @@ import net.tridentsdk.api.reflect.FastClass;
 import net.tridentsdk.api.util.NibbleArray;
 import net.tridentsdk.api.world.Chunk;
 import net.tridentsdk.api.world.ChunkLocation;
+import net.tridentsdk.api.world.Dimension;
 import net.tridentsdk.entity.TridentEntity;
 import net.tridentsdk.packets.play.out.PacketPlayOutChunkData;
 
@@ -37,7 +38,8 @@ public class TridentChunk implements Chunk {
     private volatile ChunkLocation location;
     private int lastFileAccess;
 
-    private volatile int lastModified;
+    private volatile long lastModified;
+    private volatile long inhabitedTime;
     private byte lightPopulated;
     private byte terrainPopulated;
 
@@ -97,7 +99,54 @@ public class TridentChunk implements Chunk {
     }
 
     public void write(PacketPlayOutChunkData packet) {
+        packet.set("chunkLocation", location);
 
+        int bitmask;
+        int count;
+
+        bitmask = (1 << sections.length) - 1;
+        count = sections.length;
+
+        int size = 0;
+        int sectionSize = ChunkSection.LENGTH * 5 / 2;
+
+        if(world.getDimesion() == Dimension.OVERWORLD) {
+            sectionSize += ChunkSection.LENGTH / 2;
+        }
+
+        size += count * sectionSize + 256;
+
+        byte[] data = new byte[size];
+        int pos = 0;
+
+        for(ChunkSection section : sections) {
+            for(byte b : section.getTypes()) {
+                data[pos++] = (byte) (b & 0xff);
+                data[pos++] = (byte) (b >> 8);
+            }
+        }
+
+        for(ChunkSection section : sections) {
+            System.arraycopy(section.blockLight, 0, data, pos, section.blockLight.length);
+            pos += section.blockLight.length;
+        }
+
+        for(ChunkSection section : sections) {
+            System.arraycopy(section.skyLight, 0, data, pos, section.skyLight.length);
+            pos += section.skyLight.length;
+        }
+
+        for(int i = 0; i < 256; i += 1) {
+            data[pos++] = 0;
+        }
+
+        if(pos != size) {
+            throw new IllegalStateException("Wrote " + pos + " when expected " + size + " bytes");
+        }
+
+        packet.set("data", data);
+        packet.set("continuous", true);
+        packet.set("primaryBitMap", bitmask);
     }
 
     public void load(CompoundTag tag) {
@@ -141,6 +190,12 @@ public class TridentChunk implements Chunk {
             entity.load((CompoundTag) t);
             this.entities.add(entity);
         }
+
+        /* Load extras */
+        this.lightPopulated = lightPopulated.getValue(); // Unknown use
+        this.terrainPopulated = terrainPopulated.getValue(); // if chunk was populated with special things (ores, trees, etc.), if 1 regenerate
+        this.lastModified = lastModifed.getValue(); // Tick when the chunk was last saved
+        this.inhabitedTime = inhabitedTime.getValue(); // Cumulative number of ticks player have been in the chunk
     }
 
     public CompoundTag toNbt() {
@@ -152,7 +207,7 @@ public class TridentChunk implements Chunk {
         private static final int LENGTH = 4096; // 16^3 (width * height * depth)
 
         @NBTField(name = "Blocks", type = TagType.BYTE_ARRAY)
-        protected byte[] blocks;
+        protected byte[] rawTypes;
 
         @NBTField(name = "Add", type = TagType.BYTE_ARRAY)
         protected byte[] add;
@@ -167,19 +222,24 @@ public class TridentChunk implements Chunk {
         protected byte[] skyLight;
 
         private final Block[] blcks = new Block[LENGTH];
+        private byte[] types;
 
         private void loadBlocks() {
             NibbleArray add = new NibbleArray(this.add);
             NibbleArray data = new NibbleArray(this.data);
 
+            types = new byte[rawTypes.length];
+
             for(int i = 0; i < LENGTH; i += 1) {
                 Block block;
                 byte b;
                 byte bData;
+                int bAdd;
 
                 /* Get block data; use extras accordingly */
-                b = blocks[i];
-                b += add.get(i) << 8;
+                b = rawTypes[i];
+                bAdd = add.get(i) << 8;
+                b += bAdd;
                 bData = data.get(i);
 
                 block = new Block(new Location(getWorld(), 0, 0, 0)); // TODO: get none-relative location
@@ -193,7 +253,12 @@ public class TridentChunk implements Chunk {
                 }
 
                 blcks[i] = block;
+                types[i] = (byte) (bAdd | ((b & 0xff) << 4) | bData);
             }
+        }
+
+        public byte[] getTypes() {
+            return types;
         }
 
         public Block[] getBlocks() {
