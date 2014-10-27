@@ -35,7 +35,10 @@ public class TridentWorldLoader implements WorldLoader {
 
     @Override
     public World load(String world) {
-        return new TridentWorld(world, this);
+        TridentWorld w = new TridentWorld(world, this);
+
+        worlds.put(world, w);
+        return w;
     }
 
     @Override

@@ -20,17 +20,14 @@ package net.tridentsdk.player;
 import net.tridentsdk.api.entity.living.Player;
 import net.tridentsdk.api.nbt.CompoundTag;
 import net.tridentsdk.api.threads.TaskExecutor;
-import net.tridentsdk.api.world.ChunkLocation;
 import net.tridentsdk.api.world.LevelType;
 import net.tridentsdk.packets.play.out.*;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.netty.ClientConnection;
-import net.tridentsdk.server.netty.packet.OutPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.world.TridentChunk;
 import net.tridentsdk.world.TridentWorld;
 
-import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
@@ -96,7 +93,7 @@ public class TridentPlayer extends OfflinePlayer {
     public void tick() {
         this.executor.addTask(new Runnable() {
             @Override
-    public void run() {
+            public void run() {
                 TridentPlayer.super.tick();
 
                 if (TridentPlayer.this.connection.getKeepAliveId() == -1) {
@@ -122,7 +119,7 @@ public class TridentPlayer extends OfflinePlayer {
     public void kickPlayer(final String reason) {
         this.executor.addTask(new Runnable() {
             @Override
-    public void run() {
+            public void run() {
                 TridentPlayer.this.connection.sendPacket(new PacketPlayOutDisconnect().set("reason", reason));
                 TridentPlayer.this.connection.logout();
             }
@@ -136,7 +133,7 @@ public class TridentPlayer extends OfflinePlayer {
     public void setSlot(final short slot) {
         this.executor.addTask(new Runnable() {
             @Override
-    public void run() {
+            public void run() {
                 if ((int) slot > 8 || (int) slot < 0) {
                     throw new IllegalArgumentException("Slot must be within the ranges of 0-8");
                 }
@@ -151,7 +148,7 @@ public class TridentPlayer extends OfflinePlayer {
         // TODO: Verify proper implementation
         this.executor.addTask(new Runnable() {
             @Override
-    public void run() {
+            public void run() {
                 for (String message : messages) {
                     if (message != null) {
                         TridentPlayer.this.connection.sendPacket(new PacketPlayOutChatMessage().set("jsonMessage",
