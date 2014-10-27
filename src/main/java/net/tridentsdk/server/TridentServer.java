@@ -22,6 +22,7 @@ import net.tridentsdk.api.Difficulty;
 import net.tridentsdk.api.Server;
 import net.tridentsdk.api.Trident;
 import net.tridentsdk.api.config.JsonConfig;
+import net.tridentsdk.api.entity.living.Player;
 import net.tridentsdk.api.event.EventManager;
 import net.tridentsdk.api.scheduling.Scheduler;
 import net.tridentsdk.api.threads.ThreadProvider;
@@ -29,7 +30,9 @@ import net.tridentsdk.api.window.Window;
 import net.tridentsdk.api.world.World;
 import net.tridentsdk.entity.EntityManager;
 import net.tridentsdk.packets.play.out.PacketPlayOutPluginMessage;
+import net.tridentsdk.player.OfflinePlayer;
 import net.tridentsdk.player.TridentPlayer;
+import net.tridentsdk.plugin.TridentPlugin;
 import net.tridentsdk.plugin.TridentPluginHandler;
 import net.tridentsdk.server.netty.protocol.Protocol;
 import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
@@ -37,6 +40,7 @@ import net.tridentsdk.server.threads.MainThread;
 import net.tridentsdk.server.threads.ThreadsManager;
 import net.tridentsdk.window.WindowManager;
 import net.tridentsdk.world.RegionFileCache;
+import net.tridentsdk.world.TridentWorldLoader;
 import org.slf4j.Logger;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -46,7 +50,9 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -73,6 +79,8 @@ public final class TridentServer implements Server {
     private final TridentPluginHandler pluginHandler;
     private final TridentScheduler scheduler;
 
+    private final TridentWorldLoader worldLoader;
+
     private final ThreadProvider provider = new ThreadsManager();
 
     private TridentServer(JsonConfig config, ConcurrentTaskExecutor<?> taskExecutor, Logger logger) {
@@ -87,6 +95,7 @@ public final class TridentServer implements Server {
         this.scheduler = new TridentScheduler();
         this.logger = logger;
         this.mainThread = new MainThread(20);
+        worldLoader = new TridentWorldLoader();
     }
 
     /**
@@ -182,8 +191,12 @@ public final class TridentServer implements Server {
     }
 
     @Override
-    public List<World> getWorlds() {
-        return null;
+    public Set<World> getWorlds() {
+        Set<World> worlds = new LinkedHashSet<>();
+
+        worlds.addAll(worldLoader.getWorlds());
+
+        return worlds;
     }
 
     @Override
@@ -297,5 +310,16 @@ public final class TridentServer implements Server {
     @Override
     public Scheduler getScheduler() {
         return this.scheduler;
+    }
+
+    @Override
+    public Player getPlayer(UUID id) {
+        Player p;
+
+        if((p = TridentPlayer.getPlayer(id)) != null) {
+            return p;
+        }
+
+        return OfflinePlayer.getOfflinePlayer(id);
     }
 }

@@ -21,28 +21,32 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import net.tridentsdk.api.Material;
 import net.tridentsdk.api.inventory.ItemStack;
-import net.tridentsdk.api.nbt.CompoundTag;
-import net.tridentsdk.api.nbt.NBTDecoder;
-import net.tridentsdk.api.nbt.NBTException;
+import net.tridentsdk.api.nbt.*;
 
-public class Slot implements Writable {
+public class Slot implements Writable, NBTSerializable {
 
-    private final int id;
-    private final Material mat;
+    @NBTField(name = "id", type = TagType.SHORT)
+    private short id;
+    private Material mat;
 
-    private volatile short quantity;
+    @NBTField(name = "Slot", type = TagType.BYTE)
+    private byte slot;
+    @NBTField(name = "Count", type = TagType.BYTE)
+    private volatile byte quantity;
+    @NBTField(name = "Damage", type = TagType.SHORT)
     private volatile short damageValue;
+    @NBTField(name = "tag", type = TagType.COMPOUND)
     private volatile CompoundTag compoundTag;
 
     public Slot(ByteBuf buf) {
-        this.id = (int) buf.readByte();
+        this.id = (short) buf.readByte();
         this.mat = Material.fromString(String.valueOf(this.id));
 
         if (this.id == -1) {
             return;
         }
 
-        this.quantity = (short) buf.readByte();
+        this.quantity = buf.readByte();
         this.damageValue = buf.readShort();
         byte b;
 
@@ -58,15 +62,17 @@ public class Slot implements Writable {
     }
 
     public Slot(ItemStack is) {
-        this.id = is.getId();
+        this.id = (short) is.getId();
         this.mat = is.getType();
 
-        this.quantity = is.getQuantity();
-        this.damageValue = is.getDamageValue();
+        this.quantity = (byte) is.getQuantity();
+        this.damageValue = (byte) is.getDamageValue();
 
         // TODO: build NBT data
     }
 
+    protected Slot() {
+    }
     /**
      * Gets the ID of the current item in the slot
      *
@@ -112,6 +118,10 @@ public class Slot implements Writable {
         return this.compoundTag;
     }
 
+    public byte getSlot() {
+        return slot;
+    }
+
     @Override
     public void write(ByteBuf buf) {
         buf.writeByte(this.id);
@@ -126,5 +136,16 @@ public class Slot implements Writable {
         if (this.compoundTag != null) {
             // TODO: write compound tag
         }
+    }
+
+    public ItemStack toItemStack() {
+        ItemStack is = new ItemStack(Material.fromString(String.valueOf(id)));
+
+        is.setQuantity(quantity);
+        is.setDamageValue(damageValue);
+
+        // TODO: transfer over item meta
+
+        return is;
     }
 }

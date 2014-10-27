@@ -17,46 +17,36 @@
  */
 package net.tridentsdk.player;
 
-import net.tridentsdk.api.Difficulty;
-import net.tridentsdk.api.GameMode;
-import net.tridentsdk.api.Location;
-import net.tridentsdk.api.entity.Entity;
-import net.tridentsdk.api.entity.EntityProperties;
-import net.tridentsdk.api.entity.Projectile;
 import net.tridentsdk.api.entity.living.Player;
-import net.tridentsdk.api.event.entity.EntityDamageEvent;
-import net.tridentsdk.api.inventory.ItemStack;
+import net.tridentsdk.api.nbt.CompoundTag;
 import net.tridentsdk.api.threads.TaskExecutor;
-import net.tridentsdk.api.world.Dimension;
+import net.tridentsdk.api.world.ChunkLocation;
 import net.tridentsdk.api.world.LevelType;
-import net.tridentsdk.entity.TridentInventoryHolder;
-import net.tridentsdk.packets.play.out.PacketPlayOutChatMessage;
-import net.tridentsdk.packets.play.out.PacketPlayOutDisconnect;
-import net.tridentsdk.packets.play.out.PacketPlayOutJoinGame;
-import net.tridentsdk.packets.play.out.PacketPlayOutKeepAlive;
+import net.tridentsdk.packets.play.out.*;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.netty.ClientConnection;
+import net.tridentsdk.server.netty.packet.OutPacket;
 import net.tridentsdk.server.netty.packet.Packet;
+import net.tridentsdk.world.TridentChunk;
+import net.tridentsdk.world.TridentWorld;
 
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentSkipListSet;
 
-public class TridentPlayer extends TridentInventoryHolder implements Player {
+public class TridentPlayer extends OfflinePlayer {
     private static final Set<TridentPlayer> players = new ConcurrentSkipListSet<>(); // TODO: Check if best choice for Players
 
     private final PlayerConnection connection;
     private final TaskExecutor executor = TridentServer.getInstance().provideThreads().providePlayerThread(this);
     private volatile Locale locale;
-    private volatile float flyingSpeed;
-    private volatile short heldSlot;
 
-    public TridentPlayer(UUID uniqueId, Location spawnLocation, ClientConnection connection) {
-        super(uniqueId, spawnLocation);
+    public TridentPlayer(CompoundTag tag, TridentWorld world, ClientConnection connection) {
+        super(tag, world);
 
         this.connection = PlayerConnection.createPlayerConnection(connection, this);
-        this.flyingSpeed = 1.0F;
     }
 
     public static void sendAll(Packet packet) {
@@ -66,21 +56,40 @@ public class TridentPlayer extends TridentInventoryHolder implements Player {
     }
 
     public static Player spawnPlayer(ClientConnection connection, UUID id) {
-        // TODO: find player's spawn location
-        TridentPlayer p = new TridentPlayer(id, new Location(null, 0.0, 0.0, 0.0), connection);
+        OfflinePlayer offlinePlayer = OfflinePlayer.getOfflinePlayer(id);
+
+        TridentPlayer p = new TridentPlayer(offlinePlayer.toNbt(),
+                (TridentWorld) offlinePlayer.getWorld(), connection);
 
         p.connection.sendPacket(new PacketPlayOutJoinGame().set("entityId", p.getId())
-                .set("gamemode", GameMode.SURVIVAL)
-                .set("dimension", Dimension.OVERWORLD)
-                .set("difficulty", Difficulty.NORMAL)
+                .set("gamemode", p.getGameMode())
+                .set("dimension", p.getWorld().getDimesion())
+                .set("difficulty", p.getWorld().getDifficulty())
                 .set("maxPlayers", (short) 10)
                 .set("levelType",
-                        LevelType.DEFAULT)); // code to test if client will
-        // move on
+                        LevelType.DEFAULT));
+
+        p.connection.sendPacket(new PacketPlayOutSpawnPosition().set("location", p.getSpawnLocation()));
+        p.connection.sendPacket(p.abilities.toPacket());
+        p.connection.sendPacket(new PacketPlayOutPlayerCompleteMove().set("location", p.getLocation())
+                .set("flags", (byte) 0));
+
+        p.sendChunks(7);
+
 
         players.add(p);
 
         return p;
+    }
+
+    public static TridentPlayer getPlayer(UUID id) {
+        for(TridentPlayer player : players) {
+            if(player.getUniqueId().equals(id)) {
+                return player;
+            }
+        }
+
+        return null;
     }
 
     @Override
@@ -132,25 +141,9 @@ public class TridentPlayer extends TridentInventoryHolder implements Player {
                     throw new IllegalArgumentException("Slot must be within the ranges of 0-8");
                 }
 
-                TridentPlayer.this.heldSlot = slot;
+                TridentPlayer.super.selectedSlot = slot;
             }
         });
-    }
-
-    @Override
-    public void invokeCommand(String message) {
-        //TODO
-    }
-
-    @Override
-    public String getLastCommand() {
-        //TODO
-        return null;
-    }
-
-    @Override
-    public ItemStack getItemInHand() {
-        return this.getInventory().getContents()[(int) this.heldSlot + 36];
     }
 
     @Override
@@ -170,126 +163,20 @@ public class TridentPlayer extends TridentInventoryHolder implements Player {
         });
     }
 
-    @Override public String getLastMessage() {
-        // TODO
-        return null;
-    }
+    private void sendChunks(int viewDistance) {
+        int centX = ((int) Math.floor(loc.getX())) >> 4;
+        int centZ = ((int) Math.floor(loc.getZ())) >> 4;
 
-    @Override
-    public float getFlyingSpeed() {
-        return this.flyingSpeed;
-    }
+        for (int x = (centX - viewDistance); x <= (centX + viewDistance); x += 1) {
+            for (int z = (centZ - viewDistance); z <= (centZ + viewDistance); z += 1) {
+                // TODO: store known chunks for less redundant packets
 
-    @Override
-    public void setFlyingSpeed(float flyingSpeed) {
-        this.flyingSpeed = flyingSpeed;
-    }
+                PacketPlayOutChunkData packet = new PacketPlayOutChunkData(); // TODO: Use ChunkBulk for efficiency
 
-    @Override
-    public Locale getLocale() {
-        return this.locale;
-    }
+                ((TridentChunk) getWorld().getChunkAt(x, z, false)).write(packet);
 
-    public void setLocale(Locale locale) {
-        this.locale = locale;
-    }
-
-    @Override
-    public void hide(Entity entity) {
-        // TODO
-    }
-
-    @Override
-    public void show(Entity entity) {
-        // TODO
-    }
-
-    @Override
-    public boolean isNameVisible() {
-        return true;
-    }
-
-    @Override
-    public void applyProperties(EntityProperties properties) {
-        // TODO
-    }
-
-    @Override
-    public <T extends Projectile> T launchProjectile(EntityProperties properties) {
-        // TODO
-        return null;
-    }
-
-    @Override
-    public EntityDamageEvent getLastDamageCause() {
-        return null;
-    }
-
-    @Override
-    public Player hurtByPlayer() {
-        return null;
-    }
-
-    /* (non-Javadoc)
-     * @see net.tridentsdk.api.entity.living.Player#getGameMode()
-     */
-    @Override
-    public GameMode getGameMode() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /* (non-Javadoc)
-     * @see net.tridentsdk.api.entity.living.Player#getMoveSpeed()
-     */
-    @Override
-    public float getMoveSpeed() {
-        // TODO Auto-generated method stub
-        return 0.0F;
-    }
-
-    /* (non-Javadoc)
-     * @see net.tridentsdk.api.entity.living.Player#setMoveSpeed(float)
-     */
-    @Override
-    public void setMoveSpeed(float speed) {
-        // TODO Auto-generated method stub
-
-    }
-
-    /* (non-Javadoc)
-     * @see net.tridentsdk.api.entity.living.Player#getSneakSpeed()
-     */
-    @Override
-    public float getSneakSpeed() {
-        // TODO Auto-generated method stub
-        return 0.0F;
-    }
-
-    /* (non-Javadoc)
-     * @see net.tridentsdk.api.entity.living.Player#setSneakSpeed(float)
-     */
-    @Override
-    public void setSneakSpeed(float speed) {
-        // TODO Auto-generated method stub
-
-    }
-
-    /* (non-Javadoc)
-     * @see net.tridentsdk.api.entity.living.Player#getWalkSpeed()
-     */
-    @Override
-    public float getWalkSpeed() {
-        // TODO Auto-generated method stub
-        return 0.0F;
-    }
-
-    /* (non-Javadoc)
-     * @see net.tridentsdk.api.entity.living.Player#setWalkSpeed(float)
-     */
-    @Override
-    public void setWalkSpeed(float speed) {
-        // TODO Auto-generated method stub
-
+                connection.sendPacket(packet);
+            }
+        }
     }
 }

@@ -34,7 +34,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class TridentWorld implements Serializable, World {
+public class TridentWorld implements World {
     private static final int SIZE = 1;
     private static final int MAX_HEIGHT = 255;
     private static final int MAX_CHUNKS = 49; // TODO changed temp for packet compatibility
@@ -156,6 +156,11 @@ public class TridentWorld implements Serializable, World {
     @Override
     public LevelType getLevelType() {
         return LevelType.DEFAULT; // psuedo return
+    }
+
+    @Override
+    public Location getSpawnLocation() {
+        return spawnLocation;
     }
 }
 

@@ -25,12 +25,13 @@ import net.tridentsdk.api.world.WorldLoader;
 
 import java.io.IOException;
 import java.nio.file.FileSystems;
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.zip.DataFormatException;
 
 public class TridentWorldLoader implements WorldLoader {
-    private final Map<String, World> worlds = new ConcurrentHashMap<>();
+    private final Map<String, TridentWorld> worlds = new ConcurrentHashMap<>();
 
     @Override
     public World load(String world) {
@@ -40,6 +41,10 @@ public class TridentWorldLoader implements WorldLoader {
     @Override
     public void save(World world) {
         // TODO
+    }
+
+    public Collection<TridentWorld> getWorlds() {
+        return worlds.values();
     }
 
     @Override
