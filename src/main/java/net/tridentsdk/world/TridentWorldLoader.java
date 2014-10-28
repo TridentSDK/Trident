@@ -23,6 +23,7 @@ import net.tridentsdk.api.world.ChunkLocation;
 import net.tridentsdk.api.world.World;
 import net.tridentsdk.api.world.WorldLoader;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.util.Collection;
@@ -32,6 +33,28 @@ import java.util.zip.DataFormatException;
 
 public class TridentWorldLoader implements WorldLoader {
     private final Map<String, TridentWorld> worlds = new ConcurrentHashMap<>();
+
+    public TridentWorldLoader() {
+        for(File file : new File("").listFiles()) {
+            if(!(file.isDirectory()) || file.getName().contains(" ")) {
+                continue;
+            }
+
+            boolean isWorld = false;
+
+            for(File f : file.listFiles()) {
+                if(f.getName().equals("level.dat")) {
+                    isWorld = true;
+                }
+            }
+
+            if(!(isWorld)) {
+                continue;
+            }
+
+            load(file.getName());
+        }
+    }
 
     @Override
     public World load(String world) {

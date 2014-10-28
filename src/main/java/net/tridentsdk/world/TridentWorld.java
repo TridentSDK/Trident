@@ -17,10 +17,9 @@
  */
 package net.tridentsdk.world;
 
-import net.tridentsdk.api.Block;
-import net.tridentsdk.api.Difficulty;
-import net.tridentsdk.api.GameMode;
-import net.tridentsdk.api.Location;
+import net.tridentsdk.api.*;
+import net.tridentsdk.api.nbt.*;
+import net.tridentsdk.api.util.TridentLogger;
 import net.tridentsdk.api.world.Chunk;
 import net.tridentsdk.api.world.ChunkLocation;
 import net.tridentsdk.api.world.ChunkSnapshot;
@@ -29,21 +28,25 @@ import net.tridentsdk.api.world.LevelType;
 import net.tridentsdk.api.world.World;
 import net.tridentsdk.api.world.WorldLoader;
 
-import java.io.Serializable;
+import java.io.*;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.zip.DataFormatException;
 
 public class TridentWorld implements World {
     private static final int SIZE = 1;
     private static final int MAX_HEIGHT = 255;
     private static final int MAX_CHUNKS = 49; // TODO changed temp for packet compatibility
-    private static final long serialVersionUID = 2892463980167406259L;
 
     private final Map<ChunkLocation, TridentChunk> loadedChunks = new ConcurrentHashMap<>();
     private final String name;
     private final Random random;
     private final WorldLoader loader;
+    private Dimension dimension;
+    private Difficulty difficulty;
+    private GameMode defaultGamemode;
+    private LevelType type;
     private Location spawnLocation;
 
     TridentWorld(String name, WorldLoader loader) {
@@ -51,7 +54,97 @@ public class TridentWorld implements World {
         this.loader = loader;
         this.random = new Random();
 
-        // TODO Set spawn point
+        spawnLocation = new Location(this, 0d, 0d, 0d);
+        TridentLogger logger = Trident.getLogger();
+
+        logger.info("Starting to load " + name + "...");
+        logger.info("Attempting to load level.dat...");
+
+        File directory = new File(name + File.separator);
+        File levelFile = new File(directory, "level.dat");
+        CompoundTag level;
+
+        try {
+            level = new NBTDecoder(new DataInputStream(new FileInputStream(levelFile))).decode().getTagAs("Data");
+        } catch (FileNotFoundException ignored) {
+            return;
+        } catch (NBTException ex) {
+            logger.info("Unable to load level.dat! Printing stacktrace...");
+            ex.printStackTrace();
+            return;
+        }
+
+        logger.info("Loading values of level.dat....");
+
+        spawnLocation.setX(((IntTag) level.getTag("SpawnX")).getValue());
+        spawnLocation.setY(((IntTag) level.getTag("SpawnY")).getValue());
+        spawnLocation.setZ(((IntTag) level.getTag("SpawnZ")).getValue());
+
+        dimension = Dimension.OVERWORLD;
+        difficulty = Difficulty.getDifficulty(((IntTag) level.getTag("Difficulty")).getValue());
+        defaultGamemode = GameMode.getGameMode(((IntTag) level.getTag("GameType")).getValue());
+        type = LevelType.getLevelType(((StringTag) level.getTag("generatorName")).getValue());
+
+        logger.info("Loaded level.dat successfully! Moving on to region files...");
+
+        // TODO: load other values
+
+        File region = new File(directory, "region" + File.separator);
+
+        if(!(region.exists()) || !(region.isDirectory())) {
+            throw new IllegalStateException("Region folder is rather non-existent or isn't a directory!");
+        }
+
+        for(File file : region.listFiles()) {
+            String[] strings = file.getName().split("\\.");
+
+            logger.info("Found " + file.getName() + ", checking if valid region file... Will skip if invalid");
+
+            if(strings.length != 3 && !(strings[0].equals("r")) && !(file.getName().endsWith(".mca"))) {
+                continue; // not valid region file
+            }
+
+            int chunkX;
+            int chunkZ;
+
+            try {
+                chunkX = (int) Math.floor(Integer.parseInt(strings[1]) * 32);
+                chunkZ = (int) Math.floor(Integer.parseInt(strings[2]) * 32);
+            } catch (NumberFormatException ex) {
+                continue; // not valid
+            }
+
+            for(ChunkLocation loc : loadedChunks.keySet()) {
+                if(loc.getX() == chunkX && loc.getZ() == chunkZ)
+                    continue; // already loaded chunk
+            }
+
+            logger.info("Great! " + file.getName() + " is a valid region file, loading contents...");
+
+            RegionFile regionFile;
+
+            try {
+                regionFile = new RegionFile(file.toPath());
+            } catch (IOException ex) {
+                logger.info("Unable to load the region file! Printing stacktrace...");
+                ex.printStackTrace();
+                continue;
+            }
+
+            ChunkLocation location = new ChunkLocation(chunkX, chunkZ);
+            TridentChunk chunk;
+
+            try {
+                chunk = regionFile.loadChunkData(this);
+            } catch (NBTException | IOException | DataFormatException e) {
+                logger.info("Unable to load the region file! Printing stacktrace...");
+                e.printStackTrace();
+                continue;
+            }
+
+            loadedChunks.put(location, chunk);
+            logger.info("Loaded " + file.getName() + " successfully!");
+        }
     }
 
     @Override
@@ -140,22 +233,22 @@ public class TridentWorld implements World {
 
     @Override
     public Dimension getDimesion() {
-        return Dimension.OVERWORLD; // psuedo return
+        return dimension;
     }
 
     @Override
     public Difficulty getDifficulty() {
-        return Difficulty.NORMAL; // psuedo return
+        return difficulty;
     }
 
     @Override
     public GameMode getDefaultGamemode() {
-        return GameMode.SURVIVAL; // psuedo return
+        return defaultGamemode;
     }
 
     @Override
     public LevelType getLevelType() {
-        return LevelType.DEFAULT; // psuedo return
+        return type;
     }
 
     @Override

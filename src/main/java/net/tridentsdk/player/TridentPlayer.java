@@ -176,4 +176,8 @@ public class TridentPlayer extends OfflinePlayer {
             }
         }
     }
+
+    public void setLocale(Locale locale) {
+        this.locale = locale;
+    }
 }

@@ -20,9 +20,11 @@ package net.tridentsdk.world;
 import net.tridentsdk.api.Block;
 import net.tridentsdk.api.Location;
 import net.tridentsdk.api.Material;
+import net.tridentsdk.api.Trident;
 import net.tridentsdk.api.nbt.*;
 import net.tridentsdk.api.reflect.FastClass;
 import net.tridentsdk.api.util.NibbleArray;
+import net.tridentsdk.api.util.TridentLogger;
 import net.tridentsdk.api.world.Chunk;
 import net.tridentsdk.api.world.ChunkLocation;
 import net.tridentsdk.api.world.Dimension;
@@ -150,6 +152,10 @@ public class TridentChunk implements Chunk {
     }
 
     public void load(CompoundTag tag) {
+        TridentLogger logger = Trident.getLogger();
+
+        logger.info("Loading NBT values...");
+
         IntTag x = tag.getTagAs("xPos");
         IntTag z = tag.getTagAs("zPos");
 
@@ -164,6 +170,9 @@ public class TridentChunk implements Chunk {
         ListTag entities = tag.getTagAs("Entities");
         ListTag tileEntities = tag.getTagAs("TileEntities");
         ListTag tileTicks = tag.getTagAs("TileTicks");
+
+        logger.info("Loaded NBT values!");
+        logger.info("Deserializing NBT values into Chunk sections...");
 
         List<NBTTag> sectionsList = sections.listTags();
 
@@ -181,6 +190,8 @@ public class TridentChunk implements Chunk {
             }
         }
 
+        logger.info("Deserialized and loaded chunk sections successfully! Loading entities...");
+
         /* Load Entities */
         FastClass entityClass = FastClass.get(TridentEntity.class);
 
@@ -191,11 +202,15 @@ public class TridentChunk implements Chunk {
             this.entities.add(entity);
         }
 
+        logger.info("Deserialized and loaded all entity values successfully! Loading extras...");
+
         /* Load extras */
         this.lightPopulated = lightPopulated.getValue(); // Unknown use
         this.terrainPopulated = terrainPopulated.getValue(); // if chunk was populated with special things (ores, trees, etc.), if 1 regenerate
         this.lastModified = lastModifed.getValue(); // Tick when the chunk was last saved
         this.inhabitedTime = inhabitedTime.getValue(); // Cumulative number of ticks player have been in the chunk
+
+        logger.info("Successfully loaded extras!");
     }
 
     public CompoundTag toNbt() {
