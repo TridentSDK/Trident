@@ -44,3 +44,4 @@ The commit message must state what your commit entails in a brief description, a
 > Slightly reword the terms and conditions
 >
 > Reword the terms and conditions to clarify on a point where needed
+
