@@ -51,7 +51,7 @@ import java.nio.file.Files;
 final class TridentStart {
     private static final EventLoopGroup bossGroup = new NioEventLoopGroup();
     private static final EventLoopGroup workerGroup = new NioEventLoopGroup();
-    private static final Logger LOGGER = LoggerFactory.getLogger(TridentStart.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TridentServer.class);
 
     private TridentStart() {
     } // Do not initialize

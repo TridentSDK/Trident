@@ -35,7 +35,7 @@ public class TridentWorldLoader implements WorldLoader {
     private final Map<String, TridentWorld> worlds = new ConcurrentHashMap<>();
 
     public TridentWorldLoader() {
-        for(File file : new File("").listFiles()) {
+        for(File file : getWorldContainer().listFiles()) {
             if(!(file.isDirectory()) || file.getName().contains(" ")) {
                 continue;
             }
@@ -112,5 +112,9 @@ public class TridentWorldLoader implements WorldLoader {
     @Override
     public void saveChunk(Chunk chunk) {
         // TODO
+    }
+
+    public File getWorldContainer() {
+        return new File(System.getProperty("user.dir"));
     }
 }

@@ -19,7 +19,6 @@ package net.tridentsdk.world;
 
 import net.tridentsdk.api.*;
 import net.tridentsdk.api.nbt.*;
-import net.tridentsdk.api.util.TridentLogger;
 import net.tridentsdk.api.world.Chunk;
 import net.tridentsdk.api.world.ChunkLocation;
 import net.tridentsdk.api.world.ChunkSnapshot;
@@ -27,12 +26,16 @@ import net.tridentsdk.api.world.Dimension;
 import net.tridentsdk.api.world.LevelType;
 import net.tridentsdk.api.world.World;
 import net.tridentsdk.api.world.WorldLoader;
+import net.tridentsdk.server.TridentServer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.zip.DataFormatException;
+import java.util.zip.GZIPInputStream;
 
 public class TridentWorld implements World {
     private static final int SIZE = 1;
@@ -55,7 +58,7 @@ public class TridentWorld implements World {
         this.random = new Random();
 
         spawnLocation = new Location(this, 0d, 0d, 0d);
-        TridentLogger logger = Trident.getLogger();
+        Logger logger = LoggerFactory.getLogger(TridentServer.class);
 
         logger.info("Starting to load " + name + "...");
         logger.info("Attempting to load level.dat...");
@@ -65,10 +68,18 @@ public class TridentWorld implements World {
         CompoundTag level;
 
         try {
-            level = new NBTDecoder(new DataInputStream(new FileInputStream(levelFile))).decode().getTagAs("Data");
+            InputStream fis = new FileInputStream(levelFile);
+            byte[] compressedData = new byte[fis.available()];
+            fis.read(compressedData);
+
+            GZIPInputStream gzis = new GZIPInputStream(new ByteArrayInputStream(compressedData));
+            byte[] decompressed = new byte[gzis.available()];
+            gzis.read(decompressed);
+
+            level = new NBTDecoder(new DataInputStream(new ByteArrayInputStream(decompressed))).decode().getTagAs("Data");
         } catch (FileNotFoundException ignored) {
             return;
-        } catch (NBTException ex) {
+        } catch (Exception ex) {
             logger.info("Unable to load level.dat! Printing stacktrace...");
             ex.printStackTrace();
             return;
