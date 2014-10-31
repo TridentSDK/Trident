@@ -22,6 +22,7 @@ import net.tridentsdk.api.scheduling.Scheduler;
 import net.tridentsdk.api.scheduling.TridentRunnable;
 import net.tridentsdk.api.threads.TaskExecutor;
 import net.tridentsdk.plugin.TridentPlugin;
+import net.tridentsdk.plugin.annotation.PluginDescription;
 import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
 import net.tridentsdk.server.threads.PluginThreads;
 
@@ -36,22 +37,22 @@ public class TridentScheduler implements Scheduler {
     private static final Runnable INVERSE_RUN = new Runnable() {
         @Override
         public void run() {
-            Iterator<TaskWrapper> iterator = reverse.get();
-            for (TaskWrapper task = null; iterator.hasNext(); task = iterator.next()) {
+            for (Iterator<TaskWrapper> iterator = reverse.get(); iterator.hasNext();) {
+                TaskWrapper task = iterator.next();
                 if (task == null) continue;
                 if (!task.hasRan()) task.run();
-                System.out.println("Ran by inverse run");
+                else task.setRan(false);
             }
         }
     };
     private static final Runnable FORWARD_RUN = new Runnable() {
         @Override
         public void run() {
-            Iterator<TaskWrapper> iterator = forward.get();
-            for (TaskWrapper task = null; iterator.hasNext(); task = iterator.next()) {
+            for (Iterator<TaskWrapper> iterator = forward.get(); iterator.hasNext();) {
+                TaskWrapper task = iterator.next();
                 if (task == null) continue;
                 if (!task.hasRan()) task.run();
-                System.out.println("Ran by forward run");
+                else task.setRan(false);
             }
         }
     };
@@ -62,6 +63,26 @@ public class TridentScheduler implements Scheduler {
 
     private static final AtomicReference<Iterator<TaskWrapper>> reverse = new AtomicReference<>();
     private static final AtomicReference<Iterator<TaskWrapper>> forward = new AtomicReference<>();
+
+    public static void main(String... args) throws InterruptedException {
+        TridentScheduler scheduler = new TridentScheduler();
+        for (int i = 0; i < 100; i++) {
+            @PluginDescription(name = "LOLCODE")
+            class PluginImpl extends TridentPlugin {}
+
+            scheduler.runTaskSyncLater(new PluginImpl(), new TridentRunnable() {
+                @Override public void run() {
+                    System.out.println("LOL");
+                }
+            }, 10L);
+        }
+        for (int i = 0; i < 100000000; i++) {
+            Thread.sleep(1000);
+            scheduler.tick();
+        }
+
+        scheduler.stop();
+    }
 
     public void tick() {
         List<TaskExecutor> executors = concurrentTaskExecutor.threadList();
@@ -136,7 +157,8 @@ public class TridentScheduler implements Scheduler {
 
     @Override
     public void cancel(int id) {
-        for (TaskWrapper wrapper = null; forward.get().hasNext(); wrapper = forward.get().next()) {
+        for (Iterator<TaskWrapper> iterator = forward.get(); iterator.hasNext();) {
+            TaskWrapper wrapper = iterator.next();
             if (wrapper == null) continue;
             if (wrapper.getRunnable().getId() == id) {
                 taskList.remove(wrapper);
@@ -147,7 +169,8 @@ public class TridentScheduler implements Scheduler {
 
     @Override
     public void cancel(TridentRunnable runnable) {
-        for (TaskWrapper wrapper = null; forward.get().hasNext(); wrapper = forward.get().next()) {
+        for (Iterator<TaskWrapper> iterator = forward.get(); iterator.hasNext();) {
+            TaskWrapper wrapper = iterator.next();
             if (wrapper == null) continue;
             if (wrapper.getRunnable().equals(runnable)) {
                 taskList.remove(wrapper);
@@ -165,30 +188,66 @@ public class TridentScheduler implements Scheduler {
         private final TridentPlugin plugin;
         private final Type type;
         private final AtomicLong run = new AtomicLong(0);
-        private final long interval;
         private final TridentRunnable runnable;
 
-        private final Runnable ifUsed;
+        private final Runnable runner;
         private volatile boolean ran;
+
+        private final TaskExecutor executor;
 
         public TaskWrapper(TridentPlugin plugin, Type type, final TridentRunnable runnable, final long interval) {
             this.plugin = plugin;
             this.type = type;
-            this.interval = interval;
             this.runnable = runnable;
 
             switch (type) {
+                case ASYNC_RUN:
+                    this.runner = new Runnable() {
+                        @Override
+                        public void run() {
+                            taskQueue.getScaledThread().addTask(runnable);
+                            cancel(runnable);
+                        }
+                    };
+                    this.executor = taskQueue.assign(taskQueue.getScaledThread(), this);
+                    break;
+                case ASYNC_LATER:
+                    this.runner = new Runnable() {
+                        @Override public void run() {
+                            if (run.get() == interval) {
+                                taskQueue.getScaledThread().addTask(runnable);
+                                cancel(runnable);
+                            } else {
+                                run.incrementAndGet();
+                            }
+                        }
+                    };
+                    this.executor = taskQueue.assign(taskQueue.getScaledThread(), this);
+                    break;
+                case ASYNC_REPEAT:
+                    this.runner = new Runnable() {
+                        @Override public void run() {
+                            if (run.compareAndSet(interval, 0)) {
+                                taskQueue.getScaledThread().addTask(runnable);
+                            } else {
+                                run.incrementAndGet();
+                            }
+                        }
+                    };
+                    this.executor = taskQueue.assign(taskQueue.getScaledThread(), this);
+                    break;
                 case SYNC_RUN:
-                    this.ifUsed = new Runnable() {
+                    this.runner = new Runnable() {
                         @Override
                         public void run() {
                             runnable.run();
                             cancel(runnable);
                         }
                     };
+                    this.executor = PluginThreads.pluginThreadHandle(plugin);
                     break;
                 case SYNC_LATER:
-                    this.ifUsed = new Runnable() {
+                    this.runner = new Runnable() {
                         @Override
                         public void run() {
                             if (run.get() == interval) {
@@ -199,9 +258,10 @@ public class TridentScheduler implements Scheduler {
                             }
                         }
                     };
+                    this.executor = PluginThreads.pluginThreadHandle(plugin);
                     break;
                 case SYNC_REPEAT:
-                    this.ifUsed = new Runnable() {
+                    this.runner = new Runnable() {
                         @Override
                         public void run() {
                             if (run.compareAndSet(interval, 0)) {
@@ -211,9 +271,11 @@ public class TridentScheduler implements Scheduler {
                             }
                         }
                     };
+                    this.executor = PluginThreads.pluginThreadHandle(plugin);
                     break;
                 default:
-                    this.ifUsed = null;
+                    this.runner = null;
+                    this.executor = null;
             }
         }
 
@@ -229,39 +291,13 @@ public class TridentScheduler implements Scheduler {
             return this.ran;
         }
 
+        public void setRan(boolean ran) {
+            this.ran = ran;
+        }
+
         @Override
         public void run() {
-            switch (this.type) {
-                case ASYNC_RUN:
-                    taskQueue.getScaledThread().addTask(this.runnable);
-                    cancel(this.runnable);
-                    break;
-                case ASYNC_LATER:
-                    if (this.run.get() == this.interval) {
-                        taskQueue.getScaledThread().addTask(this.runnable);
-                        cancel(this.runnable);
-                    } else {
-                        this.run.incrementAndGet();
-                    }
-                    break;
-                case ASYNC_REPEAT:
-                    if (this.run.compareAndSet(this.interval, 0)) {
-                        taskQueue.getScaledThread().addTask(this.runnable);
-                    } else {
-                        this.run.incrementAndGet();
-                    }
-                    break;
-                case SYNC_RUN:
-                    PluginThreads.pluginThreadHandle(this.plugin).addTask(this.ifUsed);
-                    break;
-                case SYNC_LATER:
-                    PluginThreads.pluginThreadHandle(this.plugin).addTask(this.ifUsed);
-                    break;
-                case SYNC_REPEAT:
-                    PluginThreads.pluginThreadHandle(this.plugin).addTask(this.ifUsed);
-                    break;
-            }
-            this.ran = true;
+            this.executor.addTask(this.runnable);
         }
     }
 

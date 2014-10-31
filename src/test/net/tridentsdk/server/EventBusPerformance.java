@@ -39,7 +39,7 @@ Iteration   3: 4345.997 ns/op
 Iteration   4: 4377.951 ns/op
 Iteration   5: 4473.355 ns/op
 
-Result: 4346.049 ±(99.9%) 332.884 ns/op [Average]
+Result: 4346.049 �(99.9%) 332.884 ns/op [Average]
   Statistics: (min, avg, max) = (4265.144, 4346.049, 4473.355), stdev = 86.449
   Confidence interval (99.9%): [4013.165, 4678.932]
 
@@ -102,7 +102,7 @@ Iteration   3: 6805.387 ns/op
 Iteration   4: 6827.599 ns/op
 Iteration   5: 6858.508 ns/op
 
-Result: 6775.596 ±(99.9%) 302.264 ns/op [Average]
+Result: 6775.596 �(99.9%) 302.264 ns/op [Average]
   Statistics: (min, avg, max) = (6675.678, 6775.596, 6858.508), stdev = 78.497
   Confidence interval (99.9%): [6473.332, 7077.860]
 
@@ -132,7 +132,7 @@ Iteration   3: 3.762 ns/op
 Iteration   4: 3.765 ns/op
 Iteration   5: 3.845 ns/op
 
-Result: 3.793 ±(99.9%) 0.128 ns/op [Average]
+Result: 3.793 �(99.9%) 0.128 ns/op [Average]
   Statistics: (min, avg, max) = (3.762, 3.793, 3.845), stdev = 0.033
   Confidence interval (99.9%): [3.665, 3.922]
 

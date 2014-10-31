@@ -70,7 +70,7 @@ Iteration   3: 7.120 ns/op
 Iteration   4: 7.107 ns/op
 Iteration   5: 7.221 ns/op
 
-Result: 7.113 ±(99.9%) 0.323 ns/op [Average]
+Result: 7.113 �(99.9%) 0.323 ns/op [Average]
   Statistics: (min, avg, max) = (6.986, 7.113, 7.221), stdev = 0.084
   Confidence interval (99.9%): [6.790, 7.436]
 
@@ -101,7 +101,7 @@ Iteration   3: 7.087 ns/op
 Iteration   4: 7.153 ns/op
 Iteration   5: 7.044 ns/op
 
-Result: 7.097 ±(99.9%) 0.301 ns/op [Average]
+Result: 7.097 �(99.9%) 0.301 ns/op [Average]
   Statistics: (min, avg, max) = (7.005, 7.097, 7.196), stdev = 0.078
   Confidence interval (99.9%): [6.796, 7.398]
 
