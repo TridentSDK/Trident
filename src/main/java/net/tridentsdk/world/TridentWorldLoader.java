@@ -102,7 +102,7 @@ public class TridentWorldLoader implements WorldLoader {
                     new RegionFile(FileSystems.getDefault().getPath(
                             world.getName() + "/region/", WorldUtils.getRegionFile(location)));
 
-            return file.loadChunkData((TridentWorld) world);
+            return file.loadChunkData((TridentWorld) world, location);
         } catch (IOException | DataFormatException | NBTException ex) {
             ex.printStackTrace();
         }

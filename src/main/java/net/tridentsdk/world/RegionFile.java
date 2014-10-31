@@ -20,6 +20,7 @@ package net.tridentsdk.world;
 import com.google.common.math.IntMath;
 import net.tridentsdk.api.nbt.*;
 import net.tridentsdk.api.world.Chunk;
+import net.tridentsdk.api.world.ChunkLocation;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -108,8 +109,6 @@ public class RegionFile {
             byte[] padding = new byte[(int) paddingNeeded];
             access.write(padding);
         }
-
-        access.close();
     }
 
     private void createNew(RandomAccessFile access) {
@@ -123,8 +122,8 @@ public class RegionFile {
     /**
      * Pass in a chunk to load its data from file
      */
-    public TridentChunk loadChunkData(TridentWorld owner) throws NBTException, IOException, DataFormatException {
-        TridentChunk chunk = new TridentChunk(owner, null);
+    public TridentChunk loadChunkData(TridentWorld owner, ChunkLocation location) throws NBTException, IOException, DataFormatException {
+        TridentChunk chunk = new TridentChunk(owner, location);
         short compression;
         byte[] compressedData;
 
