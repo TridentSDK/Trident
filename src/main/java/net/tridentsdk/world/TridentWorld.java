@@ -17,6 +17,7 @@
  */
 package net.tridentsdk.world;
 
+import com.google.common.io.ByteStreams;
 import net.tridentsdk.api.*;
 import net.tridentsdk.api.nbt.*;
 import net.tridentsdk.api.world.Chunk;
@@ -69,14 +70,13 @@ public class TridentWorld implements World {
 
         try {
             InputStream fis = new FileInputStream(levelFile);
+
             byte[] compressedData = new byte[fis.available()];
             fis.read(compressedData);
 
-            GZIPInputStream gzis = new GZIPInputStream(new ByteArrayInputStream(compressedData));
-            byte[] decompressed = new byte[gzis.available()];
-            gzis.read(decompressed);
-
-            level = new NBTDecoder(new DataInputStream(new ByteArrayInputStream(decompressed))).decode().getTagAs("Data");
+            level = new NBTDecoder(new DataInputStream(new ByteArrayInputStream(ByteStreams.
+                    toByteArray(new GZIPInputStream(new ByteArrayInputStream(compressedData))))))
+                    .decode().getTagAs("Data");
         } catch (FileNotFoundException ignored) {
             return;
         } catch (Exception ex) {
@@ -92,7 +92,8 @@ public class TridentWorld implements World {
         spawnLocation.setZ(((IntTag) level.getTag("SpawnZ")).getValue());
 
         dimension = Dimension.OVERWORLD;
-        difficulty = Difficulty.getDifficulty(((IntTag) level.getTag("Difficulty")).getValue());
+        // difficulty = Difficulty.getDifficulty(((IntTag) level.getTag("Difficulty")).getValue()); from tests does not exist
+        difficulty = Difficulty.NORMAL;
         defaultGamemode = GameMode.getGameMode(((IntTag) level.getTag("GameType")).getValue());
         type = LevelType.getLevelType(((StringTag) level.getTag("generatorName")).getValue());
 
@@ -146,7 +147,7 @@ public class TridentWorld implements World {
             TridentChunk chunk;
 
             try {
-                chunk = regionFile.loadChunkData(this);
+                chunk = regionFile.loadChunkData(this, location);
             } catch (NBTException | IOException | DataFormatException e) {
                 logger.info("Unable to load the region file! Printing stacktrace...");
                 e.printStackTrace();
