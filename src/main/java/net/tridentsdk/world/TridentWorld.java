@@ -27,6 +27,7 @@ import net.tridentsdk.api.world.Dimension;
 import net.tridentsdk.api.world.LevelType;
 import net.tridentsdk.api.world.World;
 import net.tridentsdk.api.world.WorldLoader;
+import net.tridentsdk.player.OfflinePlayer;
 import net.tridentsdk.server.TridentServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -107,14 +108,10 @@ public class TridentWorld implements World {
             throw new IllegalStateException("Region folder is rather non-existent or isn't a directory!");
         }
 
-        for(File file : region.listFiles()) {
+        for(File file : region.listFiles(new ChunkFilter())) {
             String[] strings = file.getName().split("\\.");
 
             logger.info("Found " + file.getName() + ", checking if valid region file... Will skip if invalid");
-
-            if(strings.length != 3 && !(strings[0].equals("r")) && !(file.getName().endsWith(".mca"))) {
-                continue; // not valid region file
-            }
 
             int chunkX;
             int chunkZ;
@@ -156,6 +153,37 @@ public class TridentWorld implements World {
 
             loadedChunks.put(location, chunk);
             logger.info("Loaded " + file.getName() + " successfully!");
+        }
+
+        logger.info("Loaded region files successfully! Moving onto player data...");
+
+        File playerData = new File(directory, "playerdata");
+
+        if(!(playerData.exists()) || !(playerData.isDirectory())) {
+            logger.info("Player data folder does not exist! Creating folder...");
+            playerData.mkdir();
+        } else {
+            logger.info("Scanning player data...");
+
+            for(File f : playerData.listFiles(new PlayerFilter())) {
+                CompoundTag opData;
+
+                try {
+                    InputStream fis = new FileInputStream(levelFile);
+
+                    byte[] compressedData = new byte[fis.available()];
+                    fis.read(compressedData);
+
+                    opData = new NBTDecoder(new DataInputStream(new ByteArrayInputStream(ByteStreams.
+                            toByteArray(new GZIPInputStream(new ByteArrayInputStream(compressedData)))))).decode();
+                } catch (IOException | NBTException ex) {
+                    logger.info("Unable to load " + f.getName() + "! Printing stacktrace...");
+                    ex.printStackTrace();
+                    continue;
+                }
+
+                new OfflinePlayer(opData, this); // will automatically register itself
+            }
         }
     }
 
@@ -266,6 +294,23 @@ public class TridentWorld implements World {
     @Override
     public Location getSpawnLocation() {
         return spawnLocation;
+    }
+
+    private static class PlayerFilter implements FilenameFilter {
+        @Override
+        public boolean accept(File file, String name) {
+            return name.endsWith(".dat") && (name.length() == 41); // 41 for UUID, dashes, and extension
+        }
+    }
+
+    private static class ChunkFilter implements FilenameFilter {
+
+        @Override
+        public boolean accept(File file, String s) {
+            String[] strings = s.split("\\.");
+
+            return s.endsWith(".mca") && s.length() == 3 && strings[0].equals("r");
+        }
     }
 }
 
