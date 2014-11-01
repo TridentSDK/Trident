@@ -1,4 +1,4 @@
-package test.net.tridentsdk.server;
+package net.tridentsdk.server;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;

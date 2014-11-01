@@ -25,7 +25,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package test.net.tridentsdk.server;
+package net.tridentsdk.server;
 
 import com.esotericsoftware.reflectasm.MethodAccess;
 import org.openjdk.jmh.annotations.Benchmark;

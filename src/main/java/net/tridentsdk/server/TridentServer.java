@@ -32,7 +32,6 @@ import net.tridentsdk.entity.EntityManager;
 import net.tridentsdk.packets.play.out.PacketPlayOutPluginMessage;
 import net.tridentsdk.player.OfflinePlayer;
 import net.tridentsdk.player.TridentPlayer;
-import net.tridentsdk.plugin.TridentPlugin;
 import net.tridentsdk.plugin.TridentPluginHandler;
 import net.tridentsdk.server.netty.protocol.Protocol;
 import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
@@ -183,6 +182,7 @@ public final class TridentServer implements Server {
         TridentStart.close();
         Trident.getLogger().info("Shutting down worker threads...");
         this.taskExecutor.shutdown();
+        this.scheduler.stop();
         Trident.getLogger().info("Shutting down server process...");
         ThreadsManager.stopAll();
         Trident.getLogger().info("Server shutdown successfully.");
