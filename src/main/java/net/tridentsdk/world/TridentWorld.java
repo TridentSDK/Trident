@@ -20,6 +20,7 @@ package net.tridentsdk.world;
 import com.google.common.io.ByteStreams;
 import net.tridentsdk.api.*;
 import net.tridentsdk.api.nbt.*;
+import net.tridentsdk.api.util.StringUtil;
 import net.tridentsdk.api.world.Chunk;
 import net.tridentsdk.api.world.ChunkLocation;
 import net.tridentsdk.api.world.ChunkSnapshot;
@@ -111,24 +112,10 @@ public class TridentWorld implements World {
         for(File file : region.listFiles(new ChunkFilter())) {
             String[] strings = file.getName().split("\\.");
 
-            logger.info("Found " + file.getName() + ", checking if valid region file... Will skip if invalid");
+            int chunkX = (int) Math.floor(Integer.parseInt(strings[1]) * 32);
+            int chunkZ = (int) Math.floor(Integer.parseInt(strings[2]) * 32);
 
-            int chunkX;
-            int chunkZ;
-
-            try {
-                chunkX = (int) Math.floor(Integer.parseInt(strings[1]) * 32);
-                chunkZ = (int) Math.floor(Integer.parseInt(strings[2]) * 32);
-            } catch (NumberFormatException ex) {
-                continue; // not valid
-            }
-
-            for(ChunkLocation loc : loadedChunks.keySet()) {
-                if(loc.getX() == chunkX && loc.getZ() == chunkZ)
-                    continue; // already loaded chunk
-            }
-
-            logger.info("Great! " + file.getName() + " is a valid region file, loading contents...");
+            logger.info("Loading contents of " + file.getName() + "...");
 
             RegionFile regionFile;
 
@@ -184,6 +171,8 @@ public class TridentWorld implements World {
 
                 new OfflinePlayer(opData, this); // will automatically register itself
             }
+
+            logger.info("Loaded all player data!");
         }
     }
 
@@ -309,7 +298,8 @@ public class TridentWorld implements World {
         public boolean accept(File file, String s) {
             String[] strings = s.split("\\.");
 
-            return s.endsWith(".mca") && s.length() == 3 && strings[0].equals("r");
+            return s.endsWith(".mca") && s.length() == 3 && strings[0].equals("r")
+                    && StringUtil.isNumeric(strings[1]) && StringUtil.isNumeric(strings[2]);
         }
     }
 }
