@@ -17,7 +17,6 @@
  */
 package net.tridentsdk.server;
 
-import static com.google.common.collect.Lists.newArrayList;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
@@ -40,6 +39,8 @@ import java.io.File;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.nio.file.Files;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * Server class that starts the connection listener. <p/> <p>Despite the fact that this class is under protected access,

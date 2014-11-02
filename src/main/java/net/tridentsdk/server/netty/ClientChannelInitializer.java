@@ -22,11 +22,7 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.ChannelPromise;
 import io.netty.channel.socket.SocketChannel;
-import net.tridentsdk.server.netty.packet.PacketDecoder;
-import net.tridentsdk.server.netty.packet.PacketDecrypter;
-import net.tridentsdk.server.netty.packet.PacketEncoder;
-import net.tridentsdk.server.netty.packet.PacketEncrypter;
-import net.tridentsdk.server.netty.packet.PacketHandler;
+import net.tridentsdk.server.netty.packet.*;
 
 import javax.annotation.concurrent.ThreadSafe;
 

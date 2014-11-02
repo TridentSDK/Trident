@@ -72,7 +72,7 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
 
     /**
      * Inherits from {@link net.tridentsdk.entity.TridentEntity}
-     *
+     * <p/>
      * <p>The entity is immediately set "non-dead" after {@code super} call</p>
      */
     public TridentLivingEntity(UUID id, Location spawnLocation) {

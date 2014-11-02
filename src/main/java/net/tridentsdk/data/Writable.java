@@ -28,7 +28,7 @@ public interface Writable {
     /**
      * Writes the data contained by the current implementation into serialized form in the provided {@link
      * io.netty.buffer.ByteBuf}
-     *
+     * <p/>
      * <p>Check the implementation source to see serialization spec</p>
      *
      * @param buf the buffer to write the serialized form to

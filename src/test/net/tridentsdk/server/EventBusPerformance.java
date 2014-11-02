@@ -182,7 +182,8 @@ public class EventBusPerformance {
         EVENT_BUS.post(EVENT);
     }
 
-    @Benchmark public void BdoCallEm() {
+    @Benchmark
+    public void BdoCallEm() {
         EVENT_MANAGER.call(EVENT);
     }
 

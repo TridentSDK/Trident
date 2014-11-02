@@ -45,9 +45,9 @@ public final class PlayerThreads {
 
     /**
      * Gets the management tool for the player
-     *
+     * <p/>
      * <p>This will put in a new value for the caches if cannot find for a new player</p>
-     *
+     * <p/>
      * <p>May block the first call</p>
      *
      * @param player the player to find the wrapper for

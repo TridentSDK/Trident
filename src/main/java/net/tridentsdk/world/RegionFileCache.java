@@ -31,7 +31,7 @@ public class RegionFileCache {
 
     private final Map<Path, RegionFile> regionFiles = new ConcurrentHashMap<>();
 
-    public RegionFile getRegionFile(Path worldPath,ChunkLocation location) {
+    public RegionFile getRegionFile(Path worldPath, ChunkLocation location) {
         Path regionPath = Paths.get(worldPath.toString(), "region", WorldUtils.getRegionFile(location));
 
         return this.regionFiles.get(regionPath);

@@ -34,7 +34,7 @@ public class TridentScheduler implements Scheduler {
     private final Runnable INVERSE_RUN = new Runnable() {
         @Override
         public void run() {
-            for (Iterator<TaskWrapper> iterator = taskList.descendingIterator(); iterator.hasNext();) {
+            for (Iterator<TaskWrapper> iterator = taskList.descendingIterator(); iterator.hasNext(); ) {
                 TaskWrapper task = iterator.next();
                 if (!task.hasRan()) task.run();
                 else task.setRan(false);
@@ -90,7 +90,7 @@ public class TridentScheduler implements Scheduler {
 
     @Override
     public TridentRunnable runTaskAsyncRepeating(final TridentPlugin plugin, final TridentRunnable runnable, long delay,
-            final long initialInterval) {
+                                                 final long initialInterval) {
         // Add repeating task later
         return this.runTaskAsyncLater(plugin, new TridentRunnable() {
             @Override
@@ -102,7 +102,7 @@ public class TridentScheduler implements Scheduler {
 
     @Override
     public TridentRunnable runTaskSyncRepeating(final TridentPlugin plugin, final TridentRunnable runnable, long delay,
-            final long initialInterval) {
+                                                final long initialInterval) {
         // Add repeating task later
         return this.runTaskSyncLater(plugin, new TridentRunnable() {
             @Override
@@ -167,7 +167,7 @@ public class TridentScheduler implements Scheduler {
                     break;
                 case ASYNC_LATER:
                     this.runner = new Runnable() {
-                        @Override 
+                        @Override
                         public void run() {
                             if (run.get() == interval) {
                                 runnable.run();
@@ -179,7 +179,8 @@ public class TridentScheduler implements Scheduler {
                     break;
                 case ASYNC_REPEAT:
                     this.runner = new Runnable() {
-                        @Override public void run() {
+                        @Override
+                        public void run() {
                             if (run.compareAndSet(interval, 0)) runnable.run();
                             else run.incrementAndGet();
                         }

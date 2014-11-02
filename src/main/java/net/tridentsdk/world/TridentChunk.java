@@ -97,7 +97,7 @@ public class TridentChunk implements Chunk {
 
         return new TridentBlock(new Location(this.world, relX + this.getX() * 16, y, relZ + this.getZ() * 16)
                 //TODO
-                , null, (byte)0);
+                , null, (byte) 0);
     }
 
     public void write(PacketPlayOutChunkData packet) {
@@ -112,7 +112,7 @@ public class TridentChunk implements Chunk {
         int size = 0;
         int sectionSize = ChunkSection.LENGTH * 5 / 2;
 
-        if(world.getDimesion() == Dimension.OVERWORLD) {
+        if (world.getDimesion() == Dimension.OVERWORLD) {
             sectionSize += ChunkSection.LENGTH / 2;
         }
 
@@ -121,28 +121,28 @@ public class TridentChunk implements Chunk {
         byte[] data = new byte[size];
         int pos = 0;
 
-        for(ChunkSection section : sections) {
-            for(byte b : section.getTypes()) {
+        for (ChunkSection section : sections) {
+            for (byte b : section.getTypes()) {
                 data[pos++] = (byte) (b & 0xff);
                 data[pos++] = (byte) (b >> 8);
             }
         }
 
-        for(ChunkSection section : sections) {
+        for (ChunkSection section : sections) {
             System.arraycopy(section.blockLight, 0, data, pos, section.blockLight.length);
             pos += section.blockLight.length;
         }
 
-        for(ChunkSection section : sections) {
+        for (ChunkSection section : sections) {
             System.arraycopy(section.skyLight, 0, data, pos, section.skyLight.length);
             pos += section.skyLight.length;
         }
 
-        for(int i = 0; i < 256; i += 1) {
+        for (int i = 0; i < 256; i += 1) {
             data[pos++] = 0;
         }
 
-        if(pos != size) {
+        if (pos != size) {
             throw new IllegalStateException("Wrote " + pos + " when expected " + size + " bytes");
         }
 
@@ -179,10 +179,10 @@ public class TridentChunk implements Chunk {
         this.sections = new ChunkSection[sectionsList.size()];
 
         /* Load sections */
-        for(int i = 0; i <= sectionsList.size(); i += 1) {
+        for (int i = 0; i <= sectionsList.size(); i += 1) {
             NBTTag t = sections.getTag(i);
 
-            if(t instanceof CompoundTag) {
+            if (t instanceof CompoundTag) {
                 CompoundTag ct = (CompoundTag) t;
 
                 this.sections[i] = NBTSerializer.deserialize(ChunkSection.class, ct);
@@ -195,7 +195,7 @@ public class TridentChunk implements Chunk {
         /* Load Entities */
         FastClass entityClass = FastClass.get(TridentEntity.class);
 
-        for(NBTTag t : entities.listTags()) {
+        for (NBTTag t : entities.listTags()) {
             TridentEntity entity = entityClass.getConstructor().newInstance();
 
             entity.load((CompoundTag) t);
@@ -245,7 +245,7 @@ public class TridentChunk implements Chunk {
 
             types = new byte[rawTypes.length];
 
-            for(int i = 0; i < LENGTH; i += 1) {
+            for (int i = 0; i < LENGTH; i += 1) {
                 Block block;
                 byte b;
                 byte bData;
@@ -262,7 +262,7 @@ public class TridentChunk implements Chunk {
                 block.setType(Material.fromString(String.valueOf(b)));
 
                 /* TODO get the type and deal with block data accordingly */
-                switch(block.getType()) {
+                switch (block.getType()) {
                     default:
                         break;
                 }

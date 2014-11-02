@@ -80,8 +80,8 @@ public class TridentPlayer extends OfflinePlayer {
     }
 
     public static TridentPlayer getPlayer(UUID id) {
-        for(TridentPlayer player : players) {
-            if(player.getUniqueId().equals(id)) {
+        for (TridentPlayer player : players) {
+            if (player.getUniqueId().equals(id)) {
                 return player;
             }
         }

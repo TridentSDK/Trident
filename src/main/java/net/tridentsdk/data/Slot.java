@@ -73,6 +73,7 @@ public class Slot implements Writable, NBTSerializable {
 
     protected Slot() {
     }
+
     /**
      * Gets the ID of the current item in the slot
      *

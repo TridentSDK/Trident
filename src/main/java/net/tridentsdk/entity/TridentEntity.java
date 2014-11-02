@@ -336,7 +336,7 @@ public class TridentEntity implements Entity {
 
         int[] location = new int[3];
 
-        for(int i = 0; i < 3; i += 1) {
+        for (int i = 0; i < 3; i += 1) {
             location[i] = ((IntTag) pos.get(i)).getValue();
         }
 
@@ -347,7 +347,7 @@ public class TridentEntity implements Entity {
 
         int[] velocity = new int[3];
 
-        for(int i = 0; i < 3; i += 1) {
+        for (int i = 0; i < 3; i += 1) {
             velocity[i] = ((IntTag) motion.get(i)).getValue();
         }
 

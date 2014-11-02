@@ -67,7 +67,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
         score = ((IntTag) tag.getTag("Score")).getValue();
         selectedSlot = (short) ((IntTag) tag.getTag("SelectedItemSlot")).getValue();
 
-        if(tag.containsTag("SpawnX")) {
+        if (tag.containsTag("SpawnX")) {
             spawnLocation = new Location(world, ((IntTag) tag.getTag("SpawnX")).getValue(),
                     ((IntTag) tag.getTag("SpawnY")).getValue(),
                     ((IntTag) tag.getTag("SpawnZ")).getValue());
@@ -84,13 +84,13 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
         xpTotal = ((IntTag) tag.getTag("XpLevel")).getValue();
         xpSeed = ((IntTag) tag.getTag("XpSeed")).getValue();
 
-        for(NBTTag t : ((ListTag) tag.getTag("Inventory")).listTags()) {
+        for (NBTTag t : ((ListTag) tag.getTag("Inventory")).listTags()) {
             Slot slot = NBTSerializer.deserialize(Slot.class, (CompoundTag) t);
 
             inventory.setSlot(slot.getSlot(), slot.toItemStack());
         }
 
-        for(NBTTag t : ((ListTag) tag.getTag("EnderItems")).listTags()) {
+        for (NBTTag t : ((ListTag) tag.getTag("EnderItems")).listTags()) {
             Slot slot = NBTSerializer.deserialize(Slot.class, (CompoundTag) t);
 
             enderChest.setSlot(slot.getSlot(), slot.toItemStack());
@@ -101,8 +101,8 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     }
 
     public static OfflinePlayer getOfflinePlayer(UUID id) {
-        for(OfflinePlayer player : players) {
-            if(player.getUniqueId().equals(id)) {
+        for (OfflinePlayer player : players) {
+            if (player.getUniqueId().equals(id)) {
                 return player;
             }
         }
@@ -239,7 +239,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
 
         ListTag inventoryTag = new ListTag("Inventory", TagType.COMPOUND);
 
-        for(ItemStack is : inventory.getContents()) {
+        for (ItemStack is : inventory.getContents()) {
             inventoryTag.addTag(NBTSerializer.serialize(new Slot(is)));
         }
 
@@ -247,7 +247,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
 
         ListTag enderTag = new ListTag("EnderItems", TagType.COMPOUND);
 
-        for(ItemStack is : enderChest.getContents()) {
+        for (ItemStack is : enderChest.getContents()) {
             enderTag.addTag(NBTSerializer.serialize(new Slot(is)));
         }
 

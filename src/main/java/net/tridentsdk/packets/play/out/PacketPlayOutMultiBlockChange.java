@@ -26,7 +26,7 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 public class PacketPlayOutMultiBlockChange extends OutPacket {
 
     protected ChunkLocation chunkLocation;
-    protected RecordBuilder[] records = { };
+    protected RecordBuilder[] records = {};
 
     @Override
     public int getId() {
@@ -42,7 +42,7 @@ public class PacketPlayOutMultiBlockChange extends OutPacket {
     }
 
     public void cleanup() {
-        RecordBuilder[] newRecords = { };
+        RecordBuilder[] newRecords = {};
 
         for (RecordBuilder value : this.records) {
             if (value != null) {

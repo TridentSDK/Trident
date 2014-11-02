@@ -18,16 +18,13 @@
 package net.tridentsdk.world;
 
 import com.google.common.io.ByteStreams;
-import net.tridentsdk.api.*;
+import net.tridentsdk.api.Block;
+import net.tridentsdk.api.Difficulty;
+import net.tridentsdk.api.GameMode;
+import net.tridentsdk.api.Location;
 import net.tridentsdk.api.nbt.*;
 import net.tridentsdk.api.util.StringUtil;
-import net.tridentsdk.api.world.Chunk;
-import net.tridentsdk.api.world.ChunkLocation;
-import net.tridentsdk.api.world.ChunkSnapshot;
-import net.tridentsdk.api.world.Dimension;
-import net.tridentsdk.api.world.LevelType;
-import net.tridentsdk.api.world.World;
-import net.tridentsdk.api.world.WorldLoader;
+import net.tridentsdk.api.world.*;
 import net.tridentsdk.player.OfflinePlayer;
 import net.tridentsdk.server.TridentServer;
 import org.slf4j.Logger;
@@ -105,11 +102,11 @@ public class TridentWorld implements World {
 
         File region = new File(directory, "region" + File.separator);
 
-        if(!(region.exists()) || !(region.isDirectory())) {
+        if (!(region.exists()) || !(region.isDirectory())) {
             throw new IllegalStateException("Region folder is rather non-existent or isn't a directory!");
         }
 
-        for(File file : region.listFiles(new ChunkFilter())) {
+        for (File file : region.listFiles(new ChunkFilter())) {
             String[] strings = file.getName().split("\\.");
 
             int chunkX = (int) Math.floor(Integer.parseInt(strings[1]) * 32);
@@ -146,13 +143,13 @@ public class TridentWorld implements World {
 
         File playerData = new File(directory, "playerdata");
 
-        if(!(playerData.exists()) || !(playerData.isDirectory())) {
+        if (!(playerData.exists()) || !(playerData.isDirectory())) {
             logger.info("Player data folder does not exist! Creating folder...");
             playerData.mkdir();
         } else {
             logger.info("Scanning player data...");
 
-            for(File f : playerData.listFiles(new PlayerFilter())) {
+            for (File f : playerData.listFiles(new PlayerFilter())) {
                 CompoundTag opData;
 
                 try {
@@ -252,7 +249,7 @@ public class TridentWorld implements World {
         int y = (int) Math.round(location.getY());
         int z = (int) Math.round(location.getZ());
 
-        return this.getChunkAt(WorldUtils.getChunkLocation(x, z),true).getBlockAt(x % 16, y, z % 16);
+        return this.getChunkAt(WorldUtils.getChunkLocation(x, z), true).getBlockAt(x % 16, y, z % 16);
     }
 
     @Override

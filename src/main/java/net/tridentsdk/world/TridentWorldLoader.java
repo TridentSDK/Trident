@@ -35,20 +35,20 @@ public class TridentWorldLoader implements WorldLoader {
     private final Map<String, TridentWorld> worlds = new ConcurrentHashMap<>();
 
     public TridentWorldLoader() {
-        for(File file : getWorldContainer().listFiles()) {
-            if(!(file.isDirectory()) || file.getName().contains(" ")) {
+        for (File file : getWorldContainer().listFiles()) {
+            if (!(file.isDirectory()) || file.getName().contains(" ")) {
                 continue;
             }
 
             boolean isWorld = false;
 
-            for(File f : file.listFiles()) {
-                if(f.getName().equals("level.dat")) {
+            for (File f : file.listFiles()) {
+                if (f.getName().equals("level.dat")) {
                     isWorld = true;
                 }
             }
 
-            if(!(isWorld)) {
+            if (!(isWorld)) {
                 continue;
             }
 

@@ -37,7 +37,7 @@ public class PropertyBuilder implements Writable {
      * Creates a 0 length property array
      */
     public PropertyBuilder() {
-        this.modifiers = new String[] { };
+        this.modifiers = new String[]{};
     }
 
     /**

@@ -40,9 +40,9 @@ public final class WorldThreads {
 
     /**
      * Gets the management tool for the world
-     *
+     * <p/>
      * <p>This will put in a new value for the caches if cannot find for a new world</p>
-     *
+     * <p/>
      * <p>May block the first call</p>
      *
      * @param world the world to retrieve the thread handler for

@@ -3,11 +3,7 @@ package net.tridentsdk.server;
 import net.tridentsdk.api.scheduling.TridentRunnable;
 import net.tridentsdk.plugin.TridentPlugin;
 import net.tridentsdk.plugin.annotation.PluginDescription;
-import org.openjdk.jmh.annotations.Benchmark;
-import org.openjdk.jmh.annotations.Mode;
-import org.openjdk.jmh.annotations.Scope;
-import org.openjdk.jmh.annotations.Setup;
-import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
@@ -84,7 +80,8 @@ public class SchedulerTest {
     public void setup() {
         for (int i = 0; i < 100; i++) {
             @PluginDescription(name = "LOLCODE")
-            class PluginImpl extends TridentPlugin {}
+            class PluginImpl extends TridentPlugin {
+            }
 
             scheduler.runTaskSyncLater(new PluginImpl(), new TridentRunnable() {
                 @Override
@@ -126,7 +123,8 @@ public class SchedulerTest {
         TridentScheduler scheduler = new TridentScheduler();
         for (int i = 0; i < 100; i++) {
             @PluginDescription(name = "LOLCODE")
-            class PluginImpl extends TridentPlugin {}
+            class PluginImpl extends TridentPlugin {
+            }
 
             final int finalI = i;
             scheduler.runTaskAsyncRepeating(new PluginImpl(), new TridentRunnable() {

@@ -25,7 +25,6 @@ import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
-import net.tridentsdk.server.netty.packet.PacketType;
 import net.tridentsdk.server.netty.protocol.Protocol;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -204,7 +203,7 @@ public class PacketLoginInEncryptionResponse extends InPacket {
          * @return Generated Hash
          */
         static byte[] getHash(ClientConnection connection, byte... secret) throws Exception {
-            byte[][] b = { secret, connection.getLoginKeyPair().getPublic().getEncoded() };
+            byte[][] b = {secret, connection.getLoginKeyPair().getPublic().getEncoded()};
             MessageDigest digest = MessageDigest.getInstance("SHA-1");
 
             for (byte[] bytes : b) {

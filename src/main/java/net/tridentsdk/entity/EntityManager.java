@@ -33,7 +33,7 @@ public final class EntityManager {
 
     /**
      * Constructs the EntityManager for use by the server ONLY
-     *
+     * <p/>
      * <p>In other words, DON'T USE IT</p>
      */
     public EntityManager() {

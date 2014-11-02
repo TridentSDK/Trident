@@ -23,7 +23,8 @@ public final class WorldUtils {
 
     public static final byte NIBBLE_MASK = (byte) 0x0F;
 
-    private WorldUtils() {}
+    private WorldUtils() {
+    }
 
     /**
      * Get section index from y height
@@ -31,7 +32,7 @@ public final class WorldUtils {
      * @param y the y height specified
      * @return the section index
      */
-    public static int getSection (int y) {
+    public static int getSection(int y) {
         return y >> 4;
     }
 
@@ -83,13 +84,13 @@ public final class WorldUtils {
      * The byte world nibble array byte search
      *
      * @param nibbleArray the nibble array to search from
-     * @param index the nibble index
+     * @param index       the nibble index
      * @return the index of the nibble byte
      */
     public static byte getFromNibbleArray(byte[] nibbleArray, int index) {
         boolean off = index % 2 == 1;
 
-        if(off) {
+        if (off) {
             return (byte) (nibbleArray[index / 2] >>> 4);
         } else {
             return (byte) (nibbleArray[index / 2] & NIBBLE_MASK);

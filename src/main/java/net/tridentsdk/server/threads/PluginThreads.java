@@ -36,7 +36,7 @@ public final class PluginThreads {
 
     /**
      * Gets the management tool for the plugin
-     *
+     * <p/>
      * <p>May block the first call</p>
      *
      * @param plugin the plugin to find the wrapper for

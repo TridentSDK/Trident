@@ -316,7 +316,7 @@ public final class TridentServer implements Server {
     public Player getPlayer(UUID id) {
         Player p;
 
-        if((p = TridentPlayer.getPlayer(id)) != null) {
+        if ((p = TridentPlayer.getPlayer(id)) != null) {
             return p;
         }
 
