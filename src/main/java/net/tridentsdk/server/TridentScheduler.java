@@ -146,6 +146,8 @@ public class TridentScheduler implements Scheduler {
 
         private final Runnable runner;
         private volatile boolean ran;
+        // This field is volatile because the two task loops are executed by
+        // different threads in the ConcurrentTaskExecutor
 
         private final TaskExecutor executor;
 
