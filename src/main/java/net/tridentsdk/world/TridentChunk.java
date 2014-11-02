@@ -17,6 +17,7 @@
  */
 package net.tridentsdk.world;
 
+import io.netty.util.internal.ConcurrentSet;
 import net.tridentsdk.api.Block;
 import net.tridentsdk.api.Location;
 import net.tridentsdk.api.Material;
@@ -33,7 +34,6 @@ import net.tridentsdk.packets.play.out.PacketPlayOutChunkData;
 
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ConcurrentSkipListSet;
 
 public class TridentChunk implements Chunk {
     private final TridentWorld world;
@@ -47,7 +47,7 @@ public class TridentChunk implements Chunk {
 
     private ChunkSection[] sections;
 
-    private final Set<TridentEntity> entities = new ConcurrentSkipListSet<>(); // TODO: confirm if correct set implementation
+    private final Set<TridentEntity> entities = new ConcurrentSet<>();
 
     public TridentChunk(TridentWorld world, int x, int z) {
         this(world, new ChunkLocation(x, z));

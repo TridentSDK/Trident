@@ -17,6 +17,7 @@
  */
 package net.tridentsdk.player;
 
+import io.netty.util.internal.ConcurrentSet;
 import net.tridentsdk.api.entity.living.Player;
 import net.tridentsdk.api.nbt.CompoundTag;
 import net.tridentsdk.api.threads.TaskExecutor;
@@ -31,10 +32,9 @@ import net.tridentsdk.world.TridentWorld;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentSkipListSet;
 
 public class TridentPlayer extends OfflinePlayer {
-    private static final Set<TridentPlayer> players = new ConcurrentSkipListSet<>(); // TODO: Check if best choice for Players
+    private static final Set<TridentPlayer> players = new ConcurrentSet<>();
 
     private final PlayerConnection connection;
     private final TaskExecutor executor = TridentServer.getInstance().provideThreads().providePlayerThread(this);

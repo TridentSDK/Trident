@@ -17,6 +17,7 @@
  */
 package net.tridentsdk.player;
 
+import io.netty.util.internal.ConcurrentSet;
 import net.tridentsdk.api.GameMode;
 import net.tridentsdk.api.Location;
 import net.tridentsdk.api.entity.Entity;
@@ -35,11 +36,10 @@ import net.tridentsdk.world.TridentWorld;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentSkipListSet;
 
 public class OfflinePlayer extends TridentInventoryHolder implements Player {
 
-    private static final Set<OfflinePlayer> players = new ConcurrentSkipListSet<>();
+    private static final Set<OfflinePlayer> players = new ConcurrentSet<>();
 
     protected Dimension dimesion;
     protected GameMode gameMode;
