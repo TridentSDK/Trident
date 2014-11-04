@@ -21,7 +21,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import net.tridentsdk.api.perf.AddTakeQueue;
-import net.tridentsdk.api.perf.ReImplLinkedQueue;
+import net.tridentsdk.api.perf.DelegatedAddTakeQueue;
 import net.tridentsdk.api.threads.TaskExecutor;
 
 import javax.annotation.Nullable;
@@ -30,6 +30,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Thread list to allow task execution in a shared thread scaled with removal
@@ -146,7 +148,12 @@ public class ConcurrentTaskExecutor<Assignment> {
     }
 
     private static final class InnerThread implements TaskExecutor {
-        private final AddTakeQueue<Runnable> tasks = new ReImplLinkedQueue<>();
+        private final AddTakeQueue<Runnable> tasks = new DelegatedAddTakeQueue<Runnable>() {
+            @Override
+            protected BlockingQueue<Runnable> delegate() {
+                return new LinkedBlockingQueue<>();
+            }
+        };
         private final DelegateThread thread = new DelegateThread();
         private boolean stopped;
         // Does not need to be volatile because only this thread can change it
