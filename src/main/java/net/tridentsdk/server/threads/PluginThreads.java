@@ -47,9 +47,7 @@ public final class PluginThreads {
             @Override
             public TaskExecutor call() throws Exception {
                 TaskExecutor executor = THREAD_MAP.getScaledThread();
-                THREAD_MAP.assign(executor, plugin);
-
-                return executor;
+                return THREAD_MAP.assign(executor, plugin);
             }
         }, EntityThreads.SERVICE);
     }

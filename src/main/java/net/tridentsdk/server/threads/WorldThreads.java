@@ -53,9 +53,7 @@ public final class WorldThreads {
             @Override
             public TaskExecutor call() throws Exception {
                 TaskExecutor executor = THREAD_MAP.getScaledThread();
-                THREAD_MAP.assign(executor, world);
-
-                return executor;
+                return THREAD_MAP.assign(executor, world);
             }
         }, SERVICE);
     }

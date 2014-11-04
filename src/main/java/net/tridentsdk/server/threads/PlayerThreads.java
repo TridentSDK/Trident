@@ -58,9 +58,7 @@ public final class PlayerThreads {
             @Override
             public TaskExecutor call() throws Exception {
                 TaskExecutor executor = THREAD_MAP.getScaledThread();
-                THREAD_MAP.assign(executor, player);
-
-                return executor;
+                return THREAD_MAP.assign(executor, player);
             }
         }, EntityThreads.SERVICE);
     }
