@@ -77,6 +77,8 @@ public class PacketHandler extends SimpleChannelInboundHandler<PacketData> {
         try {
             packet.handleReceived(this.connection);
         } catch (Exception ex) {
+            ex.printStackTrace();
+
             switch (this.connection.getStage()) {
                 case LOGIN:
                     PacketLoginOutDisconnect disconnect = new PacketLoginOutDisconnect();
@@ -86,7 +88,7 @@ public class PacketHandler extends SimpleChannelInboundHandler<PacketData> {
                     this.connection.sendPacket(disconnect);
                     this.connection.logout();
 
-                    break;
+                    // fall through
 
                 case PLAY:
                     PacketPlayOutDisconnect quit = new PacketPlayOutDisconnect();
@@ -96,11 +98,9 @@ public class PacketHandler extends SimpleChannelInboundHandler<PacketData> {
                     this.connection.sendPacket(quit);
                     this.connection.logout();
 
-                    break;
+                    // fall through
 
                 default:
-                    // can't do much but print the stacktrace
-                    ex.printStackTrace();
                     break;
             }
         }
