@@ -63,6 +63,10 @@ import java.util.concurrent.atomic.AtomicLong;
  * execution threads (because there are 4 threads in the scheduler: 2 threads to run the double-iterator, and 2 task
  * executors).</p>
  *
+ * <p>The tick method should never fall behind. The tasks are handled on a run thread, and ticks are staging operations
+ * to the iteration executors. Synchronous tasks are executed on the plugin thread of the scheduling plugin, and
+ * asynchronous tasks are scheduled on a separate executor contained internally in the scheduler.</p>
+ *
  * <p>The benchmarks and testing units for the TridentScheduler can be found at: http://git.io/nifjcg.</p>
  *
  * @author The TridentSDK Team

@@ -149,8 +149,7 @@ public class ConcurrentTaskExecutor<Assignment> {
 
     private static final class InnerThread implements TaskExecutor {
         private final AddTakeQueue<Runnable> tasks = new DelegatedAddTakeQueue<Runnable>() {
-            @Override
-            protected BlockingQueue<Runnable> delegate() {
+            @Override protected BlockingQueue<Runnable> delegate() {
                 return new LinkedBlockingQueue<>();
             }
         };
