@@ -299,7 +299,8 @@ public class TridentScheduler implements Scheduler {
             this.run.set(0);
         }
 
-        @Override public long getInterval() {
+        @Override 
+        public long getInterval() {
             return this.interval.get();
         }
 
