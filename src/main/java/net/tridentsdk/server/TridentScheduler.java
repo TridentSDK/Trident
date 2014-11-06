@@ -177,7 +177,8 @@ public class TridentScheduler implements Scheduler {
         return null;
     }
 
-    @Override public TaskWrapper wrapperByRun(TridentRunnable runnable) {
+    @Override 
+    public TaskWrapper wrapperByRun(TridentRunnable runnable) {
         for (TaskWrapper wrapper : taskList)
             if (wrapper.getRunnable().equals(runnable))
                 return wrapper;
