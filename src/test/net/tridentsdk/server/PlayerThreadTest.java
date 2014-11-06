@@ -50,7 +50,7 @@ public class PlayerThreadTest {
     public static void setup() {
         for (int i = 0; i < 6_000; i++) {
             PlayerThreads.clientThreadHandle(TridentPlayer.spawnPlayer(
-                    ClientConnection.registerConnection(new CTXProper().channel()), UUID.randomUUID()));
+                    ClientConnection.registerConnection(new CTXProper().channel()), UUID.randomUUID(), ""));
             // PlayerThreadTest.QUEUE.add(new CTXProper());
         }
 
