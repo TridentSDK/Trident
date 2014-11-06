@@ -52,8 +52,12 @@ public class TridentPlayer extends OfflinePlayer {
         }
     }
 
-    public static Player spawnPlayer(ClientConnection connection, UUID id) {
+    public static Player spawnPlayer(ClientConnection connection, UUID id, String name) {
         OfflinePlayer offlinePlayer = OfflinePlayer.getOfflinePlayer(id);
+
+        if(offlinePlayer == null) {
+            offlinePlayer = OfflinePlayer.generatePlayer(name, id);
+        }
 
         TridentPlayer p = new TridentPlayer(offlinePlayer.toNbt(),
                 (TridentWorld) offlinePlayer.getWorld(), connection);

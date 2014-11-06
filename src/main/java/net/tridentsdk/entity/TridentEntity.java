@@ -332,6 +332,11 @@ public class TridentEntity implements Entity {
 
         /* Set data */
         this.id = Integer.parseInt(id.getValue());
+
+        if(this.id >= counter.get()) {
+            counter.incrementAndGet();
+        }
+
         this.uniqueId = new UUID(uuidMost.getValue(), uuidLeast.getValue());
 
         int[] location = new int[3];
@@ -370,5 +375,6 @@ public class TridentEntity implements Entity {
 
         this.nameVisible = dnVisible.getValue() == 1;
         this.silent = silent.getValue() == 1;
+        this.displayName = displayName.getValue();
     }
 }

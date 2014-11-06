@@ -20,6 +20,8 @@ package net.tridentsdk.player;
 import io.netty.util.internal.ConcurrentSet;
 import net.tridentsdk.api.GameMode;
 import net.tridentsdk.api.Location;
+import net.tridentsdk.api.Trident;
+import net.tridentsdk.api.TridentFactory;
 import net.tridentsdk.api.entity.Entity;
 import net.tridentsdk.api.entity.EntityProperties;
 import net.tridentsdk.api.entity.Projectile;
@@ -28,7 +30,11 @@ import net.tridentsdk.api.event.entity.EntityDamageEvent;
 import net.tridentsdk.api.inventory.Inventory;
 import net.tridentsdk.api.inventory.ItemStack;
 import net.tridentsdk.api.nbt.*;
+import net.tridentsdk.api.nbt.builder.CompoundTagBuilder;
+import net.tridentsdk.api.nbt.builder.ListTagBuilder;
+import net.tridentsdk.api.nbt.builder.NBTBuilder;
 import net.tridentsdk.api.world.Dimension;
+import net.tridentsdk.api.world.World;
 import net.tridentsdk.data.Slot;
 import net.tridentsdk.entity.TridentInventoryHolder;
 import net.tridentsdk.world.TridentWorld;
@@ -41,6 +47,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
 
     private static final Set<OfflinePlayer> players = new ConcurrentSet<>();
 
+    protected String name;
     protected Dimension dimesion;
     protected GameMode gameMode;
     protected int score;
@@ -58,7 +65,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     protected final PlayerAbilities abilities = new PlayerAbilities();
 
     public OfflinePlayer(CompoundTag tag, TridentWorld world) {
-        super(null, null);
+        super(null, world.getSpawnLocation());
 
         load(tag);
 
@@ -72,7 +79,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
                     ((IntTag) tag.getTag("SpawnY")).getValue(),
                     ((IntTag) tag.getTag("SpawnZ")).getValue());
         } else {
-            spawnLocation = null; // TODO: set it to world's spawn location
+            spawnLocation = world.getSpawnLocation();
         }
 
         hunger = (short) ((IntTag) tag.getTag("foodLevel")).getValue();
@@ -87,13 +94,13 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
         for (NBTTag t : ((ListTag) tag.getTag("Inventory")).listTags()) {
             Slot slot = NBTSerializer.deserialize(Slot.class, (CompoundTag) t);
 
-            inventory.setSlot(slot.getSlot(), slot.toItemStack());
+            //inventory.setSlot(slot.getSlot(), slot.toItemStack());
         }
 
         for (NBTTag t : ((ListTag) tag.getTag("EnderItems")).listTags()) {
             Slot slot = NBTSerializer.deserialize(Slot.class, (CompoundTag) t);
 
-            enderChest.setSlot(slot.getSlot(), slot.toItemStack());
+            //enderChest.setSlot(slot.getSlot(), slot.toItemStack());
         }
 
         NBTSerializer.deserialize(abilities, (CompoundTag) tag.getTag("abilities"));
@@ -108,6 +115,76 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
         }
 
         return null;
+    }
+
+    public static OfflinePlayer generatePlayer(String name, UUID id) {
+        World defaultWorld = Trident.getServer().getWorlds().iterator().next();
+        Location spawnLocation = defaultWorld.getSpawnLocation();
+        CompoundTagBuilder<NBTBuilder> builder = TridentFactory.createNbtBuilder("buttfuckery"); // because why the fuck not
+
+        builder.stringTag("id", String.valueOf(counter.get() + 1));
+        builder.longTag("UUIDMost", id.getMostSignificantBits());
+        builder.longTag("UUIDLeast", id.getLeastSignificantBits());
+
+        ListTagBuilder<CompoundTagBuilder<NBTBuilder>> pos = builder.beginListTag("Pos", TagType.INT);
+
+        pos.tag(new IntTag("X").setValue((int) spawnLocation.getX()));
+        pos.tag(new IntTag("Y").setValue((int) spawnLocation.getY()));
+        pos.tag(new IntTag("Z").setValue((int) spawnLocation.getZ()));
+
+        builder = pos.endListTag();
+
+        ListTagBuilder<CompoundTagBuilder<NBTBuilder>> motion = builder.beginListTag("Motion", TagType.INT);
+
+        motion.tag(new IntTag("X").setValue(0));
+        motion.tag(new IntTag("Y").setValue(0));
+        motion.tag(new IntTag("Z").setValue(0));
+
+        builder = motion.endListTag();
+
+        ListTagBuilder<CompoundTagBuilder<NBTBuilder>> rotation = builder.beginListTag("Rotation", TagType.INT);
+
+        rotation.tag(new IntTag("Yaw").setValue(0));
+        rotation.tag(new IntTag("Pitch").setValue(0));
+
+        builder = rotation.endListTag();
+
+        builder.floatTag("FallDistance", 0);
+        builder.shortTag("Fire", (short) 0);
+        builder.shortTag("Air", (short) 0);
+
+        builder.byteTag("OnGround", (byte) 1);
+        builder.byteTag("Invulnerable", (byte) 0);
+
+        builder.stringTag("CustomName", "");
+        builder.byteTag("CustomNameVisible", (byte) 0);
+
+        builder.byteTag("Silent", (byte) 0);
+
+        builder.intTag("Dimension", Dimension.OVERWORLD.toByte());
+        builder.intTag("playerGameType", GameMode.SURVIVAL.toByte());
+        builder.intTag("Score", 0);
+        builder.intTag("SelectedGameSlot", 0);
+
+        builder.intTag("foodLevel", 20);
+        builder.intTag("foodExhaustionLevel", 0);
+        builder.intTag("foodSaturationLevel", 0);
+
+        builder.intTag("XpLevel", 0);
+        builder.intTag("XpP", 0);
+        builder.intTag("XpLevel", 0);
+        builder.intTag("XpSeed", 0); // actually give a proper seed
+
+        builder.listTag(new ListTag("Inventory", TagType.COMPOUND));
+        builder.listTag(new ListTag("EnderItems", TagType.COMPOUND));
+
+        builder.compoundTag(NBTSerializer.serialize(new PlayerAbilities(), "abilities"));
+
+        OfflinePlayer generatedPlayer = new OfflinePlayer(builder.endCompoundTag().build(), (TridentWorld) defaultWorld);
+
+        generatedPlayer.name = name;
+
+        return generatedPlayer;
     }
 
     public Location getSpawnLocation() {
