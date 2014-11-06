@@ -169,6 +169,21 @@ public class TridentScheduler implements Scheduler {
             if (wrapper.getRunnable().equals(runnable)) taskList.remove(wrapper);
     }
 
+    @Override
+    public TaskWrapper wrapperById(int i) {
+        for (TaskWrapper wrapper : taskList)
+            if (wrapper.getRunnable().getId() == i)
+                return wrapper;
+        return null;
+    }
+
+    @Override public TaskWrapper wrapperByRun(TridentRunnable runnable) {
+        for (TaskWrapper wrapper : taskList)
+            if (wrapper.getRunnable().equals(runnable))
+                return wrapper;
+        return null;
+    }
+
     public void stop() {
         concurrentTaskExecutor.shutdown();
         taskQueue.shutdown();
@@ -282,6 +297,10 @@ public class TridentScheduler implements Scheduler {
         public void setInterval(long interval) {
             this.interval.set(interval);
             this.run.set(0);
+        }
+
+        @Override public long getInterval() {
+            return this.interval.get();
         }
 
         @Override
