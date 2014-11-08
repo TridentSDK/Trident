@@ -301,7 +301,7 @@ public class TridentEntity implements Entity {
 
     public void load(CompoundTag tag) {
         /* IDs */
-        StringTag id = tag.getTagAs("id"); // ID of the entity, in form of an integer
+        String id = ((StringTag) tag.getTag("id")).getValue(); // ID of the entity, in form of an integer
         LongTag uuidMost = tag.getTagAs("UUIDMost"); // most signifigant bits of UUID
         LongTag uuidLeast = tag.getTagAs("UUIDLeast"); // least signifigant bits of UUID
 
@@ -327,11 +327,11 @@ public class TridentEntity implements Entity {
 
         ByteTag silent = tag.getTagAs("Silent"); // 0 = false, 1 = true - If true, the entity will not make a sound
 
-        CompoundTag riding = tag.getTagAs("Riding"); // CompoundTag of the entity being ridden, contents are recursive
-        CompoundTag commandStats = tag.getTagAs("CommandStats"); // Information to modify relative to the last command run
+        NBTTag riding = tag.getTagAs("Riding"); // CompoundTag of the entity being ridden, contents are recursive
+        NBTTag commandStats = tag.getTagAs("CommandStats"); // Information to modify relative to the last command run
 
         /* Set data */
-        this.id = Integer.parseInt(id.getValue());
+        this.id = Integer.parseInt(id);
 
         if(this.id >= counter.get()) {
             counter.incrementAndGet();

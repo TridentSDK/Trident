@@ -78,11 +78,9 @@ public class TridentWorldLoader implements WorldLoader {
         return this.worlds.containsKey(world);
     }
 
-    //TODO: I don't believe this is checking the right thing... This should be checking of it
-    //exist in the save file, not in memory
     @Override
     public boolean chunkExists(World world, int x, int z) {
-        return world.getChunkAt(x, z, false) != null;
+        return new File(world.getName() + "/region/", WorldUtils.getRegionFile(x, z)).exists();
     }
 
     @Override
@@ -106,6 +104,7 @@ public class TridentWorldLoader implements WorldLoader {
         } catch (IOException | DataFormatException | NBTException ex) {
             ex.printStackTrace();
         }
+
         return null;
     }
 

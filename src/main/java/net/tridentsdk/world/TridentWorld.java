@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
@@ -104,39 +105,6 @@ public class TridentWorld implements World {
 
         if (!(region.exists()) || !(region.isDirectory())) {
             throw new IllegalStateException("Region folder is rather non-existent or isn't a directory!");
-        }
-
-        for (File file : region.listFiles(new ChunkFilter())) {
-            String[] strings = file.getName().split("\\.");
-
-            int chunkX = (int) Math.floor(Integer.parseInt(strings[1]) * 32);
-            int chunkZ = (int) Math.floor(Integer.parseInt(strings[2]) * 32);
-
-            logger.info("Loading contents of " + file.getName() + "...");
-
-            RegionFile regionFile;
-
-            try {
-                regionFile = new RegionFile(file.toPath());
-            } catch (IOException ex) {
-                logger.info("Unable to load the region file! Printing stacktrace...");
-                ex.printStackTrace();
-                continue;
-            }
-
-            ChunkLocation location = new ChunkLocation(chunkX, chunkZ);
-            TridentChunk chunk;
-
-            try {
-                chunk = regionFile.loadChunkData(this, location);
-            } catch (NBTException | IOException | DataFormatException e) {
-                logger.info("Unable to load the region file! Printing stacktrace...");
-                e.printStackTrace();
-                continue;
-            }
-
-            loadedChunks.put(location, chunk);
-            logger.info("Loaded " + file.getName() + " successfully!");
         }
 
         logger.info("Loaded region files successfully! Moving onto player data...");
@@ -257,7 +225,6 @@ public class TridentWorld implements World {
         return new ChunkSnapshot(new ConcurrentHashMap<ChunkLocation, Chunk>(loadedChunks));
     }
 
-    @Override
     public Dimension getDimesion() {
         return dimension;
     }
@@ -282,6 +249,71 @@ public class TridentWorld implements World {
         return spawnLocation;
     }
 
+    @Override
+    public Dimension getDimension() {
+        return null;
+    }
+
+    @Override
+    public boolean getGamerule(String rule) {
+        return false;
+    }
+
+    @Override
+    public long getTime() {
+        return 0;
+    }
+
+    @Override
+    public Location getSpawn() {
+        return spawnLocation;
+    }
+
+    @Override
+    public boolean isRaining() {
+        return false;
+    }
+
+    @Override
+    public int getRainTime() {
+        return 0;
+    }
+
+    @Override
+    public boolean isThundering() {
+        return false;
+    }
+
+    @Override
+    public int getThunderTime() {
+        return 0;
+    }
+
+    @Override
+    public boolean canGenerateStructures() {
+        return false;
+    }
+
+    @Override
+    public int getBorderSize() {
+        return 0;
+    }
+
+    @Override
+    public Location getBorderCenter() {
+        return null;
+    }
+
+    @Override
+    public int getBorderSizeContraction() {
+        return 0;
+    }
+
+    @Override
+    public int getBorderSizeContractionTime() {
+        return 0;
+    }
+
     private static class PlayerFilter implements FilenameFilter {
         @Override
         public boolean accept(File file, String name) {
@@ -295,8 +327,7 @@ public class TridentWorld implements World {
         public boolean accept(File file, String s) {
             String[] strings = s.split("\\.");
 
-            return s.endsWith(".mca") && s.length() == 3 && strings[0].equals("r")
-                    && StringUtil.isNumeric(strings[1]) && StringUtil.isNumeric(strings[2]);
+            return s.endsWith(".mca") && strings.length == 4 && strings[0].equals("r");
         }
     }
 }

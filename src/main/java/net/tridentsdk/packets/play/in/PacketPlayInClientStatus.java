@@ -26,6 +26,7 @@ import net.tridentsdk.player.TridentPlayer;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
+import net.tridentsdk.world.TridentWorld;
 
 /**
  * Sent by the client when it's ready to login or respawn after death
@@ -63,7 +64,7 @@ public class PacketPlayInClientStatus extends InPacket {
             case RESPAWN:
                 PacketPlayOutPlayerRespawn respawn = new PacketPlayOutPlayerRespawn();
 
-                respawn.set("dimesion", (int) world.getDimesion().toByte())
+                respawn.set("dimesion", (int) ((TridentWorld) world).getDimesion().toByte())
                         .set("difficulity", (int) world.getDifficulty().toByte())
                         .set("gameMode", (int) world.getDefaultGamemode().toByte()
                         /* todo make this specific to the player */);

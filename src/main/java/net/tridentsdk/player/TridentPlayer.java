@@ -18,6 +18,7 @@
 package net.tridentsdk.player;
 
 import io.netty.util.internal.ConcurrentSet;
+import net.tridentsdk.api.Trident;
 import net.tridentsdk.api.entity.living.Player;
 import net.tridentsdk.api.nbt.CompoundTag;
 import net.tridentsdk.api.threads.TaskExecutor;
@@ -53,18 +54,19 @@ public class TridentPlayer extends OfflinePlayer {
     }
 
     public static Player spawnPlayer(ClientConnection connection, UUID id, String name) {
-        OfflinePlayer offlinePlayer = OfflinePlayer.getOfflinePlayer(id);
+        CompoundTag offlinePlayer = (OfflinePlayer.getOfflinePlayer(id) == null) ? null :
+                OfflinePlayer.getOfflinePlayer(id).toNbt();
 
         if(offlinePlayer == null) {
             offlinePlayer = OfflinePlayer.generatePlayer(name, id);
         }
 
-        TridentPlayer p = new TridentPlayer(offlinePlayer.toNbt(),
-                (TridentWorld) offlinePlayer.getWorld(), connection);
+        TridentPlayer p = new TridentPlayer(offlinePlayer,
+                (TridentWorld) Trident.getWorlds().iterator().next(), connection);
 
         p.connection.sendPacket(new PacketPlayOutJoinGame().set("entityId", p.getId())
                 .set("gamemode", p.getGameMode())
-                .set("dimension", p.getWorld().getDimesion())
+                .set("dimension", ((TridentWorld) p.getWorld()).getDimesion())
                 .set("difficulty", p.getWorld().getDifficulty())
                 .set("maxPlayers", (short) 10)
                 .set("levelType",
@@ -174,7 +176,7 @@ public class TridentPlayer extends OfflinePlayer {
 
                 PacketPlayOutChunkData packet = new PacketPlayOutChunkData(); // TODO: Use ChunkBulk for efficiency
 
-                ((TridentChunk) getWorld().getChunkAt(x, z, false)).write(packet);
+                ((TridentChunk) getWorld().getChunkAt(x, z, true)).write(packet);
 
                 connection.sendPacket(packet);
             }

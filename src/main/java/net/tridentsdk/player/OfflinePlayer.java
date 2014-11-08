@@ -117,35 +117,35 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
         return null;
     }
 
-    public static OfflinePlayer generatePlayer(String name, UUID id) {
+    public static CompoundTag generatePlayer(String name, UUID id) {
         World defaultWorld = Trident.getServer().getWorlds().iterator().next();
         Location spawnLocation = defaultWorld.getSpawnLocation();
         CompoundTagBuilder<NBTBuilder> builder = TridentFactory.createNbtBuilder("buttfuckery"); // because why the fuck not
 
-        builder.stringTag("id", String.valueOf(counter.get() + 1));
+        builder.stringTag("id", String.valueOf(counter.incrementAndGet()));
         builder.longTag("UUIDMost", id.getMostSignificantBits());
         builder.longTag("UUIDLeast", id.getLeastSignificantBits());
 
         ListTagBuilder<CompoundTagBuilder<NBTBuilder>> pos = builder.beginListTag("Pos", TagType.INT);
 
-        pos.tag(new IntTag("X").setValue((int) spawnLocation.getX()));
-        pos.tag(new IntTag("Y").setValue((int) spawnLocation.getY()));
-        pos.tag(new IntTag("Z").setValue((int) spawnLocation.getZ()));
+        pos.tag((int) spawnLocation.getX());
+        pos.tag((int) spawnLocation.getY());
+        pos.tag((int) spawnLocation.getZ());
 
         builder = pos.endListTag();
 
         ListTagBuilder<CompoundTagBuilder<NBTBuilder>> motion = builder.beginListTag("Motion", TagType.INT);
 
-        motion.tag(new IntTag("X").setValue(0));
-        motion.tag(new IntTag("Y").setValue(0));
-        motion.tag(new IntTag("Z").setValue(0));
+        motion.tag(0);
+        motion.tag(0);
+        motion.tag(0);
 
         builder = motion.endListTag();
 
         ListTagBuilder<CompoundTagBuilder<NBTBuilder>> rotation = builder.beginListTag("Rotation", TagType.INT);
 
-        rotation.tag(new IntTag("Yaw").setValue(0));
-        rotation.tag(new IntTag("Pitch").setValue(0));
+        rotation.tag(0);
+        rotation.tag(0);
 
         builder = rotation.endListTag();
 
@@ -156,10 +156,15 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
         builder.byteTag("OnGround", (byte) 1);
         builder.byteTag("Invulnerable", (byte) 0);
 
+        builder.intTag("Dimension", Dimension.OVERWORLD.toByte());
+        builder.intTag("PortalCooldown", 900);
+
         builder.stringTag("CustomName", "");
         builder.byteTag("CustomNameVisible", (byte) 0);
 
         builder.byteTag("Silent", (byte) 0);
+
+        builder.compoundTag(new CompoundTag("Riding"));
 
         builder.intTag("Dimension", Dimension.OVERWORLD.toByte());
         builder.intTag("playerGameType", GameMode.SURVIVAL.toByte());
@@ -167,8 +172,9 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
         builder.intTag("SelectedGameSlot", 0);
 
         builder.intTag("foodLevel", 20);
-        builder.intTag("foodExhaustionLevel", 0);
-        builder.intTag("foodSaturationLevel", 0);
+        builder.floatTag("foodExhaustionLevel", 0F);
+        builder.floatTag("foodSaturationLevel", 0F);
+        builder.intTag("foodTickTimer", 0);
 
         builder.intTag("XpLevel", 0);
         builder.intTag("XpP", 0);
@@ -178,13 +184,11 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
         builder.listTag(new ListTag("Inventory", TagType.COMPOUND));
         builder.listTag(new ListTag("EnderItems", TagType.COMPOUND));
 
+        builder.intTag("SelectedItemSlot", 0);
+
         builder.compoundTag(NBTSerializer.serialize(new PlayerAbilities(), "abilities"));
 
-        OfflinePlayer generatedPlayer = new OfflinePlayer(builder.endCompoundTag().build(), (TridentWorld) defaultWorld);
-
-        generatedPlayer.name = name;
-
-        return generatedPlayer;
+        return builder.endCompoundTag().build();
     }
 
     public Location getSpawnLocation() {
@@ -299,7 +303,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
         tag.addTag(new IntTag("Score").setValue(score));
         tag.addTag(new IntTag("SelectedItemSlot").setValue(selectedSlot));
 
-        tag.addTag(NBTSerializer.serialize(new Slot(getItemInHand())));
+        //tag.addTag(NBTSerializer.serialize(new Slot(getItemInHand())));
         tag.addTag(new IntTag("SpawnX").setValue((int) spawnLocation.getX()));
         tag.addTag(new IntTag("SpawnY").setValue((int) spawnLocation.getY()));
         tag.addTag(new IntTag("SpawnZ").setValue((int) spawnLocation.getZ()));
@@ -316,20 +320,19 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
 
         ListTag inventoryTag = new ListTag("Inventory", TagType.COMPOUND);
 
-        for (ItemStack is : inventory.getContents()) {
+        /*for (ItemStack is : inventory.getContents()) {
             inventoryTag.addTag(NBTSerializer.serialize(new Slot(is)));
-        }
+        }*/
 
         tag.addTag(inventoryTag);
 
         ListTag enderTag = new ListTag("EnderItems", TagType.COMPOUND);
 
-        for (ItemStack is : enderChest.getContents()) {
+        /*for (ItemStack is : enderChest.getContents()) {
             enderTag.addTag(NBTSerializer.serialize(new Slot(is)));
-        }
+        }*/
 
         tag.addTag(enderTag);
-
         tag.addTag(NBTSerializer.serialize(abilities, "abilities"));
 
         return tag;

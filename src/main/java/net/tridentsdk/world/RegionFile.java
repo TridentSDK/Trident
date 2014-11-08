@@ -42,9 +42,9 @@ import java.util.zip.Inflater;
 // TODO stop using locks on native methods
 public class RegionFile {
     //The path to the region file
-    private final Path path;
+    final Path path;
     //The class in charge of sector allocation
-    private final SectorStorage sectors;
+    final SectorStorage sectors;
     //The object to lock on to stop reading/writing simultaneously
     private final Object readWriteLock = new Object();
 
@@ -430,7 +430,7 @@ public class RegionFile {
          * @return offsetLoc in bytes
          */
         private int getOffsetLoc(Chunk c) {
-            return IntMath.mod(c.getX(), 32) + IntMath.mod(c.getX(), 32) * 32;
+            return IntMath.mod(c.getX(), 32) + IntMath.mod(c.getZ(), 32) * 32;
         }
     }
 }
