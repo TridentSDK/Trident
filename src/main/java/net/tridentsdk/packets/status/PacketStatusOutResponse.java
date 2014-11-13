@@ -32,6 +32,12 @@ public class PacketStatusOutResponse extends OutPacket {
     //May be a lot of text, but saves the creation of 4 Objects with 5 variables & no GsonBuilders    
     public static final String BASE_DATA = "{\"version\":{\"name\":\"${version.name}\",\"protocol\":${version.protocol}},\"players\":{\"max\":${players.max},\"online\":${players.online}},\"description\":{\"text\": \"${description.text}\"},\"favicon\":\"\"}";
 
+    String version = "1.8";
+    int protocol = 47;
+    String maxPlayers = "10";
+    String onlinePlayers = "5";
+    String description = "motd";
+
     @Override
     public int getId() {
         return 0x00;
@@ -39,11 +45,11 @@ public class PacketStatusOutResponse extends OutPacket {
 
     @Override
     public void encode(ByteBuf buf) {
-        String json = BASE_DATA.replaceAll("${version.name}", "1.8");
-        json = json.replaceAll("${version.protocol}", 47); //Maybe change to get StatusIn's protocol if it's 4, 5, or 47?
-        json = json.replaceAll("${players.max}", "10"); //Hey woah, this is now a STRING! Maybe we can implement this in the Plugin API somehow? *wink wink* *nudge nudge* 
-        json = json.replaceAll("${players.online}", "5"); // ^^
-        json = json.replaceAll("${description.text}", "motd"); //Not quite sure if this is the acutal MOTD that is read, or a filler
+        String json = BASE_DATA.replaceAll("${version.name}", version);
+        json = json.replaceAll("${version.protocol}", protocol); //Maybe change to get StatusIn's protocol if it's 4, 5, or 47?
+        json = json.replaceAll("${players.max}", maxPlayers); //Hey woah, this is now a STRING! Maybe we can implement this in the Plugin API somehow? *wink wink* *nudge nudge* 
+        json = json.replaceAll("${players.online}", onlinePlayers); // ^^
+        json = json.replaceAll("${description.text}", description); //Not quite sure if this is the acutal MOTD that is read, or a filler
         Codec.writeString(buf, json);
     }
 }
