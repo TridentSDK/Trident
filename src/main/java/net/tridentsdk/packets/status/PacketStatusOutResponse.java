@@ -17,7 +17,6 @@
  */
 package net.tridentsdk.packets.status;
 
-import com.google.gson.GsonBuilder;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
@@ -29,6 +28,10 @@ import net.tridentsdk.server.netty.packet.OutPacket;
  * @see net.tridentsdk.packets.status.PacketStatusInRequest
  */
 public class PacketStatusOutResponse extends OutPacket {
+
+    //May be a lot of text, but saves the creation of 4 Objects with 5 variables & no GsonBuilders    
+    public static final String BASE_DATA = "{\"version\":{\"name\":\"${version.name}\",\"protocol\":${version.protocol}},\"players\":{\"max\":${players.max},\"online\":${players.online},\"sample\":[{\"name\":\"Phasesaber\",\"id\":\"e63a1d61-adf1-4d47-b5f8-43efc5c84908\"}]},\"description\":{\"text\": \"${description.text}\"},\"favicon\":\"\"}";
+
     /**
      * The actual response, represented in JSON in the protocol
      */
@@ -49,51 +52,11 @@ public class PacketStatusOutResponse extends OutPacket {
 
     @Override
     public void encode(ByteBuf buf) {
-        String json = new GsonBuilder().create().toJson(this.response);
+        String json = BASE_DATA.replaceAll("${version.name}", "1.8");
+        json = json.replaceAll("${version.protocol}", 47); //Maybe change to get StatusIn's protocol if it's 4, 5, or 47?
+        json = json.replaceAll("${players.max}", "10"); //Hey woah, this is now a STRING! Maybe we can implement this in the Plugin API somehow? *wink wink* *nudge nudge* 
+        json = json.replaceAll("${players.online}", "5"); // ^^
+        json = json.replaceAll("${description.text}", "motd"); //Not quite sure if this is the acutal MOTD that is read, or a filler
         Codec.writeString(buf, json);
-    }
-
-    public static class Response {
-        /**
-         * Version information
-         */
-        Version version = new Version();
-        /**
-         * Information regarding players
-         */
-        final Players players = new Players();
-        /**
-         * Description is the MOTD
-         */
-        final Description description = new Description();
-
-        public static class Version {
-            /**
-             * Name of the version TODO make configurable
-             */
-            String name = "1.8";
-            /**
-             * Protocol version, 47 for 1.8
-             */
-            int protocol = 47;
-        }
-
-        public static class Players {
-            /**
-             * The slots of the server
-             */
-            int max = 10;
-            /**
-             * Amount of players online
-             */
-            int online = 5;
-        }
-
-        public static class Description {
-            /**
-             * MOTD
-             */
-            String text = "default blah blah this is never going to show";
-        }
     }
 }
