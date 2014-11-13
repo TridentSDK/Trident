@@ -30,24 +30,11 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 public class PacketStatusOutResponse extends OutPacket {
 
     //May be a lot of text, but saves the creation of 4 Objects with 5 variables & no GsonBuilders    
-    public static final String BASE_DATA = "{\"version\":{\"name\":\"${version.name}\",\"protocol\":${version.protocol}},\"players\":{\"max\":${players.max},\"online\":${players.online},\"sample\":[{\"name\":\"Phasesaber\",\"id\":\"e63a1d61-adf1-4d47-b5f8-43efc5c84908\"}]},\"description\":{\"text\": \"${description.text}\"},\"favicon\":\"\"}";
-
-    /**
-     * The actual response, represented in JSON in the protocol
-     */
-    Response response;
-
-    public PacketStatusOutResponse() {
-        this.response = new Response();
-    }
+    public static final String BASE_DATA = "{\"version\":{\"name\":\"${version.name}\",\"protocol\":${version.protocol}},\"players\":{\"max\":${players.max},\"online\":${players.online}},\"description\":{\"text\": \"${description.text}\"},\"favicon\":\"\"}";
 
     @Override
     public int getId() {
         return 0x00;
-    }
-
-    public Response getResponse() {
-        return this.response;
     }
 
     @Override
