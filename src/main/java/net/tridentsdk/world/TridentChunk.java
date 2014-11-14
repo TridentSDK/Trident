@@ -112,7 +112,7 @@ public class TridentChunk implements Chunk {
         int size = 0;
         int sectionSize = ChunkSection.LENGTH * 5 / 2;
 
-        if (world.getDimesion() == Dimension.OVERWORLD) {
+        if (world.getDimension() == Dimension.OVERWORLD) {
             sectionSize += ChunkSection.LENGTH / 2;
         }
 

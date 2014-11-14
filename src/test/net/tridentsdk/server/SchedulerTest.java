@@ -165,7 +165,7 @@ public class SchedulerTest {
         }
     }
 
-    public static void main3(String... args) throws InterruptedException {
+    public static void main(String... args) throws InterruptedException {
         @PluginDescription(name = "LOLCODE")
         class PluginImpl extends TridentPlugin {
         }
@@ -176,7 +176,7 @@ public class SchedulerTest {
                 public void run() {
                     System.out.println("Your mom");
                 }
-            }, 0L, 21L); // Twenty-juan
+            }, 0L, 42L);
         }
 
         for (int i = 0; i < 1000000; i++) {
@@ -192,7 +192,7 @@ public class SchedulerTest {
         }
     }
 
-    public static void main(String... args) throws RunnerException {
+    public static void main8(String... args) throws RunnerException {
         Options opt = new OptionsBuilder()
                 .include(".*" + SchedulerTest.class.getSimpleName() + ".*")
                 .timeUnit(TimeUnit.NANOSECONDS)

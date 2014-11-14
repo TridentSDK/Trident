@@ -25,24 +25,25 @@ import net.tridentsdk.api.perf.DelegatedAddTakeQueue;
 import net.tridentsdk.api.threads.TaskExecutor;
 
 import javax.annotation.Nullable;
-import java.util.AbstractMap;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Thread list to allow task execution in a shared thread scaled with removal
- * <p/>
+ *
  * <p>Allows assignment of a worker to the user</p>
  *
  * @param <Assignment> the assignment type, if used
  * @author The TridentSDK Team
  */
 public class ConcurrentTaskExecutor<Assignment> {
-    private static final Map.Entry<?, ? extends Number> DEF_ENTRY = new AbstractMap.SimpleEntry<>(null, Long.MAX_VALUE);
+    private static final Entry<?, ? extends Number> DEF_ENTRY = new SimpleEntry<>(null, Long.MAX_VALUE);
 
     private final Map<InnerThread, Integer> scale = new HashMap<>();
     private final Map<Assignment, InnerThread> assignments = new HashMap<>();
@@ -66,10 +67,10 @@ public class ConcurrentTaskExecutor<Assignment> {
         }));
     }
 
-    private static <T> Map.Entry<T, ? extends Number> minMap(Map<T, ? extends Number> map) {
-        Map.Entry<T, ? extends Number> ent = (Map.Entry<T, ? extends Number>) DEF_ENTRY;
+    private static <T> Entry<T, ? extends Number> minMap(Map<T, ? extends Number> map) {
+        Entry<T, ? extends Number> ent = (Entry<T, ? extends Number>) DEF_ENTRY;
 
-        for (Map.Entry<T, ? extends Number> entry : map.entrySet())
+        for (Entry<T, ? extends Number> entry : map.entrySet())
             if (entry.getValue().longValue() < ent.getValue().longValue())
                 ent = entry;
 
@@ -82,7 +83,7 @@ public class ConcurrentTaskExecutor<Assignment> {
      * @return the thread with the lowest assignments
      */
     public TaskExecutor getScaledThread() {
-        Map.Entry<InnerThread, ? extends Number> handler = minMap(this.scale);
+        Entry<InnerThread, ? extends Number> handler = minMap(this.scale);
         return handler.getKey();
     }
 
@@ -97,7 +98,7 @@ public class ConcurrentTaskExecutor<Assignment> {
      */
     public TaskExecutor assign(TaskExecutor executor, Assignment assignment) {
         if (!this.assignments.containsKey(assignment)) {
-            Map.Entry<InnerThread, ? extends Number> handler = minMap(this.scale);
+            Entry<InnerThread, ? extends Number> handler = minMap(this.scale);
             InnerThread thread = handler.getKey();
 
             this.assignments.put(assignment, thread);
