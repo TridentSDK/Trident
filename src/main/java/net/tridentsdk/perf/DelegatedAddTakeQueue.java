@@ -1,7 +1,5 @@
 package net.tridentsdk.perf;
 
-import net.tridentsdk.api.perf.*;
-
 import java.util.concurrent.BlockingQueue;
 
 /**
@@ -15,10 +13,10 @@ import java.util.concurrent.BlockingQueue;
  *
  * @author The TridentSDK Team
  * @param <E> the element type in the queue
- * @see net.tridentsdk.api.perf.AddTakeQueue
+ * @see net.tridentsdk.perf.AddTakeQueue
  * @see java.util.concurrent.BlockingQueue
  */
-public abstract class DelegatedAddTakeQueue<E> implements net.tridentsdk.api.perf.AddTakeQueue<E> {
+public abstract class DelegatedAddTakeQueue<E> implements AddTakeQueue<E> {
     private final BlockingQueue<E> delegate = delegate();
 
     protected abstract BlockingQueue<E> delegate();

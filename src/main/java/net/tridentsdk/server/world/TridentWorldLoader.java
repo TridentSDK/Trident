@@ -17,11 +17,11 @@
  */
 package net.tridentsdk.server.world;
 
-import net.tridentsdk.api.nbt.NBTException;
-import net.tridentsdk.api.world.Chunk;
-import net.tridentsdk.api.world.ChunkLocation;
-import net.tridentsdk.api.world.World;
-import net.tridentsdk.api.world.WorldLoader;
+import net.tridentsdk.nbt.NBTException;
+import net.tridentsdk.world.Chunk;
+import net.tridentsdk.world.ChunkLocation;
+import net.tridentsdk.world.World;
+import net.tridentsdk.world.WorldLoader;
 
 import java.io.File;
 import java.io.IOException;

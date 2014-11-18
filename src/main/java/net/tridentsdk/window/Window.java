@@ -17,7 +17,7 @@
  */
 package net.tridentsdk.window;
 
-import net.tridentsdk.api.inventory.ItemStack;
+import net.tridentsdk.inventory.ItemStack;
 
 /**
  * TODO

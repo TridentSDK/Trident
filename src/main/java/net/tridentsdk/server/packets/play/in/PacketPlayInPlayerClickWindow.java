@@ -18,8 +18,8 @@
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.api.event.player.PlayerClickItemEvent;
-import net.tridentsdk.api.window.Window;
+import net.tridentsdk.event.player.PlayerClickItemEvent;
+import net.tridentsdk.window.Window;
 import net.tridentsdk.server.data.Slot;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.netty.ClientConnection;

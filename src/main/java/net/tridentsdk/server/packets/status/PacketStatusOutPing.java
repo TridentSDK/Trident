@@ -25,7 +25,7 @@ import net.tridentsdk.server.netty.packet.PacketType;
  * The response sent by the server for PacketStatusInPing
  *
  * @author The TridentSDK Team
- * @see net.tridentsdk.server.packets.status.PacketStatusInPing
+ * @see PacketStatusInPing
  */
 public class PacketStatusOutPing extends OutPacket {
     /**

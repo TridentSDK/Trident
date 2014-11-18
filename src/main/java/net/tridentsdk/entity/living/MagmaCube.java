@@ -17,13 +17,11 @@
  */
 package net.tridentsdk.entity.living;
 
-import net.tridentsdk.api.entity.living.*;
-
 /**
  * Represents a Magma Cube
  *
  * @author TridentSDK Team
  */
-public interface MagmaCube extends net.tridentsdk.api.entity.living.Slime {
+public interface MagmaCube extends Slime {
 
 }

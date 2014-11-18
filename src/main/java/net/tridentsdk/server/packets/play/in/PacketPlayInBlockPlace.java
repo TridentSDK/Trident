@@ -18,8 +18,8 @@
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.api.Location;
-import net.tridentsdk.api.util.Vector;
+import net.tridentsdk.Location;
+import net.tridentsdk.util.Vector;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;

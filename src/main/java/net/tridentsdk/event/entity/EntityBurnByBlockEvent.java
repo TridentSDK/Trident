@@ -17,14 +17,13 @@
  */
 package net.tridentsdk.event.entity;
 
-import net.tridentsdk.api.Block;
-import net.tridentsdk.api.entity.Entity;
-import net.tridentsdk.api.event.entity.*;
+import net.tridentsdk.Block;
+import net.tridentsdk.entity.Entity;
 
 /**
  * Called when an Entity is set on fire by a block
  */
-public class EntityBurnByBlockEvent extends net.tridentsdk.api.event.entity.EntityBurnEvent {
+public class EntityBurnByBlockEvent extends EntityBurnEvent {
     private final Block causer;
 
     public EntityBurnByBlockEvent(Entity entity, int fireTicks, Block causer) {

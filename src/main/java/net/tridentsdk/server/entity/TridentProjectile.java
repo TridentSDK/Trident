@@ -17,11 +17,11 @@
  */
 package net.tridentsdk.server.entity;
 
-import net.tridentsdk.api.Location;
-import net.tridentsdk.api.entity.EntityProperties;
-import net.tridentsdk.api.entity.Impalable;
-import net.tridentsdk.api.entity.Projectile;
-import net.tridentsdk.api.entity.living.ProjectileSource;
+import net.tridentsdk.Location;
+import net.tridentsdk.entity.EntityProperties;
+import net.tridentsdk.entity.Impalable;
+import net.tridentsdk.entity.Projectile;
+import net.tridentsdk.entity.living.ProjectileSource;
 
 import java.lang.ref.WeakReference;
 import java.util.UUID;
@@ -42,7 +42,7 @@ public abstract class TridentProjectile extends TridentEntity implements Project
     protected Impalable impaled;
 
     /**
-     * Inherits UUID and spawnLocation from {@link net.tridentsdk.server.entity.TridentEntity}
+     * Inherits UUID and spawnLocation from {@link TridentEntity}
      *
      * @param source the entity which fired the projectile
      */

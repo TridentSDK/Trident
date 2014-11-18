@@ -17,8 +17,8 @@
  */
 package net.tridentsdk.event.player;
 
-import net.tridentsdk.api.entity.living.Player;
-import net.tridentsdk.api.event.Event;
+import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.event.Event;
 
 public class PlayerEvent extends Event {
 

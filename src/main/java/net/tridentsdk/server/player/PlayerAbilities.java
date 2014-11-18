@@ -17,9 +17,9 @@
  */
 package net.tridentsdk.server.player;
 
-import net.tridentsdk.api.nbt.NBTField;
-import net.tridentsdk.api.nbt.NBTSerializable;
-import net.tridentsdk.api.nbt.TagType;
+import net.tridentsdk.nbt.NBTField;
+import net.tridentsdk.nbt.NBTSerializable;
+import net.tridentsdk.nbt.TagType;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutPlayerAbilities;
 import net.tridentsdk.server.netty.packet.OutPacket;
 

@@ -17,7 +17,7 @@
  */
 package net.tridentsdk.server.threads;
 
-import net.tridentsdk.api.threads.TaskExecutor;
+import net.tridentsdk.threads.TaskExecutor;
 import net.tridentsdk.plugin.TridentPlugin;
 
 import java.util.Collection;

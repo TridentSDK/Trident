@@ -17,9 +17,9 @@
  */
 package net.tridentsdk.event.entity;
 
-import net.tridentsdk.api.entity.living.Player;
-import net.tridentsdk.api.event.Cancellable;
-import net.tridentsdk.api.event.player.PlayerEvent;
+import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.event.Cancellable;
+import net.tridentsdk.event.player.PlayerEvent;
 
 /**
  * Called when a player tries to start sprinting, even if hunger would otherwise prevent them from sprinting

@@ -17,15 +17,14 @@
  */
 package net.tridentsdk.event.player;
 
-import net.tridentsdk.api.GameMode;
-import net.tridentsdk.api.entity.living.Player;
-import net.tridentsdk.api.event.Cancellable;
-import net.tridentsdk.api.event.player.*;
+import net.tridentsdk.GameMode;
+import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.event.Cancellable;
 
 /**
  * Called <i>before</i> a Player's game mode changes
  */
-public class PlayerGameModeChangeEvent extends net.tridentsdk.api.event.player.PlayerEvent implements Cancellable {
+public class PlayerGameModeChangeEvent extends PlayerEvent implements Cancellable {
     private GameMode gameMode;
 
     private boolean cancelled;

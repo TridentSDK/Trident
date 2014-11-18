@@ -17,11 +17,9 @@
  */
 package net.tridentsdk.nbt;
 
-import net.tridentsdk.api.nbt.*;
-
 /**
  * @author The TridentSDK Team
  */
 public interface TagContainer {
-    void addTag(net.tridentsdk.api.nbt.NBTTag tag);
+    void addTag(NBTTag tag);
 }

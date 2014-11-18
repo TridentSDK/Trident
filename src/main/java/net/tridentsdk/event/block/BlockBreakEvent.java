@@ -17,17 +17,16 @@
  */
 package net.tridentsdk.event.block;
 
-import net.tridentsdk.api.Block;
-import net.tridentsdk.api.BlockFace;
-import net.tridentsdk.api.entity.living.Player;
-import net.tridentsdk.api.event.Cancellable;
-import net.tridentsdk.api.event.block.*;
-import net.tridentsdk.api.inventory.ItemStack;
+import net.tridentsdk.Block;
+import net.tridentsdk.BlockFace;
+import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.event.Cancellable;
+import net.tridentsdk.inventory.ItemStack;
 
 /**
  * Called whenever a Block is broken
  */
-public class BlockBreakEvent extends net.tridentsdk.api.event.block.BlockEvent implements Cancellable {
+public class BlockBreakEvent extends BlockEvent implements Cancellable {
 
     private final Player player;
     private final BlockFace blockFace;

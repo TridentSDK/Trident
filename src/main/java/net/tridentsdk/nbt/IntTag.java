@@ -17,9 +17,6 @@
  */
 package net.tridentsdk.nbt;
 
-import net.tridentsdk.api.nbt.NBTTag;
-import net.tridentsdk.api.nbt.TagType;
-
 /**
  * @author The TridentSDK Team
  */
@@ -40,7 +37,7 @@ public class IntTag extends NBTTag {
     }
 
     /* (non-Javadoc)
-     * @see net.tridentsdk.api.nbt.NBTTag#getType()
+     * @see net.tridentsdk.nbt.NBTTag#getType()
      */
     @Override
     public TagType getType() {

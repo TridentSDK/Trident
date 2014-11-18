@@ -18,11 +18,11 @@
 package net.tridentsdk.server.player;
 
 import io.netty.util.internal.ConcurrentSet;
-import net.tridentsdk.api.Trident;
-import net.tridentsdk.api.entity.living.Player;
-import net.tridentsdk.api.nbt.CompoundTag;
-import net.tridentsdk.api.threads.TaskExecutor;
-import net.tridentsdk.api.world.LevelType;
+import net.tridentsdk.Trident;
+import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.nbt.CompoundTag;
+import net.tridentsdk.threads.TaskExecutor;
+import net.tridentsdk.world.LevelType;
 import net.tridentsdk.server.packets.play.out.*;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.netty.ClientConnection;

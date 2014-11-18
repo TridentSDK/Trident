@@ -17,10 +17,9 @@
  */
 package net.tridentsdk.event.player;
 
-import net.tridentsdk.api.entity.living.Player;
-import net.tridentsdk.api.event.player.*;
+import net.tridentsdk.entity.living.Player;
 
-public class PlayerDisconnectEvent extends net.tridentsdk.api.event.player.PlayerEvent {
+public class PlayerDisconnectEvent extends PlayerEvent {
 
     /**
      * TODO perhaps include disconnection reason (quit, timeout, etc)

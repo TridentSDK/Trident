@@ -17,8 +17,8 @@
  */
 package net.tridentsdk;
 
-import net.tridentsdk.api.util.Vector;
-import net.tridentsdk.api.world.World;
+import net.tridentsdk.util.Vector;
+import net.tridentsdk.world.World;
 import org.apache.commons.lang.Validate;
 
 /**

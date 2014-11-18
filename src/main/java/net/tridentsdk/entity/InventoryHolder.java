@@ -17,16 +17,15 @@
  */
 package net.tridentsdk.entity;
 
-import net.tridentsdk.api.entity.*;
-import net.tridentsdk.api.inventory.Inventory;
-import net.tridentsdk.api.inventory.ItemStack;
+import net.tridentsdk.inventory.Inventory;
+import net.tridentsdk.inventory.ItemStack;
 
 /**
  * Represents an Entity that holds an Inventory
  *
  * @author TridentSDK Team
  */
-public interface InventoryHolder extends net.tridentsdk.api.entity.Entity {
+public interface InventoryHolder extends Entity {
     /*
      * TODO: Convert the return types into a valid representation of their respective objects
      */

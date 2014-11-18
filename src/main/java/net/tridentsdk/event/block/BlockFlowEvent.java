@@ -17,14 +17,13 @@
  */
 package net.tridentsdk.event.block;
 
-import net.tridentsdk.api.Block;
-import net.tridentsdk.api.event.Cancellable;
-import net.tridentsdk.api.event.block.*;
+import net.tridentsdk.Block;
+import net.tridentsdk.event.Cancellable;
 
 /**
  * Called when a liquid flows from a block to another
  */
-public class BlockFlowEvent extends net.tridentsdk.api.event.block.BlockEvent implements Cancellable {
+public class BlockFlowEvent extends BlockEvent implements Cancellable {
     private final Block to;
     private boolean cancelled;
 

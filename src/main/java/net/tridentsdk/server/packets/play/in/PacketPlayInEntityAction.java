@@ -27,20 +27,20 @@ import net.tridentsdk.server.netty.packet.Packet;
  * Sent by the client when doing any of the action types below. <p/> Note: Client will send ActionType#START_SPRINTING
  * when "Leave bed" is clicked
  *
- * @see ActionType
+ * @see net.tridentsdk.server.packets.play.in.PacketPlayInEntityAction.ActionType
  */
 public class PacketPlayInEntityAction extends InPacket {
 
     /**
      * Entity ActionType
      *
-     * @see ActionType
+     * @see net.tridentsdk.server.packets.play.in.PacketPlayInEntityAction.ActionType
      */
     protected ActionType type;
     /**
      * Horse jump boost, mentioned if not ActionType#ON_HOURSE
      *
-     * @see ActionType#ON_HORSE
+     * @see net.tridentsdk.server.packets.play.in.PacketPlayInEntityAction.ActionType#ON_HORSE
      */
     protected int jumpBoost;
 

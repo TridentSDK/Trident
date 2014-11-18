@@ -20,9 +20,9 @@ package net.tridentsdk.server.threads;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
-import net.tridentsdk.api.perf.AddTakeQueue;
-import net.tridentsdk.api.perf.DelegatedAddTakeQueue;
-import net.tridentsdk.api.threads.TaskExecutor;
+import net.tridentsdk.perf.AddTakeQueue;
+import net.tridentsdk.perf.DelegatedAddTakeQueue;
+import net.tridentsdk.threads.TaskExecutor;
 
 import javax.annotation.Nullable;
 import java.util.AbstractMap.SimpleEntry;

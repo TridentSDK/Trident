@@ -17,16 +17,14 @@
  */
 package net.tridentsdk.entity;
 
-import net.tridentsdk.api.entity.*;
-import net.tridentsdk.api.entity.Impalable;
-import net.tridentsdk.api.entity.living.ProjectileSource;
+import net.tridentsdk.entity.living.ProjectileSource;
 
 /**
  * Represents a Projectile
  *
  * @author TridentSDK Team
  */
-public interface Projectile extends net.tridentsdk.api.entity.Entity {
+public interface Projectile extends Entity {
     /**
      * Performs hit action
      */

@@ -18,17 +18,17 @@
 package net.tridentsdk.server.world;
 
 import io.netty.util.internal.ConcurrentSet;
-import net.tridentsdk.api.Block;
-import net.tridentsdk.api.Location;
-import net.tridentsdk.api.Material;
-import net.tridentsdk.api.Trident;
-import net.tridentsdk.api.nbt.*;
-import net.tridentsdk.api.reflect.FastClass;
-import net.tridentsdk.api.util.NibbleArray;
-import net.tridentsdk.api.util.TridentLogger;
-import net.tridentsdk.api.world.Chunk;
-import net.tridentsdk.api.world.ChunkLocation;
-import net.tridentsdk.api.world.Dimension;
+import net.tridentsdk.Block;
+import net.tridentsdk.Location;
+import net.tridentsdk.Material;
+import net.tridentsdk.Trident;
+import net.tridentsdk.nbt.*;
+import net.tridentsdk.reflect.FastClass;
+import net.tridentsdk.util.NibbleArray;
+import net.tridentsdk.util.TridentLogger;
+import net.tridentsdk.world.Chunk;
+import net.tridentsdk.world.ChunkLocation;
+import net.tridentsdk.world.Dimension;
 import net.tridentsdk.server.entity.TridentEntity;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutChunkData;
 

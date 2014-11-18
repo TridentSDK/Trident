@@ -1,7 +1,5 @@
 package net.tridentsdk.scheduling;
 
-import net.tridentsdk.api.scheduling.SchedulerType;
-import net.tridentsdk.api.scheduling.TridentRunnable;
 import net.tridentsdk.plugin.TridentPlugin;
 
 import java.util.concurrent.atomic.AtomicBoolean;

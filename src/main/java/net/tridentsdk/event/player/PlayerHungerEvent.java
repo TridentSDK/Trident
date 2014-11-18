@@ -17,14 +17,13 @@
  */
 package net.tridentsdk.event.player;
 
-import net.tridentsdk.api.entity.living.Player;
-import net.tridentsdk.api.event.Cancellable;
-import net.tridentsdk.api.event.player.*;
+import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.event.Cancellable;
 
 /**
  * Called when a Player's hunger level changes
  */
-public class PlayerHungerEvent extends net.tridentsdk.api.event.player.PlayerEvent implements Cancellable {
+public class PlayerHungerEvent extends PlayerEvent implements Cancellable {
     private double feed;
     private boolean cancelled;
 

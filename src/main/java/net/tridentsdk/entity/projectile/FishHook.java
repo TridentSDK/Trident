@@ -17,7 +17,7 @@
  */
 package net.tridentsdk.entity.projectile;
 
-import net.tridentsdk.api.entity.Projectile;
+import net.tridentsdk.entity.Projectile;
 
 /**
  * A hook at the end of the fishing rod that can catch fish or damage entities

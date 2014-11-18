@@ -20,9 +20,6 @@ package net.tridentsdk.config;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import net.tridentsdk.api.config.*;
-import net.tridentsdk.api.config.GsonFactory;
-import net.tridentsdk.api.config.JsonConfig;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -317,9 +314,9 @@ public class ConfigSection {
             }
             return result;
         } else {
-            List<V> result = new net.tridentsdk.api.config.ConfigList<>(array);
+            List<V> result = new ConfigList<>(array);
             for (JsonElement element : array) {
-                result.add(net.tridentsdk.api.config.GsonFactory.getGson().fromJson(element, type));
+                result.add(GsonFactory.getGson().fromJson(element, type));
             }
             return result;
         }
@@ -413,7 +410,7 @@ public class ConfigSection {
      * @return the value
      */
     public <V> V getObject(String tag, Class<V> clazz) {
-        return this.contains(tag) ? net.tridentsdk.api.config.GsonFactory.getGson().fromJson(this.jsonHandle.get(tag), clazz) : null;
+        return this.contains(tag) ? GsonFactory.getGson().fromJson(this.jsonHandle.get(tag), clazz) : null;
     }
 
     /**

@@ -20,11 +20,8 @@ package net.tridentsdk.msg;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import net.tridentsdk.api.ChatColor;
-import net.tridentsdk.api.entity.living.Player;
-import net.tridentsdk.api.msg.*;
-import net.tridentsdk.api.msg.HoverEvent;
-import net.tridentsdk.api.msg.Message;
+import net.tridentsdk.ChatColor;
+import net.tridentsdk.entity.living.Player;
 
 // TODO: JavaDoc
 public final class MessageBuilder {
@@ -32,7 +29,7 @@ public final class MessageBuilder {
 
     private final JsonObject obj;
     private final JsonArray extra;
-    private net.tridentsdk.api.msg.Message buildingObject;
+    private Message buildingObject;
 
     public MessageBuilder(String message) {
         this.obj = new JsonObject();
@@ -40,7 +37,7 @@ public final class MessageBuilder {
 
         // setup required properties
         this.obj.addProperty("text", "");
-        this.buildingObject = new net.tridentsdk.api.msg.Message().text(message);
+        this.buildingObject = new Message().text(message);
     }
 
     public MessageBuilder color(ChatColor color) {
@@ -49,23 +46,23 @@ public final class MessageBuilder {
     }
 
     public MessageBuilder link(String url) {
-        this.buildingObject.clickEvent(new net.tridentsdk.api.msg.ClickEvent()
-                .action(net.tridentsdk.api.msg.ClickEvent.ClickAction.OPEN_URL)
+        this.buildingObject.clickEvent(new ClickEvent()
+                .action(ClickEvent.ClickAction.OPEN_URL)
                 .value(url));
 
         return this;
     }
 
     public MessageBuilder file(String file) {
-        this.buildingObject.clickEvent(new net.tridentsdk.api.msg.ClickEvent()
-                .action(net.tridentsdk.api.msg.ClickEvent.ClickAction.OPEN_FILE)
+        this.buildingObject.clickEvent(new ClickEvent()
+                .action(ClickEvent.ClickAction.OPEN_FILE)
                 .value(file));
 
         return this;
     }
 
     public MessageBuilder hover(String message) {
-        this.buildingObject.hoverEvent(new net.tridentsdk.api.msg.HoverEvent()
+        this.buildingObject.hoverEvent(new HoverEvent()
                 .action(HoverEvent.HoverAction.SHOW_TEXT)
                 .value(message));
 
@@ -74,7 +71,7 @@ public final class MessageBuilder {
 
     public MessageBuilder then(String message) {
         this.extra.add(this.buildingObject.message);
-        this.buildingObject = new net.tridentsdk.api.msg.Message().text(message);
+        this.buildingObject = new Message().text(message);
 
         return this;
     }

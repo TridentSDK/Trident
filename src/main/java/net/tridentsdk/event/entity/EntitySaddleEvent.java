@@ -17,14 +17,13 @@
  */
 package net.tridentsdk.event.entity;
 
-import net.tridentsdk.api.entity.Entity;
-import net.tridentsdk.api.entity.living.Player;
-import net.tridentsdk.api.event.entity.*;
+import net.tridentsdk.entity.Entity;
+import net.tridentsdk.entity.living.Player;
 
 /**
  * Called whenever a player saddles a pig
  */
-public class EntitySaddleEvent extends net.tridentsdk.api.event.entity.EntityEvent {
+public class EntitySaddleEvent extends EntityEvent {
     private final Player player;
     private boolean cancelled;
 

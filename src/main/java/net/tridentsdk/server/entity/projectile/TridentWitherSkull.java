@@ -17,10 +17,10 @@
  */
 package net.tridentsdk.server.entity.projectile;
 
-import net.tridentsdk.api.Location;
-import net.tridentsdk.api.entity.EntityProperties;
-import net.tridentsdk.api.entity.living.ProjectileSource;
-import net.tridentsdk.api.entity.projectile.WitherSkull;
+import net.tridentsdk.Location;
+import net.tridentsdk.entity.EntityProperties;
+import net.tridentsdk.entity.living.ProjectileSource;
+import net.tridentsdk.entity.projectile.WitherSkull;
 import net.tridentsdk.server.entity.TridentProjectile;
 
 import java.util.UUID;

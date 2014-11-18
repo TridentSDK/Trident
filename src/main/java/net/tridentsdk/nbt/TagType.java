@@ -17,18 +17,11 @@
  */
 package net.tridentsdk.nbt;
 
-import net.tridentsdk.api.nbt.*;
-import net.tridentsdk.api.nbt.ByteTag;
-import net.tridentsdk.api.nbt.IntTag;
-import net.tridentsdk.api.nbt.ListTag;
-import net.tridentsdk.api.nbt.LongTag;
-import net.tridentsdk.api.nbt.NBTTag;
-
 /**
  * @author The TridentSDK Team
  */
 public enum TagType {
-    NULL(-1, net.tridentsdk.api.nbt.NullTag.class),
+    NULL(-1, NullTag.class),
 
     END(0, null),
 
@@ -55,9 +48,9 @@ public enum TagType {
     INT_ARRAY(11, IntArrayTag.class);
 
     final int id;
-    final Class<? extends net.tridentsdk.api.nbt.NBTTag> implClass;
+    final Class<? extends NBTTag> implClass;
 
-    TagType(int id, Class<? extends net.tridentsdk.api.nbt.NBTTag> implClass) {
+    TagType(int id, Class<? extends NBTTag> implClass) {
         this.id = id;
         this.implClass = implClass;
     }

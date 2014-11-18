@@ -18,7 +18,6 @@
 package net.tridentsdk.config;
 
 import com.google.gson.JsonArray;
-import net.tridentsdk.api.config.GsonFactory;
 
 import java.util.AbstractList;
 import java.util.Collection;

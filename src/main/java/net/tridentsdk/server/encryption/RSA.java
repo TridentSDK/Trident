@@ -37,7 +37,7 @@ public final class RSA {
      *
      * @param bits the bits in the final digest for the KeyPair
      * @return the KeyPair that has the specified bits and RSA cipher
-     * @throws NoSuchAlgorithmException if RSA cipher is removed in the future
+     * @throws java.security.NoSuchAlgorithmException if RSA cipher is removed in the future
      */
     public static KeyPair generate(int bits) throws NoSuchAlgorithmException {
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");

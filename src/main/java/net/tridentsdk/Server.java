@@ -17,15 +17,14 @@
  */
 package net.tridentsdk;
 
-import net.tridentsdk.api.*;
-import net.tridentsdk.api.config.JsonConfig;
-import net.tridentsdk.api.entity.living.Player;
-import net.tridentsdk.api.event.EventManager;
-import net.tridentsdk.api.scheduling.Scheduler;
-import net.tridentsdk.api.threads.ThreadProvider;
-import net.tridentsdk.api.window.Window;
-import net.tridentsdk.api.world.World;
+import net.tridentsdk.config.JsonConfig;
+import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.event.EventManager;
 import net.tridentsdk.plugin.TridentPluginHandler;
+import net.tridentsdk.scheduling.Scheduler;
+import net.tridentsdk.threads.ThreadProvider;
+import net.tridentsdk.window.Window;
+import net.tridentsdk.world.World;
 import org.slf4j.Logger;
 
 import java.awt.*;
@@ -92,7 +91,7 @@ public interface Server {
      * Returns the {@link java.io.File} that represents the picture displayed next to the server listing on clients
      *
      * @return the file that represents the picture sent to clients when they ping the server
-     * @see net.tridentsdk.api.Server#getMotdPictureImage() for the representing the image sent to clients
+     * @see Server#getMotdPictureImage() for the representing the image sent to clients
      */
     File getMotdPicture();
 
@@ -100,7 +99,7 @@ public interface Server {
      * Gets the {@link java.awt.image.BufferedImage} that represents the Motd picture sent to clients
      *
      * @return the image sent to clients
-     * @see net.tridentsdk.api.Server#getMotdPicture() for the file itself
+     * @see Server#getMotdPicture() for the file itself
      */
     BufferedImage getMotdPictureImage();
 
@@ -131,7 +130,7 @@ public interface Server {
      *
      * @return the difficulty of the server
      */
-    net.tridentsdk.api.Difficulty getDifficulty();
+    Difficulty getDifficulty();
 
     /**
      * Gets the version of Trident that the server is currently running

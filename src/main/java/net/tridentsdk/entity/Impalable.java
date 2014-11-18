@@ -17,8 +17,7 @@
  */
 package net.tridentsdk.entity;
 
-import net.tridentsdk.api.Block;
-import net.tridentsdk.api.entity.*;
+import net.tridentsdk.Block;
 
 import java.util.Collection;
 
@@ -49,7 +48,7 @@ public interface Impalable {
      *
      * @return the entity impaled by the projectile
      */
-    net.tridentsdk.api.entity.Entity impaledEntity();
+    Entity impaledEntity();
 
     /**
      * Gets the block (tile) that was impaled by the projectile

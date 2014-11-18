@@ -17,7 +17,7 @@
  */
 package net.tridentsdk.entity.living;
 
-import net.tridentsdk.api.entity.Hostile;
+import net.tridentsdk.entity.Hostile;
 
 /**
  * Represents an Endermite

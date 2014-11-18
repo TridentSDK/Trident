@@ -17,14 +17,13 @@
  */
 package net.tridentsdk.event.entity;
 
-import net.tridentsdk.api.entity.Entity;
-import net.tridentsdk.api.entity.living.Player;
-import net.tridentsdk.api.event.entity.*;
+import net.tridentsdk.entity.Entity;
+import net.tridentsdk.entity.living.Player;
 
 /**
  * Called when an entity is tamed, i.e. a horse or ocelot
  */
-public class EntityTameEvent extends net.tridentsdk.api.event.entity.EntityEvent {
+public class EntityTameEvent extends EntityEvent {
     private final Player tamer;
     private boolean cancelled;
 

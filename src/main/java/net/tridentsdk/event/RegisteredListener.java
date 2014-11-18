@@ -19,16 +19,14 @@
 
 package net.tridentsdk.event;
 
-import net.tridentsdk.api.event.*;
-import net.tridentsdk.api.event.Event;
-import net.tridentsdk.api.reflect.FastMethod;
+import net.tridentsdk.reflect.FastMethod;
 
 public class RegisteredListener implements Comparable<RegisteredListener> {
     private final FastMethod method;
-    private final Class<? extends net.tridentsdk.api.event.Event> eventClass;
-    private final net.tridentsdk.api.event.Importance importance;
+    private final Class<? extends Event> eventClass;
+    private final Importance importance;
 
-    RegisteredListener(FastMethod method, Class<? extends net.tridentsdk.api.event.Event> eventClass, net.tridentsdk.api.event.Importance importance) {
+    RegisteredListener(FastMethod method, Class<? extends Event> eventClass, Importance importance) {
         this.method = method;
         this.eventClass = eventClass;
         this.importance = importance;
@@ -38,11 +36,11 @@ public class RegisteredListener implements Comparable<RegisteredListener> {
         return this.method;
     }
 
-    public Class<? extends net.tridentsdk.api.event.Event> getEventClass() {
+    public Class<? extends Event> getEventClass() {
         return this.eventClass;
     }
 
-    public net.tridentsdk.api.event.Importance getImportance() {
+    public Importance getImportance() {
         return this.importance;
     }
 

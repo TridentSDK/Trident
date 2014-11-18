@@ -17,8 +17,7 @@
  */
 package net.tridentsdk.nbt.builder;
 
-import net.tridentsdk.api.nbt.CompoundTag;
-import net.tridentsdk.api.nbt.builder.CompoundTagBuilder;
+import net.tridentsdk.nbt.CompoundTag;
 
 /**
  * @author The TridentSDK Team

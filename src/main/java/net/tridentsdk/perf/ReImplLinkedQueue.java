@@ -1,15 +1,13 @@
 package net.tridentsdk.perf;
 
-import net.tridentsdk.api.perf.*;
-import net.tridentsdk.api.perf.Performance;
 import sun.misc.Unsafe;
 
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class ReImplLinkedQueue<E> implements net.tridentsdk.api.perf.AddTakeQueue<E> {
-    private static final Unsafe UNSAFE = net.tridentsdk.api.perf.Performance.getUnsafe();
+public class ReImplLinkedQueue<E> implements AddTakeQueue<E> {
+    private static final Unsafe UNSAFE = Performance.getUnsafe();
 
     // DO NOT FINALIZE THESE
     private volatile Node<E> head = new Node<>(null, null);
@@ -73,12 +71,12 @@ public class ReImplLinkedQueue<E> implements net.tridentsdk.api.perf.AddTakeQueu
         }
     }
 
-    private static final long HEAD = net.tridentsdk.api.perf.Performance.wrap("head").address();
+    private static final long HEAD = Performance.wrap("head").address();
     public boolean casHead(Node<E> old, Node<E> node) {
         return UNSAFE.compareAndSwapObject(this, HEAD, old, node);
     }
 
-    private static final long TAIL = net.tridentsdk.api.perf.Performance.wrap("tail").address();
+    private static final long TAIL = Performance.wrap("tail").address();
     public boolean casTail(Node<E> old, Node<E> node) {
         return UNSAFE.compareAndSwapObject(this, TAIL, old, node);
     }
@@ -93,7 +91,7 @@ public class ReImplLinkedQueue<E> implements net.tridentsdk.api.perf.AddTakeQueu
             this.next = next;
         }
 
-        private static final long ITEM = net.tridentsdk.api.perf.Performance.wrap("item").address();
+        private static final long ITEM = Performance.wrap("item").address();
         public void setItem(E item) {
             UNSAFE.putObjectVolatile(this, ITEM, item);
         }

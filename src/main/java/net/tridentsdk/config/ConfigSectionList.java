@@ -18,8 +18,6 @@
 package net.tridentsdk.config;
 
 import com.google.gson.JsonArray;
-import net.tridentsdk.api.config.*;
-import net.tridentsdk.api.config.ConfigSection;
 
 import java.util.Collection;
 
@@ -30,11 +28,11 @@ import java.util.Collection;
  *
  * @author The TridentSDK Team
  */
-public class ConfigSectionList<V> extends net.tridentsdk.api.config.ConfigList<V> {
+public class ConfigSectionList<V> extends ConfigList<V> {
     private static final long serialVersionUID = -5809487198383216782L;
-    private final net.tridentsdk.api.config.ConfigSection parent;
+    private final ConfigSection parent;
 
-    protected ConfigSectionList(net.tridentsdk.api.config.ConfigSection parent, JsonArray handle) {
+    protected ConfigSectionList(ConfigSection parent, JsonArray handle) {
         super(handle);
         this.parent = parent;
     }
@@ -44,7 +42,7 @@ public class ConfigSectionList<V> extends net.tridentsdk.api.config.ConfigList<V
         boolean changed = super.add(element);
 
         if (changed) {
-            this.jsonHandle.add(((net.tridentsdk.api.config.ConfigSection) element).asJsonObject());
+            this.jsonHandle.add(((ConfigSection) element).asJsonObject());
         }
 
         return changed;
@@ -68,7 +66,7 @@ public class ConfigSectionList<V> extends net.tridentsdk.api.config.ConfigList<V
      */
     @Override
     public V set(int index, V element) {
-        this.jsonHandle.set(index, ((net.tridentsdk.api.config.ConfigSection) element).asJsonObject());
+        this.jsonHandle.set(index, ((ConfigSection) element).asJsonObject());
         return super.set(index, element);
     }
 
@@ -83,7 +81,7 @@ public class ConfigSectionList<V> extends net.tridentsdk.api.config.ConfigList<V
         boolean success = super.remove(element);
 
         if (success) {
-            this.jsonHandle.remove(((net.tridentsdk.api.config.ConfigSection) element).asJsonObject());
+            this.jsonHandle.remove(((ConfigSection) element).asJsonObject());
         }
 
         return success;

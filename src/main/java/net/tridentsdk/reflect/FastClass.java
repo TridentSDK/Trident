@@ -20,9 +20,6 @@ package net.tridentsdk.reflect;
 import com.esotericsoftware.reflectasm.ConstructorAccess;
 import com.esotericsoftware.reflectasm.FieldAccess;
 import com.esotericsoftware.reflectasm.MethodAccess;
-import net.tridentsdk.api.reflect.FastConstructor;
-import net.tridentsdk.api.reflect.FastField;
-import net.tridentsdk.api.reflect.FastMethod;
 
 import java.lang.reflect.Field;
 

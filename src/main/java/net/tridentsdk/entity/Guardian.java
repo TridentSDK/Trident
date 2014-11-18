@@ -17,14 +17,12 @@
  */
 package net.tridentsdk.entity;
 
-import net.tridentsdk.api.entity.*;
-
 /**
  * Represents a Guardian
  *
  * @author TridentSDK Team
  */
-public interface Guardian extends net.tridentsdk.api.entity.Hostile {
+public interface Guardian extends Hostile {
     /**
      * Whether this Guardian is an Elder Guardian or not
      *

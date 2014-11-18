@@ -1,6 +1,5 @@
 package net.tridentsdk.perf;
 
-import net.tridentsdk.api.perf.UnsafeReflector;
 import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;

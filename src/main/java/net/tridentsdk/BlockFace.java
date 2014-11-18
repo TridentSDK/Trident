@@ -19,11 +19,10 @@
 
 package net.tridentsdk;
 
-import net.tridentsdk.api.Location;
-import net.tridentsdk.api.util.Vector;
+import net.tridentsdk.util.Vector;
 
 /**
- * Represents an orientation towards a given direction set from a {@link net.tridentsdk.api.util.Vector}
+ * Represents an orientation towards a given direction set from a {@link net.tridentsdk.util.Vector}
  *
  * @author The TridentSDK Team
  */

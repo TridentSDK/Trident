@@ -17,8 +17,8 @@
  */
 package net.tridentsdk.entity.living;
 
-import net.tridentsdk.api.entity.Neutral;
-import net.tridentsdk.api.entity.RabbitType;
+import net.tridentsdk.entity.Neutral;
+import net.tridentsdk.entity.RabbitType;
 
 /**
  * Represents a Rabbit

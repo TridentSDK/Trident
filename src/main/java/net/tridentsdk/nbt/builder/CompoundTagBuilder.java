@@ -17,8 +17,7 @@
  */
 package net.tridentsdk.nbt.builder;
 
-import net.tridentsdk.api.nbt.*;
-import net.tridentsdk.api.nbt.builder.*;
+import net.tridentsdk.nbt.*;
 
 /**
  * @author The TridentSDK Team
@@ -48,8 +47,8 @@ public class CompoundTagBuilder<B> {
         return this.parentBuilder;
     }
 
-    public net.tridentsdk.api.nbt.builder.ListTagBuilder<CompoundTagBuilder<B>> beginListTag(String name, TagType type) {
-        return new net.tridentsdk.api.nbt.builder.ListTagBuilder<>(name, this.current, this, type);
+    public ListTagBuilder<CompoundTagBuilder<B>> beginListTag(String name, TagType type) {
+        return new ListTagBuilder<>(name, this.current, this, type);
     }
 
     public CompoundTagBuilder<B> compoundTag(CompoundTag value) {

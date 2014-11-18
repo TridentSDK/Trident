@@ -1,6 +1,6 @@
 package net.tridentsdk.server;
 
-import net.tridentsdk.api.scheduling.TridentRunnable;
+import net.tridentsdk.scheduling.TridentRunnable;
 import net.tridentsdk.plugin.TridentPlugin;
 import net.tridentsdk.plugin.annotation.PluginDescription;
 import org.openjdk.jmh.annotations.*;

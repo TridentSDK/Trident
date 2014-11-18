@@ -17,8 +17,8 @@
  */
 package net.tridentsdk.server.window;
 
-import net.tridentsdk.api.inventory.ItemStack;
-import net.tridentsdk.api.window.Window;
+import net.tridentsdk.inventory.ItemStack;
+import net.tridentsdk.window.Window;
 import net.tridentsdk.server.player.TridentPlayer;
 
 import java.util.concurrent.atomic.AtomicInteger;

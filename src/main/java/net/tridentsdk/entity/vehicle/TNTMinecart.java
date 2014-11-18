@@ -17,7 +17,7 @@
  */
 package net.tridentsdk.entity.vehicle;
 
-import net.tridentsdk.api.entity.MinecartBase;
+import net.tridentsdk.entity.MinecartBase;
 
 /**
  * Represents a TNT Minecart

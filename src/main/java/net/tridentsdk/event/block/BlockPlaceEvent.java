@@ -17,17 +17,16 @@
  */
 package net.tridentsdk.event.block;
 
-import net.tridentsdk.api.Block;
-import net.tridentsdk.api.BlockFace;
-import net.tridentsdk.api.Material;
-import net.tridentsdk.api.entity.living.Player;
-import net.tridentsdk.api.event.Cancellable;
-import net.tridentsdk.api.event.block.*;
+import net.tridentsdk.Block;
+import net.tridentsdk.BlockFace;
+import net.tridentsdk.Material;
+import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.event.Cancellable;
 
 /**
  * Called whenever a block is placed
  */
-public class BlockPlaceEvent extends net.tridentsdk.api.event.block.BlockEvent implements Cancellable {
+public class BlockPlaceEvent extends BlockEvent implements Cancellable {
     private final Player player;
     private final Block blockClicked;
     private final BlockFace faceClicked;

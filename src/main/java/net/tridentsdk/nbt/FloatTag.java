@@ -17,13 +17,10 @@
  */
 package net.tridentsdk.nbt;
 
-import net.tridentsdk.api.nbt.*;
-import net.tridentsdk.api.nbt.TagType;
-
 /**
  * @author The TridentSDK Team
  */
-public class FloatTag extends net.tridentsdk.api.nbt.NBTTag {
+public class FloatTag extends NBTTag {
     float value;
 
     public FloatTag(String name) {
@@ -40,10 +37,10 @@ public class FloatTag extends net.tridentsdk.api.nbt.NBTTag {
     }
 
     /* (non-Javadoc)
-     * @see net.tridentsdk.api.nbt.NBTTag#getType()
+     * @see net.tridentsdk.nbt.NBTTag#getType()
      */
     @Override
-    public net.tridentsdk.api.nbt.TagType getType() {
+    public TagType getType() {
         return TagType.FLOAT;
     }
 }

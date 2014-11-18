@@ -17,7 +17,7 @@
  */
 package net.tridentsdk.server.threads;
 
-import net.tridentsdk.api.Trident;
+import net.tridentsdk.Trident;
 import net.tridentsdk.server.TridentScheduler;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -157,7 +157,7 @@ public class MainThread extends Thread {
      *
      * @param ticks the ticks to pause for
      * @return whether the server allows the pausing of ticking
-     * @see MainThread#pauseTicking()
+     * @see net.tridentsdk.server.threads.MainThread#pauseTicking()
      */
     public boolean pauseTicking(int ticks) {
         this.ticksToWait.addAndGet(ticks);

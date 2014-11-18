@@ -17,9 +17,9 @@
  */
 package net.tridentsdk.server.entity.block;
 
-import net.tridentsdk.api.Location;
-import net.tridentsdk.api.entity.EntityProperties;
-import net.tridentsdk.api.entity.block.FallingBlock;
+import net.tridentsdk.Location;
+import net.tridentsdk.entity.EntityProperties;
+import net.tridentsdk.entity.block.FallingBlock;
 import net.tridentsdk.server.entity.TridentEntity;
 
 import java.util.UUID;

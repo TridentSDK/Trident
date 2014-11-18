@@ -19,12 +19,11 @@
 
 package net.tridentsdk.event.player;
 
-import net.tridentsdk.api.BlockFace;
-import net.tridentsdk.api.entity.living.Player;
-import net.tridentsdk.api.event.Cancellable;
-import net.tridentsdk.api.event.player.*;
+import net.tridentsdk.BlockFace;
+import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.event.Cancellable;
 
-public class PlayerDigEvent extends net.tridentsdk.api.event.player.PlayerEvent implements Cancellable {
+public class PlayerDigEvent extends PlayerEvent implements Cancellable {
 
     private final BlockFace face;
     private final short status;

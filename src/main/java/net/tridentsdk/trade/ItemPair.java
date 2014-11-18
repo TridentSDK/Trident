@@ -17,7 +17,7 @@
  */
 package net.tridentsdk.trade;
 
-import net.tridentsdk.api.inventory.ItemStack;
+import net.tridentsdk.inventory.ItemStack;
 
 /**
  * Represents a pair of ItemStacks designated in a trade

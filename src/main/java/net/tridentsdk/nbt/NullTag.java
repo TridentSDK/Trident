@@ -17,21 +17,19 @@
  */
 package net.tridentsdk.nbt;
 
-import net.tridentsdk.api.nbt.*;
-
 /**
  * Default Tag used to obey the NullObject pattern (and avoid NPEs)
  *
  * @author The TridentSDK Team
  */
-public class NullTag extends net.tridentsdk.api.nbt.NBTTag {
+public class NullTag extends NBTTag {
 
     public NullTag(String name) {
         super(name);
     }
 
     /* (non-Javadoc)
-     * @see net.tridentsdk.api.nbt.NBTTag#getType()
+     * @see net.tridentsdk.nbt.NBTTag#getType()
      */
     @Override
     public TagType getType() {

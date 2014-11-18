@@ -17,13 +17,13 @@
  */
 package net.tridentsdk.server.entity.living;
 
-import net.tridentsdk.api.Location;
-import net.tridentsdk.api.entity.Entity;
-import net.tridentsdk.api.entity.EntityProperties;
-import net.tridentsdk.api.entity.Projectile;
-import net.tridentsdk.api.entity.living.Pig;
-import net.tridentsdk.api.entity.living.Player;
-import net.tridentsdk.api.event.entity.EntityDamageEvent;
+import net.tridentsdk.Location;
+import net.tridentsdk.entity.Entity;
+import net.tridentsdk.entity.EntityProperties;
+import net.tridentsdk.entity.Projectile;
+import net.tridentsdk.entity.living.Pig;
+import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.event.entity.EntityDamageEvent;
 import net.tridentsdk.server.entity.TridentLivingEntity;
 
 import java.util.UUID;

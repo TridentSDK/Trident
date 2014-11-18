@@ -17,14 +17,13 @@
  */
 package net.tridentsdk.event.entity;
 
-import net.tridentsdk.api.entity.Entity;
-import net.tridentsdk.api.event.entity.*;
-import net.tridentsdk.api.event.weather.LightningStrikeEvent;
+import net.tridentsdk.entity.Entity;
+import net.tridentsdk.event.weather.LightningStrikeEvent;
 
 /**
  * Called when a creeper gets struck by lightning and turns into a charged creeper
  */
-public class CreeperLightningStrikeEvent extends net.tridentsdk.api.event.entity.EntityEvent {
+public class CreeperLightningStrikeEvent extends EntityEvent {
     private final LightningStrikeEvent cause;
 
     public CreeperLightningStrikeEvent(Entity entity, LightningStrikeEvent cause) {

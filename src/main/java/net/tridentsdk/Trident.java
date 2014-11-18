@@ -18,16 +18,14 @@
 package net.tridentsdk;
 
 import com.google.common.base.Preconditions;
-import net.tridentsdk.api.*;
-import net.tridentsdk.api.Difficulty;
-import net.tridentsdk.api.config.JsonConfig;
-import net.tridentsdk.api.event.EventManager;
-import net.tridentsdk.api.scheduling.Scheduler;
-import net.tridentsdk.api.threads.ThreadProvider;
-import net.tridentsdk.api.util.TridentLogger;
-import net.tridentsdk.api.window.Window;
-import net.tridentsdk.api.world.World;
+import net.tridentsdk.config.JsonConfig;
+import net.tridentsdk.event.EventManager;
 import net.tridentsdk.plugin.TridentPluginHandler;
+import net.tridentsdk.scheduling.Scheduler;
+import net.tridentsdk.threads.ThreadProvider;
+import net.tridentsdk.util.TridentLogger;
+import net.tridentsdk.window.Window;
+import net.tridentsdk.world.World;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -36,12 +34,12 @@ import java.net.InetAddress;
 import java.util.Set;
 
 /**
- * Utility accessor to the {@link net.tridentsdk.api.Server}
+ * Utility accessor to the {@link Server}
  *
  * @author The TridentSDK Team
  */
 public final class Trident {
-    private static net.tridentsdk.api.Server server;
+    private static Server server;
     private static TridentLogger logger;
 
     private Trident() {
@@ -52,7 +50,7 @@ public final class Trident {
      *
      * @return the server that is running
      */
-    public static net.tridentsdk.api.Server getServer() {
+    public static Server getServer() {
         return server;
     }
 
@@ -61,7 +59,7 @@ public final class Trident {
      *
      * @param s the server to set
      */
-    public static void setServer(net.tridentsdk.api.Server s) {
+    public static void setServer(Server s) {
         Preconditions.checkState(isTrident(), "Server instance can only be set by TridentSDK!");
         server = s;
     }

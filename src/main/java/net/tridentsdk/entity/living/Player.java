@@ -17,11 +17,11 @@
  */
 package net.tridentsdk.entity.living;
 
-import net.tridentsdk.api.CommandIssuer;
-import net.tridentsdk.api.GameMode;
-import net.tridentsdk.api.Messagable;
-import net.tridentsdk.api.entity.LivingEntity;
-import net.tridentsdk.api.inventory.ItemStack;
+import net.tridentsdk.CommandIssuer;
+import net.tridentsdk.GameMode;
+import net.tridentsdk.Messagable;
+import net.tridentsdk.entity.LivingEntity;
+import net.tridentsdk.inventory.ItemStack;
 
 import java.util.Locale;
 

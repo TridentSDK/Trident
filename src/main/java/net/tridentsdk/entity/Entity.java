@@ -17,11 +17,9 @@
  */
 package net.tridentsdk.entity;
 
-import net.tridentsdk.api.Location;
-import net.tridentsdk.api.entity.EntityProperties;
-import net.tridentsdk.api.entity.EntityType;
-import net.tridentsdk.api.util.Vector;
-import net.tridentsdk.api.world.World;
+import net.tridentsdk.Location;
+import net.tridentsdk.util.Vector;
+import net.tridentsdk.world.World;
 
 import java.util.List;
 import java.util.UUID;
@@ -136,7 +134,7 @@ public interface Entity {
      * The identifier for this entity for runtime, see getUniqueId for a set id of the entity
      *
      * @return the id to all entities on the server at runtime
-     * @see net.tridentsdk.api.entity.Entity#getUniqueId()
+     * @see net.tridentsdk.entity.Entity#getUniqueId()
      */
     int getId();
 

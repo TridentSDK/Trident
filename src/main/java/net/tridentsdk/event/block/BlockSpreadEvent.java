@@ -17,13 +17,12 @@
  */
 package net.tridentsdk.event.block;
 
-import net.tridentsdk.api.Block;
-import net.tridentsdk.api.event.block.*;
+import net.tridentsdk.Block;
 
 /**
  * Called when a block spreads, like grass or mycelium
  */
-public class BlockSpreadEvent extends net.tridentsdk.api.event.block.BlockGrowthEvent {
+public class BlockSpreadEvent extends BlockGrowthEvent {
     private final Block blockFrom;
 
     /**

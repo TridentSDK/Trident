@@ -20,23 +20,17 @@
 package net.tridentsdk.event;
 
 import com.google.common.collect.Maps;
-import net.tridentsdk.api.Trident;
-import net.tridentsdk.api.event.*;
-import net.tridentsdk.api.event.Event;
-import net.tridentsdk.api.event.EventHandler;
-import net.tridentsdk.api.event.Importance;
-import net.tridentsdk.api.reflect.FastClass;
+import net.tridentsdk.Trident;
+import net.tridentsdk.reflect.FastClass;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.EnumMap;
 import java.util.EventListener;
 import java.util.List;
 import java.util.Map;
 
 public class EventManager {
-    private final Map<Class<? extends net.tridentsdk.api.event.Event>, List<RegisteredListener>> callers = Maps.newHashMap();
+    private final Map<Class<? extends Event>, List<RegisteredListener>> callers = Maps.newHashMap();
 
     public EventManager() {
         if (!Trident.isTrident()) {
@@ -49,7 +43,7 @@ public class EventManager {
      *
      * @param listener the listener instance to use to register
      */
-    public void registerListener(net.tridentsdk.api.event.Listener listener) {
+    public void registerListener(Listener listener) {
         FastClass fastClass = FastClass.get(listener.getClass());
 
         for (Method method : listener.getClass().getDeclaredMethods()) {
@@ -59,9 +53,9 @@ public class EventManager {
                 continue;
             }
 
-            Class<? extends net.tridentsdk.api.event.Event> eventClass = parameterTypes[0].asSubclass(net.tridentsdk.api.event.Event.class);
-            net.tridentsdk.api.event.EventHandler handler = method.getAnnotation(EventHandler.class);
-            net.tridentsdk.api.event.Importance importance = handler == null ? Importance.MEDIUM : handler.importance();
+            Class<? extends Event> eventClass = parameterTypes[0].asSubclass(Event.class);
+            EventHandler handler = method.getAnnotation(EventHandler.class);
+            Importance importance = handler == null ? Importance.MEDIUM : handler.importance();
 
             List<RegisteredListener> eventCallers = this.callers.get(eventClass);
             eventCallers.add(new RegisteredListener(fastClass.getMethod(listener, method.getName()), eventClass, importance));

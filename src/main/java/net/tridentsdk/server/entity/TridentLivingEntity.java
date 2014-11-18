@@ -21,12 +21,12 @@ import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.AtomicDouble;
-import net.tridentsdk.api.Block;
-import net.tridentsdk.api.Location;
-import net.tridentsdk.api.entity.Entity;
-import net.tridentsdk.api.entity.LivingEntity;
-import net.tridentsdk.api.entity.Projectile;
-import net.tridentsdk.api.util.Vector;
+import net.tridentsdk.Block;
+import net.tridentsdk.Location;
+import net.tridentsdk.entity.Entity;
+import net.tridentsdk.entity.LivingEntity;
+import net.tridentsdk.entity.Projectile;
+import net.tridentsdk.util.Vector;
 
 import java.lang.ref.WeakReference;
 import java.util.Collections;
@@ -71,7 +71,7 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
             Lists.<WeakReference<Projectile>>newArrayList());
 
     /**
-     * Inherits from {@link net.tridentsdk.server.entity.TridentEntity}
+     * Inherits from {@link TridentEntity}
      * <p/>
      * <p>The entity is immediately set "non-dead" after {@code super} call</p>
      */

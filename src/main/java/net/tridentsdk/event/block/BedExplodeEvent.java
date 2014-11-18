@@ -17,14 +17,13 @@
  */
 package net.tridentsdk.event.block;
 
-import net.tridentsdk.api.Block;
-import net.tridentsdk.api.event.Cancellable;
-import net.tridentsdk.api.event.block.*;
+import net.tridentsdk.Block;
+import net.tridentsdk.event.Cancellable;
 
 /**
  * Called when a Bed explodes
  */
-public class BedExplodeEvent extends net.tridentsdk.api.event.block.BlockEvent implements Cancellable {
+public class BedExplodeEvent extends BlockEvent implements Cancellable {
     private float strength;
     private boolean cancelled;
 

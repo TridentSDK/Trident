@@ -17,16 +17,16 @@
  */
 package net.tridentsdk.server;
 
-import net.tridentsdk.api.Difficulty;
-import net.tridentsdk.api.Server;
-import net.tridentsdk.api.Trident;
-import net.tridentsdk.api.config.JsonConfig;
-import net.tridentsdk.api.entity.living.Player;
-import net.tridentsdk.api.event.EventManager;
-import net.tridentsdk.api.scheduling.Scheduler;
-import net.tridentsdk.api.threads.ThreadProvider;
-import net.tridentsdk.api.window.Window;
-import net.tridentsdk.api.world.World;
+import net.tridentsdk.Difficulty;
+import net.tridentsdk.Server;
+import net.tridentsdk.Trident;
+import net.tridentsdk.config.JsonConfig;
+import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.event.EventManager;
+import net.tridentsdk.scheduling.Scheduler;
+import net.tridentsdk.threads.ThreadProvider;
+import net.tridentsdk.window.Window;
+import net.tridentsdk.world.World;
 import net.tridentsdk.server.entity.EntityManager;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutPluginMessage;
 import net.tridentsdk.server.player.OfflinePlayer;

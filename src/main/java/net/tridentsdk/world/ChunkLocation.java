@@ -17,8 +17,6 @@
  */
 package net.tridentsdk.world;
 
-import net.tridentsdk.api.world.*;
-
 import java.io.Serializable;
 
 /**
@@ -57,7 +55,7 @@ public class ChunkLocation implements Serializable, Cloneable {
         this.z = z;
     }
 
-    public net.tridentsdk.api.world.Chunk getChunk() {
+    public Chunk getChunk() {
         return null;
     }
 }

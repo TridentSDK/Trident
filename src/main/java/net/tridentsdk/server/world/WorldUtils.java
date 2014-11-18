@@ -17,7 +17,7 @@
  */
 package net.tridentsdk.server.world;
 
-import net.tridentsdk.api.world.ChunkLocation;
+import net.tridentsdk.world.ChunkLocation;
 
 public final class WorldUtils {
 

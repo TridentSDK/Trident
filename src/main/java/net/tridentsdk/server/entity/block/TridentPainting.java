@@ -17,10 +17,10 @@
  */
 package net.tridentsdk.server.entity.block;
 
-import net.tridentsdk.api.Block;
-import net.tridentsdk.api.Location;
-import net.tridentsdk.api.entity.EntityProperties;
-import net.tridentsdk.api.entity.block.Painting;
+import net.tridentsdk.Block;
+import net.tridentsdk.Location;
+import net.tridentsdk.entity.EntityProperties;
+import net.tridentsdk.entity.block.Painting;
 import net.tridentsdk.server.entity.TridentEntity;
 
 import java.util.UUID;

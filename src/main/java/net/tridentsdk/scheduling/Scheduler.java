@@ -17,8 +17,6 @@
  */
 package net.tridentsdk.scheduling;
 
-import net.tridentsdk.api.scheduling.TaskWrapper;
-import net.tridentsdk.api.scheduling.TridentRunnable;
 import net.tridentsdk.plugin.TridentPlugin;
 
 public interface Scheduler {

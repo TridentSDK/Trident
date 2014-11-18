@@ -17,27 +17,12 @@
  */
 package net.tridentsdk.nbt;
 
-import net.tridentsdk.api.TridentFactory;
-import net.tridentsdk.api.nbt.*;
-import net.tridentsdk.api.nbt.ByteArrayTag;
-import net.tridentsdk.api.nbt.ByteTag;
-import net.tridentsdk.api.nbt.CompoundTag;
-import net.tridentsdk.api.nbt.DoubleTag;
-import net.tridentsdk.api.nbt.FloatTag;
-import net.tridentsdk.api.nbt.IntArrayTag;
-import net.tridentsdk.api.nbt.IntTag;
-import net.tridentsdk.api.nbt.ListTag;
-import net.tridentsdk.api.nbt.LongTag;
-import net.tridentsdk.api.nbt.NBTField;
-import net.tridentsdk.api.nbt.NullTag;
-import net.tridentsdk.api.nbt.ShortTag;
-import net.tridentsdk.api.nbt.StringTag;
-import net.tridentsdk.api.nbt.TagType;
-import net.tridentsdk.api.nbt.builder.CompoundTagBuilder;
-import net.tridentsdk.api.nbt.builder.NBTBuilder;
-import net.tridentsdk.api.reflect.FastClass;
-import net.tridentsdk.api.reflect.FastField;
-import net.tridentsdk.api.util.StringUtil;
+import net.tridentsdk.TridentFactory;
+import net.tridentsdk.nbt.builder.CompoundTagBuilder;
+import net.tridentsdk.nbt.builder.NBTBuilder;
+import net.tridentsdk.reflect.FastClass;
+import net.tridentsdk.reflect.FastField;
+import net.tridentsdk.util.StringUtil;
 
 import java.lang.reflect.Field;
 
@@ -46,7 +31,7 @@ public final class NBTSerializer {
     private NBTSerializer() {
     }
 
-    public static <T> T deserialize(Class<T> clzz, net.tridentsdk.api.nbt.CompoundTag tag) {
+    public static <T> T deserialize(Class<T> clzz, CompoundTag tag) {
         if (!(NBTSerializable.class.isAssignableFrom(clzz))) {
             throw new IllegalArgumentException("Provided object is not serializable!");
         }
@@ -57,7 +42,7 @@ public final class NBTSerializer {
         return deserialize(instance, tag);
     }
 
-    public static <T> T deserialize(T instance, net.tridentsdk.api.nbt.CompoundTag tag) {
+    public static <T> T deserialize(T instance, CompoundTag tag) {
         if (!(NBTSerializable.class.isAssignableFrom(instance.getClass()))) {
             throw new IllegalArgumentException("Provided object is not serializable!");
         }
@@ -67,13 +52,13 @@ public final class NBTSerializer {
         for (FastField field : cls.getFields(instance)) {
             Field f = field.toField();
 
-            if (!f.isAnnotationPresent(net.tridentsdk.api.nbt.NBTField.class)) {
+            if (!f.isAnnotationPresent(NBTField.class)) {
                 continue;
             }
 
-            String tagName = f.getAnnotation(net.tridentsdk.api.nbt.NBTField.class).name();
-            net.tridentsdk.api.nbt.TagType type = f.getAnnotation(net.tridentsdk.api.nbt.NBTField.class).type();
-            net.tridentsdk.api.nbt.NBTTag value;
+            String tagName = f.getAnnotation(NBTField.class).name();
+            TagType type = f.getAnnotation(NBTField.class).type();
+            NBTTag value;
 
             if (!tag.containsTag(tagName)) {
                 value = new NullTag(tagName);
@@ -125,7 +110,7 @@ public final class NBTSerializer {
                     break;
 
                 case LIST:
-                    field.set(value.asType(net.tridentsdk.api.nbt.ListTag.class));
+                    field.set(value.asType(ListTag.class));
                     break;
 
                 case STRING:
@@ -144,7 +129,7 @@ public final class NBTSerializer {
         return instance;
     }
 
-    public static net.tridentsdk.api.nbt.CompoundTag serialize(NBTSerializable serializable, String name) {
+    public static CompoundTag serialize(NBTSerializable serializable, String name) {
         FastClass cls = FastClass.get(serializable.getClass());
         CompoundTagBuilder<NBTBuilder> builder =
                 TridentFactory.createNbtBuilder(name);
@@ -152,11 +137,11 @@ public final class NBTSerializer {
         for (FastField field : cls.getFields(serializable)) {
             Field f = field.toField();
 
-            if (!f.isAnnotationPresent(net.tridentsdk.api.nbt.NBTField.class)) {
+            if (!f.isAnnotationPresent(NBTField.class)) {
                 continue;
             }
 
-            String tagName = f.getAnnotation(net.tridentsdk.api.nbt.NBTField.class).name();
+            String tagName = f.getAnnotation(NBTField.class).name();
             TagType tagType = f.getAnnotation(NBTField.class).type();
             Object value = field.get();
 
@@ -170,7 +155,7 @@ public final class NBTSerializer {
                     break;
 
                 case COMPOUND:
-                    builder.compoundTag((net.tridentsdk.api.nbt.CompoundTag) value);
+                    builder.compoundTag((CompoundTag) value);
                     break;
 
                 case DOUBLE:

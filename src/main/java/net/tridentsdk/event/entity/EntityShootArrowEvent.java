@@ -17,10 +17,9 @@
  */
 package net.tridentsdk.event.entity;
 
-import net.tridentsdk.api.entity.Entity;
-import net.tridentsdk.api.entity.Projectile;
-import net.tridentsdk.api.entity.projectile.Arrow;
-import net.tridentsdk.api.event.entity.EntityLaunchProjectileEvent;
+import net.tridentsdk.entity.Entity;
+import net.tridentsdk.entity.Projectile;
+import net.tridentsdk.entity.projectile.Arrow;
 
 /**
  * Called when a skeleton shoots an arrow

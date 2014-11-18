@@ -18,12 +18,12 @@
 package net.tridentsdk.server.world;
 
 import com.google.common.io.ByteStreams;
-import net.tridentsdk.api.Block;
-import net.tridentsdk.api.Difficulty;
-import net.tridentsdk.api.GameMode;
-import net.tridentsdk.api.Location;
-import net.tridentsdk.api.nbt.*;
-import net.tridentsdk.api.world.*;
+import net.tridentsdk.Block;
+import net.tridentsdk.Difficulty;
+import net.tridentsdk.GameMode;
+import net.tridentsdk.Location;
+import net.tridentsdk.nbt.*;
+import net.tridentsdk.world.*;
 import net.tridentsdk.server.player.OfflinePlayer;
 import net.tridentsdk.server.TridentServer;
 import org.slf4j.Logger;

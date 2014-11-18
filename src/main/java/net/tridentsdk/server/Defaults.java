@@ -20,7 +20,7 @@ package net.tridentsdk.server;
 // if these shouldn't exist, or should go somewhere else, just move them
 // this is probably temporary
 
-import net.tridentsdk.api.Difficulty;
+import net.tridentsdk.Difficulty;
 
 /**
  * Contains the default values used in server.json

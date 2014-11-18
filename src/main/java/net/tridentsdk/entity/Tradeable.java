@@ -17,7 +17,7 @@
  */
 package net.tridentsdk.entity;
 
-import net.tridentsdk.api.trade.Trade;
+import net.tridentsdk.trade.Trade;
 
 import java.util.Collection;
 

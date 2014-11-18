@@ -18,7 +18,7 @@
 package net.tridentsdk.server.data;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.api.world.ChunkLocation;
+import net.tridentsdk.world.ChunkLocation;
 
 /**
  * Builds chunk metadata required for chunk packet data sent to the player

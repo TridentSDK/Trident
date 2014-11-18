@@ -17,14 +17,13 @@
  */
 package net.tridentsdk.event.entity;
 
-import net.tridentsdk.api.entity.Entity;
-import net.tridentsdk.api.entity.Projectile;
-import net.tridentsdk.api.event.entity.*;
+import net.tridentsdk.entity.Entity;
+import net.tridentsdk.entity.Projectile;
 
 /**
  * Called when an entity launches a projectile
  */
-public class EntityLaunchProjectileEvent extends net.tridentsdk.api.event.entity.EntityEvent {
+public class EntityLaunchProjectileEvent extends EntityEvent {
     private final Projectile projectile;
     private final Entity target;
     private boolean cancelled;

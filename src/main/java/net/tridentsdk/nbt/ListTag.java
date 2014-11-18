@@ -18,7 +18,6 @@
 package net.tridentsdk.nbt;
 
 import com.google.common.collect.Lists;
-import net.tridentsdk.api.nbt.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,8 +25,8 @@ import java.util.List;
 /**
  * @author The TridentSDK Team
  */
-public class ListTag extends net.tridentsdk.api.nbt.NBTTag implements TagContainer {
-    final List<net.tridentsdk.api.nbt.NBTTag> tags = new ArrayList<>();
+public class ListTag extends NBTTag implements TagContainer {
+    final List<NBTTag> tags = new ArrayList<>();
     final TagType innerType;
 
     public ListTag(String name, TagType innerType) {
@@ -35,11 +34,11 @@ public class ListTag extends net.tridentsdk.api.nbt.NBTTag implements TagContain
         this.innerType = innerType;
     }
 
-    public List<net.tridentsdk.api.nbt.NBTTag> listTags() {
+    public List<NBTTag> listTags() {
         return Lists.newArrayList(this.tags);
     }
 
-    public net.tridentsdk.api.nbt.NBTTag getTag(int index) {
+    public NBTTag getTag(int index) {
         return this.tags.get(index);
     }
 
@@ -47,18 +46,18 @@ public class ListTag extends net.tridentsdk.api.nbt.NBTTag implements TagContain
         this.tags.clear();
     }
 
-    public boolean containsTag(net.tridentsdk.api.nbt.NBTTag tag) {
+    public boolean containsTag(NBTTag tag) {
         return this.tags.contains(tag);
     }
 
     @Override
-    public void addTag(net.tridentsdk.api.nbt.NBTTag tag) {
+    public void addTag(NBTTag tag) {
         if (tag.getType() == this.innerType) {
             this.tags.add(tag);
         }
     }
 
-    public void removeTag(net.tridentsdk.api.nbt.NBTTag tag) {
+    public void removeTag(NBTTag tag) {
         this.tags.remove(tag);
     }
 
@@ -67,7 +66,7 @@ public class ListTag extends net.tridentsdk.api.nbt.NBTTag implements TagContain
     }
 
     /* (non-Javadoc)
-     * @see net.tridentsdk.api.nbt.NBTTag#getType()
+     * @see net.tridentsdk.nbt.NBTTag#getType()
      */
     @Override
     public TagType getType() {

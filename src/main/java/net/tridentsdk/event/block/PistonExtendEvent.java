@@ -18,13 +18,12 @@
 package net.tridentsdk.event.block;
 
 import com.google.common.collect.ImmutableList;
-import net.tridentsdk.api.Block;
-import net.tridentsdk.api.Orientation;
-import net.tridentsdk.api.event.block.*;
+import net.tridentsdk.Block;
+import net.tridentsdk.Orientation;
 
 import java.util.List;
 
-public class PistonExtendEvent extends net.tridentsdk.api.event.block.BlockPistonEvent {
+public class PistonExtendEvent extends BlockPistonEvent {
     private final ImmutableList<Block> blocksInfluenced;
     private boolean cancel;
 

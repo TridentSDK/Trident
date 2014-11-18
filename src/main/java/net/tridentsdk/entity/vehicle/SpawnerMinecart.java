@@ -17,9 +17,9 @@
  */
 package net.tridentsdk.entity.vehicle;
 
-import net.tridentsdk.api.entity.EntityProperties;
-import net.tridentsdk.api.entity.EntityType;
-import net.tridentsdk.api.entity.MinecartBase;
+import net.tridentsdk.entity.EntityProperties;
+import net.tridentsdk.entity.EntityType;
+import net.tridentsdk.entity.MinecartBase;
 
 /**
  * Represents a Spawner Minecart

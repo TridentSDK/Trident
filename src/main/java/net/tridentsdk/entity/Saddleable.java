@@ -17,8 +17,6 @@
  */
 package net.tridentsdk.entity;
 
-import net.tridentsdk.api.entity.LivingEntity;
-
 /**
  * Represents a living entity that can wear a saddle
  *

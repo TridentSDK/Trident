@@ -17,12 +17,11 @@
  */
 package net.tridentsdk.event.player;
 
-import net.tridentsdk.api.entity.Item;
-import net.tridentsdk.api.entity.living.Player;
-import net.tridentsdk.api.event.Cancellable;
-import net.tridentsdk.api.event.player.*;
+import net.tridentsdk.entity.Item;
+import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.event.Cancellable;
 
-public class PlayerDropItemEvent extends net.tridentsdk.api.event.player.PlayerEvent implements Cancellable {
+public class PlayerDropItemEvent extends PlayerEvent implements Cancellable {
 
     private final Item item;
     private boolean cancel;

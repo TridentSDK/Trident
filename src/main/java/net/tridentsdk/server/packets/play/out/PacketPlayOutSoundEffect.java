@@ -18,8 +18,8 @@
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.api.Location;
-import net.tridentsdk.api.Sound;
+import net.tridentsdk.Location;
+import net.tridentsdk.Sound;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 

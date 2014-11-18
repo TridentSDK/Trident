@@ -17,7 +17,7 @@
  */
 package net.tridentsdk.entity.projectile;
 
-import net.tridentsdk.api.entity.Projectile;
+import net.tridentsdk.entity.Projectile;
 
 /**
  * Represents a Snowball

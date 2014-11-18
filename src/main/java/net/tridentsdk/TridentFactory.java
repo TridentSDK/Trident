@@ -17,21 +17,18 @@
  */
 package net.tridentsdk;
 
-import net.tridentsdk.api.*;
-import net.tridentsdk.api.Location;
-import net.tridentsdk.api.Material;
-import net.tridentsdk.api.entity.Entity;
-import net.tridentsdk.api.inventory.Inventory;
-import net.tridentsdk.api.inventory.ItemStack;
-import net.tridentsdk.api.nbt.CompoundTag;
-import net.tridentsdk.api.nbt.builder.CompoundTagBuilder;
-import net.tridentsdk.api.nbt.builder.NBTBuilder;
-import net.tridentsdk.api.trade.ItemPair;
-import net.tridentsdk.api.util.TridentLogger;
-import net.tridentsdk.api.util.Vector;
-import net.tridentsdk.api.world.ChunkLocation;
-import net.tridentsdk.api.world.World;
-import net.tridentsdk.api.world.WorldLoader;
+import net.tridentsdk.entity.Entity;
+import net.tridentsdk.inventory.Inventory;
+import net.tridentsdk.inventory.ItemStack;
+import net.tridentsdk.nbt.CompoundTag;
+import net.tridentsdk.nbt.builder.CompoundTagBuilder;
+import net.tridentsdk.nbt.builder.NBTBuilder;
+import net.tridentsdk.trade.ItemPair;
+import net.tridentsdk.util.TridentLogger;
+import net.tridentsdk.util.Vector;
+import net.tridentsdk.world.ChunkLocation;
+import net.tridentsdk.world.World;
+import net.tridentsdk.world.WorldLoader;
 
 import java.util.logging.Logger;
 
@@ -51,8 +48,8 @@ public final class TridentFactory {
      *
      * @return Block created instance without location
      */
-    public static net.tridentsdk.api.Block createBlock() {
-        return new net.tridentsdk.api.Block(null);
+    public static Block createBlock() {
+        return new Block(null);
     }
 
     /**
@@ -61,8 +58,8 @@ public final class TridentFactory {
      * @param location Location of the block
      * @return Block created instance with a location
      */
-    public static net.tridentsdk.api.Block createBlock(net.tridentsdk.api.Location location) {
-        return new net.tridentsdk.api.Block(location);
+    public static Block createBlock(Location location) {
+        return new Block(location);
     }
 
     /**
@@ -74,8 +71,8 @@ public final class TridentFactory {
      * @param z     Z co-ordinate of the block
      * @return Block created instance
      */
-    public static net.tridentsdk.api.Block createBlock(World world, double x, double y, double z) {
-        return new net.tridentsdk.api.Block(createLocation(world, x, y, z));
+    public static Block createBlock(World world, double x, double y, double z) {
+        return new Block(createLocation(world, x, y, z));
     }
 
     /* Location */
@@ -85,8 +82,8 @@ public final class TridentFactory {
      *
      * @return Location created instance with no world
      */
-    public static net.tridentsdk.api.Location createLocation() {
-        return new net.tridentsdk.api.Location(null, 0.0, 0.0, 0.0);
+    public static Location createLocation() {
+        return new Location(null, 0.0, 0.0, 0.0);
     }
 
     /**
@@ -95,8 +92,8 @@ public final class TridentFactory {
      * @param world World in which the Location is targeting
      * @return Location with the specified world, but no co-coordinates
      */
-    public static net.tridentsdk.api.Location createLocation(World world) {
-        return new net.tridentsdk.api.Location(world, 0.0, 0.0, 0.0);
+    public static Location createLocation(World world) {
+        return new Location(world, 0.0, 0.0, 0.0);
     }
 
     /**
@@ -108,8 +105,8 @@ public final class TridentFactory {
      * @param z     Z co-ordinate
      * @return Location
      */
-    public static net.tridentsdk.api.Location createLocation(World world, double x, double y, double z) {
-        return new net.tridentsdk.api.Location(world, x, y, z);
+    public static Location createLocation(World world, double x, double y, double z) {
+        return new Location(world, x, y, z);
     }
 
     /**
@@ -123,8 +120,8 @@ public final class TridentFactory {
      * @param pitch Pitch absolute rotation on the y-plane, in degrees
      * @return Location
      */
-    public static net.tridentsdk.api.Location createLocation(World world, double x, double y, double z, float yaw, float pitch) {
-        return new net.tridentsdk.api.Location(world, x, y, z, yaw, pitch);
+    public static Location createLocation(World world, double x, double y, double z, float yaw, float pitch) {
+        return new Location(world, x, y, z, yaw, pitch);
     }
 
     /**
@@ -135,7 +132,7 @@ public final class TridentFactory {
      * @param pitch    Pitch absolute rotation on the y-plane, in degrees
      * @return Location
      */
-    public static net.tridentsdk.api.Location createLocation(net.tridentsdk.api.Location location, float yaw, float pitch) {
+    public static Location createLocation(Location location, float yaw, float pitch) {
         return new Location(location.getWorld(), location.getX(), location.getY(), location.getZ(), yaw, pitch);
     }
 
@@ -212,7 +209,7 @@ public final class TridentFactory {
 
     /* Inventory */
 
-    public static ItemStack createItemStack(net.tridentsdk.api.Material mat) {
+    public static ItemStack createItemStack(Material mat) {
         return new ItemStack(mat);
     }
 

@@ -17,14 +17,13 @@
  */
 package net.tridentsdk.event.player;
 
-import net.tridentsdk.api.entity.living.Player;
-import net.tridentsdk.api.event.player.*;
-import net.tridentsdk.api.world.World;
+import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.world.World;
 
 /**
  * Called when a player changes worlds
  */
-public class PlayerChangeWorldEvent extends net.tridentsdk.api.event.player.PlayerEvent {
+public class PlayerChangeWorldEvent extends PlayerEvent {
     private final World to;
     private final World from;
 

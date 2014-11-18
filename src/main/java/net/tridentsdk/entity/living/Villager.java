@@ -17,7 +17,7 @@
  */
 package net.tridentsdk.entity.living;
 
-import net.tridentsdk.api.entity.*;
+import net.tridentsdk.entity.*;
 
 /**
  * Represents a Villager

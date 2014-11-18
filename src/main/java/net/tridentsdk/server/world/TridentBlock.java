@@ -17,9 +17,9 @@
  */
 package net.tridentsdk.server.world;
 
-import net.tridentsdk.api.Block;
-import net.tridentsdk.api.Location;
-import net.tridentsdk.api.Material;
+import net.tridentsdk.Block;
+import net.tridentsdk.Location;
+import net.tridentsdk.Material;
 
 public class TridentBlock extends Block {
     public TridentBlock(Location location, Material material1, byte data) {

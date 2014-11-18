@@ -17,7 +17,7 @@
  */
 package net.tridentsdk.server.window;
 
-import net.tridentsdk.api.window.Window;
+import net.tridentsdk.window.Window;
 
 import java.util.Collection;
 import java.util.Map;

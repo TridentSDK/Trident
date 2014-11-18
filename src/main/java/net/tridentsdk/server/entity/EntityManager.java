@@ -21,8 +21,8 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
-import net.tridentsdk.api.Trident;
-import net.tridentsdk.api.entity.Entity;
+import net.tridentsdk.Trident;
+import net.tridentsdk.entity.Entity;
 
 import java.util.ArrayList;
 import java.util.Map;

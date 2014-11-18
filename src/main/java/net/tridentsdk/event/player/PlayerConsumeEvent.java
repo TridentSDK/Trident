@@ -17,11 +17,10 @@
  */
 package net.tridentsdk.event.player;
 
-import net.tridentsdk.api.entity.Item;
-import net.tridentsdk.api.entity.living.Player;
-import net.tridentsdk.api.event.player.*;
+import net.tridentsdk.entity.Item;
+import net.tridentsdk.entity.living.Player;
 
-public class PlayerConsumeEvent extends net.tridentsdk.api.event.player.PlayerHungerEvent {
+public class PlayerConsumeEvent extends PlayerHungerEvent {
 
     private final Item item;
     private boolean cancel;

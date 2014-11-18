@@ -17,11 +17,10 @@
  */
 package net.tridentsdk.event.block;
 
-import net.tridentsdk.api.Block;
-import net.tridentsdk.api.Orientation;
-import net.tridentsdk.api.event.block.*;
+import net.tridentsdk.Block;
+import net.tridentsdk.Orientation;
 
-public class PistonRetractEvent extends net.tridentsdk.api.event.block.BlockPistonEvent {
+public class PistonRetractEvent extends BlockPistonEvent {
     private boolean cancelled;
 
     public PistonRetractEvent(Block block, Orientation direction, Block influenced) {

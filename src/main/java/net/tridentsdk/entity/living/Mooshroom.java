@@ -17,13 +17,11 @@
  */
 package net.tridentsdk.entity.living;
 
-import net.tridentsdk.api.entity.living.*;
-
 /**
  * Represents a Mooshroom Cow
  *
  * @author TridentSDK Team
  */
-public interface Mooshroom extends net.tridentsdk.api.entity.living.Cow {
+public interface Mooshroom extends Cow {
 
 }

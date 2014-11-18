@@ -17,9 +17,7 @@
  */
 package net.tridentsdk.world;
 
-import net.tridentsdk.api.Block;
-import net.tridentsdk.api.world.ChunkLocation;
-import net.tridentsdk.api.world.World;
+import net.tridentsdk.Block;
 
 public interface Chunk {
     void generate();

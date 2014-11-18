@@ -20,12 +20,10 @@ package net.tridentsdk;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import net.tridentsdk.api.Location;
-import net.tridentsdk.api.Material;
-import net.tridentsdk.api.entity.Entity;
-import net.tridentsdk.api.entity.Impalable;
-import net.tridentsdk.api.entity.Projectile;
-import net.tridentsdk.api.util.Vector;
+import net.tridentsdk.entity.Entity;
+import net.tridentsdk.entity.Impalable;
+import net.tridentsdk.entity.Projectile;
+import net.tridentsdk.util.Vector;
 
 import java.lang.ref.WeakReference;
 import java.util.Collections;

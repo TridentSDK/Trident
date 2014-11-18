@@ -17,13 +17,11 @@
  */
 package net.tridentsdk.entity.projectile;
 
-import net.tridentsdk.api.entity.projectile.*;
-
 /**
  * Represents a small Fireball
  *
  * @author TridentSDK Team
  */
-public interface SmallFireball extends net.tridentsdk.api.entity.projectile.Fireball {
+public interface SmallFireball extends Fireball {
 
 }

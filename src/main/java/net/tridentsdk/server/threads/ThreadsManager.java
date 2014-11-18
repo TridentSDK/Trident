@@ -17,11 +17,11 @@
  */
 package net.tridentsdk.server.threads;
 
-import net.tridentsdk.api.entity.Entity;
-import net.tridentsdk.api.entity.living.Player;
-import net.tridentsdk.api.threads.TaskExecutor;
-import net.tridentsdk.api.threads.ThreadProvider;
-import net.tridentsdk.api.world.World;
+import net.tridentsdk.entity.Entity;
+import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.threads.TaskExecutor;
+import net.tridentsdk.threads.ThreadProvider;
+import net.tridentsdk.world.World;
 import net.tridentsdk.plugin.TridentPlugin;
 
 /**

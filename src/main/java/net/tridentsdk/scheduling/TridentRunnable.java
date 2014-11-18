@@ -17,7 +17,7 @@
  */
 package net.tridentsdk.scheduling;
 
-import net.tridentsdk.api.Trident;
+import net.tridentsdk.Trident;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -77,7 +77,7 @@ public abstract class TridentRunnable implements Runnable {
     /**
      * Sets how long this runnable should wait between executions if this is a repeating task <p>If this task is
      * synchronous to the main thread, the change will be immediate, if it is not, the change may take an iteration to
-     * take effect, however {@link net.tridentsdk.scheduling.TridentRunnable#getInterval()} will reflect the changes immediately</p>
+     * take effect, however {@link TridentRunnable#getInterval()} will reflect the changes immediately</p>
      */
     public final void setInterval(long interval) {
         Trident.getScheduler().wrapperByRun(this).setInterval(interval);

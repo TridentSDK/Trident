@@ -17,15 +17,14 @@
  */
 package net.tridentsdk.entity;
 
-import net.tridentsdk.api.entity.*;
-import net.tridentsdk.api.inventory.ItemStack;
+import net.tridentsdk.inventory.ItemStack;
 
 /**
  * Represents an entity that can be equipped
  *
  * @author TridentSDK Team
  */
-public interface Equippable extends net.tridentsdk.api.entity.Entity {
+public interface Equippable extends Entity {
     /**
      * This entity's equipment
      * <p/>

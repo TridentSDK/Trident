@@ -26,7 +26,7 @@ import net.tridentsdk.server.netty.packet.OutPacket;
  * Status response to PacketStatusInRequest
  *
  * @author The TridentSDK Team
- * @see net.tridentsdk.server.packets.status.PacketStatusInRequest
+ * @see PacketStatusInRequest
  */
 public class PacketStatusOutResponse extends OutPacket {
     /**

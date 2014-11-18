@@ -17,25 +17,22 @@
  */
 package net.tridentsdk.world;
 
-import net.tridentsdk.api.world.*;
-import net.tridentsdk.api.world.ChunkLocation;
-
 import java.util.Collections;
 import java.util.Map;
 
 public class ChunkSnapshot {
 
-    private final Map<net.tridentsdk.api.world.ChunkLocation, net.tridentsdk.api.world.Chunk> chunks;
+    private final Map<ChunkLocation, Chunk> chunks;
 
-    public ChunkSnapshot(Map<net.tridentsdk.api.world.ChunkLocation, net.tridentsdk.api.world.Chunk> snapshot) {
+    public ChunkSnapshot(Map<ChunkLocation, Chunk> snapshot) {
         this.chunks = Collections.unmodifiableMap(snapshot);
     }
 
-    public net.tridentsdk.api.world.Chunk getChunkAt(net.tridentsdk.api.world.ChunkLocation location) {
+    public Chunk getChunkAt(ChunkLocation location) {
         return this.chunks.get(location);
     }
 
-    public net.tridentsdk.api.world.Chunk getChunkAt(int x, int z) {
+    public Chunk getChunkAt(int x, int z) {
         return this.getChunkAt(new ChunkLocation(x, z));
     }
 }

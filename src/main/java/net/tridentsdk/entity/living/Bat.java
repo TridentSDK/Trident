@@ -17,7 +17,7 @@
  */
 package net.tridentsdk.entity.living;
 
-import net.tridentsdk.api.entity.Neutral;
+import net.tridentsdk.entity.Neutral;
 
 /**
  * Represents a Bat

@@ -17,14 +17,13 @@
  */
 package net.tridentsdk.event.block;
 
-import net.tridentsdk.api.Block;
-import net.tridentsdk.api.event.Cancellable;
-import net.tridentsdk.api.event.block.*;
+import net.tridentsdk.Block;
+import net.tridentsdk.event.Cancellable;
 
 /**
  * Called when a crop grows or a block spreads
  */
-public abstract class BlockGrowthEvent extends net.tridentsdk.api.event.block.BlockEvent implements Cancellable {
+public abstract class BlockGrowthEvent extends BlockEvent implements Cancellable {
     private boolean cancelled;
 
     /**

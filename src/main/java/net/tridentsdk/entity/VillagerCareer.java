@@ -19,7 +19,6 @@ package net.tridentsdk.entity;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import net.tridentsdk.api.entity.VillagerProfession;
 
 import java.util.Collection;
 import java.util.Map;

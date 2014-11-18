@@ -17,7 +17,7 @@
  */
 package net.tridentsdk.entity.vehicle;
 
-import net.tridentsdk.api.entity.Entity;
+import net.tridentsdk.entity.Entity;
 
 /**
  * Represents a Boat

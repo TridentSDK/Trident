@@ -17,8 +17,8 @@
  */
 package net.tridentsdk.server.threads;
 
-import net.tridentsdk.api.threads.TaskExecutor;
-import net.tridentsdk.api.world.World;
+import net.tridentsdk.threads.TaskExecutor;
+import net.tridentsdk.world.World;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;

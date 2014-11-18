@@ -17,9 +17,9 @@
  */
 package net.tridentsdk.event.player;
 
-import net.tridentsdk.api.event.Cancellable;
-import net.tridentsdk.api.event.Event;
-import net.tridentsdk.api.window.Window;
+import net.tridentsdk.event.Cancellable;
+import net.tridentsdk.event.Event;
+import net.tridentsdk.window.Window;
 
 public class PlayerClickItemEvent extends Event implements Cancellable {
 

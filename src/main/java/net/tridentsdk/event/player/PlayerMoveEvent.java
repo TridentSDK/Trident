@@ -17,12 +17,11 @@
  */
 package net.tridentsdk.event.player;
 
-import net.tridentsdk.api.Location;
-import net.tridentsdk.api.entity.living.Player;
-import net.tridentsdk.api.event.Cancellable;
-import net.tridentsdk.api.event.player.*;
+import net.tridentsdk.Location;
+import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.event.Cancellable;
 
-public class PlayerMoveEvent extends net.tridentsdk.api.event.player.PlayerEvent implements Cancellable {
+public class PlayerMoveEvent extends PlayerEvent implements Cancellable {
 
     private final Location fromLoc;
     private final Location toLoc;

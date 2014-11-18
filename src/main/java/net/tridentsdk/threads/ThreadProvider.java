@@ -17,18 +17,17 @@
  */
 package net.tridentsdk.threads;
 
-import net.tridentsdk.api.entity.Entity;
-import net.tridentsdk.api.entity.living.Player;
-import net.tridentsdk.api.threads.*;
-import net.tridentsdk.api.world.World;
+import net.tridentsdk.entity.Entity;
+import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.world.World;
 import net.tridentsdk.plugin.TridentPlugin;
 
 public interface ThreadProvider {
-    net.tridentsdk.api.threads.TaskExecutor provideEntityThread(Entity entity);
+    TaskExecutor provideEntityThread(Entity entity);
 
-    net.tridentsdk.api.threads.TaskExecutor providePlayerThread(Player player);
+    TaskExecutor providePlayerThread(Player player);
 
-    net.tridentsdk.api.threads.TaskExecutor providePluginThread(TridentPlugin plugin);
+    TaskExecutor providePluginThread(TridentPlugin plugin);
 
-    net.tridentsdk.api.threads.TaskExecutor provideWorldThread(World world);
+    TaskExecutor provideWorldThread(World world);
 }

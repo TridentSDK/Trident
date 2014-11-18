@@ -17,7 +17,7 @@
  */
 package net.tridentsdk.entity.vehicle;
 
-import net.tridentsdk.api.entity.InventoryHolder;
+import net.tridentsdk.entity.InventoryHolder;
 
 /**
  * Represents a Furnace Minecart

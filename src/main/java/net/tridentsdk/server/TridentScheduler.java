@@ -17,11 +17,11 @@
  */
 package net.tridentsdk.server;
 
-import net.tridentsdk.api.scheduling.Scheduler;
-import net.tridentsdk.api.scheduling.SchedulerType;
-import net.tridentsdk.api.scheduling.TaskWrapper;
-import net.tridentsdk.api.scheduling.TridentRunnable;
-import net.tridentsdk.api.threads.TaskExecutor;
+import net.tridentsdk.scheduling.Scheduler;
+import net.tridentsdk.scheduling.SchedulerType;
+import net.tridentsdk.scheduling.TaskWrapper;
+import net.tridentsdk.scheduling.TridentRunnable;
+import net.tridentsdk.threads.TaskExecutor;
 import net.tridentsdk.plugin.TridentPlugin;
 import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
 import net.tridentsdk.server.threads.PluginThreads;

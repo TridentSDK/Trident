@@ -17,9 +17,9 @@
  */
 package net.tridentsdk.entity.block;
 
-import net.tridentsdk.api.entity.Equippable;
-import net.tridentsdk.api.entity.SlotProperties;
-import net.tridentsdk.api.util.PartRotation;
+import net.tridentsdk.entity.Equippable;
+import net.tridentsdk.entity.SlotProperties;
+import net.tridentsdk.util.PartRotation;
 
 /**
  * Represents an Armor Stand

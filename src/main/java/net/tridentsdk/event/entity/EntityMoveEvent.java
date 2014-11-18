@@ -17,13 +17,12 @@
  */
 package net.tridentsdk.event.entity;
 
-import net.tridentsdk.api.entity.Entity;
-import net.tridentsdk.api.event.entity.*;
+import net.tridentsdk.entity.Entity;
 
 /**
  * Called when an entity moves, ignores short movements
  */
-public class EntityMoveEvent extends net.tridentsdk.api.event.entity.EntityEvent {
+public class EntityMoveEvent extends EntityEvent {
     public EntityMoveEvent(Entity entity) {
         super(entity);
     }

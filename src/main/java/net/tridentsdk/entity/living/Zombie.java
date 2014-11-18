@@ -17,8 +17,8 @@
  */
 package net.tridentsdk.entity.living;
 
-import net.tridentsdk.api.entity.Equippable;
-import net.tridentsdk.api.entity.Hostile;
+import net.tridentsdk.entity.Equippable;
+import net.tridentsdk.entity.Hostile;
 
 /**
  * Represents a Zombie

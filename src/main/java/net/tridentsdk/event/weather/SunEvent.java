@@ -17,8 +17,7 @@
  */
 package net.tridentsdk.event.weather;
 
-import net.tridentsdk.api.event.weather.WeatherEvent;
-import net.tridentsdk.api.world.World;
+import net.tridentsdk.world.World;
 
 /**
  * Called when the weather on the world changes to sun

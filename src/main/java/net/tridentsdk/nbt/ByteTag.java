@@ -17,12 +17,10 @@
  */
 package net.tridentsdk.nbt;
 
-import net.tridentsdk.api.nbt.*;
-
 /**
  * @author The TridentSDK Team
  */
-public class ByteTag extends net.tridentsdk.api.nbt.NBTTag {
+public class ByteTag extends NBTTag {
     byte value;
 
     public ByteTag(String name) {
@@ -39,7 +37,7 @@ public class ByteTag extends net.tridentsdk.api.nbt.NBTTag {
     }
 
     /* (non-Javadoc)
-     * @see net.tridentsdk.api.nbt.NBTTag#getType()
+     * @see net.tridentsdk.nbt.NBTTag#getType()
      */
     @Override
     public TagType getType() {

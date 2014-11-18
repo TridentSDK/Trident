@@ -17,8 +17,8 @@
  */
 package net.tridentsdk.entity.block;
 
-import net.tridentsdk.api.entity.Hanging;
-import net.tridentsdk.api.inventory.ItemStack;
+import net.tridentsdk.entity.Hanging;
+import net.tridentsdk.inventory.ItemStack;
 
 /**
  * Represents an ItemFrame

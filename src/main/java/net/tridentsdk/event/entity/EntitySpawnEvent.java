@@ -17,11 +17,10 @@
  */
 package net.tridentsdk.event.entity;
 
-import net.tridentsdk.api.Location;
-import net.tridentsdk.api.entity.Entity;
-import net.tridentsdk.api.event.entity.*;
+import net.tridentsdk.Location;
+import net.tridentsdk.entity.Entity;
 
-public class EntitySpawnEvent extends net.tridentsdk.api.event.entity.EntityEvent {
+public class EntitySpawnEvent extends EntityEvent {
 
     private final Location location;
     private boolean cancel;

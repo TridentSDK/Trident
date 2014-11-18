@@ -17,13 +17,12 @@
  */
 package net.tridentsdk.event.entity;
 
-import net.tridentsdk.api.entity.Entity;
-import net.tridentsdk.api.event.entity.*;
+import net.tridentsdk.entity.Entity;
 
 /**
  * Called when an Entity catches fire
  */
-public class EntityIgniteEvent extends net.tridentsdk.api.event.entity.EntityEvent {
+public class EntityIgniteEvent extends EntityEvent {
     public EntityIgniteEvent(Entity entity) {
         super(entity);
     }

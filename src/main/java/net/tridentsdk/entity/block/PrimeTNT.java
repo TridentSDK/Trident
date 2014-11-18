@@ -17,8 +17,6 @@
  */
 package net.tridentsdk.entity.block;
 
-import net.tridentsdk.api.entity.block.FallingBlock;
-
 /**
  * Represents a Primed TNT
  *

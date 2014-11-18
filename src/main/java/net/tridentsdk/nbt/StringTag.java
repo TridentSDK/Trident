@@ -17,13 +17,10 @@
  */
 package net.tridentsdk.nbt;
 
-import net.tridentsdk.api.nbt.*;
-import net.tridentsdk.api.nbt.TagType;
-
 /**
  * @author The TridentSDK Team
  */
-public class StringTag extends net.tridentsdk.api.nbt.NBTTag {
+public class StringTag extends NBTTag {
     String value;
 
     public StringTag(String name) {
@@ -40,10 +37,10 @@ public class StringTag extends net.tridentsdk.api.nbt.NBTTag {
     }
 
     /* (non-Javadoc)
-     * @see net.tridentsdk.api.nbt.NBTTag#getType()
+     * @see net.tridentsdk.nbt.NBTTag#getType()
      */
     @Override
-    public net.tridentsdk.api.nbt.TagType getType() {
+    public TagType getType() {
         return TagType.STRING;
     }
 }

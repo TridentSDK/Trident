@@ -17,14 +17,13 @@
  */
 package net.tridentsdk.event.entity;
 
-import net.tridentsdk.api.entity.Entity;
-import net.tridentsdk.api.event.entity.*;
-import net.tridentsdk.api.event.weather.LightningStrikeEvent;
+import net.tridentsdk.entity.Entity;
+import net.tridentsdk.event.weather.LightningStrikeEvent;
 
 /**
  * Called when a lightning bolt strikes and causes a pig to turn into a zombie pigman
  */
-public class PigTransformEvent extends net.tridentsdk.api.event.entity.EntityEvent {
+public class PigTransformEvent extends EntityEvent {
     private final LightningStrikeEvent cause;
 
     public PigTransformEvent(Entity entity, LightningStrikeEvent cause) {

@@ -17,8 +17,7 @@
  */
 package net.tridentsdk.event.block;
 
-import net.tridentsdk.api.Block;
-import net.tridentsdk.api.event.block.BlockGrowthEvent;
+import net.tridentsdk.Block;
 
 /**
  * Called when a crop grows

@@ -18,16 +18,6 @@
 package net.tridentsdk.nbt;
 
 import com.google.common.base.Charsets;
-import net.tridentsdk.api.nbt.*;
-import net.tridentsdk.api.nbt.ByteTag;
-import net.tridentsdk.api.nbt.DoubleTag;
-import net.tridentsdk.api.nbt.FloatTag;
-import net.tridentsdk.api.nbt.IntTag;
-import net.tridentsdk.api.nbt.ListTag;
-import net.tridentsdk.api.nbt.LongTag;
-import net.tridentsdk.api.nbt.NBTTag;
-import net.tridentsdk.api.nbt.ShortTag;
-import net.tridentsdk.api.nbt.StringTag;
 
 import java.io.DataOutput;
 import java.io.IOException;
@@ -52,21 +42,21 @@ public class NBTEncoder {
     }
 
     private void writeCompoundTag(CompoundTag tag) throws IOException {
-        for (net.tridentsdk.api.nbt.NBTTag inner : tag.listTags()) {
+        for (NBTTag inner : tag.listTags()) {
             this.writeTag(inner);
         }
         //Write Tag_End to signify end of Compound
-        this.output.writeByte(net.tridentsdk.api.nbt.TagType.END.getId());
+        this.output.writeByte(TagType.END.getId());
     }
 
-    private void writeListTag(net.tridentsdk.api.nbt.ListTag tag) throws IOException {
+    private void writeListTag(ListTag tag) throws IOException {
         //Write inner tag-type id
         this.output.writeByte(tag.getInnerType().getId());
 
-        List<net.tridentsdk.api.nbt.NBTTag> innerTags = tag.listTags();
+        List<NBTTag> innerTags = tag.listTags();
         this.output.writeInt(innerTags.size());
 
-        for (net.tridentsdk.api.nbt.NBTTag inner : innerTags) {
+        for (NBTTag inner : innerTags) {
             this.writeTag(inner);
         }
     }

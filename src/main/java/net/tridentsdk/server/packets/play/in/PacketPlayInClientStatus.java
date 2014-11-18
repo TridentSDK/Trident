@@ -18,7 +18,7 @@
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.api.world.World;
+import net.tridentsdk.world.World;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutPlayerRespawn;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutStatistics;
 import net.tridentsdk.server.player.PlayerConnection;

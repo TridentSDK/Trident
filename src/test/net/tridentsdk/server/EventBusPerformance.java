@@ -2,8 +2,8 @@ package net.tridentsdk.server;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
-import net.tridentsdk.api.event.EventManager;
-import net.tridentsdk.api.event.Listener;
+import net.tridentsdk.event.EventManager;
+import net.tridentsdk.event.Listener;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.runner.Runner;
@@ -68,9 +68,9 @@ java.lang.reflect.InvocationTargetException
     at java.lang.Thread.run(Thread.java:745)
 Caused by: java.lang.RuntimeException: Class cannot be created (the no-arg constructor is private): net.tridentsdk.server.EventBusPerformance$EventListener
     at com.esotericsoftware.reflectasm.ConstructorAccess.get(ConstructorAccess.java:59)
-    at net.tridentsdk.api.reflect.FastClass.<init>(FastClass.java:44)
-    at net.tridentsdk.api.reflect.FastClass.get(FastClass.java:48)
-    at net.tridentsdk.api.event.EventManager.registerListener(EventManager.java:83)
+    at net.tridentsdk.reflect.FastClass.<init>(FastClass.java:44)
+    at net.tridentsdk.reflect.FastClass.get(FastClass.java:48)
+    at net.tridentsdk.event.EventManager.registerListener(EventManager.java:83)
     at net.tridentsdk.server.EventBusPerformance.AregisterEm(EventBusPerformance.java:46)
     at net.tridentsdk.server.generated.EventBusPerformance_AregisterEm.AregisterEm_AverageTime(EventBusPerformance_AregisterEm.java:124)
     ... 10 more
@@ -151,7 +151,7 @@ public class EventBusPerformance {
     private static final EventHandler HANDLER = new EventHandler();
     private static final Listener LISTENER = new EventListener();
 
-    private static final net.tridentsdk.api.event.Event EVENT = new Event();
+    private static final net.tridentsdk.event.Event EVENT = new Event();
 
     public static void main(String... args) throws RunnerException {
         Options opt = new OptionsBuilder()
@@ -187,7 +187,7 @@ public class EventBusPerformance {
         EVENT_MANAGER.call(EVENT);
     }
 
-    private static class Event extends net.tridentsdk.api.event.Event {
+    private static class Event extends net.tridentsdk.event.Event {
     }
 
     private static class EventHandler {
@@ -197,7 +197,7 @@ public class EventBusPerformance {
     }
 
     private static class EventListener implements Listener {
-        @net.tridentsdk.api.event.EventHandler
+        @net.tridentsdk.event.EventHandler
         public void onEvent(Event event) {
         }
     }

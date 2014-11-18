@@ -18,9 +18,6 @@
 package net.tridentsdk.nbt;
 
 import com.google.common.collect.Lists;
-import net.tridentsdk.api.nbt.*;
-import net.tridentsdk.api.nbt.NBTTag;
-import net.tridentsdk.api.nbt.TagType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,14 +25,14 @@ import java.util.Map;
 /**
  * @author The TridentSDK Team
  */
-public class CompoundTag extends net.tridentsdk.api.nbt.NBTTag implements TagContainer {
-    final Map<String, net.tridentsdk.api.nbt.NBTTag> tags = new HashMap<>(); //Hashmap for quick lookup with names
+public class CompoundTag extends NBTTag implements TagContainer {
+    final Map<String, NBTTag> tags = new HashMap<>(); //Hashmap for quick lookup with names
 
     public CompoundTag(String name) {
         super(name);
     }
 
-    public Iterable<net.tridentsdk.api.nbt.NBTTag> listTags() {
+    public Iterable<NBTTag> listTags() {
         return Lists.newArrayList(this.tags.values());
     }
 
@@ -43,11 +40,11 @@ public class CompoundTag extends net.tridentsdk.api.nbt.NBTTag implements TagCon
         return this.tags.containsKey(name);
     }
 
-    public net.tridentsdk.api.nbt.NBTTag getTag(String name) {
-        return this.tags.containsKey(name) ? this.tags.get(name) : new net.tridentsdk.api.nbt.NullTag(name);
+    public NBTTag getTag(String name) {
+        return this.tags.containsKey(name) ? this.tags.get(name) : new NullTag(name);
     }
 
-    public <T extends net.tridentsdk.api.nbt.NBTTag> T getTagAs(String name) {
+    public <T extends NBTTag> T getTagAs(String name) {
         return (T) getTag(name);
     }
 
@@ -65,10 +62,10 @@ public class CompoundTag extends net.tridentsdk.api.nbt.NBTTag implements TagCon
     }
 
     /* (non-Javadoc)
-     * @see net.tridentsdk.api.nbt.NBTTag#getType()
+     * @see net.tridentsdk.nbt.NBTTag#getType()
      */
     @Override
-    public net.tridentsdk.api.nbt.TagType getType() {
+    public TagType getType() {
         return TagType.COMPOUND;
     }
 }

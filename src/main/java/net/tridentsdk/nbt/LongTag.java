@@ -17,12 +17,10 @@
  */
 package net.tridentsdk.nbt;
 
-import net.tridentsdk.api.nbt.*;
-
 /**
  * @author The TridentSDK Team
  */
-public class LongTag extends net.tridentsdk.api.nbt.NBTTag {
+public class LongTag extends NBTTag {
     long value;
 
     public LongTag(String name) {
@@ -39,7 +37,7 @@ public class LongTag extends net.tridentsdk.api.nbt.NBTTag {
     }
 
     /* (non-Javadoc)
-     * @see net.tridentsdk.api.nbt.NBTTag#getType()
+     * @see net.tridentsdk.nbt.NBTTag#getType()
      */
     @Override
     public TagType getType() {

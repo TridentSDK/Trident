@@ -17,16 +17,15 @@
  */
 package net.tridentsdk.event.block;
 
-import net.tridentsdk.api.Block;
-import net.tridentsdk.api.entity.living.Player;
-import net.tridentsdk.api.event.Cancellable;
-import net.tridentsdk.api.event.block.*;
+import net.tridentsdk.Block;
+import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.event.Cancellable;
 import org.apache.commons.lang.Validate;
 
 /**
  * Called when a player edits a sign, or when the sign is first created
  */
-public class SignChangeEvent extends net.tridentsdk.api.event.block.BlockEvent implements Cancellable {
+public class SignChangeEvent extends BlockEvent implements Cancellable {
 
     private final Player editor;
     private String[] contents;

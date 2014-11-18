@@ -17,12 +17,11 @@
  */
 package net.tridentsdk.event.entity;
 
-import net.tridentsdk.api.entity.Entity;
-import net.tridentsdk.api.entity.LivingEntity;
-import net.tridentsdk.api.entity.living.Player;
-import net.tridentsdk.api.event.entity.*;
+import net.tridentsdk.entity.Entity;
+import net.tridentsdk.entity.LivingEntity;
+import net.tridentsdk.entity.living.Player;
 
-public class EntityDeathEvent extends net.tridentsdk.api.event.entity.EntityEvent {
+public class EntityDeathEvent extends EntityEvent {
 
     /**
      * @param entity the entity that has died

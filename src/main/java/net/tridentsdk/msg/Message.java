@@ -18,10 +18,7 @@
 package net.tridentsdk.msg;
 
 import com.google.gson.JsonObject;
-import net.tridentsdk.api.ChatColor;
-import net.tridentsdk.api.msg.ClickEvent;
-import net.tridentsdk.api.msg.HoverEvent;
-import net.tridentsdk.api.msg.MessageBuilder;
+import net.tridentsdk.ChatColor;
 
 // TODO: JavaDoc
 public final class Message {

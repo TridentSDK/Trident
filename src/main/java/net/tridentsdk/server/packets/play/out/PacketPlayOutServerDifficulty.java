@@ -18,7 +18,7 @@
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.api.Difficulty;
+import net.tridentsdk.Difficulty;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutServerDifficulty extends OutPacket {

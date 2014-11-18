@@ -17,20 +17,18 @@
  */
 package net.tridentsdk.entity;
 
-import net.tridentsdk.api.Location;
-import net.tridentsdk.api.entity.*;
-import net.tridentsdk.api.entity.Entity;
-import net.tridentsdk.api.entity.living.Player;
-import net.tridentsdk.api.entity.living.ProjectileSource;
-import net.tridentsdk.api.event.entity.EntityDamageEvent;
+import net.tridentsdk.Location;
+import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.entity.living.ProjectileSource;
+import net.tridentsdk.event.entity.EntityDamageEvent;
 
-public interface LivingEntity extends net.tridentsdk.api.entity.Entity, ProjectileSource, net.tridentsdk.api.entity.Impalable {
+public interface LivingEntity extends Entity, ProjectileSource, Impalable {
     /**
      * Makes the specified entity invisible to the current entity
      *
      * @param entity the entity to make invisible to this entity
      */
-    void hide(net.tridentsdk.api.entity.Entity entity);
+    void hide(Entity entity);
 
     /**
      * Un-hides the entity that was hidden from view, or does nothing of already visible

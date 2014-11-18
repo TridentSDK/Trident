@@ -17,8 +17,7 @@
  */
 package net.tridentsdk.event.player;
 
-import net.tridentsdk.api.entity.living.Player;
-import net.tridentsdk.api.event.player.PlayerHungerEvent;
+import net.tridentsdk.entity.living.Player;
 
 /**
  * Called when a player's hunger bar decreases

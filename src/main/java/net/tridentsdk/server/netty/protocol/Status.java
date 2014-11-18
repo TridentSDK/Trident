@@ -17,7 +17,7 @@
  */
 package net.tridentsdk.server.netty.protocol;
 
-import net.tridentsdk.api.docs.AccessNoDoc;
+import net.tridentsdk.docs.AccessNoDoc;
 import net.tridentsdk.server.packets.status.PacketStatusInPing;
 import net.tridentsdk.server.packets.status.PacketStatusInRequest;
 import net.tridentsdk.server.packets.status.PacketStatusOutPing;

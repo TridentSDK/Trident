@@ -17,23 +17,20 @@
  */
 package net.tridentsdk.world;
 
-import net.tridentsdk.api.world.*;
-import net.tridentsdk.api.world.Chunk;
-
 public interface WorldLoader {
-    net.tridentsdk.api.world.World load(String world);
+    World load(String world);
 
-    void save(net.tridentsdk.api.world.World world);
+    void save(World world);
 
     boolean worldExists(String world);
 
-    boolean chunkExists(net.tridentsdk.api.world.World world, int x, int z);
+    boolean chunkExists(World world, int x, int z);
 
-    boolean chunkExists(net.tridentsdk.api.world.World world, ChunkLocation location);
+    boolean chunkExists(World world, ChunkLocation location);
 
-    net.tridentsdk.api.world.Chunk loadChunk(net.tridentsdk.api.world.World world, int x, int z);
+    Chunk loadChunk(World world, int x, int z);
 
-    net.tridentsdk.api.world.Chunk loadChunk(net.tridentsdk.api.world.World world, ChunkLocation location);
+    Chunk loadChunk(World world, ChunkLocation location);
 
     void saveChunk(Chunk chunk);
 }

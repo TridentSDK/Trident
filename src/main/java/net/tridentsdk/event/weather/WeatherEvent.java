@@ -17,9 +17,9 @@
  */
 package net.tridentsdk.event.weather;
 
-import net.tridentsdk.api.event.Cancellable;
-import net.tridentsdk.api.event.Event;
-import net.tridentsdk.api.world.World;
+import net.tridentsdk.event.Cancellable;
+import net.tridentsdk.event.Event;
+import net.tridentsdk.world.World;
 
 public class WeatherEvent extends Event implements Cancellable {
     public final World world;

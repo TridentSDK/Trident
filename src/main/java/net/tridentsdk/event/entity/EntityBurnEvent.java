@@ -17,13 +17,12 @@
  */
 package net.tridentsdk.event.entity;
 
-import net.tridentsdk.api.entity.Entity;
-import net.tridentsdk.api.event.entity.*;
+import net.tridentsdk.entity.Entity;
 
 /**
  * Called when an entity catches fire
  */
-public abstract class EntityBurnEvent extends net.tridentsdk.api.event.entity.EntityEvent {
+public abstract class EntityBurnEvent extends EntityEvent {
     private boolean cancelled;
     private int fireTicks;
 

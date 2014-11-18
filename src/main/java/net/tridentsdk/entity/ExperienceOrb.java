@@ -17,14 +17,12 @@
  */
 package net.tridentsdk.entity;
 
-import net.tridentsdk.api.entity.*;
-
 /**
  * Represents an Experience Orb
  *
  * @author TridentSDK Team
  */
-public interface ExperienceOrb extends net.tridentsdk.api.entity.Entity {
+public interface ExperienceOrb extends Entity {
     /**
      * Represents the age of this Experience Orb entity
      *

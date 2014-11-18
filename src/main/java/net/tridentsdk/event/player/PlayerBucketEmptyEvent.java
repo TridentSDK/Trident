@@ -17,11 +17,11 @@
  */
 package net.tridentsdk.event.player;
 
-import net.tridentsdk.api.Block;
-import net.tridentsdk.api.BlockFace;
-import net.tridentsdk.api.entity.living.Player;
-import net.tridentsdk.api.event.block.BlockPlaceEvent;
-import net.tridentsdk.api.inventory.ItemStack;
+import net.tridentsdk.Block;
+import net.tridentsdk.BlockFace;
+import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.event.block.BlockPlaceEvent;
+import net.tridentsdk.inventory.ItemStack;
 
 /**
  * Called when a player empties a bucket

@@ -17,8 +17,6 @@
  */
 package net.tridentsdk.nbt;
 
-import net.tridentsdk.api.nbt.*;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -30,5 +28,5 @@ public @interface NBTField {
 
     String name();
 
-    net.tridentsdk.api.nbt.TagType type();
+    TagType type();
 }

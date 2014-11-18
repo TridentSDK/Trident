@@ -17,8 +17,6 @@
  */
 package net.tridentsdk.nbt;
 
-import net.tridentsdk.api.nbt.TagType;
-
 /**
  * @author The TridentSDK Team
  */

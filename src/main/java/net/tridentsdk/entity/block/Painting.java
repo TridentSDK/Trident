@@ -17,7 +17,7 @@
  */
 package net.tridentsdk.entity.block;
 
-import net.tridentsdk.api.entity.Hanging;
+import net.tridentsdk.entity.Hanging;
 
 /**
  * Represents a Painting

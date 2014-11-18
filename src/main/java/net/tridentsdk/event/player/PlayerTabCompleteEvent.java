@@ -19,10 +19,9 @@
 
 package net.tridentsdk.event.player;
 
-import net.tridentsdk.api.entity.living.Player;
-import net.tridentsdk.api.event.player.*;
+import net.tridentsdk.entity.living.Player;
 
-public class PlayerTabCompleteEvent extends net.tridentsdk.api.event.player.PlayerEvent {
+public class PlayerTabCompleteEvent extends PlayerEvent {
 
     private final String message;
     private final String[] suggestions;

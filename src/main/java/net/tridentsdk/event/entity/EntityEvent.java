@@ -17,9 +17,9 @@
  */
 package net.tridentsdk.event.entity;
 
-import net.tridentsdk.api.entity.Entity;
-import net.tridentsdk.api.event.Cancellable;
-import net.tridentsdk.api.event.Event;
+import net.tridentsdk.entity.Entity;
+import net.tridentsdk.event.Cancellable;
+import net.tridentsdk.event.Event;
 
 public class EntityEvent extends Event implements Cancellable {
 

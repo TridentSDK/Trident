@@ -17,7 +17,7 @@
  */
 package net.tridentsdk.inventory;
 
-import net.tridentsdk.api.window.Window;
+import net.tridentsdk.window.Window;
 
 /**
  * Mock Inventory to provide reference to its uses until valid Inventory is implemented

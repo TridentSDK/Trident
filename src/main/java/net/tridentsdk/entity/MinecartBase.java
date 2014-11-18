@@ -17,14 +17,12 @@
  */
 package net.tridentsdk.entity;
 
-import net.tridentsdk.api.entity.*;
-
 /**
  * Represents the generic Minecart
  *
  * @author TridentSDK Team
  */
-public interface MinecartBase extends net.tridentsdk.api.entity.Entity {
+public interface MinecartBase extends Entity {
     /**
      * Represents this Minecart's display tile, in the form of a BlockState
      *

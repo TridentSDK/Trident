@@ -18,7 +18,7 @@
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.api.Location;
+import net.tridentsdk.Location;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.InPacket;
@@ -33,7 +33,7 @@ public class PacketPlayInEntityInteract extends InPacket {
     /**
      * Type of interation, reference InteractType
      *
-     * @see InteractType
+     * @see net.tridentsdk.server.packets.play.in.PacketPlayInEntityInteract.InteractType
      */
     protected InteractType type;
 

@@ -17,13 +17,12 @@
  */
 package net.tridentsdk.event.entity;
 
-import net.tridentsdk.api.entity.Entity;
-import net.tridentsdk.api.event.entity.*;
+import net.tridentsdk.entity.Entity;
 
 /**
  * Called when an entity gets set on fire by another entity
  */
-public class EntityBurnByEntityEvent extends net.tridentsdk.api.event.entity.EntityBurnEvent {
+public class EntityBurnByEntityEvent extends EntityBurnEvent {
     private final Entity causer;
 
     public EntityBurnByEntityEvent(Entity entity, int fireTicks, Entity causer) {

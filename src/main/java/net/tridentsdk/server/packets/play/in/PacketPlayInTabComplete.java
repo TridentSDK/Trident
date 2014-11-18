@@ -18,8 +18,8 @@
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.api.Location;
-import net.tridentsdk.api.event.player.PlayerTabCompleteEvent;
+import net.tridentsdk.Location;
+import net.tridentsdk.event.player.PlayerTabCompleteEvent;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutTabComplete;
 import net.tridentsdk.server.player.PlayerConnection;
 import net.tridentsdk.server.netty.ClientConnection;

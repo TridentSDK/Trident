@@ -17,7 +17,7 @@
  */
 package net.tridentsdk.entity.block;
 
-import net.tridentsdk.api.entity.Entity;
+import net.tridentsdk.entity.Entity;
 
 /**
  * Represents a dynamic tile

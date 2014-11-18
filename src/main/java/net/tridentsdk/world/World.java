@@ -17,11 +17,10 @@
  */
 package net.tridentsdk.world;
 
-import net.tridentsdk.api.Block;
-import net.tridentsdk.api.Difficulty;
-import net.tridentsdk.api.GameMode;
-import net.tridentsdk.api.Location;
-import net.tridentsdk.api.world.*;
+import net.tridentsdk.Block;
+import net.tridentsdk.Difficulty;
+import net.tridentsdk.GameMode;
+import net.tridentsdk.Location;
 
 public interface World {
     
@@ -37,28 +36,28 @@ public interface World {
      * 
      * @return The chunk on the given location
      */
-    net.tridentsdk.api.world.Chunk getChunkAt(ChunkLocation loc, boolean generateIfNotFound);
+    Chunk getChunkAt(ChunkLocation loc, boolean generateIfNotFound);
     
     /**
      * Gets the chunk on the given x and z , and generates the chunk if it does not exist
      * 
      * @return The chunk on the given location
      */
-    net.tridentsdk.api.world.Chunk getChunkAt(int x, int z, boolean generateIfNotFound);
+    Chunk getChunkAt(int x, int z, boolean generateIfNotFound);
     
     /**
      * Generates the chunk on the given location
      * 
      * @return The generated chunk
      */
-    net.tridentsdk.api.world.Chunk generateChunk(int x, int z);
+    Chunk generateChunk(int x, int z);
     
     /**
      * Generates the chunk on the given location
      * 
      * @return The generated chunk
      */
-    net.tridentsdk.api.world.Chunk generateChunk(ChunkLocation location);
+    Chunk generateChunk(ChunkLocation location);
     
     /**
      * Gets the block on the given location

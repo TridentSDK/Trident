@@ -17,8 +17,8 @@
  */
 package net.tridentsdk.server.entity.block;
 
-import net.tridentsdk.api.Location;
-import net.tridentsdk.api.entity.block.PrimeTNT;
+import net.tridentsdk.Location;
+import net.tridentsdk.entity.block.PrimeTNT;
 
 import java.util.UUID;
 

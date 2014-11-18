@@ -17,8 +17,8 @@
  */
 package net.tridentsdk.util;
 
-import net.tridentsdk.api.Location;
-import net.tridentsdk.api.world.World;
+import net.tridentsdk.Location;
+import net.tridentsdk.world.World;
 
 import java.io.Serializable;
 

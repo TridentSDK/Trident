@@ -17,10 +17,9 @@
  */
 package net.tridentsdk.event.player;
 
-import net.tridentsdk.api.entity.living.Player;
-import net.tridentsdk.api.event.player.*;
+import net.tridentsdk.entity.living.Player;
 
-public class PlayerJoinEvent extends net.tridentsdk.api.event.player.PlayerEvent {
+public class PlayerJoinEvent extends PlayerEvent {
 
     /**
      * @param player the player associated with this event

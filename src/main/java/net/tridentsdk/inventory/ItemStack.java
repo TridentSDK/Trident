@@ -17,7 +17,7 @@
  */
 package net.tridentsdk.inventory;
 
-import net.tridentsdk.api.Material;
+import net.tridentsdk.Material;
 
 /**
  * Inventory item, holding all properties of the item

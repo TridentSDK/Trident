@@ -17,14 +17,13 @@
  */
 package net.tridentsdk.event.entity;
 
-import net.tridentsdk.api.entity.Entity;
-import net.tridentsdk.api.event.entity.*;
+import net.tridentsdk.entity.Entity;
 
 /**
  * Called when an explosion is about to happen, caused by an entity (the only other explosion in the game is from a bed,
  * of all things)
  */
-public class EntityExplodeEvent extends net.tridentsdk.api.event.entity.EntityEvent {
+public class EntityExplodeEvent extends EntityEvent {
     private float strength;
 
     public EntityExplodeEvent(Entity entity, float strength) {

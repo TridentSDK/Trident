@@ -17,11 +17,10 @@
  */
 package net.tridentsdk.trade;
 
-import net.tridentsdk.api.inventory.ItemStack;
-import net.tridentsdk.api.trade.ItemPair;
+import net.tridentsdk.inventory.ItemStack;
 
 /**
- * Represents a Trade offered by an {@link net.tridentsdk.api.entity.Tradeable}
+ * Represents a Trade offered by an {@link net.tridentsdk.entity.Tradeable}
  *
  * @author TridentSDK Team
  */

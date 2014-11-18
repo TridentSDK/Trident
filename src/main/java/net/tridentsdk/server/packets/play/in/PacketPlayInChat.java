@@ -18,7 +18,7 @@
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.api.msg.MessageBuilder;
+import net.tridentsdk.msg.MessageBuilder;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutChatMessage;
 import net.tridentsdk.server.player.PlayerConnection;
 import net.tridentsdk.server.player.TridentPlayer;

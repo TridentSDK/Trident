@@ -17,8 +17,6 @@
  */
 package net.tridentsdk.entity;
 
-import net.tridentsdk.api.entity.LivingEntity;
-
 /**
  * Represents a LivingEntity that has an age and has the ability to bread
  *

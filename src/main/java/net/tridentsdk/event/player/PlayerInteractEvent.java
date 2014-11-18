@@ -17,12 +17,11 @@
  */
 package net.tridentsdk.event.player;
 
-import net.tridentsdk.api.Block;
-import net.tridentsdk.api.entity.living.Player;
-import net.tridentsdk.api.event.Cancellable;
-import net.tridentsdk.api.event.player.*;
+import net.tridentsdk.Block;
+import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.event.Cancellable;
 
-public class PlayerInteractEvent extends net.tridentsdk.api.event.player.PlayerEvent implements Cancellable {
+public class PlayerInteractEvent extends PlayerEvent implements Cancellable {
 
     private boolean cancel;
 

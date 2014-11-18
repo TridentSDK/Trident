@@ -17,16 +17,15 @@
  */
 package net.tridentsdk.event.player;
 
-import net.tridentsdk.api.entity.Item;
-import net.tridentsdk.api.entity.LivingEntity;
-import net.tridentsdk.api.entity.living.Player;
-import net.tridentsdk.api.event.Cancellable;
-import net.tridentsdk.api.event.player.*;
+import net.tridentsdk.entity.Item;
+import net.tridentsdk.entity.LivingEntity;
+import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.event.Cancellable;
 
 /**
  * Called when a player shears an entity
  */
-public class PlayerShearEntityEvent extends net.tridentsdk.api.event.player.PlayerEvent implements Cancellable {
+public class PlayerShearEntityEvent extends PlayerEvent implements Cancellable {
     private final LivingEntity sheared;
     private Item drop;
     private boolean cancelled;

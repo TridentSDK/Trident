@@ -17,8 +17,6 @@
  */
 package net.tridentsdk.entity;
 
-import net.tridentsdk.api.entity.*;
-
 import java.util.UUID;
 
 /**
@@ -26,7 +24,7 @@ import java.util.UUID;
  *
  * @author TridentSDK Team
  */
-public interface Tameable extends net.tridentsdk.api.entity.Ageable {
+public interface Tameable extends Ageable {
     /**
      * Whether or not this entity is tamed
      *
@@ -37,7 +35,7 @@ public interface Tameable extends net.tridentsdk.api.entity.Ageable {
     /**
      * The UUID of this entity's owner
      *
-     * @return the UUID of the {@link net.tridentsdk.api.entity.living.Player}Player that owns this entity, {@code null}
+     * @return the UUID of the {@link net.tridentsdk.entity.living.Player}Player that owns this entity, {@code null}
      * if untamed
      */
     UUID getOwner();

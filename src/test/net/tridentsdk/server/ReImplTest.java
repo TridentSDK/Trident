@@ -1,8 +1,8 @@
 package net.tridentsdk.server;
 
-import net.tridentsdk.api.perf.AddTakeQueue;
-import net.tridentsdk.api.perf.DelegatedAddTakeQueue;
-import net.tridentsdk.api.perf.ReImplLinkedQueue;
+import net.tridentsdk.perf.AddTakeQueue;
+import net.tridentsdk.perf.DelegatedAddTakeQueue;
+import net.tridentsdk.perf.ReImplLinkedQueue;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.runner.Runner;

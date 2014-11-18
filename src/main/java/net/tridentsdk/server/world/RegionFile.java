@@ -18,12 +18,12 @@
 package net.tridentsdk.server.world;
 
 import com.google.common.math.IntMath;
-import net.tridentsdk.api.nbt.CompoundTag;
-import net.tridentsdk.api.nbt.NBTDecoder;
-import net.tridentsdk.api.nbt.NBTEncoder;
-import net.tridentsdk.api.nbt.NBTException;
-import net.tridentsdk.api.world.Chunk;
-import net.tridentsdk.api.world.ChunkLocation;
+import net.tridentsdk.nbt.CompoundTag;
+import net.tridentsdk.nbt.NBTDecoder;
+import net.tridentsdk.nbt.NBTEncoder;
+import net.tridentsdk.nbt.NBTException;
+import net.tridentsdk.world.Chunk;
+import net.tridentsdk.world.ChunkLocation;
 
 import java.io.*;
 import java.math.RoundingMode;

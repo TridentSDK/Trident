@@ -17,10 +17,9 @@
  */
 package net.tridentsdk.event.player;
 
-import net.tridentsdk.api.entity.Entity;
-import net.tridentsdk.api.entity.living.Player;
-import net.tridentsdk.api.entity.projectile.Arrow;
-import net.tridentsdk.api.event.player.PlayerLaunchProjectileEvent;
+import net.tridentsdk.entity.Entity;
+import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.entity.projectile.Arrow;
 
 /**
  * Called when a player shoots a bow

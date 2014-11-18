@@ -17,15 +17,15 @@
  */
 package net.tridentsdk.server.entity;
 
-import net.tridentsdk.api.Location;
-import net.tridentsdk.api.Material;
-import net.tridentsdk.api.entity.Entity;
-import net.tridentsdk.api.entity.EntityProperties;
-import net.tridentsdk.api.entity.EntityType;
-import net.tridentsdk.api.nbt.*;
-import net.tridentsdk.api.threads.TaskExecutor;
-import net.tridentsdk.api.util.Vector;
-import net.tridentsdk.api.world.World;
+import net.tridentsdk.Location;
+import net.tridentsdk.Material;
+import net.tridentsdk.entity.Entity;
+import net.tridentsdk.entity.EntityProperties;
+import net.tridentsdk.entity.EntityType;
+import net.tridentsdk.nbt.*;
+import net.tridentsdk.threads.TaskExecutor;
+import net.tridentsdk.util.Vector;
+import net.tridentsdk.world.World;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutEntityTeleport;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutEntityVelocity;
 import net.tridentsdk.server.player.TridentPlayer;

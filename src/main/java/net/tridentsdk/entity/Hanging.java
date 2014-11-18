@@ -17,15 +17,14 @@
  */
 package net.tridentsdk.entity;
 
-import net.tridentsdk.api.Block;
-import net.tridentsdk.api.entity.*;
+import net.tridentsdk.Block;
 
 /**
  * Represents a hanging entity
  *
  * @author TridentSDK Team
  */
-public interface Hanging extends net.tridentsdk.api.entity.Entity {
+public interface Hanging extends Entity {
     /**
      * The block this entity was placed on
      *

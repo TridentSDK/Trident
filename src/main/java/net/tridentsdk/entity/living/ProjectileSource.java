@@ -17,8 +17,8 @@
  */
 package net.tridentsdk.entity.living;
 
-import net.tridentsdk.api.entity.EntityProperties;
-import net.tridentsdk.api.entity.Projectile;
+import net.tridentsdk.entity.EntityProperties;
+import net.tridentsdk.entity.Projectile;
 
 /**
  * Represents the source of a launched Projectile

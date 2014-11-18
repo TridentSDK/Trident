@@ -17,13 +17,12 @@
  */
 package net.tridentsdk.event.entity;
 
-import net.tridentsdk.api.entity.Entity;
-import net.tridentsdk.api.event.entity.*;
+import net.tridentsdk.entity.Entity;
 
 /**
  * Called when an entity damages another entity
  */
-public class EntityDamageEntityEvent extends net.tridentsdk.api.event.entity.EntityDamageEvent {
+public class EntityDamageEntityEvent extends EntityDamageEvent {
     private final Entity damager;
 
     public EntityDamageEntityEvent(Entity entity, Entity damager, double damage, Cause cause) {

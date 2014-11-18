@@ -19,9 +19,9 @@ package net.tridentsdk.server.data;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
-import net.tridentsdk.api.Material;
-import net.tridentsdk.api.inventory.ItemStack;
-import net.tridentsdk.api.nbt.*;
+import net.tridentsdk.Material;
+import net.tridentsdk.inventory.ItemStack;
+import net.tridentsdk.nbt.*;
 
 public class Slot implements Writable, NBTSerializable {
 

@@ -17,15 +17,14 @@
  */
 package net.tridentsdk.event.player;
 
-import net.tridentsdk.api.Block;
-import net.tridentsdk.api.entity.living.Player;
-import net.tridentsdk.api.event.Cancellable;
-import net.tridentsdk.api.event.player.*;
+import net.tridentsdk.Block;
+import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.event.Cancellable;
 
 /**
  * Called when a player tries to leave a bed
  */
-public class PlayerLeaveSleepEvent extends net.tridentsdk.api.event.player.PlayerEvent implements Cancellable {
+public class PlayerLeaveSleepEvent extends PlayerEvent implements Cancellable {
     private final Block bed;
     private boolean cancelled;
 

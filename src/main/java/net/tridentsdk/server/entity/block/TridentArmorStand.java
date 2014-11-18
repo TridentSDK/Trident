@@ -17,12 +17,12 @@
  */
 package net.tridentsdk.server.entity.block;
 
-import net.tridentsdk.api.Location;
-import net.tridentsdk.api.entity.EntityProperties;
-import net.tridentsdk.api.entity.SlotProperties;
-import net.tridentsdk.api.entity.block.ArmorStand;
-import net.tridentsdk.api.inventory.ItemStack;
-import net.tridentsdk.api.util.PartRotation;
+import net.tridentsdk.Location;
+import net.tridentsdk.entity.EntityProperties;
+import net.tridentsdk.entity.SlotProperties;
+import net.tridentsdk.entity.block.ArmorStand;
+import net.tridentsdk.inventory.ItemStack;
+import net.tridentsdk.util.PartRotation;
 import net.tridentsdk.server.entity.TridentEntity;
 
 import java.util.UUID;

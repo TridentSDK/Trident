@@ -17,10 +17,9 @@
  */
 package net.tridentsdk.entity;
 
-import net.tridentsdk.api.entity.*;
-import net.tridentsdk.api.inventory.FireworkProperties;
+import net.tridentsdk.inventory.FireworkProperties;
 
-public interface Firework extends net.tridentsdk.api.entity.Entity {
+public interface Firework extends Entity {
     /**
      * Get the number of ticks that this Firework will explode at
      *

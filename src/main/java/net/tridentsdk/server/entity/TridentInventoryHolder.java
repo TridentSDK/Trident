@@ -17,10 +17,10 @@
  */
 package net.tridentsdk.server.entity;
 
-import net.tridentsdk.api.Location;
-import net.tridentsdk.api.entity.InventoryHolder;
-import net.tridentsdk.api.inventory.Inventory;
-import net.tridentsdk.api.inventory.ItemStack;
+import net.tridentsdk.Location;
+import net.tridentsdk.entity.InventoryHolder;
+import net.tridentsdk.inventory.Inventory;
+import net.tridentsdk.inventory.ItemStack;
 
 import java.util.UUID;
 
@@ -36,7 +36,7 @@ public abstract class TridentInventoryHolder extends TridentLivingEntity impleme
     protected Inventory inventory;
 
     /**
-     * Inherits constructor from {@link net.tridentsdk.server.entity.TridentLivingEntity}
+     * Inherits constructor from {@link TridentLivingEntity}
      */
     public TridentInventoryHolder(UUID id, Location spawnLocation) {
         super(id, spawnLocation);

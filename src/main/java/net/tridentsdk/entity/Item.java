@@ -17,8 +17,6 @@
  */
 package net.tridentsdk.entity;
 
-import net.tridentsdk.api.entity.Entity;
-
 /**
  * Represents a dropped ItemStack
  *

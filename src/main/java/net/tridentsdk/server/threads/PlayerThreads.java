@@ -17,8 +17,8 @@
  */
 package net.tridentsdk.server.threads;
 
-import net.tridentsdk.api.entity.living.Player;
-import net.tridentsdk.api.threads.TaskExecutor;
+import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.threads.TaskExecutor;
 import net.tridentsdk.server.player.PlayerConnection;
 import net.tridentsdk.server.netty.ClientConnection;
 

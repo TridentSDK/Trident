@@ -18,10 +18,10 @@
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.api.Difficulty;
-import net.tridentsdk.api.GameMode;
-import net.tridentsdk.api.world.Dimension;
-import net.tridentsdk.api.world.LevelType;
+import net.tridentsdk.Difficulty;
+import net.tridentsdk.GameMode;
+import net.tridentsdk.world.Dimension;
+import net.tridentsdk.world.LevelType;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
