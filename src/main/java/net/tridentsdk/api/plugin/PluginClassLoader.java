@@ -1,5 +1,5 @@
 /*
- *     TridentSDK - A Minecraft Server API
+ *     Trident - A Multithreaded Server Alternative
  *     Copyright (C) 2014, The TridentSDK Team
  *
  *     This program is free software: you can redistribute it and/or modify

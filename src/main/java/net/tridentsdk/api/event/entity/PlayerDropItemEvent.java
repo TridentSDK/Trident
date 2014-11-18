@@ -1,5 +1,5 @@
 /*
- *     TridentSDK - A Minecraft Server API
+ *     Trident - A Multithreaded Server Alternative
  *     Copyright (C) 2014, The TridentSDK Team
  *
  *     This program is free software: you can redistribute it and/or modify
@@ -17,18 +17,18 @@
  */
 package net.tridentsdk.api.event.entity;
 
+import com.google.common.base.Preconditions;
 import net.tridentsdk.api.Location;
 import net.tridentsdk.api.entity.Entity;
 import net.tridentsdk.api.entity.Item;
 import net.tridentsdk.api.entity.living.Player;
-import org.apache.commons.lang.Validate;
 
 public class PlayerDropItemEvent extends EntitySpawnEvent {
     private final Player player;
 
     public PlayerDropItemEvent(Entity item, Location location, Player player) {
         super(item, location);
-        Validate.isTrue(item instanceof Item, "Must drop an item!");
+        Preconditions.checkArgument(item instanceof Item, "Must drop an item!");
         this.player = player;
     }
 

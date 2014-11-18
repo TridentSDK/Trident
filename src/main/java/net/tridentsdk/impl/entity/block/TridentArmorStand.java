@@ -28,7 +28,6 @@ import net.tridentsdk.impl.entity.TridentEntity;
 import java.util.UUID;
 
 public class TridentArmorStand extends TridentEntity implements ArmorStand {
-
     public TridentArmorStand(UUID id, Location spawnLocation) {
         super(id, spawnLocation);
     }

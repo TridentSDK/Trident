@@ -1,5 +1,5 @@
 /*
- *     TridentSDK - A Minecraft Server API
+ *     Trident - A Multithreaded Server Alternative
  *     Copyright (C) 2014, The TridentSDK Team
  *
  *     This program is free software: you can redistribute it and/or modify
@@ -17,10 +17,10 @@
  */
 package net.tridentsdk.api.event.block;
 
+import com.google.common.base.Preconditions;
 import net.tridentsdk.api.Block;
 import net.tridentsdk.api.entity.living.Player;
 import net.tridentsdk.api.event.Cancellable;
-import org.apache.commons.lang.Validate;
 
 /**
  * Called when a player edits a sign, or when the sign is first created
@@ -82,8 +82,8 @@ public class SignChangeEvent extends BlockEvent implements Cancellable {
      * @return String text of the specified line
      */
     public String getLine(int i) {
-        Validate.isTrue(i >= 0, "Sign line is below 0");
-        Validate.isTrue(i <= 3, "Sign line is above 3");
+        Preconditions.checkArgument(i >= 0, "Sign line is below 0");
+        Preconditions.checkArgument(i <= 3, "Sign line is above 3");
         return this.contents[i];
     }
 
@@ -95,8 +95,8 @@ public class SignChangeEvent extends BlockEvent implements Cancellable {
      * @return String previous text on the specified line
      */
     public String setLine(int i, String text) {
-        Validate.isTrue(!text.isEmpty(), "Sign line length is below 0 characters");
-        Validate.isTrue(text.length() <= 16, "Sign line length is above 16 characters");
+        Preconditions.checkArgument(!text.isEmpty(), "Sign line length is below 0 characters");
+        Preconditions.checkArgument(text.length() <= 16, "Sign line length is above 16 characters");
 
         String previous = this.contents[i];
         this.contents[i] = text;

@@ -1,5 +1,5 @@
 /*
- *     TridentSDK - A Minecraft Server API
+ *     Trident - A Multithreaded Server Alternative
  *     Copyright (C) 2014, The TridentSDK Team
  *
  *     This program is free software: you can redistribute it and/or modify
@@ -17,9 +17,9 @@
  */
 package net.tridentsdk.api;
 
+import com.google.common.base.Preconditions;
 import net.tridentsdk.api.util.Vector;
 import net.tridentsdk.api.world.World;
-import org.apache.commons.lang.Validate;
 
 /**
  * Represents a point on the coordinate grid of the world
@@ -220,7 +220,7 @@ public class Location implements Cloneable {
      * @return distance squared from this location to another
      */
     public double distanceSquared(Location location) {
-        Validate.notNull(location, "Location cannot be null.");
+        Preconditions.checkNotNull(location, "Location cannot be null.");
         if (!this.getWorld().equals(location.getWorld())) return 0.0;
         return square(this.getX() - location.getX()) + square(this.getY() - location.getY()) +
                 square(
