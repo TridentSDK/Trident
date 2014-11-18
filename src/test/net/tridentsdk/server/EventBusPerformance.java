@@ -1,4 +1,4 @@
-package net.tridentsdk.impl;
+package net.tridentsdk.server;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 # Measurement: 5 iterations, 1 s each
 # Threads: 10 threads, will synchronize iterations
 # Benchmark mode: Average time, time/op
-# Benchmark: net.tridentsdk.impl.EventBusPerformance.AregisterEb
+# Benchmark: net.tridentsdk.server.EventBusPerformance.AregisterEb
 # VM invoker: /usr/lib/jvm/java-7-openjdk-amd64/jre/bin/java
 # VM options: -Didea.launcher.port=7538 -Didea.launcher.bin.path=/media/A4F1-7AB7/idea-IU-135.1230/bin -Dfile.encoding=UTF-8
 # Fork: 1 of 1
@@ -49,7 +49,7 @@ Result: 4346.049 �(99.9%) 332.884 ns/op [Average]
 # Measurement: 5 iterations, 1 s each
 # Threads: 10 threads, will synchronize iterations
 # Benchmark mode: Average time, time/op
-# Benchmark: net.tridentsdk.impl.EventBusPerformance.AregisterEm
+# Benchmark: net.tridentsdk.server.EventBusPerformance.AregisterEm
 # VM invoker: /usr/lib/jvm/java-7-openjdk-amd64/jre/bin/java
 # VM options: -Didea.launcher.port=7538 -Didea.launcher.bin.path=/media/A4F1-7AB7/idea-IU-135.1230/bin -Dfile.encoding=UTF-8
 # Fork: 1 of 1
@@ -66,13 +66,13 @@ java.lang.reflect.InvocationTargetException
     at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
     at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
     at java.lang.Thread.run(Thread.java:745)
-Caused by: java.lang.RuntimeException: Class cannot be created (the no-arg constructor is private): net.tridentsdk.impl.EventBusPerformance$EventListener
+Caused by: java.lang.RuntimeException: Class cannot be created (the no-arg constructor is private): net.tridentsdk.server.EventBusPerformance$EventListener
     at com.esotericsoftware.reflectasm.ConstructorAccess.get(ConstructorAccess.java:59)
     at net.tridentsdk.api.reflect.FastClass.<init>(FastClass.java:44)
     at net.tridentsdk.api.reflect.FastClass.get(FastClass.java:48)
     at net.tridentsdk.api.event.EventManager.registerListener(EventManager.java:83)
-    at net.tridentsdk.impl.EventBusPerformance.AregisterEm(EventBusPerformance.java:46)
-    at net.tridentsdk.impl.generated.EventBusPerformance_AregisterEm.AregisterEm_AverageTime(EventBusPerformance_AregisterEm.java:124)
+    at net.tridentsdk.server.EventBusPerformance.AregisterEm(EventBusPerformance.java:46)
+    at net.tridentsdk.server.generated.EventBusPerformance_AregisterEm.AregisterEm_AverageTime(EventBusPerformance_AregisterEm.java:124)
     ... 10 more
 
 
@@ -82,7 +82,7 @@ Caused by: java.lang.RuntimeException: Class cannot be created (the no-arg const
 # Measurement: 5 iterations, 1 s each
 # Threads: 10 threads, will synchronize iterations
 # Benchmark mode: Average time, time/op
-# Benchmark: net.tridentsdk.impl.EventBusPerformance.BdoCallEb
+# Benchmark: net.tridentsdk.server.EventBusPerformance.BdoCallEb
 # VM invoker: /usr/lib/jvm/java-7-openjdk-amd64/jre/bin/java
 # VM options: -Didea.launcher.port=7538 -Didea.launcher.bin.path=/media/A4F1-7AB7/idea-IU-135.1230/bin -Dfile.encoding=UTF-8
 # Fork: 1 of 1
@@ -112,7 +112,7 @@ Result: 6775.596 �(99.9%) 302.264 ns/op [Average]
 # Measurement: 5 iterations, 1 s each
 # Threads: 10 threads, will synchronize iterations
 # Benchmark mode: Average time, time/op
-# Benchmark: net.tridentsdk.impl.EventBusPerformance.BdoCallEm
+# Benchmark: net.tridentsdk.server.EventBusPerformance.BdoCallEm
 # VM invoker: /usr/lib/jvm/java-7-openjdk-amd64/jre/bin/java
 # VM options: -Didea.launcher.port=7538 -Didea.launcher.bin.path=/media/A4F1-7AB7/idea-IU-135.1230/bin -Dfile.encoding=UTF-8
 # Fork: 1 of 1

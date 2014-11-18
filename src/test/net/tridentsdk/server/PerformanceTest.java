@@ -1,4 +1,4 @@
-package net.tridentsdk.impl;
+package net.tridentsdk.server;
 
 import net.tridentsdk.api.perf.Performance;
 

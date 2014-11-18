@@ -25,7 +25,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package net.tridentsdk.impl;
+package net.tridentsdk.server;
 
 import com.esotericsoftware.reflectasm.MethodAccess;
 import org.openjdk.jmh.annotations.Benchmark;
@@ -48,7 +48,7 @@ import java.util.concurrent.TimeUnit;
 # Measurement: 10 iterations, 1 s each
 # Threads: 1 thread, will synchronize iterations
 # Benchmark mode: Average time, time/op
-# Benchmark: net.tridentsdk.impl.AsmVsSun.asm
+# Benchmark: net.tridentsdk.server.AsmVsSun.asm
 # VM invoker: /usr/lib/jvm/java-7-openjdk-amd64/jre/bin/java
 # VM options: -Didea.launcher.port=7534 -Didea.launcher.bin.path=/media/A4F1-7AB7/idea-IU-135.1230/bin -Dfile
 .encoding=UTF-8
@@ -89,7 +89,7 @@ Result: 2.702 �(99.9%) 0.021 ns/op [Average]
 # Measurement: 10 iterations, 1 s each
 # Threads: 1 thread, will synchronize iterations
 # Benchmark mode: Average time, time/op
-# Benchmark: net.tridentsdk.impl.AsmVsSun.sun
+# Benchmark: net.tridentsdk.server.AsmVsSun.sun
 # VM invoker: /usr/lib/jvm/java-7-openjdk-amd64/jre/bin/java
 # VM options: -Didea.launcher.port=7534 -Didea.launcher.bin.path=/media/A4F1-7AB7/idea-IU-135.1230/bin -Dfile
 .encoding=UTF-8

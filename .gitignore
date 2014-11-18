@@ -97,7 +97,6 @@ application.macosx
 
 ### Some others ###
 
-server.json
 MANIFEST.MF
 dependency-reduced-pom.xml
 

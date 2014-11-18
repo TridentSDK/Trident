@@ -25,10 +25,10 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package net.tridentsdk.impl;
+package net.tridentsdk.server;
 
 import io.netty.channel.Channel;
-import net.tridentsdk.impl.netty.protocol.Protocol;
+import net.tridentsdk.server.netty.protocol.Protocol;
 
 import java.net.InetSocketAddress;
 import java.security.SecureRandom;

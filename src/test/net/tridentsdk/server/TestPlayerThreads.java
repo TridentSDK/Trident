@@ -28,11 +28,11 @@
 package test.net.tridentsdk.server;
 
 import net.tridentsdk.api.entity.living.Player;
-import net.tridentsdk.impl.player.TridentPlayer;
-import net.tridentsdk.impl.CTXProper;
-import net.tridentsdk.impl.netty.ClientConnection;
-import net.tridentsdk.impl.threads.PlayerThreads;
-import net.tridentsdk.impl.threads.ThreadsManager;
+import net.tridentsdk.player.TridentPlayer;
+import net.tridentsdk.server.CTXProper;
+import net.tridentsdk.server.netty.ClientConnection;
+import net.tridentsdk.server.threads.PlayerThreads;
+import net.tridentsdk.server.threads.ThreadsManager;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.infra.Blackhole;
@@ -50,7 +50,7 @@ import java.util.concurrent.TimeUnit;
 # Measurement: 5 iterations, 1 s each
 # Threads: 10 threads, will synchronize iterations
 # Benchmark mode: Average time, time/op
-# Benchmark: net.tridentsdk.impl.TestPlayerThreads.autoBox
+# Benchmark: net.tridentsdk.server.TestPlayerThreads.autoBox
 # VM invoker: /usr/lib/jvm/java-7-openjdk-amd64/jre/bin/java
 # VM options: -Didea.launcher.port=7537 -Didea.launcher.bin.path=/media/A4F1-7AB7/idea-IU-135.1230/bin -Dfile
 .encoding=UTF-8
@@ -81,7 +81,7 @@ Result: 7.113 �(99.9%) 0.323 ns/op [Average]
 # Measurement: 5 iterations, 1 s each
 # Threads: 10 threads, will synchronize iterations
 # Benchmark mode: Average time, time/op
-# Benchmark: net.tridentsdk.impl.TestPlayerThreads.explicitBox
+# Benchmark: net.tridentsdk.server.TestPlayerThreads.explicitBox
 # VM invoker: /usr/lib/jvm/java-7-openjdk-amd64/jre/bin/java
 # VM options: -Didea.launcher.port=7537 -Didea.launcher.bin.path=/media/A4F1-7AB7/idea-IU-135.1230/bin -Dfile
 .encoding=UTF-8

@@ -1,4 +1,4 @@
-package net.tridentsdk.impl;
+package net.tridentsdk.server;
 
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Mode;

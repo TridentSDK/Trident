@@ -25,7 +25,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package net.tridentsdk.impl;
+package net.tridentsdk.server;
 
 public final class ServerShutdownTest {
     private ServerShutdownTest() {

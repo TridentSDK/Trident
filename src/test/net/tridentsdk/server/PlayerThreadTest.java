@@ -25,13 +25,13 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package net.tridentsdk.impl;
+package net.tridentsdk.server;
 
 import net.tridentsdk.api.entity.living.Player;
-import net.tridentsdk.impl.player.TridentPlayer;
-import net.tridentsdk.impl.netty.ClientConnection;
-import net.tridentsdk.impl.threads.PlayerThreads;
-import net.tridentsdk.impl.threads.ThreadsManager;
+import net.tridentsdk.player.TridentPlayer;
+import net.tridentsdk.server.netty.ClientConnection;
+import net.tridentsdk.server.threads.PlayerThreads;
+import net.tridentsdk.server.threads.ThreadsManager;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;

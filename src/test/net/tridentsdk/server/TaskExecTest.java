@@ -1,7 +1,7 @@
-package net.tridentsdk.impl;
+package net.tridentsdk.server;
 
 import net.tridentsdk.api.threads.TaskExecutor;
-import net.tridentsdk.impl.threads.ConcurrentTaskExecutor;
+import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.annotations.Scope;
@@ -29,7 +29,7 @@ Process finished with exit code 0
 # Measurement: 25 iterations, 1 s each
 # Threads: 4 threads, will synchronize iterations
 # Benchmark mode: Average time, time/op
-# Benchmark: net.tridentsdk.impl.TaskExecTest.exec
+# Benchmark: net.tridentsdk.server.TaskExecTest.exec
 # VM invoker: /usr/lib/jvm/java-7-openjdk-amd64/jre/bin/java
 # VM options: -Didea.launcher.port=7545 -Didea.launcher.bin.path=/media/A4F1-7AB7/idea-IU-135.1230/bin -Dfile.encoding=UTF-8
 # Fork: 1 of 1
