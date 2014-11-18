@@ -1,8 +1,8 @@
-package net.tridentsdk.server;
+package net.tridentsdk.impl;
 
-import net.tridentsdk.scheduling.TridentRunnable;
-import net.tridentsdk.plugin.TridentPlugin;
-import net.tridentsdk.plugin.annotation.PluginDescription;
+import net.tridentsdk.api.scheduling.TridentRunnable;
+import net.tridentsdk.api.plugin.TridentPlugin;
+import net.tridentsdk.api.plugin.annotation.PluginDescription;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 # Measurement: 25 iterations, 1 s each
 # Threads: 4 threads, will synchronize iterations
 # Benchmark mode: Average time, time/op
-# Benchmark: net.tridentsdk.server.SchedulerTest.tick
+# Benchmark: net.tridentsdk.impl.SchedulerTest.tick
 # VM invoker: /usr/lib/jvm/java-7-openjdk-amd64/jre/bin/java
 # VM options: -Didea.launcher.port=7540 -Didea.launcher.bin.path=/media/A4F1-7AB7/idea-IU-135.1230/bin -Dfile.encoding=UTF-8
 # Fork: 1 of 1

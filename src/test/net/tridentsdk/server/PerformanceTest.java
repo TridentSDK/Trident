@@ -1,6 +1,6 @@
-package net.tridentsdk.server;
+package net.tridentsdk.impl;
 
-import net.tridentsdk.perf.Performance;
+import net.tridentsdk.api.perf.Performance;
 
 public class PerformanceTest {
     public static void main(String[] args) {

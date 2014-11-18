@@ -128,7 +128,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>net.tridentsdk.server.TridentStart</mainClass>
+                            <mainClass>net.tridentsdk.impl.TridentStart</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
@@ -149,7 +149,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>net.tridentsdk.server.TridentStart</mainClass>
+                            <mainClass>net.tridentsdk.impl.TridentStart</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>

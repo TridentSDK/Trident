@@ -1,4 +1,4 @@
-package net.tridentsdk.server;
+package net.tridentsdk.impl;
 
 import com.google.common.collect.Sets;
 import io.netty.util.internal.ConcurrentSet;
@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 # Measurement: 25 iterations, 1 s each
 # Threads: 4 threads, will synchronize iterations
 # Benchmark mode: Average time, time/op
-# Benchmark: net.tridentsdk.server.CHMTest.CHMPut
+# Benchmark: net.tridentsdk.impl.CHMTest.CHMPut
 # VM invoker: /usr/lib/jvm/java-7-openjdk-amd64/jre/bin/java
 # VM options: -Didea.launcher.port=7534 -Didea.launcher.bin.path=/media/A4F1-7AB7/idea-IU-135.1230/bin -Dfile.encoding=UTF-8
 # Fork: 1 of 1
@@ -84,7 +84,7 @@ Result: 188.880 ±(99.9%) 6.216 ns/op [Average]
 # Measurement: 25 iterations, 1 s each
 # Threads: 4 threads, will synchronize iterations
 # Benchmark mode: Average time, time/op
-# Benchmark: net.tridentsdk.server.CHMTest.CHMRemove
+# Benchmark: net.tridentsdk.impl.CHMTest.CHMRemove
 # VM invoker: /usr/lib/jvm/java-7-openjdk-amd64/jre/bin/java
 # VM options: -Didea.launcher.port=7534 -Didea.launcher.bin.path=/media/A4F1-7AB7/idea-IU-135.1230/bin -Dfile.encoding=UTF-8
 # Fork: 1 of 1
@@ -149,7 +149,7 @@ Result: 14.718 ±(99.9%) 1.091 ns/op [Average]
 # Measurement: 25 iterations, 1 s each
 # Threads: 4 threads, will synchronize iterations
 # Benchmark mode: Average time, time/op
-# Benchmark: net.tridentsdk.server.CHMTest.v8CHMPut
+# Benchmark: net.tridentsdk.impl.CHMTest.v8CHMPut
 # VM invoker: /usr/lib/jvm/java-7-openjdk-amd64/jre/bin/java
 # VM options: -Didea.launcher.port=7534 -Didea.launcher.bin.path=/media/A4F1-7AB7/idea-IU-135.1230/bin -Dfile.encoding=UTF-8
 # Fork: 1 of 1
@@ -214,7 +214,7 @@ Result: 150.505 ±(99.9%) 4.285 ns/op [Average]
 # Measurement: 25 iterations, 1 s each
 # Threads: 4 threads, will synchronize iterations
 # Benchmark mode: Average time, time/op
-# Benchmark: net.tridentsdk.server.CHMTest.v8CHMRemove
+# Benchmark: net.tridentsdk.impl.CHMTest.v8CHMRemove
 # VM invoker: /usr/lib/jvm/java-7-openjdk-amd64/jre/bin/java
 # VM options: -Didea.launcher.port=7534 -Didea.launcher.bin.path=/media/A4F1-7AB7/idea-IU-135.1230/bin -Dfile.encoding=UTF-8
 # Fork: 1 of 1
