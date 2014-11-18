@@ -27,7 +27,6 @@ import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
-import net.tridentsdk.Defaults;
 import net.tridentsdk.api.config.JsonConfig;
 import net.tridentsdk.server.netty.ClientChannelInitializer;
 import net.tridentsdk.server.threads.ConcurrentTaskExecutor;

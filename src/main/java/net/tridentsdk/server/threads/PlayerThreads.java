@@ -19,7 +19,7 @@ package net.tridentsdk.server.threads;
 
 import net.tridentsdk.api.entity.living.Player;
 import net.tridentsdk.api.threads.TaskExecutor;
-import net.tridentsdk.player.PlayerConnection;
+import net.tridentsdk.server.player.PlayerConnection;
 import net.tridentsdk.server.netty.ClientConnection;
 
 import javax.annotation.concurrent.ThreadSafe;

@@ -17,7 +17,6 @@
  */
 package net.tridentsdk.server;
 
-import net.tridentsdk.Defaults;
 import net.tridentsdk.api.Difficulty;
 import net.tridentsdk.api.Server;
 import net.tridentsdk.api.Trident;
@@ -28,18 +27,18 @@ import net.tridentsdk.api.scheduling.Scheduler;
 import net.tridentsdk.api.threads.ThreadProvider;
 import net.tridentsdk.api.window.Window;
 import net.tridentsdk.api.world.World;
-import net.tridentsdk.entity.EntityManager;
-import net.tridentsdk.packets.play.out.PacketPlayOutPluginMessage;
-import net.tridentsdk.player.OfflinePlayer;
-import net.tridentsdk.player.TridentPlayer;
+import net.tridentsdk.server.entity.EntityManager;
+import net.tridentsdk.server.packets.play.out.PacketPlayOutPluginMessage;
+import net.tridentsdk.server.player.OfflinePlayer;
+import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.plugin.TridentPluginHandler;
 import net.tridentsdk.server.netty.protocol.Protocol;
 import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
 import net.tridentsdk.server.threads.MainThread;
 import net.tridentsdk.server.threads.ThreadsManager;
-import net.tridentsdk.window.WindowManager;
-import net.tridentsdk.world.RegionFileCache;
-import net.tridentsdk.world.TridentWorldLoader;
+import net.tridentsdk.server.window.WindowManager;
+import net.tridentsdk.server.world.RegionFileCache;
+import net.tridentsdk.server.world.TridentWorldLoader;
 import org.slf4j.Logger;
 
 import javax.annotation.concurrent.ThreadSafe;
