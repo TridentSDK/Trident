@@ -52,8 +52,7 @@ public final class WorldThreads {
         return CACHE_MAP.retrieve(world, new Callable<TaskExecutor>() {
             @Override
             public TaskExecutor call() throws Exception {
-                TaskExecutor executor = THREAD_MAP.getScaledThread();
-                return THREAD_MAP.assign(executor, world);
+                return THREAD_MAP.assign(world);
             }
         }, SERVICE);
     }

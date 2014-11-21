@@ -17,7 +17,6 @@
  */
 package net.tridentsdk.packets.login;
 
-import com.google.gson.Gson;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.player.TridentPlayer;
 import net.tridentsdk.server.encryption.RSA;

@@ -20,11 +20,11 @@ package net.tridentsdk.player;
 import io.netty.util.internal.ConcurrentSet;
 import net.tridentsdk.api.Trident;
 import net.tridentsdk.api.entity.living.Player;
+import net.tridentsdk.api.factory.Factories;
 import net.tridentsdk.api.nbt.CompoundTag;
 import net.tridentsdk.api.threads.TaskExecutor;
 import net.tridentsdk.api.world.LevelType;
 import net.tridentsdk.packets.play.out.*;
-import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.world.TridentChunk;
@@ -38,7 +38,7 @@ public class TridentPlayer extends OfflinePlayer {
     private static final Set<TridentPlayer> players = new ConcurrentSet<>();
 
     private final PlayerConnection connection;
-    private final TaskExecutor executor = TridentServer.getInstance().provideThreads().providePlayerThread(this);
+    private final TaskExecutor executor = Factories.threadFactory().playerThread(this);
     private volatile Locale locale;
 
     public TridentPlayer(CompoundTag tag, TridentWorld world, ClientConnection connection) {
