@@ -175,11 +175,19 @@ public class RegionFile {
 
             case 2:
                 Inflater inflater = new Inflater();
-
+                ByteArrayOutputStream output = new ByteArrayOutputStream();
                 inflater.setInput(compressedData);
-                chunkData = new byte[inflater.getRemaining()];
 
-                inflater.inflate(chunkData);
+                byte[] buffer = new byte[1024];
+
+                while(!(inflater.finished())) {
+                    int count = inflater.inflate(buffer);
+
+                    output.write(buffer, 0, count);
+                }
+
+                output.close();
+                chunkData = output.toByteArray();
                 inflater.end();
                 break;
 
@@ -430,7 +438,7 @@ public class RegionFile {
          * @return offsetLoc in bytes
          */
         private int getOffsetLoc(Chunk c) {
-            return IntMath.mod(c.getX(), 32) + IntMath.mod(c.getZ(), 32) * 32;
+            return c.getX() + c.getZ() * 32;
         }
     }
 }

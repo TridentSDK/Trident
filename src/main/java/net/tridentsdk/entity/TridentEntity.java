@@ -19,6 +19,7 @@ package net.tridentsdk.entity;
 
 import net.tridentsdk.api.Location;
 import net.tridentsdk.api.Material;
+import net.tridentsdk.api.Trident;
 import net.tridentsdk.api.entity.Entity;
 import net.tridentsdk.api.entity.EntityProperties;
 import net.tridentsdk.api.entity.EntityType;
@@ -301,7 +302,7 @@ public class TridentEntity implements Entity {
 
     public void load(CompoundTag tag) {
         /* IDs */
-        String id = ((StringTag) tag.getTag("id")).getValue(); // ID of the entity, in form of an integer
+        String id = ((StringTag) tag.getTag("id")).getValue(); // EntityType, in form of a string
         LongTag uuidMost = tag.getTagAs("UUIDMost"); // most signifigant bits of UUID
         LongTag uuidLeast = tag.getTagAs("UUIDLeast"); // least signifigant bits of UUID
 
@@ -322,27 +323,35 @@ public class TridentEntity implements Entity {
         IntTag portalCooldown = tag.getTagAs("PortalCooldown"); // amount of ticks until entity can use a portal, starts at 900
 
         /* Display Name */
-        StringTag displayName = tag.getTagAs("CustomName"); // Custom name for the entity, other known as display name.
-        ByteTag dnVisible = tag.getTagAs("CustomNameVisible"); // 0 = false, 1 = true - If true, it will always appear above them
+        StringTag displayName = (tag.containsTag("CustomName")) ? (StringTag) tag.getTag("CustomName") :
+                new StringTag("CustomName").setValue(""); // Custom name for the entity, other known as display name.
+        ByteTag dnVisible = (tag.containsTag("CustomNameVisible")) ? (ByteTag) tag.getTag("CustomNameVisible") :
+                new ByteTag("CustomNameVisible").setValue((byte) 0); // 0 = false, 1 = true - If true, it will always appear above them
 
-        ByteTag silent = tag.getTagAs("Silent"); // 0 = false, 1 = true - If true, the entity will not make a sound
+        ByteTag silent = (tag.containsTag("Silent")) ? (ByteTag) tag.getTag("Silent") :
+                new ByteTag("Silent").setValue((byte) 0); // 0 = false, 1 = true - If true, the entity will not make a sound
 
         NBTTag riding = tag.getTagAs("Riding"); // CompoundTag of the entity being ridden, contents are recursive
         NBTTag commandStats = tag.getTagAs("CommandStats"); // Information to modify relative to the last command run
 
         /* Set data */
-        this.id = Integer.parseInt(id);
+        this.id = counter.incrementAndGet();
 
-        if(this.id >= counter.get()) {
-            counter.incrementAndGet();
-        }
+        loc = new Location(Trident.getWorlds().iterator().next(), 0, 0, 0);
+        velocity = new Vector(0, 0, 0);
 
         this.uniqueId = new UUID(uuidMost.getValue(), uuidLeast.getValue());
 
-        int[] location = new int[3];
+        double[] location = new double[3];
 
         for (int i = 0; i < 3; i += 1) {
-            location[i] = ((IntTag) pos.get(i)).getValue();
+            NBTTag t = pos.get(i);
+
+            if(t instanceof DoubleTag) {
+                location[i] = ((DoubleTag) t).getValue();
+            } else {
+                location[i] = ((IntTag) t).getValue();
+            }
         }
 
         // set x, y, and z cordinates from array
@@ -350,10 +359,16 @@ public class TridentEntity implements Entity {
         loc.setY(location[1]);
         loc.setZ(location[2]);
 
-        int[] velocity = new int[3];
+        double[] velocity = new double[3];
 
         for (int i = 0; i < 3; i += 1) {
-            velocity[i] = ((IntTag) motion.get(i)).getValue();
+            NBTTag t = motion.get(i);
+
+            if(t instanceof DoubleTag) {
+                velocity[i] = ((DoubleTag) t).getValue();
+            } else {
+                velocity[i] = ((IntTag) t).getValue();
+            }
         }
 
         // set velocity from array
@@ -362,8 +377,17 @@ public class TridentEntity implements Entity {
         this.velocity.setZ(velocity[2]);
 
         // set yaw and pitch from NBTTag
-        loc.setYaw(((IntTag) rotation.get(0)).getValue());
-        loc.setPitch(((IntTag) rotation.get(0)).getValue());
+        if(rotation.get(0) instanceof IntTag) {
+            loc.setYaw(((IntTag) rotation.get(0)).getValue());
+        } else {
+            loc.setYaw(((FloatTag) rotation.get(0)).getValue());
+        }
+
+        if(rotation.get(1) instanceof IntTag) {
+            loc.setPitch(((IntTag) rotation.get(1)).getValue());
+        } else {
+            loc.setPitch(((FloatTag) rotation.get(1)).getValue());
+        }
 
         this.fallDistance.set((long) fallDistance.getValue()); // FIXME: may lose precision, consider changing AtomicLong
         this.fireTicks.set(fireTicks.getValue());
