@@ -181,7 +181,7 @@ public final class Codec {
      * Writes a certain length of bytes from a ByteBuf to an array
      *
      * @param buf    the buffer to get data from
-     * @param length the length to write
+     * @param length the length to toPacket
      * @return bytes the array of bytes
      */
     public static byte[] toArray(ByteBuf buf, int length) {

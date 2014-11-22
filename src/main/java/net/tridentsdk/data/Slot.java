@@ -135,7 +135,7 @@ public class Slot implements Writable, NBTSerializable {
         buf.writeShort((int) this.damageValue);
 
         if (this.compoundTag != null) {
-            // TODO: write compound tag
+            // TODO: toPacket compound tag
         }
     }
 

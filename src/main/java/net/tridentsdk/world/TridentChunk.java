@@ -29,8 +29,11 @@ import net.tridentsdk.api.util.TridentLogger;
 import net.tridentsdk.api.world.Chunk;
 import net.tridentsdk.api.world.ChunkLocation;
 import net.tridentsdk.api.world.Dimension;
+import net.tridentsdk.data.ChunkMetaBuilder;
 import net.tridentsdk.entity.TridentEntity;
 import net.tridentsdk.packets.play.out.PacketPlayOutChunkData;
+import net.tridentsdk.packets.play.out.PacketPlayOutMapChunkBulk;
+import net.tridentsdk.server.netty.packet.OutPacket;
 
 import java.util.List;
 import java.util.Set;
@@ -100,8 +103,8 @@ public class TridentChunk implements Chunk {
                 , null, (byte) 0);
     }
 
-    public void write(PacketPlayOutChunkData packet) {
-        packet.set("chunkLocation", location);
+    public PacketPlayOutMapChunkBulk toPacket() {
+        PacketPlayOutMapChunkBulk chunkBulk = new PacketPlayOutMapChunkBulk();
 
         int bitmask;
         int count;
@@ -143,9 +146,12 @@ public class TridentChunk implements Chunk {
             throw new IllegalStateException("Wrote " + pos + " when expected " + size + " bytes");
         }
 
-        packet.set("data", data);
-        packet.set("continuous", true);
-        packet.set("primaryBitMap", (short) bitmask);
+        chunkBulk.set("meta", new ChunkMetaBuilder().bitmap((short) bitmask).location(location));
+        chunkBulk.set("data", data);
+        chunkBulk.set("lightSent", true);
+        chunkBulk.set("columnCount", sections.length);
+
+        return chunkBulk;
     }
 
     public void load(CompoundTag root) {
