@@ -37,7 +37,7 @@ public interface Packet {
     /**
      * Serialized the data held by this packet into a buffer
      *
-     * @param buf the buffer to write to
+     * @param buf the buffer to toPacket to
      */
     void encode(ByteBuf buf);
 

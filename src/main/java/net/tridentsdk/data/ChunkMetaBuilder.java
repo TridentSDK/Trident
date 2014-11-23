@@ -44,7 +44,7 @@ public class ChunkMetaBuilder implements Writable {
      * @param location the location to set the chunk to
      * @return the current instance
      */
-    public ChunkMetaBuilder setLocation(ChunkLocation location) {
+    public ChunkMetaBuilder location(ChunkLocation location) {
         this.location = location;
 
         return this;
@@ -65,7 +65,7 @@ public class ChunkMetaBuilder implements Writable {
      * @param bitmap the {@code short} that maps the chunk data
      * @return the current instance
      */
-    public ChunkMetaBuilder setBitmap(short bitmap) {
+    public ChunkMetaBuilder bitmap(short bitmap) {
         this.bitmap = bitmap;
 
         return this;
