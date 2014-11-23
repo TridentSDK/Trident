@@ -23,13 +23,12 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.tridentsdk.api.factory.ExecutorFactory;
 import net.tridentsdk.api.perf.AddTakeQueue;
-import net.tridentsdk.api.perf.DelegatedAddTakeQueue;
+import net.tridentsdk.api.perf.ReImplLinkedQueue;
 import net.tridentsdk.api.threads.TaskExecutor;
 
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.ThreadSafe;
 import java.util.*;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -104,16 +103,10 @@ public class ConcurrentTaskExecutor<Assignment> implements ExecutorFactory<Assig
         this.assignments.clear();
     }
 
+    @ThreadSafe
     private static final class InnerThread implements TaskExecutor {
-        private final AddTakeQueue<Runnable> tasks = new DelegatedAddTakeQueue<Runnable>() {
-            @Override protected BlockingQueue<Runnable> delegate() {
-                return new LinkedBlockingQueue<>();
-            }
-        };
+        private final AddTakeQueue<Runnable> tasks = new ReImplLinkedQueue<>();
         private final DelegateThread thread = new DelegateThread();
-        private boolean stopped;
-        // Does not need to be volatile because only this thread can change it
-
         private final AtomicInteger count = new AtomicInteger();
 
         private InnerThread() {
@@ -128,13 +121,7 @@ public class ConcurrentTaskExecutor<Assignment> implements ExecutorFactory<Assig
 
         @Override
         public void interrupt() {
-            this.thread.interrupt();
-            this.addTask(new Runnable() {
-                @Override
-                public void run() {
-                    InnerThread.this.stopped = true;
-                }
-            });
+            thread.interrupt();
         }
 
         @Override
@@ -145,7 +132,7 @@ public class ConcurrentTaskExecutor<Assignment> implements ExecutorFactory<Assig
         private class DelegateThread extends Thread {
             @Override
             public void run() {
-                while (!InnerThread.this.stopped) {
+                while (!isInterrupted()) {
                     try {
                         Runnable task = InnerThread.this.tasks.take();
                         task.run();

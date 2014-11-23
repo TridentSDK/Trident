@@ -20,7 +20,6 @@ package net.tridentsdk.server.threads;
 import net.tridentsdk.api.entity.Entity;
 import net.tridentsdk.api.entity.living.Player;
 import net.tridentsdk.api.factory.ExecutorFactory;
-import net.tridentsdk.api.factory.Factories;
 import net.tridentsdk.api.factory.ThreadFactory;
 import net.tridentsdk.api.threads.TaskExecutor;
 import net.tridentsdk.api.world.World;
@@ -32,10 +31,6 @@ import net.tridentsdk.plugin.TridentPlugin;
  * @author The TridentSDK Team
  */
 public final class ThreadsManager implements ThreadFactory {
-    static {
-        Factories.init(new ThreadsManager());
-    }
-
     /**
      * Stops all the executors and clears all caches of concurrent threads
      */

@@ -12,6 +12,8 @@ import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
 import java.util.Collection;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 /*
@@ -166,5 +168,12 @@ public class TaskExecTest {
     @Benchmark
     public void exec() {
         EXECUTOR.addTask(RUNNABLE);
+    }
+
+    private static final Executor ex = Executors.newFixedThreadPool(4);
+
+    @Benchmark
+    public void normal() {
+        ex.execute(RUNNABLE);
     }
 }

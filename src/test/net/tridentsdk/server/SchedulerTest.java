@@ -156,7 +156,7 @@ public class SchedulerTest {
             class PluginImpl extends TridentPlugin {
             }
 
-            scheduler.runTaskSyncLater(new PluginImpl(), new TridentRunnable() {
+            scheduler.asyncLater(new PluginImpl(), new TridentRunnable() {
                 @Override
                 public void run() {
                     System.out.print("");
@@ -165,13 +165,13 @@ public class SchedulerTest {
         }
     }
 
-    public static void main(String... args) throws InterruptedException {
+    public static void main8(String... args) throws InterruptedException {
         @PluginDescription(name = "LOLCODE")
         class PluginImpl extends TridentPlugin {
         }
 
         for (int i = 0; i < 1000; i++) {
-            scheduler.runTaskAsyncRepeating(new PluginImpl(), new TridentRunnable() {
+            scheduler.asyncRepeat(new PluginImpl(), new TridentRunnable() {
                 @Override
                 public void run() {
                     System.out.println("Your mom");
@@ -192,7 +192,7 @@ public class SchedulerTest {
         }
     }
 
-    public static void main8(String... args) throws RunnerException {
+    public static void main(String... args) throws RunnerException {
         Options opt = new OptionsBuilder()
                 .include(".*" + SchedulerTest.class.getSimpleName() + ".*")
                 .timeUnit(TimeUnit.NANOSECONDS)
@@ -220,7 +220,7 @@ public class SchedulerTest {
             }
 
             final int finalI = i;
-            scheduler.runTaskAsyncRepeating(new PluginImpl(), new TridentRunnable() {
+            scheduler.asyncRepeat(new PluginImpl(), new TridentRunnable() {
                 @Override
                 public void run() {
                     System.out.println("LOL: " + finalI);

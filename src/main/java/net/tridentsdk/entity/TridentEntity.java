@@ -64,7 +64,7 @@ public class TridentEntity implements Entity {
     /**
      * Entity task executor
      */
-    protected final TaskExecutor executor = Factories.threadFactory().entityThread(this);
+    protected final TaskExecutor executor = Factories.threads().entityThread(this);
     /**
      * The movement vector for the entity
      */

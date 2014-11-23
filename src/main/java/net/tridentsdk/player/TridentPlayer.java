@@ -38,7 +38,7 @@ public class TridentPlayer extends OfflinePlayer {
     private static final Set<TridentPlayer> players = new ConcurrentSet<>();
 
     private final PlayerConnection connection;
-    private final TaskExecutor executor = Factories.threadFactory().playerThread(this);
+    private final TaskExecutor executor = Factories.threads().playerThread(this);
     private volatile Locale locale;
 
     public TridentPlayer(CompoundTag tag, TridentWorld world, ClientConnection connection) {
