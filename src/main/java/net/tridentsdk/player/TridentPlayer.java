@@ -77,7 +77,7 @@ public class TridentPlayer extends OfflinePlayer {
         p.connection.sendPacket(new PacketPlayOutPlayerCompleteMove().set("location", p.getLocation())
                 .set("flags", (byte) 0));
 
-        p.sendChunks(1);
+        p.sendChunks(7);
 
 
         players.add(p);
