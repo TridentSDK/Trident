@@ -29,5 +29,6 @@ class Login extends PacketManager {
         this.outPackets.put(0x00, PacketLoginOutDisconnect.class);
         this.outPackets.put(0x01, PacketLoginOutEncryptionRequest.class);
         this.outPackets.put(0x02, PacketLoginOutSuccess.class);
+        this.outPackets.put(0x03, PacketLoginOutSetCompression.class);
     }
 }
