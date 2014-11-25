@@ -48,6 +48,10 @@ public final class Defaults {
      * Scheduler mode
      */
     public static final boolean IN_A_HURRY_MODE = true;
+    /**
+     * The threshold used for compression
+     */
+    public static final int COMPRESSION_THRESHHOLD = 256;
 
     public static final int PORT = 25565;
     public static final String ADDRESS = "localhost";

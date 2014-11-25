@@ -31,7 +31,7 @@ public interface Writable {
      * <p/>
      * <p>Check the implementation source to see serialization spec</p>
      *
-     * @param buf the buffer to write the serialized form to
+     * @param buf the buffer to toPacket the serialized form to
      */
     void write(ByteBuf buf);
 }

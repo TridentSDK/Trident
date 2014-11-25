@@ -50,6 +50,7 @@ public class PlayerConnection extends ClientConnection {
         super.sharedSecret = connection.getSharedSecret();
         super.stage = Protocol.ClientStage.PLAY; // stage must be PLAY to actually create PlayerConnection
         super.encryptionEnabled = connection.isEncryptionEnabled();
+        super.compressionEnabled = connection.isCompressionEnabled();
 
         this.player = player;
         this.keepAliveId = -1;

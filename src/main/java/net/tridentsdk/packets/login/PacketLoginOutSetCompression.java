@@ -15,20 +15,22 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.tridentsdk.server.netty.protocol;
+package net.tridentsdk.packets.login;
 
-import net.tridentsdk.api.docs.AccessNoDoc;
-import net.tridentsdk.packets.login.*;
+import io.netty.buffer.ByteBuf;
+import net.tridentsdk.server.TridentServer;
+import net.tridentsdk.server.netty.Codec;
+import net.tridentsdk.server.netty.packet.OutPacket;
 
-@AccessNoDoc
-class Login extends PacketManager {
-    Login() {
-        this.inPackets.put(0x00, PacketLoginInStart.class);
-        this.inPackets.put(0x01, PacketLoginInEncryptionResponse.class);
+public class PacketLoginOutSetCompression extends OutPacket {
 
-        this.outPackets.put(0x00, PacketLoginOutDisconnect.class);
-        this.outPackets.put(0x01, PacketLoginOutEncryptionRequest.class);
-        this.outPackets.put(0x02, PacketLoginOutSuccess.class);
-        this.outPackets.put(0x03, PacketLoginOutSetCompression.class);
+    @Override
+    public int getId() {
+        return 0x03;
+    }
+
+    @Override
+    public void encode(ByteBuf buf) {
+        Codec.writeVarInt32(buf, TridentServer.getInstance().getCompressionThreshold());
     }
 }
