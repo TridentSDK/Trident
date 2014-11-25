@@ -20,6 +20,7 @@ package net.tridentsdk.server.netty;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
+import net.tridentsdk.packets.login.PacketLoginOutSetCompression;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.protocol.Protocol;
 import net.tridentsdk.server.threads.PlayerThreads;
@@ -87,6 +88,10 @@ public class ClientConnection {
      * The verification token
      */
     protected volatile byte[] verificationToken; // DO NOT WRITE INDIVIDUAL ELEMENTS TO IT. Consult AgentTroll
+    /**
+     * Whether or not encryption is enabled
+     */
+    protected volatile boolean compressionEnabled = false;
     /**
      * Encryption IV specification
      */
@@ -237,6 +242,19 @@ public class ClientConnection {
         }
     }
 
+    public void enableCompression() {
+        if(compressionEnabled) {
+            throw new UnsupportedOperationException("Compression is already enabled!");
+        }
+
+        if(stage != Protocol.ClientStage.LOGIN)  {
+            throw new UnsupportedOperationException();
+        }
+
+        sendPacket(new PacketLoginOutSetCompression());
+        compressionEnabled = true;
+    }
+
     /**
      * Gets the channel context for the connection stream
      *
@@ -289,6 +307,10 @@ public class ClientConnection {
      */
     public boolean isEncryptionEnabled() {
         return this.encryptionEnabled;
+    }
+
+    public boolean isCompressionEnabled() {
+        return this.compressionEnabled;
     }
 
     /**

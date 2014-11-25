@@ -18,12 +18,15 @@
 package net.tridentsdk.server.netty.packet;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ReplayingDecoder;
+import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
 
 import java.util.List;
+import java.util.zip.Inflater;
 
 /**
  * Channel handler that decodes the packet data sent from the stream in the form of the byte buffer. This is needed to
@@ -34,6 +37,7 @@ import java.util.List;
  */
 public class PacketDecoder extends ReplayingDecoder<Void> {
 
+    private final Inflater inflater = new Inflater();
     private ClientConnection connection;
     private int rawLength;
 
@@ -44,9 +48,29 @@ public class PacketDecoder extends ReplayingDecoder<Void> {
 
     @Override
     protected void decode(ChannelHandlerContext context, ByteBuf buf, List<Object> objects) throws Exception {
-        this.rawLength = Codec.readVarInt32(buf);
-        ByteBuf data = buf.readBytes(this.rawLength);
+        boolean compressed = connection.isCompressionEnabled();
 
-        objects.add(new PacketData(data));
+        if(compressed)
+            Codec.readVarInt32(buf); // read the length of the actual data and raw length, not used
+
+        this.rawLength = Codec.readVarInt32(buf);
+
+        if(!(compressed) || rawLength < TridentServer.getInstance().getCompressionThreshold()) {
+            ByteBuf data = buf.readBytes(this.rawLength);
+
+            objects.add(new PacketData(data));
+            return;
+        }
+
+        byte[] compressedData = new byte[buf.readableBytes()];
+        byte[] decompressed = new byte[rawLength];
+
+        buf.readBytes(compressedData);
+        inflater.setInput(compressedData);
+
+        inflater.inflate(decompressed);
+        objects.add(new PacketData(Unpooled.wrappedBuffer(decompressed)));
+
+        inflater.reset();
     }
 }

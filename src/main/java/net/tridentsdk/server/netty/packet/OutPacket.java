@@ -29,7 +29,6 @@ public abstract class OutPacket implements Packet {
     private final FastClass fastClass;
 
     public OutPacket() {
-
         this.fastClass = FastClass.get(this.getClass());
     }
 
@@ -46,7 +45,7 @@ public abstract class OutPacket implements Packet {
      * @return OutPacket instance
      */
     public OutPacket set(String name, Object value) {
-        this.fastClass.getField(this, name).set(value);
+        this.fastClass.getField(name).set(this, value);
         return this;
     }
 

@@ -135,6 +135,10 @@ public final class TridentServer implements Server {
         return this.regionCache;
     }
 
+    public int getCompressionThreshold() {
+        return this.config.getInt("compression-threshold", Defaults.COMPRESSION_THRESHHOLD);
+    }
+
     /**
      * Gets the port the server currently runs on
      *
