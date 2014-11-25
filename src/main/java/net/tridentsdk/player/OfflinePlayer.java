@@ -21,12 +21,12 @@ import io.netty.util.internal.ConcurrentSet;
 import net.tridentsdk.api.GameMode;
 import net.tridentsdk.api.Location;
 import net.tridentsdk.api.Trident;
+import net.tridentsdk.api.TridentFactory;
 import net.tridentsdk.api.entity.Entity;
 import net.tridentsdk.api.entity.EntityProperties;
 import net.tridentsdk.api.entity.Projectile;
 import net.tridentsdk.api.entity.living.Player;
 import net.tridentsdk.api.event.entity.EntityDamageEvent;
-import net.tridentsdk.api.factory.TridentFactory;
 import net.tridentsdk.api.inventory.Inventory;
 import net.tridentsdk.api.inventory.ItemStack;
 import net.tridentsdk.api.nbt.*;
@@ -44,22 +44,23 @@ import java.util.Set;
 import java.util.UUID;
 
 public class OfflinePlayer extends TridentInventoryHolder implements Player {
+
     private static final Set<OfflinePlayer> players = new ConcurrentSet<>();
 
     protected String name;
-    protected final Dimension dimesion;
-    protected final GameMode gameMode;
-    protected final int score;
+    protected Dimension dimesion;
+    protected GameMode gameMode;
+    protected int score;
     protected short selectedSlot;
-    protected final Location spawnLocation;
-    protected final short hunger;
-    protected final float exhaustion;
-    protected final float saturation;
-    protected final int foodTickTimer;
-    protected final int xpLevel;
-    protected final float xpPercent;
-    protected final int xpTotal;
-    protected final int xpSeed;
+    protected Location spawnLocation;
+    protected short hunger;
+    protected float exhaustion;
+    protected float saturation;
+    protected int foodTickTimer;
+    protected int xpLevel;
+    protected float xpPercent;
+    protected int xpTotal;
+    protected int xpSeed;
     protected Inventory enderChest;
     protected final PlayerAbilities abilities = new PlayerAbilities();
 

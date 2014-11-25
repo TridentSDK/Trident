@@ -21,9 +21,15 @@ import net.tridentsdk.api.threads.TaskExecutor;
 import net.tridentsdk.plugin.TridentPlugin;
 
 import java.util.Collection;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public final class PluginThreads {
     static final ConcurrentTaskExecutor<TridentPlugin> THREAD_MAP = new ConcurrentTaskExecutor<>(2);
+    static final ConcurrentCache<TridentPlugin, TaskExecutor> CACHE_MAP = new ConcurrentCache<>();
+
+    static final ExecutorService SERVICE = Executors.newSingleThreadExecutor();
 
     private PluginThreads() {
     }
@@ -37,7 +43,13 @@ public final class PluginThreads {
      * @return the plugin thread handler
      */
     public static TaskExecutor pluginThreadHandle(final TridentPlugin plugin) {
-        return THREAD_MAP.assign(plugin);
+        return CACHE_MAP.retrieve(plugin, new Callable<TaskExecutor>() {
+            @Override
+            public TaskExecutor call() throws Exception {
+                TaskExecutor executor = THREAD_MAP.getScaledThread();
+                return THREAD_MAP.assign(executor, plugin);
+            }
+        }, EntityThreads.SERVICE);
     }
 
     /**
@@ -47,6 +59,7 @@ public final class PluginThreads {
      */
     public static void remove(TridentPlugin plugin) {
         THREAD_MAP.removeAssignment(plugin);
+        CACHE_MAP.remove(plugin);
     }
 
     /**

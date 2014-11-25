@@ -20,16 +20,19 @@ package net.tridentsdk.server.threads;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import net.tridentsdk.api.factory.ExecutorFactory;
 import net.tridentsdk.api.perf.AddTakeQueue;
-import net.tridentsdk.api.perf.ReImplLinkedQueue;
+import net.tridentsdk.api.perf.DelegatedAddTakeQueue;
 import net.tridentsdk.api.threads.TaskExecutor;
 
 import javax.annotation.Nullable;
-import javax.annotation.concurrent.ThreadSafe;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.AbstractMap.SimpleEntry;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Thread list to allow task execution in a shared thread scaled with removal
@@ -39,20 +42,22 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @param <Assignment> the assignment type, if used
  * @author The TridentSDK Team
  */
-public class ConcurrentTaskExecutor<Assignment> implements ExecutorFactory<Assignment> {
+public class ConcurrentTaskExecutor<Assignment> {
+    private static final Entry<?, ? extends Number> DEF_ENTRY = new SimpleEntry<>(null, Long.MAX_VALUE);
+
+    private final Map<InnerThread, Integer> scale = new HashMap<>();
     private final Map<Assignment, InnerThread> assignments = new HashMap<>();
-    private final List<InnerThread> threads = new ArrayList<>();
 
     private final List<TaskExecutor> executors;
 
     /**
      * Create a new executor using the number of threads to scale
      *
-     * @param scale the threads to use. Functionality unspecified if negative or {@code == 0}
+     * @param scale the threads to use
      */
     public ConcurrentTaskExecutor(int scale) {
-        for (int i = 0; i < scale; i++) this.threads.add(new InnerThread());
-        this.executors = Lists.newArrayList(Iterators.transform(this.threads.iterator(), new Function
+        for (int i = 0; i < scale; i++) this.scale.put(new InnerThread(), 0);
+        this.executors = Lists.newArrayList(Iterators.transform(this.scale.keySet().iterator(), new Function
                 <InnerThread, TaskExecutor>() {
             @Nullable
             @Override
@@ -62,22 +67,42 @@ public class ConcurrentTaskExecutor<Assignment> implements ExecutorFactory<Assig
         }));
     }
 
-    public TaskExecutor scaledThread() {
-        InnerThread lowest = null;
-        for (InnerThread thread : this.threads) {
-            if (lowest == null || thread.getCount().get() < lowest.getCount().get())
-                lowest = thread;
-        }
+    private static <T> Entry<T, ? extends Number> minMap(Map<T, ? extends Number> map) {
+        Entry<T, ? extends Number> ent = (Entry<T, ? extends Number>) DEF_ENTRY;
 
-        return lowest;
+        for (Entry<T, ? extends Number> entry : map.entrySet())
+            if (entry.getValue().longValue() < ent.getValue().longValue())
+                ent = entry;
+
+        return ent;
     }
 
-    public TaskExecutor assign(Assignment assignment) {
-        TaskExecutor executor = this.assignments.get(assignment);
-        if (executor == null) {
-            InnerThread thread = (InnerThread) scaledThread();
-            thread.getCount().incrementAndGet();
+    /**
+     * Gets a thread that has the least amount of assignment uses. You must assign the user before this can scale.
+     *
+     * @return the thread with the lowest assignments
+     */
+    public TaskExecutor getScaledThread() {
+        Entry<InnerThread, ? extends Number> handler = minMap(this.scale);
+        return handler.getKey();
+    }
+
+    /**
+     * Assigns the scaled thread to the assignment
+     * <p/>
+     * <p>If already assigned, the executor is returned for the fast-path</p>
+     *
+     * @param executor   the executor associated with the assignment
+     * @param assignment the assignment that uses the executor
+     * @return the executor assigned
+     */
+    public TaskExecutor assign(TaskExecutor executor, Assignment assignment) {
+        if (!this.assignments.containsKey(assignment)) {
+            Entry<InnerThread, ? extends Number> handler = minMap(this.scale);
+            InnerThread thread = handler.getKey();
+
             this.assignments.put(assignment, thread);
+            this.scale.put(handler.getKey(), Integer.valueOf(handler.getValue().intValue() + 1));
 
             return thread;
         }
@@ -85,29 +110,53 @@ public class ConcurrentTaskExecutor<Assignment> implements ExecutorFactory<Assig
         return executor;
     }
 
+    /**
+     * Removes the assigned thread and reduces by one the scale factor for the thread
+     *
+     * @param assignment the assignment that uses the executor to be removed
+     */
     public void removeAssignment(Assignment assignment) {
-        this.assignments.remove(assignment);
+        InnerThread thread = this.assignments.remove(assignment);
+        if (thread != null) this.scale.put(thread, this.scale.get(thread) + 1);
     }
 
+    /**
+     * Returns the assigned objects
+     *
+     * @return the assignments in the maps
+     */
     public Collection<Assignment> values() {
         return this.assignments.keySet();
     }
 
+    /**
+     * Lists all available task executors from the threads
+     *
+     * @return the thread list
+     */
     public List<TaskExecutor> threadList() {
         return this.executors;
     }
 
+    /**
+     * Shuts down the thread processes
+     */
     public void shutdown() {
-        for (TaskExecutor thread : Sets.newHashSet(assignments.values()))
+        for (TaskExecutor thread : this.scale.keySet())
             thread.interrupt();
+        this.scale.clear();
         this.assignments.clear();
     }
 
-    @ThreadSafe
     private static final class InnerThread implements TaskExecutor {
-        private final AddTakeQueue<Runnable> tasks = new ReImplLinkedQueue<>();
+        private final AddTakeQueue<Runnable> tasks = new DelegatedAddTakeQueue<Runnable>() {
+            @Override protected BlockingQueue<Runnable> delegate() {
+                return new LinkedBlockingQueue<>();
+            }
+        };
         private final DelegateThread thread = new DelegateThread();
-        private final AtomicInteger count = new AtomicInteger();
+        private boolean stopped;
+        // Does not need to be volatile because only this thread can change it
 
         private InnerThread() {
             this.thread.start();
@@ -116,12 +165,17 @@ public class ConcurrentTaskExecutor<Assignment> implements ExecutorFactory<Assig
         @Override
         public void addTask(Runnable task) {
             this.tasks.add(task);
-            count.incrementAndGet();
         }
 
         @Override
         public void interrupt() {
-            thread.interrupt();
+            this.thread.interrupt();
+            this.addTask(new Runnable() {
+                @Override
+                public void run() {
+                    InnerThread.this.stopped = true;
+                }
+            });
         }
 
         @Override
@@ -132,7 +186,7 @@ public class ConcurrentTaskExecutor<Assignment> implements ExecutorFactory<Assig
         private class DelegateThread extends Thread {
             @Override
             public void run() {
-                while (!isInterrupted()) {
+                while (!InnerThread.this.stopped) {
                     try {
                         Runnable task = InnerThread.this.tasks.take();
                         task.run();
@@ -141,10 +195,6 @@ public class ConcurrentTaskExecutor<Assignment> implements ExecutorFactory<Assig
                     }
                 }
             }
-        }
-
-        public AtomicInteger getCount() {
-            return this.count;
         }
     }
 }

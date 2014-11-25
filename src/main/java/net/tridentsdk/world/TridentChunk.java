@@ -40,7 +40,7 @@ import java.util.Set;
 
 public class TridentChunk implements Chunk {
     private final TridentWorld world;
-    private final ChunkLocation location;
+    private volatile ChunkLocation location;
     private int lastFileAccess;
 
     private volatile long lastModified;

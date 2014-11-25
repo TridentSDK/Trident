@@ -24,7 +24,8 @@ import net.tridentsdk.api.Trident;
 import net.tridentsdk.api.config.JsonConfig;
 import net.tridentsdk.api.entity.living.Player;
 import net.tridentsdk.api.event.EventManager;
-import net.tridentsdk.api.factory.ExecutorFactory;
+import net.tridentsdk.api.scheduling.Scheduler;
+import net.tridentsdk.api.threads.ThreadProvider;
 import net.tridentsdk.api.window.Window;
 import net.tridentsdk.api.world.World;
 import net.tridentsdk.entity.EntityManager;
@@ -33,6 +34,7 @@ import net.tridentsdk.player.OfflinePlayer;
 import net.tridentsdk.player.TridentPlayer;
 import net.tridentsdk.plugin.TridentPluginHandler;
 import net.tridentsdk.server.netty.protocol.Protocol;
+import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
 import net.tridentsdk.server.threads.MainThread;
 import net.tridentsdk.server.threads.ThreadsManager;
 import net.tridentsdk.window.WindowManager;
@@ -66,7 +68,7 @@ public final class TridentServer implements Server {
     private final Protocol protocol;
     private final Logger logger;
 
-    private final ExecutorFactory<?> taskExecutor;
+    private final ConcurrentTaskExecutor<?> taskExecutor;
     private final RegionFileCache regionCache;
 
     private final EntityManager entityManager;
@@ -78,7 +80,9 @@ public final class TridentServer implements Server {
 
     private final TridentWorldLoader worldLoader;
 
-    private TridentServer(JsonConfig config, ExecutorFactory<?> taskExecutor, Logger logger) {
+    private final ThreadProvider provider = new ThreadsManager();
+
+    private TridentServer(JsonConfig config, ConcurrentTaskExecutor<?> taskExecutor, Logger logger) {
         this.config = config;
         this.protocol = new Protocol();
         this.taskExecutor = taskExecutor;
@@ -99,11 +103,11 @@ public final class TridentServer implements Server {
      * @param config the configuration to use for option lookup
      * @param logger the server logger
      */
-    public static TridentServer createServer(JsonConfig config, ExecutorFactory<?> taskExecutor, Logger logger) {
+    public static TridentServer createServer(JsonConfig config, ConcurrentTaskExecutor<?> taskExecutor, Logger logger) {
         TridentServer server = new TridentServer(config, taskExecutor, logger);
         Trident.setServer(server);
 
-        SERVER_THREAD.set(server.taskExecutor.scaledThread().asThread());
+        SERVER_THREAD.set(server.taskExecutor.getScaledThread().asThread());
 
         return server;
         // We CANNOT let the "this" instance escape during creation, else we lose thread-safety
@@ -154,7 +158,7 @@ public final class TridentServer implements Server {
      */
     @Override
     public void addTask(Runnable task) {
-        this.taskExecutor.scaledThread().addTask(task);
+        this.taskExecutor.getScaledThread().addTask(task);
     }
 
     @Override
@@ -165,6 +169,11 @@ public final class TridentServer implements Server {
     @Override
     public JsonConfig getConfig() {
         return this.config;
+    }
+
+    @Override
+    public ThreadProvider provideThreads() {
+        return this.provider;
     }
 
     /**
@@ -300,6 +309,11 @@ public final class TridentServer implements Server {
     @Override
     public TridentPluginHandler getPluginHandler() {
         return this.pluginHandler;
+    }
+
+    @Override
+    public Scheduler getScheduler() {
+        return this.scheduler;
     }
 
     @Override
