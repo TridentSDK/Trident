@@ -17,7 +17,7 @@
  */
 package net.tridentsdk.server.threads;
 
-import net.tridentsdk.api.Trident;
+import net.tridentsdk.api.factory.Factories;
 import net.tridentsdk.server.TridentScheduler;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -102,7 +102,7 @@ public class MainThread extends Thread {
 
             // TODO: check the worlds to make sure they're not suffering
 
-            ((TridentScheduler) Trident.getServer().getScheduler()).tick();
+            ((TridentScheduler) Factories.tasks()).tick();
 
             this.calcAndWait((int) (System.currentTimeMillis() - startTime));
         }

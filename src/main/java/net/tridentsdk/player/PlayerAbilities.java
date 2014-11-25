@@ -26,19 +26,19 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 public class PlayerAbilities implements NBTSerializable {
 
     @NBTField(name = "walkSpeed", type = TagType.FLOAT)
-    protected float walkingSpeed = 0F;
+    protected final float walkingSpeed = 0F;
     @NBTField(name = "flySpeed", type = TagType.FLOAT)
-    protected float flySpeed = 0F;
+    protected final float flySpeed = 0F;
     @NBTField(name = "canFly", type = TagType.BYTE)
-    protected byte canFly = 0;
+    protected final byte canFly = 0;
     @NBTField(name = "flying", type = TagType.BYTE)
-    protected byte flying = 0;
+    protected final byte flying = 0;
     @NBTField(name = "invunerable", type = TagType.BYTE)
     protected byte invulnerable = 0;
     @NBTField(name = "canBuild", type = TagType.BYTE)
-    protected byte canBuild = 1;
+    protected final byte canBuild = 1;
     @NBTField(name = "instantBuild", type = TagType.BYTE)
-    protected byte instantBreak = 0;
+    protected final byte instantBreak = 0;
 
     protected PlayerAbilities() {
     }

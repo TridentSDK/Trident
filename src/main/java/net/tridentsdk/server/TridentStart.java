@@ -29,8 +29,10 @@ import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import net.tridentsdk.Defaults;
 import net.tridentsdk.api.config.JsonConfig;
+import net.tridentsdk.api.factory.ExecutorFactory;
+import net.tridentsdk.api.factory.Factories;
 import net.tridentsdk.server.netty.ClientChannelInitializer;
-import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
+import net.tridentsdk.server.threads.ThreadsManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -118,11 +120,12 @@ final class TridentStart {
     private static void init(JsonConfig config) {
         //TODO: Need to run on seperate thread?
         //Server should read all settings from the loaded config
-        final ConcurrentTaskExecutor<?> taskExecutor = new ConcurrentTaskExecutor<>(1);
+        Factories.init(new ThreadsManager());
+        final ExecutorFactory<?> taskExecutor = Factories.threads().executor(1);
         final JsonConfig innerConfig = config;
 
         LOGGER.info("Creating server task thread...");
-        taskExecutor.getScaledThread().addTask(new Runnable() {
+        taskExecutor.scaledThread().addTask(new Runnable() {
             @Override
             public void run() {
                 TridentServer.createServer(innerConfig, taskExecutor, LOGGER);

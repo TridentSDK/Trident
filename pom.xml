@@ -52,10 +52,16 @@
     </repositories>
 
     <dependencies>
-        <dependency>
+        <!--<dependency>
             <groupId>net.tridentsdk</groupId>
             <artifactId>tridentsdk</artifactId>
             <version>${project.version}</version>
+        </dependency>-->
+
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>18.0-rc1</version>
         </dependency>
 
         <dependency>

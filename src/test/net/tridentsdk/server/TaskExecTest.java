@@ -12,6 +12,8 @@ import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
 import java.util.Collection;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 /*
@@ -98,7 +100,7 @@ n.t.s.TaskExecTest.exec     avgt        25      493.856       37.584    ns/op
 public class TaskExecTest {
     public static void main3(String[] args) {
         ConcurrentTaskExecutor<String> concurrentTaskExecutor = new ConcurrentTaskExecutor<>(4);
-        TaskExecutor executor = concurrentTaskExecutor.getScaledThread();
+        TaskExecutor executor = concurrentTaskExecutor.scaledThread();
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
@@ -114,20 +116,20 @@ public class TaskExecTest {
         Collection<TaskExecutor> taskExecutors = concurrentTaskExecutor.threadList();
         for (TaskExecutor taskExecutor : taskExecutors) {
             final String name = taskExecutor.asThread().getName();
-            TaskExecutor executor = concurrentTaskExecutor.getScaledThread();
+            TaskExecutor executor = concurrentTaskExecutor.scaledThread();
             executor.addTask(new Runnable() {
                 @Override
                 public void run() {
                     System.out.println(name);
                 }
             });
-            concurrentTaskExecutor.assign(executor, name);
+            concurrentTaskExecutor.assign(name);
         }
         concurrentTaskExecutor.shutdown();
     }
 
     private static final ConcurrentTaskExecutor<String> TASK_EXECUTOR = new ConcurrentTaskExecutor<>(4);
-    private static final TaskExecutor EXECUTOR = TASK_EXECUTOR.getScaledThread();
+    private static final TaskExecutor EXECUTOR = TASK_EXECUTOR.scaledThread();
 
     private static final Runnable RUNNABLE = new Runnable() {
         int anInt = 0;
@@ -155,7 +157,7 @@ public class TaskExecTest {
 
     //@Benchmark
     //public void scale(Blackhole blackhole) {
-    //    blackhole.consume(TASK_EXECUTOR.getScaledThread());
+    //    blackhole.consume(TASK_EXECUTOR.scaledThread());
     //}
 
     //@Benchmark
@@ -166,5 +168,12 @@ public class TaskExecTest {
     @Benchmark
     public void exec() {
         EXECUTOR.addTask(RUNNABLE);
+    }
+
+    private static final Executor ex = Executors.newFixedThreadPool(4);
+
+    @Benchmark
+    public void normal() {
+        ex.execute(RUNNABLE);
     }
 }

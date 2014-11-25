@@ -24,7 +24,6 @@ import net.tridentsdk.server.netty.ClientConnection;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Collection;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -36,7 +35,6 @@ import java.util.concurrent.Executors;
 @ThreadSafe
 public final class PlayerThreads {
     static final ConcurrentTaskExecutor<Player> THREAD_MAP = new ConcurrentTaskExecutor<>(4);
-    static final ConcurrentCache<Player, TaskExecutor> CACHE_MAP = new ConcurrentCache<>();
 
     static final ExecutorService SERVICE = Executors.newSingleThreadExecutor();
 
@@ -54,13 +52,7 @@ public final class PlayerThreads {
      * @return the execution tool for the player
      */
     public static TaskExecutor clientThreadHandle(final Player player) {
-        return CACHE_MAP.retrieve(player, new Callable<TaskExecutor>() {
-            @Override
-            public TaskExecutor call() throws Exception {
-                TaskExecutor executor = THREAD_MAP.getScaledThread();
-                return THREAD_MAP.assign(executor, player);
-            }
-        }, EntityThreads.SERVICE);
+        return THREAD_MAP.assign(player);
     }
 
     /**
@@ -73,7 +65,6 @@ public final class PlayerThreads {
         if (pc != null) {
             Player player = pc.getPlayer();
             THREAD_MAP.removeAssignment(player);
-            CACHE_MAP.remove(player);
         }
     }
 
