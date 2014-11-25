@@ -24,8 +24,6 @@ import net.tridentsdk.api.Trident;
 import net.tridentsdk.api.config.JsonConfig;
 import net.tridentsdk.api.entity.living.Player;
 import net.tridentsdk.api.event.EventManager;
-import net.tridentsdk.api.scheduling.Scheduler;
-import net.tridentsdk.api.threads.ThreadProvider;
 import net.tridentsdk.api.window.Window;
 import net.tridentsdk.api.world.World;
 import net.tridentsdk.entity.EntityManager;
@@ -79,8 +77,6 @@ public final class TridentServer implements Server {
     private final TridentScheduler scheduler;
 
     private final TridentWorldLoader worldLoader;
-
-    private final ThreadProvider provider = new ThreadsManager();
 
     private TridentServer(JsonConfig config, ConcurrentTaskExecutor<?> taskExecutor, Logger logger) {
         this.config = config;
@@ -169,11 +165,6 @@ public final class TridentServer implements Server {
     @Override
     public JsonConfig getConfig() {
         return this.config;
-    }
-
-    @Override
-    public ThreadProvider provideThreads() {
-        return this.provider;
     }
 
     /**
@@ -309,11 +300,6 @@ public final class TridentServer implements Server {
     @Override
     public TridentPluginHandler getPluginHandler() {
         return this.pluginHandler;
-    }
-
-    @Override
-    public Scheduler getScheduler() {
-        return this.scheduler;
     }
 
     @Override

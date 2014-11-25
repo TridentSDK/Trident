@@ -20,10 +20,6 @@ package net.tridentsdk.server.threads;
 import net.tridentsdk.api.threads.TaskExecutor;
 import net.tridentsdk.api.world.World;
 
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 /**
  * World handling threads, which there are by default 4
  *
@@ -31,9 +27,6 @@ import java.util.concurrent.Executors;
  */
 public final class WorldThreads {
     static final ConcurrentTaskExecutor<World> THREAD_MAP = new ConcurrentTaskExecutor<>(4);
-    static final ConcurrentCache<World, TaskExecutor> CACHE_MAP = new ConcurrentCache<>();
-
-    static final ExecutorService SERVICE = Executors.newSingleThreadExecutor();
 
     private WorldThreads() {
     }
@@ -49,20 +42,14 @@ public final class WorldThreads {
      * @return the task execution handler for the world
      */
     public static TaskExecutor worldThreadHandle(final World world) {
-        return CACHE_MAP.retrieve(world, new Callable<TaskExecutor>() {
-            @Override
-            public TaskExecutor call() throws Exception {
-                TaskExecutor executor = THREAD_MAP.getScaledThread();
-                return THREAD_MAP.assign(executor, world);
-            }
-        }, SERVICE);
+        return THREAD_MAP.assign(world);
     }
 
     /**
      * Used when the server ticks, to tell this thing to tick
      */
     protected static void notifyTick() {
-        for (TaskExecutor executor : CACHE_MAP.values()) {
+        for (TaskExecutor executor : THREAD_MAP.threadList()) {
             executor.addTask(new Runnable() {
                 @Override
                 public void run() {
@@ -80,14 +67,13 @@ public final class WorldThreads {
      */
     public static void remove(World world) {
         THREAD_MAP.removeAssignment(world);
-        CACHE_MAP.remove(world);
     }
 
     /**
      * Notifies the server to tick redstone activities
      */
     public static void notifyRedstoneTick() {
-        for (TaskExecutor executor : CACHE_MAP.values()) {
+        for (TaskExecutor executor : THREAD_MAP.threadList()) {
             executor.addTask(new Runnable() {
                 @Override
                 public void run() {

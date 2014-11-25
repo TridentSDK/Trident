@@ -17,8 +17,11 @@
  */
 package net.tridentsdk.server.threads;
 
+import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
+
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Set;
 import java.util.concurrent.*;
 
 /**
@@ -29,7 +32,7 @@ import java.util.concurrent.*;
  * @author The TridentSDK Team
  */
 public class ConcurrentCache<K, V> {
-    private final ConcurrentMap<K, Future<V>> cache = new ConcurrentHashMap<>();
+    private final ConcurrentMap<K, Future<V>> cache = new ConcurrentHashMapV8<>();
 
     /**
      * Retrieves the key in the cache, or adds the return value of the callable provided, run in the executor provided
@@ -60,12 +63,16 @@ public class ConcurrentCache<K, V> {
         }
     }
 
+    public Set<K> keys() {
+        return this.cache.keySet();
+    }
+
     /**
      * The values of the cache
      *
      * @return the cache values
      */
-    public Iterable<V> values() {
+    public Collection<V> values() {
         Collection<V> list = new ArrayList<>();
 
         for (Future<V> v : this.cache.values()) {

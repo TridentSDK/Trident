@@ -19,8 +19,9 @@ package net.tridentsdk.server.threads;
 
 import net.tridentsdk.api.entity.Entity;
 import net.tridentsdk.api.entity.living.Player;
+import net.tridentsdk.api.factory.ExecutorFactory;
+import net.tridentsdk.api.factory.ThreadFactory;
 import net.tridentsdk.api.threads.TaskExecutor;
-import net.tridentsdk.api.threads.ThreadProvider;
 import net.tridentsdk.api.world.World;
 import net.tridentsdk.plugin.TridentPlugin;
 
@@ -29,46 +30,43 @@ import net.tridentsdk.plugin.TridentPlugin;
  *
  * @author The TridentSDK Team
  */
-public final class ThreadsManager implements ThreadProvider {
+public final class ThreadsManager implements ThreadFactory {
     /**
      * Stops all the executors and clears all caches of concurrent threads
      */
     public static void stopAll() {
         BackgroundTaskExecutor.SERVICE.shutdownNow();
-        PlayerThreads.SERVICE.shutdownNow();
 
-        PlayerThreads.SERVICE.shutdownNow();
         PlayerThreads.THREAD_MAP.shutdown();
-
-        PluginThreads.SERVICE.shutdownNow();
         PluginThreads.THREAD_MAP.shutdown();
-
-        EntityThreads.SERVICE.shutdownNow();
         EntityThreads.THREAD_MAP.shutdown();
-
-        WorldThreads.SERVICE.shutdownNow();
         WorldThreads.THREAD_MAP.shutdown();
 
         MainThread.getInstance().interrupt();
     }
 
     @Override
-    public TaskExecutor provideEntityThread(Entity entity) {
+    public TaskExecutor entityThread(Entity entity) {
         return EntityThreads.entityThreadHandle(entity);
     }
 
     @Override
-    public TaskExecutor providePlayerThread(Player player) {
+    public TaskExecutor playerThread(Player player) {
         return PlayerThreads.clientThreadHandle(player);
     }
 
     @Override
-    public TaskExecutor providePluginThread(TridentPlugin plugin) {
+    public TaskExecutor pluginThread(TridentPlugin plugin) {
         return PluginThreads.pluginThreadHandle(plugin);
     }
 
     @Override
-    public TaskExecutor provideWorldThread(World world) {
+    public TaskExecutor worldThread(World world) {
         return WorldThreads.worldThreadHandle(world);
+    }
+
+    @Override
+    public <T> ExecutorFactory<T> executor(int threads) {
+        return new ConcurrentTaskExecutor<>(threads);
     }
 }

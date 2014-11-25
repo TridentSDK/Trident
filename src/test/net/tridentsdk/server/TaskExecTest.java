@@ -121,7 +121,7 @@ public class TaskExecTest {
                     System.out.println(name);
                 }
             });
-            concurrentTaskExecutor.assign(executor, name);
+            concurrentTaskExecutor.assign(name);
         }
         concurrentTaskExecutor.shutdown();
     }
