@@ -103,7 +103,7 @@ public final class TridentServer implements Server {
         TridentServer server = new TridentServer(config, taskExecutor, logger);
         Trident.setServer(server);
 
-        SERVER_THREAD.set(server.taskExecutor.getScaledThread().asThread());
+        SERVER_THREAD.set(server.taskExecutor.scaledThread().asThread());
 
         return server;
         // We CANNOT let the "this" instance escape during creation, else we lose thread-safety
@@ -154,7 +154,7 @@ public final class TridentServer implements Server {
      */
     @Override
     public void addTask(Runnable task) {
-        this.taskExecutor.getScaledThread().addTask(task);
+        this.taskExecutor.scaledThread().addTask(task);
     }
 
     @Override

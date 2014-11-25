@@ -21,7 +21,7 @@ import io.netty.util.internal.ConcurrentSet;
 import net.tridentsdk.api.GameMode;
 import net.tridentsdk.api.Location;
 import net.tridentsdk.api.Trident;
-import net.tridentsdk.api.TridentFactory;
+import net.tridentsdk.api.factory.TridentFactory;
 import net.tridentsdk.api.entity.Entity;
 import net.tridentsdk.api.entity.EntityProperties;
 import net.tridentsdk.api.entity.Projectile;
