@@ -97,6 +97,7 @@ application.macosx
 
 ### Some others ###
 
+docpush.sh
 server.json
 MANIFEST.MF
 dependency-reduced-pom.xml
