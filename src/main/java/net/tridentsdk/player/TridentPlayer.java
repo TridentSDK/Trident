@@ -170,13 +170,8 @@ public class TridentPlayer extends OfflinePlayer {
         int centX = ((int) Math.floor(loc.getX())) >> 4;
         int centZ = ((int) Math.floor(loc.getZ())) >> 4;
 
-        System.out.println("centeral cords: " + centX + "," + centZ);
-
         for (int x = (centX - viewDistance); x <= (centX + viewDistance); x += 1) {
             for (int z = (centZ - viewDistance); z <= (centZ + viewDistance); z += 1) {
-                // TODO: store known chunks for less redundant packets
-                System.out.println(x + "," + z);
-
                 connection.sendPacket(((TridentChunk) getWorld().getChunkAt(x, z, true)).toPacket());
             }
         }

@@ -180,6 +180,7 @@ public class PacketLoginInEncryptionResponse extends InPacket {
 
         // Send the client PacketLoginOutSuccess and set the new stage to PLAY
         connection.sendPacket(packet);
+        connection.enableCompression();
         connection.setStage(Protocol.ClientStage.PLAY);
 
         // Store the UUID to be used when spawning the player

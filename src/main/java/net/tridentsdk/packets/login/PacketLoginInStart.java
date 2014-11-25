@@ -87,7 +87,6 @@ public class PacketLoginInStart extends InPacket {
         }
 
         // Send the packet to the client
-        connection.enableCompression();
         connection.sendPacket(p);
     }
 }
