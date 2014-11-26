@@ -17,6 +17,7 @@
  */
 package net.tridentsdk.server.threads;
 
+import javax.annotation.concurrent.ThreadSafe;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -25,6 +26,7 @@ import java.util.concurrent.Executors;
  *
  * @author The TridentSDK Team
  */
+@ThreadSafe
 public final class BackgroundTaskExecutor {
     static final ExecutorService SERVICE = Executors.newCachedThreadPool();
 
@@ -34,7 +36,7 @@ public final class BackgroundTaskExecutor {
     /**
      * Execute the task in the internal thread pool <p/> <p>Synchronization is a requirement</p>
      *
-     * @param runnable the task to execute
+     * @param runnable the task to reflect
      */
     public static void execute(Runnable runnable) {
         SERVICE.execute(runnable);

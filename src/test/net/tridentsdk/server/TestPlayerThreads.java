@@ -25,13 +25,12 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package test.net.tridentsdk.server;
+package net.tridentsdk.server;
 
 import net.tridentsdk.api.entity.living.Player;
+import net.tridentsdk.api.factory.Factories;
 import net.tridentsdk.player.TridentPlayer;
-import net.tridentsdk.server.CTXProper;
 import net.tridentsdk.server.netty.ClientConnection;
-import net.tridentsdk.server.threads.PlayerThreads;
 import net.tridentsdk.server.threads.ThreadsManager;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Mode;
@@ -142,7 +141,7 @@ public class TestPlayerThreads {
 
     @Benchmark
     public void put(Blackhole blackhole) {
-        blackhole.consume(PlayerThreads.clientThreadHandle(PLAYER));
+        blackhole.consume(Factories.threads().playerThread(PLAYER));
     }
 
     @Benchmark

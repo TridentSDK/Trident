@@ -17,12 +17,14 @@
  */
 package net.tridentsdk.server;
 
+import net.tridentsdk.api.factory.Factories;
 import net.tridentsdk.api.factory.TaskFactory;
-import net.tridentsdk.api.scheduling.*;
+import net.tridentsdk.api.scheduling.SchedulerType;
+import net.tridentsdk.api.scheduling.Task;
+import net.tridentsdk.api.scheduling.TridentRunnable;
 import net.tridentsdk.api.threads.TaskExecutor;
 import net.tridentsdk.plugin.TridentPlugin;
 import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
-import net.tridentsdk.server.threads.PluginThreads;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Deque;
@@ -33,7 +35,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * TridentScheduler is a scheduling utility that is used to execute tasks at a given offset of the current epoch of the
+ * TridentScheduler is a scheduling utility that is used to reflect tasks at a given offset of the current epoch of the
  * server
  *
  * <p>The scheduler is designed to stage-heavy/run-light philosophy: most overhead in the scheduler is to the run
@@ -234,7 +236,7 @@ public class TridentScheduler implements TaskFactory {
                             cancel();
                         }
                     };
-                    this.executor = PluginThreads.pluginThreadHandle(plugin);
+                    this.executor = Factories.threads().pluginThread(plugin);
                     break;
 
                 case SYNC_LATER:
@@ -248,7 +250,7 @@ public class TridentScheduler implements TaskFactory {
                             run.incrementAndGet();
                         }
                     };
-                    this.executor = PluginThreads.pluginThreadHandle(plugin);
+                    this.executor = Factories.threads().pluginThread(plugin);
                     break;
 
                 case SYNC_REPEAT:
@@ -260,7 +262,7 @@ public class TridentScheduler implements TaskFactory {
                             run.incrementAndGet();
                         }
                     };
-                    this.executor = PluginThreads.pluginThreadHandle(plugin);
+                    this.executor = Factories.threads().pluginThread(plugin);
                     break;
 
                 default:

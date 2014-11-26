@@ -23,7 +23,7 @@ import io.netty.channel.ChannelHandlerContext;
 import net.tridentsdk.packets.login.PacketLoginOutSetCompression;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.protocol.Protocol;
-import net.tridentsdk.server.threads.PlayerThreads;
+import net.tridentsdk.server.threads.ThreadsManager;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
@@ -345,7 +345,7 @@ public class ClientConnection {
      */
     public void logout() {
         clientData.remove(this.address);
-        PlayerThreads.remove(this);
+        ThreadsManager.remove(this);
         this.channel.close();
     }
 }

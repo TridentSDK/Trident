@@ -17,7 +17,7 @@
  */
 package net.tridentsdk.server;
 
-import net.tridentsdk.Defaults;
+import net.tridentsdk.api.Defaults;
 import net.tridentsdk.api.Difficulty;
 import net.tridentsdk.api.Server;
 import net.tridentsdk.api.Trident;
@@ -41,11 +41,6 @@ import net.tridentsdk.world.TridentWorldLoader;
 import org.slf4j.Logger;
 
 import javax.annotation.concurrent.ThreadSafe;
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.net.InetAddress;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -188,7 +183,6 @@ public final class TridentServer implements Server {
     @Override
     public Set<World> getWorlds() {
         Set<World> worlds = new LinkedHashSet<>();
-
         worlds.addAll(worldLoader.getWorlds());
 
         return worlds;
@@ -221,66 +215,6 @@ public final class TridentServer implements Server {
         return null;
     }
 
-    /**
-     * The current amount of players on the server
-     *
-     * @return the players that are connected to the server
-     */
-    public int getCurrentPlayercount() {
-        // TODO: implement
-        return -1;
-    }
-
-    @Override
-    public int getMaxPlayers() {
-        return this.getConfig().getInt("max-players", Defaults.MAX_PLAYERS);
-    }
-
-    @Override
-    public int getCurrentPlayerCount() {
-        return 0;
-    }
-
-    @Override
-    public int setMotdImage(Image image) {
-        // TODO: implement
-        return -1;
-    }
-
-    @Override
-    public BufferedImage getMotdPictureImage() {
-        BufferedImage img = null;
-        try {
-            img = ImageIO.read(new File(this.getConfig().getString("image-location", Defaults.MOTD_IMAGE_LOCATION)));
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-        return img;
-    }
-
-    public File getMotdImage() {
-        return new File(this.getConfig().getString("image-location", Defaults.MOTD_IMAGE_LOCATION));
-    }
-
-    @Override
-    public String getMotd() {
-        return this.getConfig().getString("motd", Defaults.MOTD);
-    }
-
-    /**
-     * Sets the server MOTD
-     *
-     * @param motd the MOTD to set for the server
-     */
-    public void setMotd(String motd) {
-        this.getConfig().setString("motd", motd);
-    }
-
-    @Override
-    public File getMotdPicture() {
-        return null;
-    }
-
     @Override
     public Window getWindow(int id) {
         return this.windowManager.getWindow(id);
@@ -293,8 +227,9 @@ public final class TridentServer implements Server {
 
     @Override
     public void sendPluginMessage(String channel, byte... data) {
-        TridentPlayer.sendAll(new PacketPlayOutPluginMessage().set("channel", channel)
-                .set("data", data));
+        TridentPlayer.sendAll(new PacketPlayOutPluginMessage()
+                        .set("channel", channel)
+                        .set("data", data));
     }
 
     @Override
@@ -305,7 +240,6 @@ public final class TridentServer implements Server {
     @Override
     public Player getPlayer(UUID id) {
         Player p;
-
         if ((p = TridentPlayer.getPlayer(id)) != null) {
             return p;
         }

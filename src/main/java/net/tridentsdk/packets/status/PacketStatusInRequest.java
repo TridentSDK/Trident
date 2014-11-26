@@ -18,7 +18,7 @@
 package net.tridentsdk.packets.status;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Defaults;
+import net.tridentsdk.api.Defaults;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;

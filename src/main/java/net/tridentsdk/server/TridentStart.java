@@ -27,8 +27,9 @@ import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
-import net.tridentsdk.Defaults;
+import net.tridentsdk.api.Defaults;
 import net.tridentsdk.api.config.JsonConfig;
+import net.tridentsdk.api.factory.ConfigFactory;
 import net.tridentsdk.api.factory.Factories;
 import net.tridentsdk.server.netty.ClientChannelInitializer;
 import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
@@ -118,13 +119,20 @@ final class TridentStart {
      * @param config the configuration to use for option lookup
      */
     private static void init(JsonConfig config) {
+        LOGGER.info("Initializing the API implementations");
         Factories.init(new TridentScheduler());
         Factories.init(new ThreadsManager());
 
-        //TODO: Need to run on seperate thread?
         //Server should read all settings from the loaded config
         final ConcurrentTaskExecutor<?> taskExecutor = new ConcurrentTaskExecutor<>(1);
         final JsonConfig innerConfig = config;
+
+        Factories.init(new ConfigFactory() {
+            @Override
+            public JsonConfig serverConfig() {
+                return innerConfig;
+            }
+        });
 
         LOGGER.info("Creating server task thread...");
         taskExecutor.scaledThread().addTask(new Runnable() {

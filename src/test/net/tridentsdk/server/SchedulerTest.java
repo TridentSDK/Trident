@@ -156,7 +156,7 @@ public class SchedulerTest {
             class PluginImpl extends TridentPlugin {
             }
 
-            scheduler.runTaskSyncLater(new PluginImpl(), new TridentRunnable() {
+            scheduler.syncLater(new PluginImpl(), new TridentRunnable() {
                 @Override
                 public void run() {
                     System.out.print("");
@@ -171,7 +171,7 @@ public class SchedulerTest {
         }
 
         for (int i = 0; i < 1000; i++) {
-            scheduler.runTaskAsyncRepeating(new PluginImpl(), new TridentRunnable() {
+            scheduler.asyncRepeat(new PluginImpl(), new TridentRunnable() {
                 @Override
                 public void run() {
                     System.out.println("Your mom");
@@ -220,7 +220,7 @@ public class SchedulerTest {
             }
 
             final int finalI = i;
-            scheduler.runTaskAsyncRepeating(new PluginImpl(), new TridentRunnable() {
+            scheduler.asyncRepeat(new PluginImpl(), new TridentRunnable() {
                 @Override
                 public void run() {
                     System.out.println("LOL: " + finalI);

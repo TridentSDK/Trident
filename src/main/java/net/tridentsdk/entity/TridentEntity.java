@@ -23,6 +23,7 @@ import net.tridentsdk.api.Trident;
 import net.tridentsdk.api.entity.Entity;
 import net.tridentsdk.api.entity.EntityProperties;
 import net.tridentsdk.api.entity.EntityType;
+import net.tridentsdk.api.factory.Factories;
 import net.tridentsdk.api.nbt.*;
 import net.tridentsdk.api.threads.TaskExecutor;
 import net.tridentsdk.api.util.Vector;
@@ -31,7 +32,6 @@ import net.tridentsdk.packets.play.out.PacketPlayOutEntityTeleport;
 import net.tridentsdk.packets.play.out.PacketPlayOutEntityVelocity;
 import net.tridentsdk.player.TridentPlayer;
 import net.tridentsdk.server.TridentServer;
-import net.tridentsdk.server.threads.EntityThreads;
 
 import java.util.List;
 import java.util.UUID;
@@ -64,7 +64,7 @@ public class TridentEntity implements Entity {
     /**
      * Entity task executor
      */
-    protected final TaskExecutor executor = EntityThreads.entityThreadHandle(this);
+    protected final TaskExecutor executor = Factories.threads().entityThread(this);
     /**
      * The movement vector for the entity
      */

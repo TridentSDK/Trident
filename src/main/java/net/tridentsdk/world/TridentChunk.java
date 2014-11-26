@@ -20,27 +20,21 @@ package net.tridentsdk.world;
 import io.netty.util.internal.ConcurrentSet;
 import net.tridentsdk.api.Block;
 import net.tridentsdk.api.Location;
-import net.tridentsdk.api.Material;
-import net.tridentsdk.api.Trident;
 import net.tridentsdk.api.nbt.*;
 import net.tridentsdk.api.reflect.FastClass;
-import net.tridentsdk.api.util.NibbleArray;
-import net.tridentsdk.api.util.TridentLogger;
 import net.tridentsdk.api.world.Chunk;
 import net.tridentsdk.api.world.ChunkLocation;
 import net.tridentsdk.api.world.Dimension;
 import net.tridentsdk.data.ChunkMetaBuilder;
 import net.tridentsdk.entity.TridentEntity;
-import net.tridentsdk.packets.play.out.PacketPlayOutChunkData;
 import net.tridentsdk.packets.play.out.PacketPlayOutMapChunkBulk;
-import net.tridentsdk.server.netty.packet.OutPacket;
 
 import java.util.List;
 import java.util.Set;
 
 public class TridentChunk implements Chunk {
     private final TridentWorld world;
-    private volatile ChunkLocation location;
+    private final ChunkLocation location;
     private int lastFileAccess;
 
     private volatile long lastModified;

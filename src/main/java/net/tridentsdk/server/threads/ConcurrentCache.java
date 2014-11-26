@@ -19,6 +19,7 @@ package net.tridentsdk.server.threads;
 
 import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
 
+import javax.annotation.concurrent.ThreadSafe;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
@@ -31,6 +32,7 @@ import java.util.concurrent.*;
  * @param <V> the value type
  * @author The TridentSDK Team
  */
+@ThreadSafe
 public class ConcurrentCache<K, V> {
     private final ConcurrentMap<K, Future<V>> cache = new ConcurrentHashMapV8<>();
 

@@ -22,6 +22,7 @@ import net.tridentsdk.api.perf.AddTakeQueue;
 import net.tridentsdk.api.perf.DelegatedAddTakeQueue;
 import net.tridentsdk.api.threads.TaskExecutor;
 
+import javax.annotation.concurrent.ThreadSafe;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -36,6 +37,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @param <Assignment> the assignment type, if used
  * @author The TridentSDK Team
  */
+@ThreadSafe
 public class ConcurrentTaskExecutor<Assignment> implements ExecutorFactory<Assignment> {
     // This is a final collection, initialization in the constructor is guaranteed to be visible if not changed
     // which it isn't

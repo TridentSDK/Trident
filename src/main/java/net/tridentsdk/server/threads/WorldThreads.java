@@ -18,7 +18,6 @@
 package net.tridentsdk.server.threads;
 
 import net.tridentsdk.api.threads.TaskExecutor;
-import net.tridentsdk.api.world.World;
 
 /**
  * World handling threads, which there are by default 4
@@ -26,30 +25,14 @@ import net.tridentsdk.api.world.World;
  * @author The TridentSDK Team
  */
 public final class WorldThreads {
-    static final ConcurrentTaskExecutor<World> THREAD_MAP = new ConcurrentTaskExecutor<>(4);
-
     private WorldThreads() {
-    }
-
-    /**
-     * Gets the management tool for the world
-     * <p/>
-     * <p>This will put in a new value for the caches if cannot find for a new world</p>
-     * <p/>
-     * <p>May block the first call</p>
-     *
-     * @param world the world to retrieve the thread handler for
-     * @return the task execution handler for the world
-     */
-    public static TaskExecutor worldThreadHandle(final World world) {
-        return THREAD_MAP.assign(world);
     }
 
     /**
      * Used when the server ticks, to tell this thing to tick
      */
     protected static void notifyTick() {
-        for (TaskExecutor executor : THREAD_MAP.threadList()) {
+        for (TaskExecutor executor : ThreadsManager.worlds.threadList()) {
             executor.addTask(new Runnable() {
                 @Override
                 public void run() {
@@ -61,19 +44,10 @@ public final class WorldThreads {
     }
 
     /**
-     * Decaches the world handler from the mappings
-     *
-     * @param world the world to decache
-     */
-    public static void remove(World world) {
-        THREAD_MAP.removeAssignment(world);
-    }
-
-    /**
      * Notifies the server to tick redstone activities
      */
     public static void notifyRedstoneTick() {
-        for (TaskExecutor executor : THREAD_MAP.threadList()) {
+        for (TaskExecutor executor : ThreadsManager.worlds.threadList()) {
             executor.addTask(new Runnable() {
                 @Override
                 public void run() {

@@ -20,6 +20,7 @@ package net.tridentsdk.server.threads;
 import net.tridentsdk.api.factory.Factories;
 import net.tridentsdk.server.TridentScheduler;
 
+import javax.annotation.concurrent.ThreadSafe;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -27,6 +28,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @author The TridentSDK Team
  */
+@ThreadSafe
 public class MainThread extends Thread {
     private static MainThread instance;
     private final AtomicInteger ticksElapsed = new AtomicInteger();
