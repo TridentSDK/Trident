@@ -46,7 +46,7 @@ public class PacketEncoder extends MessageToByteEncoder<ByteBuf> {
         boolean underThreshold = msg.readableBytes() < TridentServer.getInstance().getCompressionThreshold();
 
         if(underThreshold && connection.isCompressionEnabled()) {
-            sendUncompressed(msg, out);
+            sendDecompressed(msg, out);
         } else if(!(underThreshold) && connection.isCompressionEnabled()) {
             sendCompressed(msg, out);
         } else {
@@ -55,7 +55,7 @@ public class PacketEncoder extends MessageToByteEncoder<ByteBuf> {
         }
     }
 
-    private void sendUncompressed(ByteBuf msg, ByteBuf out) {
+    private void sendDecompressed(ByteBuf msg, ByteBuf out) {
         Codec.writeVarInt32(out, msg.readableBytes() + BigInteger.valueOf(0).toByteArray().length);
         Codec.writeVarInt32(out, 0);
         out.writeBytes(msg);
@@ -73,25 +73,25 @@ public class PacketEncoder extends MessageToByteEncoder<ByteBuf> {
 
         ByteBuf compressed = Unpooled.buffer();
         int compressedLength = 0;
+        int readLength;
 
-        while(!(deflater.finished())) {
-            int readLength = deflater.deflate(buffer);
+        while((readLength = deflater.deflate(buffer)) > 0) {
             compressedLength += readLength;
-
-            compressed.writeBytes(buffer);
+            compressed.writeBytes(buffer, 0, readLength);
         }
 
-        if(compressedLength == 0 || compressedLength >= length) {
-            Codec.writeVarInt32(out, 0);
+        deflater.reset();
 
+        System.out.println("Compressed: " + compressedLength + " decompressed: " + length);
+
+        if(compressedLength == 0 || compressedLength > length) {
             msg.readerIndex(index);
-            out.writeBytes(msg);
-
+            sendDecompressed(msg, out);
             return;
         }
 
         Codec.writeVarInt32(out, compressedLength + BigInteger.valueOf(length).toByteArray().length);
         Codec.writeVarInt32(out, length);
-        msg.writeBytes(compressed);
+        out.writeBytes(compressed);
     }
 }
