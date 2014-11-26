@@ -97,6 +97,8 @@ application.macosx
 
 ### Some others ###
 
+TridentSDK/
+server.json
 MANIFEST.MF
 dependency-reduced-pom.xml
 
