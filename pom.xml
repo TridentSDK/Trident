@@ -44,9 +44,20 @@
             <name>SnakeYAML repository</name>
             <url>http://oss.sonatype.org/content/groups/public/</url>
         </repository>
+        
+        <repository>
+            <id>TridentSDK</id>
+            <url>http://repo.tridentsdk.net/nexus/content/groups/public/</url>
+        </repository>
     </repositories>
 
     <dependencies>
+        <dependency>
+            <groupId>net.tridentsdk</groupId>
+            <artifactId>tridentsdk</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
