@@ -106,7 +106,7 @@ public class PacketPlayInPlayerClickWindow extends InPacket {
 
         TridentServer.getInstance().getEventManager().call(clickEvent);
 
-        if (clickEvent.isCancelled()) {
+        if (clickEvent.isIgnored()) {
         }
     }
 }

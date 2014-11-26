@@ -21,7 +21,6 @@ import net.tridentsdk.api.docs.InternalUseOnly;
 import net.tridentsdk.api.entity.Entity;
 import net.tridentsdk.api.entity.living.Player;
 import net.tridentsdk.api.factory.ExecutorFactory;
-import net.tridentsdk.api.factory.Factories;
 import net.tridentsdk.api.factory.ThreadFactory;
 import net.tridentsdk.api.threads.TaskExecutor;
 import net.tridentsdk.api.world.World;
@@ -37,10 +36,10 @@ import java.util.Collection;
  * @author The TridentSDK Team
  */
 public final class ThreadsManager implements ThreadFactory {
-    static final ExecutorFactory<Entity> entities = Factories.threads().executor(2);
-    static final ExecutorFactory<Player> players = Factories.threads().executor(4);
-    static final ExecutorFactory<TridentPlugin> plugins = Factories.threads().executor(2);
-    static final ExecutorFactory<World> worlds = Factories.threads().executor(4);
+    static final ExecutorFactory<Entity> entities = new ConcurrentTaskExecutor<>(2);
+    static final ExecutorFactory<Player> players = new ConcurrentTaskExecutor<>(4);
+    static final ExecutorFactory<TridentPlugin> plugins = new ConcurrentTaskExecutor<>(2);
+    static final ExecutorFactory<World> worlds = new ConcurrentTaskExecutor<>(4);
 
     /**
      * Stops all the executors and clears all caches of concurrent threads
