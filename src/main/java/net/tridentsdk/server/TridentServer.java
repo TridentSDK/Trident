@@ -16,10 +16,7 @@
  */
 package net.tridentsdk.server;
 
-import net.tridentsdk.api.Defaults;
-import net.tridentsdk.api.Difficulty;
-import net.tridentsdk.api.Server;
-import net.tridentsdk.api.Trident;
+import net.tridentsdk.api.*;
 import net.tridentsdk.api.config.JsonConfig;
 import net.tridentsdk.api.entity.living.Player;
 import net.tridentsdk.api.event.EventManager;
@@ -54,6 +51,8 @@ import java.util.concurrent.atomic.AtomicReference;
 @ThreadSafe
 public final class TridentServer implements Server {
     private static final AtomicReference<Thread> SERVER_THREAD = new AtomicReference<>();
+    private static final DisplayInfo INFO = new DisplayInfo();
+
     private final MainThread mainThread;
 
     private final JsonConfig config;
@@ -234,6 +233,11 @@ public final class TridentServer implements Server {
     @Override
     public TridentPluginHandler getPluginHandler() {
         return this.pluginHandler;
+    }
+
+    @Override
+    public DisplayInfo getInfo() {
+        return INFO;
     }
 
     @Override

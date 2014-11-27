@@ -43,25 +43,24 @@ import java.util.Set;
 import java.util.UUID;
 
 public class OfflinePlayer extends TridentInventoryHolder implements Player {
-
     private static final Set<OfflinePlayer> players = new ConcurrentSet<>();
 
     protected String name;
-    protected final Dimension dimesion;
-    protected final GameMode gameMode;
-    protected final int score;
+    protected Dimension dimesion;
+    protected GameMode gameMode;
+    protected int score;
     protected short selectedSlot;
-    protected final Location spawnLocation;
-    protected final short hunger;
-    protected final float exhaustion;
-    protected final float saturation;
-    protected final int foodTickTimer;
-    protected final int xpLevel;
-    protected final float xpPercent;
-    protected final int xpTotal;
-    protected final int xpSeed;
+    protected Location spawnLocation;
+    protected short hunger;
+    protected float exhaustion;
+    protected float saturation;
+    protected int foodTickTimer;
+    protected int xpLevel;
+    protected float xpPercent;
+    protected int xpTotal;
+    protected int xpSeed;
     protected Inventory enderChest;
-    protected final PlayerAbilities abilities = new PlayerAbilities();
+    protected PlayerAbilities abilities = new PlayerAbilities();
 
     public OfflinePlayer(CompoundTag tag, TridentWorld world) {
         super(null, world.getSpawnLocation());
