@@ -26,10 +26,8 @@ import net.tridentsdk.plugin.TridentPlugin;
 import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
 
 import javax.annotation.concurrent.ThreadSafe;
-import java.util.Deque;
-import java.util.Iterator;
-import java.util.List;
-import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -42,13 +40,6 @@ import java.util.concurrent.atomic.AtomicLong;
  * the logic runnables. In contrast, running the wrapper would perform the pre-constructed logic and mark the task then
  * move on. This ensures that the task will be delayed preferable when it is scheduled, instead of when it will be
  * planned to run.</p>
- *
- * <p>The scheduler is also designed around a double-ended queue. Every tick, two iterators transverse the task queue
- * and move the logic and handling to the threads specified during schedule. One iterator starts at the head of the
- * queue and the other iterator starts at the tail of the queue, moving "towards" each other. Each iterator will
- * transverse the entire list as it is unsure whether the task tick will move on before the second iterator gets to the
- * task. This can result in tasks going twice as fast as intended, as the double iterator will go over every task before
- * the tick continues, or result in partial completion of the task list when the loop returns after task intersects</p>
  *
  * <p>Logic of task types:
  * <ul>
@@ -64,10 +55,6 @@ import java.util.concurrent.atomic.AtomicLong;
  * execution threads (because there are 4 threads in the scheduler: 2 threads to run the double-iterator, and 2 task
  * executors).</p>
  *
- * <p>The tick method should never fall behind. The tasks are handled on a run thread, and ticks are staging operations
- * to the iteration executors. Synchronous tasks are executed on the plugin thread of the scheduling plugin, and
- * asynchronous tasks are scheduled on a separate executor contained internally in the scheduler.</p>
- *
  * <p>The benchmarks and testing units for the TridentScheduler can be found at: http://git.io/nifjcg.</p>
  *
  * <p>Insertion logic places the task wrapped by the implementation of {@link net.tridentsdk.api.scheduling.Task} to
@@ -80,36 +67,13 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 @ThreadSafe
 public class TridentScheduler implements TaskFactory {
-    private final Runnable INVERSE_RUN = new Runnable() {
-        @Override
-        public void run() {
-            for (Iterator<TaskImpl> iterator = taskList.descendingIterator(); iterator.hasNext(); ) {
-                Task task = iterator.next();
-                if (!task.getRan().compareAndSet(true, false))
-                    task.run();
-            }
-        }
-    };
-    private final Runnable FORWARD_RUN = new Runnable() {
-        @Override
-        public void run() {
-            for (TaskImpl task : taskList) {
-                if (!task.getRan().compareAndSet(true, false))
-                    task.run();
-            }
-        }
-    };
-
-    private final Deque<TaskImpl> taskList = new ConcurrentLinkedDeque<>();
-    private final ConcurrentTaskExecutor<TaskImpl> concurrentTaskExecutor = new ConcurrentTaskExecutor<>(2);
-    private final ConcurrentTaskExecutor<TaskImpl> taskQueue = new ConcurrentTaskExecutor<>(2);
+    private final Queue<TaskImpl> taskList = new ConcurrentLinkedQueue<>();
+    private final ConcurrentTaskExecutor<TaskImpl> taskQueue = new ConcurrentTaskExecutor<>(3);
 
     public void tick() {
-        List<TaskExecutor> executors = concurrentTaskExecutor.threadList();
-        for (int i = 0; i < executors.size(); i++) {
-            TaskExecutor ex = executors.get(i);
-            if (i % 2 == 0) ex.addTask(INVERSE_RUN);
-            else ex.addTask(FORWARD_RUN);
+        for (TaskImpl task : taskList) {
+            if (!task.getRan().compareAndSet(true, false))
+                task.run();
         }
     }
 
@@ -123,7 +87,6 @@ public class TridentScheduler implements TaskFactory {
     }
 
     public void stop() {
-        concurrentTaskExecutor.shutdown();
         taskQueue.shutdown();
     }
 

@@ -1,8 +1,10 @@
 package net.tridentsdk.server;
 
+import net.tridentsdk.api.factory.Factories;
 import net.tridentsdk.api.scheduling.TridentRunnable;
 import net.tridentsdk.plugin.TridentPlugin;
 import net.tridentsdk.plugin.annotation.PluginDescription;
+import net.tridentsdk.server.threads.ThreadsManager;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
@@ -19,62 +21,73 @@ import java.util.concurrent.TimeUnit;
 # Benchmark mode: Average time, time/op
 # Benchmark: net.tridentsdk.server.SchedulerTest.tick
 # VM invoker: /usr/lib/jvm/java-7-openjdk-amd64/jre/bin/java
-# VM options: -Didea.launcher.port=7540 -Didea.launcher.bin.path=/media/A4F1-7AB7/idea-IU-135.1230/bin -Dfile.encoding=UTF-8
+# VM options: -Didea.launcher.port=7541 -Didea.launcher.bin.path=/media/A4F1-7AB7/idea-IU-135.1230/bin -Dfile.encoding=UTF-8
 # Fork: 1 of 1
-# Warmup Iteration   1: 954.107 ns/op
-# Warmup Iteration   2: 735.644 ns/op
-# Warmup Iteration   3: 783.314 ns/op
-# Warmup Iteration   4: 709.969 ns/op
-# Warmup Iteration   5: 729.459 ns/op
-# Warmup Iteration   6: 744.118 ns/op
-# Warmup Iteration   7: 713.706 ns/op
-# Warmup Iteration   8: 740.156 ns/op
-# Warmup Iteration   9: 759.394 ns/op
-# Warmup Iteration  10: 782.898 ns/op
-# Warmup Iteration  11: 804.290 ns/op
-# Warmup Iteration  12: 746.960 ns/op
-# Warmup Iteration  13: 803.499 ns/op
-# Warmup Iteration  14: 729.192 ns/op
-# Warmup Iteration  15: 700.817 ns/op
-# Warmup Iteration  16: 726.183 ns/op
-# Warmup Iteration  17: 831.156 ns/op
-# Warmup Iteration  18: 726.561 ns/op
-# Warmup Iteration  19: 699.661 ns/op
-# Warmup Iteration  20: 825.942 ns/op
-# Warmup Iteration  21: 861.622 ns/op
-# Warmup Iteration  22: 823.657 ns/op
-# Warmup Iteration  23: 774.470 ns/op
-# Warmup Iteration  24: 674.512 ns/op
-# Warmup Iteration  25: 729.422 ns/op
-Iteration   1: 699.842 ns/op
-Iteration   2: 727.170 ns/op
-Iteration   3: 765.262 ns/op
-Iteration   4: 758.377 ns/op
-Iteration   5: 720.670 ns/op
-Iteration   6: 788.388 ns/op
-Iteration   7: 839.348 ns/op
-Iteration   8: 712.256 ns/op
-Iteration   9: 745.712 ns/op
-Iteration  10: 740.440 ns/op
-Iteration  11: 684.947 ns/op
-Iteration  12: 803.585 ns/op
-Iteration  13: 762.076 ns/op
-Iteration  14: 800.560 ns/op
-Iteration  15: 722.222 ns/op
-Iteration  16: 794.459 ns/op
-Iteration  17: 775.019 ns/op
-Iteration  18: 758.636 ns/op
-Iteration  19: 3028.849 ns/op
-Iteration  20: 769.268 ns/op
-Iteration  21: 736.608 ns/op
-Iteration  22: 2516.234 ns/op
-Iteration  23: 726.281 ns/op
-Iteration  24: 1523.716 ns/op
-Iteration  25: 676.316 ns/op
+# Warmup Iteration   1: 37.420 ns/op
+# Warmup Iteration   2: 21.458 ns/op
+# Warmup Iteration   3: 21.567 ns/op
+# Warmup Iteration   4: 20.682 ns/op
+# Warmup Iteration   5: 28.426 ns/op
+# Warmup Iteration   6: 18.574 ns/op
+# Warmup Iteration   7: 317.480 ns/op
+# Warmup Iteration   8: 21.694 ns/op
+# Warmup Iteration   9: 18.784 ns/op
+# Warmup Iteration  10: 19.367 ns/op
+# Warmup Iteration  11: 19.697 ns/op
+# Warmup Iteration  12: 19.712 ns/op
+# Warmup Iteration  13: 18.672 ns/op
+# Warmup Iteration  14: 19.636 ns/op
+# Warmup Iteration  15: 19.987 ns/op
+# Warmup Iteration  16: 19.273 ns/op
+# Warmup Iteration  17: 18.808 ns/op
+# Warmup Iteration  18: 18.925 ns/op
+# Warmup Iteration  19: 18.529 ns/op
+# Warmup Iteration  20: 18.418 ns/op
+# Warmup Iteration  21: 18.890 ns/op
+# Warmup Iteration  22: 19.290 ns/op
+# Warmup Iteration  23: 19.550 ns/op
+# Warmup Iteration  24: 18.537 ns/op
+# Warmup Iteration  25: 19.408 ns/op
+Iteration   1: 19.249 ns/op
+Iteration   2: 19.336 ns/op
+Iteration   3: 18.722 ns/op
+Iteration   4: 18.608 ns/op
+Iteration   5: 19.988 ns/op
+Iteration   6: 18.774 ns/op
+Iteration   7: 18.898 ns/op
+Iteration   8: 19.905 ns/op
+Iteration   9: 19.690 ns/op
+Iteration  10: 24.517 ns/op
+Iteration  11: 20.039 ns/op
+Iteration  12: 19.333 ns/op
+Iteration  13: 20.007 ns/op
+Iteration  14: 19.453 ns/op
+Iteration  15: 18.963 ns/op
+Iteration  16: 18.917 ns/op
+Iteration  17: 19.665 ns/op
+Iteration  18: 19.917 ns/op
+Iteration  19: 19.740 ns/op
+Iteration  20: 19.481 ns/op
+Iteration  21: 18.721 ns/op
+Iteration  22: 18.854 ns/op
+Iteration  23: 18.439 ns/op
+Iteration  24: 18.406 ns/op
+Iteration  25: 19.003 ns/op
+
+Result: 19.465 ±(99.9%) 0.879 ns/op [Average]
+  Statistics: (min, avg, max) = (18.406, 19.465, 24.517), stdev = 1.173
+  Confidence interval (99.9%): [18.586, 20.344]
+
+
+# Run complete. Total time: 00:01:08
+
+Benchmark                    Mode   Samples        Score  Score error    Units
+n.t.s.SchedulerTest.tick     avgt        25       19.465        0.879    ns/op
  */
 
 /*
 CraftBukkit scheduler ticking (100 tasks performing System.out.println("");)
+
 # Run progress: 0.00% complete, ETA 00:00:50
 # Warmup: 25 iterations, 1 s each
 # Measurement: 25 iterations, 1 s each
@@ -151,21 +164,22 @@ public class SchedulerTest {
 
     @Setup
     public void setup() {
-        for (int i = 0; i < 100; i++) {
+        Factories.init(new ThreadsManager());
+        for (int i = 0; i < 100000; i++) {
             @PluginDescription(name = "LOLCODE")
             class PluginImpl extends TridentPlugin {
             }
 
-            scheduler.syncLater(new PluginImpl(), new TridentRunnable() {
+            scheduler.asyncLater(new PluginImpl(), new TridentRunnable() {
                 @Override
                 public void run() {
                     System.out.print("");
                 }
-            }, 20L);
+            }, 1L);
         }
     }
 
-    public static void main(String... args) throws InterruptedException {
+    public static void main8(String... args) throws InterruptedException {
         @PluginDescription(name = "LOLCODE")
         class PluginImpl extends TridentPlugin {
         }
@@ -192,7 +206,7 @@ public class SchedulerTest {
         }
     }
 
-    public static void main8(String... args) throws RunnerException {
+    public static void main(String... args) throws RunnerException {
         Options opt = new OptionsBuilder()
                 .include(".*" + SchedulerTest.class.getSimpleName() + ".*")
                 .timeUnit(TimeUnit.NANOSECONDS)

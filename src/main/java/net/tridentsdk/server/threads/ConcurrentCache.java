@@ -36,30 +36,31 @@ public class ConcurrentCache<K, V> {
     private final ConcurrentMap<K, Future<V>> cache = new ConcurrentHashMapV8<>();
 
     /**
-     * Retrieves the key in the cache, or adds the return value of the callable provided, run in the executor provided
+     * Retrieves the key in the cache, or adds the return value of the callable provided
      *
      * @param k        the key to retrieve the value from, or assign it to
      * @param callable the result of which to assign the key a value if the key is not in the cache
-     * @param executor the executor the run the callable in
      * @return the return value of the callable
      */
-    public V retrieve(K k, Callable<V> callable, ExecutorService executor) {
+    public V retrieve(K k, Callable<V> callable) {
         while (true) {
-            Future<V> future = this.cache.get(k);
+            Future<V> f = cache.get(k);
+            if (f == null) {
+                FutureTask<V> ft = new FutureTask<>(callable);
+                f = cache.putIfAbsent(k, ft);
 
-            if (future == null) {
-                Future<V> task = new FutureTask<>(callable);
-                future = this.cache.putIfAbsent(k, task);
+                if (f == null) {
+                    f = ft;
+                    ft.run();
+                }
 
-                if (future == null) future = executor.submit(callable);
             }
-
             try {
-                return future.get();
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
+                return f.get();
             } catch (CancellationException e) {
-                this.cache.remove(k, future);
+                cache.remove(k, f);
+            } catch (ExecutionException | InterruptedException e) {
+                e.printStackTrace();
             }
         }
     }
