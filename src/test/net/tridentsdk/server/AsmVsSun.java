@@ -146,6 +146,7 @@ public class AsmVsSun {
 
     @Param({ "1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024"})
     private int cpuTokens;
+
     public static void main(String... args) throws RunnerException {
         Options opt = new OptionsBuilder()
                 .include(".*" + AsmVsSun.class.getSimpleName() + ".*")
