@@ -52,8 +52,7 @@ import java.util.concurrent.atomic.AtomicLong;
  *
  * The difference between sync and async tasks is sync runs on the plugin thread that is from the plugin scheduling
  * the task. This is why a plugin object is required for task scheduling. Async runs on one of the other 2 task
- * execution threads (because there are 4 threads in the scheduler: 2 threads to run the double-iterator, and 2 task
- * executors).</p>
+ * execution threads (because there are 3 threads in the scheduler).</p>
  *
  * <p>The benchmarks and testing units for the TridentScheduler can be found at: http://git.io/nifjcg.</p>
  *

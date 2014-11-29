@@ -9,6 +9,8 @@
     <version>1.0-SNAPSHOT</version>
     <name>Trident</name>
     <url>http://www.tridentsdk.net/</url>
+    <!-- <packaging>pom</packaging> -->
+    <!-- Also used for side-by-side development -->
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -50,6 +52,11 @@
             <url>http://repo.tridentsdk.net/nexus/content/groups/public/</url>
         </repository>
     </repositories>
+
+    <!-- Used for side-by-side development -->
+    <!-- <modules>
+        <module>TridentSDK</module>
+    </modules> -->
 
     <dependencies>
         <dependency>
