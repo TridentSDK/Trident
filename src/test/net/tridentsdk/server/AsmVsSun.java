@@ -28,18 +28,23 @@
 package net.tridentsdk.server;
 
 import com.esotericsoftware.reflectasm.MethodAccess;
-import org.openjdk.jmh.annotations.Benchmark;
-import org.openjdk.jmh.annotations.Mode;
+import com.google.common.collect.LinkedListMultimap;
+import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
+import org.openjdk.jmh.results.BenchmarkResult;
+import org.openjdk.jmh.results.RunResult;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
+import org.openjdk.jmh.runner.options.TimeValue;
+import org.openjdk.jmh.runner.options.VerboseMode;
 import sun.reflect.MethodAccessor;
 import sun.reflect.ReflectionFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 
 /*
@@ -131,29 +136,46 @@ Benchmark              Mode   Samples        Score  Score error    Units
 n.t.s.AsmVsSun.asm     avgt        10        2.702        0.021    ns/op
 n.t.s.AsmVsSun.sun     avgt        10        3.961        0.059    ns/op
  */
+@State(Scope.Benchmark)
 public class AsmVsSun {
     private static final Obj OBJECT = new Obj();
     private static final Method METHOD = getMethod();
-    private static final MethodManager<Object, Integer> METHOD_MANAGER = new MethodImpl<>(METHOD);
+    private static final MethodImpl<Object, Integer> METHOD_MANAGER = new MethodImpl<>(METHOD);
     private static final MethodAccess METHOD_ACCESS = MethodAccess.get(OBJECT.getClass());
     private static final int id = METHOD_ACCESS.getIndex("doStuff");
 
+    @Param({ "1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024"})
+    private int cpuTokens;
     public static void main(String... args) throws RunnerException {
         Options opt = new OptionsBuilder()
                 .include(".*" + AsmVsSun.class.getSimpleName() + ".*")
                 .timeUnit(TimeUnit.NANOSECONDS)
                 .mode(Mode.AverageTime)
-                .warmupIterations(15)
-                .measurementIterations(10)
+                .warmupIterations(20)
+                .warmupTime(TimeValue.milliseconds(1))
+                .measurementIterations(5)
+                .measurementTime(TimeValue.milliseconds(1))
                 .forks(1)
+                .verbosity(VerboseMode.SILENT)
                 .build();
 
-        new Runner(opt).run();
+        Collection<RunResult> results = new Runner(opt).run();
+
+        LinkedListMultimap<String, Double> data = LinkedListMultimap.create();
+        for (RunResult result : results) {
+            for (BenchmarkResult result0 : result.getBenchmarkResults()) {
+                System.out.println(result0.getPrimaryResult().getLabel() + " " + result0.getPrimaryResult().getScore());
+                data.put(result0.getPrimaryResult().getLabel(), result0.getPrimaryResult().getScore());
+            }
+        }
+        Benchmarks.chart(data, "Reflection+methods");
     }
 
     private static Method getMethod() {
         try {
-            return OBJECT.getClass().getDeclaredMethod("doStuff");
+            Method method = OBJECT.getClass().getDeclaredMethod("doStuff");
+            method.setAccessible(true);
+            return method;
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
         }
@@ -163,12 +185,24 @@ public class AsmVsSun {
 
     @Benchmark
     public void asm(Blackhole blackhole) {
+        Blackhole.consumeCPU(cpuTokens);
         blackhole.consume(METHOD_ACCESS.invoke(OBJECT, id));
     }
 
     @Benchmark
     public void sun(Blackhole blackhole) {
+        Blackhole.consumeCPU(cpuTokens);
         blackhole.consume(METHOD_MANAGER.invoke(OBJECT));
+    }
+
+    @Benchmark
+    public void normal(Blackhole blackhole) {
+        Blackhole.consumeCPU(cpuTokens);
+        try {
+            blackhole.consume(METHOD.invoke(OBJECT));
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            e.printStackTrace();
+        }
     }
 
     public interface MethodManager<Declaring, T> {

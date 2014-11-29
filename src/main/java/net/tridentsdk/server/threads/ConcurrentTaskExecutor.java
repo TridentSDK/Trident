@@ -66,11 +66,6 @@ public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implement
         state = RUNNING;
     }
 
-    /**
-     * Gets a thread that has the least amount of assignment uses. You must assign the user before this can scale.
-     *
-     * @return the thread with the lowest assignments
-     */
     @Override
     public TaskExecutor scaledThread() {
         ThreadWorker lowest = null;
@@ -83,14 +78,6 @@ public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implement
         return lowest;
     }
 
-    /**
-     * Assigns the scaled thread to the assignment
-     *
-     * <p>If already assigned, the executor is returned for the fast-path</p>
-     *
-     * @param assignment the assignment that uses the executor
-     * @return the executor assigned
-     */
     @Override
     public TaskExecutor assign(E assignment) {
         return assigned.retrieve(assignment, new Callable<ThreadWorker>() {
@@ -103,40 +90,22 @@ public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implement
         });
     }
 
-    /**
-     * Removes the assigned thread and reduces by one the scale factor for the thread
-     *
-     * @param assignment the assignment that uses the executor to be removed
-     */
     @Override
     public void removeAssignment(E assignment) {
         ThreadWorker thread = this.assigned.remove(assignment);
         thread.decrement();
     }
 
-    /**
-     * Returns the assigned objects
-     *
-     * @return the assignments in the maps
-     */
     @Override
     public Collection<E> values() {
         return this.assigned.keys();
     }
 
-    /**
-     * Lists all available task executors from the threads
-     *
-     * @return the thread list
-     */
     @Override
     public List<TaskExecutor> threadList() {
         return this.executors;
     }
 
-    /**
-     * Shuts down the thread processes
-     */
     @Override
     public void shutdown() {
         state = SHUTTING_DOWN;
@@ -209,9 +178,6 @@ public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implement
                 } catch (InterruptedException e) {
                     if (state == SHUTTING_DOWN)
                         break;
-                    else {
-
-                    }
                 }
             }
         }

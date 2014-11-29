@@ -6,13 +6,14 @@ import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.results.RunResult;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
 import java.util.Collection;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
@@ -151,6 +152,7 @@ Iteration  23: 496.559 ns/op
 Iteration  24: 763.500 ns/op
 Iteration  25: 496.305 ns/op
  */
+
 @State(Scope.Benchmark)
 public class TaskExecTest {
     public static void main3(String[] args) {
@@ -183,10 +185,13 @@ public class TaskExecTest {
         concurrentTaskExecutor.shutdown();
     }
 
+    //@Param({ "1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024"})
+    private int cpuTokens;
+
     private static final ConcurrentTaskExecutor<String> TASK_EXECUTOR = new ConcurrentTaskExecutor<>(4);
     private static final TaskExecutor EXECUTOR = TASK_EXECUTOR.scaledThread();
 
-    private static final Executor JAVA = Executors.newFixedThreadPool(4);
+    private static final ExecutorService JAVA = Executors.newFixedThreadPool(4);
 
     private static final Runnable RUNNABLE = new Runnable() {
         int anInt = 0;
@@ -202,14 +207,15 @@ public class TaskExecTest {
                 .include(".*" + TaskExecTest.class.getSimpleName() + ".*")
                 .timeUnit(TimeUnit.NANOSECONDS)
                 .mode(Mode.AverageTime)
-                .warmupIterations(25)
-                .measurementIterations(25)
+                .warmupIterations(20)
+                .measurementIterations(5)
                 .forks(1)
                 .threads(4)
                 .build();
 
-        new Runner(opt).run();
+        Collection<RunResult> results = new Runner(opt).run();
         TASK_EXECUTOR.shutdown();
+        JAVA.shutdownNow();
     }
 
     //@Benchmark
@@ -224,16 +230,19 @@ public class TaskExecTest {
 
     @Benchmark
     public void equiv() {
+        //Blackhole.consumeCPU(cpuTokens);
         TASK_EXECUTOR.execute(RUNNABLE);
     }
 
     @Benchmark
     public void java() {
+        //Blackhole.consumeCPU(cpuTokens);
         JAVA.execute(RUNNABLE);
     }
 
-    //@Benchmark
+    @Benchmark
     public void exec() {
+        //Blackhole.consumeCPU(cpuTokens);
         EXECUTOR.addTask(RUNNABLE);
     }
 }
