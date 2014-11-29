@@ -57,7 +57,7 @@
             <artifactId>tridentsdk</artifactId>
             <version>${project.version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
@@ -118,7 +118,7 @@
         <!-- Benchmarking -->
         <dependency>
             <groupId>org.openjdk.jmh</groupId>
-            <artifactId>jmh-core</artifactId>
+            <artifactId></artifactId>
             <version>0.9</version>
         </dependency>
         <dependency>
