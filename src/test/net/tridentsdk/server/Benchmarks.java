@@ -58,9 +58,8 @@ public class Benchmarks {
                 .append("cht=lxy")                            // Chart type: Line/xy
                 .append("&chtt=Benchmark+Results:+")          // Chart title: Benchmark Results:
                 .append(what)                                 // specified
-                .append(" (ns/op)")
-                .append("chxr=0,0,8|2,0,1")                   // x = 0-8, y = 0-1
-                .append("chds=0,8")                           // scaled from x/y min/max
+                .append(" (ns/op)").append("&chxr=0,0,").append(max).append("|2,0,").append(max)
+                .append("&chds=0,").append(max)                           // scaled from x/y min/max
                 .append("&chs=900x300")                       // Chart size: 900x300
                 .append("&chds=a")                            // Chart sizing: automatic
                 .append("&chxt=x,x,y,y")                      // Chart x/y: visible
