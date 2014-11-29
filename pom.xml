@@ -118,7 +118,7 @@
         <!-- Benchmarking -->
         <dependency>
             <groupId>org.openjdk.jmh</groupId>
-            <artifactId></artifactId>
+            <artifactId>jmh-core</artifactId>
             <version>0.9</version>
         </dependency>
         <dependency>

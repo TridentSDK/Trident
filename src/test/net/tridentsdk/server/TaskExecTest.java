@@ -2,15 +2,15 @@ package net.tridentsdk.server;
 
 import net.tridentsdk.api.threads.TaskExecutor;
 import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
-import org.openjdk.jmh.annotations.Benchmark;
-import org.openjdk.jmh.annotations.Mode;
-import org.openjdk.jmh.annotations.Scope;
-import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.annotations.*;
+import org.openjdk.jmh.infra.Blackhole;
 import org.openjdk.jmh.results.RunResult;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
+import org.openjdk.jmh.runner.options.TimeValue;
+import org.openjdk.jmh.runner.options.VerboseMode;
 
 import java.util.Collection;
 import java.util.concurrent.ExecutorService;
@@ -185,9 +185,6 @@ public class TaskExecTest {
         concurrentTaskExecutor.shutdown();
     }
 
-    //@Param({ "1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024"})
-    private int cpuTokens;
-
     private static final ConcurrentTaskExecutor<String> TASK_EXECUTOR = new ConcurrentTaskExecutor<>(4);
     private static final TaskExecutor EXECUTOR = TASK_EXECUTOR.scaledThread();
 
@@ -204,18 +201,22 @@ public class TaskExecTest {
     //@Param({ "1", "4", "16", "256"}) private int threads;
     public static void main(String... args) throws RunnerException {
         Options opt = new OptionsBuilder()
-                .include(".*" + TaskExecTest.class.getSimpleName() + ".*")
+                .include(".*" + TaskExecTest.class.getSimpleName() + ".*") // CLASS
                 .timeUnit(TimeUnit.NANOSECONDS)
                 .mode(Mode.AverageTime)
                 .warmupIterations(20)
+                .warmupTime(TimeValue.milliseconds(10))              // ALLOWED TIME
                 .measurementIterations(5)
-                .forks(1)
-                .threads(4)
+                .measurementTime(TimeValue.milliseconds(10))         // ALLOWED TIME
+                .forks(1)                                           // FORKS
+                .verbosity(VerboseMode.SILENT)                      // GRAPH
+                .threads(4)                                         // THREADS
                 .build();
 
         Collection<RunResult> results = new Runner(opt).run();
         TASK_EXECUTOR.shutdown();
         JAVA.shutdownNow();
+        Benchmarks.chart(Benchmarks.parse(results), "ConcurrentTaskExecutor vs ExecutorService");
     }
 
     //@Benchmark
@@ -228,21 +229,29 @@ public class TaskExecTest {
         //TASK_EXECUTOR.assign(EXECUTOR, "Lol");
     //}
 
+    @Param({"1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024"})
+    private int cpuTokens;
+
     @Benchmark
-    public void equiv() {
-        //Blackhole.consumeCPU(cpuTokens);
+    public void control() {
+        Blackhole.consumeCPU(cpuTokens);
+    }
+
+    @Benchmark
+    public void serviceEquivalent() {
+        Blackhole.consumeCPU(cpuTokens);
         TASK_EXECUTOR.execute(RUNNABLE);
     }
 
     @Benchmark
-    public void java() {
-        //Blackhole.consumeCPU(cpuTokens);
+    public void executorService() {
+        Blackhole.consumeCPU(cpuTokens);
         JAVA.execute(RUNNABLE);
     }
 
     @Benchmark
-    public void exec() {
-        //Blackhole.consumeCPU(cpuTokens);
+    public void concurrentTaskExecutor() {
+        Blackhole.consumeCPU(cpuTokens);
         EXECUTOR.addTask(RUNNABLE);
     }
 }

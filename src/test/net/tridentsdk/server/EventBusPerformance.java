@@ -30,7 +30,13 @@ public class EventBusPerformance {
 
     private static final Listenable EVENT = new Event();
 
-    public static void main(String[] args) throws RunnerException {
+    public static void main(String[] args) {
+        while (true) {
+            EVENT_MANAGER.registerListener(LISTENER);
+        }
+    }
+
+    public static void main0(String[] args) throws RunnerException {
         Options opt = new OptionsBuilder()
                 .include(".*" + EventBusPerformance.class.getSimpleName() + ".*") // CLASS
                 .timeUnit(TimeUnit.NANOSECONDS)
