@@ -123,6 +123,15 @@ final class TridentStart {
     private static void init(JsonConfig config) {
         LOGGER.info("Initializing the API implementations");
 
+        Factories.init(new CollectFactory() {
+            @Override
+            public <K, V> ConcurrentMap<K, V> createMap() {
+                return new ConcurrentHashMapV8<>();
+            }
+        });
+        Factories.init(new ThreadsManager());
+        Factories.init(new TridentScheduler());
+
         //Server should read all settings from the loaded config
         final ConcurrentTaskExecutor<?> taskExecutor = new ConcurrentTaskExecutor<>(1);
         final JsonConfig innerConfig = config;
@@ -133,14 +142,6 @@ final class TridentStart {
                 return innerConfig;
             }
         });
-        Factories.init(new CollectFactory() {
-            @Override
-            public <K, V> ConcurrentMap<K, V> createMap() {
-                return new ConcurrentHashMapV8<>();
-            }
-        });
-        Factories.init(new TridentScheduler());
-        Factories.init(new ThreadsManager());
 
         LOGGER.info("Creating server task thread...");
         taskExecutor.scaledThread().addTask(new Runnable() {
