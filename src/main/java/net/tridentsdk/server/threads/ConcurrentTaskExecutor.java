@@ -1,54 +1,60 @@
 /*
- *     Trident - A Multithreaded Server Alternative
- *     Copyright (C) 2014, The TridentSDK Team
+ * Trident - A Multithreaded Server Alternative
+ * Copyright 2014 The TridentSDK Team
  *
- *     This program is free software: you can redistribute it and/or modify
- *     it under the terms of the GNU General Public License as published by
- *     the Free Software Foundation, either version 3 of the License, or
- *     (at your option) any later version.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     This program is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *     GNU General Public License for more details.
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
- *     You should have received a copy of the GNU General Public License
- *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package net.tridentsdk.server.threads;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
-import net.tridentsdk.api.perf.AddTakeQueue;
-import net.tridentsdk.api.perf.DelegatedAddTakeQueue;
+import net.tridentsdk.api.docs.AccessNoDoc;
+import net.tridentsdk.api.factory.ExecutorFactory;
+import net.tridentsdk.api.perf.Performance;
+import net.tridentsdk.api.threads.ConcurrentCache;
 import net.tridentsdk.api.threads.TaskExecutor;
 
-import javax.annotation.Nullable;
-import java.util.AbstractMap.SimpleEntry;
+import javax.annotation.concurrent.ThreadSafe;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.Queue;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReferenceArray;
 
 /**
  * Thread list to allow task execution in a shared thread scaled with removal
  *
  * <p>Allows assignment of a worker to the user</p>
  *
- * @param <Assignment> the assignment type, if used
+ * @param <E> the assignment type, if used
  * @author The TridentSDK Team
  */
-public class ConcurrentTaskExecutor<Assignment> {
-    private static final Entry<?, ? extends Number> DEF_ENTRY = new SimpleEntry<>(null, Long.MAX_VALUE);
+@ThreadSafe
+public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implements ExecutorFactory<E> {
+    private static final int STARTING = 0;
+    private static final int RUNNING = 1;
+    private static final int SHUTTING_DOWN = 2;
+    private static final int STOPPED = 3;
 
-    private final Map<InnerThread, Integer> scale = new HashMap<>();
-    private final Map<Assignment, InnerThread> assignments = new HashMap<>();
+    private final AtomicReferenceArray<ThreadWorker> executors;
 
-    private final List<TaskExecutor> executors;
+    // We cache assignments, if it is retrieved again while loading into the map, there would be 2 requests for the same
+    // thing concurrently, which is bad for performance in the long run
+    // It is better to have it slow now to cache correctly than time later to doubly receive
+    private final ConcurrentCache<E, ThreadWorker> assigned = new ConcurrentCache<>();
+
+    private volatile int state = STARTING;
 
     /**
      * Create a new executor using the number of threads to scale
@@ -56,145 +62,162 @@ public class ConcurrentTaskExecutor<Assignment> {
      * @param scale the threads to use
      */
     public ConcurrentTaskExecutor(int scale) {
-        for (int i = 0; i < scale; i++) this.scale.put(new InnerThread(), 0);
-        this.executors = Lists.newArrayList(Iterators.transform(this.scale.keySet().iterator(), new Function
-                <InnerThread, TaskExecutor>() {
-            @Nullable
-            @Override
-            public TaskExecutor apply(@Nullable InnerThread innerThread) {
-                return innerThread;
-            }
-        }));
+        executors = new AtomicReferenceArray<>(scale);
+
+        for (int i = 0; i < scale; i++)
+            executors.set(i, new ThreadWorker(i).startWorker());
+
+        state = RUNNING;
     }
 
-    private static <T> Entry<T, ? extends Number> minMap(Map<T, ? extends Number> map) {
-        Entry<T, ? extends Number> ent = (Entry<T, ? extends Number>) DEF_ENTRY;
-
-        for (Entry<T, ? extends Number> entry : map.entrySet())
-            if (entry.getValue().longValue() < ent.getValue().longValue())
-                ent = entry;
-
-        return ent;
-    }
-
-    /**
-     * Gets a thread that has the least amount of assignment uses. You must assign the user before this can scale.
-     *
-     * @return the thread with the lowest assignments
-     */
-    public TaskExecutor getScaledThread() {
-        Entry<InnerThread, ? extends Number> handler = minMap(this.scale);
-        return handler.getKey();
-    }
-
-    /**
-     * Assigns the scaled thread to the assignment
-     * <p/>
-     * <p>If already assigned, the executor is returned for the fast-path</p>
-     *
-     * @param executor   the executor associated with the assignment
-     * @param assignment the assignment that uses the executor
-     * @return the executor assigned
-     */
-    public TaskExecutor assign(TaskExecutor executor, Assignment assignment) {
-        if (!this.assignments.containsKey(assignment)) {
-            Entry<InnerThread, ? extends Number> handler = minMap(this.scale);
-            InnerThread thread = handler.getKey();
-
-            this.assignments.put(assignment, thread);
-            this.scale.put(handler.getKey(), Integer.valueOf(handler.getValue().intValue() + 1));
-
-            return thread;
+    @Override
+    public TaskExecutor scaledThread() {
+        ThreadWorker lowest = null;
+        for (int i = 0, n = executors.length(); i < n; i++) {
+            ThreadWorker thread = executors.get(i);
+            if (lowest == null) lowest = thread;
+            if (lowest.get() > thread.get()) lowest = thread;
         }
 
-        return executor;
+        return lowest;
     }
 
-    /**
-     * Removes the assigned thread and reduces by one the scale factor for the thread
-     *
-     * @param assignment the assignment that uses the executor to be removed
-     */
-    public void removeAssignment(Assignment assignment) {
-        InnerThread thread = this.assignments.remove(assignment);
-        if (thread != null) this.scale.put(thread, this.scale.get(thread) + 1);
-    }
-
-    /**
-     * Returns the assigned objects
-     *
-     * @return the assignments in the maps
-     */
-    public Collection<Assignment> values() {
-        return this.assignments.keySet();
-    }
-
-    /**
-     * Lists all available task executors from the threads
-     *
-     * @return the thread list
-     */
-    public List<TaskExecutor> threadList() {
-        return this.executors;
-    }
-
-    /**
-     * Shuts down the thread processes
-     */
-    public void shutdown() {
-        for (TaskExecutor thread : this.scale.keySet())
-            thread.interrupt();
-        this.scale.clear();
-        this.assignments.clear();
-    }
-
-    private static final class InnerThread implements TaskExecutor {
-        private final AddTakeQueue<Runnable> tasks = new DelegatedAddTakeQueue<Runnable>() {
-            @Override protected BlockingQueue<Runnable> delegate() {
-                return new LinkedBlockingQueue<>();
+    @Override
+    public TaskExecutor assign(E assignment) {
+        return assigned.retrieve(assignment, new Callable<ThreadWorker>() {
+            @Override
+            public ThreadWorker call() throws Exception {
+                ThreadWorker worker = (ThreadWorker) scaledThread();
+                worker.increment();
+                return worker;
             }
-        };
-        private final DelegateThread thread = new DelegateThread();
-        private boolean stopped;
-        // Does not need to be volatile because only this thread can change it
+        });
+    }
 
-        private InnerThread() {
-            this.thread.start();
+    @Override
+    public void removeAssignment(E assignment) {
+        ThreadWorker thread = this.assigned.remove(assignment);
+        thread.decrement();
+    }
+
+    @Override
+    public Collection<E> values() {
+        return this.assigned.keys();
+    }
+
+    @Override
+    public List<TaskExecutor> threadList() {
+        List<TaskExecutor> execs = new ArrayList<>();
+        for (int i = 0, n = executors.length(); i < n; i++)
+            execs.add(executors.get(i));
+        return execs;
+    }
+
+    @Override
+    public void shutdown() {
+        state = SHUTTING_DOWN;
+        for (TaskExecutor thread : this.threadList())
+            thread.interrupt();
+        for (E e : assigned.keys()) {
+            ThreadWorker worker = assigned.remove(e);
+
+            Performance.getUnsafe().unpark(worker);
+            worker.interrupt(); // Just in case
+        }
+
+        state = STOPPED;
+    }
+
+    @Override
+    public List<Runnable> shutdownNow() {
+        shutdown();
+        return Lists.newArrayList();
+    }
+
+    @Override
+    public boolean isShutdown() {
+        return state == SHUTTING_DOWN;
+    }
+
+    @Override
+    public boolean isTerminated() {
+        return state == STOPPED;
+    }
+
+    @Override
+    public boolean awaitTermination(long l, TimeUnit timeUnit) throws InterruptedException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void execute(Runnable runnable) {
+        scaledThread().addTask(runnable);
+    }
+
+    public void handleShutdown(int index, Queue<Runnable> remaining) {
+        if (state < SHUTTING_DOWN)
+            executors.set(index, new ThreadWorker(index).startWorker(remaining));
+        else executors.set(index, null);
+        remaining.clear();
+    }
+
+    @AccessNoDoc
+    private final class ThreadWorker extends Thread implements TaskExecutor {
+        private final BlockingQueue<Runnable> tasks = new LinkedBlockingQueue<>();
+        private final AtomicInteger integer = new AtomicInteger(0);
+
+        private final int index;
+
+        private ThreadWorker(int index) {
+            this.index = index;
+        }
+
+        public void increment() {
+            integer.incrementAndGet();
+        }
+
+        public void decrement() {
+            integer.decrementAndGet();
+        }
+
+        public int get() {
+            return integer.get();
+        }
+
+        public ThreadWorker startWorker() {
+            super.start();
+            return this;
+        }
+
+        public ThreadWorker startWorker(Queue<Runnable> tasks) {
+            this.tasks.addAll(tasks);
+            return startWorker();
         }
 
         @Override
         public void addTask(Runnable task) {
-            this.tasks.add(task);
+            tasks.add(task);
         }
 
         @Override
-        public void interrupt() {
-            this.thread.interrupt();
-            this.addTask(new Runnable() {
-                @Override
-                public void run() {
-                    InnerThread.this.stopped = true;
+        public void run() {
+            while (!isInterrupted()) {
+                try {
+                    tasks.take().run();
+                } catch (InterruptedException e) {
+                    handleShutdown(index, tasks);
+                    return;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    handleShutdown(index, tasks);
+                    return;
                 }
-            });
+            }
         }
 
         @Override
         public Thread asThread() {
-            return this.thread;
-        }
-
-        private class DelegateThread extends Thread {
-            @Override
-            public void run() {
-                while (!InnerThread.this.stopped) {
-                    try {
-                        Runnable task = InnerThread.this.tasks.take();
-                        task.run();
-                    } catch (InterruptedException ignored) {
-                        return;
-                    }
-                }
-            }
+            return this;
         }
     }
 }

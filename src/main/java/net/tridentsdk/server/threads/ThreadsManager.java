@@ -1,74 +1,146 @@
 /*
- *     Trident - A Multithreaded Server Alternative
- *     Copyright (C) 2014, The TridentSDK Team
+ * Trident - A Multithreaded Server Alternative
+ * Copyright 2014 The TridentSDK Team
  *
- *     This program is free software: you can redistribute it and/or modify
- *     it under the terms of the GNU General Public License as published by
- *     the Free Software Foundation, either version 3 of the License, or
- *     (at your option) any later version.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     This program is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *     GNU General Public License for more details.
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
- *     You should have received a copy of the GNU General Public License
- *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package net.tridentsdk.server.threads;
 
+import net.tridentsdk.api.docs.InternalUseOnly;
 import net.tridentsdk.api.entity.Entity;
 import net.tridentsdk.api.entity.living.Player;
+import net.tridentsdk.api.factory.ExecutorFactory;
+import net.tridentsdk.api.factory.ThreadFactory;
 import net.tridentsdk.api.threads.TaskExecutor;
-import net.tridentsdk.api.threads.ThreadProvider;
 import net.tridentsdk.api.world.World;
+import net.tridentsdk.player.PlayerConnection;
 import net.tridentsdk.plugin.TridentPlugin;
+import net.tridentsdk.server.netty.ClientConnection;
+
+import java.util.Collection;
 
 /**
  * Handles the majority of the lifecycle for the threads
  *
  * @author The TridentSDK Team
  */
-public final class ThreadsManager implements ThreadProvider {
+public final class ThreadsManager implements ThreadFactory {
+    static final ExecutorFactory<Entity> entities = new ConcurrentTaskExecutor<>(2);
+    static final ExecutorFactory<Player> players = new ConcurrentTaskExecutor<>(4);
+    static final ExecutorFactory<TridentPlugin> plugins = new ConcurrentTaskExecutor<>(2);
+    static final ExecutorFactory<World> worlds = new ConcurrentTaskExecutor<>(4);
+
     /**
      * Stops all the executors and clears all caches of concurrent threads
      */
+    @InternalUseOnly
     public static void stopAll() {
         BackgroundTaskExecutor.SERVICE.shutdownNow();
-        PlayerThreads.SERVICE.shutdownNow();
-
-        PlayerThreads.SERVICE.shutdownNow();
-        PlayerThreads.THREAD_MAP.shutdown();
-
-        PluginThreads.SERVICE.shutdownNow();
-        PluginThreads.THREAD_MAP.shutdown();
-
-        EntityThreads.SERVICE.shutdownNow();
-        EntityThreads.THREAD_MAP.shutdown();
-
-        WorldThreads.SERVICE.shutdownNow();
-        WorldThreads.THREAD_MAP.shutdown();
-
         MainThread.getInstance().interrupt();
+
+        // TODO safely add hooks
+        entities.shutdown();
+        players.shutdown();
+        plugins.shutdown();
+        worlds.shutdown();
+    }
+
+    /**
+     * Decaches the entity handler from the mappings
+     *
+     * @param entity the entity to decache
+     */
+    @InternalUseOnly
+    public static void remove(Entity entity) {
+        entities.removeAssignment(entity);
+    }
+
+    /**
+     * Decaches the player connection handler from the mappings
+     *
+     * @param connection the player to remove the wrapper cache
+     */
+    @InternalUseOnly
+    public static void remove(ClientConnection connection) {
+        PlayerConnection pc = PlayerConnection.getConnection(connection.getAddress());
+        if (pc != null) {
+            Player player = pc.getPlayer();
+            players.removeAssignment(player);
+        }
+    }
+
+    /**
+     * Decaches the plugin handler from the mappings
+     *
+     * @param plugin the plugin to remove from the cache
+     */
+    @InternalUseOnly
+    public static void remove(TridentPlugin plugin) {
+        plugins.removeAssignment(plugin);
+    }
+
+    /**
+     * Decaches the world handler from the mappings
+     *
+     * @param world the world to decache
+     */
+    @InternalUseOnly
+    public static void remove(World world) {
+        worlds.removeAssignment(world);
     }
 
     @Override
-    public TaskExecutor provideEntityThread(Entity entity) {
-        return EntityThreads.entityThreadHandle(entity);
+    public TaskExecutor entityThread(Entity entity) {
+        return entities.assign(entity);
     }
 
     @Override
-    public TaskExecutor providePlayerThread(Player player) {
-        return PlayerThreads.clientThreadHandle(player);
+    public Collection<Entity> entities() {
+        return entities.values();
     }
 
     @Override
-    public TaskExecutor providePluginThread(TridentPlugin plugin) {
-        return PluginThreads.pluginThreadHandle(plugin);
+    public TaskExecutor playerThread(Player player) {
+        return players.assign(player);
     }
 
     @Override
-    public TaskExecutor provideWorldThread(World world) {
-        return WorldThreads.worldThreadHandle(world);
+    public Collection<Player> players() {
+        return players.values();
+    }
+
+    @Override
+    public TaskExecutor pluginThread(TridentPlugin plugin) {
+        return plugins.assign(plugin);
+    }
+
+    @Override
+    public Collection<TridentPlugin> plugins() {
+        return plugins.values();
+    }
+
+    @Override
+    public TaskExecutor worldThread(World world) {
+        return worlds.assign(world);
+    }
+
+    @Override
+    public Collection<World> worlds() {
+        return worlds.values();
+    }
+
+    @Override
+    public <T> ExecutorFactory<T> executor(int threads) {
+        return new ConcurrentTaskExecutor<>(threads);
     }
 }
