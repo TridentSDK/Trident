@@ -17,7 +17,7 @@
 
 package net.tridentsdk.server;
 
-import net.tridentsdk.server.threads.ConcurrentCache;
+import net.tridentsdk.api.threads.ConcurrentCache;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
 import org.openjdk.jmh.runner.Runner;

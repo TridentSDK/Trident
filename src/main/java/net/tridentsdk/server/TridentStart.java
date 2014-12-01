@@ -22,12 +22,14 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
 import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import net.tridentsdk.api.Defaults;
 import net.tridentsdk.api.config.JsonConfig;
+import net.tridentsdk.api.factory.CollectFactory;
 import net.tridentsdk.api.factory.ConfigFactory;
 import net.tridentsdk.api.factory.Factories;
 import net.tridentsdk.server.netty.ClientChannelInitializer;
@@ -41,6 +43,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.nio.file.Files;
+import java.util.concurrent.ConcurrentMap;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -119,8 +122,6 @@ final class TridentStart {
      */
     private static void init(JsonConfig config) {
         LOGGER.info("Initializing the API implementations");
-        Factories.init(new TridentScheduler());
-        Factories.init(new ThreadsManager());
 
         //Server should read all settings from the loaded config
         final ConcurrentTaskExecutor<?> taskExecutor = new ConcurrentTaskExecutor<>(1);
@@ -132,6 +133,14 @@ final class TridentStart {
                 return innerConfig;
             }
         });
+        Factories.init(new CollectFactory() {
+            @Override
+            public <K, V> ConcurrentMap<K, V> createMap() {
+                return new ConcurrentHashMapV8<>();
+            }
+        });
+        Factories.init(new TridentScheduler());
+        Factories.init(new ThreadsManager());
 
         LOGGER.info("Creating server task thread...");
         taskExecutor.scaledThread().addTask(new Runnable() {

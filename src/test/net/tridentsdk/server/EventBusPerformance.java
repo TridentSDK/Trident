@@ -19,10 +19,15 @@ package net.tridentsdk.server;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
-import net.tridentsdk.api.event.Call;
+import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
+import net.tridentsdk.api.config.JsonConfig;
 import net.tridentsdk.api.event.EventManager;
 import net.tridentsdk.api.event.Listenable;
 import net.tridentsdk.api.event.Listener;
+import net.tridentsdk.api.factory.CollectFactory;
+import net.tridentsdk.api.factory.ConfigFactory;
+import net.tridentsdk.api.factory.Factories;
+import net.tridentsdk.server.threads.ThreadsManager;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
 import org.openjdk.jmh.runner.Runner;
@@ -32,10 +37,12 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 import org.openjdk.jmh.runner.options.TimeValue;
 import org.openjdk.jmh.runner.options.VerboseMode;
 
+import java.nio.file.Paths;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 
 /*
-Benchmark results: http://bit.ly/1y919IB
+Benchmark results: http://bit.ly/1B3psZv
  */
 @State(Scope.Benchmark)
 public class EventBusPerformance {
@@ -47,13 +54,41 @@ public class EventBusPerformance {
 
     private static final Listenable EVENT = new Event();
 
-    public static void main(String[] args) {
+    public static void main1(String[] args) {
         while (true) {
             EVENT_MANAGER.registerListener(LISTENER);
         }
     }
 
-    public static void main0(String[] args) throws RunnerException {
+    public static void main0(String[] args) {
+        EVENT_MANAGER.registerListener(LISTENER);
+        EVENT_MANAGER.call(EVENT);
+    }
+
+    @Setup
+    public void setUp() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Factories.init(new ConfigFactory() {
+                    @Override
+                    public JsonConfig serverConfig() {
+                        return new JsonConfig(Paths.get("/topkek"));
+                    }
+                });
+                Factories.init(new CollectFactory() {
+                    @Override
+                    public <K, V> ConcurrentMap<K, V> createMap() {
+                        return new ConcurrentHashMapV8<>();
+                    }
+                });
+                Factories.init(new TridentScheduler());
+                Factories.init(new ThreadsManager());
+            }
+        }).start();
+    }
+
+    public static void main(String[] args) throws RunnerException {
         Options opt = new OptionsBuilder()
                 .include(".*" + EventBusPerformance.class.getSimpleName() + ".*") // CLASS
                 .timeUnit(TimeUnit.NANOSECONDS)
@@ -64,7 +99,7 @@ public class EventBusPerformance {
                 .measurementTime(TimeValue.milliseconds(1))         // ALLOWED TIME
                 .forks(1)                                           // FORKS
                 .verbosity(VerboseMode.SILENT)                      // GRAPH
-                .threads(1)                                         // THREADS
+                .threads(4)                                         // THREADS
                 .build();
 
         Benchmarks.chart(Benchmarks.parse(new Runner(opt).run()), "Event Dispatch performance"); // TITLE
@@ -85,7 +120,7 @@ public class EventBusPerformance {
     }
 
     @Benchmark
-    public void eventManagerRegister() {
+    public void aeventManagerRegister() {
         Blackhole.consumeCPU(cpuTokens);
         EVENT_MANAGER.registerListener(LISTENER);
     }
@@ -112,8 +147,8 @@ public class EventBusPerformance {
     }
 
     private static class EventListener implements Listener {
-        @Call
         public void onEvent(Event event) {
+            System.out.println("LOL");
         }
     }
 }

@@ -12,7 +12,61 @@ public class Benchmarks {
 
     public static void main(String[] args) {
         // Used for conversion
-        //chart(parse(""), "Scheduling+performance");
+        chart(parse("eventManagerRegister 819.725814993991\n" +
+                "eventManagerRegister 819.7716393886067\n" +
+                "eventManagerRegister 900.4173726148301\n" +
+                "eventManagerRegister 808.9506525327429\n" +
+                "eventManagerRegister 871.4493851680412\n" +
+                "eventManagerRegister 870.8841183058485\n" +
+                "eventManagerRegister 986.1459181678067\n" +
+                "eventManagerRegister 1161.3012526324733\n" +
+                "eventManagerRegister 1339.4179146410627\n" +
+                "eventManagerRegister 2155.0835816456324\n" +
+                "eventManagerRegister 3255.1289833815845\n" +
+                "control 3.0563752522396896\n" +
+                "control 4.858000765510459\n" +
+                "control 8.754803637812916\n" +
+                "control 17.62116829192222\n" +
+                "control 36.6637301630973\n" +
+                "control 80.64998764139224\n" +
+                "control 159.29802810211496\n" +
+                "control 317.84067080316265\n" +
+                "control 604.4722867379808\n" +
+                "control 1229.1015203632219\n" +
+                "control 2438.4067537554483\n" +
+                "eventBusDispatch 2634.0172621305564\n" +
+                "eventBusDispatch 2367.2204021884513\n" +
+                "eventBusDispatch 2758.167994277101\n" +
+                "eventBusDispatch 2429.86571028309\n" +
+                "eventBusDispatch 2739.0328112853776\n" +
+                "eventBusDispatch 2644.5405530575954\n" +
+                "eventBusDispatch 2569.30430563922\n" +
+                "eventBusDispatch 2604.4984638653027\n" +
+                "eventBusDispatch 2516.417413929624\n" +
+                "eventBusDispatch 2748.7969212941725\n" +
+                "eventBusDispatch 3796.988680089802\n" +
+                "eventBusRegister 1804.8599982032617\n" +
+                "eventBusRegister 1781.1831930272704\n" +
+                "eventBusRegister 1876.5939591018257\n" +
+                "eventBusRegister 1875.800880989313\n" +
+                "eventBusRegister 2002.4119094557268\n" +
+                "eventBusRegister 2060.5012920137196\n" +
+                "eventBusRegister 2310.212881832179\n" +
+                "eventBusRegister 3057.3334045627107\n" +
+                "eventBusRegister 3855.548157015138\n" +
+                "eventBusRegister 5429.437159213199\n" +
+                "eventBusRegister 4378.197201192301\n" +
+                "eventManagerDispatch 14.227984141474053\n" +
+                "eventManagerDispatch 16.448196908479083\n" +
+                "eventManagerDispatch 22.709589607791873\n" +
+                "eventManagerDispatch 31.433138184416862\n" +
+                "eventManagerDispatch 57.82842572283695\n" +
+                "eventManagerDispatch 103.33618694585797\n" +
+                "eventManagerDispatch 178.8228942946658\n" +
+                "eventManagerDispatch 333.0840272351006\n" +
+                "eventManagerDispatch 618.4609425982228\n" +
+                "eventManagerDispatch 1280.6936879058728\n" +
+                "eventManagerDispatch 2459.4746458453874"), "Scheduling+performance");
     }
 
     // Insertion order required

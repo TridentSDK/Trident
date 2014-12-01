@@ -47,6 +47,12 @@ public final class ThreadsManager implements ThreadFactory {
     public static void stopAll() {
         BackgroundTaskExecutor.SERVICE.shutdownNow();
         MainThread.getInstance().interrupt();
+
+        // TODO safely add hooks
+        entities.shutdown();
+        players.shutdown();
+        plugins.shutdown();
+        worlds.shutdown();
     }
 
     /**
