@@ -19,7 +19,7 @@ package net.tridentsdk.server;
 import net.tridentsdk.api.*;
 import net.tridentsdk.api.config.JsonConfig;
 import net.tridentsdk.api.entity.living.Player;
-import net.tridentsdk.api.event.EventManager;
+import net.tridentsdk.api.event.EventHandler;
 import net.tridentsdk.api.window.Window;
 import net.tridentsdk.api.world.World;
 import net.tridentsdk.entity.EntityManager;
@@ -64,7 +64,7 @@ public final class TridentServer implements Server {
 
     private final EntityManager entityManager;
     private final WindowManager windowManager;
-    private final EventManager eventManager;
+    private final EventHandler eventManager;
 
     private final TridentPluginHandler pluginHandler;
     private final TridentScheduler scheduler;
@@ -78,7 +78,7 @@ public final class TridentServer implements Server {
         this.entityManager = new EntityManager();
         this.regionCache = new RegionFileCache();
         this.windowManager = new WindowManager();
-        this.eventManager = new EventManager();
+        this.eventManager = new EventHandler();
         this.pluginHandler = new TridentPluginHandler();
         this.scheduler = new TridentScheduler();
         this.logger = logger;
@@ -219,7 +219,7 @@ public final class TridentServer implements Server {
     }
 
     @Override
-    public EventManager getEventManager() {
+    public EventHandler getEventManager() {
         return this.eventManager;
     }
 

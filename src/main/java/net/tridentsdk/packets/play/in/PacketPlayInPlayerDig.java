@@ -19,8 +19,8 @@ package net.tridentsdk.packets.play.in;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.api.BlockFace;
 import net.tridentsdk.api.Location;
-import net.tridentsdk.api.event.Ignorable;
-import net.tridentsdk.api.event.Listenable;
+import net.tridentsdk.api.event.Cancellable;
+import net.tridentsdk.api.event.Event;
 import net.tridentsdk.api.event.player.PlayerDigEvent;
 import net.tridentsdk.api.event.player.PlayerDropItemEvent;
 import net.tridentsdk.player.PlayerConnection;
@@ -99,7 +99,7 @@ public class PacketPlayInPlayerDig extends InPacket {
                 throw new IllegalArgumentException("Client sent invalid BlockFace!");
         }
 
-        Ignorable event = null;
+        Cancellable event = null;
 
         switch (digStatus) {
             case DIG_START:
@@ -121,7 +121,7 @@ public class PacketPlayInPlayerDig extends InPacket {
                 break;
         }
 
-        TridentServer.getInstance().getEventManager().call((Listenable) event);
+        TridentServer.getInstance().getEventManager().call((Event) event);
 
         if (event == null || event.isIgnored())
             return;

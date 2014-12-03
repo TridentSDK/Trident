@@ -95,6 +95,16 @@ public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implement
     }
 
     @Override
+    public void set(final TaskExecutor executor, E assignment) {
+        assigned.retrieve(assignment, new Callable<ThreadWorker>() {
+            @Override
+            public ThreadWorker call() throws Exception {
+                return (ThreadWorker) executor;
+            }
+        });
+    }
+
+    @Override
     public void removeAssignment(E assignment) {
         ThreadWorker thread = this.assigned.remove(assignment);
         thread.decrement();

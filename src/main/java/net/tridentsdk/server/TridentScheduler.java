@@ -16,7 +16,6 @@
  */
 package net.tridentsdk.server;
 
-import net.tridentsdk.api.factory.Factories;
 import net.tridentsdk.api.factory.TaskFactory;
 import net.tridentsdk.api.scheduling.SchedulerType;
 import net.tridentsdk.api.scheduling.Task;
@@ -197,7 +196,7 @@ public class TridentScheduler implements TaskFactory {
                             cancel();
                         }
                     };
-                    this.executor = Factories.threads().pluginThread(plugin);
+                    this.executor = plugin.getExecutor();
                     break;
 
                 case SYNC_LATER:
@@ -211,7 +210,7 @@ public class TridentScheduler implements TaskFactory {
                             run.incrementAndGet();
                         }
                     };
-                    this.executor = Factories.threads().pluginThread(plugin);
+                    this.executor = plugin.getExecutor();
                     break;
 
                 case SYNC_REPEAT:
@@ -223,7 +222,7 @@ public class TridentScheduler implements TaskFactory {
                             run.incrementAndGet();
                         }
                     };
-                    this.executor = Factories.threads().pluginThread(plugin);
+                    this.executor = plugin.getExecutor();
                     break;
 
                 default:

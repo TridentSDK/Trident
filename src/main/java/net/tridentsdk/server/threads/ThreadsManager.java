@@ -120,16 +120,6 @@ public final class ThreadsManager implements ThreadFactory {
     }
 
     @Override
-    public TaskExecutor pluginThread(TridentPlugin plugin) {
-        return plugins.assign(plugin);
-    }
-
-    @Override
-    public Collection<TridentPlugin> plugins() {
-        return plugins.values();
-    }
-
-    @Override
     public TaskExecutor worldThread(World world) {
         return worlds.assign(world);
     }

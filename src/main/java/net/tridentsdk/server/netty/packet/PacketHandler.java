@@ -92,7 +92,7 @@ public class PacketHandler extends SimpleChannelInboundHandler<PacketData> {
                 case PLAY:
                     PacketPlayOutDisconnect quit = new PacketPlayOutDisconnect();
 
-                    quit.set("reason", ex.getMessage());
+                    quit.set("reason", ex.getCause() == null ? "Error occurred" : ex.getCause());
 
                     this.connection.sendPacket(quit);
                     this.connection.logout();
