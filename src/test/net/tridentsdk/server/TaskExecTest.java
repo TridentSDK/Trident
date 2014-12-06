@@ -17,7 +17,7 @@
 
 package net.tridentsdk.server;
 
-import net.tridentsdk.api.threads.TaskExecutor;
+import net.tridentsdk.concurrent.TaskExecutor;
 import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;

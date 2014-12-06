@@ -17,8 +17,8 @@
 
 package net.tridentsdk.server;
 
-import net.tridentsdk.api.factory.Factories;
-import net.tridentsdk.api.scheduling.TridentRunnable;
+import net.tridentsdk.concurrent.TridentRunnable;
+import net.tridentsdk.factory.Factories;
 import net.tridentsdk.plugin.TridentPlugin;
 import net.tridentsdk.plugin.annotation.PluginDescription;
 import net.tridentsdk.server.threads.ThreadsManager;

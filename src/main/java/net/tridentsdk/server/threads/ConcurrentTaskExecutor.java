@@ -17,11 +17,11 @@
 package net.tridentsdk.server.threads;
 
 import com.google.common.collect.Lists;
-import net.tridentsdk.api.docs.AccessNoDoc;
-import net.tridentsdk.api.factory.ExecutorFactory;
-import net.tridentsdk.api.perf.Performance;
-import net.tridentsdk.api.threads.ConcurrentCache;
-import net.tridentsdk.api.threads.TaskExecutor;
+import net.tridentsdk.concurrent.ConcurrentCache;
+import net.tridentsdk.concurrent.TaskExecutor;
+import net.tridentsdk.docs.AccessNoDoc;
+import net.tridentsdk.factory.ExecutorFactory;
+import net.tridentsdk.perf.Performance;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.ArrayList;

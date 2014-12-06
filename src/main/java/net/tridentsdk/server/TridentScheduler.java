@@ -16,11 +16,11 @@
  */
 package net.tridentsdk.server;
 
-import net.tridentsdk.api.factory.TaskFactory;
-import net.tridentsdk.api.scheduling.SchedulerType;
-import net.tridentsdk.api.scheduling.Task;
-import net.tridentsdk.api.scheduling.TridentRunnable;
-import net.tridentsdk.api.threads.TaskExecutor;
+import net.tridentsdk.concurrent.SchedulerType;
+import net.tridentsdk.concurrent.Task;
+import net.tridentsdk.concurrent.TaskExecutor;
+import net.tridentsdk.concurrent.TridentRunnable;
+import net.tridentsdk.factory.TaskFactory;
 import net.tridentsdk.plugin.TridentPlugin;
 import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
 
@@ -55,10 +55,10 @@ import java.util.concurrent.atomic.AtomicLong;
  *
  * <p>The benchmarks and testing units for the TridentScheduler can be found at: http://git.io/nifjcg.</p>
  *
- * <p>Insertion logic places the task wrapped by the implementation of {@link net.tridentsdk.api.scheduling.Task} to
+ * <p>Insertion logic places the task wrapped by the implementation of {@link net.tridentsdk.concurrent.Task} to
  * perform the run logic and scheduling decisions plus automatic task cancellation. Then, the overriden runnable with
  * the task to be run is
- * {@link net.tridentsdk.api.scheduling.TridentRunnable#markSchedule(net.tridentsdk.api.scheduling.Task)}ed to indicate
+ * {@link net.tridentsdk.concurrent.TridentRunnable#markSchedule(net.tridentsdk.concurrent.Task)}ed to indicate
  * the task delegate is available.</p>
  *
  * @author The TridentSDK Team

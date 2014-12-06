@@ -17,9 +17,9 @@
 
 package net.tridentsdk.server;
 
-import net.tridentsdk.api.entity.living.Player;
-import net.tridentsdk.api.factory.Factories;
-import net.tridentsdk.player.TridentPlayer;
+import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.factory.Factories;
+import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.threads.ThreadsManager;
 import org.openjdk.jmh.annotations.Benchmark;

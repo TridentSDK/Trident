@@ -16,7 +16,7 @@
  */
 package net.tridentsdk.server.threads;
 
-import net.tridentsdk.api.factory.Factories;
+import net.tridentsdk.factory.Factories;
 import net.tridentsdk.server.TridentScheduler;
 
 import javax.annotation.concurrent.ThreadSafe;

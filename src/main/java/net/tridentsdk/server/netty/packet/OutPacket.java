@@ -17,14 +17,13 @@
 package net.tridentsdk.server.netty.packet;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.api.reflect.FastClass;
+import net.tridentsdk.perf.FastClass;
 import net.tridentsdk.server.netty.ClientConnection;
 
 /**
  * @author The TridentSDK Team
  */
 public abstract class OutPacket implements Packet {
-
     private final FastClass fastClass;
 
     public OutPacket() {

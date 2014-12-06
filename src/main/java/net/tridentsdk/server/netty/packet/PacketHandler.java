@@ -18,12 +18,12 @@ package net.tridentsdk.server.netty.packet;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import net.tridentsdk.api.Trident;
-import net.tridentsdk.packets.login.PacketLoginOutDisconnect;
-import net.tridentsdk.packets.play.out.PacketPlayOutDisconnect;
+import net.tridentsdk.Trident;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.protocol.Protocol;
+import net.tridentsdk.server.packets.login.PacketLoginOutDisconnect;
+import net.tridentsdk.server.packets.play.out.PacketPlayOutDisconnect;
 
 import javax.annotation.concurrent.ThreadSafe;
 

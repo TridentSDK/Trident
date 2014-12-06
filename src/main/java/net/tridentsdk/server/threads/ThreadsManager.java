@@ -16,16 +16,16 @@
  */
 package net.tridentsdk.server.threads;
 
-import net.tridentsdk.api.docs.InternalUseOnly;
-import net.tridentsdk.api.entity.Entity;
-import net.tridentsdk.api.entity.living.Player;
-import net.tridentsdk.api.factory.ExecutorFactory;
-import net.tridentsdk.api.factory.ThreadFactory;
-import net.tridentsdk.api.threads.TaskExecutor;
-import net.tridentsdk.api.world.World;
-import net.tridentsdk.player.PlayerConnection;
+import net.tridentsdk.concurrent.TaskExecutor;
+import net.tridentsdk.docs.InternalUseOnly;
+import net.tridentsdk.entity.Entity;
+import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.factory.ExecutorFactory;
+import net.tridentsdk.factory.ThreadFactory;
 import net.tridentsdk.plugin.TridentPlugin;
 import net.tridentsdk.server.netty.ClientConnection;
+import net.tridentsdk.server.player.PlayerConnection;
+import net.tridentsdk.world.World;
 
 import java.util.Collection;
 

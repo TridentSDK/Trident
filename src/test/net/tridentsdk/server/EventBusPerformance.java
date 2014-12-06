@@ -20,12 +20,12 @@ package net.tridentsdk.server;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
-import net.tridentsdk.api.config.JsonConfig;
-import net.tridentsdk.api.event.Listener;
-import net.tridentsdk.api.factory.CollectFactory;
-import net.tridentsdk.api.factory.ConfigFactory;
-import net.tridentsdk.api.factory.Factories;
-import net.tridentsdk.api.threads.TaskExecutor;
+import net.tridentsdk.concurrent.TaskExecutor;
+import net.tridentsdk.config.JsonConfig;
+import net.tridentsdk.event.Listener;
+import net.tridentsdk.factory.CollectFactory;
+import net.tridentsdk.factory.ConfigFactory;
+import net.tridentsdk.factory.Factories;
 import net.tridentsdk.server.threads.ThreadsManager;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
@@ -43,12 +43,12 @@ import java.util.concurrent.TimeUnit;
 /*
 Benchmark results: http://bit.ly/1B3psZv
  */
-@State(Scope.Benchmark)
+@State(Scope.Thread)
 public class EventBusPerformance {
     private static final EventBus EVENT_BUS = new EventBus();
 
     // Cannot be initialized first, else whole class cannot be loaded completely
-    private final net.tridentsdk.api.event.EventHandler EVENT_MANAGER = new net.tridentsdk.api.event.EventHandler();
+    private final net.tridentsdk.event.EventHandler EVENT_MANAGER = new net.tridentsdk.event.EventHandler();
 
     static {
         Factories.init(new CollectFactory() {
@@ -72,7 +72,7 @@ public class EventBusPerformance {
     private static final EventHandler HANDLER = new EventHandler();
     private static final Listener LISTENER = new EventListener();
 
-    private static final net.tridentsdk.api.event.Event EVENT = new Event();
+    private static final net.tridentsdk.event.Event EVENT = new Event();
 
     private static final TaskExecutor EXECUTOR = Factories
             .threads()
@@ -139,7 +139,7 @@ public class EventBusPerformance {
         EVENT_MANAGER.call(EVENT);
     }
 
-    private static class Event extends net.tridentsdk.api.event.Event {
+    private static class Event extends net.tridentsdk.event.Event {
     }
 
     private static class EventHandler {

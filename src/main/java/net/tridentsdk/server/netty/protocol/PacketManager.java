@@ -16,7 +16,7 @@
  */
 package net.tridentsdk.server.netty.protocol;
 
-import net.tridentsdk.api.reflect.FastClass;
+import net.tridentsdk.perf.FastClass;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.packet.PacketType;
 import net.tridentsdk.server.netty.packet.UnknownPacket;

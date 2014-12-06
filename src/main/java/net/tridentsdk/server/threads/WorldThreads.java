@@ -16,7 +16,7 @@
  */
 package net.tridentsdk.server.threads;
 
-import net.tridentsdk.api.threads.TaskExecutor;
+import net.tridentsdk.concurrent.TaskExecutor;
 
 /**
  * World handling threads, which there are by default 4
