@@ -20,7 +20,7 @@ import io.netty.buffer.ByteBuf;
 import net.tridentsdk.Location;
 
 /**
- * Represents a writable form of a {@link net.tridentsdk.api.Location}
+ * Represents a writable form of a {@link net.tridentsdk.Location}
  *
  * @author The TridentSDK Team
  */
@@ -39,7 +39,7 @@ public class Position implements Writable {
     /**
      * Gets the wrapped, original location
      *
-     * @return the location passed in by constructor or by {@link #setLoc(net.tridentsdk.api.Location)}
+     * @return the location passed in by constructor or by {@link #setLoc(net.tridentsdk.Location)}
      */
     public Location getLoc() {
         return this.loc;
