@@ -19,8 +19,8 @@ package net.tridentsdk.server.entity.projectile;
 import net.tridentsdk.Location;
 import net.tridentsdk.entity.EntityProperties;
 import net.tridentsdk.entity.living.ProjectileSource;
-import net.tridentsdk.server.entity.TridentProjectile;
 import net.tridentsdk.entity.projectile.Egg;
+import net.tridentsdk.server.entity.TridentProjectile;
 
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;

@@ -19,14 +19,14 @@ package net.tridentsdk.server.packets.play.in;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.Location;
 import net.tridentsdk.event.player.PlayerMoveEvent;
-import net.tridentsdk.server.packets.play.out.PacketPlayOutEntityLook;
-import net.tridentsdk.server.packets.play.out.PacketPlayOutEntityTeleport;
-import net.tridentsdk.server.player.PlayerConnection;
-import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
+import net.tridentsdk.server.packets.play.out.PacketPlayOutEntityLook;
+import net.tridentsdk.server.packets.play.out.PacketPlayOutEntityTeleport;
+import net.tridentsdk.server.player.PlayerConnection;
+import net.tridentsdk.server.player.TridentPlayer;
 
 /**
  * Packet sent when only Yaw + Pitch is sent by the client

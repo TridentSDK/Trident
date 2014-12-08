@@ -23,7 +23,7 @@ import com.google.common.util.concurrent.AtomicDouble;
 import net.tridentsdk.Location;
 import net.tridentsdk.base.Block;
 import net.tridentsdk.entity.Entity;
-import net.tridentsdk.entity.decorate.LivingEntity;
+import net.tridentsdk.entity.LivingEntity;
 import net.tridentsdk.entity.projectile.Projectile;
 import net.tridentsdk.util.Vector;
 

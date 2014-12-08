@@ -17,10 +17,10 @@
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.world.ChunkLocation;
 import net.tridentsdk.server.data.RecordBuilder;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
+import net.tridentsdk.world.ChunkLocation;
 
 public class PacketPlayOutMultiBlockChange extends OutPacket {
 

@@ -18,8 +18,8 @@ package net.tridentsdk.server.entity.block;
 
 import net.tridentsdk.Location;
 import net.tridentsdk.entity.EntityProperties;
-import net.tridentsdk.server.entity.TridentEntity;
 import net.tridentsdk.entity.block.FallingBlock;
+import net.tridentsdk.server.entity.TridentEntity;
 
 import java.util.UUID;
 

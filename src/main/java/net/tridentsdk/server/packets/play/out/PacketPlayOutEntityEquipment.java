@@ -24,6 +24,7 @@ public class PacketPlayOutEntityEquipment extends OutPacket {
 
     protected int entityId;
     protected short slot;
+    protected long item;
     // TODO: mojang slot shit
 
     @Override
@@ -43,5 +44,6 @@ public class PacketPlayOutEntityEquipment extends OutPacket {
     public void encode(ByteBuf buf) {
         Codec.writeVarInt32(buf, this.entityId);
         buf.writeShort((int) this.slot);
+        buf.writeLong(item); // TODO this is the way?
     }
 }

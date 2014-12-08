@@ -20,9 +20,9 @@ import io.netty.buffer.ByteBuf;
 import net.tridentsdk.Location;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.EntityType;
-import net.tridentsdk.util.Vector;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
+import net.tridentsdk.util.Vector;
 
 public class PacketPlayOutSpawnObject extends OutPacket {
 

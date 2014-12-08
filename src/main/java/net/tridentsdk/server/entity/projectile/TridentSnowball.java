@@ -18,7 +18,7 @@ package net.tridentsdk.server.entity.projectile;
 
 import net.tridentsdk.Location;
 import net.tridentsdk.entity.EntityProperties;
-import net.tridentsdk.entity.decorate.LivingEntity;
+import net.tridentsdk.entity.LivingEntity;
 import net.tridentsdk.entity.living.Blaze;
 import net.tridentsdk.entity.living.EnderDragon;
 import net.tridentsdk.entity.living.ProjectileSource;

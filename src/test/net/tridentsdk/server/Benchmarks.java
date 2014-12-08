@@ -4,7 +4,9 @@ import com.google.common.collect.LinkedListMultimap;
 import org.openjdk.jmh.results.BenchmarkResult;
 import org.openjdk.jmh.results.RunResult;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 public class Benchmarks {
     public static final String[] TOKENS = {"1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024"};

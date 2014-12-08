@@ -17,7 +17,10 @@
 package net.tridentsdk.server.entity.living;
 
 import net.tridentsdk.Location;
-import net.tridentsdk.entity.*;
+import net.tridentsdk.entity.Entity;
+import net.tridentsdk.entity.EntityProperties;
+import net.tridentsdk.entity.HorseType;
+import net.tridentsdk.entity.HorseVariant;
 import net.tridentsdk.entity.living.Horse;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.entity.projectile.Projectile;

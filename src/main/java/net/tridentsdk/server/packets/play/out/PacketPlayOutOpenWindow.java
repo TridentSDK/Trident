@@ -17,9 +17,9 @@
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.window.inventory.InventoryType;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
+import net.tridentsdk.window.inventory.InventoryType;
 
 public class PacketPlayOutOpenWindow extends OutPacket {
 

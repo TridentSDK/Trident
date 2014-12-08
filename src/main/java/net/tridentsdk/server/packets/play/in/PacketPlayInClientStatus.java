@@ -17,15 +17,15 @@
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.server.packets.play.out.PacketPlayOutPlayerRespawn;
-import net.tridentsdk.server.packets.play.out.PacketPlayOutStatistics;
-import net.tridentsdk.server.player.PlayerConnection;
-import net.tridentsdk.server.world.TridentWorld;
-import net.tridentsdk.world.World;
-import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
+import net.tridentsdk.server.packets.play.out.PacketPlayOutPlayerRespawn;
+import net.tridentsdk.server.packets.play.out.PacketPlayOutStatistics;
+import net.tridentsdk.server.player.PlayerConnection;
+import net.tridentsdk.server.player.TridentPlayer;
+import net.tridentsdk.server.world.TridentWorld;
+import net.tridentsdk.world.World;
 
 /**
  * Sent by the client when it's ready to login or respawn after death

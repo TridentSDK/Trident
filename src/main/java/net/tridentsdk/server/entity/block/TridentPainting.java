@@ -16,11 +16,11 @@
  */
 package net.tridentsdk.server.entity.block;
 
-import net.tridentsdk.base.Block;
 import net.tridentsdk.Location;
+import net.tridentsdk.base.Block;
 import net.tridentsdk.entity.EntityProperties;
-import net.tridentsdk.server.entity.TridentEntity;
 import net.tridentsdk.entity.block.Painting;
+import net.tridentsdk.server.entity.TridentEntity;
 
 import java.util.UUID;
 

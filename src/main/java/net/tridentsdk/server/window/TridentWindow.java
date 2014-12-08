@@ -16,9 +16,9 @@
  */
 package net.tridentsdk.server.window;
 
+import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.window.Window;
 import net.tridentsdk.window.inventory.ItemStack;
-import net.tridentsdk.server.player.TridentPlayer;
 
 import java.util.concurrent.atomic.AtomicInteger;
 

@@ -20,9 +20,9 @@ import net.tridentsdk.Location;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.EntityProperties;
 import net.tridentsdk.entity.OcelotType;
-import net.tridentsdk.entity.projectile.Projectile;
 import net.tridentsdk.entity.living.Ocelot;
 import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.entity.projectile.Projectile;
 import net.tridentsdk.event.entity.EntityDamageEvent;
 import net.tridentsdk.server.entity.TridentLivingEntity;
 

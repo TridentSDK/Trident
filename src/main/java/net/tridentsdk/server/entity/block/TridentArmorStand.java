@@ -18,8 +18,8 @@ package net.tridentsdk.server.entity.block;
 
 import net.tridentsdk.Location;
 import net.tridentsdk.entity.EntityProperties;
-import net.tridentsdk.entity.block.SlotProperties;
 import net.tridentsdk.entity.block.ArmorStand;
+import net.tridentsdk.entity.block.SlotProperties;
 import net.tridentsdk.server.entity.TridentEntity;
 import net.tridentsdk.util.PartRotation;
 import net.tridentsdk.window.inventory.ItemStack;
@@ -69,6 +69,10 @@ public class TridentArmorStand extends TridentEntity implements ArmorStand {
     @Override
     public ItemStack[] getEquipment() {
         return new ItemStack[0];
+    }
+
+    @Override
+    public void setEquipment(ItemStack[] stack) {
     }
 
     @Override

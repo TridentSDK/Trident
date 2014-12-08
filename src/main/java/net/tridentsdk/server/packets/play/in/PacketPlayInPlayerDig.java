@@ -17,18 +17,18 @@
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.base.BlockFace;
 import net.tridentsdk.Location;
+import net.tridentsdk.base.BlockFace;
 import net.tridentsdk.event.Cancellable;
 import net.tridentsdk.event.Event;
 import net.tridentsdk.event.player.PlayerDigEvent;
 import net.tridentsdk.event.player.PlayerDropItemEvent;
-import net.tridentsdk.server.player.PlayerConnection;
-import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
+import net.tridentsdk.server.player.PlayerConnection;
+import net.tridentsdk.server.player.TridentPlayer;
 
 public class PacketPlayInPlayerDig extends InPacket {
     private short status;

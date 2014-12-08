@@ -18,13 +18,13 @@ package net.tridentsdk.server.packets.login;
 
 import com.google.gson.Gson;
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.encryption.RSA;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.protocol.Protocol;
+import net.tridentsdk.server.player.TridentPlayer;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;

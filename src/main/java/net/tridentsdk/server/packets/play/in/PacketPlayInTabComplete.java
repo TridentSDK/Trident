@@ -19,12 +19,12 @@ package net.tridentsdk.server.packets.play.in;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.Location;
 import net.tridentsdk.event.player.PlayerTabCompleteEvent;
-import net.tridentsdk.server.packets.play.out.PacketPlayOutTabComplete;
-import net.tridentsdk.server.player.PlayerConnection;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
+import net.tridentsdk.server.packets.play.out.PacketPlayOutTabComplete;
+import net.tridentsdk.server.player.PlayerConnection;
 
 /**
  * Sent when the user presses tab while writing text. The payload contains all text behind the cursor.

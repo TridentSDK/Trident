@@ -19,8 +19,8 @@ package net.tridentsdk.server.player;
 import net.tridentsdk.meta.nbt.NBTField;
 import net.tridentsdk.meta.nbt.NBTSerializable;
 import net.tridentsdk.meta.nbt.TagType;
-import net.tridentsdk.server.packets.play.out.PacketPlayOutPlayerAbilities;
 import net.tridentsdk.server.netty.packet.OutPacket;
+import net.tridentsdk.server.packets.play.out.PacketPlayOutPlayerAbilities;
 
 public class PlayerAbilities implements NBTSerializable {
     @NBTField(name = "walkSpeed", type = TagType.FLOAT)

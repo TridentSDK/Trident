@@ -18,12 +18,12 @@ package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.event.player.PlayerClickItemEvent;
-import net.tridentsdk.server.data.Slot;
-import net.tridentsdk.window.Window;
 import net.tridentsdk.server.TridentServer;
+import net.tridentsdk.server.data.Slot;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
+import net.tridentsdk.window.Window;
 
 /**
  * Packet sent by the player when it clicks on a slot in a window.

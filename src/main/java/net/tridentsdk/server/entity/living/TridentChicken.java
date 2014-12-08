@@ -19,9 +19,9 @@ package net.tridentsdk.server.entity.living;
 import net.tridentsdk.Location;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.EntityProperties;
-import net.tridentsdk.entity.projectile.Projectile;
 import net.tridentsdk.entity.living.Chicken;
 import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.entity.projectile.Projectile;
 import net.tridentsdk.event.entity.EntityDamageEvent;
 import net.tridentsdk.server.entity.TridentLivingEntity;
 

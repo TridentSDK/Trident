@@ -19,9 +19,9 @@ package net.tridentsdk.server.netty;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
-import net.tridentsdk.server.packets.login.PacketLoginOutSetCompression;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.protocol.Protocol;
+import net.tridentsdk.server.packets.login.PacketLoginOutSetCompression;
 import net.tridentsdk.server.threads.ThreadsManager;
 
 import javax.crypto.Cipher;
