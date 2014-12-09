@@ -17,7 +17,6 @@
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Location;
 import net.tridentsdk.server.data.Position;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
@@ -25,7 +24,7 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 public class PacketPlayOutBlockBreakAnimation extends OutPacket {
 
     protected int entityId;
-    protected Location location;
+    protected Coordinates location;
     protected short destroyStage;
 
     @Override
@@ -37,7 +36,7 @@ public class PacketPlayOutBlockBreakAnimation extends OutPacket {
         return this.entityId;
     }
 
-    public Location getLocation() {
+    public Coordinates getLocation() {
         return this.location;
     }
 

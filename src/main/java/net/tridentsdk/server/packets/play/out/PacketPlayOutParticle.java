@@ -17,7 +17,6 @@
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Location;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 import net.tridentsdk.util.Vector;
@@ -26,7 +25,7 @@ public class PacketPlayOutParticle extends OutPacket {
 
     protected int particleId;
     protected boolean distance;
-    protected Location loc;
+    protected Coordinates loc;
     protected Vector offset; // d - (d * Random#nextGaussian())
     protected float particleData;
     protected int[] data;
@@ -44,7 +43,7 @@ public class PacketPlayOutParticle extends OutPacket {
         return this.distance;
     }
 
-    public Location getLoc() {
+    public Coordinates getLoc() {
         return this.loc;
     }
 

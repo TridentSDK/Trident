@@ -17,10 +17,10 @@
 package net.tridentsdk.server.world;
 
 import com.google.common.io.ByteStreams;
+import net.tridentsdk.Coordinates;
 import net.tridentsdk.Difficulty;
 import net.tridentsdk.GameMode;
-import net.tridentsdk.Location;
-import net.tridentsdk.base.Block;
+import net.tridentsdk.base.Tile;
 import net.tridentsdk.meta.nbt.*;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.player.OfflinePlayer;
@@ -47,14 +47,14 @@ public class TridentWorld implements World {
     private Difficulty difficulty;
     private GameMode defaultGamemode;
     private LevelType type;
-    private final Location spawnLocation;
+    private final Coordinates spawnLocation;
 
     TridentWorld(String name, WorldLoader loader) {
         this.name = name;
         this.loader = loader;
         this.random = new Random();
 
-        spawnLocation = new Location(this, 0d, 0d, 0d);
+        spawnLocation = new Coordinates(this, 0d, 0d, 0d);
         Logger logger = LoggerFactory.getLogger(TridentServer.class);
 
         logger.info("Starting to load " + name + "...");
@@ -196,24 +196,17 @@ public class TridentWorld implements World {
         return this.getChunkAt(location, false);
     }
 
+    @Override
+    public Tile getTileAt(Coordinates location) {
+        return null;
+    }
+
     private void addChunkAt(ChunkLocation location, Chunk chunk) {
         if (location == null) {
             throw new NullPointerException("Location cannot be null");
         }
 
         this.loadedChunks.put(location, (TridentChunk) chunk);
-    }
-
-    @Override
-    public Block getBlockAt(Location location) {
-        if (!location.getWorld().getName().equals(this.getName()))
-            throw new IllegalArgumentException("Provided location does not have the same world!");
-
-        int x = (int) Math.round(location.getX());
-        int y = (int) Math.round(location.getY());
-        int z = (int) Math.round(location.getZ());
-
-        return this.getChunkAt(WorldUtils.getChunkLocation(x, z), true).getBlockAt(x % 16, y, z % 16);
     }
 
     @Override
@@ -241,7 +234,7 @@ public class TridentWorld implements World {
     }
 
     @Override
-    public Location getSpawnLocation() {
+    public Coordinates getSpawnLocation() {
         return spawnLocation;
     }
 
@@ -261,7 +254,7 @@ public class TridentWorld implements World {
     }
 
     @Override
-    public Location getSpawn() {
+    public Coordinates getSpawn() {
         return spawnLocation;
     }
 
@@ -296,7 +289,7 @@ public class TridentWorld implements World {
     }
 
     @Override
-    public Location getBorderCenter() {
+    public Coordinates getBorderCenter() {
         return null;
     }
 

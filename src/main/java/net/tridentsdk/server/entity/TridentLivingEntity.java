@@ -20,8 +20,8 @@ import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.AtomicDouble;
-import net.tridentsdk.Location;
-import net.tridentsdk.base.Block;
+import net.tridentsdk.Coordinates;
+import net.tridentsdk.base.Tile;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.LivingEntity;
 import net.tridentsdk.entity.projectile.Projectile;
@@ -74,7 +74,7 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
      * <p/>
      * <p>The entity is immediately set "non-dead" after {@code super} call</p>
      */
-    public TridentLivingEntity(UUID id, Location spawnLocation) {
+    public TridentLivingEntity(UUID id, Coordinates spawnLocation) {
         super(id, spawnLocation);
 
         this.dead = false;
@@ -101,7 +101,7 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
     }
 
     @Override
-    public Location getEyeLocation() {
+    public Coordinates getEyeLocation() {
         return this.getLocation().getRelative(new Vector(0.0d, 1.0d, 0.0d));
     }
 
@@ -143,7 +143,7 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
     }
 
     @Override
-    public Block impaledTile() {
+    public Tile impaledTile() {
         return null;
     }
 

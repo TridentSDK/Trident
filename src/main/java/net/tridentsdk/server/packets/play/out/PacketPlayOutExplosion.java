@@ -17,13 +17,12 @@
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Location;
 import net.tridentsdk.server.data.RecordBuilder;
 import net.tridentsdk.server.netty.packet.OutPacket;
 import net.tridentsdk.util.Vector;
 
 public class PacketPlayOutExplosion extends OutPacket {
-    protected Location loc;
+    protected Coordinates loc;
     protected int recordCount;
     protected RecordBuilder[] records;
     protected Vector velocity;
@@ -33,7 +32,7 @@ public class PacketPlayOutExplosion extends OutPacket {
         return 0x27;
     }
 
-    public Location getLoc() {
+    public Coordinates getLoc() {
         return this.loc;
     }
 

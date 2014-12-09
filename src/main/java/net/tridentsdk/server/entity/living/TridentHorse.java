@@ -16,7 +16,6 @@
  */
 package net.tridentsdk.server.entity.living;
 
-import net.tridentsdk.Location;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.EntityProperties;
 import net.tridentsdk.entity.HorseType;
@@ -27,13 +26,12 @@ import net.tridentsdk.entity.projectile.Projectile;
 import net.tridentsdk.event.entity.EntityDamageEvent;
 import net.tridentsdk.server.entity.TridentLivingEntity;
 import net.tridentsdk.window.inventory.Inventory;
-import net.tridentsdk.window.inventory.ItemStack;
 
 import java.util.UUID;
 
 public class TridentHorse extends TridentLivingEntity implements Horse {
 
-    public TridentHorse(UUID id, Location spawnLocation) {
+    public TridentHorse(UUID id, Coordinates spawnLocation) {
         super(id, spawnLocation);
     }
 

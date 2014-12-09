@@ -16,11 +16,12 @@
  */
 package net.tridentsdk.server.world;
 
-import net.tridentsdk.Location;
-import net.tridentsdk.base.Block;
-import net.tridentsdk.base.Material;
-public class TridentBlock extends Block {
-    public TridentBlock(Location location, Material material1, byte data) {
+import net.tridentsdk.Coordinates;
+import net.tridentsdk.base.Substance;
+import net.tridentsdk.base.Tile;
+
+public class TridentBlock extends Tile {
+    public TridentBlock(Coordinates location, Substance material1, byte data) {
         super(location, true);
         super.material = material1;
         super.data = data;

@@ -16,7 +16,6 @@
  */
 package net.tridentsdk.server.entity.living;
 
-import net.tridentsdk.Location;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.EntityProperties;
 import net.tridentsdk.entity.living.Endermite;
@@ -28,7 +27,7 @@ import net.tridentsdk.server.entity.TridentLivingEntity;
 import java.util.UUID;
 
 public class TridentEndermite extends TridentLivingEntity implements Endermite {
-    public TridentEndermite(UUID id, Location spawnLocation) {
+    public TridentEndermite(UUID id, Coordinates spawnLocation) {
         super(id, spawnLocation);
     }
 

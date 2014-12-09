@@ -17,31 +17,31 @@
 package net.tridentsdk.server.data;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Location;
+import net.tridentsdk.Coordinates;
 
 /**
- * Represents a writable form of a {@link net.tridentsdk.Location}
+ * Represents a writable form of a {@link net.tridentsdk.Coordinates}
  *
  * @author The TridentSDK Team
  */
 public class Position implements Writable {
-    private Location loc;
+    private Coordinates loc;
 
     /**
      * Creates a new position based from an existing location
      *
      * @param loc the location to wrap with writable format
      */
-    public Position(Location loc) {
+    public Position(Coordinates loc) {
         this.loc = loc;
     }
 
     /**
      * Gets the wrapped, original location
      *
-     * @return the location passed in by constructor or by {@link #setLoc(net.tridentsdk.Location)}
+     * @return the location passed in by constructor or by {@link #setLoc(net.tridentsdk.Coordinates)}
      */
-    public Location getLoc() {
+    public Coordinates getLoc() {
         return this.loc;
     }
 
@@ -53,7 +53,7 @@ public class Position implements Writable {
      *
      * @param loc the location to wrap with writable format
      */
-    public void setLoc(Location loc) {
+    public void setLoc(Coordinates loc) {
         this.loc = loc;
     }
 

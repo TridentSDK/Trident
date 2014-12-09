@@ -17,7 +17,6 @@
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Location;
 import net.tridentsdk.event.player.PlayerMoveEvent;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.netty.ClientConnection;
@@ -64,8 +63,8 @@ public class PacketPlayInPlayerLook extends InPacket {
     @Override
     public void handleReceived(ClientConnection connection) {
         TridentPlayer player = ((PlayerConnection) connection).getPlayer();
-        Location from = player.getLocation();
-        Location to = player.getLocation();
+        Coordinates from = player.getLocation();
+        Coordinates to = player.getLocation();
 
         to.setYaw(this.newYaw);
         to.setPitch(this.newPitch);

@@ -17,7 +17,6 @@
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Location;
 import net.tridentsdk.event.Cancellable;
 import net.tridentsdk.event.player.PlayerMoveEvent;
 import net.tridentsdk.server.netty.ClientConnection;
@@ -51,7 +50,7 @@ public class PacketPlayInPlayerCompleteMove extends PacketPlayInPlayerMove {
         double y = buf.readDouble();
         double z = buf.readDouble();
 
-        super.location = new Location(null, x, y, z);
+        super.location = new Coordinates(null, x, y, z);
 
         this.newYaw = buf.readFloat();
         this.newPitch = buf.readFloat();

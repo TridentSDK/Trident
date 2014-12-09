@@ -16,7 +16,6 @@
  */
 package net.tridentsdk.server.entity.living;
 
-import net.tridentsdk.Location;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.EntityProperties;
 import net.tridentsdk.entity.living.Pig;
@@ -29,7 +28,7 @@ import java.util.UUID;
 
 public class TridentPig extends TridentLivingEntity implements Pig {
 
-    public TridentPig(UUID id, Location spawnLocation) {
+    public TridentPig(UUID id, Coordinates spawnLocation) {
         super(id, spawnLocation);
     }
 

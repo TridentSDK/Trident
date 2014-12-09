@@ -16,9 +16,7 @@
  */
 package net.tridentsdk.server.entity.projectile;
 
-import net.tridentsdk.Location;
 import net.tridentsdk.entity.EntityProperties;
-import net.tridentsdk.entity.living.ProjectileSource;
 import net.tridentsdk.entity.projectile.Egg;
 import net.tridentsdk.server.entity.TridentProjectile;
 
@@ -34,7 +32,7 @@ public class TridentEgg extends TridentProjectile implements Egg {
     /**
      * Inherits constructor from {@link net.tridentsdk.server.entity.TridentProjectile}
      */
-    public TridentEgg(UUID uniqueId, Location spawnLocation, ProjectileSource source) {
+    public TridentEgg(UUID uniqueId, Coordinates spawnLocation, ProjectileSource source) {
         super(uniqueId, spawnLocation, source);
     }
 

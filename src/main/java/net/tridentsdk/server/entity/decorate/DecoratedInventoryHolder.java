@@ -25,7 +25,6 @@ import net.tridentsdk.server.packets.play.out.PacketPlayOutOpenWindow;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.window.inventory.Inventory;
 import net.tridentsdk.window.inventory.InventoryType;
-import net.tridentsdk.window.inventory.ItemStack;
 
 public class DecoratedInventoryHolder extends DecorationAdapter<Entity> implements InventoryHolder {
     @Volatile(policy = "Do not localize", reason = "IntelliJ thinks it's ok for statics", fix = "DON'T DO IT")

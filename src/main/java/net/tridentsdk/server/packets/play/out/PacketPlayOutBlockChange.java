@@ -17,13 +17,12 @@
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Location;
 import net.tridentsdk.server.data.Position;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutBlockChange extends OutPacket {
-    protected Location location;
+    protected Coordinates location;
     protected int blockId;
 
     @Override
@@ -31,7 +30,7 @@ public class PacketPlayOutBlockChange extends OutPacket {
         return 0x23;
     }
 
-    public Location getLocation() {
+    public Coordinates getLocation() {
         return this.location;
     }
 

@@ -17,7 +17,6 @@
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Location;
 import net.tridentsdk.event.player.PlayerTabCompleteEvent;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
@@ -42,7 +41,7 @@ public class PacketPlayInTabComplete extends InPacket {
     /**
      * Position of the block the player is looking at, only sent if hasPosition is true
      */
-    protected Location lookedAtBlock;
+    protected Coordinates lookedAtBlock;
 
     @Override
     public int getId() {
@@ -60,7 +59,7 @@ public class PacketPlayInTabComplete extends InPacket {
             double y = (double) (encoded << 26 >> 52);
             double z = (double) (encoded << 38 >> 38);
 
-            this.lookedAtBlock = new Location(null, x, y, z);
+            this.lookedAtBlock = new Coordinates(null, x, y, z);
         }
 
         return this;
@@ -74,7 +73,7 @@ public class PacketPlayInTabComplete extends InPacket {
         return this.hasPosition;
     }
 
-    public Location getLookedAtBlock() {
+    public Coordinates getLookedAtBlock() {
         return this.lookedAtBlock;
     }
 

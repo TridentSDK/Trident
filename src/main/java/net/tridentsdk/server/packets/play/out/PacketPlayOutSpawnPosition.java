@@ -17,19 +17,18 @@
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Location;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutSpawnPosition extends OutPacket {
 
-    protected Location location;
+    protected Coordinates location;
 
     @Override
     public int getId() {
         return 0x05;
     }
 
-    public Location getLocation() {
+    public Coordinates getLocation() {
         return this.location;
     }
 

@@ -17,7 +17,6 @@
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Location;
 import net.tridentsdk.event.player.PlayerMoveEvent;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.netty.ClientConnection;
@@ -35,7 +34,7 @@ public class PacketPlayInPlayerMove extends InPacket {
     /**
      * Updated location, Y is the feet location
      */
-    protected Location location;
+    protected Coordinates location;
     /**
      * Wether the player is on the ground or not
      */
@@ -52,14 +51,14 @@ public class PacketPlayInPlayerMove extends InPacket {
         double y = buf.readDouble();
         double z = buf.readDouble();
 
-        this.location = new Location(null, x, y, z); // TODO: Get the player's world
+        this.location = new Coordinates(null, x, y, z); // TODO: Get the player's world
 
         this.onGround = buf.readBoolean();
 
         return this;
     }
 
-    public Location getLocation() {
+    public Coordinates getLocation() {
         return this.location;
     }
 
@@ -71,8 +70,8 @@ public class PacketPlayInPlayerMove extends InPacket {
     public void handleReceived(ClientConnection connection) {
         TridentPlayer player = ((PlayerConnection) connection).getPlayer();
         this.location.setWorld(player.getWorld());
-        Location from = player.getLocation();
-        Location to = this.location;
+        Coordinates from = player.getLocation();
+        Coordinates to = this.location;
 
         PlayerMoveEvent event = new PlayerMoveEvent(player, from, to);
 

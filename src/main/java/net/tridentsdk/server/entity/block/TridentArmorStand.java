@@ -16,18 +16,16 @@
  */
 package net.tridentsdk.server.entity.block;
 
-import net.tridentsdk.Location;
 import net.tridentsdk.entity.EntityProperties;
 import net.tridentsdk.entity.block.ArmorStand;
 import net.tridentsdk.entity.block.SlotProperties;
 import net.tridentsdk.server.entity.TridentEntity;
 import net.tridentsdk.util.PartRotation;
-import net.tridentsdk.window.inventory.ItemStack;
 
 import java.util.UUID;
 
 public class TridentArmorStand extends TridentEntity implements ArmorStand {
-    public TridentArmorStand(UUID id, Location spawnLocation) {
+    public TridentArmorStand(UUID id, Coordinates spawnLocation) {
         super(id, spawnLocation);
     }
 

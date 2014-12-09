@@ -16,14 +16,13 @@
  */
 package net.tridentsdk.server.entity.block;
 
-import net.tridentsdk.Location;
 import net.tridentsdk.entity.block.PrimeTNT;
 
 import java.util.UUID;
 
 public class TridentPrimeTNT extends TridentFallingBlock implements PrimeTNT {
 
-    public TridentPrimeTNT(UUID id, Location spawnLocation) {
+    public TridentPrimeTNT(UUID id, Coordinates spawnLocation) {
         super(id, spawnLocation);
     }
 

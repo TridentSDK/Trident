@@ -17,14 +17,13 @@
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Location;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutSpawnExperienceOrb extends OutPacket {
 
     protected int entityId;
-    protected Location location;
+    protected Coordinates location;
     protected short count;
 
     @Override
@@ -36,7 +35,7 @@ public class PacketPlayOutSpawnExperienceOrb extends OutPacket {
         return this.entityId;
     }
 
-    public Location getLocation() {
+    public Coordinates getLocation() {
         return this.location;
     }
 

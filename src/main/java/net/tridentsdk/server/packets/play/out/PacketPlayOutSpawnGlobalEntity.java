@@ -17,7 +17,6 @@
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Location;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
@@ -28,7 +27,7 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 public class PacketPlayOutSpawnGlobalEntity extends OutPacket {
 
     protected int entityId;
-    protected Location loc;
+    protected Coordinates loc;
 
     @Override
     public int getId() {
@@ -39,7 +38,7 @@ public class PacketPlayOutSpawnGlobalEntity extends OutPacket {
         return this.entityId;
     }
 
-    public Location getLoc() {
+    public Coordinates getLoc() {
         return this.loc;
     }
 

@@ -16,9 +16,9 @@
  */
 package net.tridentsdk.server.entity;
 
-import net.tridentsdk.Location;
+import net.tridentsdk.Coordinates;
 import net.tridentsdk.Trident;
-import net.tridentsdk.base.Material;
+import net.tridentsdk.base.Substance;
 import net.tridentsdk.concurrent.TaskExecutor;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.EntityProperties;
@@ -75,7 +75,7 @@ public class TridentEntity implements Entity {
     /**
      * The entity location
      */
-    protected volatile Location loc;
+    protected volatile Coordinates loc;
     /**
      * Whether or not the entity has changed position
      */
@@ -121,7 +121,7 @@ public class TridentEntity implements Entity {
      * @param uniqueId      the UUID of the entity
      * @param spawnLocation the location which the entity is to be spawned
      */
-    public TridentEntity(UUID uniqueId, Location spawnLocation) {
+    public TridentEntity(UUID uniqueId, Coordinates spawnLocation) {
         this.uniqueId = uniqueId;
         this.id = counter.incrementAndGet();
 
@@ -132,10 +132,10 @@ public class TridentEntity implements Entity {
         this.locationChanged = false;
 
         for (double y = this.loc.getY(); y > 0.0; y--) {
-            Location l = new Location(this.loc.getWorld(), this.loc.getX(),
+            Coordinates l = new Coordinates(this.loc.getWorld(), this.loc.getX(),
                     y, this.loc.getZ());
 
-            if (l.getWorld().getBlockAt(l).getType() != Material.AIR) {
+            if (l.getWorld().getTileAt(l).getSubstance() != Substance.AIR) {
                 this.fallDistance.set((long) (this.loc.getY() - y));
                 this.onGround = this.fallDistance.get() == 0.0D;
                 // Depending on what you want to do here, it may or may not work when multithreading
@@ -158,7 +158,7 @@ public class TridentEntity implements Entity {
 
     @Override
     public void teleport(double x, double y, double z) {
-        this.teleport(new Location(this.getWorld(), x, y, z));
+        this.teleport(new Coordinates(this.getWorld(), x, y, z));
     }
 
     @Override
@@ -167,15 +167,15 @@ public class TridentEntity implements Entity {
     }
 
     @Override
-    public void teleport(Location location) {
+    public void teleport(Coordinates location) {
         this.loc = location;
         this.locationChanged = true;
 
         for (double y = this.loc.getY(); y > 0.0; y--) {
-            Location l = new Location(this.loc.getWorld(), this.loc.getX(),
+            Coordinates l = new Coordinates(this.loc.getWorld(), this.loc.getX(),
                     y, this.loc.getZ());
 
-            if (l.getWorld().getBlockAt(l).getType() != Material.AIR) {
+            if (l.getWorld().getTileAt(l).getSubstance() != Substance.AIR) {
                 this.fallDistance.set((long) (this.loc.getY() - y));
                 this.onGround = this.fallDistance.get() == 0.0D;
 
@@ -194,11 +194,11 @@ public class TridentEntity implements Entity {
     }
 
     @Override
-    public Location getLocation() {
+    public Coordinates getLocation() {
         return this.loc;
     }
 
-    public void setLocation(Location loc) {
+    public void setLocation(Coordinates loc) {
         this.loc = loc;
     }
 
@@ -336,7 +336,7 @@ public class TridentEntity implements Entity {
         /* Set data */
         this.id = counter.incrementAndGet();
 
-        loc = new Location(Trident.getWorlds().iterator().next(), 0, 0, 0);
+        loc = new Coordinates(Trident.getWorlds().iterator().next(), 0, 0, 0);
         velocity = new Vector(0, 0, 0);
 
         this.uniqueId = new UUID(uuidMost.getValue(), uuidLeast.getValue());

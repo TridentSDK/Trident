@@ -21,7 +21,6 @@ import net.tridentsdk.entity.decorate.Equippable;
 import net.tridentsdk.entity.decorate.LivingDecorationAdapter;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutEntityEquipment;
 import net.tridentsdk.server.player.TridentPlayer;
-import net.tridentsdk.window.inventory.ItemStack;
 
 public class DecoratedEquippable extends LivingDecorationAdapter implements Equippable {
     private ItemStack[] equipment = new ItemStack[4];

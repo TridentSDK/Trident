@@ -16,8 +16,8 @@
  */
 package net.tridentsdk.server.entity.block;
 
-import net.tridentsdk.Location;
-import net.tridentsdk.base.Block;
+import net.tridentsdk.Coordinates;
+import net.tridentsdk.base.Tile;
 import net.tridentsdk.entity.EntityProperties;
 import net.tridentsdk.entity.block.Painting;
 import net.tridentsdk.server.entity.TridentEntity;
@@ -25,17 +25,12 @@ import net.tridentsdk.server.entity.TridentEntity;
 import java.util.UUID;
 
 public class TridentPainting extends TridentEntity implements Painting {
-    public TridentPainting(UUID uniqueId, Location spawnLocation) {
+    public TridentPainting(UUID uniqueId, Coordinates spawnLocation) {
         super(uniqueId, spawnLocation);
     }
 
     @Override
     public String getMotive() {
-        return null;
-    }
-
-    @Override
-    public Block getBlockPlacedOn() {
         return null;
     }
 
@@ -47,5 +42,10 @@ public class TridentPainting extends TridentEntity implements Painting {
     @Override
     public void applyProperties(EntityProperties properties) {
 
+    }
+
+    @Override
+    public Tile getHangingBlock() {
+        return null;
     }
 }

@@ -18,7 +18,6 @@ package net.tridentsdk.server.player;
 
 import io.netty.util.internal.ConcurrentSet;
 import net.tridentsdk.GameMode;
-import net.tridentsdk.Location;
 import net.tridentsdk.Trident;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.EntityProperties;
@@ -31,7 +30,6 @@ import net.tridentsdk.server.data.Slot;
 import net.tridentsdk.server.entity.TridentInventoryHolder;
 import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.window.inventory.Inventory;
-import net.tridentsdk.window.inventory.ItemStack;
 import net.tridentsdk.world.Dimension;
 import net.tridentsdk.world.World;
 
@@ -47,7 +45,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     protected GameMode gameMode;
     protected int score;
     protected short selectedSlot;
-    protected Location spawnLocation;
+    protected Coordinates spawnLocation;
     protected short hunger;
     protected float exhaustion;
     protected float saturation;
@@ -70,7 +68,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
         selectedSlot = (short) ((IntTag) tag.getTag("SelectedItemSlot")).getValue();
 
         if (tag.containsTag("SpawnX")) {
-            spawnLocation = new Location(world, ((IntTag) tag.getTag("SpawnX")).getValue(),
+            spawnLocation = new Coordinates(world, ((IntTag) tag.getTag("SpawnX")).getValue(),
                     ((IntTag) tag.getTag("SpawnY")).getValue(),
                     ((IntTag) tag.getTag("SpawnZ")).getValue());
         } else {
@@ -114,7 +112,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
 
     public static CompoundTag generatePlayer(String name, UUID id) {
         World defaultWorld = Trident.getServer().getWorlds().iterator().next();
-        Location spawnLocation = defaultWorld.getSpawnLocation();
+        Coordinates spawnLocation = defaultWorld.getSpawnLocation();
         CompoundTagBuilder<NBTBuilder> builder = TridentFactory.createNbtBuilder("buttfuckery"); // because why the fuck not
 
         builder.stringTag("id", String.valueOf(counter.incrementAndGet()));
@@ -186,7 +184,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
         return builder.endCompoundTag().build();
     }
 
-    public Location getSpawnLocation() {
+    public Coordinates getSpawnLocation() {
         return spawnLocation;
     }
 

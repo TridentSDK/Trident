@@ -17,14 +17,12 @@
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Location;
-import net.tridentsdk.base.Sound;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutSoundEffect extends OutPacket {
     protected Sound soundName;
-    protected Location loc;
+    protected Coordinates loc;
     protected float volume; // f * 100
     protected int pitch; // 63 = 100%
 
@@ -40,7 +38,7 @@ public class PacketPlayOutSoundEffect extends OutPacket {
         return this.soundName;
     }
 
-    public Location getLoc() {
+    public Coordinates getLoc() {
         return this.loc;
     }
 

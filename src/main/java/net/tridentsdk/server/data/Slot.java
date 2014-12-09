@@ -18,15 +18,15 @@ package net.tridentsdk.server.data;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
-import net.tridentsdk.base.Material;
+import net.tridentsdk.base.Substance;
 import net.tridentsdk.meta.nbt.*;
-import net.tridentsdk.window.inventory.ItemStack;
+import net.tridentsdk.window.inventory.Item;
 
 public class Slot implements Writable, NBTSerializable {
 
     @NBTField(name = "id", type = TagType.SHORT)
     private short id;
-    private Material mat;
+    private Substance mat;
 
     @NBTField(name = "Slot", type = TagType.BYTE)
     private byte slot;
@@ -39,7 +39,7 @@ public class Slot implements Writable, NBTSerializable {
 
     public Slot(ByteBuf buf) {
         this.id = (short) buf.readByte();
-        this.mat = Material.fromString(String.valueOf(this.id));
+        this.mat = Substance.fromString(String.valueOf(this.id));
 
         if (this.id == -1) {
             return;
@@ -60,7 +60,7 @@ public class Slot implements Writable, NBTSerializable {
         }
     }
 
-    public Slot(ItemStack is) {
+    public Slot(Item is) {
         this.id = (short) is.getId();
         this.mat = is.getType();
 
@@ -87,7 +87,7 @@ public class Slot implements Writable, NBTSerializable {
      *
      * @return the item type occupying the slot
      */
-    public Material getType() {
+    public Substance getType() {
         return this.mat;
     }
 
@@ -138,8 +138,8 @@ public class Slot implements Writable, NBTSerializable {
         }
     }
 
-    public ItemStack toItemStack() {
-        ItemStack is = new ItemStack(Material.fromString(String.valueOf(id)));
+    public Item toItemStack() {
+        Item is = new Item(Substance.fromString(String.valueOf(id)));
 
         is.setQuantity(quantity);
         is.setDamageValue(damageValue);

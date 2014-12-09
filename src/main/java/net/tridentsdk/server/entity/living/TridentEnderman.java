@@ -16,7 +16,6 @@
  */
 package net.tridentsdk.server.entity.living;
 
-import net.tridentsdk.Location;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.EntityProperties;
 import net.tridentsdk.entity.living.Enderman;
@@ -29,7 +28,7 @@ import java.util.UUID;
 
 public class TridentEnderman extends TridentLivingEntity implements Enderman {
 
-    public TridentEnderman(UUID id, Location spawnLocation) {
+    public TridentEnderman(UUID id, Coordinates spawnLocation) {
         super(id, spawnLocation);
     }
 

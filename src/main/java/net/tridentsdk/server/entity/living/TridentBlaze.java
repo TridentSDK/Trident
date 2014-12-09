@@ -16,7 +16,6 @@
  */
 package net.tridentsdk.server.entity.living;
 
-import net.tridentsdk.Location;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.EntityProperties;
 import net.tridentsdk.entity.living.Blaze;
@@ -28,7 +27,7 @@ import net.tridentsdk.server.entity.TridentLivingEntity;
 import java.util.UUID;
 
 public class TridentBlaze extends TridentLivingEntity implements Blaze {
-    public TridentBlaze(UUID id, Location spawnLocation) {
+    public TridentBlaze(UUID id, Coordinates spawnLocation) {
         super(id, spawnLocation);
     }
 

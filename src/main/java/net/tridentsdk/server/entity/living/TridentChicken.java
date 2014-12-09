@@ -16,7 +16,6 @@
  */
 package net.tridentsdk.server.entity.living;
 
-import net.tridentsdk.Location;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.EntityProperties;
 import net.tridentsdk.entity.living.Chicken;
@@ -28,7 +27,7 @@ import net.tridentsdk.server.entity.TridentLivingEntity;
 import java.util.UUID;
 
 public class TridentChicken extends TridentLivingEntity implements Chicken {
-    public TridentChicken(UUID id, Location spawnLocation) {
+    public TridentChicken(UUID id, Coordinates spawnLocation) {
         super(id, spawnLocation);
     }
 

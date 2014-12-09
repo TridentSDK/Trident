@@ -17,7 +17,6 @@
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Location;
 import net.tridentsdk.server.data.Position;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
@@ -25,7 +24,7 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 public class PacketPlayOutSpawnPainting extends OutPacket {
     protected int entityId;
     protected String title;
-    protected Location location;
+    protected Coordinates location;
     protected short direction;
 
     @Override
@@ -41,7 +40,7 @@ public class PacketPlayOutSpawnPainting extends OutPacket {
         return this.title;
     }
 
-    public Location getLocation() {
+    public Coordinates getLocation() {
         return this.location;
     }
 

@@ -17,7 +17,6 @@
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Location;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.InPacket;
@@ -35,7 +34,7 @@ public class PacketPlayInUpdateSign extends InPacket {
     /**
      * Location of the sign
      */
-    protected Location signLocation;
+    protected Coordinates signLocation;
 
     @Override
     public int getId() {
@@ -49,7 +48,7 @@ public class PacketPlayInUpdateSign extends InPacket {
         double y = (double) (encoded << 26 >> 52);
         double z = (double) (encoded << 38 >> 38);
 
-        this.signLocation = new Location(null, x, y, z);
+        this.signLocation = new Coordinates(null, x, y, z);
 
         for (int i = 0; i <= 4; i++) {
             this.jsonContents[i] = Codec.readString(buf);
@@ -57,7 +56,7 @@ public class PacketPlayInUpdateSign extends InPacket {
         return this;
     }
 
-    public Location getSignLocation() {
+    public Coordinates getSignLocation() {
         return this.signLocation;
     }
 

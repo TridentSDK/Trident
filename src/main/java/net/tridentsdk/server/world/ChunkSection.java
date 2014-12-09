@@ -16,9 +16,9 @@
  */
 package net.tridentsdk.server.world;
 
-import net.tridentsdk.Location;
-import net.tridentsdk.base.Block;
-import net.tridentsdk.base.Material;
+import net.tridentsdk.Coordinates;
+import net.tridentsdk.base.Substance;
+import net.tridentsdk.base.Tile;
 import net.tridentsdk.meta.nbt.NBTField;
 import net.tridentsdk.meta.nbt.NBTSerializable;
 import net.tridentsdk.meta.nbt.TagType;
@@ -43,7 +43,7 @@ final class ChunkSection implements NBTSerializable {
     @NBTField(name = "BlockLight", type = TagType.BYTE_ARRAY)
     protected byte[] skyLight;
 
-    private final Block[] blcks = new Block[LENGTH];
+    private final Tile[] blcks = new Tile[LENGTH];
     private byte[] types;
 
     protected ChunkSection() {}
@@ -59,7 +59,7 @@ final class ChunkSection implements NBTSerializable {
         types = new byte[rawTypes.length];
 
         for (int i = 0; i < LENGTH; i += 1) {
-            Block block;
+            Tile block;
             byte b;
             byte bData;
             int bAdd;
@@ -70,16 +70,16 @@ final class ChunkSection implements NBTSerializable {
             b += bAdd;
             bData = data.get(i);
 
-            Material material = Material.fromString(String.valueOf(b));
+            Substance material = Substance.fromString(String.valueOf(b));
 
             if(material == null) {
-                material = Material.AIR; // check if valid
+                material = Substance.AIR; // check if valid
             }
 
-            block = new TridentBlock(new Location(world, 0, 0, 0), material, bData); // TODO: get none-relative location
+            block = new TridentBlock(new Coordinates(world, 0, 0, 0), material, bData); // TODO: get none-relative location
 
                 /* TODO get the type and deal with block data accordingly */
-            switch (block.getType()) {
+            switch (block.getSubstance()) {
                 default:
                     break;
             }
@@ -93,7 +93,7 @@ final class ChunkSection implements NBTSerializable {
         return types;
     }
 
-    public Block[] getBlocks() {
+    public Tile[] getBlocks() {
         return blcks;
     }
 }

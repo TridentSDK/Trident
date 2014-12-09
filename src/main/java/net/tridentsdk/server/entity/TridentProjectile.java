@@ -16,10 +16,8 @@
  */
 package net.tridentsdk.server.entity;
 
-import net.tridentsdk.Location;
 import net.tridentsdk.entity.EntityProperties;
 import net.tridentsdk.entity.decorate.Impalable;
-import net.tridentsdk.entity.living.ProjectileSource;
 import net.tridentsdk.entity.projectile.Projectile;
 
 import java.lang.ref.WeakReference;
@@ -45,7 +43,7 @@ public abstract class TridentProjectile extends TridentEntity implements Project
      *
      * @param source the entity which fired the projectile
      */
-    public TridentProjectile(UUID uniqueId, Location spawnLocation, ProjectileSource source) {
+    public TridentProjectile(UUID uniqueId, Coordinates spawnLocation, ProjectileSource source) {
         super(uniqueId, spawnLocation);
         this.source = new WeakReference<>(source);
     }

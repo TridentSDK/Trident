@@ -16,33 +16,18 @@
  */
 package net.tridentsdk.server.entity.block;
 
-import net.tridentsdk.Location;
-import net.tridentsdk.base.Block;
+import net.tridentsdk.Coordinates;
+import net.tridentsdk.base.Tile;
 import net.tridentsdk.entity.EntityProperties;
 import net.tridentsdk.entity.block.ItemFrame;
 import net.tridentsdk.server.entity.TridentEntity;
-import net.tridentsdk.window.inventory.ItemStack;
+import net.tridentsdk.window.inventory.Item;
 
 import java.util.UUID;
 
 public class TridentItemFrame extends TridentEntity implements ItemFrame {
-    public TridentItemFrame(UUID id, Location spawnLocation) {
+    public TridentItemFrame(UUID id, Coordinates spawnLocation) {
         super(id, spawnLocation);
-    }
-
-    @Override
-    public ItemStack getCurrentItem() {
-        return null;
-    }
-
-    @Override
-    public byte getItemStackRotation() {
-        return (byte) 0;
-    }
-
-    @Override
-    public Block getBlockPlacedOn() {
-        return null;
     }
 
     @Override
@@ -53,5 +38,20 @@ public class TridentItemFrame extends TridentEntity implements ItemFrame {
     @Override
     public void applyProperties(EntityProperties properties) {
 
+    }
+
+    @Override
+    public Item getItem() {
+        return null;
+    }
+
+    @Override
+    public byte getItemRotation() {
+        return 0;
+    }
+
+    @Override
+    public Tile getHangingBlock() {
+        return null;
     }
 }

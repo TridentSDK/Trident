@@ -16,10 +16,8 @@
  */
 package net.tridentsdk.server.entity;
 
-import net.tridentsdk.Location;
 import net.tridentsdk.entity.decorate.InventoryHolder;
 import net.tridentsdk.window.inventory.Inventory;
-import net.tridentsdk.window.inventory.ItemStack;
 
 import java.util.UUID;
 
@@ -37,7 +35,7 @@ public abstract class TridentInventoryHolder extends TridentLivingEntity impleme
     /**
      * Inherits constructor from {@link TridentLivingEntity}
      */
-    public TridentInventoryHolder(UUID id, Location spawnLocation) {
+    public TridentInventoryHolder(UUID id, Coordinates spawnLocation) {
         super(id, spawnLocation);
     }
 

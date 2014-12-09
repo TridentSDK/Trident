@@ -17,8 +17,8 @@
 package net.tridentsdk.server.world;
 
 import io.netty.util.internal.ConcurrentSet;
-import net.tridentsdk.Location;
-import net.tridentsdk.base.Block;
+import net.tridentsdk.Coordinates;
+import net.tridentsdk.base.Tile;
 import net.tridentsdk.meta.nbt.*;
 import net.tridentsdk.perf.FastClass;
 import net.tridentsdk.server.data.ChunkMetaBuilder;
@@ -88,10 +88,10 @@ public class TridentChunk implements Chunk {
     }
 
     @Override
-    public Block getBlockAt(int relX, int y, int relZ) {
+    public Tile getBlockAt(int relX, int y, int relZ) {
         int index = WorldUtils.getBlockArrayIndex(relX, y, relZ);
 
-        return new TridentBlock(new Location(this.world, relX + this.getX() * 16, y, relZ + this.getZ() * 16)
+        return new TridentBlock(new Coordinates(this.world, relX + this.getX() * 16, y, relZ + this.getZ() * 16)
                 //TODO
                 , null, (byte) 0);
     }
