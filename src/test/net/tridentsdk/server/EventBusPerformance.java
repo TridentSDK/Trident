@@ -25,6 +25,7 @@ import net.tridentsdk.config.JsonConfig;
 import net.tridentsdk.event.Listener;
 import net.tridentsdk.factory.CollectFactory;
 import net.tridentsdk.factory.ConfigFactory;
+import net.tridentsdk.factory.ExecutorFactory;
 import net.tridentsdk.factory.Factories;
 import net.tridentsdk.server.threads.ThreadsManager;
 import org.openjdk.jmh.annotations.*;
@@ -74,10 +75,11 @@ public class EventBusPerformance {
 
     private static final net.tridentsdk.event.Event EVENT = new Event();
 
-    private static final TaskExecutor EXECUTOR = Factories
+    private static final ExecutorFactory<?> EXEC = Factories
             .threads()
-            .executor(2)
-            .scaledThread();
+            .executor(2);
+
+    private static final TaskExecutor EXECUTOR = EXEC.scaledThread();
 
     public void main1(String[] args) {
         while (true) {
@@ -85,9 +87,19 @@ public class EventBusPerformance {
         }
     }
 
-    public void main0(String[] args) {
-        EVENT_MANAGER.registerListener(EXECUTOR, LISTENER);
-        EVENT_MANAGER.call(EVENT);
+    public static void main0(String[] args) {
+        final EventBusPerformance performance = new EventBusPerformance();
+        for (int i = 0; i < 10; i++) {
+            EXEC.scaledThread().addTask(new Runnable() {
+                @Override
+                public void run() {
+                    // THIS IS INCORRECT - DO NOT DO IT!!!!
+                    performance.EVENT_MANAGER.registerListener(EXEC.scaledThread(), LISTENER);
+                }
+            });
+        }
+        performance.EVENT_MANAGER.call(EVENT);
+        ThreadsManager.stopAll();
     }
 
     public static void main(String[] args) throws RunnerException {
@@ -100,7 +112,7 @@ public class EventBusPerformance {
                 .measurementIterations(5)
                 .measurementTime(TimeValue.milliseconds(1))         // ALLOWED TIME
                 .forks(1)                                           // FORKS
-                .verbosity(VerboseMode.SILENT)                      // GRAPH
+                .verbosity(VerboseMode.NORMAL)                      // GRAPH
                 .threads(4)                                         // THREADS
                 .build();
 

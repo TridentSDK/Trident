@@ -6,8 +6,6 @@
     <version>1.0-SNAPSHOT</version>
     <name>Trident</name>
     <url>http://www.tridentsdk.net/</url>
-    <packaging>pom</packaging>
-    <!-- Also used for side-by-side development -->
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -50,17 +48,12 @@
         </repository>
     </repositories>
 
-    <!-- Used for side-by-side development -->
-    <modules>
-        <module>TridentSDK</module>
-    </modules>
-
     <dependencies>
-        <!-- <dependency>
+        <dependency>
             <groupId>net.tridentsdk</groupId>
             <artifactId>tridentsdk</artifactId>
             <version>${project.version}</version>
-        </dependency> -->
+        </dependency>
 
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -99,7 +92,7 @@
             <artifactId>slf4j-simple</artifactId>
             <version>1.7.7</version>
         </dependency>
-        
+
         <!-- Testing -->
         <dependency>
             <groupId>junit</groupId>
@@ -190,7 +183,7 @@
                         <id>make-assembly</id>
                         <phase>package</phase>
                         <goals>
-                            <goal>single</goal>
+                            <goal>unpack</goal>
                         </goals>
                     </execution>
                 </executions>
