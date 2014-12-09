@@ -22,7 +22,6 @@ import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutDisplayScoreboard extends OutPacket {
-
     protected BoardType boardType;
     protected String scoreName;
 
@@ -41,7 +40,7 @@ public class PacketPlayOutDisplayScoreboard extends OutPacket {
 
     @Override
     public void encode(ByteBuf buf) {
-        buf.writeByte((int) this.boardType.toByte());
+        buf.writeByte((int) this.boardType.asByte());
         Codec.writeString(buf, this.scoreName);
     }
 }

@@ -16,14 +16,16 @@
  */
 package net.tridentsdk.server.entity.projectile;
 
+import net.tridentsdk.Coordinates;
 import net.tridentsdk.entity.EntityProperties;
+import net.tridentsdk.entity.living.ProjectileLauncher;
 import net.tridentsdk.entity.projectile.WitherSkull;
 import net.tridentsdk.server.entity.TridentProjectile;
 
 import java.util.UUID;
 
 public class TridentWitherSkull extends TridentProjectile implements WitherSkull {
-    public TridentWitherSkull(UUID uniqueId, Coordinates spawnLocation, ProjectileSource source) {
+    public TridentWitherSkull(UUID uniqueId, Coordinates spawnLocation, ProjectileLauncher source) {
         super(uniqueId, spawnLocation, source);
     }
 

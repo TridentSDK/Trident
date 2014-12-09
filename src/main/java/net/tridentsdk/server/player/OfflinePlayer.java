@@ -17,6 +17,7 @@
 package net.tridentsdk.server.player;
 
 import io.netty.util.internal.ConcurrentSet;
+import net.tridentsdk.Coordinates;
 import net.tridentsdk.GameMode;
 import net.tridentsdk.Trident;
 import net.tridentsdk.entity.Entity;
@@ -30,6 +31,7 @@ import net.tridentsdk.server.data.Slot;
 import net.tridentsdk.server.entity.TridentInventoryHolder;
 import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.window.inventory.Inventory;
+import net.tridentsdk.window.inventory.Item;
 import net.tridentsdk.world.Dimension;
 import net.tridentsdk.world.World;
 
@@ -204,7 +206,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     }
 
     @Override
-    public ItemStack getItemInHand() {
+    public Item getHeldItem() {
         return inventory.getContents()[selectedSlot + 36];
     }
 

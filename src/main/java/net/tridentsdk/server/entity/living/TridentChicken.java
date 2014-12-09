@@ -16,6 +16,7 @@
  */
 package net.tridentsdk.server.entity.living;
 
+import net.tridentsdk.Coordinates;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.EntityProperties;
 import net.tridentsdk.entity.living.Chicken;
@@ -32,12 +33,12 @@ public class TridentChicken extends TridentLivingEntity implements Chicken {
     }
 
     @Override
-    public boolean isChickenJockey() {
+    public boolean isJockey() {
         return false;
     }
 
     @Override
-    public int getEggTicks() {
+    public int nextLayInterval() {
         return 0;
     }
 

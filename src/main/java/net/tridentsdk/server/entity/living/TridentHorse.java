@@ -16,6 +16,7 @@
  */
 package net.tridentsdk.server.entity.living;
 
+import net.tridentsdk.Coordinates;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.EntityProperties;
 import net.tridentsdk.entity.HorseType;
@@ -26,6 +27,7 @@ import net.tridentsdk.entity.projectile.Projectile;
 import net.tridentsdk.event.entity.EntityDamageEvent;
 import net.tridentsdk.server.entity.TridentLivingEntity;
 import net.tridentsdk.window.inventory.Inventory;
+import net.tridentsdk.window.inventory.Item;
 
 import java.util.UUID;
 
@@ -91,7 +93,7 @@ public class TridentHorse extends TridentLivingEntity implements Horse {
     }
 
     @Override
-    public ItemStack getContent(int slot) {
+    public Item getContent(int slot) {
         return null;
     }
 

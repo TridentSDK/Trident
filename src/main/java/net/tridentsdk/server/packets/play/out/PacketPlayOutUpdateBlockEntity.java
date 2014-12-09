@@ -17,11 +17,11 @@
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.Coordinates;
 import net.tridentsdk.server.data.Position;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutUpdateBlockEntity extends OutPacket {
-
     protected Coordinates loc;
     protected int action;
     protected byte[] nbtData;

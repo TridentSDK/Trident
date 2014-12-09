@@ -17,6 +17,8 @@
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.Coordinates;
+import net.tridentsdk.base.TileOrientation;
 import net.tridentsdk.event.Cancellable;
 import net.tridentsdk.event.Event;
 import net.tridentsdk.event.player.PlayerDigEvent;
@@ -66,15 +68,15 @@ public class PacketPlayInPlayerDig extends InPacket {
     public void handleReceived(ClientConnection connection) {
         TridentPlayer player = ((PlayerConnection) connection).getPlayer();
         DigStatus digStatus = DigStatus.getStatus(this.status);
-        BlockFace face = null;
+        TileOrientation face = null;
 
         switch (this.blockFace) {
             case 0:
-                face = BlockFace.BOTTOM;
+                face = TileOrientation.BOTTOM;
                 break;
 
             case 1:
-                face = BlockFace.TOP;
+                face = TileOrientation.TOP;
                 break;
 
             case 2:

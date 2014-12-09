@@ -25,6 +25,7 @@ import net.tridentsdk.server.packets.play.out.PacketPlayOutOpenWindow;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.window.inventory.Inventory;
 import net.tridentsdk.window.inventory.InventoryType;
+import net.tridentsdk.window.inventory.Item;
 
 public class DecoratedInventoryHolder extends DecorationAdapter<Entity> implements InventoryHolder {
     @Volatile(policy = "Do not localize", reason = "IntelliJ thinks it's ok for statics", fix = "DON'T DO IT")
@@ -36,7 +37,7 @@ public class DecoratedInventoryHolder extends DecorationAdapter<Entity> implemen
         super(entity);
         inventory = new Inventory() {
             private final int inventoryId = inventoryIds++;
-            private final ItemStack[] itemStacks = new ItemStack[size];
+            private final Item[] itemStacks = new Item[size];
             private final String name = string;
 
             @Override
@@ -45,7 +46,7 @@ public class DecoratedInventoryHolder extends DecorationAdapter<Entity> implemen
             }
 
             @Override
-            public ItemStack[] getContents() {
+            public Item[] getContents() {
                 return itemStacks;
             }
 
@@ -55,7 +56,7 @@ public class DecoratedInventoryHolder extends DecorationAdapter<Entity> implemen
             }
 
             @Override
-            public void setSlot(int index, ItemStack value) {
+            public void setSlot(int index, Item value) {
                 itemStacks[index] = value;
             }
 
@@ -73,7 +74,7 @@ public class DecoratedInventoryHolder extends DecorationAdapter<Entity> implemen
     }
 
     @Override
-    public ItemStack getContent(int slot) {
+    public Item getContent(int slot) {
         return inventory.getContents()[slot];
     }
 

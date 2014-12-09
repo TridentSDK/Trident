@@ -17,6 +17,7 @@
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.Coordinates;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.InPacket;
@@ -26,7 +27,6 @@ import net.tridentsdk.server.netty.packet.Packet;
  * Packet is sent when a player wishes to update a sign
  */
 public class PacketPlayInUpdateSign extends InPacket {
-
     /**
      * Contents of the sign, represented in JSON
      */

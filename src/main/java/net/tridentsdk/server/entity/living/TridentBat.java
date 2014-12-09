@@ -16,6 +16,7 @@
  */
 package net.tridentsdk.server.entity.living;
 
+import net.tridentsdk.Coordinates;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.EntityProperties;
 import net.tridentsdk.entity.living.Bat;
@@ -27,7 +28,6 @@ import net.tridentsdk.server.entity.TridentLivingEntity;
 import java.util.UUID;
 
 public class TridentBat extends TridentLivingEntity implements Bat {
-
     public TridentBat(UUID id, Coordinates spawnLocation) {
         super(id, spawnLocation);
     }

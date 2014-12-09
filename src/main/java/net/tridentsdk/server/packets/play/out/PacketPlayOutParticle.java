@@ -17,12 +17,12 @@
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.Coordinates;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 import net.tridentsdk.util.Vector;
 
 public class PacketPlayOutParticle extends OutPacket {
-
     protected int particleId;
     protected boolean distance;
     protected Coordinates loc;

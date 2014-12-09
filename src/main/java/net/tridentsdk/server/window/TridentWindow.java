@@ -18,6 +18,7 @@ package net.tridentsdk.server.window;
 
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.window.Window;
+import net.tridentsdk.window.inventory.Item;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -35,7 +36,7 @@ public abstract class TridentWindow implements Window {
     private final int id;
     private final String name;
     private final int length;
-    private final ItemStack[] contents;
+    private final Item[] contents;
 
     /**
      * Builds a new inventory window
@@ -47,7 +48,7 @@ public abstract class TridentWindow implements Window {
         this.name = name;
         this.length = length;
         this.id = counter.addAndGet(1);
-        this.contents = new ItemStack[length];
+        this.contents = new Item[length];
     }
 
     /**
@@ -65,7 +66,7 @@ public abstract class TridentWindow implements Window {
     }
 
     @Override
-    public ItemStack[] getContents() {
+    public Item[] getContents() {
         return this.contents;
     }
 
@@ -80,7 +81,7 @@ public abstract class TridentWindow implements Window {
     }
 
     @Override
-    public void setSlot(int index, ItemStack value) {
+    public void setSlot(int index, Item value) {
         this.contents[index] = value;
         // TODO: update client
     }

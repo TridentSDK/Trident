@@ -17,6 +17,7 @@
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.Coordinates;
 import net.tridentsdk.event.Cancellable;
 import net.tridentsdk.event.player.PlayerMoveEvent;
 import net.tridentsdk.server.netty.ClientConnection;
@@ -29,7 +30,6 @@ import net.tridentsdk.server.player.TridentPlayer;
  * Packet sent when player moved both x, y, z and yaw, and pitch.
  */
 public class PacketPlayInPlayerCompleteMove extends PacketPlayInPlayerMove {
-
     /**
      * New yaw of the client
      */

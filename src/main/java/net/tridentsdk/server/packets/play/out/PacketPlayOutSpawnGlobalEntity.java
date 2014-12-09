@@ -17,6 +17,7 @@
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.Coordinates;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
@@ -25,7 +26,6 @@ import net.tridentsdk.server.netty.packet.OutPacket;
  * Note: This is for thunderbolts striking within a 512 block radius
  */
 public class PacketPlayOutSpawnGlobalEntity extends OutPacket {
-
     protected int entityId;
     protected Coordinates loc;
 

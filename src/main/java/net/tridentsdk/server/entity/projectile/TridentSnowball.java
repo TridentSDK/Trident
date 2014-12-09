@@ -16,10 +16,12 @@
  */
 package net.tridentsdk.server.entity.projectile;
 
+import net.tridentsdk.Coordinates;
 import net.tridentsdk.entity.EntityProperties;
 import net.tridentsdk.entity.LivingEntity;
 import net.tridentsdk.entity.living.Blaze;
 import net.tridentsdk.entity.living.EnderDragon;
+import net.tridentsdk.entity.living.ProjectileLauncher;
 import net.tridentsdk.server.entity.TridentProjectile;
 
 import java.util.UUID;
@@ -33,7 +35,7 @@ public class TridentSnowball extends TridentProjectile {
     /**
      * Inherits from {@link net.tridentsdk.server.entity.TridentProjectile}
      */
-    public TridentSnowball(UUID uniqueId, Coordinates spawnLocation, ProjectileSource source) {
+    public TridentSnowball(UUID uniqueId, Coordinates spawnLocation, ProjectileLauncher source) {
         super(uniqueId, spawnLocation, source);
     }
 

@@ -16,6 +16,7 @@
  */
 package net.tridentsdk.server.entity.living;
 
+import net.tridentsdk.Coordinates;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.EntityProperties;
 import net.tridentsdk.entity.living.Creeper;
@@ -27,18 +28,17 @@ import net.tridentsdk.server.entity.TridentLivingEntity;
 import java.util.UUID;
 
 public class TridentCreeper extends TridentLivingEntity implements Creeper {
-
     public TridentCreeper(UUID id, Coordinates spawnLocation) {
         super(id, spawnLocation);
     }
 
     @Override
-    public boolean isPowered() {
+    public boolean isElectric() {
         return false;
     }
 
     @Override
-    public void setPowered(boolean powered) {
+    public void setElectric(boolean powered) {
 
     }
 

@@ -17,6 +17,7 @@
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.Coordinates;
 import net.tridentsdk.event.player.PlayerMoveEvent;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.netty.ClientConnection;

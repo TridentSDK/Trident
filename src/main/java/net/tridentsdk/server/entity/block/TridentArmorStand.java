@@ -16,11 +16,13 @@
  */
 package net.tridentsdk.server.entity.block;
 
+import net.tridentsdk.Coordinates;
 import net.tridentsdk.entity.EntityProperties;
 import net.tridentsdk.entity.block.ArmorStand;
 import net.tridentsdk.entity.block.SlotProperties;
 import net.tridentsdk.server.entity.TridentEntity;
 import net.tridentsdk.util.PartRotation;
+import net.tridentsdk.window.inventory.Item;
 
 import java.util.UUID;
 
@@ -65,12 +67,12 @@ public class TridentArmorStand extends TridentEntity implements ArmorStand {
     }
 
     @Override
-    public ItemStack[] getEquipment() {
-        return new ItemStack[0];
+    public Item[] getEquipment() {
+        return new Item[0];
     }
 
     @Override
-    public void setEquipment(ItemStack[] stack) {
+    public void setEquipment(Item[] stack) {
     }
 
     @Override

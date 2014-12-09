@@ -16,8 +16,10 @@
  */
 package net.tridentsdk.server.entity;
 
+import net.tridentsdk.Coordinates;
 import net.tridentsdk.entity.decorate.InventoryHolder;
 import net.tridentsdk.window.inventory.Inventory;
+import net.tridentsdk.window.inventory.Item;
 
 import java.util.UUID;
 
@@ -45,7 +47,7 @@ public abstract class TridentInventoryHolder extends TridentLivingEntity impleme
     }
 
     @Override
-    public ItemStack getContent(int slot) {
+    public Item getContent(int slot) {
         return this.inventory.getContents()[slot];
     }
 }

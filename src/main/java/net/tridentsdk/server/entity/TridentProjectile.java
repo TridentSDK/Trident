@@ -16,8 +16,10 @@
  */
 package net.tridentsdk.server.entity;
 
+import net.tridentsdk.Coordinates;
 import net.tridentsdk.entity.EntityProperties;
 import net.tridentsdk.entity.decorate.Impalable;
+import net.tridentsdk.entity.living.ProjectileLauncher;
 import net.tridentsdk.entity.projectile.Projectile;
 
 import java.lang.ref.WeakReference;
@@ -32,7 +34,7 @@ public abstract class TridentProjectile extends TridentEntity implements Project
     /**
      * The source that fires the projectile
      */
-    protected volatile WeakReference<ProjectileSource> source;
+    protected volatile WeakReference<ProjectileLauncher> source;
     /**
      * The impalable that the projectile hit, if any
      */
@@ -43,7 +45,7 @@ public abstract class TridentProjectile extends TridentEntity implements Project
      *
      * @param source the entity which fired the projectile
      */
-    public TridentProjectile(UUID uniqueId, Coordinates spawnLocation, ProjectileSource source) {
+    public TridentProjectile(UUID uniqueId, Coordinates spawnLocation, ProjectileLauncher source) {
         super(uniqueId, spawnLocation);
         this.source = new WeakReference<>(source);
     }
@@ -75,7 +77,7 @@ public abstract class TridentProjectile extends TridentEntity implements Project
     }
 
     @Override
-    public void setSource(final ProjectileSource shooter) {
+    public void setLauncher(final ProjectileLauncher shooter) {
         super.executor.addTask(new Runnable() {
             @Override
             public void run() {
@@ -85,7 +87,7 @@ public abstract class TridentProjectile extends TridentEntity implements Project
     }
 
     @Override
-    public ProjectileSource getProjectileSource() {
+    public ProjectileLauncher getLauncher() {
         return this.source.get();
     }
 }
