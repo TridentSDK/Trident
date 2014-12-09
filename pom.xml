@@ -53,7 +53,7 @@
     <!-- Used for side-by-side development -->
     <modules>
         <module>TridentSDK</module>
-  </modules>
+    </modules>
 
     <dependencies>
         <!-- <dependency>
@@ -174,7 +174,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.4.1</version>
+                <version>2.5.2</version>
                 <configuration>
                     <archive>
                         <manifest>
