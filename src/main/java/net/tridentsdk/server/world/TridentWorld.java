@@ -98,7 +98,7 @@ public class TridentWorld implements World {
         File region = new File(directory, "region" + File.separator);
 
         if (!(region.exists()) || !(region.isDirectory())) {
-            throw new IllegalStateException("Region folder is rather non-existent or isn't a directory!");
+            TridentLogger.error(new IllegalStateException("Region folder is rather non-existent or isn't a directory!"));
         }
 
         TridentLogger.log("Loaded region files successfully! Moving onto player data...");
@@ -168,7 +168,7 @@ public class TridentWorld implements World {
     @Override
     public TridentChunk generateChunk(ChunkLocation location) {
         if (location == null)
-            throw new NullPointerException("Location cannot be null");
+            TridentLogger.error(new NullPointerException("Location cannot be null"));
 
         int x = location.getX();
         int z = location.getZ();
@@ -201,7 +201,7 @@ public class TridentWorld implements World {
 
     private void addChunkAt(ChunkLocation location, Chunk chunk) {
         if (location == null) {
-            throw new NullPointerException("Location cannot be null");
+            TridentLogger.error(new NullPointerException("Location cannot be null"));
         }
 
         this.loadedChunks.put(location, (TridentChunk) chunk);

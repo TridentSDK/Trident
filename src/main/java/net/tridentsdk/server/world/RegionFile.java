@@ -21,6 +21,7 @@ import net.tridentsdk.meta.nbt.CompoundTag;
 import net.tridentsdk.meta.nbt.NBTDecoder;
 import net.tridentsdk.meta.nbt.NBTEncoder;
 import net.tridentsdk.meta.nbt.NBTException;
+import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.Chunk;
 import net.tridentsdk.world.ChunkLocation;
 
@@ -191,7 +192,8 @@ public class RegionFile {
                 break;
 
             default:
-                throw new IllegalStateException("Compression type provided is invalid!");
+                TridentLogger.error(new IllegalStateException("Compression type provided is invalid!"));
+                return null;
         }
 
         // Get the NBT tag

@@ -27,6 +27,7 @@ import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.packets.play.out.*;
 import net.tridentsdk.server.world.TridentChunk;
 import net.tridentsdk.server.world.TridentWorld;
+import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.LevelType;
 
 import java.util.Locale;
@@ -140,7 +141,7 @@ public class TridentPlayer extends OfflinePlayer {
             @Override
             public void run() {
                 if ((int) slot > 8 || (int) slot < 0) {
-                    throw new IllegalArgumentException("Slot must be within the ranges of 0-8");
+                    TridentLogger.error(new IllegalArgumentException("Slot must be within the ranges of 0-8"));
                 }
 
                 TridentPlayer.super.selectedSlot = slot;

@@ -198,7 +198,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
 
     @Override
     public void setFlyingSpeed(float flyingSpeed) {
-        throw new UnsupportedOperationException("You may not set the flying speed of an OfflinePlayer!");
+        TridentLogger.error(new UnsupportedOperationException("You may not set the flying speed of an OfflinePlayer!"));
     }
 
     @Override
@@ -243,12 +243,12 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
 
     @Override
     public void setWalkSpeed(float speed) {
-        throw new UnsupportedOperationException("You may not set the walking speed of an OfflinePlayer!");
+        TridentLogger.error(new UnsupportedOperationException("You may not set the walking speed of an OfflinePlayer!"));
     }
 
     @Override
     public void invokeCommand(String message) {
-        throw new UnsupportedOperationException("You cannot make an OfflinePlayer invoke a command!");
+        TridentLogger.error(new UnsupportedOperationException("You cannot make an OfflinePlayer invoke a command!"));
     }
 
     @Override
@@ -263,7 +263,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
 
     @Override
     public void show(Entity entity) {
-        throw new UnsupportedOperationException("You cannot show an entity to an OfflinePlayer!");
+        TridentLogger.error(new UnsupportedOperationException("You cannot show an entity to an OfflinePlayer!"));
     }
 
     @Override
@@ -278,7 +278,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
 
     @Override
     public void sendMessage(String... messages) {
-        throw new UnsupportedOperationException("You cannot send a message to an OfflinePlayer!");
+        TridentLogger.error(new UnsupportedOperationException("You cannot send a message to an OfflinePlayer!"));
     }
 
     @Override
@@ -288,7 +288,8 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
 
     @Override
     public <T extends Projectile> T launchProjectile(EntityProperties properties) {
-        throw new UnsupportedOperationException("You cannot make an OfflinePlayer launch a projectile!");
+        TridentLogger.error(new UnsupportedOperationException("You cannot make an OfflinePlayer launch a projectile!"));
+        return null;
     }
 
     public CompoundTag toNbt() {

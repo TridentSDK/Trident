@@ -24,6 +24,7 @@ import net.tridentsdk.perf.FastClass;
 import net.tridentsdk.server.data.ChunkMetaBuilder;
 import net.tridentsdk.server.entity.TridentEntity;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutMapChunkBulk;
+import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.Chunk;
 import net.tridentsdk.world.ChunkLocation;
 import net.tridentsdk.world.Dimension;
@@ -136,7 +137,7 @@ public class TridentChunk implements Chunk {
         }
 
         if (pos != size) {
-            throw new IllegalStateException("Wrote " + pos + " when expected " + size + " bytes");
+            TridentLogger.error(new IllegalStateException("Wrote " + pos + " when expected " + size + " bytes"));
         }
 
         chunkBulk.set("meta", new ChunkMetaBuilder().bitmap((short) bitmask).location(location));

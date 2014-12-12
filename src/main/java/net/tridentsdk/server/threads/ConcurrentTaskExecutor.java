@@ -22,6 +22,7 @@ import net.tridentsdk.concurrent.TaskExecutor;
 import net.tridentsdk.docs.AccessNoDoc;
 import net.tridentsdk.factory.ExecutorFactory;
 import net.tridentsdk.perf.Performance;
+import net.tridentsdk.util.TridentLogger;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.ArrayList;
@@ -156,7 +157,8 @@ public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implement
 
     @Override
     public boolean awaitTermination(long l, TimeUnit timeUnit) throws InterruptedException {
-        throw new UnsupportedOperationException();
+        TridentLogger.error(new UnsupportedOperationException());
+        return false;
     }
 
     @Override
