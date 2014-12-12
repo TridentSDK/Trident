@@ -164,10 +164,6 @@ final class TridentStart {
                         TridentLogger.error(throwable);
                     }
                 });
-
-                for (int i = 0; i < 10; i++) {
-                    TridentLogger.error(new Exception("Houston, we have a problem"));
-                }
             }
         });
 
