@@ -25,6 +25,7 @@ import net.tridentsdk.server.packets.play.out.PacketPlayOutStatistics;
 import net.tridentsdk.server.player.PlayerConnection;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.world.TridentWorld;
+import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.World;
 
 /**
@@ -86,7 +87,7 @@ public class PacketPlayInClientStatus extends InPacket {
                 break;
 
             default:
-                throw new IllegalArgumentException("Client sent invalid status, maybe modified?"); // catched by
+                TridentLogger.error(new IllegalArgumentException("Client sent invalid status, maybe modified?")); // catched by
                 // PacketHandler
         }
     }

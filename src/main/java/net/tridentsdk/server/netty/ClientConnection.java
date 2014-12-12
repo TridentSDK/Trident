@@ -23,6 +23,7 @@ import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.protocol.Protocol;
 import net.tridentsdk.server.packets.login.PacketLoginOutSetCompression;
 import net.tridentsdk.server.threads.ThreadsManager;
+import net.tridentsdk.util.TridentLogger;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
@@ -243,11 +244,11 @@ public class ClientConnection {
 
     public void enableCompression() {
         if(compressionEnabled) {
-            throw new UnsupportedOperationException("Compression is already enabled!");
+            TridentLogger.error(new UnsupportedOperationException("Compression is already enabled!"));
         }
 
         if(stage != Protocol.ClientStage.LOGIN)  {
-            throw new UnsupportedOperationException();
+            TridentLogger.error(new UnsupportedOperationException());
         }
 
         sendPacket(new PacketLoginOutSetCompression());

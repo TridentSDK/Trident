@@ -30,6 +30,7 @@ import net.tridentsdk.meta.nbt.*;
 import net.tridentsdk.server.data.Slot;
 import net.tridentsdk.server.entity.TridentInventoryHolder;
 import net.tridentsdk.server.world.TridentWorld;
+import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.window.inventory.Inventory;
 import net.tridentsdk.window.inventory.Item;
 import net.tridentsdk.world.Dimension;
@@ -257,7 +258,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
 
     @Override
     public void hide(Entity entity) {
-        throw new UnsupportedOperationException("You cannot hide an entity from an OfflinePlayer!");
+        TridentLogger.error(new UnsupportedOperationException("You cannot hide an entity from an OfflinePlayer!"));
     }
 
     @Override

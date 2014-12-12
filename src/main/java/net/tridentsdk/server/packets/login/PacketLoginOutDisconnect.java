@@ -21,6 +21,7 @@ import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.packet.PacketType;
+import net.tridentsdk.util.TridentLogger;
 
 /**
  * Packet used to disconnect the client from the login stage for whatsoever reason
@@ -67,6 +68,7 @@ public class PacketLoginOutDisconnect implements Packet {
      */
     @Override
     public Packet decode(ByteBuf buf) {
-        throw new UnsupportedOperationException("PacketLoginOutDisconnect cannot be encoded!");
+        TridentLogger.error(new UnsupportedOperationException("PacketLoginOutDisconnect cannot be encoded!"));
+        return null;
     }
 }

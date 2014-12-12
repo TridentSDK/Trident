@@ -18,6 +18,7 @@ package net.tridentsdk.server.netty.protocol;
 
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.packet.PacketType;
+import net.tridentsdk.util.TridentLogger;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -64,8 +65,9 @@ public class Protocol {
                 return this.login.getPacket(id, type);
 
             default:
-                throw new IllegalArgumentException(stage + " is not supported for Protocol#getPacket!");
+                TridentLogger.error(new IllegalArgumentException(stage + " is not supported for Protocol#getPacket!"));
         }
+        return null;
     }
 
     public enum ClientStage {

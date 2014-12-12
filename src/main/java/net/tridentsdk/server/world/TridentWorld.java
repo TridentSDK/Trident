@@ -22,11 +22,9 @@ import net.tridentsdk.Difficulty;
 import net.tridentsdk.GameMode;
 import net.tridentsdk.base.Tile;
 import net.tridentsdk.meta.nbt.*;
-import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.player.OfflinePlayer;
+import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.Map;
@@ -55,10 +53,10 @@ public class TridentWorld implements World {
         this.random = new Random();
 
         spawnLocation = new Coordinates(this, 0d, 0d, 0d);
-        Logger logger = LoggerFactory.getLogger(TridentServer.class);
 
-        logger.info("Starting to load " + name + "...");
-        logger.info("Attempting to load level.dat...");
+        
+        TridentLogger.log("Starting to load " + name + "...");
+        TridentLogger.log("Attempting to load level.dat...");
 
         File directory = new File(name + File.separator);
         File levelFile = new File(directory, "level.dat");
@@ -76,12 +74,12 @@ public class TridentWorld implements World {
         } catch (FileNotFoundException ignored) {
             return;
         } catch (Exception ex) {
-            logger.info("Unable to load level.dat! Printing stacktrace...");
+            TridentLogger.log("Unable to load level.dat! Printing stacktrace...");
             ex.printStackTrace();
             return;
         }
 
-        logger.info("Loading values of level.dat....");
+        TridentLogger.log("Loading values of level.dat....");
 
         spawnLocation.setX(((IntTag) level.getTag("SpawnX")).getValue());
         spawnLocation.setY(((IntTag) level.getTag("SpawnY")).getValue());
@@ -93,7 +91,7 @@ public class TridentWorld implements World {
         defaultGamemode = GameMode.getGameMode(((IntTag) level.getTag("GameType")).getValue());
         type = LevelType.getLevelType(((StringTag) level.getTag("generatorName")).getValue());
 
-        logger.info("Loaded level.dat successfully! Moving on to region files...");
+        TridentLogger.log("Loaded level.dat successfully! Moving on to region files...");
 
         // TODO: load other values
 
@@ -103,15 +101,15 @@ public class TridentWorld implements World {
             throw new IllegalStateException("Region folder is rather non-existent or isn't a directory!");
         }
 
-        logger.info("Loaded region files successfully! Moving onto player data...");
+        TridentLogger.log("Loaded region files successfully! Moving onto player data...");
 
         File playerData = new File(directory, "playerdata");
 
         if (!(playerData.exists()) || !(playerData.isDirectory())) {
-            logger.info("Player data folder does not exist! Creating folder...");
+            TridentLogger.log("Player data folder does not exist! Creating folder...");
             playerData.mkdir();
         } else {
-            logger.info("Scanning player data...");
+            TridentLogger.log("Scanning player data...");
 
             for (File f : playerData.listFiles(new PlayerFilter())) {
                 CompoundTag opData;
@@ -125,7 +123,7 @@ public class TridentWorld implements World {
                     opData = new NBTDecoder(new DataInputStream(new ByteArrayInputStream(ByteStreams.
                             toByteArray(new GZIPInputStream(new ByteArrayInputStream(compressedData)))))).decode();
                 } catch (IOException | NBTException ex) {
-                    logger.info("Unable to load " + f.getName() + "! Printing stacktrace...");
+                    TridentLogger.log("Unable to load " + f.getName() + "! Printing stacktrace...");
                     ex.printStackTrace();
                     continue;
                 }
@@ -133,7 +131,7 @@ public class TridentWorld implements World {
                 new OfflinePlayer(opData, this); // will automatically register itself
             }
 
-            logger.info("Loaded all player data!");
+            TridentLogger.log("Loaded all player data!");
         }
     }
 

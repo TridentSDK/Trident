@@ -21,6 +21,7 @@ import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
+import net.tridentsdk.util.TridentLogger;
 
 /**
  * Sent by the client when doing any of the action types below. <p/> Note: Client will send ActionType#START_SPRINTING
@@ -86,7 +87,8 @@ public class PacketPlayInEntityAction extends InPacket {
                     return type;
             }
 
-            throw new IllegalArgumentException(id + " is not a valid ActionType id!");
+            TridentLogger.error(new IllegalArgumentException(id + " is not a valid ActionType id!"));
+            return null;
         }
 
         public int getId() {

@@ -22,6 +22,7 @@ import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.player.PlayerConnection;
 import net.tridentsdk.server.player.TridentPlayer;
+import net.tridentsdk.util.TridentLogger;
 
 /**
  * Packet is sent when the player starts/stops flying with the second parameter changed accordingly. All other
@@ -78,7 +79,7 @@ public class PacketPlayInPlayerAbilities extends InPacket {
         TridentPlayer player = ((PlayerConnection) connection).getPlayer();
 
         if (player.getFlyingSpeed() * 250.0F != this.flyingSpeed) {
-            throw new IllegalArgumentException("Client sent invalid flying speed, possibly hack installed");
+            TridentLogger.error(new IllegalArgumentException("Client sent invalid flying speed, possibly hack installed"));
         }
 
         // TODO: act accordingly

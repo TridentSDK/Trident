@@ -23,6 +23,7 @@ import com.google.common.collect.Lists;
 import net.tridentsdk.Trident;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.entity.Entity;
+import net.tridentsdk.util.TridentLogger;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -39,7 +40,7 @@ public final class EntityManager {
     @InternalUseOnly
     public EntityManager() {
         if (!Trident.isTrident())
-            throw new UnsupportedOperationException("EntityManager can only be initalized by TridentSDK!");
+            TridentLogger.error(new UnsupportedOperationException("EntityManager can only be initalized by TridentSDK!"));
     }
 
     void registerEntity(Entity entity) {

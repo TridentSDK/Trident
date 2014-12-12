@@ -29,6 +29,7 @@ import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.player.PlayerConnection;
 import net.tridentsdk.server.player.TridentPlayer;
+import net.tridentsdk.util.TridentLogger;
 
 public class PacketPlayInPlayerDig extends InPacket {
     private short status;
@@ -96,7 +97,7 @@ public class PacketPlayInPlayerDig extends InPacket {
                 break;
 
             default:
-                throw new IllegalArgumentException("Client sent invalid BlockFace!");
+                TridentLogger.error(new IllegalArgumentException("Client sent invalid BlockFace!"));
         }
 
         Cancellable event = null;
