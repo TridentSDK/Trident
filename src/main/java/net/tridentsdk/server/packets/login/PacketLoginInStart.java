@@ -24,6 +24,7 @@ import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.packet.PacketType;
+import net.tridentsdk.server.netty.protocol.Protocol;
 import net.tridentsdk.server.player.TridentPlayer;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -137,6 +138,9 @@ public class PacketLoginInStart extends InPacket {
 
             // send the success packet and spawn the player
             connection.sendPacket(success);
+            connection.enableCompression();
+            connection.setStage(Protocol.ClientStage.PLAY);
+
             TridentPlayer.spawnPlayer(connection, id, name);
             return;
         }
