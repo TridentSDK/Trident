@@ -16,6 +16,7 @@
  */
 package net.tridentsdk.server.packets.login;
 
+import com.google.gson.JsonArray;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.encryption.RSA;
 import net.tridentsdk.server.netty.ClientConnection;
@@ -74,7 +75,7 @@ public class PacketLoginInStart extends InPacket {
         /*
          * If the client is the local machine, skip the encryption process and proceed to the PLAY stage
          */
-        if(connection.getAddress().getHostString().equals("localhost")) {
+        if(connection.getAddress().getHostString().equals("127.0.0.1")) {
             UUID id;
 
             try {
@@ -117,13 +118,14 @@ public class PacketLoginInStart extends InPacket {
                 reader.close();
 
                 // parse the response and set the ID
-                UUIDResponse response = PacketLoginInEncryptionResponse.GSON
-                        .fromJson(sb.toString(), UUIDResponse.class);
+                JsonArray array = PacketLoginInEncryptionResponse.GSON.fromJson(sb.toString(), JsonArray.class);
 
                 id = UUID.fromString(PacketLoginInEncryptionResponse.idDash
-                        .matcher(response.profiles.get(0).id).replaceAll("$1-$2-$3-$4-$5"));
+                        .matcher(array.getAsJsonArray().get(0).getAsJsonObject().get("id").getAsString())
+                        .replaceAll("$1-$2-$3-$4-$5"));
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                e.printStackTrace();
+                return;
             }
 
             PacketLoginOutSuccess success = new PacketLoginOutSuccess();
@@ -162,21 +164,5 @@ public class PacketLoginInStart extends InPacket {
 
         // Send the packet to the client
         connection.sendPacket(p);
-    }
-
-    protected class UUIDResponse {
-
-        List<UUIDProfile> profiles;
-
-        protected class UUIDProfile {
-            /**
-             * Id of the player, without dashes
-             */
-            String id;
-            /**
-             * Name of the player
-             */
-            String name;
-        }
     }
 }
