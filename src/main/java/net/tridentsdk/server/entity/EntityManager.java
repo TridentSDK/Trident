@@ -29,6 +29,11 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Manages server entities and provides registration procedures
+ *
+ * @author The TridentSDK Team
+ */
 public final class EntityManager {
     private final Map<Integer, Entity> entities = new ConcurrentHashMap<>();
 

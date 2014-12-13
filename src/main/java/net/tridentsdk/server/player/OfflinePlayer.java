@@ -208,7 +208,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
 
     @Override
     public Item getHeldItem() {
-        return inventory.getContents()[selectedSlot + 36];
+        return inventory.getItems()[selectedSlot + 36];
     }
 
     @Override
@@ -247,6 +247,11 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     }
 
     @Override
+    public void sendMessage(String message) {
+        TridentLogger.error(new UnsupportedOperationException("You can't send messages to a non-existant player"));
+    }
+
+    @Override
     public void invokeCommand(String message) {
         TridentLogger.error(new UnsupportedOperationException("You cannot make an OfflinePlayer invoke a command!"));
     }
@@ -277,7 +282,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     }
 
     @Override
-    public void sendMessage(String... messages) {
+    public void sendRaw(String... messages) {
         TridentLogger.error(new UnsupportedOperationException("You cannot send a message to an OfflinePlayer!"));
     }
 
@@ -317,7 +322,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
 
         ListTag inventoryTag = new ListTag("Inventory", TagType.COMPOUND);
 
-        /*for (ItemStack is : inventory.getContents()) {
+        /*for (ItemStack is : inventory.getItems()) {
             inventoryTag.addTag(NBTSerializer.serialize(new Slot(is)));
         }*/
 
@@ -325,7 +330,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
 
         ListTag enderTag = new ListTag("EnderItems", TagType.COMPOUND);
 
-        /*for (ItemStack is : enderChest.getContents()) {
+        /*for (ItemStack is : enderChest.getItems()) {
             enderTag.addTag(NBTSerializer.serialize(new Slot(is)));
         }*/
 

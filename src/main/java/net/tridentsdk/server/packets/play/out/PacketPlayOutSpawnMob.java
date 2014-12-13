@@ -28,6 +28,7 @@ public class PacketPlayOutSpawnMob extends OutPacket {
     protected int entityId;
     protected EntityType type;
     protected Entity entity;
+    protected byte[] metadata;
     // TODO: entity metadata
 
     @Override
@@ -66,5 +67,7 @@ public class PacketPlayOutSpawnMob extends OutPacket {
         buf.writeShort((int) velocity.getX());
         buf.writeShort((int) velocity.getY());
         buf.writeShort((int) velocity.getZ());
+
+        buf.writeBytes(metadata);
     }
 }

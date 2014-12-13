@@ -150,7 +150,7 @@ public class TridentPlayer extends OfflinePlayer {
     }
 
     @Override
-    public void sendMessage(final String... messages) {
+    public void sendRaw(final String... messages) {
         // TODO: Verify proper implementation
         this.executor.addTask(new Runnable() {
             @Override

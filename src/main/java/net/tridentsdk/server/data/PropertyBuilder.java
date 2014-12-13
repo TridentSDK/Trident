@@ -17,6 +17,7 @@
 package net.tridentsdk.server.data;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.docs.Volatile;
 import net.tridentsdk.server.netty.Codec;
 
 import java.util.ArrayList;
@@ -30,6 +31,7 @@ import java.util.Collection;
 public class PropertyBuilder implements Writable {
     private String key;
     private double value;
+    @Volatile(policy = "Do not write individual elements", reason = "Thread safe array", fix = "See Line 114")
     private volatile String[] modifiers;
 
     /**
@@ -72,7 +74,7 @@ public class PropertyBuilder implements Writable {
     /**
      * Gets the value of the property builder
      *
-     * @return the value (whatever that might be) TODO
+     * @return the value of this property
      */
     public double getValue() {
         return this.value;

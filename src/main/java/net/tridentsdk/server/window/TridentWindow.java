@@ -16,8 +16,12 @@
  */
 package net.tridentsdk.server.window;
 
+import net.tridentsdk.server.data.Slot;
+import net.tridentsdk.server.packets.play.out.PacketPlayOutOpenWindow;
+import net.tridentsdk.server.packets.play.out.PacketPlayOutSetSlot;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.window.Window;
+import net.tridentsdk.window.inventory.InventoryType;
 import net.tridentsdk.window.inventory.Item;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -27,7 +31,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @author The TridentSDK Team
  */
-public abstract class TridentWindow implements Window {
+public class TridentWindow implements Window {
     /**
      * Counter for window ids, initial value is 2 to avoid confusion with a window and a player inventory
      */
@@ -37,6 +41,7 @@ public abstract class TridentWindow implements Window {
     private final String name;
     private final int length;
     private final Item[] contents;
+    private final InventoryType type;
 
     /**
      * Builds a new inventory window
@@ -44,11 +49,12 @@ public abstract class TridentWindow implements Window {
      * @param name   the title of the inventory
      * @param length the amount of slots in the inventory (should be multiple of 9)
      */
-    public TridentWindow(String name, int length) {
+    public TridentWindow(String name, int length, InventoryType type) {
         this.name = name;
         this.length = length;
         this.id = counter.addAndGet(1);
         this.contents = new Item[length];
+        this.type = type;
     }
 
     /**
@@ -57,7 +63,7 @@ public abstract class TridentWindow implements Window {
      * @param length the amount of slots in the inventory (should be multiple of 9)
      */
     public TridentWindow(int length) {
-        this("", length);
+        this("", length, InventoryType.CHEST);
     }
 
     @Override
@@ -66,13 +72,22 @@ public abstract class TridentWindow implements Window {
     }
 
     @Override
-    public Item[] getContents() {
+    public Item[] getItems() {
         return this.contents;
     }
 
     @Override
     public int getLength() {
         return this.length;
+    }
+
+    @Override
+    public int getItemLength() {
+        int counter = 0;
+        for (Item item : getItems())
+            if (item != null) counter++;
+
+        return counter;
     }
 
     @Override
@@ -86,5 +101,21 @@ public abstract class TridentWindow implements Window {
         // TODO: update client
     }
 
-    public abstract void sendTo(TridentPlayer player);
+    public void sendTo(TridentPlayer player) {
+        PacketPlayOutOpenWindow window = new PacketPlayOutOpenWindow();
+        window.set("windowId", getId())
+                .set("inventoryType", type)
+                .set("windowTitle", getName())
+                .set("slots", getLength())
+                .set("entityId", -1);
+        player.getConnection().sendPacket(window);
+
+        for (int i = 0; i < getLength(); i++) {
+            PacketPlayOutSetSlot setSlot = new PacketPlayOutSetSlot();
+            setSlot.set("windowId", getId())
+                    .set("slot", (short) i)
+                    .set("item", new Slot(getItems()[i]));
+            player.getConnection().sendPacket(window);
+        }
+    }
 }

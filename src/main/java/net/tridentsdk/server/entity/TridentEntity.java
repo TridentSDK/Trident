@@ -20,6 +20,7 @@ import net.tridentsdk.Coordinates;
 import net.tridentsdk.Trident;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.concurrent.TaskExecutor;
+import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.EntityProperties;
 import net.tridentsdk.entity.EntityType;
@@ -43,7 +44,12 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author The TridentSDK Team
  */
 public class TridentEntity implements Entity {
+    @InternalUseOnly
     protected static final AtomicInteger counter = new AtomicInteger(-1);
+    /**
+     * Internal entity tracker, used to spawn the entity and track movement, etc.
+     */
+    protected static final EntityTracker TRACKER = new EntityTracker();
     /**
      * The entity ID for the entity
      */
@@ -138,8 +144,6 @@ public class TridentEntity implements Entity {
             if (l.getWorld().getTileAt(l).getSubstance() != Substance.AIR) {
                 this.fallDistance.set((long) (this.loc.getY() - y));
                 this.onGround = this.fallDistance.get() == 0.0D;
-                // Depending on what you want to do here, it may or may not work when multithreading
-                // TODO
 
                 break;
             }
@@ -148,6 +152,7 @@ public class TridentEntity implements Entity {
         this.passenger = null;
 
         TridentServer.getInstance().getEntityManager().registerEntity(this);
+        TRACKER.track(this);
         // TODO Perhaps we should spawn it in a different method?
     }
 
@@ -297,6 +302,12 @@ public class TridentEntity implements Entity {
 
     @Override
     public void applyProperties(EntityProperties properties) {
+    }
+
+    public void doMove(Coordinates newCoords) {
+        TRACKER.trackMovement(this, getLocation(), newCoords);
+        this.locationChanged = true;
+        this.setLocation(newCoords);
     }
 
     public void load(CompoundTag tag) {

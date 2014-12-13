@@ -32,6 +32,7 @@ import net.tridentsdk.server.threads.ThreadsManager;
 import net.tridentsdk.server.window.WindowManager;
 import net.tridentsdk.server.world.RegionFileCache;
 import net.tridentsdk.server.world.TridentWorldLoader;
+import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.window.Window;
 import net.tridentsdk.world.World;
 import org.slf4j.Logger;
@@ -151,11 +152,6 @@ public final class TridentServer implements Server {
     }
 
     @Override
-    public Logger getLogger() {
-        return this.logger;
-    }
-
-    @Override
     public JsonConfig getConfig() {
         return this.config;
     }
@@ -166,14 +162,14 @@ public final class TridentServer implements Server {
     @Override
     public void shutdown() {
         //TODO: Cleanup stuff...
-        Trident.getLogger().info("Shutting down server connections...");
+        TridentLogger.log("Shutting down server connections...");
         TridentStart.close();
-        Trident.getLogger().info("Shutting down worker threads...");
+        TridentLogger.log("Shutting down worker threads...");
         this.taskExecutor.shutdown();
         this.scheduler.stop();
-        Trident.getLogger().info("Shutting down server process...");
+        TridentLogger.log("Shutting down server process...");
         ThreadsManager.stopAll();
-        Trident.getLogger().info("Server shutdown successfully.");
+        TridentLogger.log("Server shutdown successfully.");
 
         System.exit(0);
     }

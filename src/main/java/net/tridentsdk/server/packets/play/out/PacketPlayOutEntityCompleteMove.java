@@ -22,7 +22,6 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 import net.tridentsdk.util.Vector;
 
 public class PacketPlayOutEntityCompleteMove extends OutPacket {
-
     protected int entityId;
     protected Vector difference;
     protected float yaw;
