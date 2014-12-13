@@ -19,6 +19,7 @@ package net.tridentsdk.server.packets.login;
 import com.google.gson.Gson;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.encryption.RSA;
+import net.tridentsdk.server.entity.UUIDRegistry;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.InPacket;
@@ -184,6 +185,7 @@ public class PacketLoginInEncryptionResponse extends InPacket {
 
         // Store the UUID to be used when spawning the player
         UUID id = UUID.fromString(packet.getUuid());
+        UUIDRegistry.getDefaultPool().register(id);
 
         // Remove stored information in LoginManager and spawn the player
         LoginManager.getInstance().finish(connection.getAddress());

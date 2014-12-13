@@ -21,6 +21,8 @@ import net.tridentsdk.entity.EntityProperties;
 import net.tridentsdk.entity.living.ProjectileLauncher;
 import net.tridentsdk.entity.projectile.Egg;
 import net.tridentsdk.server.entity.TridentProjectile;
+import net.tridentsdk.server.entity.UUIDRegistry;
+import net.tridentsdk.server.entity.living.TridentChicken;
 
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
@@ -48,9 +50,11 @@ public class TridentEgg extends TridentProjectile implements Egg {
 
         if (chance <= 8) {
             if (chance == 1) {
-
+                for (int i = 0; i < 4; i++) {
+                    TRACKER.track(new TridentChicken(UUIDRegistry.getDefaultPool().obtain(), this.getLocation()));
+                }
             } else {
-                // TODO: Spawn 1 Baby Chicken
+                TRACKER.track(new TridentChicken(UUIDRegistry.getDefaultPool().obtain(), this.getLocation()));
             }
         }
     }

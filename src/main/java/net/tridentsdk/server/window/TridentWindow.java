@@ -16,6 +16,7 @@
  */
 package net.tridentsdk.server.window;
 
+import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.server.data.Slot;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutOpenWindow;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutSetSlot;
@@ -25,6 +26,7 @@ import net.tridentsdk.window.inventory.InventoryType;
 import net.tridentsdk.window.inventory.Item;
 
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * An inventory window, wherever and whatever is holding it or having it open
@@ -42,6 +44,8 @@ public class TridentWindow implements Window {
     private final int length;
     private final Item[] contents;
     private final InventoryType type;
+
+    private final AtomicReference<Player> user = new AtomicReference<>();
 
     /**
      * Builds a new inventory window
@@ -98,7 +102,14 @@ public class TridentWindow implements Window {
     @Override
     public void setSlot(int index, Item value) {
         this.contents[index] = value;
-        // TODO: update client
+        PacketPlayOutSetSlot setSlot = new PacketPlayOutSetSlot();
+        setSlot.set("windowId", getId())
+                .set("slot", (short) index)
+                .set("item", new Slot(value));
+
+        Player player = user.get();
+        if (player != null)
+            ((TridentPlayer) player).getConnection().sendPacket(setSlot);
     }
 
     public void sendTo(TridentPlayer player) {
@@ -117,5 +128,7 @@ public class TridentWindow implements Window {
                     .set("item", new Slot(getItems()[i]));
             player.getConnection().sendPacket(window);
         }
+
+        user.set(player);
     }
 }
