@@ -28,6 +28,7 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import net.tridentsdk.Defaults;
+import net.tridentsdk.concurrent.HeldValueLatch;
 import net.tridentsdk.config.JsonConfig;
 import net.tridentsdk.docs.Volatile;
 import net.tridentsdk.factory.CollectFactory;
@@ -58,8 +59,9 @@ final class TridentStart {
     static {
         TridentLogger.init();
     }
-    private static final EventLoopGroup bossGroup = new NioEventLoopGroup();
-    private static final EventLoopGroup workerGroup = new NioEventLoopGroup();
+
+    private static final EventLoopGroup bossGroup = new NioEventLoopGroup(4, Defaults.ERROR_HANDLED);
+    private static final EventLoopGroup workerGroup = new NioEventLoopGroup(4, Defaults.ERROR_HANDLED);
 
     private TridentStart() {
     } // Do not initialize
@@ -101,7 +103,7 @@ final class TridentStart {
         try {
             options = parser.parse(args);
         } catch (OptionException ex) {
-            ex.printStackTrace();
+            TridentLogger.error(ex);
             return;
         }
 
@@ -126,7 +128,7 @@ final class TridentStart {
     @Volatile(policy = "Do not throw exceptions before",
             reason = "Init begins here",
             fix = "Just don't do it")
-    private static void init(JsonConfig config) {
+    private static void init(JsonConfig config) throws InterruptedException {
         TridentLogger.log("Initializing the API implementations");
 
         Factories.init(new CollectFactory() {
@@ -138,7 +140,7 @@ final class TridentStart {
         Factories.init(new ThreadsManager());
         Factories.init(new TridentScheduler());
 
-        //Server should read all settings from the loaded config
+        // Server should read all settings from the loaded config
         final ConcurrentTaskExecutor<?> taskExecutor = new ConcurrentTaskExecutor<>(1);
         final JsonConfig innerConfig = config;
 
@@ -150,22 +152,24 @@ final class TridentStart {
         });
 
         TridentLogger.log("Creating server task thread...");
+
+        final HeldValueLatch<?> proceed = new HeldValueLatch<>();
         taskExecutor.scaledThread().addTask(new Runnable() {
             @Override
             public void run() {
                 TridentServer.createServer(innerConfig, taskExecutor, TridentLogger.getLogger());
-
-                // MUST be executed consecutively...
-                // Now SAFE to throw errors
-                TridentLogger.log("Setting thread exception handlers...");
-                Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-                    @Override
-                    public void uncaughtException(Thread thread, Throwable throwable) {
-                        TridentLogger.error(throwable);
-                    }
-                });
+                proceed.countDown(null);
+                Thread.setDefaultUncaughtExceptionHandler(Defaults.EXCEPTION_HANDLER);
             }
         });
+
+        // Wait for the server to be set
+        proceed.await();
+
+        // MUST be executed consecutively...
+        // Now SAFE to throw errors
+        TridentLogger.log("Setting thread exception handlers...");
+        Thread.setDefaultUncaughtExceptionHandler(Defaults.EXCEPTION_HANDLER);
 
         try {
             TridentLogger.log("Creating server connections...");
@@ -178,8 +182,9 @@ final class TridentStart {
             // Bind and start to accept incoming connections.
             int port = config.getInt("port", 25565);
             TridentLogger.log("Binding socket to server address, using port: " + port);
-            ChannelFuture f = b.bind(
-                    new InetSocketAddress(config.getString("address", Defaults.ADDRESS),
+            ChannelFuture f =
+                    b.bind(new InetSocketAddress(
+                            config.getString("address", Defaults.ADDRESS),
                             config.getInt("port", Defaults.PORT)))
                     .sync();
 
@@ -190,8 +195,7 @@ final class TridentStart {
             //This exception is caught if server is closed.
         } catch (Exception e) {
             TridentLogger.error("Server closed, error occurred");
-            TridentLogger.error("Printing stacktrace: \n");
-            e.printStackTrace();
+            TridentLogger.error(e);
         } finally {
             TridentLogger.error("Server shutting down...");
             TridentServer.getInstance().shutdown();

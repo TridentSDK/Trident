@@ -31,6 +31,7 @@ import net.tridentsdk.server.threads.MainThread;
 import net.tridentsdk.server.threads.ThreadsManager;
 import net.tridentsdk.server.window.WindowManager;
 import net.tridentsdk.server.world.RegionFileCache;
+import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.server.world.TridentWorldLoader;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.window.Window;
@@ -52,6 +53,7 @@ import java.util.concurrent.atomic.AtomicReference;
 @ThreadSafe
 public final class TridentServer implements Server {
     private static final AtomicReference<Thread> SERVER_THREAD = new AtomicReference<>();
+    public static final TridentWorld WORLD = (TridentWorld) new TridentWorldLoader().load("world");
     private static final DisplayInfo INFO = new DisplayInfo();
 
     private final MainThread mainThread;

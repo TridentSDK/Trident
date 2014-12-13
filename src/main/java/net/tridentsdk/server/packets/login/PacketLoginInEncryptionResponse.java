@@ -19,13 +19,13 @@ package net.tridentsdk.server.packets.login;
 import com.google.gson.Gson;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.encryption.RSA;
-import net.tridentsdk.server.entity.UUIDRegistry;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.protocol.Protocol;
 import net.tridentsdk.server.player.TridentPlayer;
+import net.tridentsdk.util.TridentLogger;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;
@@ -119,8 +119,7 @@ public class PacketLoginInEncryptionResponse extends InPacket {
             sharedSecret = RSA.decrypt(this.encryptedSecret, connection.getLoginKeyPair().getPrivate());
             token = RSA.decrypt(this.encryptedToken, connection.getLoginKeyPair().getPrivate());
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            TridentLogger.error(e);
         }
 
         // Check that we got the same verification token;
@@ -161,7 +160,7 @@ public class PacketLoginInEncryptionResponse extends InPacket {
 
             reader.close();
         } catch (Exception ex) {
-            ex.printStackTrace();
+            TridentLogger.error(ex);
 
             connection.logout();
             return;
@@ -185,7 +184,6 @@ public class PacketLoginInEncryptionResponse extends InPacket {
 
         // Store the UUID to be used when spawning the player
         UUID id = UUID.fromString(packet.getUuid());
-        UUIDRegistry.getDefaultPool().register(id);
 
         // Remove stored information in LoginManager and spawn the player
         LoginManager.getInstance().finish(connection.getAddress());

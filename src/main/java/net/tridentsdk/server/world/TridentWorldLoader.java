@@ -17,6 +17,7 @@
 package net.tridentsdk.server.world;
 
 import net.tridentsdk.meta.nbt.NBTException;
+import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.Chunk;
 import net.tridentsdk.world.ChunkLocation;
 import net.tridentsdk.world.World;
@@ -101,7 +102,7 @@ public class TridentWorldLoader implements WorldLoader {
 
             return file.loadChunkData((TridentWorld) world, location);
         } catch (IOException | DataFormatException | NBTException ex) {
-            ex.printStackTrace();
+            TridentLogger.error(ex);
         }
 
         return null;

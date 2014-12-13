@@ -26,6 +26,7 @@ import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.packet.PacketType;
 import net.tridentsdk.server.netty.protocol.Protocol;
 import net.tridentsdk.server.player.TridentPlayer;
+import net.tridentsdk.util.TridentLogger;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;
@@ -33,7 +34,6 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -125,7 +125,7 @@ public class PacketLoginInStart extends InPacket {
                         .matcher(array.getAsJsonArray().get(0).getAsJsonObject().get("id").getAsString())
                         .replaceAll("$1-$2-$3-$4-$5"));
             } catch (Exception e) {
-                e.printStackTrace();
+                TridentLogger.error(e);
                 return;
             }
 

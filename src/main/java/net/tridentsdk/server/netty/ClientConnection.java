@@ -114,7 +114,7 @@ public class ClientConnection {
         try {
             return Cipher.getInstance("AES/CFB8/NoPadding");
         } catch (Exception ex) {
-            ex.printStackTrace();
+            TridentLogger.error(ex);
         }
 
         return null;

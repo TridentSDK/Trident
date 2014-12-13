@@ -24,6 +24,7 @@ import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.protocol.Protocol;
 import net.tridentsdk.server.packets.login.PacketLoginOutDisconnect;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutDisconnect;
+import net.tridentsdk.util.TridentLogger;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -76,7 +77,7 @@ public class PacketHandler extends SimpleChannelInboundHandler<PacketData> {
         try {
             packet.handleReceived(this.connection);
         } catch (Exception ex) {
-            ex.printStackTrace();
+            TridentLogger.error(ex);
 
             switch (this.connection.getStage()) {
                 case LOGIN:

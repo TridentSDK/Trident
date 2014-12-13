@@ -17,6 +17,7 @@
 package net.tridentsdk.server.threads;
 
 import com.google.common.collect.Lists;
+import net.tridentsdk.Defaults;
 import net.tridentsdk.concurrent.ConcurrentCache;
 import net.tridentsdk.concurrent.TaskExecutor;
 import net.tridentsdk.docs.AccessNoDoc;
@@ -213,6 +214,8 @@ public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implement
 
         @Override
         public void run() {
+            Thread.setDefaultUncaughtExceptionHandler(Defaults.EXCEPTION_HANDLER);
+
             while (!isInterrupted()) {
                 try {
                     tasks.take().run();
@@ -220,7 +223,7 @@ public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implement
                     handleShutdown(index, tasks);
                     return;
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    TridentLogger.error(e);
                     handleShutdown(index, tasks);
                     return;
                 }

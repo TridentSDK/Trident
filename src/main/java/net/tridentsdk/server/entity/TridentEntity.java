@@ -141,7 +141,7 @@ public class TridentEntity implements Entity {
             Coordinates l = new Coordinates(this.loc.getWorld(), this.loc.getX(),
                     y, this.loc.getZ());
 
-            if (l.getWorld().getTileAt(l).getSubstance() != Substance.AIR) {
+            if (l.getTile().getSubstance() != Substance.AIR) {
                 this.fallDistance.set((long) (this.loc.getY() - y));
                 this.onGround = this.fallDistance.get() == 0.0D;
 

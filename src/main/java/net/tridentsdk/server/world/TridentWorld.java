@@ -75,7 +75,7 @@ public class TridentWorld implements World {
             return;
         } catch (Exception ex) {
             TridentLogger.log("Unable to load level.dat! Printing stacktrace...");
-            ex.printStackTrace();
+            TridentLogger.error(ex);
             return;
         }
 
@@ -124,7 +124,7 @@ public class TridentWorld implements World {
                             toByteArray(new GZIPInputStream(new ByteArrayInputStream(compressedData)))))).decode();
                 } catch (IOException | NBTException ex) {
                     TridentLogger.log("Unable to load " + f.getName() + "! Printing stacktrace...");
-                    ex.printStackTrace();
+                    TridentLogger.error(ex);
                     continue;
                 }
 
@@ -167,8 +167,10 @@ public class TridentWorld implements World {
 
     @Override
     public TridentChunk generateChunk(ChunkLocation location) {
-        if (location == null)
+        if (location == null) {
             TridentLogger.error(new NullPointerException("Location cannot be null"));
+            return null;
+        }
 
         int x = location.getX();
         int z = location.getZ();
@@ -203,7 +205,7 @@ public class TridentWorld implements World {
         int y = (int) Math.round(location.getY());
         int z = (int) Math.round(location.getZ());
 
-        return this.getChunkAt(WorldUtils.getChunkLocation(x, z), true).getBlockAt(x % 16, y, z % 16);
+        return this.getChunkAt(WorldUtils.getChunkLocation(x, z), true).getTileAt(x % 16, y, z % 16);
     }
 
     private void addChunkAt(ChunkLocation location, Chunk chunk) {

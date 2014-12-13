@@ -17,11 +17,11 @@
 package net.tridentsdk.server.player;
 
 import io.netty.util.internal.ConcurrentSet;
-import net.tridentsdk.Trident;
 import net.tridentsdk.concurrent.TaskExecutor;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.factory.Factories;
 import net.tridentsdk.meta.nbt.CompoundTag;
+import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.packets.play.out.*;
@@ -62,7 +62,7 @@ public class TridentPlayer extends OfflinePlayer {
         }
 
         TridentPlayer p = new TridentPlayer(offlinePlayer,
-                (TridentWorld) Trident.getWorlds().iterator().next(), connection);
+                TridentServer.WORLD, connection);
 
         p.connection.sendPacket(new PacketPlayOutJoinGame().set("entityId", p.getId())
                 .set("gamemode", p.getGameMode())
