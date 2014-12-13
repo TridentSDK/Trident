@@ -23,9 +23,16 @@ import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.packet.PacketType;
+import net.tridentsdk.server.player.TridentPlayer;
 
+import javax.net.ssl.HttpsURLConnection;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * @author The TridentSDK Team
@@ -64,6 +71,74 @@ public class PacketLoginInStart extends InPacket {
 
     @Override
     public void handleReceived(ClientConnection connection) {
+        /*
+         * If the client is the local machine, skip the encryption process and proceed to the PLAY stage
+         */
+        if(connection.getAddress().getHostString().equals("localhost")) {
+            UUID id;
+
+            try {
+                URL url = new URL("https://api.mojang.com/profiles/minecraft");
+                HttpsURLConnection c = (HttpsURLConnection) url.openConnection();
+
+                // add request header
+                c.setRequestMethod("POST");
+                c.setRequestProperty("User-Agent", "Mozilla/5.0");
+                c.setRequestProperty("Content-Type", "application/json");
+                c.setDoOutput(true);
+                c.setDoInput(true);
+
+                // write the payload
+                c.getOutputStream().write(String.format("[ \"%s\" ]", getName()).getBytes());
+                c.getOutputStream().close();
+
+                int responseCode = c.getResponseCode();
+
+                // if the response isn't 200 OK, logout and inform the client of so
+                if(responseCode != 200) {
+                    connection.sendPacket(new PacketLoginOutDisconnect().setJsonMessage("Unable retrieve UUID"));
+
+                    connection.logout();
+                    return;
+                }
+
+                /*
+                 * Read the response
+                 */
+                StringBuilder sb = new StringBuilder();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(c.getInputStream()));
+                String line;
+
+                while ((line = reader.readLine()) != null) {
+                    sb.append(line);
+                    sb.append('\n');
+                }
+
+                reader.close();
+
+                // parse the response and set the ID
+                UUIDResponse response = PacketLoginInEncryptionResponse.GSON
+                        .fromJson(sb.toString(), UUIDResponse.class);
+
+                id = UUID.fromString(PacketLoginInEncryptionResponse.idDash
+                        .matcher(response.profiles.get(0).id).replaceAll("$1-$2-$3-$4-$5"));
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
+            PacketLoginOutSuccess success = new PacketLoginOutSuccess();
+
+            // set values in the packet
+            success.uuid = id.toString();
+            success.username = getName();
+            success.connection = connection;
+
+            // send the success packet and spawn the player
+            connection.sendPacket(success);
+            TridentPlayer.spawnPlayer(connection, id, name);
+            return;
+        }
+
         LoginManager.getInstance().initLogin(connection.getAddress(), this.getName());
         PacketLoginOutEncryptionRequest p = new PacketLoginOutEncryptionRequest();
 
@@ -87,5 +162,21 @@ public class PacketLoginInStart extends InPacket {
 
         // Send the packet to the client
         connection.sendPacket(p);
+    }
+
+    protected class UUIDResponse {
+
+        List<UUIDProfile> profiles;
+
+        protected class UUIDProfile {
+            /**
+             * Id of the player, without dashes
+             */
+            String id;
+            /**
+             * Name of the player
+             */
+            String name;
+        }
     }
 }

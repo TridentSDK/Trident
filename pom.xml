@@ -49,10 +49,6 @@
         </repository>
     </repositories>
 
-    <modules>
-        <module>TridentSDK</module>
-    </modules>
-
     <dependencies>
         <dependency>
             <groupId>net.tridentsdk</groupId>

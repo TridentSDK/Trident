@@ -196,7 +196,14 @@ public class TridentWorld implements World {
 
     @Override
     public Tile getTileAt(Coordinates location) {
-        return null;
+        if (!location.getWorld().getName().equals(this.getName()))
+            throw new IllegalArgumentException("Provided location does not have the same world!");
+
+        int x = (int) Math.round(location.getX());
+        int y = (int) Math.round(location.getY());
+        int z = (int) Math.round(location.getZ());
+
+        return this.getChunkAt(WorldUtils.getChunkLocation(x, z), true).getBlockAt(x % 16, y, z % 16);
     }
 
     private void addChunkAt(ChunkLocation location, Chunk chunk) {
