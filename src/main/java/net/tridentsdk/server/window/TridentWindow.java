@@ -96,6 +96,11 @@ public class TridentWindow implements Window {
     }
 
     @Override
+    public Item[] getContents() {
+        return contents;
+    }
+
+    //@Override
     public int getItemLength() {
         int counter = 0;
         for (Item item : getItems())
