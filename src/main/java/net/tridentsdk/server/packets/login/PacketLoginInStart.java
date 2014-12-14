@@ -137,8 +137,8 @@ public class PacketLoginInStart extends InPacket {
             success.connection = connection;
 
             // send the success packet and spawn the player
-            connection.sendPacket(success);
             connection.enableCompression();
+            connection.sendPacket(success);
             connection.setStage(Protocol.ClientStage.PLAY);
 
             TridentPlayer.spawnPlayer(connection, id);
