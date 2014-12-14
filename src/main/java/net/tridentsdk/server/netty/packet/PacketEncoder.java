@@ -23,6 +23,7 @@ import io.netty.handler.codec.MessageToByteEncoder;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
+import net.tridentsdk.util.TridentLogger;
 
 import java.math.BigInteger;
 import java.util.zip.Deflater;
@@ -82,7 +83,7 @@ public class PacketEncoder extends MessageToByteEncoder<ByteBuf> {
 
         deflater.reset();
 
-        System.out.println("Compressed: " + compressedLength + " decompressed: " + length);
+        TridentLogger.log("Compressed: " + compressedLength + " decompressed: " + length);
 
         if(compressedLength == 0 || compressedLength > length) {
             msg.readerIndex(index);

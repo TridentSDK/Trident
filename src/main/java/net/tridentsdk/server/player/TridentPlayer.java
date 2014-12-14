@@ -53,12 +53,12 @@ public class TridentPlayer extends OfflinePlayer {
         }
     }
 
-    public static Player spawnPlayer(ClientConnection connection, UUID id, String name) {
+    public static Player spawnPlayer(ClientConnection connection, UUID id) {
         CompoundTag offlinePlayer = (OfflinePlayer.getOfflinePlayer(id) == null) ? null :
                 OfflinePlayer.getOfflinePlayer(id).toNbt();
 
         if(offlinePlayer == null) {
-            offlinePlayer = OfflinePlayer.generatePlayer(name, id);
+            offlinePlayer = OfflinePlayer.generatePlayer(id);
         }
 
         TridentPlayer p = new TridentPlayer(offlinePlayer,
@@ -78,7 +78,6 @@ public class TridentPlayer extends OfflinePlayer {
                 .set("flags", (byte) 0));
 
         p.sendChunks(7);
-
 
         players.add(p);
 
@@ -127,7 +126,6 @@ public class TridentPlayer extends OfflinePlayer {
             @Override
             public void run() {
                 TridentPlayer.this.connection.sendPacket(new PacketPlayOutDisconnect().set("reason", reason));
-                TridentPlayer.this.connection.logout();
             }
         });
     }

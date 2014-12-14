@@ -69,7 +69,7 @@ public class PacketHandler extends SimpleChannelInboundHandler<PacketData> {
             return;
         }
 
-        System.out.println("Received packet: " + packet.getClass().getSimpleName());
+        TridentLogger.log("Received packet: " + packet.getClass().getSimpleName());
 
         // decode and handle the packet
         packet.decode(data.getData());

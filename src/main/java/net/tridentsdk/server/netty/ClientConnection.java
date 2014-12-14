@@ -22,6 +22,7 @@ import io.netty.channel.ChannelHandlerContext;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.protocol.Protocol;
 import net.tridentsdk.server.packets.login.PacketLoginOutSetCompression;
+import net.tridentsdk.server.packets.play.out.PacketPlayOutDisconnect;
 import net.tridentsdk.server.threads.ThreadsManager;
 import net.tridentsdk.util.TridentLogger;
 
@@ -180,7 +181,11 @@ public class ClientConnection {
      * @param packet the packet to send, encoded and written to the stream
      */
     public void sendPacket(Packet packet) {
-        System.out.println("Sending Packet: " + packet.getClass().getSimpleName());
+        TridentLogger.log("Sending Packet: " + packet.getClass().getSimpleName());
+        if (packet instanceof PacketPlayOutDisconnect) {
+            logout();
+            return;
+        }
 
         // Create new ByteBuf
         ByteBuf buffer = this.channel.alloc().buffer();

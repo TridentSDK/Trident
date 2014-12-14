@@ -30,6 +30,7 @@ import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutEntityTeleport;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutEntityVelocity;
 import net.tridentsdk.server.player.TridentPlayer;
+import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.util.Vector;
 import net.tridentsdk.world.World;
 
@@ -312,6 +313,7 @@ public class TridentEntity implements Entity {
 
     public void load(CompoundTag tag) {
         /* IDs */
+        TridentLogger.log(tag.getName());
         String id = ((StringTag) tag.getTag("id")).getValue(); // EntityType, in form of a string
         LongTag uuidMost = tag.getTagAs("UUIDMost"); // most signifigant bits of UUID
         LongTag uuidLeast = tag.getTagAs("UUIDLeast"); // least signifigant bits of UUID

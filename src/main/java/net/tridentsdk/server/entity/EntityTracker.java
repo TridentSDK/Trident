@@ -33,6 +33,8 @@ import net.tridentsdk.util.Vector;
  */
 public class EntityTracker {
     public void track(Entity entity, byte... meta) {
+        if (entity instanceof TridentPlayer)
+            return;
         PacketPlayOutSpawnMob packet = new PacketPlayOutSpawnMob();
         packet.set("entityId", entity.getId())
                 .set("type", entity.getType())

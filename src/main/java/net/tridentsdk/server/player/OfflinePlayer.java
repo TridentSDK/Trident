@@ -19,7 +19,6 @@ package net.tridentsdk.server.player;
 import io.netty.util.internal.ConcurrentSet;
 import net.tridentsdk.Coordinates;
 import net.tridentsdk.GameMode;
-import net.tridentsdk.Trident;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.EntityProperties;
 import net.tridentsdk.entity.living.Player;
@@ -27,6 +26,7 @@ import net.tridentsdk.entity.projectile.Projectile;
 import net.tridentsdk.event.entity.EntityDamageEvent;
 import net.tridentsdk.factory.TridentFactory;
 import net.tridentsdk.meta.nbt.*;
+import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.data.Slot;
 import net.tridentsdk.server.entity.TridentInventoryHolder;
 import net.tridentsdk.server.world.TridentWorld;
@@ -113,10 +113,10 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
         return null;
     }
 
-    public static CompoundTag generatePlayer(String name, UUID id) {
-        World defaultWorld = Trident.getServer().getWorlds().iterator().next();
+    public static CompoundTag generatePlayer(UUID id) {
+        World defaultWorld = TridentServer.WORLD;
         Coordinates spawnLocation = defaultWorld.getSpawnLocation();
-        CompoundTagBuilder<NBTBuilder> builder = TridentFactory.createNbtBuilder("buttfuckery"); // because why the fuck not
+        CompoundTagBuilder<NBTBuilder> builder = TridentFactory.createNbtBuilder(id.toString());
 
         builder.stringTag("id", String.valueOf(counter.incrementAndGet()));
         builder.longTag("UUIDMost", id.getMostSignificantBits());

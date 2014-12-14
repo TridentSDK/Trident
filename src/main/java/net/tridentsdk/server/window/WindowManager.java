@@ -16,11 +16,11 @@
  */
 package net.tridentsdk.server.window;
 
+import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
 import net.tridentsdk.window.Window;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Manages the inventory windows on the server, whether being viewed or not
@@ -28,7 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author The TridentSDK Team
  */
 public class WindowManager {
-    private static final Map<Integer, TridentWindow> windows = new ConcurrentHashMap<>();
+    private static final Map<Integer, TridentWindow> windows = new ConcurrentHashMapV8<>();
 
     /**
      * Gets a window by its ID

@@ -22,6 +22,7 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.ChannelPromise;
 import io.netty.channel.socket.SocketChannel;
 import net.tridentsdk.server.netty.packet.*;
+import net.tridentsdk.util.TridentLogger;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -56,7 +57,7 @@ public class ClientChannelInitializer extends ChannelInitializer<SocketChannel> 
         super.channelInactive(ctx);
 
         this.connection.logout();
-        System.out.println("Logged out client!");
+        TridentLogger.log("Logged out client!");
     }
 
     @Override
@@ -64,6 +65,6 @@ public class ClientChannelInitializer extends ChannelInitializer<SocketChannel> 
         super.disconnect(ctx, promise);
 
         this.connection.logout();
-        System.out.println("Logged out client!");
+        TridentLogger.log("Logged out client!");
     }
 }

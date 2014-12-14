@@ -124,7 +124,7 @@ public class PacketLoginInEncryptionResponse extends InPacket {
 
         // Check that we got the same verification token;
         if (!Arrays.equals(connection.getVerificationToken(), token)) {
-            System.out.println("Client with IP " + connection.getAddress().getHostName() +
+            TridentLogger.log("Client with IP " + connection.getAddress().getHostName() +
                     " has sent an invalid token!");
 
             connection.logout();
@@ -187,7 +187,7 @@ public class PacketLoginInEncryptionResponse extends InPacket {
 
         // Remove stored information in LoginManager and spawn the player
         LoginManager.getInstance().finish(connection.getAddress());
-        TridentPlayer.spawnPlayer(connection, id, name);
+        TridentPlayer.spawnPlayer(connection, id);
     }
 
     protected static final class HashGenerator {

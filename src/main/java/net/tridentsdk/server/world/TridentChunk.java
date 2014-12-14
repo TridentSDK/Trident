@@ -100,22 +100,17 @@ public class TridentChunk implements Chunk {
     public PacketPlayOutMapChunkBulk toPacket() {
         PacketPlayOutMapChunkBulk chunkBulk = new PacketPlayOutMapChunkBulk();
 
-        int bitmask;
-        int count;
-
-        bitmask = (1 << sections.length) - 1;
-        count = sections.length;
-
+        int bitmask = (1 << sections.length) - 1;
+        int count = sections.length;
         int size = 0;
         int sectionSize = ChunkSection.LENGTH * 5 / 2;
 
-        if (world.getDimension() == Dimension.OVERWORLD) {
+        if (world.getDimension() == Dimension.OVERWORLD)
             sectionSize += ChunkSection.LENGTH / 2;
-        }
 
         size += count * sectionSize + 256;
 
-        System.out.println(size);
+        TridentLogger.log(String.valueOf(size));
 
         byte[] data = new byte[size];
         int pos = 0;

@@ -104,7 +104,7 @@ n.t.s.TestPlayerThreads.explicitBox     avgt         5        7.097        0.301
  */
 public class TestPlayerThreads {
     public static final Player PLAYER = TridentPlayer.spawnPlayer(ClientConnection.registerConnection(
-            new CTXProper().channel()), UUID.randomUUID(), "");
+            new CTXProper().channel()), UUID.randomUUID());
 
     /* @Benchmark public void explicitBox(Blackhole blackhole) {
         blackhole.consume(Integer.valueOf(69));

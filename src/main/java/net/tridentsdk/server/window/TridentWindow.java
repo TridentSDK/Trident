@@ -16,23 +16,32 @@
  */
 package net.tridentsdk.server.window;
 
+import io.netty.channel.ChannelHandlerAdapter;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
+import net.tridentsdk.docs.Volatile;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.server.data.Slot;
+import net.tridentsdk.server.packets.play.in.PacketPlayInPlayerCloseWindow;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutOpenWindow;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutSetSlot;
+import net.tridentsdk.server.player.PlayerConnection;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.window.Window;
 import net.tridentsdk.window.inventory.InventoryType;
 import net.tridentsdk.window.inventory.Item;
 
+import javax.annotation.concurrent.ThreadSafe;
+import java.util.Collections;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * An inventory window, wherever and whatever is holding it or having it open
  *
  * @author The TridentSDK Team
  */
+@ThreadSafe
 public class TridentWindow implements Window {
     /**
      * Counter for window ids, initial value is 2 to avoid confusion with a window and a player inventory
@@ -42,10 +51,11 @@ public class TridentWindow implements Window {
     private final int id;
     private final String name;
     private final int length;
-    private final Item[] contents;
+    @Volatile(policy = "Do not write individual elements", reason = "Thread safe array", fix = "See Line 110")
+    private volatile Item[] contents;
     private final InventoryType type;
 
-    private final AtomicReference<Player> user = new AtomicReference<>();
+    private final Set<Player> users = Collections.newSetFromMap(new ConcurrentHashMapV8<Player, Boolean>());
 
     /**
      * Builds a new inventory window
@@ -101,14 +111,16 @@ public class TridentWindow implements Window {
 
     @Override
     public void setSlot(int index, Item value) {
-        this.contents[index] = value;
+        Item[] contents = this.contents;
+        contents[index] = value;
+        Item[] read = this.contents; // Flush caches, make entire array visible
+
         PacketPlayOutSetSlot setSlot = new PacketPlayOutSetSlot();
         setSlot.set("windowId", getId())
                 .set("slot", (short) index)
                 .set("item", new Slot(value));
 
-        Player player = user.get();
-        if (player != null)
+        for (Player player : users)
             ((TridentPlayer) player).getConnection().sendPacket(setSlot);
     }
 
@@ -129,6 +141,31 @@ public class TridentWindow implements Window {
             player.getConnection().sendPacket(window);
         }
 
-        user.set(player);
+        users.add(player);
+    }
+
+    @Volatile(policy = "DO NOT INVOKE OUTSIDE OF THIS CLASS",
+            reason = "Extremely unsafe and causes unspecified behavior without proper handling",
+            fix = "Do not use reflection on this method")
+    private void addClosedListener(Player player) {
+        final PlayerConnection connection = ((TridentPlayer) player).getConnection();
+        connection.getChannel().pipeline().addLast(new ChannelHandlerAdapter() {
+            @Override
+            // Occurs after the message should be decoded
+            public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+                if (msg instanceof PacketPlayInPlayerCloseWindow) {
+                    PacketPlayInPlayerCloseWindow windowClose = (PacketPlayInPlayerCloseWindow) msg;
+                    if (windowClose.getWindowId() == getId())
+                        for (Player player1 : users)
+                            if (connection.getChannel().equals(ctx.channel())) {
+                                users.remove(player1);
+                                ctx.pipeline().remove(this);
+                            }
+                }
+
+                // Pass to the next channel handler
+                super.channelRead(ctx, msg);
+            }
+        });
     }
 }

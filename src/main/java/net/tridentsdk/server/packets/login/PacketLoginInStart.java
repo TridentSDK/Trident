@@ -141,7 +141,7 @@ public class PacketLoginInStart extends InPacket {
             connection.enableCompression();
             connection.setStage(Protocol.ClientStage.PLAY);
 
-            TridentPlayer.spawnPlayer(connection, id, name);
+            TridentPlayer.spawnPlayer(connection, id);
             return;
         }
 
