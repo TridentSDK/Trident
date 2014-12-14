@@ -54,6 +54,7 @@ public class MainThread extends Thread {
         instance = this;
         this.ticksPerSecond = ticksPerSecond;
         this.tickLength = 1000 / ticksPerSecond;
+        start();
     }
 
     /**
