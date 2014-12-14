@@ -24,6 +24,7 @@ import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.protocol.Protocol;
 import net.tridentsdk.server.packets.login.PacketLoginOutDisconnect;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutDisconnect;
+import net.tridentsdk.server.player.PlayerConnection;
 import net.tridentsdk.util.TridentLogger;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -104,5 +105,9 @@ public class PacketHandler extends SimpleChannelInboundHandler<PacketData> {
                     break;
             }
         }
+    }
+
+    public void updateConnection(PlayerConnection connection) {
+        this.connection = connection;
     }
 }

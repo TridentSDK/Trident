@@ -94,6 +94,10 @@ public class TridentPlayer extends OfflinePlayer {
         return null;
     }
 
+    public static Set<TridentPlayer> getPlayers() {
+        return players;
+    }
+
     @Override
     public void tick() {
         this.executor.addTask(new Runnable() {

@@ -18,6 +18,7 @@ package net.tridentsdk.server.player;
 
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.server.netty.ClientConnection;
+import net.tridentsdk.server.netty.packet.PacketHandler;
 import net.tridentsdk.server.netty.protocol.Protocol;
 
 import java.net.InetSocketAddress;
@@ -53,6 +54,13 @@ public class PlayerConnection extends ClientConnection {
 
         this.player = player;
         this.keepAliveId = -1;
+
+        // update the clients packet handler
+        PacketHandler handler = channel.pipeline().get(PacketHandler.class);
+
+        if(handler != null) { // while unlikely, I'll take my chances
+            handler.updateConnection(this);
+        }
     }
 
     public static PlayerConnection createPlayerConnection(ClientConnection connection, TridentPlayer player) {

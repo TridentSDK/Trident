@@ -16,6 +16,9 @@
  */
 package net.tridentsdk.server.threads;
 
+import net.tridentsdk.concurrent.TaskExecutor;
+import net.tridentsdk.server.player.TridentPlayer;
+
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -81,6 +84,20 @@ public class MainThread extends Thread {
 
         // TODO: tick the worlds?
         WorldThreads.notifyTick();
+
+        /**
+         * Tick the players
+         */
+        for(final TridentPlayer player : TridentPlayer.getPlayers()) {
+            TaskExecutor executor = ThreadsManager.players.assign(player);
+
+            executor.addTask(new Runnable() {
+                @Override
+                public void run() {
+                    player.tick();
+                }
+            });
+        }
 
         // alternate redstone ticks between ticks
         if (this.redstoneTick) {
