@@ -181,8 +181,6 @@ public class ClientConnection {
      * @param packet the packet to send, encoded and written to the stream
      */
     public void sendPacket(Packet packet) {
-        TridentLogger.log("Sending Packet: " + packet.getClass().getSimpleName());
-
         // Create new ByteBuf
         ByteBuf buffer = this.channel.alloc().buffer();
 

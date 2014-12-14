@@ -21,6 +21,7 @@ import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
+import net.tridentsdk.server.packets.play.out.PacketPlayOutKeepAlive;
 import net.tridentsdk.server.player.PlayerConnection;
 
 /**
@@ -49,6 +50,10 @@ public class PacketPlayInKeepAlive extends InPacket {
     public void handleReceived(ClientConnection connection) {
         PlayerConnection pc = (PlayerConnection) connection;
 
-        pc.setKeepAliveId(-1, 0L);
+        if(pc.getKeepAliveId() == keepAliveId) {
+            pc.setKeepAliveId(-1, 0L);
+        } else {
+            pc.sendPacket(new PacketPlayOutKeepAlive().set("keepAliveId", keepAliveId));
+        }
     }
 }

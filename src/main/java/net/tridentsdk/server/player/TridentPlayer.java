@@ -22,6 +22,7 @@ import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.factory.Factories;
 import net.tridentsdk.meta.nbt.CompoundTag;
 import net.tridentsdk.server.TridentServer;
+import net.tridentsdk.server.data.Slot;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.packets.play.out.*;
@@ -61,7 +62,7 @@ public class TridentPlayer extends OfflinePlayer {
             offlinePlayer = OfflinePlayer.generatePlayer(id);
         }
 
-        TridentPlayer p = new TridentPlayer(offlinePlayer,
+        final TridentPlayer p = new TridentPlayer(offlinePlayer,
                 TridentServer.WORLD, connection);
 
         p.connection.sendPacket(new PacketPlayOutJoinGame().set("entityId", p.getId())
@@ -77,9 +78,14 @@ public class TridentPlayer extends OfflinePlayer {
         p.connection.sendPacket(new PacketPlayOutPlayerCompleteMove().set("location", p.getLocation())
                 .set("flags", (byte) 0));
 
-        p.sendChunks(7);
-
         players.add(p);
+
+        p.executor.addTask(new Runnable() {
+            @Override
+            public void run() {
+                p.sendChunks(7);
+            }
+        });
 
         return p;
     }
@@ -104,19 +110,20 @@ public class TridentPlayer extends OfflinePlayer {
             @Override
             public void run() {
                 TridentPlayer.super.tick();
+                long keepAlive = ticksExisted.get() - connection.getKeepAliveSent();
 
-                if (TridentPlayer.this.connection.getKeepAliveId() == -1) {
+                if (TridentPlayer.this.connection.getKeepAliveId() == -1 && keepAlive >= 300) {
                     // send Keep Alive packet if not sent already
                     PacketPlayOutKeepAlive packet = new PacketPlayOutKeepAlive();
 
-                    TridentPlayer.this.connection.sendPacket(packet);
-                    TridentPlayer.this.connection.setKeepAliveId(packet.getKeepAliveId(),
-                            TridentPlayer.this.ticksExisted.get());
-                } else if (TridentPlayer.this.ticksExisted.get() -
-                        TridentPlayer.this.connection.getKeepAliveSent() >= 600L) {
+                    connection.sendPacket(packet);
+                    connection.setKeepAliveId(packet.getKeepAliveId(), ticksExisted.get());
+                } else if (keepAlive >= 600L) {
                     // kick the player for not responding to the keep alive within 30 seconds/600 ticks
-                    TridentPlayer.this.kickPlayer("Timed out!");
+                    kickPlayer("Timed out!");
                 }
+
+                ticksExisted.incrementAndGet();
             }
         });
     }

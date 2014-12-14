@@ -57,7 +57,6 @@ public class ClientChannelInitializer extends ChannelInitializer<SocketChannel> 
         super.channelInactive(ctx);
 
         this.connection.logout();
-        TridentLogger.log("Logged out client!");
     }
 
     @Override
@@ -65,6 +64,5 @@ public class ClientChannelInitializer extends ChannelInitializer<SocketChannel> 
         super.disconnect(ctx, promise);
 
         this.connection.logout();
-        TridentLogger.log("Logged out client!");
     }
 }

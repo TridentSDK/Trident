@@ -84,8 +84,6 @@ public class PacketEncoder extends MessageToByteEncoder<ByteBuf> {
         deflater.end();
         deflater.reset();
 
-        TridentLogger.log("Compressed: " + compressedLength + " decompressed: " + length);
-
         if(compressedLength == 0 || compressedLength > length) {
             msg.readerIndex(index);
             sendDecompressed(msg, out);

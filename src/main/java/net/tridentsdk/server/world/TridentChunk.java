@@ -110,8 +110,6 @@ public class TridentChunk implements Chunk {
 
         size += count * sectionSize + 256;
 
-        TridentLogger.log(String.valueOf(size));
-
         byte[] data = new byte[size];
         int pos = 0;
 
