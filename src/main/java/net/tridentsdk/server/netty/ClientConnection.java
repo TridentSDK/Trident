@@ -182,10 +182,6 @@ public class ClientConnection {
      */
     public void sendPacket(Packet packet) {
         TridentLogger.log("Sending Packet: " + packet.getClass().getSimpleName());
-        if (packet instanceof PacketPlayOutDisconnect) {
-            logout();
-            return;
-        }
 
         // Create new ByteBuf
         ByteBuf buffer = this.channel.alloc().buffer();
@@ -196,6 +192,10 @@ public class ClientConnection {
         // Write the packet and flush it
         this.channel.write(buffer);
         this.channel.flush();
+
+        if (packet instanceof PacketPlayOutDisconnect) {
+            logout();
+        }
     }
 
     /**
