@@ -151,7 +151,8 @@ public class TridentChunk implements Chunk {
     public void load(CompoundTag root) {
         CompoundTag tag = root.getTagAs("Level");
         LongTag lastModifed = tag.getTagAs("LastUpdate");
-        ByteTag lightPopulated = tag.getTagAs("LightPopulated");
+        ByteTag lightPopulated = (tag.containsTag("LightPopulated")) ? (ByteTag) tag.getTagAs("LightPopulated") :
+                new ByteTag("LightPopulated").setValue((byte) 0);
         ByteTag terrainPopulated = tag.getTagAs("TerrainPopulated");
 
         LongTag inhabitedTime = tag.getTagAs("InhabitedTime");
@@ -160,7 +161,7 @@ public class TridentChunk implements Chunk {
         ListTag sections = tag.getTagAs("Sections");
         ListTag entities = tag.getTagAs("Entities");
         ListTag tileEntities = tag.getTagAs("TileEntities");
-        ListTag tileTicks = (root.containsTag("TileTicks")) ? (ListTag) tag.getTag("TileTicks") :
+        ListTag tileTicks = (tag.containsTag("TileTicks")) ? (ListTag) tag.getTag("TileTicks") :
                 new ListTag("TileTicks", TagType.COMPOUND);
         List<NBTTag> sectionsList = sections.listTags();
 
