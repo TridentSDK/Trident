@@ -1,16 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xmlns="http://maven.apache.org/POM/4.0.0"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.tridentsdk</groupId>
     <artifactId>trident</artifactId>
     <version>1.0-SNAPSHOT</version>
     <name>Trident</name>
     <url>http://www.tridentsdk.net/</url>
-    <!-- <packaging>pom</packaging> -->
-    <!-- Also used for side-by-side development -->
+    <packaging>pom</packaging>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -53,10 +49,9 @@
         </repository>
     </repositories>
 
-    <!-- Used for side-by-side development -->
-    <!-- <modules>
+    <modules>
         <module>TridentSDK</module>
-    </modules> -->
+    </modules>
 
     <dependencies>
         <dependency>
@@ -99,10 +94,16 @@
         <!-- Logging -->
         <dependency>
             <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
+            <artifactId>slf4j-api</artifactId>
             <version>1.7.7</version>
         </dependency>
-        
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.7.7</version>
+        </dependency>
+
         <!-- Testing -->
         <dependency>
             <groupId>junit</groupId>
@@ -128,10 +129,12 @@
             <artifactId>jmh-core</artifactId>
             <version>0.9</version>
         </dependency>
+
         <dependency>
             <groupId>org.openjdk.jmh</groupId>
             <artifactId>jmh-generator-annprocess</artifactId>
             <version>0.9</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
@@ -175,7 +178,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.4.1</version>
+                <version>2.5.2</version>
                 <configuration>
                     <archive>
                         <manifest>
@@ -191,7 +194,7 @@
                         <id>make-assembly</id>
                         <phase>package</phase>
                         <goals>
-                            <goal>single</goal>
+                            <goal>unpack</goal>
                         </goals>
                     </execution>
                 </executions>

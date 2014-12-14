@@ -17,14 +17,14 @@
 package net.tridentsdk.server.netty.packet;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.api.reflect.FastClass;
+import net.tridentsdk.perf.FastClass;
 import net.tridentsdk.server.netty.ClientConnection;
+import net.tridentsdk.util.TridentLogger;
 
 /**
  * @author The TridentSDK Team
  */
 public abstract class OutPacket implements Packet {
-
     private final FastClass fastClass;
 
     public OutPacket() {
@@ -53,7 +53,8 @@ public abstract class OutPacket implements Packet {
      */
     @Override
     public Packet decode(ByteBuf buf) {
-        throw new UnsupportedOperationException(this.getClass().getName() + " cannot be decoded!");
+        TridentLogger.error(new UnsupportedOperationException(this.getClass().getName() + " cannot be decoded!"));
+        return null;
     }
 
     /**
@@ -61,7 +62,7 @@ public abstract class OutPacket implements Packet {
      */
     @Override
     public void handleReceived(ClientConnection connection) {
-        throw new UnsupportedOperationException(
-                this.getClass().getName() + " is a client-bound packet therefor cannot be handled!");
+        TridentLogger.error(new UnsupportedOperationException(
+                this.getClass().getName() + " is a client-bound packet therefor cannot be handled!"));
     }
 }

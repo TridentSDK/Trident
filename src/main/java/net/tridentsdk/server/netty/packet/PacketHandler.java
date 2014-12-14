@@ -18,12 +18,14 @@ package net.tridentsdk.server.netty.packet;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import net.tridentsdk.api.Trident;
-import net.tridentsdk.packets.login.PacketLoginOutDisconnect;
-import net.tridentsdk.packets.play.out.PacketPlayOutDisconnect;
+import net.tridentsdk.Trident;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.protocol.Protocol;
+import net.tridentsdk.server.packets.login.PacketLoginOutDisconnect;
+import net.tridentsdk.server.packets.play.out.PacketPlayOutDisconnect;
+import net.tridentsdk.server.player.PlayerConnection;
+import net.tridentsdk.util.TridentLogger;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -68,15 +70,13 @@ public class PacketHandler extends SimpleChannelInboundHandler<PacketData> {
             return;
         }
 
-        System.out.println("Received packet: " + packet.getClass().getSimpleName());
-
         // decode and handle the packet
         packet.decode(data.getData());
 
         try {
             packet.handleReceived(this.connection);
         } catch (Exception ex) {
-            ex.printStackTrace();
+            TridentLogger.error(ex);
 
             switch (this.connection.getStage()) {
                 case LOGIN:
@@ -92,7 +92,8 @@ public class PacketHandler extends SimpleChannelInboundHandler<PacketData> {
                 case PLAY:
                     PacketPlayOutDisconnect quit = new PacketPlayOutDisconnect();
 
-                    quit.set("reason", ex.getCause() == null ? "Error occurred" : ex.getCause());
+                    quit.set("reason", "\"Internal Error: " + ex.getClass().getName() +
+                            ((ex.getMessage() != null) ? ": " + ex.getMessage() : "") + "\"");
 
                     this.connection.sendPacket(quit);
                     this.connection.logout();
@@ -103,5 +104,9 @@ public class PacketHandler extends SimpleChannelInboundHandler<PacketData> {
                     break;
             }
         }
+    }
+
+    public void updateConnection(PlayerConnection connection) {
+        this.connection = connection;
     }
 }

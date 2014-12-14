@@ -16,24 +16,26 @@
  */
 package net.tridentsdk.server;
 
-import net.tridentsdk.api.*;
-import net.tridentsdk.api.config.JsonConfig;
-import net.tridentsdk.api.entity.living.Player;
-import net.tridentsdk.api.event.EventHandler;
-import net.tridentsdk.api.window.Window;
-import net.tridentsdk.api.world.World;
-import net.tridentsdk.entity.EntityManager;
-import net.tridentsdk.packets.play.out.PacketPlayOutPluginMessage;
-import net.tridentsdk.player.OfflinePlayer;
-import net.tridentsdk.player.TridentPlayer;
+import net.tridentsdk.*;
+import net.tridentsdk.config.JsonConfig;
+import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.event.EventHandler;
 import net.tridentsdk.plugin.TridentPluginHandler;
+import net.tridentsdk.server.entity.EntityManager;
 import net.tridentsdk.server.netty.protocol.Protocol;
+import net.tridentsdk.server.packets.play.out.PacketPlayOutPluginMessage;
+import net.tridentsdk.server.player.OfflinePlayer;
+import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
 import net.tridentsdk.server.threads.MainThread;
 import net.tridentsdk.server.threads.ThreadsManager;
-import net.tridentsdk.window.WindowManager;
-import net.tridentsdk.world.RegionFileCache;
-import net.tridentsdk.world.TridentWorldLoader;
+import net.tridentsdk.server.window.WindowManager;
+import net.tridentsdk.server.world.RegionFileCache;
+import net.tridentsdk.server.world.TridentWorld;
+import net.tridentsdk.server.world.TridentWorldLoader;
+import net.tridentsdk.util.TridentLogger;
+import net.tridentsdk.window.Window;
+import net.tridentsdk.world.World;
 import org.slf4j.Logger;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -51,6 +53,7 @@ import java.util.concurrent.atomic.AtomicReference;
 @ThreadSafe
 public final class TridentServer implements Server {
     private static final AtomicReference<Thread> SERVER_THREAD = new AtomicReference<>();
+    public static final TridentWorld WORLD = (TridentWorld) new TridentWorldLoader().load("world");
     private static final DisplayInfo INFO = new DisplayInfo();
 
     private final MainThread mainThread;
@@ -151,11 +154,6 @@ public final class TridentServer implements Server {
     }
 
     @Override
-    public Logger getLogger() {
-        return this.logger;
-    }
-
-    @Override
     public JsonConfig getConfig() {
         return this.config;
     }
@@ -166,14 +164,14 @@ public final class TridentServer implements Server {
     @Override
     public void shutdown() {
         //TODO: Cleanup stuff...
-        Trident.getLogger().info("Shutting down server connections...");
+        TridentLogger.log("Shutting down server connections...");
         TridentStart.close();
-        Trident.getLogger().info("Shutting down worker threads...");
+        TridentLogger.log("Shutting down worker threads...");
         this.taskExecutor.shutdown();
         this.scheduler.stop();
-        Trident.getLogger().info("Shutting down server process...");
+        TridentLogger.log("Shutting down server process...");
         ThreadsManager.stopAll();
-        Trident.getLogger().info("Server shutdown successfully.");
+        TridentLogger.log("Server shutdown successfully.");
 
         System.exit(0);
     }

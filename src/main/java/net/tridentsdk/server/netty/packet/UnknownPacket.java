@@ -18,6 +18,7 @@ package net.tridentsdk.server.netty.packet;
 
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.netty.ClientConnection;
+import net.tridentsdk.util.TridentLogger;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -38,7 +39,7 @@ public class UnknownPacket implements Packet {
      */
     @Override
     public void encode(ByteBuf buf) {
-        throw new UnsupportedOperationException("Cannot serialize unknown packet");
+        TridentLogger.error(new UnsupportedOperationException("Cannot serialize unknown packet"));
     }
 
     @Override

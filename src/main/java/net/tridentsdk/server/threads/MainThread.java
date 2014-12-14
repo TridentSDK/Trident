@@ -16,8 +16,8 @@
  */
 package net.tridentsdk.server.threads;
 
-import net.tridentsdk.api.factory.Factories;
-import net.tridentsdk.server.TridentScheduler;
+import net.tridentsdk.concurrent.TaskExecutor;
+import net.tridentsdk.server.player.TridentPlayer;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -54,6 +54,7 @@ public class MainThread extends Thread {
         instance = this;
         this.ticksPerSecond = ticksPerSecond;
         this.tickLength = 1000 / ticksPerSecond;
+        start();
     }
 
     /**
@@ -63,49 +64,63 @@ public class MainThread extends Thread {
         return instance;
     }
 
+    public void doRun() {
+        long startTime = System.currentTimeMillis();
+
+        this.ticksElapsed.getAndIncrement();
+
+        // if we've paused, wait and then skip the rest
+        if (this.pausedTicking) {
+            this.calcAndWait(0);
+            return;
+        }
+
+        if (this.ticksToWait.get() > 0) {
+            this.ticksToWait.getAndDecrement();
+            this.calcAndWait(0);
+            return;
+        }
+
+        this.notLostTicksElapsed.getAndIncrement();
+
+        // TODO: tick the worlds?
+        WorldThreads.notifyTick();
+
+        /**
+         * Tick the players
+         */
+        for(final TridentPlayer player : TridentPlayer.getPlayers()) {
+            TaskExecutor executor = ThreadsManager.players.assign(player);
+
+            executor.addTask(new Runnable() {
+                @Override
+                public void run() {
+                    player.tick();
+                }
+            });
+        }
+
+        // alternate redstone ticks between ticks
+        if (this.redstoneTick) {
+            WorldThreads.notifyRedstoneTick();
+            this.redstoneTick = false;
+        } else {
+            this.redstoneTick = true;
+        }
+
+        // TODO: check the worlds to make sure they're not suffering
+
+        //((TridentScheduler) Factories.tasks()).tick();
+
+        this.calcAndWait((int) (System.currentTimeMillis() - startTime));
+    }
+
     @Override
     public void run() {
         super.run();
 
-        while (true) {
-            if (this.isInterrupted()) {
-                break;
-            }
-
-            long startTime = System.currentTimeMillis();
-
-            this.ticksElapsed.getAndIncrement();
-
-            // if we've paused, wait and then skip the rest
-            if (this.pausedTicking) {
-                this.calcAndWait(0);
-                continue;
-            }
-
-            if (this.ticksToWait.get() > 0) {
-                this.ticksToWait.getAndDecrement();
-                this.calcAndWait(0);
-                continue;
-            }
-
-            this.notLostTicksElapsed.getAndIncrement();
-
-            // TODO: tick the worlds?
-            WorldThreads.notifyTick();
-
-            // alternate redstone ticks between ticks
-            if (this.redstoneTick) {
-                WorldThreads.notifyRedstoneTick();
-                this.redstoneTick = false;
-            } else {
-                this.redstoneTick = true;
-            }
-
-            // TODO: check the worlds to make sure they're not suffering
-
-            ((TridentScheduler) Factories.tasks()).tick();
-
-            this.calcAndWait((int) (System.currentTimeMillis() - startTime));
+        while (!this.isInterrupted()) {
+            doRun();
         }
     }
 

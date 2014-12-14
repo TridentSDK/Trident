@@ -19,10 +19,12 @@ package net.tridentsdk.server.netty;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
-import net.tridentsdk.packets.login.PacketLoginOutSetCompression;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.protocol.Protocol;
+import net.tridentsdk.server.packets.login.PacketLoginOutSetCompression;
+import net.tridentsdk.server.packets.play.out.PacketPlayOutDisconnect;
 import net.tridentsdk.server.threads.ThreadsManager;
+import net.tridentsdk.util.TridentLogger;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
@@ -113,7 +115,7 @@ public class ClientConnection {
         try {
             return Cipher.getInstance("AES/CFB8/NoPadding");
         } catch (Exception ex) {
-            ex.printStackTrace();
+            TridentLogger.error(ex);
         }
 
         return null;
@@ -179,8 +181,6 @@ public class ClientConnection {
      * @param packet the packet to send, encoded and written to the stream
      */
     public void sendPacket(Packet packet) {
-        System.out.println("Sending Packet: " + packet.getClass().getSimpleName());
-
         // Create new ByteBuf
         ByteBuf buffer = this.channel.alloc().buffer();
 
@@ -190,6 +190,10 @@ public class ClientConnection {
         // Write the packet and flush it
         this.channel.write(buffer);
         this.channel.flush();
+
+        if (packet instanceof PacketPlayOutDisconnect) {
+            logout();
+        }
     }
 
     /**
@@ -243,11 +247,11 @@ public class ClientConnection {
 
     public void enableCompression() {
         if(compressionEnabled) {
-            throw new UnsupportedOperationException("Compression is already enabled!");
+            TridentLogger.error(new UnsupportedOperationException("Compression is already enabled!"));
         }
 
         if(stage != Protocol.ClientStage.LOGIN)  {
-            throw new UnsupportedOperationException();
+            TridentLogger.error(new UnsupportedOperationException());
         }
 
         sendPacket(new PacketLoginOutSetCompression());

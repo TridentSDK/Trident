@@ -20,6 +20,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
+import net.tridentsdk.util.TridentLogger;
 
 /**
  * Wraps the raw Packet Data/Bytes receieved over the network (May serve more functions later)
@@ -64,7 +65,7 @@ public class PacketData {
 
             this.decrypted.writeBytes(con.encrypt(Codec.toArray(this.rawData)));
         } catch (Exception ex) {
-            ex.printStackTrace();
+            TridentLogger.error(ex);
         }
     }
 

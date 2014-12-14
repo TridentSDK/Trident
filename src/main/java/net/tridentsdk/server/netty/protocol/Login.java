@@ -16,8 +16,8 @@
  */
 package net.tridentsdk.server.netty.protocol;
 
-import net.tridentsdk.api.docs.AccessNoDoc;
-import net.tridentsdk.packets.login.*;
+import net.tridentsdk.docs.AccessNoDoc;
+import net.tridentsdk.server.packets.login.*;
 
 @AccessNoDoc
 class Login extends PacketManager {

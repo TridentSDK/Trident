@@ -20,12 +20,13 @@ package net.tridentsdk.server;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
-import net.tridentsdk.api.config.JsonConfig;
-import net.tridentsdk.api.event.Listener;
-import net.tridentsdk.api.factory.CollectFactory;
-import net.tridentsdk.api.factory.ConfigFactory;
-import net.tridentsdk.api.factory.Factories;
-import net.tridentsdk.api.threads.TaskExecutor;
+import net.tridentsdk.concurrent.TaskExecutor;
+import net.tridentsdk.config.JsonConfig;
+import net.tridentsdk.event.Listener;
+import net.tridentsdk.factory.CollectFactory;
+import net.tridentsdk.factory.ConfigFactory;
+import net.tridentsdk.factory.ExecutorFactory;
+import net.tridentsdk.factory.Factories;
 import net.tridentsdk.server.threads.ThreadsManager;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
@@ -43,12 +44,12 @@ import java.util.concurrent.TimeUnit;
 /*
 Benchmark results: http://bit.ly/1B3psZv
  */
-@State(Scope.Benchmark)
+@State(Scope.Thread)
 public class EventBusPerformance {
     private static final EventBus EVENT_BUS = new EventBus();
 
     // Cannot be initialized first, else whole class cannot be loaded completely
-    private final net.tridentsdk.api.event.EventHandler EVENT_MANAGER = new net.tridentsdk.api.event.EventHandler();
+    private final net.tridentsdk.event.EventHandler EVENT_MANAGER = new net.tridentsdk.event.EventHandler();
 
     static {
         Factories.init(new CollectFactory() {
@@ -72,12 +73,13 @@ public class EventBusPerformance {
     private static final EventHandler HANDLER = new EventHandler();
     private static final Listener LISTENER = new EventListener();
 
-    private static final net.tridentsdk.api.event.Event EVENT = new Event();
+    private static final net.tridentsdk.event.Event EVENT = new Event();
 
-    private static final TaskExecutor EXECUTOR = Factories
+    private static final ExecutorFactory<?> EXEC = Factories
             .threads()
-            .executor(2)
-            .scaledThread();
+            .executor(2);
+
+    private static final TaskExecutor EXECUTOR = EXEC.scaledThread();
 
     public void main1(String[] args) {
         while (true) {
@@ -85,9 +87,19 @@ public class EventBusPerformance {
         }
     }
 
-    public void main0(String[] args) {
-        EVENT_MANAGER.registerListener(EXECUTOR, LISTENER);
-        EVENT_MANAGER.call(EVENT);
+    public static void main0(String[] args) {
+        final EventBusPerformance performance = new EventBusPerformance();
+        for (int i = 0; i < 10; i++) {
+            EXEC.scaledThread().addTask(new Runnable() {
+                @Override
+                public void run() {
+                    // THIS IS INCORRECT - DO NOT DO IT!!!!
+                    performance.EVENT_MANAGER.registerListener(EXEC.scaledThread(), LISTENER);
+                }
+            });
+        }
+        performance.EVENT_MANAGER.call(EVENT);
+        ThreadsManager.stopAll();
     }
 
     public static void main(String[] args) throws RunnerException {
@@ -100,7 +112,7 @@ public class EventBusPerformance {
                 .measurementIterations(5)
                 .measurementTime(TimeValue.milliseconds(1))         // ALLOWED TIME
                 .forks(1)                                           // FORKS
-                .verbosity(VerboseMode.SILENT)                      // GRAPH
+                .verbosity(VerboseMode.NORMAL)                      // GRAPH
                 .threads(4)                                         // THREADS
                 .build();
 
@@ -139,7 +151,7 @@ public class EventBusPerformance {
         EVENT_MANAGER.call(EVENT);
     }
 
-    private static class Event extends net.tridentsdk.api.event.Event {
+    private static class Event extends net.tridentsdk.event.Event {
     }
 
     private static class EventHandler {

@@ -17,6 +17,7 @@
 package net.tridentsdk.server.netty.packet;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.util.TridentLogger;
 
 /**
  * @author The TridentSDK Team
@@ -28,7 +29,7 @@ public abstract class InPacket implements Packet {
      */
     @Override
     public void encode(ByteBuf buf) {
-        throw new UnsupportedOperationException(this.getClass().getName() + " cannot be encoded!");
+        TridentLogger.error(new UnsupportedOperationException(this.getClass().getName() + " cannot be encoded!"));
     }
 
     @Override

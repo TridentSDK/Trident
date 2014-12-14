@@ -1,10 +1,10 @@
 package net.tridentsdk.server;
 
 import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
-import net.tridentsdk.api.config.JsonConfig;
-import net.tridentsdk.api.factory.CollectFactory;
-import net.tridentsdk.api.factory.ConfigFactory;
-import net.tridentsdk.api.factory.Factories;
+import net.tridentsdk.config.JsonConfig;
+import net.tridentsdk.factory.CollectFactory;
+import net.tridentsdk.factory.ConfigFactory;
+import net.tridentsdk.factory.Factories;
 import net.tridentsdk.server.threads.ThreadsManager;
 
 import java.nio.file.Paths;

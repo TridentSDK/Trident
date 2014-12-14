@@ -17,11 +17,13 @@
 package net.tridentsdk.server.threads;
 
 import com.google.common.collect.Lists;
-import net.tridentsdk.api.docs.AccessNoDoc;
-import net.tridentsdk.api.factory.ExecutorFactory;
-import net.tridentsdk.api.perf.Performance;
-import net.tridentsdk.api.threads.ConcurrentCache;
-import net.tridentsdk.api.threads.TaskExecutor;
+import net.tridentsdk.Defaults;
+import net.tridentsdk.concurrent.ConcurrentCache;
+import net.tridentsdk.concurrent.TaskExecutor;
+import net.tridentsdk.docs.AccessNoDoc;
+import net.tridentsdk.factory.ExecutorFactory;
+import net.tridentsdk.perf.Performance;
+import net.tridentsdk.util.TridentLogger;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.ArrayList;
@@ -156,7 +158,8 @@ public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implement
 
     @Override
     public boolean awaitTermination(long l, TimeUnit timeUnit) throws InterruptedException {
-        throw new UnsupportedOperationException();
+        TridentLogger.error(new UnsupportedOperationException());
+        return false;
     }
 
     @Override
@@ -211,6 +214,8 @@ public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implement
 
         @Override
         public void run() {
+            Thread.setDefaultUncaughtExceptionHandler(Defaults.EXCEPTION_HANDLER);
+
             while (!isInterrupted()) {
                 try {
                     tasks.take().run();
@@ -218,7 +223,7 @@ public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implement
                     handleShutdown(index, tasks);
                     return;
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    TridentLogger.error(e);
                     handleShutdown(index, tasks);
                     return;
                 }

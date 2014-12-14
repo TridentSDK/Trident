@@ -17,10 +17,10 @@
 
 package net.tridentsdk.server;
 
-import net.tridentsdk.api.entity.living.Player;
-import net.tridentsdk.api.factory.Factories;
-import net.tridentsdk.player.TridentPlayer;
+import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.factory.Factories;
 import net.tridentsdk.server.netty.ClientConnection;
+import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.threads.ThreadsManager;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Mode;
@@ -104,7 +104,7 @@ n.t.s.TestPlayerThreads.explicitBox     avgt         5        7.097        0.301
  */
 public class TestPlayerThreads {
     public static final Player PLAYER = TridentPlayer.spawnPlayer(ClientConnection.registerConnection(
-            new CTXProper().channel()), UUID.randomUUID(), "");
+            new CTXProper().channel()), UUID.randomUUID());
 
     /* @Benchmark public void explicitBox(Blackhole blackhole) {
         blackhole.consume(Integer.valueOf(69));

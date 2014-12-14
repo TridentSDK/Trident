@@ -16,9 +16,9 @@
  */
 package net.tridentsdk.server.netty.protocol;
 
-import net.tridentsdk.api.docs.AccessNoDoc;
-import net.tridentsdk.packets.play.in.*;
-import net.tridentsdk.packets.play.out.*;
+import net.tridentsdk.docs.AccessNoDoc;
+import net.tridentsdk.server.packets.play.in.*;
+import net.tridentsdk.server.packets.play.out.*;
 
 @AccessNoDoc
 class Play extends PacketManager {
