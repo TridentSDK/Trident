@@ -64,6 +64,6 @@ public class PacketPlayOutOpenWindow extends OutPacket {
         Codec.writeString(buf, this.windowTitle);
 
         buf.writeByte(this.slots);
-        buf.writeInt(this.entityId); // rip in varints
+        //buf.writeInt(this.entityId); // rip in varints
     }
 }

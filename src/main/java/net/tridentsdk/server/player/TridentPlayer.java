@@ -17,6 +17,7 @@
 package net.tridentsdk.server.player;
 
 import io.netty.util.internal.ConcurrentSet;
+import net.tridentsdk.base.Substance;
 import net.tridentsdk.concurrent.TaskExecutor;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.factory.Factories;
@@ -29,6 +30,7 @@ import net.tridentsdk.server.packets.play.out.*;
 import net.tridentsdk.server.world.TridentChunk;
 import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.util.TridentLogger;
+import net.tridentsdk.window.inventory.Item;
 import net.tridentsdk.world.LevelType;
 
 import java.util.Locale;
@@ -65,25 +67,28 @@ public class TridentPlayer extends OfflinePlayer {
         final TridentPlayer p = new TridentPlayer(offlinePlayer,
                 TridentServer.WORLD, connection);
 
-        p.connection.sendPacket(new PacketPlayOutJoinGame().set("entityId", p.getId())
-                .set("gamemode", p.getGameMode())
-                .set("dimension", ((TridentWorld) p.getWorld()).getDimesion())
-                .set("difficulty", p.getWorld().getDifficulty())
-                .set("maxPlayers", (short) 10)
-                .set("levelType",
-                        LevelType.DEFAULT));
-
-        p.connection.sendPacket(new PacketPlayOutSpawnPosition().set("location", p.getSpawnLocation()));
-        p.connection.sendPacket(p.abilities.toPacket());
-        p.connection.sendPacket(new PacketPlayOutPlayerCompleteMove().set("location", p.getLocation())
-                .set("flags", (byte) 0));
-
         players.add(p);
 
         p.executor.addTask(new Runnable() {
             @Override
             public void run() {
-                p.sendChunks(7);
+                p.sendChunks(3);
+
+                p.connection.sendPacket(new PacketPlayOutJoinGame().set("entityId", p.getId())
+                        .set("gamemode", p.getGameMode())
+                        .set("dimension", ((TridentWorld) p.getWorld()).getDimesion())
+                        .set("difficulty", p.getWorld().getDifficulty())
+                        .set("maxPlayers", (short) 10)
+                        .set("levelType", LevelType.DEFAULT));
+
+                p.connection.sendPacket(p.abilities.toPacket());
+                Slot[] slots = new Slot[44];
+                slots[43] = new Slot(new Item(Substance.APPLE));
+                // p.connection.sendPacket(new PacketPlayOutWindowItems().set("windowId", 0).set("slots", slots));
+                p.connection.sendPacket(new PacketPlayOutSpawnPosition().set("location", p.getSpawnLocation()));
+                p.connection.sendPacket(new PacketPlayOutPlayerCompleteMove().set("location", p.getSpawnLocation())
+                        .set("flags", (byte) 0));
+                //p.connection.sendPacket(new PacketPlayOutSpawnPlayer().set("entityId", p.getId()).set("player", p));
             }
         });
 
@@ -175,7 +180,7 @@ public class TridentPlayer extends OfflinePlayer {
         });
     }
 
-    private void sendChunks(int viewDistance) {
+    public void sendChunks(int viewDistance) {
         int centX = ((int) Math.floor(loc.getX())) >> 4;
         int centZ = ((int) Math.floor(loc.getZ())) >> 4;
 

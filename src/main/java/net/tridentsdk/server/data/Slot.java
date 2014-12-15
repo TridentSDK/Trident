@@ -61,6 +61,7 @@ public class Slot implements Writable, NBTSerializable {
     }
 
     public Slot(Item is) {
+        if (is == null) return;
         this.id = (short) is.getId();
         this.mat = is.getType();
 

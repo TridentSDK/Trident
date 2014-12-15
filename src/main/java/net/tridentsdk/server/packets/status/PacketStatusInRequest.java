@@ -23,6 +23,7 @@ import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.packet.PacketType;
+import net.tridentsdk.server.player.TridentPlayer;
 
 /**
  * Packet sent by the client to request PacketStatusOutResponse
@@ -53,12 +54,12 @@ public class PacketStatusInRequest extends InPacket {
         PacketStatusOutResponse packet = new PacketStatusOutResponse();
         PacketStatusOutResponse.Response response = packet.getResponse();
 
-        // TODO: Make sure this is thread-safe
         // Set MOTD and max players based on the config TODO events
         response.description.text = TridentServer.getInstance().getConfig()
                 .getString("motd", Defaults.MOTD);
         response.players.max = TridentServer.getInstance().getConfig()
                 .getInt("max-players", Defaults.MAX_PLAYERS);
+        response.players.online = TridentPlayer.getPlayers().size();
 
         packet.response = response;
 

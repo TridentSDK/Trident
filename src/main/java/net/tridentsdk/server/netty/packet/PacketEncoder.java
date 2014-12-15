@@ -17,14 +17,14 @@
 package net.tridentsdk.server.netty.packet;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
-import net.tridentsdk.util.TridentLogger;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.util.zip.Deflater;
 
@@ -32,8 +32,7 @@ import java.util.zip.Deflater;
  * @author The TridentSDK Team
  */
 public class PacketEncoder extends MessageToByteEncoder<ByteBuf> {
-
-    private final Deflater deflater = new Deflater();
+    private final Deflater deflater = new Deflater(Deflater.BEST_SPEED);
     private final byte[] buffer = new byte[1024];
     private ClientConnection connection;
 
@@ -62,7 +61,7 @@ public class PacketEncoder extends MessageToByteEncoder<ByteBuf> {
         out.writeBytes(msg);
     }
 
-    private void sendCompressed(ByteBuf msg, ByteBuf out) {
+    private void sendCompressed(ByteBuf msg, ByteBuf out) throws IOException {
         int index = msg.readerIndex();
         int length = msg.readableBytes();
 
@@ -72,13 +71,13 @@ public class PacketEncoder extends MessageToByteEncoder<ByteBuf> {
         deflater.setInput(decompressed);
         deflater.finish();
 
-        ByteBuf compressed = Unpooled.buffer();
+        ByteArrayOutputStream compressed = new ByteArrayOutputStream();
         int compressedLength = 0;
         int readLength;
 
         while((readLength = deflater.deflate(buffer)) > 0) {
             compressedLength += readLength;
-            compressed.writeBytes(buffer, 0, readLength);
+            compressed.write(buffer, 0, readLength);
         }
 
         deflater.end();
@@ -92,6 +91,6 @@ public class PacketEncoder extends MessageToByteEncoder<ByteBuf> {
 
         Codec.writeVarInt32(out, compressedLength + BigInteger.valueOf(length).toByteArray().length);
         Codec.writeVarInt32(out, length);
-        out.writeBytes(compressed);
+        out.writeBytes(compressed.toByteArray());
     }
 }

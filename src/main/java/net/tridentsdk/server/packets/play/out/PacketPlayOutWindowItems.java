@@ -17,10 +17,18 @@
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.base.Substance;
 import net.tridentsdk.server.data.Slot;
 import net.tridentsdk.server.netty.packet.OutPacket;
+import net.tridentsdk.window.inventory.Item;
 
 public class PacketPlayOutWindowItems extends OutPacket {
+    private static final Slot EMPTY = new Slot(new Item(Substance.AIR) {
+        @Override
+        public int getId() {
+            return -1;
+        }
+    });
 
     protected int windowId;
     protected Slot[] slots;
@@ -44,6 +52,10 @@ public class PacketPlayOutWindowItems extends OutPacket {
         buf.writeShort(this.slots.length);
 
         for (Slot s : this.slots) {
+            if (s == null) {
+                EMPTY.write(buf);
+                continue;
+            }
             s.write(buf);
         }
     }
