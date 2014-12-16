@@ -19,6 +19,7 @@ package net.tridentsdk.server.netty;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
+import net.tridentsdk.concurrent.ConcurrentCache;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.protocol.Protocol;
 import net.tridentsdk.server.packets.login.PacketLoginOutSetCompression;
@@ -33,9 +34,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.net.InetSocketAddress;
 import java.security.KeyPair;
 import java.security.SecureRandom;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.Callable;
 
 /**
  * Handles the connection of a client upon joining
@@ -46,8 +45,8 @@ public class ClientConnection {
     /**
      * Map of client connections registered
      */
-    protected static final Map<InetSocketAddress, AtomicReference<ClientConnection>> clientData =
-            new ConcurrentHashMap<>();
+    protected static final ConcurrentCache<InetSocketAddress, ClientConnection> clientData =
+            new ConcurrentCache<>();
 
     /**
      * Random for generating the verification token
@@ -93,15 +92,15 @@ public class ClientConnection {
      * Whether or not encryption is enabled
      */
     protected volatile boolean compressionEnabled = false;
-    /**
-     * Encryption IV specification
-     */
+
     private IvParameterSpec ivSpec;
+    private final Object BARRIER;
 
     /**
      * Creates a new connection handler for the joining channel stream
      */
     protected ClientConnection(Channel channel) {
+        BARRIER = new Object();
         this.address = (InetSocketAddress) channel.remoteAddress();
         this.channel = channel;
         this.encryptionEnabled = false;
@@ -109,6 +108,7 @@ public class ClientConnection {
     }
 
     protected ClientConnection() {
+        BARRIER = new Object();
     }
 
     private static Cipher getCipher() {
@@ -128,8 +128,15 @@ public class ClientConnection {
      * @return {@code true} if the IP is on the server, {@code false} if not
      */
     public static boolean isLoggedIn(InetSocketAddress address) {
-        return clientData.containsKey(address);
+        return clientData.keys().contains(address);
     }
+
+    private static final Callable<ClientConnection> NULL_CALLABLE = new Callable<ClientConnection>() {
+        @Override
+        public ClientConnection call() throws Exception {
+            return null;
+        }
+    };
 
     /**
      * Gets the connection by the IP address
@@ -138,16 +145,7 @@ public class ClientConnection {
      * @return the instance of the client handler associated with the IP, or {@code null} if not registered
      */
     public static ClientConnection getConnection(InetSocketAddress address) {
-        // Get the connection reference
-        AtomicReference<ClientConnection> reference = clientData.get(address);
-
-        // return null if connection is not found
-        if (reference == null) {
-            return null;
-        }
-
-        // return found connection
-        return reference.get();
+        return clientData.retrieve(address, NULL_CALLABLE);
     }
 
     /**
@@ -159,20 +157,19 @@ public class ClientConnection {
     public static ClientConnection getConnection(ChannelHandlerContext chx) {
         return getConnection((InetSocketAddress) chx.channel().remoteAddress());
     }
-
     /**
      * Registers the client channel with a protocol connection wrapper
      *
      * @param channel the channel of which the player is connected by
      * @return the client connection that was registered
      */
-    public static ClientConnection registerConnection(Channel channel) {
-        // Make a new instance of ClientConnection
-        ClientConnection newConnection = new ClientConnection(channel);
-
-        // Register data and return the new instance
-        clientData.put(newConnection.getAddress(), new AtomicReference<>(newConnection));
-        return newConnection;
+    public static ClientConnection registerConnection(final Channel channel) {
+        return clientData.retrieve((InetSocketAddress) channel.remoteAddress(), new Callable<ClientConnection>() {
+            @Override
+            public ClientConnection call() throws Exception {
+                return new ClientConnection(channel);
+            }
+        });
     }
 
     /**
@@ -245,6 +242,9 @@ public class ClientConnection {
         }
     }
 
+    /**
+     * Allows compression on the server and client
+     */
     public void enableCompression() {
         if(compressionEnabled) {
             TridentLogger.error(new UnsupportedOperationException("Compression is already enabled!"));

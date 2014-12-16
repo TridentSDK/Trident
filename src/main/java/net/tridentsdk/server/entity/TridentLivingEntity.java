@@ -16,19 +16,16 @@
  */
 package net.tridentsdk.server.entity;
 
-import com.google.common.base.Function;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.AtomicDouble;
 import net.tridentsdk.Coordinates;
 import net.tridentsdk.base.Tile;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.LivingEntity;
 import net.tridentsdk.entity.projectile.Projectile;
+import net.tridentsdk.server.entity.decorate.DecoratedImpalable;
+import net.tridentsdk.server.entity.decorate.Decorator;
 import net.tridentsdk.util.Vector;
 
-import java.lang.ref.WeakReference;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -41,11 +38,11 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
     /**
      * Whether the entity is dead
      */
-    protected final boolean dead;
+    protected volatile boolean dead;
     /**
      * Whether the entity can pick up items
      */
-    protected final boolean canPickup = true;
+    protected volatile boolean canPickup = true;
     /**
      * The entity health
      */
@@ -53,25 +50,16 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
     /**
      * The maximum available health
      */
-    protected double maxHealth;
-    /**
-     * Ticks since the entity was last set on fire and when the fire burned out
-     */
-    protected volatile AtomicDouble fireTicks = new AtomicDouble(0.0);
-    /**
-     * The amount of air the entity has, depleted when in water
-     */
-    protected final AtomicDouble airTicks = new AtomicDouble(0.0);
+    protected volatile double maxHealth;
 
     /**
      * Describes projectile logic
      */
-    public final List<WeakReference<Projectile>> hit = Collections.synchronizedList(
-            Lists.<WeakReference<Projectile>>newArrayList());
+    public final DecoratedImpalable impalable = Decorator.newImpalable(true);
 
     /**
      * Inherits from {@link TridentEntity}
-     * <p/>
+     *
      * <p>The entity is immediately set "non-dead" after {@code super} call</p>
      */
     public TridentLivingEntity(UUID id, Coordinates spawnLocation) {
@@ -107,12 +95,12 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
 
     @Override
     public long getRemainingAir() {
-        return (long) this.airTicks.get();
+        return this.airTicks.get();
     }
 
     @Override
     public void setRemainingAir(long ticks) {
-        this.airTicks.set((double) ticks);
+        this.airTicks.set((int) ticks);
     }
 
     @Override
@@ -127,19 +115,17 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
 
     @Override
     public boolean isImpaledEntity() {
-        return this.hit != null;
+        return impalable.isImpaledEntity();
     }
 
     @Override
     public boolean isImpaledTile() {
-        return false;
+        return impalable.isImpaledTile();
     }
 
     @Override
     public Entity impaledEntity() {
-        if (!this.isImpaledEntity())
-            return null;
-        return this;
+        return impalable.impaledEntity();
     }
 
     @Override
@@ -149,29 +135,25 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
 
     @Override
     public void put(Projectile projectile) {
-        this.hit.add(new WeakReference<>(projectile));
+        impalable.put(projectile);
+
+        // Response
+        impalable.applyTo(this);
     }
 
     @Override
     public boolean remove(Projectile projectile) {
-        return this.hit.remove(new WeakReference<>(projectile));
+        return impalable.remove(projectile);
     }
 
     @Override
     public void clear() {
         // TODO remove the projectile entities
-        this.hit.clear();
+        impalable.clear();
     }
 
     @Override
     public List<Projectile> projectiles() {
-        return new ImmutableList.Builder<Projectile>().addAll(Lists.transform(this.hit,
-                new Function<WeakReference<Projectile>,
-                        Projectile>() {
-                    @Override
-                    public Projectile apply(WeakReference<Projectile> projectileWeakReference) {
-                        return projectileWeakReference.get();
-                    }
-                })).build();
+        return impalable.projectiles();
     }
 }

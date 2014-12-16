@@ -17,7 +17,7 @@
 package net.tridentsdk.server.entity.decorate;
 
 import com.google.common.base.Function;
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Sets;
 import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
@@ -27,13 +27,15 @@ import net.tridentsdk.entity.decorate.Impalable;
 import net.tridentsdk.entity.projectile.Projectile;
 
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.ThreadSafe;
 import java.lang.ref.WeakReference;
-import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
+@ThreadSafe
 public abstract class DecoratedImpalable implements Impalable {
-    private Entity impaledEntity;
-    private Tile impaledTile;
+    private volatile Entity impaledEntity;
+    private volatile Tile impaledTile;
     private final Set<WeakReference<Projectile>> projectiles = Sets.newSetFromMap(
             new ConcurrentHashMapV8<WeakReference<Projectile>, Boolean>());
 
@@ -71,8 +73,8 @@ public abstract class DecoratedImpalable implements Impalable {
     }
 
     @Override
-    public Collection<Projectile> projectiles() {
-        return new ImmutableSet.Builder<Projectile>().addAll(Iterators.transform(projectiles.iterator(),
+    public List<Projectile> projectiles() {
+        return new ImmutableList.Builder<Projectile>().addAll(Iterators.transform(projectiles.iterator(),
                 new Function<WeakReference<Projectile>, Projectile>() {
             @Nullable
             @Override
@@ -80,5 +82,13 @@ public abstract class DecoratedImpalable implements Impalable {
                 return projectileWeakReference.get();
             }
         })).build();
+    }
+
+    public void applyTo(Entity entity) {
+        this.impaledEntity = entity;
+    }
+
+    public void applyTo(Tile tile) {
+        this.impaledTile = tile;
     }
 }

@@ -20,22 +20,26 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
+import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
+import net.tridentsdk.Coordinates;
 import net.tridentsdk.Trident;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.util.TridentLogger;
 
+import javax.annotation.concurrent.ThreadSafe;
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Manages server entities and provides registration procedures
  *
  * @author The TridentSDK Team
  */
+@ThreadSafe
 public final class EntityManager {
-    private final Map<Integer, Entity> entities = new ConcurrentHashMap<>();
+    private final Map<Integer, Entity> entities = new ConcurrentHashMapV8<>();
+    private final EntityTracker tracker = new EntityTracker();
 
     /**
      * Constructs the EntityManager for use by the server ONLY
@@ -48,8 +52,34 @@ public final class EntityManager {
             TridentLogger.error(new UnsupportedOperationException("EntityManager can only be initalized by TridentSDK!"));
     }
 
-    void registerEntity(Entity entity) {
+    /**
+     * Starts entity management and tracks the entity
+     *
+     * @param entity the entity to manage
+     */
+    public void registerEntity(Entity entity) {
         this.entities.put(entity.getId(), entity);
+        tracker.track(entity);
+    }
+
+    /**
+     * Removes the entity from management
+     *
+     * @param entity the entity to remove
+     */
+    public void removeEntity(Entity entity) {
+        this.entities.remove(entity.getId());
+    }
+
+    /**
+     * Tracks the movement of the entity, not for teleportation
+     *
+     * @param entity the entity to track
+     * @param from the original location
+     * @param to the new location
+     */
+    public void trackMovement(Entity entity, Coordinates from, Coordinates to) {
+        tracker.trackMovement(entity, from, to);
     }
 
     /**

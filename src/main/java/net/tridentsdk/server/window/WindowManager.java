@@ -19,6 +19,7 @@ package net.tridentsdk.server.window;
 import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
 import net.tridentsdk.window.Window;
 
+import javax.annotation.concurrent.ThreadSafe;
 import java.util.Collection;
 import java.util.Map;
 
@@ -27,6 +28,7 @@ import java.util.Map;
  *
  * @author The TridentSDK Team
  */
+@ThreadSafe
 public class WindowManager {
     private static final Map<Integer, TridentWindow> windows = new ConcurrentHashMapV8<>();
 

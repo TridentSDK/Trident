@@ -17,6 +17,7 @@
 package net.tridentsdk.server.entity;
 
 import net.tridentsdk.Coordinates;
+import net.tridentsdk.docs.Volatile;
 import net.tridentsdk.entity.decorate.InventoryHolder;
 import net.tridentsdk.window.inventory.Inventory;
 import net.tridentsdk.window.inventory.Item;
@@ -32,13 +33,17 @@ public abstract class TridentInventoryHolder extends TridentLivingEntity impleme
     /**
      * The inventory held by the entity
      */
+    @Volatile(policy = "Do not set after construction", reason = "Barrier", fix = "Set in constructor, do not change")
     protected Inventory inventory;
+
+    private final Object BARRIER;
 
     /**
      * Inherits constructor from {@link TridentLivingEntity}
      */
     public TridentInventoryHolder(UUID id, Coordinates spawnLocation) {
         super(id, spawnLocation);
+        BARRIER = new Object();
     }
 
     @Override

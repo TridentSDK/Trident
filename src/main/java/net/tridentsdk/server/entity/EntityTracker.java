@@ -18,6 +18,7 @@ package net.tridentsdk.server.entity;
 
 import net.tridentsdk.Coordinates;
 import net.tridentsdk.Trident;
+import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.player.PlayerMoveEvent;
@@ -31,6 +32,7 @@ import net.tridentsdk.util.Vector;
  *
  * @author The TridentSDK Team
  */
+@InternalUseOnly
 public class EntityTracker {
     public void track(Entity entity, byte... meta) {
         if (entity instanceof TridentPlayer)

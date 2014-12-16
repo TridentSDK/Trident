@@ -18,11 +18,14 @@ package net.tridentsdk.server.threads;
 
 import net.tridentsdk.concurrent.TaskExecutor;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 /**
  * World handling threads, which there are by default 4
  *
  * @author The TridentSDK Team
  */
+@ThreadSafe
 public final class WorldThreads {
     private WorldThreads() {
     }

@@ -17,10 +17,15 @@
 package net.tridentsdk.server.entity;
 
 import net.tridentsdk.Coordinates;
+import net.tridentsdk.base.Substance;
+import net.tridentsdk.base.Tile;
+import net.tridentsdk.concurrent.TridentRunnable;
+import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.EntityProperties;
 import net.tridentsdk.entity.decorate.Impalable;
 import net.tridentsdk.entity.living.ProjectileLauncher;
 import net.tridentsdk.entity.projectile.Projectile;
+import net.tridentsdk.factory.Factories;
 
 import java.lang.ref.WeakReference;
 import java.util.UUID;
@@ -38,7 +43,7 @@ public abstract class TridentProjectile extends TridentEntity implements Project
     /**
      * The impalable that the projectile hit, if any
      */
-    protected Impalable impaled;
+    protected volatile Impalable impaled;
 
     /**
      * Inherits UUID and spawnLocation from {@link TridentEntity}
@@ -60,9 +65,49 @@ public abstract class TridentProjectile extends TridentEntity implements Project
 
     @Override
     public void doHit() {
-        // TODO Perform impaling logic
-        Impalable impalable = null;
-        impalable.put(this);
+        final Impalable[] impalable = { null };
+        Factories.tasks().asyncRepeat(null, new TridentRunnable() {
+            Coordinates last = null;
+            int countCheck = 0;
+
+            @Override
+            public void run() {
+                if (impalable[0] == null) {
+                    if (last == null)
+                        last = getLocation();
+                    else if (getLocation().equals(last)) {
+                        countCheck++;
+                        if (countCheck == 10) {
+                            if (((Entity) impalable[0]).getLocation().equals(last)) {
+                                for (Entity entity : getNearbyEntities(1)) {
+                                    if (entity instanceof Impalable)
+                                        if (impalable[0] == null ||
+                                                ((Entity) impalable[0]).getLocation().distanceSquared(getLocation()) >
+                                                        entity.getLocation().distanceSquared(getLocation())) {
+                                            impalable[0] = (Impalable) entity;
+                                        }
+                                }
+
+                                if (impalable[0] == null) {
+                                    Tile tile = getLocation().getTile();
+                                    if (tile.getSubstance() == Substance.AIR) {
+                                        for (int i = 0; i < 2; i++) {
+                                            Tile newTile = getLocation().toVector().multiply(i)
+                                                    .toLocation(getLocation().getWorld()).getTile();
+                                            if (newTile.getSubstance() != Substance.AIR)
+                                                impalable[0] = newTile;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }, 0L, 1L);
+
+        impaled = impalable[0];
+        impalable[0].put(this);
         this.hit();
     }
 

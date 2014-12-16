@@ -16,7 +16,7 @@
  */
 package net.tridentsdk.server.player;
 
-import io.netty.util.internal.ConcurrentSet;
+import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
 import net.tridentsdk.Coordinates;
 import net.tridentsdk.GameMode;
 import net.tridentsdk.entity.Entity;
@@ -24,7 +24,6 @@ import net.tridentsdk.entity.EntityProperties;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.entity.projectile.Projectile;
 import net.tridentsdk.event.entity.EntityDamageEvent;
-import net.tridentsdk.factory.TridentFactory;
 import net.tridentsdk.meta.nbt.*;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.data.Slot;
@@ -36,15 +35,19 @@ import net.tridentsdk.window.inventory.Item;
 import net.tridentsdk.world.Dimension;
 import net.tridentsdk.world.World;
 
+import javax.annotation.concurrent.ThreadSafe;
+import java.util.Collections;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 
+@ThreadSafe
 public class OfflinePlayer extends TridentInventoryHolder implements Player {
-    private static final Set<OfflinePlayer> players = new ConcurrentSet<>();
+    private static final Set<OfflinePlayer> players = Collections.newSetFromMap(
+            new ConcurrentHashMapV8<OfflinePlayer, Boolean>());
 
     protected String name;
-    protected Dimension dimesion;
+    protected Dimension dimension;
     protected GameMode gameMode;
     protected int score;
     protected short selectedSlot;
@@ -65,7 +68,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
 
         load(tag);
 
-        dimesion = Dimension.getDimension(((IntTag) tag.getTag("Dimension")).getValue());
+        dimension = Dimension.getDimension(((IntTag) tag.getTag("Dimension")).getValue());
         gameMode = GameMode.getGameMode(((IntTag) tag.getTag("playerGameType")).getValue());
         score = ((IntTag) tag.getTag("Score")).getValue();
         selectedSlot = (short) ((IntTag) tag.getTag("SelectedItemSlot")).getValue();
@@ -116,7 +119,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     public static CompoundTag generatePlayer(UUID id) {
         World defaultWorld = TridentServer.WORLD;
         Coordinates spawnLocation = defaultWorld.getSpawnLocation();
-        CompoundTagBuilder<NBTBuilder> builder = TridentFactory.createNbtBuilder(id.toString());
+        CompoundTagBuilder<NBTBuilder> builder = NBTBuilder.newBase(id.toString());
 
         builder.stringTag("id", String.valueOf(counter.incrementAndGet()));
         builder.longTag("UUIDMost", id.getMostSignificantBits());
@@ -300,7 +303,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     public CompoundTag toNbt() {
         CompoundTag tag = new CompoundTag(getUniqueId().toString());
 
-        tag.addTag(new IntTag("Dimension").setValue(dimesion.toByte()));
+        tag.addTag(new IntTag("Dimension").setValue(dimension.toByte()));
         tag.addTag(new IntTag("playerGameType").setValue(gameMode.toByte()));
         tag.addTag(new IntTag("Score").setValue(score));
         tag.addTag(new IntTag("SelectedItemSlot").setValue(selectedSlot));

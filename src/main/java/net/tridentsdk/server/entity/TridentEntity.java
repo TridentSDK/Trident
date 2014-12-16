@@ -21,16 +21,16 @@ import net.tridentsdk.Trident;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.concurrent.TaskExecutor;
 import net.tridentsdk.docs.InternalUseOnly;
+import net.tridentsdk.docs.PossiblyThreadSafe;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.EntityProperties;
 import net.tridentsdk.entity.EntityType;
 import net.tridentsdk.factory.Factories;
 import net.tridentsdk.meta.nbt.*;
-import net.tridentsdk.server.TridentServer;
+import net.tridentsdk.server.packets.play.out.PacketPlayOutDestroyEntities;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutEntityTeleport;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutEntityVelocity;
 import net.tridentsdk.server.player.TridentPlayer;
-import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.util.Vector;
 import net.tridentsdk.world.World;
 
@@ -44,13 +44,15 @@ import java.util.concurrent.atomic.AtomicLong;
  *
  * @author The TridentSDK Team
  */
+@PossiblyThreadSafe
 public class TridentEntity implements Entity {
     @InternalUseOnly
     protected static final AtomicInteger counter = new AtomicInteger(-1);
     /**
      * Internal entity tracker, used to spawn the entity and track movement, etc.
      */
-    protected static final EntityTracker TRACKER = new EntityTracker();
+    protected static final EntityManager MANAGER = new EntityManager();
+
     /**
      * The entity ID for the entity
      */
@@ -108,18 +110,21 @@ public class TridentEntity implements Entity {
      */
     protected boolean silent;
     /**
-     *
+     * How long the entity has been on fire
      */
     protected final AtomicInteger fireTicks = new AtomicInteger(0);
     /**
-     *
+     * How many ticks of air the entity has left
      */
-    protected final AtomicInteger airTicks = new AtomicInteger(0);
+    protected final AtomicLong airTicks = new AtomicLong();
     /**
-     *
+     * {@code true} to indicate the entity cannot be damaged
      */
     protected boolean godMode;
-
+    /**
+     * Length of time the entity must wait to enter a portal. Unknown unit.
+     * TODO
+     */
     protected final AtomicInteger portalCooldown = new AtomicInteger(900);
 
     /**
@@ -151,10 +156,16 @@ public class TridentEntity implements Entity {
         }
 
         this.passenger = null;
+    }
 
-        TridentServer.getInstance().getEntityManager().registerEntity(this);
-        TRACKER.track(this);
-        // TODO Perhaps we should spawn it in a different method?
+    /**
+     * Begin entity management
+     *
+     * @return the current entity
+     */
+    public TridentEntity spawn() {
+        MANAGER.registerEntity(this);
+        return this;
     }
 
     @Deprecated
@@ -252,11 +263,6 @@ public class TridentEntity implements Entity {
         return this.onGround;
     }
 
-    /**
-     * TODO
-     *
-     * @param radius the spherical radius to look for entities around
-     */
     @Override
     public List<Entity> getNearbyEntities(double radius) {
         return null;
@@ -267,11 +273,12 @@ public class TridentEntity implements Entity {
         return this.id;
     }
 
-    /**
-     * TODO
-     */
     @Override
     public void remove() {
+        PacketPlayOutDestroyEntities packet = new PacketPlayOutDestroyEntities();
+        packet.set("destroyedEntities", new int[] { getId() });
+        TridentPlayer.sendAll(packet);
+        MANAGER.removeEntity(this);
     }
 
     @Override
@@ -288,7 +295,7 @@ public class TridentEntity implements Entity {
 
     @Override
     public void eject() {
-        //
+        // TODO
     }
 
     @Override
@@ -305,8 +312,13 @@ public class TridentEntity implements Entity {
     public void applyProperties(EntityProperties properties) {
     }
 
+    /**
+     * Moves the entity to the new coordinates. Not for teleportation.
+     *
+     * @param newCoords the new location for the entity
+     */
     public void doMove(Coordinates newCoords) {
-        TRACKER.trackMovement(this, getLocation(), newCoords);
+        MANAGER.trackMovement(this, getLocation(), newCoords);
         this.locationChanged = true;
         this.setLocation(newCoords);
     }

@@ -123,10 +123,6 @@ public final class TridentServer implements Server {
         return this.protocol;
     }
 
-    public EntityManager getEntityManager() {
-        return this.entityManager;
-    }
-
     public RegionFileCache getRegionFileCache() {
         return this.regionCache;
     }

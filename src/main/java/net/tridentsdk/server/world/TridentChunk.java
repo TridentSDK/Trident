@@ -92,7 +92,7 @@ public class TridentChunk implements Chunk {
     public Tile getTileAt(int relX, int y, int relZ) {
         int index = WorldUtils.getBlockArrayIndex(relX, y, relZ);
 
-        return new TridentBlock(new Coordinates(this.world, relX + this.getX() * 16, y, relZ + this.getZ() * 16)
+        return new TridentTile(new Coordinates(this.world, relX + this.getX() * 16, y, relZ + this.getZ() * 16)
                 //TODO
                 , null, (byte) 0);
     }

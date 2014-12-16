@@ -50,10 +50,10 @@ public class TridentEgg extends TridentProjectile implements Egg {
         if (chance <= 8) {
             if (chance == 1) {
                 for (int i = 0; i < 4; i++) {
-                    TRACKER.track(new TridentChicken(UUID.randomUUID(), this.getLocation()));
+                    MANAGER.registerEntity(new TridentChicken(UUID.randomUUID(), this.getLocation()));
                 }
             } else {
-                TRACKER.track(new TridentChicken(UUID.randomUUID(), this.getLocation()));
+                MANAGER.registerEntity(new TridentChicken(UUID.randomUUID(), this.getLocation()));
             }
         }
     }

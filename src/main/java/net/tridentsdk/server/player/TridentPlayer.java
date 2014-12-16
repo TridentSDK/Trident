@@ -16,7 +16,6 @@
  */
 package net.tridentsdk.server.player;
 
-import io.netty.util.internal.ConcurrentSet;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.concurrent.TaskExecutor;
 import net.tridentsdk.entity.living.Player;
@@ -33,13 +32,13 @@ import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.window.inventory.Item;
 import net.tridentsdk.world.LevelType;
 
+import javax.annotation.concurrent.ThreadSafe;
+import java.util.Collection;
 import java.util.Locale;
-import java.util.Set;
 import java.util.UUID;
 
+@ThreadSafe
 public class TridentPlayer extends OfflinePlayer {
-    private static final Set<TridentPlayer> players = new ConcurrentSet<>();
-
     private final PlayerConnection connection;
     private final TaskExecutor executor = Factories.threads().playerThread(this);
     private volatile Locale locale;
@@ -51,8 +50,8 @@ public class TridentPlayer extends OfflinePlayer {
     }
 
     public static void sendAll(Packet packet) {
-        for (TridentPlayer p : players) {
-            p.connection.sendPacket(packet);
+        for (Player p : getPlayers()) {
+            ((TridentPlayer) p).connection.sendPacket(packet);
         }
     }
 
@@ -67,7 +66,7 @@ public class TridentPlayer extends OfflinePlayer {
         final TridentPlayer p = new TridentPlayer(offlinePlayer,
                 TridentServer.WORLD, connection);
 
-        players.add(p);
+        getPlayers().add(p);
 
         p.executor.addTask(new Runnable() {
             @Override
@@ -95,8 +94,8 @@ public class TridentPlayer extends OfflinePlayer {
         return p;
     }
 
-    public static TridentPlayer getPlayer(UUID id) {
-        for (TridentPlayer player : players) {
+    public static Player getPlayer(UUID id) {
+        for (Player player : getPlayers()) {
             if (player.getUniqueId().equals(id)) {
                 return player;
             }
@@ -105,8 +104,8 @@ public class TridentPlayer extends OfflinePlayer {
         return null;
     }
 
-    public static Set<TridentPlayer> getPlayers() {
-        return players;
+    public static Collection<Player> getPlayers() {
+        return Factories.threads().players();
     }
 
     @Override

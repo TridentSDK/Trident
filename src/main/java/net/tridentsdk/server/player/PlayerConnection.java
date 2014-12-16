@@ -16,33 +16,39 @@
  */
 package net.tridentsdk.server.player;
 
-import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.PacketHandler;
 import net.tridentsdk.server.netty.protocol.Protocol;
 
+import javax.annotation.concurrent.GuardedBy;
+import javax.annotation.concurrent.ThreadSafe;
 import java.net.InetSocketAddress;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.Callable;
 
 /**
  * Represents the connection the player has to the server
  *
  * @author The TridentSDK Team
  */
+@ThreadSafe
 public class PlayerConnection extends ClientConnection {
-    private static final Map<Player, PlayerConnection> PLAYER_MAP = new ConcurrentHashMap<>();
-
     private final TridentPlayer player;
-    private final AtomicLong keepAliveSent = new AtomicLong(0L);
-    private volatile int keepAliveId;
+
+    // TODO Mazen, pls
+    @GuardedBy("this")
+    private long keepAliveSent = 0L;
+    @GuardedBy("this")
+    private int keepAliveId;
 
     private PlayerConnection(ClientConnection connection, TridentPlayer player) {
         // remove old connection, and replace it with this one
         ClientConnection.clientData.remove(connection.getAddress());
-        ClientConnection.clientData.put(connection.getAddress(), new AtomicReference<ClientConnection>(this));
+        ClientConnection.clientData.retrieve(connection.getAddress(), new Callable<ClientConnection>() {
+            @Override
+            public ClientConnection call() throws Exception {
+                return PlayerConnection.this;
+            }
+        });
 
         super.address = connection.getAddress();
         super.channel = connection.getChannel();
@@ -64,17 +70,11 @@ public class PlayerConnection extends ClientConnection {
     }
 
     public static PlayerConnection createPlayerConnection(ClientConnection connection, TridentPlayer player) {
-        PlayerConnection conn = new PlayerConnection(connection, player);
-        PLAYER_MAP.put(player, conn);
-        return conn;
+        return new PlayerConnection(connection, player);
     }
 
-    public static PlayerConnection getConnection(Player player) {
-        return PLAYER_MAP.get(player);
-    }
-
-    public static PlayerConnection getConnection(InetSocketAddress adress) {
-        return (PlayerConnection) ClientConnection.getConnection(adress);
+    public static PlayerConnection getConnection(InetSocketAddress address) {
+        return (PlayerConnection) ClientConnection.getConnection(address);
     }
 
     /**
@@ -91,7 +91,7 @@ public class PlayerConnection extends ClientConnection {
      *
      * @return the ID for the keep alive packet
      */
-    public int getKeepAliveId() {
+    public synchronized int getKeepAliveId() {
         return this.keepAliveId;
     }
 
@@ -101,16 +101,16 @@ public class PlayerConnection extends ClientConnection {
      * @param id         the keep alive number to be set to
      * @param ticksLived the amount of ticks lived
      */
-    public void setKeepAliveId(int id, long ticksLived) {
+    public synchronized void setKeepAliveId(int id, long ticksLived) {
         this.keepAliveId = id;
-        this.keepAliveSent.set(ticksLived);
+        this.keepAliveSent = ticksLived;
     }
 
     /*
      * @NotJavaDoc
      * Relative to player
      */
-    public long getKeepAliveSent() {
-        return this.keepAliveSent.get();
+    public synchronized long getKeepAliveSent() {
+        return this.keepAliveSent;
     }
 }

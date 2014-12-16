@@ -27,6 +27,7 @@ import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.player.PlayerConnection;
 import net.tridentsdk.world.World;
 
+import javax.annotation.concurrent.ThreadSafe;
 import java.util.Collection;
 
 /**
@@ -34,6 +35,7 @@ import java.util.Collection;
  *
  * @author The TridentSDK Team
  */
+@ThreadSafe
 public final class ThreadsManager implements ThreadFactory {
     static final ExecutorFactory<Entity> entities = new ConcurrentTaskExecutor<>(2);
     static final ExecutorFactory<Player> players = new ConcurrentTaskExecutor<>(4);
