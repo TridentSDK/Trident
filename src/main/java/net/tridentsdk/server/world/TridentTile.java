@@ -64,9 +64,10 @@ public class TridentTile implements Tile {
         this.material = worldBlock.getSubstance();
     }
 
-    @InternalUseOnly
-    protected TridentTile(Coordinates location, boolean createdByServer) {
+    public TridentTile(Coordinates location, Substance substance, byte meta) {
         this.location = location;
+        this.material = substance;
+        this.data = meta;
     }
 
     @Override

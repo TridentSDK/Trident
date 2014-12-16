@@ -17,6 +17,7 @@
 package net.tridentsdk.server.threads;
 
 import net.tridentsdk.concurrent.TaskExecutor;
+import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.server.player.TridentPlayer;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -89,7 +90,7 @@ public class MainThread extends Thread {
         /**
          * Tick the players
          */
-        for(final TridentPlayer player : TridentPlayer.getPlayers()) {
+        for(final Player player : TridentPlayer.getPlayers()) {
             TaskExecutor executor = ThreadsManager.players.assign(player);
 
             executor.addTask(new Runnable() {
