@@ -93,7 +93,7 @@ public class TridentPlayer extends OfflinePlayer {
             }
         });
 
-        return (Player) p.spawn();
+        return p;
     }
 
     public static Player getPlayer(UUID id) {
