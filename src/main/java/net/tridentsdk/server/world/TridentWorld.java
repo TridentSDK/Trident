@@ -17,18 +17,19 @@
 package net.tridentsdk.server.world;
 
 import com.google.common.io.ByteStreams;
+import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
 import net.tridentsdk.Coordinates;
 import net.tridentsdk.Difficulty;
 import net.tridentsdk.GameMode;
 import net.tridentsdk.base.Tile;
+import net.tridentsdk.entity.Entity;
 import net.tridentsdk.meta.nbt.*;
 import net.tridentsdk.server.player.OfflinePlayer;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.*;
 
 import java.io.*;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.zip.GZIPInputStream;
 
@@ -37,7 +38,9 @@ public class TridentWorld implements World {
     private static final int MAX_HEIGHT = 255;
     private static final int MAX_CHUNKS = 49; // TODO changed temp for packet compatibility
 
-    private final Map<ChunkLocation, TridentChunk> loadedChunks = new ConcurrentHashMap<>();
+    private final Map<ChunkLocation, TridentChunk> loadedChunks = new ConcurrentHashMapV8<>();
+    private final Set<Entity> entities = Collections.newSetFromMap(new ConcurrentHashMapV8<Entity, Boolean>());
+
     private final String name;
     private final Random random;
     private final WorldLoader loader;
@@ -308,6 +311,11 @@ public class TridentWorld implements World {
     @Override
     public int getBorderSizeContractionTime() {
         return 0;
+    }
+
+    @Override
+    public Set<Entity> getEntities() {
+        return entities;
     }
 
     private static class PlayerFilter implements FilenameFilter {

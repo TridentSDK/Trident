@@ -91,7 +91,7 @@ public class MainThread extends Thread {
          * Tick the players
          */
         for(final Player player : TridentPlayer.getPlayers()) {
-            TaskExecutor executor = ThreadsManager.players.assign(player);
+            TaskExecutor executor = ThreadsManager.playerExecutor().assign(player);
 
             executor.addTask(new Runnable() {
                 @Override

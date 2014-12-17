@@ -17,15 +17,17 @@
 package net.tridentsdk.server.player;
 
 import net.tridentsdk.base.Substance;
-import net.tridentsdk.concurrent.TaskExecutor;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.factory.Factories;
 import net.tridentsdk.meta.nbt.CompoundTag;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.data.Slot;
+import net.tridentsdk.server.entity.EntityBuilder;
+import net.tridentsdk.server.entity.ParameterValue;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.packets.play.out.*;
+import net.tridentsdk.server.threads.ThreadsManager;
 import net.tridentsdk.server.world.TridentChunk;
 import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.util.TridentLogger;
@@ -40,7 +42,6 @@ import java.util.UUID;
 @ThreadSafe
 public class TridentPlayer extends OfflinePlayer {
     private final PlayerConnection connection;
-    private final TaskExecutor executor = Factories.threads().playerThread(this);
     private volatile Locale locale;
 
     public TridentPlayer(CompoundTag tag, TridentWorld world, ClientConnection connection) {
@@ -63,10 +64,11 @@ public class TridentPlayer extends OfflinePlayer {
             offlinePlayer = OfflinePlayer.generatePlayer(id);
         }
 
-        final TridentPlayer p = new TridentPlayer(offlinePlayer,
-                TridentServer.WORLD, connection);
-
-        getPlayers().add(p);
+        final TridentPlayer p = EntityBuilder.create()
+                .executor(ThreadsManager.playerExecutor()).build(TridentPlayer.class,
+                        ParameterValue.from(CompoundTag.class, offlinePlayer),
+                        ParameterValue.from(TridentWorld.class, TridentServer.WORLD),
+                        ParameterValue.from(ClientConnection.class, connection));
 
         p.executor.addTask(new Runnable() {
             @Override
@@ -91,7 +93,7 @@ public class TridentPlayer extends OfflinePlayer {
             }
         });
 
-        return p;
+        return (Player) p.spawn();
     }
 
     public static Player getPlayer(UUID id) {

@@ -37,10 +37,10 @@ import java.util.Collection;
  */
 @ThreadSafe
 public final class ThreadsManager implements ThreadFactory {
-    static final ExecutorFactory<Entity> entities = new ConcurrentTaskExecutor<>(2);
-    static final ExecutorFactory<Player> players = new ConcurrentTaskExecutor<>(4);
-    static final ExecutorFactory<TridentPlugin> plugins = new ConcurrentTaskExecutor<>(2);
-    static final ExecutorFactory<World> worlds = new ConcurrentTaskExecutor<>(4);
+    private static final ExecutorFactory<Entity> entities = new ConcurrentTaskExecutor<>(2);
+    private static final ExecutorFactory<Player> players = new ConcurrentTaskExecutor<>(4);
+    private static final ExecutorFactory<TridentPlugin> plugins = new ConcurrentTaskExecutor<>(2);
+    private static final ExecutorFactory<World> worlds = new ConcurrentTaskExecutor<>(4);
 
     /**
      * Stops all the executors and clears all caches of concurrent threads
@@ -51,10 +51,10 @@ public final class ThreadsManager implements ThreadFactory {
         MainThread.getInstance().interrupt();
 
         // TODO safely add hooks
-        entities.shutdown();
-        players.shutdown();
-        plugins.shutdown();
-        worlds.shutdown();
+        entityExecutor().shutdown();
+        playerExecutor().shutdown();
+        pluginExecutor().shutdown();
+        worldExecutor().shutdown();
     }
 
     /**
@@ -64,7 +64,7 @@ public final class ThreadsManager implements ThreadFactory {
      */
     @InternalUseOnly
     public static void remove(Entity entity) {
-        entities.removeAssignment(entity);
+        entityExecutor().removeAssignment(entity);
     }
 
     /**
@@ -77,7 +77,7 @@ public final class ThreadsManager implements ThreadFactory {
         PlayerConnection pc = PlayerConnection.getConnection(connection.getAddress());
         if (pc != null) {
             Player player = pc.getPlayer();
-            players.removeAssignment(player);
+            playerExecutor().removeAssignment(player);
         }
     }
 
@@ -88,7 +88,7 @@ public final class ThreadsManager implements ThreadFactory {
      */
     @InternalUseOnly
     public static void remove(TridentPlugin plugin) {
-        plugins.removeAssignment(plugin);
+        pluginExecutor().removeAssignment(plugin);
     }
 
     /**
@@ -98,37 +98,80 @@ public final class ThreadsManager implements ThreadFactory {
      */
     @InternalUseOnly
     public static void remove(World world) {
-        worlds.removeAssignment(world);
+        worldExecutor().removeAssignment(world);
+    }
+
+    /**
+     * Gets the executor for the entity thread pool
+     *
+     * @return the executor
+     */
+    @InternalUseOnly
+    public static ExecutorFactory<Entity> entityExecutor() {
+        return entities;
+    }
+
+
+    /**
+     * Gets the executor for the player thread pool
+     *
+     * @return the executor
+     */
+    @InternalUseOnly
+    public static ExecutorFactory<Player> playerExecutor() {
+        return players;
+    }
+
+
+    /**
+     * Gets the executor for the plugin thread pool
+     *
+     * @return the executor
+     */
+    @InternalUseOnly
+    public static ExecutorFactory<TridentPlugin> pluginExecutor() {
+        return plugins;
+    }
+
+
+    /**
+     * Gets the executor for the world thread pool
+     *
+     * @return the executor
+     */
+    @InternalUseOnly
+    public static ExecutorFactory<World> worldExecutor() {
+        return worlds;
     }
 
     @Override
     public TaskExecutor entityThread(Entity entity) {
-        return entities.assign(entity);
+        return entityExecutor().assign(entity);
     }
 
     @Override
     public Collection<Entity> entities() {
-        return entities.values();
+        return entityExecutor().values();
     }
 
     @Override
     public TaskExecutor playerThread(Player player) {
-        return players.assign(player);
+        return playerExecutor().assign(player);
     }
 
     @Override
     public Collection<Player> players() {
-        return players.values();
+        return playerExecutor().values();
     }
 
     @Override
     public TaskExecutor worldThread(World world) {
-        return worlds.assign(world);
+        return worldExecutor().assign(world);
     }
 
     @Override
     public Collection<World> worlds() {
-        return worlds.values();
+        return worldExecutor().values();
     }
 
     @Override

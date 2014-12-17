@@ -34,7 +34,7 @@ public final class WorldThreads {
      * Used when the server ticks, to tell this thing to tick
      */
     protected static void notifyTick() {
-        for (TaskExecutor executor : ThreadsManager.worlds.threadList()) {
+        for (TaskExecutor executor : ThreadsManager.worldExecutor().threadList()) {
             executor.addTask(new Runnable() {
                 @Override
                 public void run() {
@@ -49,7 +49,7 @@ public final class WorldThreads {
      * Notifies the server to tick redstone activities
      */
     public static void notifyRedstoneTick() {
-        for (TaskExecutor executor : ThreadsManager.worlds.threadList()) {
+        for (TaskExecutor executor : ThreadsManager.worldExecutor().threadList()) {
             executor.addTask(new Runnable() {
                 @Override
                 public void run() {

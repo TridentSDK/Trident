@@ -25,7 +25,6 @@ import net.tridentsdk.docs.PossiblyThreadSafe;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.EntityProperties;
 import net.tridentsdk.entity.EntityType;
-import net.tridentsdk.factory.Factories;
 import net.tridentsdk.meta.nbt.*;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutDestroyEntities;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutEntityTeleport;
@@ -34,7 +33,9 @@ import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.util.Vector;
 import net.tridentsdk.world.World;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -72,23 +73,15 @@ public class TridentEntity implements Entity {
     /**
      * Entity task executor
      */
-    protected final TaskExecutor executor = Factories.threads().entityThread(this);
+    protected volatile TaskExecutor executor;
     /**
      * The movement vector for the entity
      */
     protected volatile Vector velocity;
     /**
-     * Whether or not the movement vector has changed
-     */
-    protected volatile boolean velocityChanged;
-    /**
      * The entity location
      */
     protected volatile Coordinates loc;
-    /**
-     * Whether or not the entity has changed position
-     */
-    protected volatile boolean locationChanged;
     /**
      * Whether or not the entity is touching the ground
      */
@@ -96,19 +89,19 @@ public class TridentEntity implements Entity {
     /**
      * The entity's passenger, if there are any
      */
-    protected Entity passenger;
+    protected volatile Entity passenger;
     /**
      * The name of the entity appearing above the head
      */
-    protected String displayName;
+    protected volatile String displayName;
     /**
      * Whether or not the name of the entity is visible
      */
-    protected boolean nameVisible;
+    protected volatile boolean nameVisible;
     /**
      * TODO
      */
-    protected boolean silent;
+    protected volatile boolean silent;
     /**
      * How long the entity has been on fire
      */
@@ -120,7 +113,7 @@ public class TridentEntity implements Entity {
     /**
      * {@code true} to indicate the entity cannot be damaged
      */
-    protected boolean godMode;
+    protected volatile boolean godMode;
     /**
      * Length of time the entity must wait to enter a portal. Unknown unit.
      * TODO
@@ -136,12 +129,8 @@ public class TridentEntity implements Entity {
     public TridentEntity(UUID uniqueId, Coordinates spawnLocation) {
         this.uniqueId = uniqueId;
         this.id = counter.incrementAndGet();
-
         this.velocity = new Vector(0.0D, 0.0D, 0.0D);
-        this.velocityChanged = false;
-
         this.loc = spawnLocation;
-        this.locationChanged = false;
 
         for (double y = this.loc.getY(); y > 0.0; y--) {
             Coordinates l = new Coordinates(this.loc.getWorld(), this.loc.getX(),
@@ -154,8 +143,6 @@ public class TridentEntity implements Entity {
                 break;
             }
         }
-
-        this.passenger = null;
     }
 
     /**
@@ -186,7 +173,6 @@ public class TridentEntity implements Entity {
     @Override
     public void teleport(Coordinates location) {
         this.loc = location;
-        this.locationChanged = true;
 
         for (double y = this.loc.getY(); y > 0.0; y--) {
             Coordinates l = new Coordinates(this.loc.getWorld(), this.loc.getX(),
@@ -227,7 +213,6 @@ public class TridentEntity implements Entity {
     @Override
     public void setVelocity(Vector vector) {
         this.velocity = vector;
-        this.velocityChanged = true;
 
         TridentPlayer.sendAll(new PacketPlayOutEntityVelocity().set("entityId", this.id)
                 .set("velocity", vector));
@@ -264,8 +249,15 @@ public class TridentEntity implements Entity {
     }
 
     @Override
-    public List<Entity> getNearbyEntities(double radius) {
-        return null;
+    public Set<Entity> getNearbyEntities(double radius) {
+        Set<Entity> entities = getLocation().getWorld().getEntities();
+        Set<Entity> near = new HashSet<>();
+        for (Entity entity : entities) {
+            if (entity.getLocation().distanceSquared(getLocation()) <= radius)
+                near.add(entity);
+        }
+
+        return near;
     }
 
     @Override
@@ -319,7 +311,6 @@ public class TridentEntity implements Entity {
      */
     public void doMove(Coordinates newCoords) {
         MANAGER.trackMovement(this, getLocation(), newCoords);
-        this.locationChanged = true;
         this.setLocation(newCoords);
     }
 
