@@ -80,9 +80,6 @@ public class PacketEncoder extends MessageToByteEncoder<ByteBuf> {
             compressed.write(buffer, 0, readLength);
         }
 
-        deflater.end();
-        deflater.reset();
-
         if(compressedLength == 0 || compressedLength > length) {
             msg.readerIndex(index);
             sendDecompressed(msg, out);
@@ -92,5 +89,7 @@ public class PacketEncoder extends MessageToByteEncoder<ByteBuf> {
         Codec.writeVarInt32(out, compressedLength + BigInteger.valueOf(length).toByteArray().length);
         Codec.writeVarInt32(out, length);
         out.writeBytes(compressed.toByteArray());
+
+        deflater.reset();
     }
 }
