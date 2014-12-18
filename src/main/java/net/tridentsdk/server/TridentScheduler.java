@@ -20,6 +20,7 @@ import net.tridentsdk.concurrent.ScheduledTask;
 import net.tridentsdk.concurrent.SchedulerType;
 import net.tridentsdk.concurrent.TaskExecutor;
 import net.tridentsdk.concurrent.TridentRunnable;
+import net.tridentsdk.factory.ExecutorFactory;
 import net.tridentsdk.factory.TaskFactory;
 import net.tridentsdk.plugin.TridentPlugin;
 import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
@@ -27,8 +28,6 @@ import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * TridentScheduler is a scheduling utility that is used to reflect ScheduledTasks at a given offset of the current epoch of the
@@ -65,21 +64,20 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 @ThreadSafe
 public class TridentScheduler implements TaskFactory {
-    private final Queue<ScheduledTaskImpl> ScheduledTaskList = new ConcurrentLinkedQueue<>();
-    private final ConcurrentTaskExecutor<ScheduledTaskImpl> taskExecutor = new ConcurrentTaskExecutor<>(3);
+    private final Queue<ScheduledTaskImpl> taskList = new ConcurrentLinkedQueue<>();
+    private final ExecutorFactory<ScheduledTaskImpl> taskExecutor = new ConcurrentTaskExecutor<>(3);
 
     public void tick() {
-        for (ScheduledTaskImpl ScheduledTask : ScheduledTaskList) {
-            if (!ScheduledTask.getRan().compareAndSet(true, false))
-                ScheduledTask.run();
+        for (ScheduledTaskImpl scheduledTask : taskList) {
+                scheduledTask.run();
         }
     }
 
     private ScheduledTaskImpl doAdd(ScheduledTaskImpl wrap) {
         // Does not necessarily need to be atomic, as long as changes are visible
-        // ScheduledTaskList is thread-safe
+        // taskList is thread-safe
         // markSchedule sets an AtomicReference
-        ScheduledTaskList.add(wrap);
+        taskList.add(wrap);
         wrap.getRunnable().markSchedule(wrap);
         return wrap;
     }
@@ -133,29 +131,28 @@ public class TridentScheduler implements TaskFactory {
     private class ScheduledTaskImpl implements ScheduledTask {
         private final TridentPlugin plugin;
         private final SchedulerType type;
-        private final AtomicLong interval = new AtomicLong(0);
-        private final AtomicLong run = new AtomicLong(0);
         private final TridentRunnable runnable;
 
-        private final Runnable runner;
-        private final AtomicBoolean ran = new AtomicBoolean();
-        // This field is volatile because the two ScheduledTask loops are executed by
-        // different threads in the ConcurrentScheduledTaskExecutor
-
         private final TaskExecutor executor;
+        private final Runnable runner;
+
+        private volatile long interval;
+        private volatile long run = 0;
 
         public ScheduledTaskImpl(TridentPlugin plugin, SchedulerType type, final TridentRunnable runnable, long step) {
             this.plugin = plugin;
             this.type = type;
             this.runnable = runnable;
-            this.interval.set(step);
+            this.interval = step;
 
             switch (type) {
                 case ASYNC_RUN:
                     this.runner = new Runnable() {
                         @Override
                         public void run() {
+                            runnable.prerunSync();
                             runnable.run();
+                            runnable.runAfterAsync();
                             cancel();
                         }
                     };
@@ -166,11 +163,14 @@ public class TridentScheduler implements TaskFactory {
                     this.runner = new Runnable() {
                         @Override
                         public void run() {
-                            if (run.get() == interval.get()) {
+                            // May be over if the interval set lower
+                            if (run >= interval) {
+                                runnable.prerunSync();
                                 runnable.run();
+                                runnable.runAfterAsync();
                                 cancel();
                             }
-                            run.incrementAndGet();
+                            ++run;
                         }
                     };
                     this.executor = taskExecutor.assign(this);
@@ -180,9 +180,16 @@ public class TridentScheduler implements TaskFactory {
                     this.runner = new Runnable() {
                         @Override
                         public void run() {
-                            if (run.compareAndSet(interval.get(), 0)) runnable.run();
+                            // May be over if the interval set lower
+                            if (run >= interval) {
+                                run = 0;
 
-                            run.incrementAndGet();
+                                runnable.prerunSync();
+                                runnable.run();
+                                runnable.runAfterAsync();
+                            }
+
+                            ++run;
                         }
                     };
                     this.executor = taskExecutor.assign(this);
@@ -192,7 +199,9 @@ public class TridentScheduler implements TaskFactory {
                     this.runner = new Runnable() {
                         @Override
                         public void run() {
+                            runnable.prerunSync();
                             runnable.run();
+                            runnable.runAfterSync();
                             cancel();
                         }
                     };
@@ -203,11 +212,14 @@ public class TridentScheduler implements TaskFactory {
                     this.runner = new Runnable() {
                         @Override
                         public void run() {
-                            if (run.get() == interval.get()) {
+                            // May be over if the interval set lower
+                            if (run >= interval) {
+                                runnable.prerunSync();
                                 runnable.run();
+                                runnable.runAfterSync();
                                 cancel();
                             }
-                            run.incrementAndGet();
+                            ++run;
                         }
                     };
                     this.executor = plugin.getExecutor();
@@ -217,9 +229,15 @@ public class TridentScheduler implements TaskFactory {
                     this.runner = new Runnable() {
                         @Override
                         public void run() {
-                            if (run.compareAndSet(interval.get(), 0))
+                            // May be over if the interval set lower
+                            if (run >= interval) {
+                                run = 0;
+
+                                runnable.prerunSync();
                                 runnable.run();
-                            run.incrementAndGet();
+                                runnable.runAfterSync();
+                            }
+                            ++run;
                         }
                     };
                     this.executor = plugin.getExecutor();
@@ -233,13 +251,12 @@ public class TridentScheduler implements TaskFactory {
 
         @Override
         public void setInterval(long interval) {
-            this.interval.set(interval);
-            this.run.set(0);
+            this.interval = interval;
         }
 
         @Override 
         public long getInterval() {
-            return this.interval.get();
+            return this.interval;
         }
 
         @Override
@@ -253,30 +270,18 @@ public class TridentScheduler implements TaskFactory {
         }
 
         @Override
-        public AtomicBoolean getRan() {
-            return ran;
-        }
-
-        @Override
         public TridentPlugin getPlugin() {
             return this.plugin;
         }
 
         @Override
         public void cancel() {
-            ScheduledTaskList.remove(this);
+            taskList.remove(this);
         }
 
         @Override
         public void run() {
-            // Again, does not necessarily need to be atomic
-            // Can only be run by a single thread at once because ran guaranteed to be checked
-            this.ran.set(true); // Prevent the other thread from interfering
-            this.runnable.prerunSync();
             this.executor.addTask(this.runner);
-            if (type.name().contains("ASYNC")) {
-                this.runnable.runAfterAsync();
-            } else this.runnable.runAfterSync();
         }
     }
 }

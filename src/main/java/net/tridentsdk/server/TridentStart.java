@@ -49,8 +49,10 @@ import java.util.concurrent.ConcurrentMap;
 import static com.google.common.collect.Lists.newArrayList;
 
 /**
- * Server class that starts the connection listener. <p/> <p>Despite the fact that this class is under protected access,
- * it is documented anyways because of its significance in the server</p>
+ * Server class that starts the connection listener.
+ *
+ * <p>Despite the fact that this class is under protected access, it is documented anyways because of its
+ * significance in the server</p>
  *
  * @author The TridentSDK Team
  */

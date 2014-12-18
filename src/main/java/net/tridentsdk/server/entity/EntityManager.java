@@ -25,6 +25,7 @@ import net.tridentsdk.Coordinates;
 import net.tridentsdk.Trident;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.entity.Entity;
+import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.util.TridentLogger;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -59,6 +60,7 @@ public final class EntityManager {
      */
     public void registerEntity(Entity entity) {
         this.entities.put(entity.getId(), entity);
+        if (entity instanceof TridentPlayer) return;
         tracker.track(entity);
     }
 

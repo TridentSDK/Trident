@@ -17,6 +17,7 @@
 package net.tridentsdk.server.player;
 
 import net.tridentsdk.base.Substance;
+import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.factory.Factories;
 import net.tridentsdk.meta.nbt.CompoundTag;
@@ -60,7 +61,7 @@ public class TridentPlayer extends OfflinePlayer {
         CompoundTag offlinePlayer = (OfflinePlayer.getOfflinePlayer(id) == null) ? null :
                 OfflinePlayer.getOfflinePlayer(id).toNbt();
 
-        if(offlinePlayer == null) {
+        if (offlinePlayer == null) {
             offlinePlayer = OfflinePlayer.generatePlayer(id);
         }
 
@@ -73,23 +74,28 @@ public class TridentPlayer extends OfflinePlayer {
         p.executor.addTask(new Runnable() {
             @Override
             public void run() {
-                p.sendChunks(3);
-
-                p.connection.sendPacket(new PacketPlayOutJoinGame().set("entityId", p.getId())
+                p.connection.sendPacket(new PacketPlayOutJoinGame()
+                        .set("entityId", p.getId())
                         .set("gamemode", p.getGameMode())
                         .set("dimension", ((TridentWorld) p.getWorld()).getDimesion())
                         .set("difficulty", p.getWorld().getDifficulty())
                         .set("maxPlayers", (short) 10)
                         .set("levelType", LevelType.DEFAULT));
 
-                p.connection.sendPacket(p.abilities.toPacket());
-                Slot[] slots = new Slot[44];
-                slots[43] = new Slot(new Item(Substance.APPLE));
-                // p.connection.sendPacket(new PacketPlayOutWindowItems().set("windowId", 0).set("slots", slots));
                 p.connection.sendPacket(new PacketPlayOutSpawnPosition().set("location", p.getSpawnLocation()));
+                p.connection.sendPacket(p.abilities.toPacket());
+
                 p.connection.sendPacket(new PacketPlayOutPlayerCompleteMove().set("location", p.getSpawnLocation())
                         .set("flags", (byte) 0));
-                //p.connection.sendPacket(new PacketPlayOutSpawnPlayer().set("entityId", p.getId()).set("player", p));
+
+                // Wait for response
+                Slot[] slots = new Slot[44];
+                slots[43] = new Slot(new Item(Substance.APPLE));
+                p.connection.sendPacket(new PacketPlayOutWindowItems().set("windowId", 0).set("slots", slots));
+                p.sendChunks(3);
+                for (Entity entity : p.getWorld().getEntities()) {
+                    // Register mob, packet sent to new player
+                }
             }
         });
 

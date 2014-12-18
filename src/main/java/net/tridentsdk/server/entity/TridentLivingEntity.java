@@ -135,6 +135,8 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
 
     @Override
     public void put(Projectile projectile) {
+        if (dead)
+            return;
         impalable.put(projectile);
 
         // Response
@@ -155,5 +157,12 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
     @Override
     public List<Projectile> projectiles() {
         return impalable.projectiles();
+    }
+
+    @Override
+    public void remove() {
+        dead = true;
+        super.remove();
+        impalable.clear();
     }
 }
