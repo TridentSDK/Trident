@@ -61,7 +61,7 @@ public final class EntityManager {
     public void registerEntity(Entity entity) {
         this.entities.put(entity.getId(), entity);
         if (entity instanceof TridentPlayer) return;
-        tracker.track(entity);
+        // tracker.track(entity);
     }
 
     /**
