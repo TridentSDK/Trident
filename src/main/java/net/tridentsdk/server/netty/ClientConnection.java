@@ -350,7 +350,9 @@ public class ClientConnection {
      * Removes the client's server side client handler
      */
     public void logout() {
-        ThreadsManager.remove(PlayerConnection.getConnection(getAddress()).getPlayer());
+        if(this instanceof PlayerConnection)
+            ThreadsManager.remove(PlayerConnection.getConnection(getAddress()).getPlayer());
+        
         clientData.remove(this.address);
         this.channel.close();
     }
