@@ -151,6 +151,10 @@ public class TridentEntity implements Entity {
      * @return the current entity
      */
     public TridentEntity spawn() {
+        if(this instanceof TridentPlayer) {
+            return this;
+        }
+
         MANAGER.registerEntity(this);
         return this;
     }
