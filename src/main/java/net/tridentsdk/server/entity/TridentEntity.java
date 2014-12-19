@@ -157,7 +157,7 @@ public class TridentEntity implements Entity {
 
     @Deprecated
     protected TridentEntity() {
-        // contructor for deserializing
+        // constructor for deserializing
     }
 
     @Override

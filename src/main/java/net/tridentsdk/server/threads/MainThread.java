@@ -16,7 +16,6 @@
  */
 package net.tridentsdk.server.threads;
 
-import net.tridentsdk.concurrent.TaskExecutor;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.server.player.TridentPlayer;
 
@@ -55,7 +54,6 @@ public class MainThread extends Thread {
         instance = this;
         this.ticksPerSecond = ticksPerSecond;
         this.tickLength = 1000 / ticksPerSecond;
-        start();
     }
 
     /**
@@ -90,15 +88,8 @@ public class MainThread extends Thread {
         /**
          * Tick the players
          */
-        for(final Player player : TridentPlayer.getPlayers()) {
-            TaskExecutor executor = ThreadsManager.playerExecutor().assign(player);
-
-            executor.addTask(new Runnable() {
-                @Override
-                public void run() {
-                    player.tick();
-                }
-            });
+        for (final Player player : TridentPlayer.getPlayers()) {
+            player.tick();
         }
 
         // alternate redstone ticks between ticks

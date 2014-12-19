@@ -25,7 +25,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class PacketPlayOutKeepAlive extends OutPacket {
 
     protected static final AtomicInteger counter = new AtomicInteger(-1);
-
     protected int keepAliveId = counter.addAndGet(1);
 
     @Override

@@ -64,7 +64,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     protected PlayerAbilities abilities = new PlayerAbilities();
 
     public OfflinePlayer(CompoundTag tag, TridentWorld world) {
-        super(null, world.getSpawnLocation());
+        super(null, world.getSpawn());
 
         load(tag);
 
@@ -78,7 +78,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
                     ((IntTag) tag.getTag("SpawnY")).getValue(),
                     ((IntTag) tag.getTag("SpawnZ")).getValue());
         } else {
-            spawnLocation = world.getSpawnLocation();
+            spawnLocation = world.getSpawn();
         }
 
         hunger = (short) ((IntTag) tag.getTag("foodLevel")).getValue();
@@ -118,7 +118,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
 
     public static CompoundTag generatePlayer(UUID id) {
         World defaultWorld = TridentServer.WORLD;
-        Coordinates spawnLocation = defaultWorld.getSpawnLocation();
+        Coordinates spawnLocation = defaultWorld.getSpawn();
         CompoundTagBuilder<NBTBuilder> builder = NBTBuilder.newBase(id.toString());
 
         builder.stringTag("id", String.valueOf(counter.incrementAndGet()));

@@ -20,7 +20,6 @@ import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.PacketHandler;
 import net.tridentsdk.server.netty.protocol.Protocol;
 
-import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 import java.net.InetSocketAddress;
 import java.util.concurrent.Callable;
@@ -34,11 +33,7 @@ import java.util.concurrent.Callable;
 public class PlayerConnection extends ClientConnection {
     private final TridentPlayer player;
 
-    // TODO Mazen, pls
-    @GuardedBy("this")
-    private long keepAliveSent = 0L;
-    @GuardedBy("this")
-    private int keepAliveId;
+    private volatile boolean sentKeepAlive = false;
 
     private PlayerConnection(ClientConnection connection, TridentPlayer player) {
         // remove old connection, and replace it with this one
@@ -59,7 +54,6 @@ public class PlayerConnection extends ClientConnection {
         super.compressionEnabled = connection.isCompressionEnabled();
 
         this.player = player;
-        this.keepAliveId = -1;
 
         // update the clients packet handler
         PacketHandler handler = channel.pipeline().get(PacketHandler.class);
@@ -87,30 +81,21 @@ public class PlayerConnection extends ClientConnection {
     }
 
     /**
-     * Gets the ID number of the keep alive value
+     * Marks the player as kept alive so additional packets do not need to be sent for the current
+     * session
      *
-     * @return the ID for the keep alive packet
+     * @param hasSent {@code true} to represent that the packet has been sent
      */
-    public synchronized int getKeepAliveId() {
-        return this.keepAliveId;
+    public void markSentKeepAlive(boolean hasSent) {
+        this.sentKeepAlive = true;
     }
 
     /**
-     * Sets the keep alive ID number
+     * Checks the hasSent flag to see if the player has sent the keep alive packet
      *
-     * @param id         the keep alive number to be set to
-     * @param ticksLived the amount of ticks lived
+     * @return {@code true} to represent the player keep alive has been sent
      */
-    public synchronized void setKeepAliveId(int id, long ticksLived) {
-        this.keepAliveId = id;
-        this.keepAliveSent = ticksLived;
-    }
-
-    /*
-     * @NotJavaDoc
-     * Relative to player
-     */
-    public synchronized long getKeepAliveSent() {
-        return this.keepAliveSent;
+    public boolean hasSentKeepAlive() {
+        return this.sentKeepAlive;
     }
 }

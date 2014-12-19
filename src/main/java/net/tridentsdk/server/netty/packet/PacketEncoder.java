@@ -27,13 +27,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.zip.Deflater;
+import java.util.zip.DeflaterOutputStream;
 
 /**
  * @author The TridentSDK Team
  */
 public class PacketEncoder extends MessageToByteEncoder<ByteBuf> {
     private final Deflater deflater = new Deflater(Deflater.BEST_SPEED);
-    private final byte[] buffer = new byte[1024];
     private ClientConnection connection;
 
     @Override
@@ -65,6 +65,7 @@ public class PacketEncoder extends MessageToByteEncoder<ByteBuf> {
         int index = msg.readerIndex();
         int length = msg.readableBytes();
 
+        byte[] buffer = new byte[1024];
         byte[] decompressed = new byte[length];
 
         msg.readBytes(decompressed);
@@ -72,24 +73,26 @@ public class PacketEncoder extends MessageToByteEncoder<ByteBuf> {
         deflater.finish();
 
         ByteArrayOutputStream compressed = new ByteArrayOutputStream();
-        int compressedLength = 0;
-        int readLength;
+        DeflaterOutputStream stream = new DeflaterOutputStream(compressed, deflater);
 
-        while((readLength = deflater.deflate(buffer)) > 0) {
-            compressedLength += readLength;
-            compressed.write(buffer, 0, readLength);
+        while (!deflater.finished()) {
+            int bytes = deflater.deflate(buffer);
+            stream.write(buffer, 0, bytes);
         }
 
-        if(compressedLength == 0 || compressedLength > length) {
+        int afterCompress = compressed.toByteArray().length;
+
+        // Equals or more than original size
+        if(afterCompress == length || afterCompress > length) {
             msg.readerIndex(index);
             sendDecompressed(msg, out);
             return;
         }
 
-        Codec.writeVarInt32(out, compressedLength + BigInteger.valueOf(length).toByteArray().length);
+        deflater.end();
+
+        Codec.writeVarInt32(out, afterCompress + BigInteger.valueOf(length).toByteArray().length);
         Codec.writeVarInt32(out, length);
         out.writeBytes(compressed.toByteArray());
-
-        deflater.reset();
     }
 }

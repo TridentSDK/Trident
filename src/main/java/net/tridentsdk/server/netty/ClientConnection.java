@@ -24,6 +24,7 @@ import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.protocol.Protocol;
 import net.tridentsdk.server.packets.login.PacketLoginOutSetCompression;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutDisconnect;
+import net.tridentsdk.server.player.PlayerConnection;
 import net.tridentsdk.server.threads.ThreadsManager;
 import net.tridentsdk.util.TridentLogger;
 
@@ -180,6 +181,8 @@ public class ClientConnection {
     public void sendPacket(Packet packet) {
         // Create new ByteBuf
         ByteBuf buffer = this.channel.alloc().buffer();
+
+        System.out.println("Sent " + packet.getClass().getSimpleName());
 
         Codec.writeVarInt32(buffer, packet.getId());
         packet.encode(buffer);
@@ -347,8 +350,8 @@ public class ClientConnection {
      * Removes the client's server side client handler
      */
     public void logout() {
+        ThreadsManager.remove(PlayerConnection.getConnection(getAddress()).getPlayer());
         clientData.remove(this.address);
-        ThreadsManager.remove(this);
         this.channel.close();
     }
 }

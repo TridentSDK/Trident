@@ -23,8 +23,6 @@ import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.factory.ExecutorFactory;
 import net.tridentsdk.factory.ThreadFactory;
 import net.tridentsdk.plugin.TridentPlugin;
-import net.tridentsdk.server.netty.ClientConnection;
-import net.tridentsdk.server.player.PlayerConnection;
 import net.tridentsdk.world.World;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -70,15 +68,11 @@ public final class ThreadsManager implements ThreadFactory {
     /**
      * Decaches the player connection handler from the mappings
      *
-     * @param connection the player to remove the wrapper cache
+     * @param player the player to remove the wrapper cache
      */
     @InternalUseOnly
-    public static void remove(ClientConnection connection) {
-        PlayerConnection pc = PlayerConnection.getConnection(connection.getAddress());
-        if (pc != null) {
-            Player player = pc.getPlayer();
-            playerExecutor().removeAssignment(player);
-        }
+    public static void remove(Player player) {
+        playerExecutor().removeAssignment(player);
     }
 
     /**

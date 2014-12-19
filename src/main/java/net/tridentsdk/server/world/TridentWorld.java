@@ -244,7 +244,7 @@ public class TridentWorld implements World {
     }
 
     @Override
-    public Coordinates getSpawnLocation() {
+    public Coordinates getSpawn() {
         return spawnLocation;
     }
 
@@ -261,11 +261,6 @@ public class TridentWorld implements World {
     @Override
     public long getTime() {
         return 0;
-    }
-
-    @Override
-    public Coordinates getSpawn() {
-        return spawnLocation;
     }
 
     @Override

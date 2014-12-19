@@ -21,12 +21,10 @@ import net.tridentsdk.config.JsonConfig;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.EventHandler;
 import net.tridentsdk.plugin.TridentPluginHandler;
-import net.tridentsdk.server.entity.EntityManager;
 import net.tridentsdk.server.netty.protocol.Protocol;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutPluginMessage;
 import net.tridentsdk.server.player.OfflinePlayer;
 import net.tridentsdk.server.player.TridentPlayer;
-import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
 import net.tridentsdk.server.threads.MainThread;
 import net.tridentsdk.server.threads.ThreadsManager;
 import net.tridentsdk.server.window.WindowManager;
@@ -43,7 +41,6 @@ import java.net.InetAddress;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * The access base to internal workings of the server
@@ -52,7 +49,6 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 @ThreadSafe
 public final class TridentServer implements Server {
-    private static final AtomicReference<Thread> SERVER_THREAD = new AtomicReference<>();
     public static final TridentWorld WORLD = (TridentWorld) new TridentWorldLoader().load("world");
     private static final DisplayInfo INFO = new DisplayInfo();
 
@@ -62,10 +58,8 @@ public final class TridentServer implements Server {
     private final Protocol protocol;
     private final Logger logger;
 
-    private final ConcurrentTaskExecutor<?> taskExecutor;
     private final RegionFileCache regionCache;
 
-    private final EntityManager entityManager;
     private final WindowManager windowManager;
     private final EventHandler eventManager;
 
@@ -74,32 +68,28 @@ public final class TridentServer implements Server {
 
     private final TridentWorldLoader worldLoader;
 
-    private TridentServer(JsonConfig config, ConcurrentTaskExecutor<?> taskExecutor, Logger logger) {
+    private TridentServer(JsonConfig config) {
         this.config = config;
         this.protocol = new Protocol();
-        this.taskExecutor = taskExecutor;
-        this.entityManager = new EntityManager();
         this.regionCache = new RegionFileCache();
         this.windowManager = new WindowManager();
         this.eventManager = new EventHandler();
         this.pluginHandler = new TridentPluginHandler();
         this.scheduler = new TridentScheduler();
-        this.logger = logger;
+        this.logger = TridentLogger.getLogger();
         this.mainThread = new MainThread(20);
-        worldLoader = new TridentWorldLoader();
+        this.worldLoader = new TridentWorldLoader();
     }
 
     /**
      * Creates the server access base, distributing information to the fields available
      *
      * @param config the configuration to use for option lookup
-     * @param logger the server logger
      */
-    public static TridentServer createServer(JsonConfig config, ConcurrentTaskExecutor<?> taskExecutor, Logger logger) {
-        TridentServer server = new TridentServer(config, taskExecutor, logger);
+    public static TridentServer createServer(JsonConfig config) {
+        TridentServer server = new TridentServer(config);
         Trident.setServer(server);
-
-        SERVER_THREAD.set(server.taskExecutor.scaledThread().asThread());
+        server.mainThread.start();
 
         return server;
         // We CANNOT let the "this" instance escape during creation, else we lose thread-safety
@@ -141,14 +131,6 @@ public final class TridentServer implements Server {
         return this.config.getInt("port", 25565);
     }
 
-    /**
-     * Puts a task into the execution queue
-     */
-    @Override
-    public void addTask(Runnable task) {
-        this.taskExecutor.scaledThread().addTask(task);
-    }
-
     @Override
     public JsonConfig getConfig() {
         return this.config;
@@ -163,7 +145,6 @@ public final class TridentServer implements Server {
         TridentLogger.log("Shutting down server connections...");
         TridentStart.close();
         TridentLogger.log("Shutting down worker threads...");
-        this.taskExecutor.shutdown();
         this.scheduler.stop();
         TridentLogger.log("Shutting down server process...");
         ThreadsManager.stopAll();
@@ -236,11 +217,7 @@ public final class TridentServer implements Server {
 
     @Override
     public Player getPlayer(UUID id) {
-        Player p;
-        if ((p = TridentPlayer.getPlayer(id)) != null) {
-            return p;
-        }
-
-        return OfflinePlayer.getOfflinePlayer(id);
+        Player p = TridentPlayer.getPlayer(id);
+        return p != null ? p : OfflinePlayer.getOfflinePlayer(id);
     }
 }

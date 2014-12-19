@@ -28,14 +28,12 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import net.tridentsdk.Defaults;
-import net.tridentsdk.concurrent.HeldValueLatch;
 import net.tridentsdk.config.JsonConfig;
 import net.tridentsdk.docs.Volatile;
 import net.tridentsdk.factory.CollectFactory;
 import net.tridentsdk.factory.ConfigFactory;
 import net.tridentsdk.factory.Factories;
 import net.tridentsdk.server.netty.ClientChannelInitializer;
-import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
 import net.tridentsdk.server.threads.ThreadsManager;
 import net.tridentsdk.util.TridentLogger;
 
@@ -130,7 +128,7 @@ final class TridentStart {
     @Volatile(policy = "Do not throw exceptions before",
             reason = "Init begins here",
             fix = "Just don't do it")
-    private static void init(JsonConfig config) throws InterruptedException {
+    private static void init(final JsonConfig config) throws InterruptedException {
         TridentLogger.log("Initializing the API implementations");
 
         Factories.init(new CollectFactory() {
@@ -141,35 +139,16 @@ final class TridentStart {
         });
         Factories.init(new ThreadsManager());
         Factories.init(new TridentScheduler());
-
-        // Server should read all settings from the loaded config
-        final ConcurrentTaskExecutor<?> taskExecutor = new ConcurrentTaskExecutor<>(1);
-        final JsonConfig innerConfig = config;
-
         Factories.init(new ConfigFactory() {
             @Override
             public JsonConfig serverConfig() {
-                return innerConfig;
+                return config;
             }
         });
 
-        TridentLogger.log("Creating server task thread...");
+        TridentLogger.log("Creating server...");
+        TridentServer.createServer(config);
 
-        final HeldValueLatch<?> proceed = new HeldValueLatch<>();
-        taskExecutor.scaledThread().addTask(new Runnable() {
-            @Override
-            public void run() {
-                TridentServer.createServer(innerConfig, taskExecutor, TridentLogger.getLogger());
-                proceed.countDown(null);
-                Thread.setDefaultUncaughtExceptionHandler(Defaults.EXCEPTION_HANDLER);
-            }
-        });
-
-        // Wait for the server to be set
-        proceed.await();
-
-        // MUST be executed consecutively...
-        // Now SAFE to throw errors
         TridentLogger.log("Setting thread exception handlers...");
         Thread.setDefaultUncaughtExceptionHandler(Defaults.EXCEPTION_HANDLER);
 
