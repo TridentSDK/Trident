@@ -16,38 +16,36 @@
  */
 package net.tridentsdk.server.world;
 
-import io.netty.util.internal.ConcurrentSet;
 import net.tridentsdk.Coordinates;
 import net.tridentsdk.base.Tile;
 import net.tridentsdk.meta.nbt.*;
-import net.tridentsdk.perf.FastClass;
 import net.tridentsdk.server.data.ChunkMetaBuilder;
+import net.tridentsdk.server.entity.EntityBuilder;
 import net.tridentsdk.server.entity.TridentEntity;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutMapChunkBulk;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.Chunk;
 import net.tridentsdk.world.ChunkLocation;
+import net.tridentsdk.world.ChunkSnapshot;
 import net.tridentsdk.world.Dimension;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 public class TridentChunk implements Chunk {
     private final TridentWorld world;
     private final ChunkLocation location;
-    private int lastFileAccess;
+    private volatile int lastFileAccess;
 
     private volatile long lastModified;
     private volatile long inhabitedTime;
-    private byte lightPopulated;
-    private byte terrainPopulated;
+    private volatile byte lightPopulated;
+    private volatile byte terrainPopulated;
 
-    private ChunkSection[] sections;
-
-    private final Set<TridentEntity> entities = new ConcurrentSet<>();
+    private volatile ChunkSection[] sections;
 
     public TridentChunk(TridentWorld world, int x, int z) {
-        this(world, new ChunkLocation(x, z));
+        this(world, ChunkLocation.create(x, z));
     }
 
     public TridentChunk(TridentWorld world, ChunkLocation coord) {
@@ -92,9 +90,17 @@ public class TridentChunk implements Chunk {
     public Tile getTileAt(int relX, int y, int relZ) {
         int index = WorldUtils.getBlockArrayIndex(relX, y, relZ);
 
-        return new TridentTile(new Coordinates(this.world, relX + this.getX() * 16, y, relZ + this.getZ() * 16)
+        return new TridentTile(Coordinates.create(this.world, relX + this.getX() * 16, y, relZ + this.getZ() * 16)
                 //TODO
                 , null, (byte) 0);
+    }
+
+    @Override
+    public ChunkSnapshot snapshot() {
+        List<CompoundTag> sections = new ArrayList<>();
+        for (ChunkSection section : this.sections)
+            sections.add(NBTSerializer.serialize(section));
+        return new TridentChunkSnapshot(world, location, sections, lastFileAccess, lastModified, inhabitedTime, lightPopulated, terrainPopulated);
     }
 
     public PacketPlayOutMapChunkBulk toPacket() {
@@ -159,6 +165,7 @@ public class TridentChunk implements Chunk {
         List<NBTTag> sectionsList = sections.listTags();
 
         this.sections = new ChunkSection[sectionsList.size()];
+        ChunkSection[] copy = this.sections;
 
         /* Load sections */
         for (int i = 0; i < sectionsList.size(); i += 1) {
@@ -172,14 +179,11 @@ public class TridentChunk implements Chunk {
             }
         }
 
-        /* Load Entities */
-        FastClass entityClass = FastClass.get(TridentEntity.class);
-
         for (NBTTag t : entities.listTags()) {
-            TridentEntity entity = entityClass.getConstructor().newInstance();
+            TridentEntity entity = EntityBuilder.create().build(TridentEntity.class);
 
             entity.load((CompoundTag) t);
-            this.entities.add(entity);
+            world.getEntities().add(entity);
         }
 
         /* Load extras */

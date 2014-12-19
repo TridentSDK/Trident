@@ -24,7 +24,7 @@ import java.util.concurrent.Callable;
 @NotThreadSafe // Designed for use in a single method
 public final class EntityBuilder {
     private UUID uuid = UUID.randomUUID();
-    private Coordinates spawn = new Coordinates(new Callable<World>() {
+    private Coordinates spawn = Coordinates.create(new Callable<World>() {
         @Override
         public World call() {
             for (World world : Trident.getWorlds())

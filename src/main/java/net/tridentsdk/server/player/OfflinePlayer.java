@@ -74,7 +74,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
         selectedSlot = (short) ((IntTag) tag.getTag("SelectedItemSlot")).getValue();
 
         if (tag.containsTag("SpawnX")) {
-            spawnLocation = new Coordinates(world, ((IntTag) tag.getTag("SpawnX")).getValue(),
+            spawnLocation = Coordinates.create(world, ((IntTag) tag.getTag("SpawnX")).getValue(),
                     ((IntTag) tag.getTag("SpawnY")).getValue(),
                     ((IntTag) tag.getTag("SpawnZ")).getValue());
         } else {

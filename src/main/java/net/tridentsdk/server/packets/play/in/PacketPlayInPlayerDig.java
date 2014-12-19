@@ -58,7 +58,7 @@ public class PacketPlayInPlayerDig extends InPacket {
         this.status = (short) buf.readByte();
         long encodedLocation = buf.readLong();
 
-        this.location = new Coordinates(null, (double) (encodedLocation >> 38), (double) (encodedLocation << 26 >> 52),
+        this.location = Coordinates.create(null, (double) (encodedLocation >> 38), (double) (encodedLocation << 26 >> 52),
                 (double) (encodedLocation << 38 >> 38));
         this.blockFace = (short) buf.readByte();
 

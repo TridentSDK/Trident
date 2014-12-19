@@ -48,7 +48,7 @@ public class PacketPlayInUpdateSign extends InPacket {
         double y = (double) (encoded << 26 >> 52);
         double z = (double) (encoded << 38 >> 38);
 
-        this.signLocation = new Coordinates(null, x, y, z);
+        this.signLocation = Coordinates.create(null, x, y, z);
 
         for (int i = 0; i <= 4; i++) {
             this.jsonContents[i] = Codec.readString(buf);

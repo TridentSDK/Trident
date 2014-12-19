@@ -50,7 +50,7 @@ public class PacketPlayInPlayerCompleteMove extends PacketPlayInPlayerMove {
         double y = buf.readDouble();
         double z = buf.readDouble();
 
-        super.location = new Coordinates(null, x, y, z);
+        super.location = Coordinates.create(null, x, y, z);
 
         this.newYaw = buf.readFloat();
         this.newPitch = buf.readFloat();

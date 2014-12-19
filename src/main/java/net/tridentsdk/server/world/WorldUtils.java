@@ -43,7 +43,7 @@ public final class WorldUtils {
      * @return the chunk location
      */
     public static ChunkLocation getChunkLocation(int x, int z) {
-        return new ChunkLocation(x >> 4, z >> 4);
+        return ChunkLocation.create(x >> 4, z >> 4);
     }
 
     /**

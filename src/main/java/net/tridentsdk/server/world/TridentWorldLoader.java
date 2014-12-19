@@ -90,7 +90,7 @@ public class TridentWorldLoader implements WorldLoader {
 
     @Override
     public Chunk loadChunk(World world, int x, int z) {
-        return this.loadChunk(world, new ChunkLocation(x, z));
+        return this.loadChunk(world, ChunkLocation.create(x, z));
     }
 
     @Override

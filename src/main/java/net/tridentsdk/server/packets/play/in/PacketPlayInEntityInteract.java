@@ -54,7 +54,7 @@ public class PacketPlayInEntityInteract extends InPacket {
         double y = (double) buf.readFloat();
         double z = (double) buf.readFloat();
 
-        this.location = new Coordinates(null, x, y, z); // TODO: Get the clients world
+        this.location = Coordinates.create(null, x, y, z); // TODO: Get the clients world
         return this;
     }
 

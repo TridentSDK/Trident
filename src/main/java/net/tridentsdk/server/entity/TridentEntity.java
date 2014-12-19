@@ -133,7 +133,7 @@ public class TridentEntity implements Entity {
         this.loc = spawnLocation;
 
         for (double y = this.loc.getY(); y > 0.0; y--) {
-            Coordinates l = new Coordinates(this.loc.getWorld(), this.loc.getX(),
+            Coordinates l = Coordinates.create(this.loc.getWorld(), this.loc.getX(),
                     y, this.loc.getZ());
 
             if (l.getTile().getSubstance() != Substance.AIR) {
@@ -162,7 +162,7 @@ public class TridentEntity implements Entity {
 
     @Override
     public void teleport(double x, double y, double z) {
-        this.teleport(new Coordinates(this.getWorld(), x, y, z));
+        this.teleport(Coordinates.create(this.getWorld(), x, y, z));
     }
 
     @Override
@@ -175,7 +175,7 @@ public class TridentEntity implements Entity {
         this.loc = location;
 
         for (double y = this.loc.getY(); y > 0.0; y--) {
-            Coordinates l = new Coordinates(this.loc.getWorld(), this.loc.getX(),
+            Coordinates l = Coordinates.create(this.loc.getWorld(), this.loc.getX(),
                     y, this.loc.getZ());
 
             if (l.getWorld().getTileAt(l).getSubstance() != Substance.AIR) {
@@ -351,7 +351,7 @@ public class TridentEntity implements Entity {
         /* Set data */
         this.id = counter.incrementAndGet();
 
-        loc = new Coordinates(Trident.getWorlds().iterator().next(), 0, 0, 0);
+        loc = Coordinates.create(Trident.getWorlds().iterator().next(), 0, 0, 0);
         velocity = new Vector(0, 0, 0);
 
         this.uniqueId = new UUID(uuidMost.getValue(), uuidLeast.getValue());

@@ -44,6 +44,7 @@ public class EntityTracker {
                 .set("metadata", meta == null ? new byte[] { (byte) ((1 << 5 | 1 & 0x1F) & 0xFF), (short) 10 } : meta);
         // TODO
         TridentPlayer.sendAll(packet);
+        entity.getWorld().getEntities().add(entity);
     }
 
     public void trackMovement(Entity entity, Coordinates from, Coordinates to) {

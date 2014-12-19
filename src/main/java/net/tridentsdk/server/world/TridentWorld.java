@@ -29,8 +29,10 @@ import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.*;
 
 import java.io.*;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
 import java.util.zip.GZIPInputStream;
 
 public class TridentWorld implements World {
@@ -55,7 +57,7 @@ public class TridentWorld implements World {
         this.loader = loader;
         this.random = new Random();
 
-        spawnLocation = new Coordinates(this, 0d, 0d, 0d);
+        spawnLocation = Coordinates.create(this, 0d, 0d, 0d);
 
         
         TridentLogger.log("Starting to load " + name + "...");
@@ -145,7 +147,7 @@ public class TridentWorld implements World {
 
     @Override
     public Chunk getChunkAt(int x, int z, boolean generateIfNotFound) {
-        return this.getChunkAt(new ChunkLocation(x, z), generateIfNotFound);
+        return this.getChunkAt(ChunkLocation.create(x, z), generateIfNotFound);
     }
 
     @Override
@@ -165,7 +167,7 @@ public class TridentWorld implements World {
 
     @Override
     public Chunk generateChunk(int x, int z) {
-        return this.generateChunk(new ChunkLocation(x, z));
+        return this.generateChunk(ChunkLocation.create(x, z));
     }
 
     @Override
@@ -211,17 +213,12 @@ public class TridentWorld implements World {
         return this.getChunkAt(WorldUtils.getChunkLocation(x, z), true).getTileAt(x % 16, y, z % 16);
     }
 
-    private void addChunkAt(ChunkLocation location, Chunk chunk) {
+    public void addChunkAt(ChunkLocation location, Chunk chunk) {
         if (location == null) {
             TridentLogger.error(new NullPointerException("Location cannot be null"));
         }
 
         this.loadedChunks.put(location, (TridentChunk) chunk);
-    }
-
-    @Override
-    public ChunkSnapshot getChunkSnapshot() {
-        return new ChunkSnapshot(new ConcurrentHashMap<ChunkLocation, Chunk>(loadedChunks));
     }
 
     public Dimension getDimesion() {

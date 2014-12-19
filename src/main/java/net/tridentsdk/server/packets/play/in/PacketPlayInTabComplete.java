@@ -59,7 +59,7 @@ public class PacketPlayInTabComplete extends InPacket {
             double y = (double) (encoded << 26 >> 52);
             double z = (double) (encoded << 38 >> 38);
 
-            this.lookedAtBlock = new Coordinates(null, x, y, z);
+            this.lookedAtBlock = Coordinates.create(null, x, y, z);
         }
 
         return this;
