@@ -317,7 +317,7 @@ public class ClientConnection {
     }
 
     public boolean isCompressionEnabled() {
-        return this.compressionEnabled && TridentServer.getInstance().getCompressionThreshold() != -1;
+        return this.compressionEnabled;
     }
 
     /**

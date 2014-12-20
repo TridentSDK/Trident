@@ -43,7 +43,8 @@ public class PacketEncoder extends MessageToByteEncoder<ByteBuf> {
 
     @Override
     protected void encode(ChannelHandlerContext channelHandlerContext, ByteBuf msg, ByteBuf out) throws Exception {
-        boolean underThreshold = msg.readableBytes() < TridentServer.getInstance().getCompressionThreshold();
+        int treshold = TridentServer.getInstance().getCompressionThreshold();
+        boolean underThreshold = msg.readableBytes() < treshold && treshold != -1;
 
         if(underThreshold && connection.isCompressionEnabled()) {
             sendDecompressed(msg, out);
