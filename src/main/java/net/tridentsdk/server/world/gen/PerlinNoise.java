@@ -15,7 +15,7 @@ public class PerlinNoise {
     public int width, height;
 
     // Random directions of length 1.
-    private vec2[] values;
+    private Vec2D[] values;
 
     /**
      * Creates a noise map with specified dimensions.
@@ -27,14 +27,14 @@ public class PerlinNoise {
         this.width = width;
         this.height = height;
 
-        values = new vec2[(width + 1) * (height + 1)]; // Create an array to store random directions.
+        values = new Vec2D[(width + 1) * (height + 1)]; // Create an array to store random directions.
 
         for (int y = 0; y < height + 1; y++) {
             for (int x = 0; x < width + 1; x++) {
                 int rot = random.nextInt(359); // Random direction.
 
                 // Store random direction of length 1 to our directions array.
-                values[x + y * width] = Rotation.point(new vec2(0, 0), new vec2(0, -1), rot);
+                values[x + y * width] = point(new Vec2D(0, 0), new Vec2D(0, -1), rot);
             }
         }
         // If you're wondering why "width + 1" "height + 1", it is because map looks blurry
@@ -49,31 +49,31 @@ public class PerlinNoise {
         int gy1 = gy0 + 1; // Down-Right
 
         // Random directions.
-        vec2 g00 = g(gx0, gy0); // Top-Left
-        vec2 g10 = g(gx1, gy0); // Top-Right
-        vec2 g11 = g(gx1, gy1); // Down-Right
-        vec2 g01 = g(gx0, gy1); // Down-Left
+        Vec2D g00 = random(gx0, gy0); // Top-Left
+        Vec2D g10 = random(gx1, gy0); // Top-Right
+        Vec2D g11 = random(gx1, gy1); // Down-Right
+        Vec2D g01 = random(gx0, gy1); // Down-Left
 
         // Subtract grid cells values from the point specified.
-        vec2 delta00 = new vec2(x - gx0, y - gy0); // Top-Left
-        vec2 delta10 = new vec2(x - gx1, y - gy0); // Top-Right
-        vec2 delta11 = new vec2(x - gx1, y - gy1); // Down-Right
-        vec2 delta01 = new vec2(x - gx0, y - gy1); // Down-Left
+        Vec2D delta00 = new Vec2D(x - gx0, y - gy0); // Top-Left
+        Vec2D delta10 = new Vec2D(x - gx1, y - gy0); // Top-Right
+        Vec2D delta11 = new Vec2D(x - gx1, y - gy1); // Down-Right
+        Vec2D delta01 = new Vec2D(x - gx0, y - gy1); // Down-Left
 
         // Compute a dot product between random directions and corresponding delta values.
-        float s = dot(g00, new vec2(delta00.x, delta00.y)); // Top-Left
-        float t = dot(g10, new vec2(delta10.x, delta10.y)); // Top-Right
-        float u = dot(g11, new vec2(delta11.x, delta11.y)); // Down-Right
-        float v = dot(g01, new vec2(delta01.x, delta01.y)); // Down-Left
+        float s = dotProduct(g00, new Vec2D(delta00.getX(), delta00.getY())); // Top-Left
+        float t = dotProduct(g10, new Vec2D(delta10.getX(), delta10.getY())); // Top-Right
+        float u = dotProduct(g11, new Vec2D(delta11.getX(), delta11.getY())); // Down-Right
+        float v = dotProduct(g01, new Vec2D(delta01.getX(), delta01.getY())); // Down-Left
 
         // Compute the weights for x and y axis.
-        float sx = weigh(delta00.x);
-        float sy = weigh(delta00.y);
+        float sx = weigh(delta00.getX());
+        float sy = weigh(delta00.getY());
 
         // Interpolate between values.
-        float a = lerp(sy, s, v); // Interpolate Top-Left(s) and Down-Left(v). We can also call this LEFT
-        float b = lerp(sy, t, u); // Interpolate Top-Right(t) and Down-Right(u) We can also call this RIGHT
-        float h = lerp(sx, a, b); // Interpolate LEFT(a) and RIGHT(b). We can call this height(h)
+        float a = interpolate(sy, s, v); // Interpolate Top-Left(s) and Down-Left(v). We can also call this LEFT
+        float b = interpolate(sy, t, u); // Interpolate Top-Right(t) and Down-Right(u) We can also call this RIGHT
+        float h = interpolate(sx, a, b); // Interpolate LEFT(a) and RIGHT(b). We can call this height(h)
 
         h *= 4; // Multiply here so adjust contrast.
 
@@ -96,7 +96,7 @@ public class PerlinNoise {
     /**
      * Interpolate between 2 values, using weight.
      */
-    private float lerp(float weight, float a, float b) {
+    private float interpolate(float weight, float a, float b) {
         return a + weight * (b - a);
     }
 
@@ -105,14 +105,14 @@ public class PerlinNoise {
      * Example: dot product between (a, b) and (c, d) is:
      * a * c + b * d
      */
-    private float dot(vec2 v0, vec2 v1) {
-        return (v0.x * v1.x) + (v0.y * v1.y);
+    private float dotProduct(Vec2D v0, Vec2D v1) {
+        return (v0.getX() * v1.getX()) + (v0.getY() * v1.getY());
     }
 
     /**
      * Get the random direction.
      */
-    private vec2 g(int x, int y) {
+    private Vec2D random(int x, int y) {
         if (x < 0) x = 0;
         if (y < 0) y = 0;
         if (x >= width) x = width;
@@ -120,12 +120,36 @@ public class PerlinNoise {
         return values[x + y * width];
     }
 
-    public static class vec2 {
-        public float x, y;
+    /**
+     * Rotates specified point around pivot.
+     *
+     * @param pivot    to rotate around.
+     * @param point    to rotate around pivot.
+     * @param rotation - how many degrees to rotate.
+     * @return a new point, which was created by rotating given point around pivot by some degrees.
+     */
+    public Vec2D point(Vec2D pivot, Vec2D point, float rotation) {
+        float rot = (float) (1f / 180 * rotation * Math.PI);
 
-        public vec2(float x, float y) {
-            this.x = x;
-            this.y = y;
+        float x = point.getX() - pivot.getX();
+        float y = point.getY() - pivot.getY();
+
+        float newx = (float) (x * Math.cos(rot) - y * Math.sin(rot));
+        float newy = (float) (x * Math.sin(rot) + y * Math.cos(rot));
+
+        newx += pivot.getX();
+        newy += pivot.getY();
+
+        return new Vec2D(newx, newy);
+    }
+
+    public class Vec2D {
+        private float x;
+        private float y;
+
+        public Vec2D(float x, float y) {
+            this.setX(x);
+            this.setY(y);
         }
 
         public int getX() {
@@ -135,31 +159,13 @@ public class PerlinNoise {
         public int getY() {
             return (int) y;
         }
-    }
 
-    public static class Rotation {
-        /**
-         * Rotates specified point around pivot.
-         *
-         * @param pivot    to rotate around.
-         * @param point    to rotate around pivot.
-         * @param rotation - how many degrees to rotate.
-         * @return a new point, which was created by rotating given point around pivot by some degrees.
-         */
-        public static vec2 point(vec2 pivot, vec2 point, float rotation) {
-            float rot = (float) (1f / 180 * rotation * Math.PI);
+        public void setX(float x) {
+            this.x = x;
+        }
 
-            float x = point.x - pivot.x;
-            float y = point.y - pivot.y;
-
-            float newx = (float) (x * Math.cos(rot) - y * Math.sin(rot));
-            float newy = (float) (x * Math.sin(rot) + y * Math.cos(rot));
-
-
-            newx += pivot.x;
-            newy += pivot.y;
-
-            return new vec2(newx, newy);
+        public void setY(float y) {
+            this.y = y;
         }
     }
 }
