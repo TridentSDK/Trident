@@ -41,6 +41,12 @@ public class PacketPlayOutPluginMessage extends OutPacket {
     @Override
     public void encode(ByteBuf buf) {
         Codec.writeString(buf, this.channel);
+        Codec.writeVarInt32(buf, data.length);
         buf.writeBytes(this.data);
     }
+
+    public static final OutPacket VANILLA_CHANNEL = new PacketPlayOutPluginMessage()
+            .set("channel","MC|Brand")
+            .set("data", new byte[]{'v','a','n','i','l','l','a'});
+
 }

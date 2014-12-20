@@ -16,6 +16,7 @@
  */
 package net.tridentsdk.server.player;
 
+import net.tridentsdk.Trident;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.living.Player;
@@ -84,15 +85,20 @@ public class TridentPlayer extends OfflinePlayer {
                         .set("maxPlayers", (short) 10)
                         .set("levelType", LevelType.DEFAULT));
 
+                p.connection.sendPacket(PacketPlayOutPluginMessage.VANILLA_CHANNEL);
+                p.connection.sendPacket(new PacketPlayOutServerDifficulty()
+                        .set("difficulty", Trident.getServer().getDifficulty()));
                 p.connection.sendPacket(new PacketPlayOutSpawnPosition().set("location", p.getSpawnLocation()));
                 p.connection.sendPacket(p.abilities.toPacket());
                 p.connection.sendPacket(new PacketPlayOutPlayerCompleteMove().set("location", p.getSpawnLocation())
                         .set("flags", (byte) 0));
 
+                p.connection.sendPacket(PacketPlayOutStatistics.DEFAULT_STATISTIC);
+
                 // Wait for response
                 Slot[] slots = new Slot[44];
                 slots[43] = new Slot(new Item(Substance.APPLE));
-                // p.connection.sendPacket(new PacketPlayOutWindowItems().set("windowId", 0).set("slots", slots));
+                //p.connection.sendPacket(new PacketPlayOutWindowItems().set("windowId", 0).set("slots", slots));
                 p.sendChunks(3);
                 for (Entity entity : p.getWorld().getEntities()) {
                     // Register mob, packet sent to new player

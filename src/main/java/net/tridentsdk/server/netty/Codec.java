@@ -60,6 +60,9 @@ public final class Codec {
      * @param buf the buffer to decode the string from
      */
     public static void writeString(ByteBuf buf, String string) {
+        if(string == null) {
+            return;
+        }
         //Writes the length of the string
         writeVarInt32(buf, string.length());
 

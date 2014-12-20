@@ -35,6 +35,11 @@ public class PacketPlayOutStatistics extends OutPacket {
 
     @Override
     public void encode(ByteBuf buf) {
+
+        if(this.entries == null) {
+            Codec.writeVarInt32(buf,0);
+            return;
+        }
         Codec.writeVarInt32(buf, this.entries.length);
 
         for (StatisticEntry entry : this.entries) {
@@ -42,7 +47,7 @@ public class PacketPlayOutStatistics extends OutPacket {
         }
     }
 
-    public class StatisticEntry {
+    public static class StatisticEntry {
         protected String string;
         protected int value;
 
@@ -67,4 +72,7 @@ public class PacketPlayOutStatistics extends OutPacket {
             Codec.writeVarInt32(buf, this.value);
         }
     }
+
+    public static final OutPacket DEFAULT_STATISTIC = new PacketPlayOutStatistics()
+            .set("entries", null);
 }
