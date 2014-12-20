@@ -194,7 +194,7 @@
                         <id>make-assembly</id>
                         <phase>package</phase>
                         <goals>
-                            <goal>unpack</goal>
+                            <goal>directory-inline</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -215,6 +215,9 @@
                             <keywords>
                                 <keyword>license</keyword>
                             </keywords>
+                            <excludes>
+                                <exclude>src/main/java/net/tridentsdk/server/world/gen/PerlinNoise.java</exclude>
+                            </excludes>
                             <includes>
                                 <include>src/main/java/**</include>
                                 <include>src/test/java/**</include>

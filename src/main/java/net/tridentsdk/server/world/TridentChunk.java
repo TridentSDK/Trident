@@ -20,8 +20,6 @@ import net.tridentsdk.Coordinates;
 import net.tridentsdk.base.Tile;
 import net.tridentsdk.meta.nbt.*;
 import net.tridentsdk.server.data.ChunkMetaBuilder;
-import net.tridentsdk.server.entity.EntityBuilder;
-import net.tridentsdk.server.entity.TridentEntity;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutMapChunkBulk;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.Chunk;
@@ -180,10 +178,10 @@ public class TridentChunk implements Chunk {
         }
 
         for (NBTTag t : entities.listTags()) {
-            TridentEntity entity = EntityBuilder.create().build(TridentEntity.class);
+            //TridentEntity entity = EntityBuilder.create().build(TridentEntity.class);
 
-            entity.load((CompoundTag) t);
-            world.getEntities().add(entity);
+            //entity.load((CompoundTag) t);
+            //world.getEntities().add(entity);
         }
 
         /* Load extras */

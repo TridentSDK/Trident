@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package net.tridentsdk.server;
+package net.tridentsdk.server.bench;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
@@ -27,6 +27,7 @@ import net.tridentsdk.factory.CollectFactory;
 import net.tridentsdk.factory.ConfigFactory;
 import net.tridentsdk.factory.ExecutorFactory;
 import net.tridentsdk.factory.Factories;
+import net.tridentsdk.server.TridentScheduler;
 import net.tridentsdk.server.threads.ThreadsManager;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;

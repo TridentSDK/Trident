@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package net.tridentsdk.server;
+package net.tridentsdk.server.bench;
 
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;

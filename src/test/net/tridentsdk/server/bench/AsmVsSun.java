@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package net.tridentsdk.server;
+package net.tridentsdk.server.bench;
 
 import com.esotericsoftware.reflectasm.MethodAccess;
 import org.openjdk.jmh.annotations.*;

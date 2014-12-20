@@ -1,4 +1,4 @@
-package net.tridentsdk.server;
+package net.tridentsdk.server.bench;
 
 import com.google.common.collect.LinkedListMultimap;
 import org.openjdk.jmh.results.BenchmarkResult;

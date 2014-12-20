@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package net.tridentsdk.server;
+package net.tridentsdk.server.bench;
 
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.factory.Factories;

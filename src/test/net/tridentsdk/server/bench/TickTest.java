@@ -1,4 +1,4 @@
-package net.tridentsdk.server;
+package net.tridentsdk.server.bench;
 
 import net.tridentsdk.server.threads.MainThread;
 import org.openjdk.jmh.annotations.Benchmark;

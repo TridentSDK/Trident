@@ -129,13 +129,16 @@ public class TridentPlayer extends OfflinePlayer {
                 if (keepAlive >= 300L && !keepAliveSent) {
                     // send Keep Alive packet if not sent already
                     connection.sendPacket(new PacketPlayOutKeepAlive());
+
+                    ticksExisted.set(0);
+                    connection.markSentKeepAlive(true);
+                    return;
                 } else if (keepAlive >= 600L) {
                     // kick the player for not responding to the keep alive within 30 seconds/600 ticks
                     kickPlayer("Timed out!");
                 }
 
                 ticksExisted.incrementAndGet();
-                connection.markSentKeepAlive(true);
             }
         });
     }

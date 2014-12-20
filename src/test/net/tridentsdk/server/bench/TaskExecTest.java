@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package net.tridentsdk.server;
+package net.tridentsdk.server.bench;
 
 import net.tridentsdk.concurrent.TaskExecutor;
 import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
@@ -49,7 +49,7 @@ Process finished with exit code 0
 # Measurement: 25 iterations, 1 s each
 # Threads: 4 threads, will synchronize iterations
 # Benchmark mode: Average time, time/op
-# Benchmark: net.tridentsdk.server.TaskExecTest.equiv
+# Benchmark: net.tridentsdk.server.bench.TaskExecTest.equiv
 # VM invoker: /usr/lib/jvm/java-7-openjdk-amd64/jre/bin/java
 # VM options: -Didea.launcher.port=7542 -Didea.launcher.bin.path=/media/A4F1-7AB7/idea-IU-135.1230/bin -Dfile.encoding=UTF-8
 # Fork: 1 of 1
@@ -114,7 +114,7 @@ Result: 558.604 ±(99.9%) 6.981 ns/op [Average]
 # Measurement: 25 iterations, 1 s each
 # Threads: 4 threads, will synchronize iterations
 # Benchmark mode: Average time, time/op
-# Benchmark: net.tridentsdk.server.TaskExecTest.java
+# Benchmark: net.tridentsdk.server.bench.TaskExecTest.java
 # VM invoker: /usr/lib/jvm/java-7-openjdk-amd64/jre/bin/java
 # VM options: -Didea.launcher.port=7542 -Didea.launcher.bin.path=/media/A4F1-7AB7/idea-IU-135.1230/bin -Dfile.encoding=UTF-8
 # Fork: 1 of 1

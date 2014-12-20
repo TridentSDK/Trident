@@ -15,10 +15,11 @@
  * limitations under the License.
  */
 
-package net.tridentsdk.server;
+package net.tridentsdk.server.bench;
 
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.factory.Factories;
+import net.tridentsdk.server.CTXProper;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.threads.ThreadsManager;
@@ -39,7 +40,7 @@ import java.util.concurrent.TimeUnit;
 # Measurement: 5 iterations, 1 s each
 # Threads: 10 threads, will synchronize iterations
 # Benchmark mode: Average time, time/op
-# Benchmark: net.tridentsdk.server.TestPlayerThreads.autoBox
+# Benchmark: net.tridentsdk.server.bench.TestPlayerThreads.autoBox
 # VM invoker: /usr/lib/jvm/java-7-openjdk-amd64/jre/bin/java
 # VM options: -Didea.launcher.port=7537 -Didea.launcher.bin.path=/media/A4F1-7AB7/idea-IU-135.1230/bin -Dfile
 .encoding=UTF-8
@@ -70,7 +71,7 @@ Result: 7.113 �(99.9%) 0.323 ns/op [Average]
 # Measurement: 5 iterations, 1 s each
 # Threads: 10 threads, will synchronize iterations
 # Benchmark mode: Average time, time/op
-# Benchmark: net.tridentsdk.server.TestPlayerThreads.explicitBox
+# Benchmark: net.tridentsdk.server.bench.TestPlayerThreads.explicitBox
 # VM invoker: /usr/lib/jvm/java-7-openjdk-amd64/jre/bin/java
 # VM options: -Didea.launcher.port=7537 -Didea.launcher.bin.path=/media/A4F1-7AB7/idea-IU-135.1230/bin -Dfile
 .encoding=UTF-8

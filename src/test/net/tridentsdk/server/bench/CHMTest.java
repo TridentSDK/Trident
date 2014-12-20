@@ -15,9 +15,10 @@
  * limitations under the License.
  */
 
-package net.tridentsdk.server;
+package net.tridentsdk.server.bench;
 
-import net.tridentsdk.concurrent.ConcurrentCache;
+import com.google.common.collect.Sets;
+import io.netty.util.internal.ConcurrentSet;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
 import org.openjdk.jmh.runner.Runner;
@@ -27,39 +28,23 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 import org.openjdk.jmh.runner.options.TimeValue;
 import org.openjdk.jmh.runner.options.VerboseMode;
 
-import java.util.concurrent.Callable;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 /*
-Benchmark results: http://bit.ly/1A21o5O
+Benchmark results: http://bit.ly/1y90tml
  */
 @State(Scope.Benchmark)
-public class CacheTest {
-    private static final ConcurrentCache<Object, Object> CACHE = new ConcurrentCache<>();
-    private static final ConcurrentHashMap<Object, Object> CONCURRENT_HASH_MAP = new ConcurrentHashMap<>();
+public class CHMTest {
+    private static final Set<Object> SET = new ConcurrentSet<>();
+    private static final Set<Object> SET0 = Sets.newSetFromMap(new ConcurrentHashMap<Object, Boolean>());
 
-    private static final Object key = new Object();
-    private static final Callable<Object> CALLABLE = new Callable<Object>() {
-        @Override
-        public Object call() throws Exception {
-            return "LOL";
-        }
-    };
-
-    public static void main0(String[] args) {
-        CACHE.retrieve(key, CALLABLE);
-        System.out.println(CACHE.remove(key));
-    }
-
-    @Setup
-    public void setUp() {
-        CONCURRENT_HASH_MAP.put(key, CALLABLE);
-    }
+    private static final Object OBJECT = new Object();
 
     public static void main(String[] args) throws RunnerException {
         Options opt = new OptionsBuilder()
-                .include(".*" + CacheTest.class.getSimpleName() + ".*") // CLASS
+                .include(".*" + CHMTest.class.getSimpleName() + ".*") // CLASS
                 .timeUnit(TimeUnit.NANOSECONDS)
                 .mode(Mode.AverageTime)
                 .warmupIterations(20)
@@ -71,7 +56,7 @@ public class CacheTest {
                 .threads(4)                                         // THREADS
                 .build();
 
-        Benchmarks.chart(Benchmarks.parse(new Runner(opt).run()), "ConcurrentCache vs ConcurrentHashMap"); // TITLE
+        Benchmarks.chart(Benchmarks.parse(new Runner(opt).run()), "Java8 CHM vs Platform CHM"); // TITLE
     }
 
     @Param({"1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024"})
@@ -83,14 +68,26 @@ public class CacheTest {
     }
 
     @Benchmark
-    public void retrieve(Blackhole bh) {
+    public void v8CHMPut() {
         Blackhole.consumeCPU(cpuTokens);
-        bh.consume(CACHE.retrieve(key, CALLABLE));
+        SET.add(OBJECT);
     }
 
     @Benchmark
-    public void chmRetrieve(Blackhole bh) {
+    public void v8CHMRemove() {
         Blackhole.consumeCPU(cpuTokens);
-        bh.consume(CONCURRENT_HASH_MAP.get(key));
+        SET.remove(OBJECT);
+    }
+
+    @Benchmark
+    public void CHMPut() {
+        Blackhole.consumeCPU(cpuTokens);
+        SET0.add(OBJECT);
+    }
+
+    @Benchmark
+    public void CHMRemove() {
+        Blackhole.consumeCPU(cpuTokens);
+        SET0.remove(OBJECT);
     }
 }

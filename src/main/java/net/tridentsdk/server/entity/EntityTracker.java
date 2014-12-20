@@ -20,6 +20,7 @@ import net.tridentsdk.Coordinates;
 import net.tridentsdk.Trident;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.entity.Entity;
+import net.tridentsdk.entity.EntityType;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.player.PlayerMoveEvent;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutEntityCompleteMove;
@@ -39,7 +40,7 @@ public class EntityTracker {
             return;
         PacketPlayOutSpawnMob packet = new PacketPlayOutSpawnMob();
         packet.set("entityId", entity.getId())
-                .set("type", entity.getType())
+                .set("type", EntityType.NOT_IMPL)
                 .set("entity", entity)
                 .set("metadata", meta == null ? new byte[] { (byte) ((1 << 5 | 1 & 0x1F) & 0xFF), (short) 10 } : meta);
         // TODO
