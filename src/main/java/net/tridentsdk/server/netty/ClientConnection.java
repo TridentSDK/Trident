@@ -20,6 +20,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import net.tridentsdk.concurrent.ConcurrentCache;
+import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.protocol.Protocol;
 import net.tridentsdk.server.packets.login.PacketLoginOutSetCompression;
@@ -316,7 +317,7 @@ public class ClientConnection {
     }
 
     public boolean isCompressionEnabled() {
-        return this.compressionEnabled;
+        return this.compressionEnabled && TridentServer.getInstance().getCompressionThreshold() != -1;
     }
 
     /**
