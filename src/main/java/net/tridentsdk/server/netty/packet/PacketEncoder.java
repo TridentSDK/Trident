@@ -33,7 +33,7 @@ import java.util.zip.DeflaterOutputStream;
  * @author The TridentSDK Team
  */
 public class PacketEncoder extends MessageToByteEncoder<ByteBuf> {
-    private final Deflater deflater = new Deflater(Deflater.BEST_SPEED);
+    //private final Deflater deflater = new Deflater(Deflater.BEST_SPEED);
     private ClientConnection connection;
 
     @Override
@@ -62,6 +62,7 @@ public class PacketEncoder extends MessageToByteEncoder<ByteBuf> {
     }
 
     private void sendCompressed(ByteBuf msg, ByteBuf out) throws IOException {
+        Deflater deflater = new Deflater();
         int index = msg.readerIndex();
         int length = msg.readableBytes();
 
@@ -73,11 +74,11 @@ public class PacketEncoder extends MessageToByteEncoder<ByteBuf> {
         deflater.finish();
 
         ByteArrayOutputStream compressed = new ByteArrayOutputStream();
-        DeflaterOutputStream stream = new DeflaterOutputStream(compressed, deflater);
+        //DeflaterOutputStream stream = new DeflaterOutputStream(compressed, deflater);
 
         while (!deflater.finished()) {
             int bytes = deflater.deflate(buffer);
-            stream.write(buffer, 0, bytes);
+            compressed.write(buffer, 0, bytes);
         }
 
         int afterCompress = compressed.toByteArray().length;
