@@ -39,6 +39,7 @@ import java.util.concurrent.ConcurrentMap;
 
 @JCStressTest
 @Outcome(id = "[true, true, true, true]", expect = Expect.ACCEPTABLE, desc = "Latches work")
+@Outcome(expect = Expect.FORBIDDEN)
 @State
 public class LatchInitTest {
     @Actor

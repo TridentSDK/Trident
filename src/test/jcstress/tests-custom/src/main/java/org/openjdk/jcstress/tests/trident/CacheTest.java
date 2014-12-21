@@ -39,8 +39,9 @@ import java.nio.file.Paths;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentMap;
 
-@JCStressTest
+// @JCStressTest
 @Outcome(id = "[true, true, true, false]", expect = Expect.ACCEPTABLE, desc = "Map works correctly")
+@Outcome(expect = Expect.FORBIDDEN)
 @State
 public class CacheTest {
     static {

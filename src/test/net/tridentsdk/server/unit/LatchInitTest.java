@@ -26,7 +26,7 @@ public class LatchInitTest extends AbstractTest {
 
     @Test
     @Concurrent(count = 16)
-    @Repeating(repetition = 1000)
+    @Repeating(repetition = 500)
     public void doTest() {
         assertNotNull(Factories.collect());
         assertNotNull(Factories.threads());

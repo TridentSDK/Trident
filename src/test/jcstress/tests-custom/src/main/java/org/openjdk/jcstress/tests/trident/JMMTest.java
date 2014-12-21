@@ -33,7 +33,8 @@ import java.util.concurrent.CountDownLatch;
 
 @JCStressTest
 @Outcome(id = "[true, true]", expect = Expect.ACCEPTABLE, desc = "JMM works like it should")
-@Outcome(id = "[false, true]", expect = Expect.ACCEPTABLE_INTERESTING, desc = "Volatile array does not work")
+@Outcome(id = "[false, true]", expect = Expect.FORBIDDEN, desc = "Volatile array does not work")
+@Outcome(expect = Expect.FORBIDDEN)
 @State
 public class JMMTest {
     // volatileArray
@@ -59,11 +60,9 @@ public class JMMTest {
 
     /**
      * Tests the visibility of an object set to a volatile field
-     *
-     * @throws InterruptedException if the thread is interrupted when awaiting for the value
      */
     @Actor
-    public void volatileObject(BooleanResult2 result2) throws InterruptedException {
+    public void volatileObject(BooleanResult2 result2) {
         final CountDownLatch latch = new CountDownLatch(1);
         new Thread(new Runnable() {
             @Override
@@ -73,7 +72,11 @@ public class JMMTest {
             }
         }).start();
 
-        latch.await();
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         if (object != null && object != original)
             result2.r2 = true;
