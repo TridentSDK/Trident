@@ -2,9 +2,8 @@
 
 cd src/test/jcstress
 mvn clean install -pl tests-custom -am
-java -jar tests-custom/target/jcstress.jar -c 16 -f 10 -iter 100 -time 5000 -deoptRatio 0 -yield true -minStride 0 -maxStride 0 -r results/limit
-# java -jar tests-custom/target/jcstress.jar -c 16 -m tough -r results/tough -yield true
-# java -jar tests-custom/target/jcstress.jar -c 16 -m stress -r results/stress -yield true
+java -jar tests-custom/target/jcstress.jar -c 16 -m tough -r results/tough -yield true
+java -jar tests-custom/target/jcstress.jar -c 16 -m stress -r results/stress -yield true
 
 
 # 16 threads

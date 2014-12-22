@@ -38,7 +38,7 @@ import org.openjdk.jcstress.infra.results.BooleanResult4;
 import java.nio.file.Paths;
 import java.util.concurrent.ConcurrentMap;
 
-// @JCStressTest
+@JCStressTest
 @Outcome(id = "[true, true, true, false]", expect = Expect.ACCEPTABLE, desc = "Map works correctly")
 @Outcome(expect = Expect.FORBIDDEN)
 @State
@@ -60,10 +60,9 @@ public class CacheTest {
         Factories.init(new ThreadsManager());
     }
 
-    private final ConcurrentCache<Object, Object> cache = new ConcurrentCache<>();
-
     @Actor
     public void insertNullValue(BooleanResult4 result4) {
+        ConcurrentCache<Object, Object> cache = new ConcurrentCache<>();
         final Object object = new Object();
         cache.retrieve(object, () -> null);
         result4.r1 = cache.remove(object) == null;
@@ -71,6 +70,7 @@ public class CacheTest {
 
     @Actor
     public void insertNullKey(BooleanResult4 result4) {
+        ConcurrentCache<Object, Object> cache = new ConcurrentCache<>();
         try {
             cache.retrieve(null, () -> null);
         } catch (NullPointerException e) {
@@ -80,6 +80,7 @@ public class CacheTest {
 
     @Actor
     public void insertRemove(BooleanResult4 result4) {
+        ConcurrentCache<Object, Object> cache = new ConcurrentCache<>();
         final Object object = new Object();
         cache.retrieve(object, () -> object);
 
