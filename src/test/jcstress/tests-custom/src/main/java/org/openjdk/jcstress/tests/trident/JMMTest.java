@@ -64,12 +64,9 @@ public class JMMTest {
     @Actor
     public void volatileObject(BooleanResult2 result2) {
         final CountDownLatch latch = new CountDownLatch(1);
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                object = new Object();
-                latch.countDown();
-            }
+        new Thread(() -> {
+            object = new Object();
+            latch.countDown();
         }).start();
 
         try {

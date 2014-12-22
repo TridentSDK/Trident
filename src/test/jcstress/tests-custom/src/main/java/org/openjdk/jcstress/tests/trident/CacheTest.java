@@ -36,7 +36,6 @@ import org.openjdk.jcstress.annotations.*;
 import org.openjdk.jcstress.infra.results.BooleanResult4;
 
 import java.nio.file.Paths;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentMap;
 
 // @JCStressTest
@@ -66,24 +65,14 @@ public class CacheTest {
     @Actor
     public void insertNullValue(BooleanResult4 result4) {
         final Object object = new Object();
-        cache.retrieve(object, new Callable<Object>() {
-            @Override
-            public Object call() throws Exception {
-                return null;
-            }
-        });
+        cache.retrieve(object, () -> null);
         result4.r1 = cache.remove(object) == null;
     }
 
     @Actor
     public void insertNullKey(BooleanResult4 result4) {
         try {
-            cache.retrieve(null, new Callable<Object>() {
-                @Override
-                public Object call() throws Exception {
-                    return null;
-                }
-            });
+            cache.retrieve(null, () -> null);
         } catch (NullPointerException e) {
             result4.r2 = true;
         }
@@ -92,12 +81,7 @@ public class CacheTest {
     @Actor
     public void insertRemove(BooleanResult4 result4) {
         final Object object = new Object();
-        cache.retrieve(object, new Callable<Object>() {
-            @Override
-            public Object call() throws Exception {
-                return object;
-            }
-        });
+        cache.retrieve(object, () -> object);
 
         Object removed = cache.remove(object);
         if (removed == object && cache.remove(object) == null)

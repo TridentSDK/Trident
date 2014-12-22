@@ -48,7 +48,7 @@ public class DecoratedEquippable extends LivingDecorationAdapter implements Equi
                     .set("entityId", original().getId())
                     .set("slot", (short) i + 5)
                     .set(String.valueOf(i + 5),
-                            Long.decode(Integer.toHexString(stack.getId()) + "010000ffff").longValue());
+                            Long.decode(Integer.toHexString(stack.getId()) + "010000ffff"));
             TridentPlayer.sendAll(entityEquipment);
         }
     }
