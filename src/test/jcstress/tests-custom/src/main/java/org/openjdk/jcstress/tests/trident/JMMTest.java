@@ -30,6 +30,8 @@ import org.openjdk.jcstress.annotations.*;
 import org.openjdk.jcstress.infra.results.BooleanResult2;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @JCStressTest
 @Outcome(id = "[true, true]", expect = Expect.ACCEPTABLE, desc = "JMM works like it should")
@@ -44,6 +46,8 @@ public class JMMTest {
     private final Object original = new Object();
     private volatile Object object = original;
 
+    private static final ExecutorService SERVICE = Executors.newFixedThreadPool(2);
+
     /**
      * Tests visibility of an object array
      */
@@ -54,8 +58,10 @@ public class JMMTest {
         items1[0] = item;
         Item[] read = items;
 
-        if (items[0] == item)
-            result2.r1 = true;
+        new Thread(() -> {
+            if (items[0] == item)
+                result2.r1 = true;
+        }).start();
     }
 
     /**

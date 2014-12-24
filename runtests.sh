@@ -2,8 +2,8 @@
 
 cd src/test/jcstress
 mvn clean install -pl tests-custom -am
-java -jar tests-custom/target/jcstress.jar -c 16 -m tough -r results/tough -yield true
-java -jar tests-custom/target/jcstress.jar -c 16 -m stress -r results/stress -yield true
+java -XX:+UnlockDiagnosticVMOptions -XX:+WhiteBoxAPI -XX:-RestrictContended -jar tests-custom/target/jcstress.jar -c 16 -m tough -r results/tough -yield true
+java -XX:+UnlockDiagnosticVMOptions -XX:+WhiteBoxAPI -XX:-RestrictContended -jar tests-custom/target/jcstress.jar -c 16 -m stress -r results/stress -yield true
 
 
 # 16 threads

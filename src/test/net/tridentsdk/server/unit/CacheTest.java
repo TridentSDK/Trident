@@ -12,6 +12,7 @@ import net.tridentsdk.factory.ConfigFactory;
 import net.tridentsdk.factory.Factories;
 import net.tridentsdk.server.TridentScheduler;
 import net.tridentsdk.server.threads.ThreadsManager;
+import net.tridentsdk.util.TridentLogger;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -21,6 +22,7 @@ import java.util.concurrent.ConcurrentMap;
 
 public class CacheTest extends AbstractTest {
     static {
+        TridentLogger.init();
         Factories.init(new ConfigFactory() {
             @Override
             public JsonConfig serverConfig() {
@@ -44,6 +46,20 @@ public class CacheTest extends AbstractTest {
     public RepeatingRule repeatedly = new RepeatingRule();
 
     @Test
+    @Concurrent(count = 16)
+    @Repeating(repetition = 500)
+    public void insert() {
+        final Object object = new Object();
+        cache.retrieve(object, new Callable<Object>() {
+            @Override
+            public Object call() throws Exception {
+                return object;
+            }
+        });
+        assertEquals(cache.remove(object), object);
+    }
+
+    @Test(expected = NullPointerException.class)
     @Concurrent(count = 16)
     @Repeating(repetition = 500)
     public void insertNullValue() {

@@ -25,17 +25,11 @@
 package org.openjdk.jcstress.tests.trident;
 
 import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
-import net.tridentsdk.concurrent.ConcurrentCache;
-import net.tridentsdk.config.JsonConfig;
-import net.tridentsdk.factory.CollectFactory;
-import net.tridentsdk.factory.ConfigFactory;
-import net.tridentsdk.factory.Factories;
-import net.tridentsdk.server.TridentScheduler;
-import net.tridentsdk.server.threads.ThreadsManager;
 import org.openjdk.jcstress.annotations.*;
 import org.openjdk.jcstress.infra.results.BooleanResult4;
 
-import java.nio.file.Paths;
+import java.util.*;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentMap;
 
 @JCStressTest
@@ -43,49 +37,111 @@ import java.util.concurrent.ConcurrentMap;
 @Outcome(expect = Expect.FORBIDDEN)
 @State
 public class CacheTest {
-    static {
-        Factories.init(new ConfigFactory() {
-            @Override
-            public JsonConfig serverConfig() {
-                return new JsonConfig(Paths.get("/topkek"));
-            }
-        });
-        Factories.init(new CollectFactory() {
-            @Override
-            public <K, V> ConcurrentMap<K, V> createMap() {
-                return new ConcurrentHashMapV8<>();
-            }
-        });
-        Factories.init(new TridentScheduler());
-        Factories.init(new ThreadsManager());
-    }
+    private final ConcurrentCache<Object, Object> cache = new ConcurrentCache<>();
 
     @Actor
     public void insertNullValue(BooleanResult4 result4) {
-        ConcurrentCache<Object, Object> cache = new ConcurrentCache<>();
-        final Object object = new Object();
-        cache.retrieve(object, () -> null);
-        result4.r1 = cache.remove(object) == null;
+        Object object = new Object();
+        try {
+            cache.retrieve(object, () -> null);
+        } catch (Exception e) {
+            result4.r1 = true;
+        }
     }
 
     @Actor
     public void insertNullKey(BooleanResult4 result4) {
-        ConcurrentCache<Object, Object> cache = new ConcurrentCache<>();
         try {
             cache.retrieve(null, () -> null);
-        } catch (NullPointerException e) {
+        } catch (Exception e) {
             result4.r2 = true;
         }
     }
 
     @Actor
     public void insertRemove(BooleanResult4 result4) {
-        ConcurrentCache<Object, Object> cache = new ConcurrentCache<>();
         final Object object = new Object();
         cache.retrieve(object, () -> object);
 
         Object removed = cache.remove(object);
         if (removed == object && cache.remove(object) == null)
             result4.r3 = true;
+    }
+
+    public static class ConcurrentCache<K, V> {
+        private static final Object PLACE_HOLDER = new Object();
+        private final ConcurrentMap<K, Object> cache = new ConcurrentHashMapV8<>();
+
+        /**
+         * Retrieves the key in the cache, or adds the return value of the callable provided
+         *
+         * @param k        the key to retrieve the value from, or assign it to
+         * @param callable the result of which to assign the key a value if the key is not in the cache
+         * @return the return value of the callable
+         */
+        public V retrieve(K k, Callable<V> callable) {
+            Object value = cache.get(k);
+            if (value == null) {
+                V v = null;
+                value = cache.putIfAbsent(k, PLACE_HOLDER);
+                if (value == null) {
+                    try {
+                        v = callable.call();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                    cache.replace(k, PLACE_HOLDER, v);
+                    value = v;
+                }
+            }
+
+            return (V) value;
+        }
+
+        public Set<K> keys() {
+            return this.cache.keySet();
+        }
+
+        /**
+         * The values of the cache
+         *
+         * @return the cache values
+         */
+        public Collection<V> values() {
+            Collection<V> list = new ArrayList<>();
+            for (Object v : this.cache.values())
+                list.add((V) v);
+
+            return list;
+        }
+
+        /**
+         * Removes the entry assigned to the specified key
+         *
+         * @param k the key to remove the entry for
+         * @return the old value assigned to the key, otherwise, {@code null} if not in the cache
+         */
+        public V remove(K k) {
+            Object val = this.cache.get(k);
+
+            if (val == null)
+                return null;
+
+            this.cache.remove(k);
+            return (V) val;
+        }
+
+        /**
+         * Returns the backing map of this cache
+         *
+         * @return the underlying map
+         */
+        public Set<Map.Entry<K, V>> entries() {
+            Set<Map.Entry<K, V>> entries = new HashSet<>();
+            for (Map.Entry<K, Object> entry : cache.entrySet())
+                entries.add(new AbstractMap.SimpleEntry<>(entry.getKey(), (V) entry.getValue()));
+            return entries;
+        }
     }
 }

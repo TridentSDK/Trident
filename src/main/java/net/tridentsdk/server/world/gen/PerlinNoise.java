@@ -143,7 +143,7 @@ public class PerlinNoise {
         return new Vec2D(newx, newy);
     }
 
-    public class Vec2D {
+    public static class Vec2D {
         private float x;
         private float y;
 

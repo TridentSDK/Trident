@@ -59,7 +59,7 @@ public class TridentWorld implements World {
 
         spawnLocation = Coordinates.create(this, 0d, 0d, 0d);
 
-        
+
         TridentLogger.log("Starting to load " + name + "...");
         TridentLogger.log("Attempting to load level.dat...");
 
@@ -67,8 +67,9 @@ public class TridentWorld implements World {
         File levelFile = new File(directory, "level.dat");
         CompoundTag level;
 
+        InputStream fis = null;
         try {
-            InputStream fis = new FileInputStream(levelFile);
+            fis = new FileInputStream(levelFile);
 
             byte[] compressedData = new byte[fis.available()];
             fis.read(compressedData);
@@ -82,6 +83,14 @@ public class TridentWorld implements World {
             TridentLogger.log("Unable to load level.dat! Printing stacktrace...");
             TridentLogger.error(ex);
             return;
+        } finally {
+            try {
+                if (fis != null) {
+                    fis.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         TridentLogger.log("Loading values of level.dat....");
@@ -119,11 +128,12 @@ public class TridentWorld implements World {
             for (File f : playerData.listFiles(new PlayerFilter())) {
                 CompoundTag opData;
 
+                InputStream input = null;
                 try {
-                    InputStream fis = new FileInputStream(levelFile);
+                    input = new FileInputStream(levelFile);
 
-                    byte[] compressedData = new byte[fis.available()];
-                    fis.read(compressedData);
+                    byte[] compressedData = new byte[input.available()];
+                    input.read(compressedData);
 
                     opData = new NBTDecoder(new DataInputStream(new ByteArrayInputStream(ByteStreams.
                             toByteArray(new GZIPInputStream(new ByteArrayInputStream(compressedData)))))).decode();
@@ -131,6 +141,14 @@ public class TridentWorld implements World {
                     TridentLogger.log("Unable to load " + f.getName() + "! Printing stacktrace...");
                     TridentLogger.error(ex);
                     continue;
+                } finally {
+                    try {
+                        if (input != null) {
+                            input.close();
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
 
                 new OfflinePlayer(opData, this); // will automatically register itself

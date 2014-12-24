@@ -50,7 +50,7 @@ public class PacketPlayOutPlayerListItem extends OutPacket {
         }
     }
 
-    public class PlayerListDataBuilder {
+    public static class PlayerListDataBuilder {
         protected UUID id;
         protected Object[] values;
 
