@@ -1,4 +1,7 @@
-before_install: git clone -b travis `git config --get remote.origin.url` target/travis
+before_install:
+  - git clone -b travis `git config --get remote.origin.url` target/travis
+  - chmod 777 "scripts/javadoc.sh"
+after_success: sh scripts/javadoc.sh
 script: mvn clean install deploy --settings target/travis/settings.xml
 language: java
 notifications:
