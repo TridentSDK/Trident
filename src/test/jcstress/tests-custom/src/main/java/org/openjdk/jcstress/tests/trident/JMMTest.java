@@ -24,51 +24,39 @@
  */
 package org.openjdk.jcstress.tests.trident;
 
-import net.tridentsdk.base.Substance;
-import net.tridentsdk.window.inventory.Item;
 import org.openjdk.jcstress.annotations.*;
 import org.openjdk.jcstress.infra.results.BooleanResult2;
 
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicReferenceArray;
 
 @JCStressTest
 @Outcome(id = "[true, true]", expect = Expect.ACCEPTABLE, desc = "JMM works like it should")
 @Outcome(id = "[false, true]", expect = Expect.FORBIDDEN, desc = "Volatile array does not work")
 @Outcome(expect = Expect.FORBIDDEN)
-@State
 public class JMMTest {
     // volatileArray
-    private volatile Item[] items = new Item[10];
+    private AtomicReferenceArray<Item> items = new AtomicReferenceArray<>(10);
 
     // volatileObject
     private final Object original = new Object();
     private volatile Object object = original;
 
-    private static final ExecutorService SERVICE = Executors.newFixedThreadPool(2);
-
     /**
      * Tests visibility of an object array
      */
     @Actor
-    public void volatileArray(BooleanResult2 result2) {
-        Item[] items1 = items;
-        Item item =  new Item(Substance.ACACIA_DOOR);
-        items1[0] = item;
-        Item[] read = items;
-
-        new Thread(() -> {
-            if (items[0] == item)
-                result2.r1 = true;
-        }).start();
+    public void volatileArray(Item item, BooleanResult2 result2) {
+        synchronized (original) {
+            items.set(0, item);
+        }
     }
 
     /**
      * Tests the visibility of an object set to a volatile field
      */
     @Actor
-    public void volatileObject(BooleanResult2 result2) {
+    public void volatileObject(Item item, BooleanResult2 result2) {
         final CountDownLatch latch = new CountDownLatch(1);
         new Thread(() -> {
             object = new Object();
@@ -80,8 +68,20 @@ public class JMMTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    @Arbiter
+    public void check(Item item, BooleanResult2 result2) {
+        synchronized (original) {
+            if (items.get(0) == item)
+                result2.r1 = true;
+        }
 
         if (object != null && object != original)
             result2.r2 = true;
+    }
+
+    @State
+    public static class Item {
     }
 }

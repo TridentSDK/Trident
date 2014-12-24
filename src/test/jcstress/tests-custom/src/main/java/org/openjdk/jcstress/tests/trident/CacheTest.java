@@ -35,12 +35,11 @@ import java.util.concurrent.ConcurrentMap;
 @JCStressTest
 @Outcome(id = "[true, true, true, false]", expect = Expect.ACCEPTABLE, desc = "Map works correctly")
 @Outcome(expect = Expect.FORBIDDEN)
-@State
 public class CacheTest {
-    private final ConcurrentCache<Object, Object> cache = new ConcurrentCache<>();
+    private final Object object = new Object();
 
     @Actor
-    public void insertNullValue(BooleanResult4 result4) {
+    public void insertNullValue(ConcurrentCache<Object, Object> cache, BooleanResult4 result4) {
         Object object = new Object();
         try {
             cache.retrieve(object, () -> null);
@@ -50,24 +49,27 @@ public class CacheTest {
     }
 
     @Actor
-    public void insertNullKey(BooleanResult4 result4) {
+    public void insertNullKey(ConcurrentCache<Object, Object> cache, BooleanResult4 result4) {
         try {
-            cache.retrieve(null, () -> null);
+            cache.retrieve(null, () -> object);
         } catch (Exception e) {
             result4.r2 = true;
         }
     }
 
     @Actor
-    public void insertRemove(BooleanResult4 result4) {
-        final Object object = new Object();
+    public void insertRemove(ConcurrentCache<Object, Object> cache, BooleanResult4 result4) {
         cache.retrieve(object, () -> object);
+    }
 
+    @Arbiter
+    public void check(ConcurrentCache<Object, Object> cache, BooleanResult4 result4) {
         Object removed = cache.remove(object);
         if (removed == object && cache.remove(object) == null)
             result4.r3 = true;
     }
 
+    @State
     public static class ConcurrentCache<K, V> {
         private static final Object PLACE_HOLDER = new Object();
         private final ConcurrentMap<K, Object> cache = new ConcurrentHashMapV8<>();

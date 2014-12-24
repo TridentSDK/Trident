@@ -149,8 +149,6 @@ public final class TridentServer implements Server {
         TridentLogger.log("Shutting down server process...");
         ThreadsManager.stopAll();
         TridentLogger.log("Server shutdown successfully.");
-
-        System.exit(0);
     }
 
     @Override

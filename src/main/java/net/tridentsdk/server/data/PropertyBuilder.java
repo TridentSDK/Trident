@@ -19,6 +19,7 @@ package net.tridentsdk.server.data;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.docs.Volatile;
 import net.tridentsdk.server.netty.Codec;
+import net.tridentsdk.util.ArrayTool;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -98,7 +99,7 @@ public class PropertyBuilder implements Writable {
      * @return the property array
      */
     public String[] getModifiers() {
-        return this.modifiers;
+        return this.modifiers.clone();
     }
 
     /**
@@ -130,7 +131,7 @@ public class PropertyBuilder implements Writable {
             }
         }
 
-        this.modifiers = (String[]) list.toArray(); // Not even sure if this will work...
+        this.modifiers = ArrayTool.using(list.toArray()).convertTo(String.class);
         return this;
     }
 
