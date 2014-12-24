@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # This script was originally written by maxiaohao in the aws-mock GitHub project.
 # https://github.com/treelogic-swe/aws-mock/
 
