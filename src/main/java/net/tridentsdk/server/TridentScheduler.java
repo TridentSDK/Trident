@@ -28,6 +28,7 @@ import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * TridentScheduler is a scheduling utility that is used to reflect ScheduledTasks at a given offset of the current epoch of the
@@ -136,14 +137,14 @@ public class TridentScheduler implements TaskFactory {
         private final TaskExecutor executor;
         private final Runnable runner;
 
-        private volatile long interval;
-        private volatile long run = 0;
+        private final AtomicLong interval = new AtomicLong();
+        private final AtomicLong run = new AtomicLong(0);
 
         public ScheduledTaskImpl(TridentPlugin plugin, SchedulerType type, final TridentRunnable runnable, long step) {
             this.plugin = plugin;
             this.type = type;
             this.runnable = runnable;
-            this.interval = step;
+            this.interval.set(step);
 
             switch (type) {
                 case ASYNC_RUN:
@@ -164,13 +165,13 @@ public class TridentScheduler implements TaskFactory {
                         @Override
                         public void run() {
                             // May be over if the interval set lower
-                            if (run >= interval) {
+                            if (run.get() >= interval.get()) {
                                 runnable.prerunSync();
                                 runnable.run();
                                 runnable.runAfterAsync();
                                 cancel();
                             }
-                            ++run;
+                            run.incrementAndGet();
                         }
                     };
                     this.executor = taskExecutor.assign(this);
@@ -181,15 +182,15 @@ public class TridentScheduler implements TaskFactory {
                         @Override
                         public void run() {
                             // May be over if the interval set lower
-                            if (run >= interval) {
-                                run = 0;
+                            if (run.get() >= interval.get()) {
+                                run.set(0);
 
                                 runnable.prerunSync();
                                 runnable.run();
                                 runnable.runAfterAsync();
                             }
 
-                            ++run;
+                            run.incrementAndGet();
                         }
                     };
                     this.executor = taskExecutor.assign(this);
@@ -213,13 +214,13 @@ public class TridentScheduler implements TaskFactory {
                         @Override
                         public void run() {
                             // May be over if the interval set lower
-                            if (run >= interval) {
+                            if (run.get() >= interval.get()) {
                                 runnable.prerunSync();
                                 runnable.run();
                                 runnable.runAfterSync();
                                 cancel();
                             }
-                            ++run;
+                            run.incrementAndGet();
                         }
                     };
                     this.executor = plugin.getExecutor();
@@ -230,14 +231,14 @@ public class TridentScheduler implements TaskFactory {
                         @Override
                         public void run() {
                             // May be over if the interval set lower
-                            if (run >= interval) {
-                                run = 0;
+                            if (run.get() >= interval.get()) {
+                                run.set(0);
 
                                 runnable.prerunSync();
                                 runnable.run();
                                 runnable.runAfterSync();
                             }
-                            ++run;
+                            run.incrementAndGet();
                         }
                     };
                     this.executor = plugin.getExecutor();
@@ -251,12 +252,12 @@ public class TridentScheduler implements TaskFactory {
 
         @Override
         public void setInterval(long interval) {
-            this.interval = interval;
+            this.interval.set(interval);
         }
 
         @Override 
         public long getInterval() {
-            return this.interval;
+            return this.interval.get();
         }
 
         @Override

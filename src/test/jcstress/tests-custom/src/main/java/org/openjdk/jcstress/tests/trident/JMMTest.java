@@ -47,9 +47,7 @@ public class JMMTest {
      */
     @Actor
     public void volatileArray(Item item, BooleanResult2 result2) {
-        synchronized (original) {
-            items.set(0, item);
-        }
+        items.set(0, item);
     }
 
     /**
@@ -72,10 +70,8 @@ public class JMMTest {
 
     @Arbiter
     public void check(Item item, BooleanResult2 result2) {
-        synchronized (original) {
-            if (items.get(0) == item)
-                result2.r1 = true;
-        }
+        if (items.get(0) == item)
+            result2.r1 = true;
 
         if (object != null && object != original)
             result2.r2 = true;
