@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.threads;
 
 import net.tridentsdk.entity.living.Player;
@@ -27,8 +28,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @author The TridentSDK Team
  */
-@ThreadSafe
-public class MainThread extends Thread {
+@ThreadSafe public class MainThread extends Thread {
     private static MainThread instance;
     private final AtomicInteger ticksElapsed = new AtomicInteger();
     private final AtomicInteger notLostTicksElapsed = new AtomicInteger();

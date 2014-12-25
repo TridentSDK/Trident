@@ -22,10 +22,10 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
+
 package org.openjdk.jcstress.infra;
 
 import org.openjdk.jcstress.annotations.Expect;
-
 
 public class StateCase {
 

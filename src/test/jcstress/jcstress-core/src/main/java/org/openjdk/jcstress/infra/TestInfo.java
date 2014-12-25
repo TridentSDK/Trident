@@ -22,6 +22,7 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
+
 package org.openjdk.jcstress.infra;
 
 import org.openjdk.jcstress.annotations.Expect;
@@ -36,8 +37,8 @@ public class TestInfo {
     private final int threads;
     private final boolean requiresFork;
     private final Collection<StateCase> stateCases;
-    private StateCase unmatched;
     private final Collection<String> refs;
+    private StateCase unmatched;
 
     public TestInfo(String name, String runner, String description, int threads, boolean requiresFork) {
         this.name = name;

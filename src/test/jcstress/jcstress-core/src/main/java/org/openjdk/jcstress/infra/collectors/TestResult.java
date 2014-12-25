@@ -22,6 +22,7 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
+
 package org.openjdk.jcstress.infra.collectors;
 
 import org.openjdk.jcstress.infra.State;
@@ -29,12 +30,7 @@ import org.openjdk.jcstress.infra.Status;
 import org.openjdk.jcstress.util.Environment;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * @author Aleksey Shipilev (aleksey.shipilev@oracle.com)
@@ -46,9 +42,9 @@ public class TestResult implements Serializable {
     private final String vmID;
     private final String name;
     private final Map<State, State> states;
-    private volatile Environment env;
     private final Status status;
     private final List<String> auxData;
+    private volatile Environment env;
 
     public TestResult(String name, Status status) {
         this.vmID = VM_ID;
@@ -71,10 +67,6 @@ public class TestResult implements Serializable {
         auxData.add(data);
     }
 
-    public void setEnv(Environment e) {
-        env = e;
-    }
-
     public String getName() {
         return name;
     }
@@ -85,6 +77,10 @@ public class TestResult implements Serializable {
 
     public Environment getEnv() {
         return env;
+    }
+
+    public void setEnv(Environment e) {
+        env = e;
     }
 
     public Status status() {

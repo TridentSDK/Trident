@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.login;
 
 import com.google.gson.JsonArray;
@@ -76,7 +77,7 @@ public class PacketLoginInStart extends InPacket {
         /*
          * If the client is the local machine, skip the encryption process and proceed to the PLAY stage
          */
-        if(connection.getAddress().getHostString().equals("127.0.0.1")) {
+        if (connection.getAddress().getHostString().equals("127.0.0.1")) {
             UUID id;
 
             try {
@@ -97,7 +98,7 @@ public class PacketLoginInStart extends InPacket {
                 int responseCode = c.getResponseCode();
 
                 // if the response isn't 200 OK, logout and inform the client of so
-                if(responseCode != 200) {
+                if (responseCode != 200) {
                     connection.sendPacket(new PacketLoginOutDisconnect().setJsonMessage("Unable retrieve UUID"));
 
                     connection.logout();
@@ -121,9 +122,9 @@ public class PacketLoginInStart extends InPacket {
                 // parse the response and set the ID
                 JsonArray array = PacketLoginInEncryptionResponse.GSON.fromJson(sb.toString(), JsonArray.class);
 
-                id = UUID.fromString(PacketLoginInEncryptionResponse.idDash
-                        .matcher(array.getAsJsonArray().get(0).getAsJsonObject().get("id").getAsString())
-                        .replaceAll("$1-$2-$3-$4-$5"));
+                id = UUID.fromString(PacketLoginInEncryptionResponse.idDash.matcher(
+                        array.getAsJsonArray().get(0).getAsJsonObject().get("id").getAsString())
+                                             .replaceAll("$1-$2-$3-$4-$5"));
             } catch (Exception e) {
                 TridentLogger.error(e);
                 return;

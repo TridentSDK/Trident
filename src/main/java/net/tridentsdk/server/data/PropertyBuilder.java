@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.data;
 
 import io.netty.buffer.ByteBuf;
@@ -39,7 +40,7 @@ public class PropertyBuilder implements Writable {
      * Creates a 0 length property array
      */
     public PropertyBuilder() {
-        this.modifiers = new String[]{};
+        this.modifiers = new String[] { };
     }
 
     /**

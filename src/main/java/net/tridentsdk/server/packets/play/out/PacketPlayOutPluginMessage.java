@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
@@ -22,6 +23,8 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutPluginMessage extends OutPacket {
 
+    public static final OutPacket VANILLA_CHANNEL = new PacketPlayOutPluginMessage().set("channel", "MC|Brand")
+            .set("data", new byte[] { 'v', 'a', 'n', 'i', 'l', 'l', 'a' });
     protected String channel;
     protected byte[] data;
 
@@ -44,9 +47,4 @@ public class PacketPlayOutPluginMessage extends OutPacket {
         Codec.writeVarInt32(buf, data.length);
         buf.writeBytes(this.data);
     }
-
-    public static final OutPacket VANILLA_CHANNEL = new PacketPlayOutPluginMessage()
-            .set("channel","MC|Brand")
-            .set("data", new byte[]{'v','a','n','i','l','l','a'});
-
 }

@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
@@ -43,8 +44,9 @@ public class PacketPlayInBlockPlace extends InPacket {
     public Packet decode(ByteBuf buf) {
         long encodedLocation = buf.readLong();
 
-        this.location = Coordinates.create(null, (double) (encodedLocation >> 38), (double) (encodedLocation << 26 >> 52),
-                (double) (encodedLocation << 38 >> 38));
+        this.location = Coordinates.create(null, (double) (encodedLocation >> 38),
+                                           (double) (encodedLocation << 26 >> 52),
+                                           (double) (encodedLocation << 38 >> 38));
         this.direction = buf.readByte();
 
         // ignore held item

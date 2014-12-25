@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.entity.decorate;
 
 import net.tridentsdk.entity.Entity;
@@ -58,8 +59,8 @@ public final class Decorator {
         };
     }
 
-    public static DecoratedInventoryHolder newInventoryHolder(Entity entity, String string, int size,
-                                                              InventoryType type) {
+    public static DecoratedInventoryHolder newInventoryHolder(Entity entity, String string, int size, InventoryType
+            type) {
         return new DecoratedInventoryHolder(entity, string, size, type);
     }
 

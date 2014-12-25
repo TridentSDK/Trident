@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.window;
 
 import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
@@ -28,8 +29,7 @@ import java.util.Map;
  *
  * @author The TridentSDK Team
  */
-@ThreadSafe
-public class WindowManager {
+@ThreadSafe public class WindowManager {
     private static final Map<Integer, TridentWindow> windows = new ConcurrentHashMapV8<>();
 
     /**

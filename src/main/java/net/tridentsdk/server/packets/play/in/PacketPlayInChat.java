@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
@@ -56,8 +57,7 @@ public class PacketPlayInChat extends InPacket {
         TridentPlayer player = pc.getPlayer();
         OutPacket packet = new PacketPlayOutChatMessage();
 
-        packet.set("jsonMessage", new MessageBuilder(String
-                .format("<%s> %s", player.getDisplayName(), this.message)));
+        packet.set("jsonMessage", new MessageBuilder(String.format("<%s> %s", player.getDisplayName(), this.message)));
 
         TridentPlayer.sendAll(packet);
     }

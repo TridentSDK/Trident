@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.netty.packet;
 
 import io.netty.buffer.ByteBuf;
@@ -27,7 +28,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.zip.Deflater;
-import java.util.zip.DeflaterOutputStream;
 
 /**
  * @author The TridentSDK Team
@@ -46,9 +46,9 @@ public class PacketEncoder extends MessageToByteEncoder<ByteBuf> {
         int treshold = TridentServer.getInstance().getCompressionThreshold();
         boolean underThreshold = msg.readableBytes() < treshold && treshold != -1;
 
-        if(underThreshold && connection.isCompressionEnabled()) {
+        if (underThreshold && connection.isCompressionEnabled()) {
             sendDecompressed(msg, out);
-        } else if(!(underThreshold) && connection.isCompressionEnabled()) {
+        } else if (!(underThreshold) && connection.isCompressionEnabled()) {
             sendCompressed(msg, out);
         } else {
             Codec.writeVarInt32(out, msg.readableBytes());
@@ -85,7 +85,7 @@ public class PacketEncoder extends MessageToByteEncoder<ByteBuf> {
         int afterCompress = compressed.toByteArray().length;
 
         // Equals or more than original size
-        if(afterCompress == length || afterCompress > length) {
+        if (afterCompress == length || afterCompress > length) {
             msg.readerIndex(index);
             sendDecompressed(msg, out);
             return;

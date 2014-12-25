@@ -22,6 +22,7 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
+
 package org.openjdk.jcstress.infra.grading;
 
 import org.openjdk.jcstress.Options;
@@ -58,16 +59,14 @@ public class ConsoleReportPrinter implements TestResultCollector {
     private final int expectedTests;
     private final int expectedIterations;
     private final int expectedForks;
-
-    private AtomicLong observedResults = new AtomicLong();
-    private AtomicLong observedCount = new AtomicLong();
-
     private final ConcurrentMap<String, TestProgress> testsProgress = new ConcurrentHashMap<>();
     private final int totalExpectedResults;
-
+    private AtomicLong observedResults = new AtomicLong();
+    private AtomicLong observedCount = new AtomicLong();
     private long firstTest;
 
-    public ConsoleReportPrinter(Options opts, PrintWriter pw, int expectedTests) throws JAXBException, FileNotFoundException {
+    public ConsoleReportPrinter(Options opts, PrintWriter pw, int expectedTests) throws JAXBException,
+            FileNotFoundException {
         this.opts = opts;
         this.output = pw;
         this.expectedTests = expectedTests;
@@ -75,6 +74,19 @@ public class ConsoleReportPrinter implements TestResultCollector {
         this.expectedIterations = opts.getIterations();
         this.totalExpectedResults = expectedTests * opts.getIterations() * (opts.getForks() > 0 ? opts.getForks() : 1);
         verbose = opts.isVerbose();
+    }
+
+    private static String cutoff(String src, int len) {
+        while (src.contains("  ")) {
+            src = src.replaceAll("  ", " ");
+        }
+        String trim = src.replaceAll("\n", "").trim();
+        String substring = trim.substring(0, Math.min(len - 3, trim.length()));
+        if (!substring.equals(trim)) {
+            return substring + "...";
+        } else {
+            return substring;
+        }
     }
 
     @Override
@@ -154,19 +166,18 @@ public class ConsoleReportPrinter implements TestResultCollector {
 
             TestInfo test = TestList.getInfo(r.getName());
             if (test == null) {
-                output.printf("%" + len + "s %15s %18s %-20s\n", "Observed state", "Occurrences", "Expectation", "Interpretation");
+                output.printf("%" + len + "s %15s %18s %-20s\n", "Observed state", "Occurrences", "Expectation",
+                              "Interpretation");
                 for (State s : r.getStates()) {
-                    output.printf("%" + len + "s (%,13d) %18s %-40s\n",
-                            cutoff(s.getId(), len),
-                            s.getCount(),
-                            Expect.UNKNOWN,
-                            "N/A");
+                    output.printf("%" + len + "s (%,13d) %18s %-40s\n", cutoff(s.getId(), len), s.getCount(),
+                                  Expect.UNKNOWN, "N/A");
                 }
 
                 return;
             }
 
-            output.printf("%" + len + "s %15s %18s %-20s\n", "Observed state", "Occurrences", "Expectation", "Interpretation");
+            output.printf("%" + len + "s %15s %18s %-20s\n", "Observed state", "Occurrences", "Expectation",
+                          "Interpretation");
 
             List<State> unmatchedStates = new ArrayList<>();
             unmatchedStates.addAll(r.getStates());
@@ -176,56 +187,34 @@ public class ConsoleReportPrinter implements TestResultCollector {
                 for (State s : r.getStates()) {
                     if (c.state().equals(s.getId())) {
                         // match!
-                        output.printf("%" + len + "s (%,13d) %18s %-60s\n",
-                                cutoff(s.getId(), len),
-                                s.getCount(),
-                                c.expect(),
-                                cutoff(c.description(), 60));
+                        output.printf("%" + len + "s (%,13d) %18s %-60s\n", cutoff(s.getId(), len), s.getCount(),
+                                      c.expect(), cutoff(c.description(), 60));
                         matched = true;
                         unmatchedStates.remove(s);
                     }
                 }
 
                 if (!matched) {
-                    output.printf("%" + len + "s (%,13d) %18s %-60s\n",
-                                cutoff(c.state(), len),
-                                0,
-                                c.expect(),
-                                cutoff(c.description(), 60));
+                    output.printf("%" + len + "s (%,13d) %18s %-60s\n", cutoff(c.state(), len), 0, c.expect(),
+                                  cutoff(c.description(), 60));
                 }
             }
 
             for (State s : unmatchedStates) {
-                output.printf("%" + len + "s (%,13d) %18s %-60s\n",
-                        cutoff(s.getId(), len),
-                        s.getCount(),
-                        test.unmatched().expect(),
-                        cutoff(test.unmatched().description(), 60));
+                output.printf("%" + len + "s (%,13d) %18s %-60s\n", cutoff(s.getId(), len), s.getCount(),
+                              test.unmatched().expect(), cutoff(test.unmatched().description(), 60));
             }
 
             output.println();
         }
     }
 
-    private static String cutoff(String src, int len) {
-        while (src.contains("  ")) {
-            src = src.replaceAll("  ", " ");
-        }
-        String trim = src.replaceAll("\n", "").trim();
-        String substring = trim.substring(0, Math.min(len - 3, trim.length()));
-        if (!substring.equals(trim)) {
-            return substring + "...";
-        } else {
-            return substring;
-        }
-    }
-
     private PrintWriter printLine(PrintWriter output, String label, TestResult r) {
-        return output.printf(" (ETA: %10s) (R: %s) (T:%4d/%d) (F:%2d/%d) (I:%2d/%d) %10s %s\n",
-                computeETA(),
-                computeSpeed(),
-                testsProgress.size(), expectedTests, testsProgress.get(r.getName()).getVMindex(r.getVmID()), expectedForks, testsProgress.get(r.getName()).getIteration(r.getVmID()), expectedIterations,
-                "[" + label + "]", chunkName(r.getName()));
+        return output.printf(" (ETA: %10s) (R: %s) (T:%4d/%d) (F:%2d/%d) (I:%2d/%d) %10s %s\n", computeETA(),
+                             computeSpeed(), testsProgress.size(), expectedTests,
+                             testsProgress.get(r.getName()).getVMindex(r.getVmID()), expectedForks,
+                             testsProgress.get(r.getName()).getIteration(r.getVmID()), expectedIterations,
+                             "[" + label + "]", chunkName(r.getName()));
     }
 
     private String computeSpeed() {
@@ -240,7 +229,7 @@ public class ConsoleReportPrinter implements TestResultCollector {
             return "n/a";
         }
 
-        long nsToGo = (long)(timeSpent * (1.0 * (totalExpectedResults - 1) / resultsGot - 1));
+        long nsToGo = (long) (timeSpent * (1.0 * (totalExpectedResults - 1) / resultsGot - 1));
         if (nsToGo > 0) {
             String result = "";
             long days = TimeUnit.NANOSECONDS.toDays(nsToGo);
@@ -269,12 +258,11 @@ public class ConsoleReportPrinter implements TestResultCollector {
 
     private static class TestProgress {
         private final String name;
-
-        private int currentVM;
         private final Map<String, Integer> vmIDs = new HashMap<>();
         private final Map<String, Integer> iterations = new HashMap<>();
+        private int currentVM;
 
-        public TestProgress(TestResult result){
+        public TestProgress(TestResult result) {
             this.name = result.getName();
         }
 
@@ -324,5 +312,4 @@ public class ConsoleReportPrinter implements TestResultCollector {
             }
         }
     }
-
 }

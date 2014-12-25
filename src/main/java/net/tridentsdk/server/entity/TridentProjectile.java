@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.entity;
 
 import net.tridentsdk.Coordinates;
@@ -73,29 +74,29 @@ public abstract class TridentProjectile extends TridentEntity implements Project
             @Override
             public void run() {
                 if (impalable[0] == null) {
-                    if (last == null)
-                        last = getLocation();
+                    if (last == null) last = getLocation();
                     else if (getLocation().equals(last)) {
                         countCheck++;
                         if (countCheck == 10) {
                             if (((Entity) impalable[0]).getLocation().equals(last)) {
                                 for (Entity entity : getNearbyEntities(1)) {
-                                    if (entity instanceof Impalable)
-                                        if (impalable[0] == null ||
-                                                ((Entity) impalable[0]).getLocation().distanceSquared(getLocation()) >
-                                                        entity.getLocation().distanceSquared(getLocation())) {
-                                            impalable[0] = (Impalable) entity;
-                                        }
+                                    if (entity instanceof Impalable) if (impalable[0] == null || ((Entity) impalable[0])
+                                            .getLocation()
+                                            .distanceSquared(getLocation()) > entity.getLocation()
+                                            .distanceSquared(getLocation())) {
+                                        impalable[0] = (Impalable) entity;
+                                    }
                                 }
 
                                 if (impalable[0] == null) {
                                     Tile tile = getLocation().getTile();
                                     if (tile.getSubstance() == Substance.AIR) {
                                         for (int i = 0; i < 2; i++) {
-                                            Tile newTile = getLocation().toVector().multiply(i)
-                                                    .toLocation(getLocation().getWorld()).getTile();
-                                            if (newTile.getSubstance() != Substance.AIR)
-                                                impalable[0] = newTile;
+                                            Tile newTile = getLocation().toVector()
+                                                    .multiply(i)
+                                                    .toLocation(getLocation().getWorld())
+                                                    .getTile();
+                                            if (newTile.getSubstance() != Substance.AIR) impalable[0] = newTile;
                                         }
                                     }
                                 }
@@ -122,6 +123,11 @@ public abstract class TridentProjectile extends TridentEntity implements Project
     }
 
     @Override
+    public ProjectileLauncher getLauncher() {
+        return this.source.get();
+    }
+
+    @Override
     public void setLauncher(final ProjectileLauncher shooter) {
         super.executor.addTask(new Runnable() {
             @Override
@@ -129,10 +135,5 @@ public abstract class TridentProjectile extends TridentEntity implements Project
                 TridentProjectile.this.source = new WeakReference<>(shooter);
             }
         });
-    }
-
-    @Override
-    public ProjectileLauncher getLauncher() {
-        return this.source.get();
     }
 }

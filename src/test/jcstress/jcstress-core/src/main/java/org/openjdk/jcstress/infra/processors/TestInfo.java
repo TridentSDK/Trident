@@ -22,13 +22,10 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
+
 package org.openjdk.jcstress.infra.processors;
 
-import org.openjdk.jcstress.annotations.Arbiter;
-import org.openjdk.jcstress.annotations.Outcome;
-import org.openjdk.jcstress.annotations.Result;
-import org.openjdk.jcstress.annotations.Signal;
-import org.openjdk.jcstress.annotations.State;
+import org.openjdk.jcstress.annotations.*;
 
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
@@ -61,28 +58,34 @@ public class TestInfo {
         actors.add(element);
     }
 
+    public TypeElement getState() {
+        return state;
+    }
+
     public void setState(TypeElement element) {
         if (state == null || state.equals(element)) {
             state = element;
         } else {
-            throw new GenerationException("We can only have a single @" + State.class.getSimpleName() + " per test.", element);
+            throw new GenerationException("We can only have a single @" + State.class.getSimpleName() + " per test.",
+                                          element);
         }
     }
 
-    public void setArbiter(ExecutableElement element) {
-        if (arbiter == null || arbiter.equals(element)) {
-            arbiter = element;
-        } else {
-            throw new GenerationException("We can only have a single @" + Arbiter.class.getSimpleName() + " per test.", element);
-        }
+    public TypeElement getResult() {
+        return result;
     }
 
     public void setResult(TypeElement element) {
         if (result == null || result.equals(element)) {
             result = element;
         } else {
-            throw new GenerationException("We can only have a single @" + Result.class.getSimpleName() + " per test.", element);
+            throw new GenerationException("We can only have a single @" + Result.class.getSimpleName() + " per test.",
+                                          element);
         }
+    }
+
+    public TypeElement getTest() {
+        return test;
     }
 
     public void setTest(TypeElement element) {
@@ -93,26 +96,6 @@ public class TestInfo {
         }
     }
 
-    public void setSignal(ExecutableElement element) {
-        if (signal == null || signal.equals(element)) {
-            signal = element;
-        } else {
-            throw new GenerationException("We can only have a single @" + Signal.class.getName() + " method.", element);
-        }
-    }
-
-    public TypeElement getState() {
-        return state;
-    }
-
-    public TypeElement getResult() {
-        return result;
-    }
-
-    public TypeElement getTest() {
-        return test;
-    }
-
     public List<ExecutableElement> getActors() {
         return actors;
     }
@@ -121,24 +104,41 @@ public class TestInfo {
         return arbiter;
     }
 
+    public void setArbiter(ExecutableElement element) {
+        if (arbiter == null || arbiter.equals(element)) {
+            arbiter = element;
+        } else {
+            throw new GenerationException("We can only have a single @" + Arbiter.class.getSimpleName() + " per test.",
+                                          element);
+        }
+    }
+
     public ExecutableElement getSignal() {
         return signal;
     }
 
-    public void setGeneratedName(String generatedName) {
-        this.generatedName = generatedName;
+    public void setSignal(ExecutableElement element) {
+        if (signal == null || signal.equals(element)) {
+            signal = element;
+        } else {
+            throw new GenerationException("We can only have a single @" + Signal.class.getName() + " method.", element);
+        }
     }
 
     public String getGeneratedName() {
         return generatedName;
     }
 
-    public void setRequiresFork(boolean requiresFork) {
-        this.requiresFork = requiresFork;
+    public void setGeneratedName(String generatedName) {
+        this.generatedName = generatedName;
     }
 
     public boolean isRequiresFork() {
         return requiresFork;
+    }
+
+    public void setRequiresFork(boolean requiresFork) {
+        this.requiresFork = requiresFork;
     }
 
     public void addCase(Outcome c) {

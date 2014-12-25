@@ -19,4 +19,5 @@
  *
  * @author The TridentSDK Team
  */
+
 package net.tridentsdk.server.data;

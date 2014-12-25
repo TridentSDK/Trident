@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.threads;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -25,8 +26,7 @@ import java.util.concurrent.Executors;
  *
  * @author The TridentSDK Team
  */
-@ThreadSafe
-public final class BackgroundTaskExecutor {
+@ThreadSafe public final class BackgroundTaskExecutor {
     static final ExecutorService SERVICE = Executors.newCachedThreadPool();
 
     private BackgroundTaskExecutor() {

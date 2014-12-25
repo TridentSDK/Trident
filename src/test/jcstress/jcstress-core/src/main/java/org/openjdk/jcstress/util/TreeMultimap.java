@@ -46,14 +46,11 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
+
 package org.openjdk.jcstress.util;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 public class TreeMultimap<K, V> implements Multimap<K, V>, Serializable {
 

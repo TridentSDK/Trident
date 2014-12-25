@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
@@ -83,8 +84,7 @@ public class PacketPlayInEntityAction extends InPacket {
 
         public static ActionType getAction(int id) {
             for (ActionType type : ActionType.values()) {
-                if (type.id == id)
-                    return type;
+                if (type.id == id) return type;
             }
 
             TridentLogger.error(new IllegalArgumentException(id + " is not a valid ActionType id!"));

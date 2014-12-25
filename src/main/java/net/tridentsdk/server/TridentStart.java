@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server;
 
 import io.netty.bootstrap.ServerBootstrap;
@@ -47,15 +48,12 @@ import java.util.concurrent.ConcurrentMap;
 import static com.google.common.collect.Lists.newArrayList;
 
 /**
- * Server class that starts the connection listener.
- *
- * <p>Despite the fact that this class is under protected access, it is documented anyways because of its
- * significance in the server</p>
+ * Server class that starts the connection listener. <p/> <p>Despite the fact that this class is under protected access,
+ * it is documented anyways because of its significance in the server</p>
  *
  * @author The TridentSDK Team
  */
-@ThreadSafe
-final class TridentStart {
+@ThreadSafe final class TridentStart {
     static {
         TridentLogger.init();
     }
@@ -84,19 +82,18 @@ final class TridentStart {
         TridentLogger.log("Creating handlers...");
         OptionParser parser = new OptionParser();
         parser.acceptsAll(newArrayList("h", "help"), "Show this help dialog.").forHelp();
-        OptionSpec<Boolean> append =
-                parser.acceptsAll(newArrayList("log-append"), "Whether to append to the log file")
-                        .withRequiredArg()
-                        .ofType(Boolean.class)
-                        .defaultsTo(true)
-                        .describedAs("Log append");
+        OptionSpec<Boolean> append = parser.acceptsAll(newArrayList("log-append"), "Whether to append to the log file")
+                .withRequiredArg()
+                .ofType(Boolean.class)
+                .defaultsTo(true)
+                .describedAs("Log append");
         TridentLogger.log("Parsing server properties, using server.json...");
-        OptionSpec<File> properties =
-                parser.acceptsAll(newArrayList("properties"), "The location for the properties file")
-                        .withRequiredArg()
-                        .ofType(File.class)
-                        .defaultsTo(new File("server.json"))
-                        .describedAs("Properties file");
+        OptionSpec<File> properties = parser.acceptsAll(newArrayList("properties"),
+                                                        "The location for the properties file")
+                .withRequiredArg()
+                .ofType(File.class)
+                .defaultsTo(new File("server.json"))
+                .describedAs("Properties file");
 
         TridentLogger.log("Parsing command line arguments...");
         OptionSet options;
@@ -163,11 +160,8 @@ final class TridentStart {
             // Bind and start to accept incoming connections.
             int port = config.getInt("port", 25565);
             TridentLogger.log("Binding socket to server address, using port: " + port);
-            ChannelFuture f =
-                    b.bind(new InetSocketAddress(
-                            config.getString("address", Defaults.ADDRESS),
-                            config.getInt("port", Defaults.PORT)))
-                    .sync();
+            ChannelFuture f = b.bind(new InetSocketAddress(config.getString("address", Defaults.ADDRESS),
+                                                           config.getInt("port", Defaults.PORT))).sync();
 
             // Wait until the server socket is closed, to gracefully shut down your server.
             TridentLogger.log("Server started!");

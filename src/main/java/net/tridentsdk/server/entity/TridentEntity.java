@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.entity;
 
 import net.tridentsdk.Coordinates;
@@ -45,23 +46,13 @@ import java.util.concurrent.atomic.AtomicLong;
  *
  * @author The TridentSDK Team
  */
-@PossiblyThreadSafe
-public class TridentEntity implements Entity {
+@PossiblyThreadSafe public class TridentEntity implements Entity {
     @InternalUseOnly
     protected static final AtomicInteger counter = new AtomicInteger(-1);
     /**
      * Internal entity tracker, used to spawn the entity and track movement, etc.
      */
     protected static final EntityManager MANAGER = new EntityManager();
-
-    /**
-     * The entity ID for the entity
-     */
-    protected int id;
-    /**
-     * The identifier UUID for the entity
-     */
-    protected UUID uniqueId;
     /**
      * The distance the entity has fallen
      */
@@ -70,6 +61,26 @@ public class TridentEntity implements Entity {
      * The ticks that have passed since the entity was spawned, and alive
      */
     protected final AtomicLong ticksExisted = new AtomicLong(0L);
+    /**
+     * How long the entity has been on fire
+     */
+    protected final AtomicInteger fireTicks = new AtomicInteger(0);
+    /**
+     * How many ticks of air the entity has left
+     */
+    protected final AtomicLong airTicks = new AtomicLong();
+    /**
+     * Length of time the entity must wait to enter a portal. Unknown unit. TODO
+     */
+    protected final AtomicInteger portalCooldown = new AtomicInteger(900);
+    /**
+     * The entity ID for the entity
+     */
+    protected int id;
+    /**
+     * The identifier UUID for the entity
+     */
+    protected UUID uniqueId;
     /**
      * Entity task executor
      */
@@ -103,22 +114,9 @@ public class TridentEntity implements Entity {
      */
     protected volatile boolean silent;
     /**
-     * How long the entity has been on fire
-     */
-    protected final AtomicInteger fireTicks = new AtomicInteger(0);
-    /**
-     * How many ticks of air the entity has left
-     */
-    protected final AtomicLong airTicks = new AtomicLong();
-    /**
      * {@code true} to indicate the entity cannot be damaged
      */
     protected volatile boolean godMode;
-    /**
-     * Length of time the entity must wait to enter a portal. Unknown unit.
-     * TODO
-     */
-    protected final AtomicInteger portalCooldown = new AtomicInteger(900);
 
     /**
      * Creates a new entity
@@ -133,8 +131,7 @@ public class TridentEntity implements Entity {
         this.loc = spawnLocation;
 
         for (double y = this.loc.getY(); y > 0.0; y--) {
-            Coordinates l = Coordinates.create(this.loc.getWorld(), this.loc.getX(),
-                    y, this.loc.getZ());
+            Coordinates l = Coordinates.create(this.loc.getWorld(), this.loc.getX(), y, this.loc.getZ());
 
             if (l.getTile().getSubstance() != Substance.AIR) {
                 this.fallDistance.set((long) (this.loc.getY() - y));
@@ -145,6 +142,11 @@ public class TridentEntity implements Entity {
         }
     }
 
+    @Deprecated
+    protected TridentEntity() {
+        // constructor for deserializing
+    }
+
     /**
      * Begin entity management
      *
@@ -153,11 +155,6 @@ public class TridentEntity implements Entity {
     public TridentEntity spawn() {
         MANAGER.registerEntity(this);
         return this;
-    }
-
-    @Deprecated
-    protected TridentEntity() {
-        // constructor for deserializing
     }
 
     @Override
@@ -175,8 +172,7 @@ public class TridentEntity implements Entity {
         this.loc = location;
 
         for (double y = this.loc.getY(); y > 0.0; y--) {
-            Coordinates l = Coordinates.create(this.loc.getWorld(), this.loc.getX(),
-                    y, this.loc.getZ());
+            Coordinates l = Coordinates.create(this.loc.getWorld(), this.loc.getX(), y, this.loc.getZ());
 
             if (l.getWorld().getTileAt(l).getSubstance() != Substance.AIR) {
                 this.fallDistance.set((long) (this.loc.getY() - y));
@@ -187,8 +183,8 @@ public class TridentEntity implements Entity {
         }
 
         TridentPlayer.sendAll(new PacketPlayOutEntityTeleport().set("entityId", this.id)
-                .set("location", this.loc)
-                .set("onGround", this.onGround));
+                                      .set("location", this.loc)
+                                      .set("onGround", this.onGround));
     }
 
     @Override
@@ -214,8 +210,7 @@ public class TridentEntity implements Entity {
     public void setVelocity(Vector vector) {
         this.velocity = vector;
 
-        TridentPlayer.sendAll(new PacketPlayOutEntityVelocity().set("entityId", this.id)
-                .set("velocity", vector));
+        TridentPlayer.sendAll(new PacketPlayOutEntityVelocity().set("entityId", this.id).set("velocity", vector));
     }
 
     @Override
@@ -253,8 +248,7 @@ public class TridentEntity implements Entity {
         Set<Entity> entities = getLocation().getWorld().getEntities();
         Set<Entity> near = new HashSet<>();
         for (Entity entity : entities) {
-            if (entity.getLocation().distanceSquared(getLocation()) <= radius)
-                near.add(entity);
+            if (entity.getLocation().distanceSquared(getLocation()) <= radius) near.add(entity);
         }
 
         return near;
@@ -323,7 +317,8 @@ public class TridentEntity implements Entity {
         /* Location and Velocity */
         List<NBTTag> pos = ((ListTag) tag.getTagAs("Pos")).listTags(); // 3 double tags describing x, y, z
         List<NBTTag> motion = ((ListTag) tag.getTagAs("Motion")).listTags(); // 3 double tags describing velocity
-        List<NBTTag> rotation = ((ListTag) tag.getTagAs("Rotation")).listTags(); // 2 float tags describing yaw and pitch
+        List<NBTTag> rotation = ((ListTag) tag.getTagAs(
+                "Rotation")).listTags(); // 2 float tags describing yaw and pitch
 
         FloatTag fallDistance = tag.getTagAs("FallDistance"); // distance from the entity to the ground
         ShortTag fireTicks = tag.getTagAs("Fire"); // number of ticks until fire goes out
@@ -334,16 +329,18 @@ public class TridentEntity implements Entity {
 
         /* Dimensions */
         IntTag dimension = tag.getTagAs("Dimension"); // no found usage; -1 for nether, 0 for overworld, 1 for end
-        IntTag portalCooldown = tag.getTagAs("PortalCooldown"); // amount of ticks until entity can use a portal, starts at 900
+        IntTag portalCooldown = tag.getTagAs(
+                "PortalCooldown"); // amount of ticks until entity can use a portal, starts at 900
 
         /* Display Name */
-        StringTag displayName = (tag.containsTag("CustomName")) ? (StringTag) tag.getTag("CustomName") :
-                new StringTag("CustomName").setValue(""); // Custom name for the entity, other known as display name.
-        ByteTag dnVisible = (tag.containsTag("CustomNameVisible")) ? (ByteTag) tag.getTag("CustomNameVisible") :
-                new ByteTag("CustomNameVisible").setValue((byte) 0); // 0 = false, 1 = true - If true, it will always appear above them
+        StringTag displayName = (tag.containsTag("CustomName")) ? (StringTag) tag.getTag("CustomName") : new StringTag(
+                "CustomName").setValue(""); // Custom name for the entity, other known as display name.
+        ByteTag dnVisible = (tag.containsTag("CustomNameVisible")) ? (ByteTag) tag.getTag(
+                "CustomNameVisible") : new ByteTag("CustomNameVisible").setValue(
+                (byte) 0); // 0 = false, 1 = true - If true, it will always appear above them
 
-        ByteTag silent = (tag.containsTag("Silent")) ? (ByteTag) tag.getTag("Silent") :
-                new ByteTag("Silent").setValue((byte) 0); // 0 = false, 1 = true - If true, the entity will not make a sound
+        ByteTag silent = (tag.containsTag("Silent")) ? (ByteTag) tag.getTag("Silent") : new ByteTag("Silent").setValue(
+                (byte) 0); // 0 = false, 1 = true - If true, the entity will not make a sound
 
         NBTTag riding = tag.getTagAs("Riding"); // CompoundTag of the entity being ridden, contents are recursive
         NBTTag commandStats = tag.getTagAs("CommandStats"); // Information to modify relative to the last command run
@@ -361,7 +358,7 @@ public class TridentEntity implements Entity {
         for (int i = 0; i < 3; i += 1) {
             NBTTag t = pos.get(i);
 
-            if(t instanceof DoubleTag) {
+            if (t instanceof DoubleTag) {
                 location[i] = ((DoubleTag) t).getValue();
             } else {
                 location[i] = ((IntTag) t).getValue();
@@ -378,7 +375,7 @@ public class TridentEntity implements Entity {
         for (int i = 0; i < 3; i += 1) {
             NBTTag t = motion.get(i);
 
-            if(t instanceof DoubleTag) {
+            if (t instanceof DoubleTag) {
                 velocity[i] = ((DoubleTag) t).getValue();
             } else {
                 velocity[i] = ((IntTag) t).getValue();
@@ -391,19 +388,20 @@ public class TridentEntity implements Entity {
         this.velocity.setZ(velocity[2]);
 
         // set yaw and pitch from NBTTag
-        if(rotation.get(0) instanceof IntTag) {
+        if (rotation.get(0) instanceof IntTag) {
             loc.setYaw(((IntTag) rotation.get(0)).getValue());
         } else {
             loc.setYaw(((FloatTag) rotation.get(0)).getValue());
         }
 
-        if(rotation.get(1) instanceof IntTag) {
+        if (rotation.get(1) instanceof IntTag) {
             loc.setPitch(((IntTag) rotation.get(1)).getValue());
         } else {
             loc.setPitch(((FloatTag) rotation.get(1)).getValue());
         }
 
-        this.fallDistance.set((long) fallDistance.getValue()); // FIXME: may lose precision, consider changing AtomicLong
+        this.fallDistance.set(
+                (long) fallDistance.getValue()); // FIXME: may lose precision, consider changing AtomicLong
         this.fireTicks.set(fireTicks.getValue());
         this.airTicks.set(airTicks.getValue());
         this.portalCooldown.set(portalCooldown.getValue());

@@ -39,30 +39,13 @@ import java.util.concurrent.TimeUnit;
 /*
 Benchmark results: http://bit.ly/12fTNow
  */
-@State(Scope.Benchmark)
-public class SchedulerTest {
+@State(Scope.Benchmark) public class SchedulerTest {
     private static final TridentScheduler scheduler = new TridentScheduler();
-
-    @Setup
-    public void setup() {
-        Factories.init(new ThreadsManager());
-        for (int i = 0; i < 100000; i++) {
-            @PluginDescription(name = "LOLCODE")
-            class PluginImpl extends TridentPlugin {
-            }
-
-            scheduler.asyncLater(new PluginImpl(), new TridentRunnable() {
-                @Override
-                public void run() {
-                    System.out.print("");
-                }
-            }, 1L);
-        }
-    }
+    @Param({ "1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024" })
+    private int cpuTokens;
 
     public static void main8(String... args) throws InterruptedException {
-        @PluginDescription(name = "LOLCODE")
-        class PluginImpl extends TridentPlugin {
+        @PluginDescription(name = "LOLCODE") class PluginImpl extends TridentPlugin {
         }
 
         for (int i = 0; i < 1000; i++) {
@@ -88,14 +71,10 @@ public class SchedulerTest {
     }
 
     public static void main(String... args) throws RunnerException {
-        Options opt = new OptionsBuilder()
-                .include(".*" + SchedulerTest.class.getSimpleName() + ".*") // CLASS
-                .timeUnit(TimeUnit.NANOSECONDS)
-                .mode(Mode.AverageTime)
-                .warmupIterations(20)
-                .warmupTime(TimeValue.milliseconds(20))              // ALLOWED TIME
-                .measurementIterations(5)
-                .measurementTime(TimeValue.milliseconds(20))         // ALLOWED TIME
+        Options opt = new OptionsBuilder().include(".*" + SchedulerTest.class.getSimpleName() + ".*") // CLASS
+                .timeUnit(TimeUnit.NANOSECONDS).mode(Mode.AverageTime).warmupIterations(20).warmupTime(
+                        TimeValue.milliseconds(20))              // ALLOWED TIME
+                .measurementIterations(5).measurementTime(TimeValue.milliseconds(20))         // ALLOWED TIME
                 .forks(1)                                           // FORKS
                 .verbosity(VerboseMode.SILENT)                      // GRAPH
                 .build();
@@ -105,25 +84,10 @@ public class SchedulerTest {
         Benchmarks.chart(Benchmarks.parse(results), "Scheduler+performance");
     }
 
-    @Param({ "1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024"})
-    private int cpuTokens;
-
-    @Benchmark
-    public void control() {
-        Blackhole.consumeCPU(cpuTokens);
-    }
-
-    @Benchmark
-    public void tick() {
-        Blackhole.consumeCPU(cpuTokens);
-        scheduler.tick();
-    }
-
     public static void main0(String... args) throws InterruptedException {
         TridentScheduler scheduler = new TridentScheduler();
         for (int i = 0; i < 100; i++) {
-            @PluginDescription(name = "LOLCODE")
-            class PluginImpl extends TridentPlugin {
+            @PluginDescription(name = "LOLCODE") class PluginImpl extends TridentPlugin {
             }
 
             final int finalI = i;
@@ -140,5 +104,32 @@ public class SchedulerTest {
         }
 
         scheduler.stop();
+    }
+
+    @Setup
+    public void setup() {
+        Factories.init(new ThreadsManager());
+        for (int i = 0; i < 100000; i++) {
+            @PluginDescription(name = "LOLCODE") class PluginImpl extends TridentPlugin {
+            }
+
+            scheduler.asyncLater(new PluginImpl(), new TridentRunnable() {
+                @Override
+                public void run() {
+                    System.out.print("");
+                }
+            }, 1L);
+        }
+    }
+
+    @Benchmark
+    public void control() {
+        Blackhole.consumeCPU(cpuTokens);
+    }
+
+    @Benchmark
+    public void tick() {
+        Blackhole.consumeCPU(cpuTokens);
+        scheduler.tick();
     }
 }

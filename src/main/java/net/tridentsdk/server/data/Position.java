@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.data;
 
 import io.netty.buffer.ByteBuf;
@@ -46,10 +47,8 @@ public class Position implements Writable {
     }
 
     /**
-     * Sets the wrapped position
-     * <p/>
-     * <p>This does not change the value of already written locations. This is purely for purposes of performance, but
-     * removes concurrency.</p>
+     * Sets the wrapped position <p/> <p>This does not change the value of already written locations. This is purely for
+     * purposes of performance, but removes concurrency.</p>
      *
      * @param loc the location to wrap with writable format
      */
@@ -60,7 +59,7 @@ public class Position implements Writable {
     @Override
     public void write(ByteBuf buf) {
         buf.writeLong((long) ((int) this.loc.getX() & 0x3FFFFFF) << 38 |
-                (long) ((int) this.loc.getY() & 0xFFF) << 26 |
-                (long) ((int) this.loc.getZ() & 0x3FFFFFF));
+                              (long) ((int) this.loc.getY() & 0xFFF) << 26 |
+                              (long) ((int) this.loc.getZ() & 0x3FFFFFF));
     }
 }

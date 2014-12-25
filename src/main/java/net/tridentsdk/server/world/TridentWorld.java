@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.world;
 
 import com.google.common.io.ByteStreams;
@@ -46,11 +47,11 @@ public class TridentWorld implements World {
     private final String name;
     private final Random random;
     private final WorldLoader loader;
+    private final Coordinates spawnLocation;
     private Dimension dimension;
     private Difficulty difficulty;
     private GameMode defaultGamemode;
     private LevelType type;
-    private final Coordinates spawnLocation;
 
     TridentWorld(String name, WorldLoader loader) {
         this.name = name;
@@ -58,7 +59,6 @@ public class TridentWorld implements World {
         this.random = new Random();
 
         spawnLocation = Coordinates.create(this, 0d, 0d, 0d);
-
 
         TridentLogger.log("Starting to load " + name + "...");
         TridentLogger.log("Attempting to load level.dat...");
@@ -75,8 +75,8 @@ public class TridentWorld implements World {
             fis.read(compressedData);
 
             level = new NBTDecoder(new DataInputStream(new ByteArrayInputStream(ByteStreams.
-                    toByteArray(new GZIPInputStream(new ByteArrayInputStream(compressedData))))))
-                    .decode().getTagAs("Data");
+                    toByteArray(new GZIPInputStream(new ByteArrayInputStream(compressedData)))))).decode()
+                    .getTagAs("Data");
         } catch (FileNotFoundException ignored) {
             return;
         } catch (Exception ex) {
@@ -100,7 +100,8 @@ public class TridentWorld implements World {
         spawnLocation.setZ(((IntTag) level.getTag("SpawnZ")).getValue());
 
         dimension = Dimension.OVERWORLD;
-        // difficulty = Difficulty.getDifficulty(((IntTag) level.getTag("Difficulty")).getValue()); from tests does not exist
+        // difficulty = Difficulty.getDifficulty(((IntTag) level.getTag("Difficulty")).getValue()); from tests does
+        // not exist
         difficulty = Difficulty.NORMAL;
         defaultGamemode = GameMode.getGameMode(((IntTag) level.getTag("GameType")).getValue());
         type = LevelType.getLevelType(((StringTag) level.getTag("generatorName")).getValue());
@@ -112,7 +113,8 @@ public class TridentWorld implements World {
         File region = new File(directory, "region" + File.separator);
 
         if (!(region.exists()) || !(region.isDirectory())) {
-            TridentLogger.error(new IllegalStateException("Region folder is rather non-existent or isn't a directory!"));
+            TridentLogger.error(
+                    new IllegalStateException("Region folder is rather non-existent or isn't a directory!"));
         }
 
         TridentLogger.log("Loaded region files successfully! Moving onto player data...");

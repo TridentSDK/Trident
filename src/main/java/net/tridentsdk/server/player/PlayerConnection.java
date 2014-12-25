@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.player;
 
 import net.tridentsdk.server.netty.ClientConnection;
@@ -29,8 +30,7 @@ import java.util.concurrent.Callable;
  *
  * @author The TridentSDK Team
  */
-@ThreadSafe
-public class PlayerConnection extends ClientConnection {
+@ThreadSafe public class PlayerConnection extends ClientConnection {
     private final TridentPlayer player;
 
     private volatile boolean sentKeepAlive = false;
@@ -58,7 +58,7 @@ public class PlayerConnection extends ClientConnection {
         // update the clients packet handler
         PacketHandler handler = channel.pipeline().get(PacketHandler.class);
 
-        if(handler != null) { // while unlikely, I'll take my chances
+        if (handler != null) { // while unlikely, I'll take my chances
             handler.updateConnection(this);
         }
     }
@@ -81,8 +81,7 @@ public class PlayerConnection extends ClientConnection {
     }
 
     /**
-     * Marks the player as kept alive so additional packets do not need to be sent for the current
-     * session
+     * Marks the player as kept alive so additional packets do not need to be sent for the current session
      *
      * @param hasSent {@code true} to represent that the packet has been sent
      */

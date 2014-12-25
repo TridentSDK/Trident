@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.window;
 
 import io.netty.channel.ChannelHandlerAdapter;
@@ -41,8 +42,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @author The TridentSDK Team
  */
-@ThreadSafe
-public class TridentWindow implements Window {
+@ThreadSafe public class TridentWindow implements Window {
     /**
      * Counter for window ids, initial value is 2 to avoid confusion with a window and a player inventory
      */
@@ -51,11 +51,10 @@ public class TridentWindow implements Window {
     private final int id;
     private final String name;
     private final int length;
+    private final InventoryType type;
+    private final Set<Player> users = Collections.newSetFromMap(new ConcurrentHashMapV8<Player, Boolean>());
     @Volatile(policy = "Do not write individual elements", reason = "Thread safe array", fix = "See Line 110")
     private volatile Item[] contents;
-    private final InventoryType type;
-
-    private final Set<Player> users = Collections.newSetFromMap(new ConcurrentHashMapV8<Player, Boolean>());
 
     /**
      * Builds a new inventory window
@@ -103,8 +102,9 @@ public class TridentWindow implements Window {
     //@Override
     public int getItemLength() {
         int counter = 0;
-        for (Item item : getItems())
+        for (Item item : getItems()) {
             if (item != null) counter++;
+        }
 
         return counter;
     }
@@ -121,12 +121,11 @@ public class TridentWindow implements Window {
         Item[] read = this.contents; // Flush caches, make entire array visible
 
         PacketPlayOutSetSlot setSlot = new PacketPlayOutSetSlot();
-        setSlot.set("windowId", getId())
-                .set("slot", (short) index)
-                .set("item", new Slot(value));
+        setSlot.set("windowId", getId()).set("slot", (short) index).set("item", new Slot(value));
 
-        for (Player player : users)
+        for (Player player : users) {
             ((TridentPlayer) player).getConnection().sendPacket(setSlot);
+        }
     }
 
     public void sendTo(TridentPlayer player) {
@@ -140,9 +139,7 @@ public class TridentWindow implements Window {
 
         for (int i = 0; i < getLength(); i++) {
             PacketPlayOutSetSlot setSlot = new PacketPlayOutSetSlot();
-            setSlot.set("windowId", getId())
-                    .set("slot", (short) i)
-                    .set("item", new Slot(getItems()[i]));
+            setSlot.set("windowId", getId()).set("slot", (short) i).set("item", new Slot(getItems()[i]));
             player.getConnection().sendPacket(window);
         }
 
@@ -160,12 +157,12 @@ public class TridentWindow implements Window {
             public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
                 if (msg instanceof PacketPlayInPlayerCloseWindow) {
                     PacketPlayInPlayerCloseWindow windowClose = (PacketPlayInPlayerCloseWindow) msg;
-                    if (windowClose.getWindowId() == getId())
-                        for (Player player1 : users)
-                            if (connection.getChannel().equals(ctx.channel())) {
-                                users.remove(player1);
-                                ctx.pipeline().remove(this);
-                            }
+                    if (windowClose.getWindowId() == getId()) for (Player player1 : users) {
+                        if (connection.getChannel().equals(ctx.channel())) {
+                            users.remove(player1);
+                            ctx.pipeline().remove(this);
+                        }
+                    }
                 }
 
                 // Pass to the next channel handler

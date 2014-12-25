@@ -22,6 +22,7 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
+
 package org.openjdk.jcstress.util;
 
 import joptsimple.HelpFormatter;
@@ -114,5 +115,4 @@ public class OptionFormatter implements HelpFormatter {
         line.append(System.getProperty("line.separator"));
         return line.toString();
     }
-
 }

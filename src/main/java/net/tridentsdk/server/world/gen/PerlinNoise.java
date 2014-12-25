@@ -3,6 +3,7 @@
  *
  * Source: http://pastebin.java-gaming.org/0361c1c8f7b
  */
+
 package net.tridentsdk.server.world.gen;
 
 import java.util.Random;
@@ -101,9 +102,7 @@ public class PerlinNoise {
     }
 
     /**
-     * Compute a dot product.
-     * Example: dot product between (a, b) and (c, d) is:
-     * a * c + b * d
+     * Compute a dot product. Example: dot product between (a, b) and (c, d) is: a * c + b * d
      */
     private float dotProduct(Vec2D v0, Vec2D v1) {
         return (v0.getX() * v1.getX()) + (v0.getY() * v1.getY());
@@ -156,12 +155,12 @@ public class PerlinNoise {
             return (int) x;
         }
 
-        public int getY() {
-            return (int) y;
-        }
-
         public void setX(float x) {
             this.x = x;
+        }
+
+        public int getY() {
+            return (int) y;
         }
 
         public void setY(float y) {

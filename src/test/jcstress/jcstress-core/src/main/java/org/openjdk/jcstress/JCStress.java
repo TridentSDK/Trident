@@ -22,18 +22,13 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
+
 package org.openjdk.jcstress;
 
 import org.openjdk.jcstress.infra.Scheduler;
 import org.openjdk.jcstress.infra.Status;
 import org.openjdk.jcstress.infra.TestInfo;
-import org.openjdk.jcstress.infra.collectors.DiskReadCollector;
-import org.openjdk.jcstress.infra.collectors.DiskWriteCollector;
-import org.openjdk.jcstress.infra.collectors.InProcessCollector;
-import org.openjdk.jcstress.infra.collectors.MuxCollector;
-import org.openjdk.jcstress.infra.collectors.NetworkInputCollector;
-import org.openjdk.jcstress.infra.collectors.TestResult;
-import org.openjdk.jcstress.infra.collectors.TestResultCollector;
+import org.openjdk.jcstress.infra.collectors.*;
 import org.openjdk.jcstress.infra.grading.ConsoleReportPrinter;
 import org.openjdk.jcstress.infra.grading.ExceptionReportPrinter;
 import org.openjdk.jcstress.infra.grading.HTMLReportPrinter;
@@ -41,19 +36,10 @@ import org.openjdk.jcstress.infra.runners.Runner;
 import org.openjdk.jcstress.infra.runners.TestList;
 import org.openjdk.jcstress.util.InputStreamDrainer;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -85,6 +71,17 @@ public class JCStress {
             }
         });
         out = System.out;
+    }
+
+    static SortedSet<String> getTests(final String filter) {
+        SortedSet<String> s = new TreeSet<>();
+
+        Pattern pattern = Pattern.compile(filter);
+        s.addAll(TestList.tests()
+                         .stream()
+                         .filter(testName -> pattern.matcher(testName).matches())
+                         .collect(java.util.stream.Collectors.toList()));
+        return s;
     }
 
     public void run(Options opts) throws Exception {
@@ -180,7 +177,6 @@ public class JCStress {
                 result.addAuxData(s);
                 collector.add(result);
             }
-
         } catch (IOException | InterruptedException ex) {
             ex.printStackTrace();
         }
@@ -209,14 +205,17 @@ public class JCStress {
         });
     }
 
-    private void run(Options opts, Collection<String> tests, boolean alreadyForked, TestResultCollector collector) throws Exception {
+    private void run(Options opts, Collection<String> tests, boolean alreadyForked, TestResultCollector collector)
+            throws
+            Exception {
         for (String test : tests) {
             TestInfo info = TestList.getInfo(test);
             if (info.requiresFork() && !alreadyForked && !opts.shouldNeverFork()) {
                 runForked(opts, test, collector);
             } else {
                 Class<?> aClass = Class.forName(info.generatedRunner());
-                Constructor<?> cnstr = aClass.getConstructor(Options.class, TestResultCollector.class, ExecutorService.class);
+                Constructor<?> cnstr = aClass.getConstructor(Options.class, TestResultCollector.class,
+                                                             ExecutorService.class);
                 Runner<?> o = (Runner<?>) cnstr.newInstance(opts, collector, pool);
                 async(o, info.threads());
             }
@@ -276,13 +275,4 @@ public class JCStress {
     private boolean isWindows() {
         return System.getProperty("os.name").contains("indows");
     }
-
-    static SortedSet<String> getTests(final String filter) {
-        SortedSet<String> s = new TreeSet<>();
-
-        Pattern pattern = Pattern.compile(filter);
-        s.addAll(TestList.tests().stream().filter(testName -> pattern.matcher(testName).matches()).collect(java.util.stream.Collectors.toList()));
-        return s;
-   }
-
 }

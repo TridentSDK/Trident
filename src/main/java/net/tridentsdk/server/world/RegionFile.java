@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.world;
 
 import com.google.common.math.IntMath;
@@ -48,8 +49,7 @@ public class RegionFile {
     //The object to lock on to stop reading/writing simultaneously
     private final Object readWriteLock = new Object();
 
-    public RegionFile(Path path)
-            throws IOException {
+    public RegionFile(Path path) throws IOException {
         this.path = path;
 
         synchronized (this.readWriteLock) {
@@ -120,7 +120,8 @@ public class RegionFile {
     /**
      * Pass in a chunk to load its data from file
      */
-    public TridentChunk loadChunkData(TridentWorld owner, ChunkLocation location) throws NBTException, IOException, DataFormatException {
+    public TridentChunk loadChunkData(TridentWorld owner, ChunkLocation location) throws NBTException, IOException,
+            DataFormatException {
         TridentChunk chunk = new TridentChunk(owner, location);
         short compression;
         byte[] compressedData;
@@ -180,7 +181,7 @@ public class RegionFile {
 
                 byte[] buffer = new byte[1024];
 
-                while(!(inflater.finished())) {
+                while (!(inflater.finished())) {
                     int count = inflater.inflate(buffer);
 
                     output.write(buffer, 0, count);
@@ -231,7 +232,7 @@ public class RegionFile {
             this.sectors.setDataSectors(chunk, sectorLength);
             //Clears up all the now-free sectors
             this.sectors.freeSectors(this.sectors.getSectorOffset(chunk) + sectorLength - 1,
-                    oldSectorLength - sectorLength);
+                                     oldSectorLength - sectorLength);
         }
         //If the length is bigger, we need to find a new location!
         else if (sectorLength > oldSectorLength) {

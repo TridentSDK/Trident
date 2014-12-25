@@ -15,24 +15,16 @@ import java.util.concurrent.TimeUnit;
 /*
 Benchmark results: http://bit.ly/1rdMWrp
  */
-@State(Scope.Benchmark)
-public class LatchTest {
+@State(Scope.Benchmark) public class LatchTest {
     private static final HeldValueLatch<HeldValueLatch<?>> LATCH = new HeldValueLatch<>();
-
-    @Setup
-    public void setup() {
-        LATCH.countDown(LATCH);
-    }
+    @Param({ "1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024" })
+    private int cpuTokens;
 
     public static void main(String[] args) throws RunnerException {
-        Options opt = new OptionsBuilder()
-                .include(".*" + LatchTest.class.getSimpleName() + ".*") // CLASS
-                .timeUnit(TimeUnit.NANOSECONDS)
-                .mode(Mode.AverageTime)
-                .warmupIterations(20)
-                .warmupTime(TimeValue.milliseconds(1))              // ALLOWED TIME
-                .measurementIterations(5)
-                .measurementTime(TimeValue.milliseconds(1))         // ALLOWED TIME
+        Options opt = new OptionsBuilder().include(".*" + LatchTest.class.getSimpleName() + ".*") // CLASS
+                .timeUnit(TimeUnit.NANOSECONDS).mode(Mode.AverageTime).warmupIterations(20).warmupTime(
+                        TimeValue.milliseconds(1))              // ALLOWED TIME
+                .measurementIterations(5).measurementTime(TimeValue.milliseconds(1))         // ALLOWED TIME
                 .forks(1)                                           // FORKS
                 .verbosity(VerboseMode.SILENT)                      // GRAPH
                 .threads(1)                                         // THREADS
@@ -41,8 +33,10 @@ public class LatchTest {
         Benchmarks.chart(Benchmarks.parse(new Runner(opt).run()), "Latch+Benchmark"); // TITLE
     }
 
-    @Param({"1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024"})
-    private int cpuTokens;
+    @Setup
+    public void setup() {
+        LATCH.countDown(LATCH);
+    }
 
     @Benchmark
     public void control() {

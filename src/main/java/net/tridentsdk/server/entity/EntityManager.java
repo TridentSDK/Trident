@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.entity;
 
 import com.google.common.base.Predicate;
@@ -37,20 +38,17 @@ import java.util.Map;
  *
  * @author The TridentSDK Team
  */
-@ThreadSafe
-public final class EntityManager {
+@ThreadSafe public final class EntityManager {
     private final Map<Integer, Entity> entities = new ConcurrentHashMapV8<>();
     private final EntityTracker tracker = new EntityTracker();
 
     /**
-     * Constructs the EntityManager for use by the server ONLY
-     *
-     * <p>In other words, DON'T USE IT</p>
+     * Constructs the EntityManager for use by the server ONLY <p/> <p>In other words, DON'T USE IT</p>
      */
     @InternalUseOnly
     public EntityManager() {
-        if (!Trident.isTrident())
-            TridentLogger.error(new UnsupportedOperationException("EntityManager can only be initalized by TridentSDK!"));
+        if (!Trident.isTrident()) TridentLogger.error(
+                new UnsupportedOperationException("EntityManager can only be initalized by TridentSDK!"));
     }
 
     /**
@@ -77,8 +75,8 @@ public final class EntityManager {
      * Tracks the movement of the entity, not for teleportation
      *
      * @param entity the entity to track
-     * @param from the original location
-     * @param to the new location
+     * @param from   the original location
+     * @param to     the new location
      */
     public void trackMovement(Entity entity, Coordinates from, Coordinates to) {
         tracker.trackMovement(entity, from, to);

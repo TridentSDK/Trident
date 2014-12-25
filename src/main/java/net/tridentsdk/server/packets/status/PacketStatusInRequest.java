@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.status;
 
 import io.netty.buffer.ByteBuf;
@@ -55,10 +56,8 @@ public class PacketStatusInRequest extends InPacket {
         PacketStatusOutResponse.Response response = packet.getResponse();
 
         // Set MOTD and max players based on the config TODO events
-        response.description.text = TridentServer.getInstance().getConfig()
-                .getString("motd", Defaults.MOTD);
-        response.players.max = TridentServer.getInstance().getConfig()
-                .getInt("max-players", Defaults.MAX_PLAYERS);
+        response.description.text = TridentServer.getInstance().getConfig().getString("motd", Defaults.MOTD);
+        response.players.max = TridentServer.getInstance().getConfig().getInt("max-players", Defaults.MAX_PLAYERS);
         response.players.online = TridentPlayer.getPlayers().size();
 
         packet.response = response;

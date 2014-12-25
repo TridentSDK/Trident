@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.threads;
 
 import com.google.common.collect.Lists;
@@ -35,15 +36,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 
 /**
- * Thread list to allow task execution in a shared thread scaled with removal
- *
- * <p>Allows assignment of a worker to the user</p>
+ * Thread list to allow task execution in a shared thread scaled with removal <p/> <p>Allows assignment of a worker to
+ * the user</p>
  *
  * @param <E> the assignment type, if used
  * @author The TridentSDK Team
  */
-@ThreadSafe
-public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implements ExecutorFactory<E> {
+@ThreadSafe public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implements ExecutorFactory<E> {
     private static final int STARTING = 0;
     private static final int RUNNING = 1;
     private static final int SHUTTING_DOWN = 2;
@@ -66,8 +65,9 @@ public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implement
     public ConcurrentTaskExecutor(int scale) {
         executors = new AtomicReferenceArray<>(scale);
 
-        for (int i = 0; i < scale; i++)
+        for (int i = 0; i < scale; i++) {
             executors.set(i, new ThreadWorker(i).startWorker());
+        }
 
         state = RUNNING;
     }
@@ -120,16 +120,18 @@ public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implement
     @Override
     public List<TaskExecutor> threadList() {
         List<TaskExecutor> execs = new ArrayList<>();
-        for (int i = 0, n = executors.length(); i < n; i++)
+        for (int i = 0, n = executors.length(); i < n; i++) {
             execs.add(executors.get(i));
+        }
         return execs;
     }
 
     @Override
     public void shutdown() {
         state = SHUTTING_DOWN;
-        for (TaskExecutor thread : this.threadList())
+        for (TaskExecutor thread : this.threadList()) {
             thread.interrupt();
+        }
         for (E e : assigned.keys()) {
             ThreadWorker worker = assigned.remove(e);
 
@@ -168,14 +170,12 @@ public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implement
     }
 
     public void handleShutdown(int index, Queue<Runnable> remaining) {
-        if (state < SHUTTING_DOWN)
-            executors.set(index, new ThreadWorker(index).startWorker(remaining));
+        if (state < SHUTTING_DOWN) executors.set(index, new ThreadWorker(index).startWorker(remaining));
         else executors.set(index, null);
         remaining.clear();
     }
 
-    @AccessNoDoc
-    private final class ThreadWorker extends Thread implements TaskExecutor {
+    @AccessNoDoc private final class ThreadWorker extends Thread implements TaskExecutor {
         private final BlockingQueue<Runnable> tasks = new LinkedBlockingQueue<>();
         private final AtomicInteger integer = new AtomicInteger(0);
 

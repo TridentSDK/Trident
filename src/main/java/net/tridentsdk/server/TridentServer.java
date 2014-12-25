@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server;
 
 import net.tridentsdk.*;
@@ -47,8 +48,7 @@ import java.util.UUID;
  *
  * @author The TridentSDK Team
  */
-@ThreadSafe
-public final class TridentServer implements Server {
+@ThreadSafe public final class TridentServer implements Server {
     public static final TridentWorld WORLD = (TridentWorld) new TridentWorldLoader().load("world");
     private static final DisplayInfo INFO = new DisplayInfo();
 
@@ -198,9 +198,7 @@ public final class TridentServer implements Server {
 
     @Override
     public void sendPluginMessage(String channel, byte... data) {
-        TridentPlayer.sendAll(new PacketPlayOutPluginMessage()
-                        .set("channel", channel)
-                        .set("data", data));
+        TridentPlayer.sendAll(new PacketPlayOutPluginMessage().set("channel", channel).set("data", data));
     }
 
     @Override

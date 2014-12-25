@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.netty.packet;
 
 import io.netty.buffer.ByteBuf;
@@ -27,8 +28,7 @@ import javax.annotation.concurrent.ThreadSafe;
  *
  * @author The TridentSDK Team
  */
-@ThreadSafe
-public class UnknownPacket implements Packet {
+@ThreadSafe public class UnknownPacket implements Packet {
     @Override
     public Packet decode(ByteBuf buf) {
         return this;

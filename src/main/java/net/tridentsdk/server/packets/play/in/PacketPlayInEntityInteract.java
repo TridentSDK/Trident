@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
@@ -88,8 +89,7 @@ public class PacketPlayInEntityInteract extends InPacket {
 
         public static InteractType fromId(int id) {
             for (InteractType type : InteractType.values()) {
-                if (type.getId() == id)
-                    return type;
+                if (type.getId() == id) return type;
             }
 
             return null;

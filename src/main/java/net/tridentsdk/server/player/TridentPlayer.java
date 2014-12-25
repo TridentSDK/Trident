@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.player;
 
 import net.tridentsdk.Trident;
@@ -41,8 +42,7 @@ import java.util.Collection;
 import java.util.Locale;
 import java.util.UUID;
 
-@ThreadSafe
-public class TridentPlayer extends OfflinePlayer {
+@ThreadSafe public class TridentPlayer extends OfflinePlayer {
     private final PlayerConnection connection;
     private volatile Locale locale;
 
@@ -59,8 +59,8 @@ public class TridentPlayer extends OfflinePlayer {
     }
 
     public static Player spawnPlayer(ClientConnection connection, UUID id) {
-        CompoundTag offlinePlayer = (OfflinePlayer.getOfflinePlayer(id) == null) ? null :
-                OfflinePlayer.getOfflinePlayer(id).toNbt();
+        CompoundTag offlinePlayer = (OfflinePlayer.getOfflinePlayer(
+                id) == null) ? null : OfflinePlayer.getOfflinePlayer(id).toNbt();
 
         if (offlinePlayer == null) {
             offlinePlayer = OfflinePlayer.generatePlayer(id);
@@ -71,27 +71,26 @@ public class TridentPlayer extends OfflinePlayer {
                 .spawnLocation(TridentServer.WORLD.getSpawn())
                 .executor(ThreadsManager.playerExecutor())
                 .build(TridentPlayer.class, ParameterValue.from(CompoundTag.class, offlinePlayer),
-                        ParameterValue.from(TridentWorld.class, TridentServer.WORLD),
-                        ParameterValue.from(ClientConnection.class, connection));
+                       ParameterValue.from(TridentWorld.class, TridentServer.WORLD),
+                       ParameterValue.from(ClientConnection.class, connection));
 
         p.executor.addTask(new Runnable() {
             @Override
             public void run() {
-                p.connection.sendPacket(new PacketPlayOutJoinGame()
-                        .set("entityId", p.getId())
-                        .set("gamemode", p.getGameMode())
-                        .set("dimension", ((TridentWorld) p.getWorld()).getDimesion())
-                        .set("difficulty", p.getWorld().getDifficulty())
-                        .set("maxPlayers", (short) 10)
-                        .set("levelType", LevelType.DEFAULT));
+                p.connection.sendPacket(new PacketPlayOutJoinGame().set("entityId", p.getId())
+                                                .set("gamemode", p.getGameMode())
+                                                .set("dimension", ((TridentWorld) p.getWorld()).getDimesion())
+                                                .set("difficulty", p.getWorld().getDifficulty())
+                                                .set("maxPlayers", (short) 10)
+                                                .set("levelType", LevelType.DEFAULT));
 
                 p.connection.sendPacket(PacketPlayOutPluginMessage.VANILLA_CHANNEL);
-                p.connection.sendPacket(new PacketPlayOutServerDifficulty()
-                        .set("difficulty", Trident.getServer().getDifficulty()));
+                p.connection.sendPacket(
+                        new PacketPlayOutServerDifficulty().set("difficulty", Trident.getServer().getDifficulty()));
                 p.connection.sendPacket(new PacketPlayOutSpawnPosition().set("location", p.getSpawnLocation()));
                 p.connection.sendPacket(p.abilities.toPacket());
                 p.connection.sendPacket(new PacketPlayOutPlayerCompleteMove().set("location", p.getSpawnLocation())
-                        .set("flags", (byte) 0));
+                                                .set("flags", (byte) 0));
 
                 p.connection.sendPacket(PacketPlayOutStatistics.DEFAULT_STATISTIC);
 
@@ -187,9 +186,9 @@ public class TridentPlayer extends OfflinePlayer {
             public void run() {
                 for (String message : messages) {
                     if (message != null) {
-                        TridentPlayer.this.connection.sendPacket(new PacketPlayOutChatMessage().set("jsonMessage",
-                                message)
-                                .set("position", PacketPlayOutChatMessage.ChatPosition.CHAT));
+                        TridentPlayer.this.connection.sendPacket(
+                                new PacketPlayOutChatMessage().set("jsonMessage", message)
+                                        .set("position", PacketPlayOutChatMessage.ChatPosition.CHAT));
                     }
                 }
             }

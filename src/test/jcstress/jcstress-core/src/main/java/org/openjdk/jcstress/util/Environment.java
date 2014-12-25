@@ -22,6 +22,7 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
+
 package org.openjdk.jcstress.util;
 
 import java.io.Serializable;
@@ -34,32 +35,14 @@ import java.util.Map;
 
 public class Environment implements Serializable {
 
-    public static Environment getInstance() {
-        return EnvironmentHolder.INSTANCE;
-    }
-
-    public static class EnvironmentHolder {
-        static final Environment INSTANCE = new Environment();
-    }
-
     private final Map<String, String> env;
 
     public Environment() {
         Map<String, String> result = new HashMap<>();
 
-        String[] keys = new String[]{
-                "java.version",
-                "java.vendor",
-                "java.vm.version",
-                "java.vm.vendor",
-                "java.vm.name",
-                "java.specification.version",
-                "java.specification.vendor",
-                "java.specification.name",
-                "os.name",
-                "os.arch",
-                "os.version"
-        };
+        String[] keys = new String[] { "java.version", "java.vendor", "java.vm.version", "java.vm.vendor", "java.vm" +
+                ".name", "java.specification.version", "java.specification.vendor", "java.specification.name", "os" +
+                ".name", "os.arch", "os.version" };
 
         for (String key : keys) {
             result.put(key, System.getProperty(key));
@@ -72,8 +55,15 @@ public class Environment implements Serializable {
         env = result;
     }
 
+    public static Environment getInstance() {
+        return EnvironmentHolder.INSTANCE;
+    }
+
     public Map<String, String> entries() {
         return Collections.unmodifiableMap(env);
     }
 
+    public static class EnvironmentHolder {
+        static final Environment INSTANCE = new Environment();
+    }
 }

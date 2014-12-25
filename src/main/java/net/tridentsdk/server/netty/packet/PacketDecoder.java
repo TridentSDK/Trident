@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.netty.packet;
 
 import io.netty.buffer.ByteBuf;
@@ -50,7 +51,7 @@ public class PacketDecoder extends ReplayingDecoder<Void> {
         boolean compressed = connection.isCompressionEnabled();
         this.rawLength = Codec.readVarInt32(buf);
 
-        if(!(compressed) || rawLength < TridentServer.getInstance().getCompressionThreshold()) {
+        if (!(compressed) || rawLength < TridentServer.getInstance().getCompressionThreshold()) {
             ByteBuf data = buf.readBytes(this.rawLength);
 
             objects.add(new PacketData(data));

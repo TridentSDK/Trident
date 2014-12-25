@@ -24,134 +24,171 @@
 
 package sun.hotspot;
 
+import sun.hotspot.parser.DiagnosticCommand;
+
 import java.lang.reflect.Executable;
 import java.security.BasicPermission;
-import sun.hotspot.parser.DiagnosticCommand;
 
 public class WhiteBox {
 
-  @SuppressWarnings("serial")
-  public static class WhiteBoxPermission extends BasicPermission {
-    public WhiteBoxPermission(String s) {
-      super(s);
+    private static final WhiteBox instance = new WhiteBox();
+
+    private WhiteBox() {
     }
-  }
 
-  private WhiteBox() {}
-  private static final WhiteBox instance = new WhiteBox();
-  private static native void registerNatives();
+    private static native void registerNatives();
 
-  /**
-   * Returns the singleton WhiteBox instance.
-   *
-   * The returned WhiteBox object should be carefully guarded
-   * by the caller, since it can be used to read and write data
-   * at arbitrary memory addresses. It must never be passed to
-   * untrusted code.
-   */
-  public synchronized static WhiteBox getWhiteBox() {
-    SecurityManager sm = System.getSecurityManager();
-    if (sm != null) {
-      sm.checkPermission(new WhiteBoxPermission("getInstance"));
+    /**
+     * Returns the singleton WhiteBox instance. <p/> The returned WhiteBox object should be carefully guarded by the
+     * caller, since it can be used to read and write data at arbitrary memory addresses. It must never be passed to
+     * untrusted code.
+     */
+    public synchronized static WhiteBox getWhiteBox() {
+        SecurityManager sm = System.getSecurityManager();
+        if (sm != null) {
+            sm.checkPermission(new WhiteBoxPermission("getInstance"));
+        }
+        return instance;
     }
-    return instance;
-  }
 
-  static {
-    registerNatives();
-  }
+    static {
+        registerNatives();
+    }
 
-  // Get the maximum heap size supporting COOPs
-  public native long getCompressedOopsMaxHeapSize();
-  // Arguments
-  public native void printHeapSizes();
+    // Get the maximum heap size supporting COOPs
+    public native long getCompressedOopsMaxHeapSize();
 
-  // Memory
-  public native long getObjectAddress(Object o);
-  public native int  getHeapOopSize();
+    // Arguments
+    public native void printHeapSizes();
 
-  // Runtime
-  // Make sure class name is in the correct format
-  public boolean isClassAlive(String name) {
-    return isClassAlive0(name.replace('.', '/'));
-  }
-  private native boolean isClassAlive0(String name);
+    // Memory
+    public native long getObjectAddress(Object o);
 
-  // G1
-  public native boolean g1InConcurrentMark();
-  public native boolean g1IsHumongous(Object o);
-  public native long    g1NumFreeRegions();
-  public native int     g1RegionSize();
-  public native Object[]    parseCommandLine(String commandline, DiagnosticCommand[] args);
+    public native int getHeapOopSize();
 
-  // NMT
-  public native long NMTMalloc(long size);
-  public native void NMTFree(long mem);
-  public native long NMTReserveMemory(long size);
-  public native void NMTCommitMemory(long addr, long size);
-  public native void NMTUncommitMemory(long addr, long size);
-  public native void NMTReleaseMemory(long addr, long size);
-  public native boolean NMTWaitForDataMerge();
-  public native boolean NMTIsDetailSupported();
+    // Runtime
+    // Make sure class name is in the correct format
+    public boolean isClassAlive(String name) {
+        return isClassAlive0(name.replace('.', '/'));
+    }
 
-  // Compiler
-  public native void    deoptimizeAll();
-  public        boolean isMethodCompiled(Executable method) {
-    return isMethodCompiled(method, false /*not osr*/);
-  }
-  public native boolean isMethodCompiled(Executable method, boolean isOsr);
-  public        boolean isMethodCompilable(Executable method) {
-    return isMethodCompilable(method, -1 /*any*/);
-  }
-  public        boolean isMethodCompilable(Executable method, int compLevel) {
-    return isMethodCompilable(method, compLevel, false /*not osr*/);
-  }
-  public native boolean isMethodCompilable(Executable method, int compLevel, boolean isOsr);
-  public native boolean isMethodQueuedForCompilation(Executable method);
-  public        int     deoptimizeMethod(Executable method) {
-    return deoptimizeMethod(method, false /*not osr*/);
-  }
-  public native int     deoptimizeMethod(Executable method, boolean isOsr);
-  public        void    makeMethodNotCompilable(Executable method) {
-    makeMethodNotCompilable(method, -1 /*any*/);
-  }
-  public        void    makeMethodNotCompilable(Executable method, int compLevel) {
-    makeMethodNotCompilable(method, compLevel, false /*not osr*/);
-  }
-  public native void    makeMethodNotCompilable(Executable method, int compLevel, boolean isOsr);
-  public        int     getMethodCompilationLevel(Executable method) {
-    return getMethodCompilationLevel(method, false /*not ost*/);
-  }
-  public native int     getMethodCompilationLevel(Executable method, boolean isOsr);
-  public native boolean testSetDontInlineMethod(Executable method, boolean value);
-  public        int     getCompileQueuesSize() {
-    return getCompileQueueSize(-1 /*any*/);
-  }
-  public native int     getCompileQueueSize(int compLevel);
-  public native boolean testSetForceInlineMethod(Executable method, boolean value);
-  public boolean        enqueueMethodForCompilation(Executable method, int compLevel) {
-    return enqueueMethodForCompilation(method, compLevel, -1 /*InvocationEntryBci*/);
-  }
-  public native boolean enqueueMethodForCompilation(Executable method, int compLevel, int entry_bci);
-  public native void    clearMethodState(Executable method);
-  public native int     getMethodEntryBci(Executable method);
-  public native Object[] getNMethod(Executable method, boolean isOsr);
+    private native boolean isClassAlive0(String name);
 
-  // Intered strings
-  public native boolean isInStringTable(String str);
+    // G1
+    public native boolean g1InConcurrentMark();
 
-  // Memory
-  public native void readReservedMemory();
+    public native boolean g1IsHumongous(Object o);
 
-  // force Full GC
-  public native void fullGC();
+    public native long g1NumFreeRegions();
 
-  // Tests on ReservedSpace/VirtualSpace classes
-  public native int stressVirtualSpaceResize(long reservedSpaceSize, long magnitude, long iterations);
-  public native void runMemoryUnitTests();
-  public native void readFromNoaccessArea();
+    public native int g1RegionSize();
 
-  // CPU features
-  public native String getCPUFeatures();
+    public native Object[] parseCommandLine(String commandline, DiagnosticCommand[] args);
 
+    // NMT
+    public native long NMTMalloc(long size);
+
+    public native void NMTFree(long mem);
+
+    public native long NMTReserveMemory(long size);
+
+    public native void NMTCommitMemory(long addr, long size);
+
+    public native void NMTUncommitMemory(long addr, long size);
+
+    public native void NMTReleaseMemory(long addr, long size);
+
+    public native boolean NMTWaitForDataMerge();
+
+    public native boolean NMTIsDetailSupported();
+
+    // Compiler
+    public native void deoptimizeAll();
+
+    public boolean isMethodCompiled(Executable method) {
+        return isMethodCompiled(method, false /*not osr*/);
+    }
+
+    public native boolean isMethodCompiled(Executable method, boolean isOsr);
+
+    public boolean isMethodCompilable(Executable method) {
+        return isMethodCompilable(method, -1 /*any*/);
+    }
+
+    public boolean isMethodCompilable(Executable method, int compLevel) {
+        return isMethodCompilable(method, compLevel, false /*not osr*/);
+    }
+
+    public native boolean isMethodCompilable(Executable method, int compLevel, boolean isOsr);
+
+    public native boolean isMethodQueuedForCompilation(Executable method);
+
+    public int deoptimizeMethod(Executable method) {
+        return deoptimizeMethod(method, false /*not osr*/);
+    }
+
+    public native int deoptimizeMethod(Executable method, boolean isOsr);
+
+    public void makeMethodNotCompilable(Executable method) {
+        makeMethodNotCompilable(method, -1 /*any*/);
+    }
+
+    public void makeMethodNotCompilable(Executable method, int compLevel) {
+        makeMethodNotCompilable(method, compLevel, false /*not osr*/);
+    }
+
+    public native void makeMethodNotCompilable(Executable method, int compLevel, boolean isOsr);
+
+    public int getMethodCompilationLevel(Executable method) {
+        return getMethodCompilationLevel(method, false /*not ost*/);
+    }
+
+    public native int getMethodCompilationLevel(Executable method, boolean isOsr);
+
+    public native boolean testSetDontInlineMethod(Executable method, boolean value);
+
+    public int getCompileQueuesSize() {
+        return getCompileQueueSize(-1 /*any*/);
+    }
+
+    public native int getCompileQueueSize(int compLevel);
+
+    public native boolean testSetForceInlineMethod(Executable method, boolean value);
+
+    public boolean enqueueMethodForCompilation(Executable method, int compLevel) {
+        return enqueueMethodForCompilation(method, compLevel, -1 /*InvocationEntryBci*/);
+    }
+
+    public native boolean enqueueMethodForCompilation(Executable method, int compLevel, int entry_bci);
+
+    public native void clearMethodState(Executable method);
+
+    public native int getMethodEntryBci(Executable method);
+
+    public native Object[] getNMethod(Executable method, boolean isOsr);
+
+    // Intered strings
+    public native boolean isInStringTable(String str);
+
+    // Memory
+    public native void readReservedMemory();
+
+    // force Full GC
+    public native void fullGC();
+
+    // Tests on ReservedSpace/VirtualSpace classes
+    public native int stressVirtualSpaceResize(long reservedSpaceSize, long magnitude, long iterations);
+
+    public native void runMemoryUnitTests();
+
+    public native void readFromNoaccessArea();
+
+    // CPU features
+    public native String getCPUFeatures();
+
+    @SuppressWarnings("serial") public static class WhiteBoxPermission extends BasicPermission {
+        public WhiteBoxPermission(String s) {
+            super(s);
+        }
+    }
 }

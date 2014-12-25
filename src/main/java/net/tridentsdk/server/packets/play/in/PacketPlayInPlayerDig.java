@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
@@ -58,8 +59,9 @@ public class PacketPlayInPlayerDig extends InPacket {
         this.status = (short) buf.readByte();
         long encodedLocation = buf.readLong();
 
-        this.location = Coordinates.create(null, (double) (encodedLocation >> 38), (double) (encodedLocation << 26 >> 52),
-                (double) (encodedLocation << 38 >> 38));
+        this.location = Coordinates.create(null, (double) (encodedLocation >> 38),
+                                           (double) (encodedLocation << 26 >> 52),
+                                           (double) (encodedLocation << 38 >> 38));
         this.blockFace = (short) buf.readByte();
 
         return this;
@@ -124,8 +126,7 @@ public class PacketPlayInPlayerDig extends InPacket {
 
         TridentServer.getInstance().getEventManager().call((Event) event);
 
-        if (event == null || event.isIgnored())
-            return;
+        if (event == null || event.isIgnored()) return;
 
         this.location.setWorld(player.getWorld());
     }

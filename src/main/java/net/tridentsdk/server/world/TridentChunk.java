@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.world;
 
 import net.tridentsdk.Coordinates;
@@ -89,16 +90,18 @@ public class TridentChunk implements Chunk {
         int index = WorldUtils.getBlockArrayIndex(relX, y, relZ);
 
         return new TridentTile(Coordinates.create(this.world, relX + this.getX() * 16, y, relZ + this.getZ() * 16)
-                //TODO
+                               //TODO
                 , null, (byte) 0);
     }
 
     @Override
     public ChunkSnapshot snapshot() {
         List<CompoundTag> sections = new ArrayList<>();
-        for (ChunkSection section : this.sections)
+        for (ChunkSection section : this.sections) {
             sections.add(NBTSerializer.serialize(section));
-        return new TridentChunkSnapshot(world, location, sections, lastFileAccess, lastModified, inhabitedTime, lightPopulated, terrainPopulated);
+        }
+        return new TridentChunkSnapshot(world, location, sections, lastFileAccess, lastModified, inhabitedTime,
+                                        lightPopulated, terrainPopulated);
     }
 
     public PacketPlayOutMapChunkBulk toPacket() {
@@ -109,8 +112,7 @@ public class TridentChunk implements Chunk {
         int size = 0;
         int sectionSize = ChunkSection.LENGTH * 5 / 2;
 
-        if (world.getDimension() == Dimension.OVERWORLD)
-            sectionSize += ChunkSection.LENGTH / 2;
+        if (world.getDimension() == Dimension.OVERWORLD) sectionSize += ChunkSection.LENGTH / 2;
 
         size += count * sectionSize + 256;
 
@@ -148,8 +150,8 @@ public class TridentChunk implements Chunk {
     public void load(CompoundTag root) {
         CompoundTag tag = root.getTagAs("Level");
         LongTag lastModifed = tag.getTagAs("LastUpdate");
-        ByteTag lightPopulated = (tag.containsTag("LightPopulated")) ? (ByteTag) tag.getTagAs("LightPopulated") :
-                new ByteTag("LightPopulated").setValue((byte) 0);
+        ByteTag lightPopulated = (tag.containsTag("LightPopulated")) ? (ByteTag) tag.getTagAs(
+                "LightPopulated") : new ByteTag("LightPopulated").setValue((byte) 0);
         ByteTag terrainPopulated = tag.getTagAs("TerrainPopulated");
 
         LongTag inhabitedTime = tag.getTagAs("InhabitedTime");
@@ -158,8 +160,8 @@ public class TridentChunk implements Chunk {
         ListTag sections = tag.getTagAs("Sections");
         ListTag entities = tag.getTagAs("Entities");
         ListTag tileEntities = tag.getTagAs("TileEntities");
-        ListTag tileTicks = (tag.containsTag("TileTicks")) ? (ListTag) tag.getTag("TileTicks") :
-                new ListTag("TileTicks", TagType.COMPOUND);
+        ListTag tileTicks = (tag.containsTag("TileTicks")) ? (ListTag) tag.getTag("TileTicks") : new ListTag(
+                "TileTicks", TagType.COMPOUND);
         List<NBTTag> sectionsList = sections.listTags();
 
         this.sections = new ChunkSection[sectionsList.size()];
@@ -186,7 +188,8 @@ public class TridentChunk implements Chunk {
 
         /* Load extras */
         this.lightPopulated = lightPopulated.getValue(); // Unknown use
-        this.terrainPopulated = terrainPopulated.getValue(); // if chunk was populated with special things (ores, trees, etc.), if 1 regenerate
+        this.terrainPopulated = terrainPopulated.getValue(); // if chunk was populated with special things (ores,
+        // trees, etc.), if 1 regenerate
         this.lastModified = lastModifed.getValue(); // Tick when the chunk was last saved
         this.inhabitedTime = inhabitedTime.getValue(); // Cumulative number of ticks player have been in the chunk
     }

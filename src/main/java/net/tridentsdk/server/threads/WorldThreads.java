@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.threads;
 
 import net.tridentsdk.concurrent.TaskExecutor;
@@ -25,8 +26,7 @@ import javax.annotation.concurrent.ThreadSafe;
  *
  * @author The TridentSDK Team
  */
-@ThreadSafe
-public final class WorldThreads {
+@ThreadSafe public final class WorldThreads {
     private WorldThreads() {
     }
 

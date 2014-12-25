@@ -22,6 +22,7 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
+
 package org.openjdk.jcstress.annotations;
 
 import java.lang.annotation.ElementType;
@@ -30,18 +31,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Marks the class that should be treated as the concurrency stress test.
- * <p/>
- * {@link Actor} and {@link Arbiter} annotations are used to describe test
- * behavior. {@link State} and {@link Result} annotations are used to
- * describe the test state.
- * <p/>
- * The grading for test is done with {@link Outcome} annotations.
+ * Marks the class that should be treated as the concurrency stress test. <p/> {@link Actor} and {@link Arbiter}
+ * annotations are used to describe test behavior. {@link State} and {@link Result} annotations are used to describe the
+ * test state. <p/> The grading for test is done with {@link Outcome} annotations.
  */
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.RUNTIME)
-public @interface JCStressTest {
+@Target(ElementType.TYPE) @Retention(RetentionPolicy.RUNTIME) public @interface JCStressTest {
 
     Mode value() default Mode.Continuous;
-
 }

@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.player;
 
 import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
@@ -41,8 +42,7 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 
-@ThreadSafe
-public class OfflinePlayer extends TridentInventoryHolder implements Player {
+@ThreadSafe public class OfflinePlayer extends TridentInventoryHolder implements Player {
     private static final Set<OfflinePlayer> players = Collections.newSetFromMap(
             new ConcurrentHashMapV8<OfflinePlayer, Boolean>());
 
@@ -75,8 +75,8 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
 
         if (tag.containsTag("SpawnX")) {
             spawnLocation = Coordinates.create(world, ((IntTag) tag.getTag("SpawnX")).getValue(),
-                    ((IntTag) tag.getTag("SpawnY")).getValue(),
-                    ((IntTag) tag.getTag("SpawnZ")).getValue());
+                                               ((IntTag) tag.getTag("SpawnY")).getValue(),
+                                               ((IntTag) tag.getTag("SpawnZ")).getValue());
         } else {
             spawnLocation = world.getSpawn();
         }
@@ -246,7 +246,8 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
 
     @Override
     public void setWalkSpeed(float speed) {
-        TridentLogger.error(new UnsupportedOperationException("You may not set the walking speed of an OfflinePlayer!"));
+        TridentLogger.error(
+                new UnsupportedOperationException("You may not set the walking speed of an OfflinePlayer!"));
     }
 
     @Override

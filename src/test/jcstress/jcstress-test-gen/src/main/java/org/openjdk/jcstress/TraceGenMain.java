@@ -22,9 +22,9 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
+
 package org.openjdk.jcstress;
 
-import org.openjdk.jcstress.generator.TestGenerator;
 import org.openjdk.jcstress.tracer.TraceGen;
 
 import java.io.FileNotFoundException;
@@ -38,5 +38,4 @@ public class TraceGenMain {
             throw new IllegalStateException("Please provide the destination dir");
         }
     }
-
 }

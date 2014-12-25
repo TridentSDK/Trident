@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.netty.protocol;
 
 import net.tridentsdk.docs.AccessNoDoc;
@@ -22,8 +23,7 @@ import net.tridentsdk.server.packets.status.PacketStatusInRequest;
 import net.tridentsdk.server.packets.status.PacketStatusOutPing;
 import net.tridentsdk.server.packets.status.PacketStatusOutResponse;
 
-@AccessNoDoc
-class Status extends PacketManager {
+@AccessNoDoc class Status extends PacketManager {
     Status() {
         this.inPackets.put(0x00, PacketStatusInRequest.class);
         this.inPackets.put(0x01, PacketStatusInPing.class);

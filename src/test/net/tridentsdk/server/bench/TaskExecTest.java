@@ -51,7 +51,8 @@ Process finished with exit code 0
 # Benchmark mode: Average time, time/op
 # Benchmark: net.tridentsdk.server.bench.TaskExecTest.equiv
 # VM invoker: /usr/lib/jvm/java-7-openjdk-amd64/jre/bin/java
-# VM options: -Didea.launcher.port=7542 -Didea.launcher.bin.path=/media/A4F1-7AB7/idea-IU-135.1230/bin -Dfile.encoding=UTF-8
+# VM options: -Didea.launcher.port=7542 -Didea.launcher.bin.path=/media/A4F1-7AB7/idea-IU-135.1230/bin -Dfile
+.encoding=UTF-8
 # Fork: 1 of 1
 # Warmup Iteration   1: 620.698 ns/op
 # Warmup Iteration   2: 577.828 ns/op
@@ -116,7 +117,8 @@ Result: 558.604 ±(99.9%) 6.981 ns/op [Average]
 # Benchmark mode: Average time, time/op
 # Benchmark: net.tridentsdk.server.bench.TaskExecTest.java
 # VM invoker: /usr/lib/jvm/java-7-openjdk-amd64/jre/bin/java
-# VM options: -Didea.launcher.port=7542 -Didea.launcher.bin.path=/media/A4F1-7AB7/idea-IU-135.1230/bin -Dfile.encoding=UTF-8
+# VM options: -Didea.launcher.port=7542 -Didea.launcher.bin.path=/media/A4F1-7AB7/idea-IU-135.1230/bin -Dfile
+.encoding=UTF-8
 # Fork: 1 of 1
 # Warmup Iteration   1: 690.069 ns/op
 # Warmup Iteration   2: 528.810 ns/op
@@ -170,8 +172,21 @@ Iteration  24: 763.500 ns/op
 Iteration  25: 496.305 ns/op
  */
 
-@State(Scope.Benchmark)
-public class TaskExecTest {
+@State(Scope.Benchmark) public class TaskExecTest {
+    private static final ConcurrentTaskExecutor<String> TASK_EXECUTOR = new ConcurrentTaskExecutor<>(4);
+    private static final TaskExecutor EXECUTOR = TASK_EXECUTOR.scaledThread();
+    private static final ExecutorService JAVA = Executors.newFixedThreadPool(4);
+    private static final Runnable RUNNABLE = new Runnable() {
+        int anInt = 0;
+
+        @Override
+        public void run() {
+            anInt++;
+        }
+    };
+    @Param({ "1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024" })
+    private int cpuTokens;
+
     public static void main3(String[] args) {
         ConcurrentTaskExecutor<String> concurrentTaskExecutor = new ConcurrentTaskExecutor<>(4);
         TaskExecutor executor = concurrentTaskExecutor.scaledThread();
@@ -202,29 +217,22 @@ public class TaskExecTest {
         concurrentTaskExecutor.shutdown();
     }
 
-    private static final ConcurrentTaskExecutor<String> TASK_EXECUTOR = new ConcurrentTaskExecutor<>(4);
-    private static final TaskExecutor EXECUTOR = TASK_EXECUTOR.scaledThread();
+    //@Benchmark
+    //public void scale(Blackhole blackhole) {
+    //    blackhole.consume(TASK_EXECUTOR.scaledThread());
+    //}
 
-    private static final ExecutorService JAVA = Executors.newFixedThreadPool(4);
-
-    private static final Runnable RUNNABLE = new Runnable() {
-        int anInt = 0;
-        @Override
-        public void run() {
-            anInt++;
-        }
-    };
+    //@Benchmark
+    //public void assign() {
+    //TASK_EXECUTOR.assign(EXECUTOR, "Lol");
+    //}
 
     //@Param({ "1", "4", "16", "256"}) private int threads;
     public static void main(String... args) throws RunnerException {
-        Options opt = new OptionsBuilder()
-                .include(".*" + TaskExecTest.class.getSimpleName() + ".*") // CLASS
-                .timeUnit(TimeUnit.NANOSECONDS)
-                .mode(Mode.AverageTime)
-                .warmupIterations(20)
-                .warmupTime(TimeValue.milliseconds(10))              // ALLOWED TIME
-                .measurementIterations(5)
-                .measurementTime(TimeValue.milliseconds(10))         // ALLOWED TIME
+        Options opt = new OptionsBuilder().include(".*" + TaskExecTest.class.getSimpleName() + ".*") // CLASS
+                .timeUnit(TimeUnit.NANOSECONDS).mode(Mode.AverageTime).warmupIterations(20).warmupTime(
+                        TimeValue.milliseconds(10))              // ALLOWED TIME
+                .measurementIterations(5).measurementTime(TimeValue.milliseconds(10))         // ALLOWED TIME
                 .forks(1)                                           // FORKS
                 .verbosity(VerboseMode.SILENT)                      // GRAPH
                 .threads(4)                                         // THREADS
@@ -235,19 +243,6 @@ public class TaskExecTest {
         JAVA.shutdownNow();
         Benchmarks.chart(Benchmarks.parse(results), "ConcurrentTaskExecutor vs ExecutorService");
     }
-
-    //@Benchmark
-    //public void scale(Blackhole blackhole) {
-    //    blackhole.consume(TASK_EXECUTOR.scaledThread());
-    //}
-
-    //@Benchmark
-    //public void assign() {
-        //TASK_EXECUTOR.assign(EXECUTOR, "Lol");
-    //}
-
-    @Param({"1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024"})
-    private int cpuTokens;
 
     @Benchmark
     public void control() {

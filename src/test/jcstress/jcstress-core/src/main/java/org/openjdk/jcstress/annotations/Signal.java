@@ -22,6 +22,7 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
+
 package org.openjdk.jcstress.annotations;
 
 import java.lang.annotation.ElementType;
@@ -29,7 +30,5 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target(ElementType.METHOD)
-@Retention(RetentionPolicy.RUNTIME)
-public @interface Signal {
+@Target(ElementType.METHOD) @Retention(RetentionPolicy.RUNTIME) public @interface Signal {
 }

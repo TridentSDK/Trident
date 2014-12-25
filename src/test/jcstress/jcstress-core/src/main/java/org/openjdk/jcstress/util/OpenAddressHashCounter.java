@@ -22,14 +22,10 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
+
 package org.openjdk.jcstress.util;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -61,10 +57,27 @@ public class OpenAddressHashCounter<R> implements Counter<R>, Serializable {
     public OpenAddressHashCounter(int len) {
         length = len;
 
-        @SuppressWarnings("unchecked")
-        R[] table = (R[]) new Object[len];
+        @SuppressWarnings("unchecked") R[] table = (R[]) new Object[len];
         this.keys = table;
         this.counts = new long[len];
+    }
+
+    private static <T> T decouple(T result) {
+        try {
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            ObjectOutputStream oos = new ObjectOutputStream(bos);
+            oos.writeObject(result);
+            oos.close();
+
+            ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
+            ObjectInputStream ois = new ObjectInputStream(bis);
+
+            @SuppressWarnings("unchecked") T t = (T) ois.readObject();
+
+            return t;
+        } catch (IOException | ClassNotFoundException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     @Override
@@ -117,8 +130,7 @@ public class OpenAddressHashCounter<R> implements Counter<R>, Serializable {
         int newLen = (length << 1);
 
         // allocate new stuff
-        @SuppressWarnings("unchecked")
-        R[] table = (R[]) new Object[newLen];
+        @SuppressWarnings("unchecked") R[] table = (R[]) new Object[newLen];
         keys = table;
         counts = new long[newLen];
         length = newLen;
@@ -149,36 +161,15 @@ public class OpenAddressHashCounter<R> implements Counter<R>, Serializable {
         return 0L;
     }
 
-    private static <T> T decouple(T result) {
-        try {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            ObjectOutputStream oos = new ObjectOutputStream(bos);
-            oos.writeObject(result);
-            oos.close();
-
-            ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
-            ObjectInputStream ois = new ObjectInputStream(bis);
-
-            @SuppressWarnings("unchecked")
-            T t = (T)ois.readObject();
-
-            return t;
-        } catch (IOException | ClassNotFoundException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
     @Override
     public Collection<R> elementSet() {
         List<R> res = new ArrayList<>();
         for (Object k : keys) {
             if (k != null) {
-                @SuppressWarnings("unchecked")
-                R e = (R) k;
+                @SuppressWarnings("unchecked") R e = (R) k;
                 res.add(e);
             }
         }
         return res;
     }
-
 }

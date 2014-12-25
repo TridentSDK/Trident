@@ -22,6 +22,7 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
+
 package org.openjdk.jcstress.infra.collectors;
 
 import org.openjdk.jcstress.infra.EndResult;
@@ -29,14 +30,8 @@ import org.openjdk.jcstress.infra.EndResult;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InterruptedIOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectStreamException;
-import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.SocketException;
-import java.net.UnknownHostException;
+import java.net.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -91,6 +86,14 @@ public class NetworkInputCollector {
         }
     }
 
+    public String getHost() {
+        return acceptor.getHost();
+    }
+
+    public int getPort() {
+        return acceptor.getPort();
+    }
+
     private final class Acceptor extends Thread {
 
         private final ServerSocket server;
@@ -136,14 +139,6 @@ public class NetworkInputCollector {
                 // do nothing
             }
         }
-    }
-
-    public String getHost() {
-        return acceptor.getHost();
-    }
-
-    public int getPort() {
-        return acceptor.getPort();
     }
 
     private final class Reader extends Thread {
@@ -198,7 +193,5 @@ public class NetworkInputCollector {
                 // ignore
             }
         }
-
     }
-
 }

@@ -37,8 +37,7 @@ tick 5.01045108E7
 tick 5.0183914333333336E7
  */
 // Used for baseline measurements
-@State(Scope.Benchmark)
-public class TickTest {
+@State(Scope.Benchmark) public class TickTest {
     static {
         Factories.init(new ConfigFactory() {
             @Override
@@ -55,17 +54,16 @@ public class TickTest {
         Factories.init(new TridentScheduler());
         Factories.init(new ThreadsManager());
     }
+
     private static final MainThread THREAD = new MainThread(20);
+    @Param({ "1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024" })
+    private int cpuTokens;
 
     public static void main(String[] args) throws RunnerException {
-        Options opt = new OptionsBuilder()
-                .include(".*" + TickTest.class.getSimpleName() + ".*") // CLASS
-                .timeUnit(TimeUnit.NANOSECONDS)
-                .mode(Mode.AverageTime)
-                .warmupIterations(20)
-                .warmupTime(TimeValue.milliseconds(50))              // ALLOWED TIME
-                .measurementIterations(5)
-                .measurementTime(TimeValue.milliseconds(50))         // ALLOWED TIME
+        Options opt = new OptionsBuilder().include(".*" + TickTest.class.getSimpleName() + ".*") // CLASS
+                .timeUnit(TimeUnit.NANOSECONDS).mode(Mode.AverageTime).warmupIterations(20).warmupTime(
+                        TimeValue.milliseconds(50))              // ALLOWED TIME
+                .measurementIterations(5).measurementTime(TimeValue.milliseconds(50))         // ALLOWED TIME
                 .forks(1)                                           // FORKS
                 .verbosity(VerboseMode.SILENT)                      // GRAPH
                 .threads(1)                                         // THREADS
@@ -73,9 +71,6 @@ public class TickTest {
 
         Benchmarks.chart(Benchmarks.parse(new Runner(opt).run()), "Tick+Length"); // TITLE
     }
-
-    @Param({"1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024"})
-    private int cpuTokens;
 
     @Benchmark
     public void control() {

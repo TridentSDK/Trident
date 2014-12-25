@@ -28,8 +28,7 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 
 import java.util.concurrent.TimeUnit;
 
-@State(Scope.Benchmark)
-public class PlayerThreadTest {
+@State(Scope.Benchmark) public class PlayerThreadTest {
     // private static final Queue<Object> QUEUE = new ConcurrentLinkedQueue<>();
     private static Player player;
 
@@ -37,7 +36,7 @@ public class PlayerThreadTest {
     public static void setup() {
         for (int i = 0; i < 6_000; i++) {
             //Factories.threads().playerThread(TridentPlayer.spawnPlayer(
-             //       ClientConnection.registerConnection(new CTXProper().channel()), UUID.randomUUID(), ""));
+            //       ClientConnection.registerConnection(new CTXProper().channel()), UUID.randomUUID(), ""));
             // PlayerThreadTest.QUEUE.add(new CTXProper());
         }
 
@@ -49,8 +48,7 @@ public class PlayerThreadTest {
     //}
 
     public static void main(String... args) throws RunnerException {
-        Options opt = new OptionsBuilder()
-                .include(".*" + PlayerThreadTest.class.getSimpleName() + ".*")
+        Options opt = new OptionsBuilder().include(".*" + PlayerThreadTest.class.getSimpleName() + ".*")
                 .timeUnit(TimeUnit.NANOSECONDS)
                 .mode(Mode.AverageTime)
                 .warmupIterations(25)

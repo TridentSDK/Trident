@@ -22,6 +22,7 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
+
 package org.openjdk.jcstress.tests.trident;
 
 import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
@@ -32,10 +33,8 @@ import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentMap;
 
-@JCStressTest
-@Outcome(id = "[true, true, true, false]", expect = Expect.ACCEPTABLE, desc = "Map works correctly")
-@Outcome(expect = Expect.FORBIDDEN)
-public class CacheTest {
+@JCStressTest @Outcome(id = "[true, true, true, false]", expect = Expect.ACCEPTABLE, desc = "Map works correctly")
+@Outcome(expect = Expect.FORBIDDEN) public class CacheTest {
     private final Object object = new Object();
 
     @Actor
@@ -65,12 +64,10 @@ public class CacheTest {
     @Arbiter
     public void check(ConcurrentCache<Object, Object> cache, BooleanResult4 result4) {
         Object removed = cache.remove(object);
-        if (removed == object && cache.remove(object) == null)
-            result4.r3 = true;
+        if (removed == object && cache.remove(object) == null) result4.r3 = true;
     }
 
-    @State
-    public static class ConcurrentCache<K, V> {
+    @State public static class ConcurrentCache<K, V> {
         private static final Object PLACE_HOLDER = new Object();
         private final ConcurrentMap<K, Object> cache = new ConcurrentHashMapV8<>();
 
@@ -112,8 +109,9 @@ public class CacheTest {
          */
         public Collection<V> values() {
             Collection<V> list = new ArrayList<>();
-            for (Object v : this.cache.values())
+            for (Object v : this.cache.values()) {
                 list.add((V) v);
+            }
 
             return list;
         }
@@ -127,8 +125,7 @@ public class CacheTest {
         public V remove(K k) {
             Object val = this.cache.get(k);
 
-            if (val == null)
-                return null;
+            if (val == null) return null;
 
             this.cache.remove(k);
             return (V) val;
@@ -141,8 +138,9 @@ public class CacheTest {
          */
         public Set<Map.Entry<K, V>> entries() {
             Set<Map.Entry<K, V>> entries = new HashSet<>();
-            for (Map.Entry<K, Object> entry : cache.entrySet())
+            for (Map.Entry<K, Object> entry : cache.entrySet()) {
                 entries.add(new AbstractMap.SimpleEntry<>(entry.getKey(), (V) entry.getValue()));
+            }
             return entries;
         }
     }

@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
@@ -76,9 +77,7 @@ public class PacketPlayInPlayerLook extends InPacket {
         if (event.isIgnored()) {
             PacketPlayOutEntityTeleport cancel = new PacketPlayOutEntityTeleport();
 
-            cancel.set("entityId", player.getId())
-                    .set("location", from)
-                    .set("onGround", player.isOnGround());
+            cancel.set("entityId", player.getId()).set("location", from).set("onGround", player.isOnGround());
 
             TridentPlayer.sendAll(cancel);
             return;
@@ -88,9 +87,7 @@ public class PacketPlayInPlayerLook extends InPacket {
 
         PacketPlayOutEntityLook headMove = new PacketPlayOutEntityLook();
 
-        headMove.set("entityId", player.getId())
-                .set("location", to)
-                .set("onGround", player.isOnGround());
+        headMove.set("entityId", player.getId()).set("location", to).set("onGround", player.isOnGround());
 
         TridentPlayer.sendAll(headMove);
     }

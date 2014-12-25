@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.world;
 
 import com.google.common.base.Function;
@@ -37,6 +38,11 @@ import java.util.Set;
 public class TridentTile implements Tile {
     private final Coordinates location;
     /**
+     * Describes projectile logic
+     */
+    private final Set<WeakReference<Projectile>> projectiles = Sets.newSetFromMap(
+            Factories.collect().<WeakReference<Projectile>, Boolean>createMap());
+    /**
      * The type for this block
      */
     protected volatile Substance material;
@@ -44,11 +50,6 @@ public class TridentTile implements Tile {
      * The block metadata
      */
     protected byte data;
-    /**
-     * Describes projectile logic
-     */
-    private final Set<WeakReference<Projectile>> projectiles = Sets.newSetFromMap(
-            Factories.collect().<WeakReference<Projectile>, Boolean>createMap());
 
     /**
      * Constructs the wrapper representing the block
@@ -71,13 +72,13 @@ public class TridentTile implements Tile {
     }
 
     @Override
-    public void setSubstance(Substance material) {
-        this.material = material;
+    public Substance getSubstance() {
+        return this.material;
     }
 
     @Override
-    public Substance getSubstance() {
-        return this.material;
+    public void setSubstance(Substance material) {
+        this.material = material;
     }
 
     @Override
@@ -137,13 +138,13 @@ public class TridentTile implements Tile {
 
     @Override
     public Collection<Projectile> projectiles() {
-        return new ImmutableSet.Builder<Projectile>().addAll(Iterators.transform(projectiles.iterator(),
-                new Function<WeakReference<Projectile>, Projectile>() {
-                    @Nullable
-                    @Override
-                    public Projectile apply(WeakReference<Projectile> projectileWeakReference) {
-                        return projectileWeakReference.get();
-                    }
-                })).build();
+        return new ImmutableSet.Builder<Projectile>().addAll(
+                Iterators.transform(projectiles.iterator(), new Function<WeakReference<Projectile>, Projectile>() {
+                                        @Nullable
+                                        @Override
+                                        public Projectile apply(WeakReference<Projectile> projectileWeakReference) {
+                                            return projectileWeakReference.get();
+                                        }
+                                    })).build();
     }
 }

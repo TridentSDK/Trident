@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.entity;
 
 import net.tridentsdk.Coordinates;
@@ -31,9 +32,8 @@ import java.util.UUID;
 import java.util.concurrent.Callable;
 
 /**
- * Builds an entity from initializer components and auto-spawns safely
- *
- * <p>This is not thread safe. Do not share across methods, and you should be good.</p>
+ * Builds an entity from initializer components and auto-spawns safely <p/> <p>This is not thread safe. Do not share
+ * across methods, and you should be good.</p>
  *
  * @author The TridentSDK Team
  */
@@ -43,9 +43,9 @@ public final class EntityBuilder {
     private Coordinates spawn = Coordinates.create(new Callable<World>() {
         @Override
         public World call() {
-            for (World world : Trident.getWorlds())
-                if (world.getName().equals("world"))
-                    return world;
+            for (World world : Trident.getWorlds()) {
+                if (world.getName().equals("world")) return world;
+            }
             return null;
         }
     }.call(), 0, 0, 0);

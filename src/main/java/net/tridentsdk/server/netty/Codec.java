@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.netty;
 
 import com.google.common.base.Charsets;
@@ -28,8 +29,7 @@ import java.nio.charset.Charset;
  *
  * @author The TridentSDK Team
  */
-@ThreadSafe
-public final class Codec {
+@ThreadSafe public final class Codec {
     //Current charset used by strings is UTF_8
     /**
      * The charset used for Strings
@@ -60,7 +60,7 @@ public final class Codec {
      * @param buf the buffer to decode the string from
      */
     public static void writeString(ByteBuf buf, String string) {
-        if(string == null) {
+        if (string == null) {
             return;
         }
         //Writes the length of the string

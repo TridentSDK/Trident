@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.world;
 
 import net.tridentsdk.Coordinates;
@@ -27,29 +28,24 @@ import net.tridentsdk.world.World;
 
 final class ChunkSection implements NBTSerializable {
     static final int LENGTH = 4096; // 16^3 (width * height * depth)
-
+    private final Tile[] blcks = new Tile[LENGTH];
     @NBTField(name = "Blocks", type = TagType.BYTE_ARRAY)
     protected byte[] rawTypes;
-
     @NBTField(name = "Add", type = TagType.BYTE_ARRAY)
     protected byte[] add;
-
     @NBTField(name = "Data", type = TagType.BYTE_ARRAY)
     protected byte[] data;
-
     @NBTField(name = "BlockLight", type = TagType.BYTE_ARRAY)
     protected byte[] blockLight;
-
     @NBTField(name = "BlockLight", type = TagType.BYTE_ARRAY)
     protected byte[] skyLight;
-
-    private final Tile[] blcks = new Tile[LENGTH];
     private byte[] types;
 
-    protected ChunkSection() {}
+    protected ChunkSection() {
+    }
 
     protected void loadBlocks(World world) {
-        if(add == null) {
+        if (add == null) {
             add = new byte[LENGTH];
         }
 
@@ -72,11 +68,12 @@ final class ChunkSection implements NBTSerializable {
 
             Substance material = Substance.fromString(String.valueOf(b));
 
-            if(material == null) {
+            if (material == null) {
                 material = Substance.AIR; // check if valid
             }
 
-            block = new TridentTile(Coordinates.create(world, 0, 0, 0), material, bData); // TODO: get none-relative location
+            block = new TridentTile(Coordinates.create(world, 0, 0, 0), material,
+                                    bData); // TODO: get none-relative location
 
                 /* TODO get the type and deal with block data accordingly */
             switch (block.getSubstance()) {

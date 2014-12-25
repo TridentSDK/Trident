@@ -22,26 +22,13 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
+
 package org.openjdk.jcstress.util;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.io.*;
+import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
-import java.util.regex.Pattern;
 
 public class Reflections {
 
@@ -153,7 +140,6 @@ public class Reflections {
 
         jarFileStream.close();
         jarFile.close();
-
     }
 
     public static void copy(InputStream input, OutputStream output) throws IOException {
@@ -185,9 +171,7 @@ public class Reflections {
         return baos.toByteArray();
     }
 
-
     public interface ResultCallback {
         void accept(String name);
     }
-
 }

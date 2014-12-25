@@ -14,13 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.entity;
 
 /**
  * Immutable parameter type and object value for dynamic constructor resolvation
  *
- * @author The TridentSDK Team
  * @param <T> the type for the parameter
+ * @author The TridentSDK Team
  */
 public class ParameterValue<T> {
     private final Class<T> c;
@@ -34,9 +35,9 @@ public class ParameterValue<T> {
     /**
      * Creates a new parameter value
      *
-     * @param c the class type
+     * @param c     the class type
      * @param value the value of the parameter
-     * @param <T> the type
+     * @param <T>   the type
      * @return the new parameter value
      */
     public static <T> ParameterValue from(Class<T> c, T value) {

@@ -22,6 +22,7 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
+
 package org.openjdk.jcstress.util;
 
 import java.io.IOException;
@@ -56,7 +57,9 @@ public class InputStreamDrainer extends Thread {
         this.out = out;
     }
 
-    /** Drain the stream. */
+    /**
+     * Drain the stream.
+     */
     public void run() {
         byte[] buf = new byte[BUF_SIZE];
         try {
@@ -79,5 +82,4 @@ public class InputStreamDrainer extends Thread {
             }
         }
     }
-
 }

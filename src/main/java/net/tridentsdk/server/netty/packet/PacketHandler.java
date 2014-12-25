@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.netty.packet;
 
 import io.netty.channel.ChannelHandlerContext;
@@ -35,8 +36,7 @@ import javax.annotation.concurrent.ThreadSafe;
  *
  * @author The TridentSDK Team
  */
-@ThreadSafe
-public class PacketHandler extends SimpleChannelInboundHandler<PacketData> {
+@ThreadSafe public class PacketHandler extends SimpleChannelInboundHandler<PacketData> {
     private final Protocol protocol;
     private ClientConnection connection;
 
@@ -53,8 +53,7 @@ public class PacketHandler extends SimpleChannelInboundHandler<PacketData> {
      * Converts the PacketData to a Packet depending on the ConnectionStage of the Client <p/> {@inheritDoc}
      */
     @Override
-    protected void messageReceived(ChannelHandlerContext context, PacketData data)
-            throws Exception {
+    protected void messageReceived(ChannelHandlerContext context, PacketData data) throws Exception {
 
         if (this.connection.isEncryptionEnabled()) {
             data.decrypt(this.connection);

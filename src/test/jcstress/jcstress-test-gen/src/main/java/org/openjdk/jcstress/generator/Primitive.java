@@ -22,6 +22,7 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
+
 package org.openjdk.jcstress.generator;
 
 public interface Primitive {
@@ -32,5 +33,4 @@ public interface Primitive {
     String printRelease(String region);
 
     String getClassName();
-
 }

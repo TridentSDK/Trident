@@ -22,6 +22,7 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
+
 package org.openjdk.jcstress.infra.runners;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -83,5 +84,4 @@ public class StateHolder<P> {
             if (shouldYield) Thread.yield();
         }
     }
-
 }

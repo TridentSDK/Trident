@@ -46,14 +46,13 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
+
 package org.openjdk.jcstress.util;
 
 import java.util.Collection;
 
 /**
- * Basic Multiset.
- *
- * (Transitional interface)
+ * Basic Multiset. <p/> (Transitional interface)
  *
  * @param <T>
  */
@@ -61,12 +60,14 @@ public interface Multiset<T> {
 
     /**
      * Add the element to the multiset
+     *
      * @param element element to add
      */
     void add(T element);
 
     /**
      * Count the elements in multiset
+     *
      * @param element element
      * @return number of matching elements in the set; zero, if no elements
      */
@@ -74,13 +75,13 @@ public interface Multiset<T> {
 
     /**
      * Answers if Multiset is empty
+     *
      * @return true, if set is empty
      */
     boolean isEmpty();
 
     /**
-     * Answers the size of multiset.
-     * Equivalent to number of elements, counting duplications.
+     * Answers the size of multiset. Equivalent to number of elements, counting duplications.
      *
      * @return number of elements
      */
@@ -88,6 +89,7 @@ public interface Multiset<T> {
 
     /**
      * Answers the collection of keys
+     *
      * @return
      */
     Collection<T> keys();

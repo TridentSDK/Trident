@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
@@ -23,7 +24,7 @@ import net.tridentsdk.world.ChunkLocation;
 
 public class PacketPlayOutChunkData extends OutPacket {
 
-    protected final byte[] data = {};
+    protected final byte[] data = { };
     protected ChunkLocation chunkLocation;
     protected boolean continuous;
     protected short primaryBitMap;

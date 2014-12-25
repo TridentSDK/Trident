@@ -22,15 +22,12 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
+
 package org.openjdk.jcstress.generator;
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicLongFieldUpdater;
+import java.util.concurrent.atomic.*;
 
 /**
  * @author Aleksey Shipilev (aleksey.shipilev@oracle.com)
@@ -48,6 +45,54 @@ public class TestGenerator {
         this.resultGenerator = new ResultGenerator(srcRoot);
     }
 
+    public static String getDefaultValue(Class<?> k) {
+        if (k == boolean.class) return "false";
+        if (k == byte.class) return "0";
+        if (k == short.class) return "0";
+        if (k == char.class) return "0";
+        if (k == int.class) return "0";
+        if (k == long.class) return "0";
+        if (k == float.class) return "0.0";
+        if (k == double.class) return "0.0";
+        return null;
+    }
+
+    public static String getSetValue(Class<?> k) {
+        if (k == boolean.class) return "true";
+        if (k == byte.class) return "1";
+        if (k == short.class) return "42";
+        if (k == char.class) return "65";
+        if (k == int.class) return "42";
+        if (k == long.class) return "42";
+        if (k == float.class) return "42.0";
+        if (k == double.class) return "42.0";
+        return null;
+    }
+
+    public static String getRValue(Class<?> k) {
+        if (k == boolean.class) return "true";
+        if (k == byte.class) return "(byte)1";
+        if (k == short.class) return "42";
+        if (k == char.class) return "'A'";
+        if (k == int.class) return "42";
+        if (k == long.class) return "42L";
+        if (k == float.class) return "42.0f";
+        if (k == double.class) return "42.0d";
+        return null;
+    }
+
+    public static String getUnitValue(Class<?> k) {
+        if (k == boolean.class) return "false";
+        if (k == byte.class) return "1";
+        if (k == short.class) return "1";
+        if (k == char.class) return "(char)1";
+        if (k == int.class) return "1";
+        if (k == long.class) return "1L";
+        if (k == float.class) return "1.0f";
+        if (k == double.class) return "1.0d";
+        return null;
+    }
+
     public void run() throws FileNotFoundException {
         generateMemoryEffects();
     }
@@ -55,20 +100,21 @@ public class TestGenerator {
     public void generateMemoryEffects() throws FileNotFoundException {
         for (Class<?> varType : Types.SUPPORTED_PRIMITIVES) {
             for (Class<?> guardType : Types.SUPPORTED_PRIMITIVES) {
-                generate(new Types(guardType, varType), new VolatileReadWrite(guardType), "volatile_" + guardType + "_" + varType, "org.openjdk.jcstress.tests.memeffects.basic.volatiles");
+                generate(new Types(guardType, varType), new VolatileReadWrite(guardType),
+                         "volatile_" + guardType + "_" + varType,
+                         "org.openjdk.jcstress.tests.memeffects.basic.volatiles");
             }
-            generate(new Types(int.class, varType), new SynchronizedBlock(), "lock_" + varType, "org.openjdk.jcstress.tests.memeffects.basic.lock");
+            generate(new Types(int.class, varType), new SynchronizedBlock(), "lock_" + varType,
+                     "org.openjdk.jcstress.tests.memeffects.basic.lock");
 
             for (Class<?> guardType : Types.SUPPORTED_ATOMICS) {
                 Class<?> primType = Types.mapAtomicToPrim(guardType);
                 for (AcqType acqType : AcqType.values()) {
                     for (RelType relType : RelType.values()) {
                         try {
-                            generate(
-                                new Types(primType, varType),
-                                new Atomic_X(guardType, primType, acqType, relType),
-                                "atomic_" + acqType + "_" + relType + "_" + varType,
-                                "org.openjdk.jcstress.tests.memeffects.basic.atomic." + guardType.getSimpleName());
+                            generate(new Types(primType, varType), new Atomic_X(guardType, primType, acqType, relType),
+                                     "atomic_" + acqType + "_" + relType + "_" + varType,
+                                     "org.openjdk.jcstress.tests.memeffects.basic.atomic." + guardType.getSimpleName());
                         } catch (IllegalArgumentException iae) {
                             // not compatible acq/rel types, move on.
                         }
@@ -81,29 +127,28 @@ public class TestGenerator {
                 for (AcqType acqType : AcqType.values()) {
                     for (RelType relType : RelType.values()) {
                         try {
-                            generate(
-                                new Types(primType, varType),
-                                new Atomic_Updater_X(guardType, primType, acqType, relType),
-                                "atomic_" + acqType + "_" + relType + "_" + varType,
-                                "org.openjdk.jcstress.tests.memeffects.basic.atomicupdaters." + guardType.getSimpleName());
+                            generate(new Types(primType, varType),
+                                     new Atomic_Updater_X(guardType, primType, acqType, relType),
+                                     "atomic_" + acqType + "_" + relType + "_" + varType,
+                                     "org.openjdk.jcstress.tests.memeffects.basic.atomicupdaters." + guardType
+                                             .getSimpleName());
                         } catch (IllegalArgumentException iae) {
                             // not compatible acq/rel types, move on.
                         }
                     }
                 }
             }
-
         }
     }
 
-   public void generate(Types types, Primitive prim, String klass, String pkg) throws FileNotFoundException {
+    public void generate(Types types, Primitive prim, String klass, String pkg) throws FileNotFoundException {
         String resultName = resultGenerator.generateResult(types);
 
         String pathname = Utils.ensureDir(srcRoot + "/" + pkg.replaceAll("\\.", "/"));
 
         PrintWriter pw = new PrintWriter(pathname + "/" + klass + ".java");
 
-        pw.println("package " + pkg +";");
+        pw.println("package " + pkg + ";");
         pw.println();
         if (prim.getClassName() != null) {
             pw.println("import " + prim.getClassName() + ";");
@@ -116,10 +161,14 @@ public class TestGenerator {
         pw.println("import org.openjdk.jcstress.annotations.Expect;");
         pw.println();
         pw.println("@JCStressTest");
-        pw.println("@Outcome(id = \"[" + getDefaultValue(types.type(0)) +", " + getDefaultValue(types.type(1)) + "]\", expect = Expect.ACCEPTABLE, desc = \"Seeing default guard, can see any value\")");
-        pw.println("@Outcome(id = \"[" + getDefaultValue(types.type(0)) +", " + getSetValue(types.type(1)) + "]\", expect = Expect.ACCEPTABLE, desc = \"Seeing default guard, can see any value\")");
-        pw.println("@Outcome(id = \"[" + getSetValue(types.type(0)) +", " + getSetValue(types.type(1)) + "]\", expect = Expect.ACCEPTABLE, desc = \"Seeing set guard, seeing the updated value\")");
-        pw.println("@Outcome(id = \"[" + getSetValue(types.type(0)) +", " + getDefaultValue(types.type(1)) + "]\", expect = Expect.FORBIDDEN, desc = \"Seeing set guard, not seeing the updated value\")");
+        pw.println("@Outcome(id = \"[" + getDefaultValue(types.type(0)) + ", " + getDefaultValue(types.type(
+                1)) + "]\", expect = Expect.ACCEPTABLE, desc = \"Seeing default guard, can see any value\")");
+        pw.println("@Outcome(id = \"[" + getDefaultValue(types.type(0)) + ", " + getSetValue(types.type(
+                1)) + "]\", expect = Expect.ACCEPTABLE, desc = \"Seeing default guard, can see any value\")");
+        pw.println("@Outcome(id = \"[" + getSetValue(types.type(0)) + ", " + getSetValue(types.type(
+                1)) + "]\", expect = Expect.ACCEPTABLE, desc = \"Seeing set guard, seeing the updated value\")");
+        pw.println("@Outcome(id = \"[" + getSetValue(types.type(0)) + ", " + getDefaultValue(types.type(
+                1)) + "]\", expect = Expect.FORBIDDEN, desc = \"Seeing set guard, not seeing the updated value\")");
         pw.println("@State");
         pw.println("public class " + klass + " {");
         pw.println();
@@ -127,12 +176,12 @@ public class TestGenerator {
         pw.println("    public " + types.type(1) + " a;");
         pw.println();
         pw.println("    @Actor");
-        pw.println("    public void actor1(" + resultName +" r) {");
-        pw.println("        " + prim.printRelease("        a = " + getRValue(types.type(1)) +";"));
+        pw.println("    public void actor1(" + resultName + " r) {");
+        pw.println("        " + prim.printRelease("        a = " + getRValue(types.type(1)) + ";"));
         pw.println("    }");
         pw.println();
         pw.println("    @Actor");
-        pw.println("    public void actor2(" + resultName +" r) {");
+        pw.println("    public void actor2(" + resultName + " r) {");
         pw.println("        " + prim.printAcquire("        r.r2 = a;"));
         pw.println("    }");
         pw.println();
@@ -141,77 +190,20 @@ public class TestGenerator {
         pw.close();
     }
 
-    public static String getDefaultValue(Class<?> k) {
-        if (k == boolean.class) return "false";
-        if (k == byte.class)    return "0";
-        if (k == short.class)   return "0";
-        if (k == char.class)    return "0";
-        if (k == int.class)     return "0";
-        if (k == long.class)    return "0";
-        if (k == float.class)   return "0.0";
-        if (k == double.class)  return "0.0";
-        return null;
-    }
-
-    public static String getSetValue(Class<?> k) {
-        if (k == boolean.class) return "true";
-        if (k == byte.class)    return "1";
-        if (k == short.class)   return "42";
-        if (k == char.class)    return "65";
-        if (k == int.class)     return "42";
-        if (k == long.class)    return "42";
-        if (k == float.class)   return "42.0";
-        if (k == double.class)  return "42.0";
-        return null;
-    }
-
-    public static String getRValue(Class<?> k) {
-        if (k == boolean.class) return "true";
-        if (k == byte.class)    return "(byte)1";
-        if (k == short.class)   return "42";
-        if (k == char.class)    return "'A'";
-        if (k == int.class)     return "42";
-        if (k == long.class)    return "42L";
-        if (k == float.class)   return "42.0f";
-        if (k == double.class)  return "42.0d";
-        return null;
-    }
-
-    public static String getUnitValue(Class<?> k) {
-        if (k == boolean.class) return "false";
-        if (k == byte.class)    return "1";
-        if (k == short.class)   return "1";
-        if (k == char.class)    return "(char)1";
-        if (k == int.class)     return "1";
-        if (k == long.class)    return "1L";
-        if (k == float.class)   return "1.0f";
-        if (k == double.class)  return "1.0d";
-        return null;
-    }
-
     public static class Types {
-        public static final Class<?>[] SUPPORTED_PRIMITIVES =
-                new Class<?>[] { boolean.class, byte.class, short.class, char.class,
-                                 int.class, long.class, float.class, double.class};
+        public static final Class<?>[] SUPPORTED_PRIMITIVES = new Class<?>[] { boolean.class, byte.class, short
+                .class, char.class, int.class, long.class, float.class, double.class };
 
-        public static final Class<?>[] SUPPORTED_ATOMICS =
-                new Class<?>[] { AtomicInteger.class, AtomicLong.class, AtomicBoolean.class };
+        public static final Class<?>[] SUPPORTED_ATOMICS = new Class<?>[] { AtomicInteger.class, AtomicLong.class,
+                AtomicBoolean.class };
 
-        public static final Class<?>[] SUPPORTED_ATOMIC_UPDATERS =
-                new Class<?>[] { AtomicIntegerFieldUpdater.class, AtomicLongFieldUpdater.class };
+        public static final Class<?>[] SUPPORTED_ATOMIC_UPDATERS = new Class<?>[] { AtomicIntegerFieldUpdater.class,
+                AtomicLongFieldUpdater.class };
 
         private final Class<?>[] types;
 
         public Types(Class<?>... types) {
             this.types = types;
-        }
-
-        public Class<?> type(int index) {
-            return types[index];
-        }
-
-        public Class[] all() {
-            return types;
         }
 
         public static Class<?> mapAtomicToPrim(Class<?> guardType) {
@@ -222,6 +214,13 @@ public class TestGenerator {
             if (guardType == AtomicLongFieldUpdater.class) return long.class;
             throw new IllegalStateException("No case");
         }
-    }
 
+        public Class<?> type(int index) {
+            return types[index];
+        }
+
+        public Class[] all() {
+            return types;
+        }
+    }
 }

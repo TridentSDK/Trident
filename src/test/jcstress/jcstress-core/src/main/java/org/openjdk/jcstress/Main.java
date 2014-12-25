@@ -22,6 +22,7 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
+
 package org.openjdk.jcstress;
 
 import org.openjdk.jcstress.util.ContendedSupport;
@@ -64,18 +65,23 @@ public class Main {
             }
 
             if (!vmSupportInited) {
-                System.out.println("Non-fatal: VM support for online deoptimization is not enabled, tests might miss some issues.\nPossible reasons are:\n" +
-                        "  1) unsupported JDK, only JDK 8+ is supported; \n" +
-                        "  2) -XX:+UnlockDiagnosticVMOptions -XX:+WhiteBoxAPI are missing; \n" +
-                        "  3) the jcstress JAR is not added to -Xbootclasspath/a\n");
+                System.out.println(
+                        "Non-fatal: VM support for online deoptimization is not enabled, tests might miss some issues" +
+                                ".\nPossible reasons are:\n" +
+                                "  1) unsupported JDK, only JDK 8+ is supported; \n" +
+                                "  2) -XX:+UnlockDiagnosticVMOptions -XX:+WhiteBoxAPI are missing; \n" +
+                                "  3) the jcstress JAR is not added to -Xbootclasspath/a\n");
             } else {
                 System.out.println("VM support is initialized.\n");
             }
 
             if (!ContendedSupport.tryContended()) {
-                System.out.println("Non-fatal: VM support for @Contended is not enabled, tests might run slower.\nPossible reasons are:\n" +
-                        "  1) unsupported JDK, only JDK 8+ is supported; \n" +
-                        "  2) -XX:-RestrictContended is missing, or the jcstress JAR is not added to -Xbootclasspath/a\n");
+                System.out.println(
+                        "Non-fatal: VM support for @Contended is not enabled, tests might run slower.\nPossible " +
+                                "reasons are:\n" +
+                                "  1) unsupported JDK, only JDK 8+ is supported; \n" +
+                                "  2) -XX:-RestrictContended is missing, or the jcstress JAR is not added to " +
+                                "-Xbootclasspath/a\n");
             } else {
                 System.out.println("@Contended is in use.\n");
             }
@@ -97,12 +103,8 @@ public class Main {
             stream = new URL(manifestPath).openStream();
             Manifest manifest = new Manifest(stream);
             Attributes attr = manifest.getMainAttributes();
-            out.printf("Rev: %s, built by %s with %s at %s\n",
-                    attr.getValue("Implementation-Build"),
-                    attr.getValue("Built-By"),
-                    attr.getValue("Build-Jdk"),
-                    attr.getValue("Build-Time")
-            );
+            out.printf("Rev: %s, built by %s with %s at %s\n", attr.getValue("Implementation-Build"),
+                       attr.getValue("Built-By"), attr.getValue("Build-Jdk"), attr.getValue("Build-Time"));
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {
@@ -115,5 +117,4 @@ public class Main {
             }
         }
     }
-
 }

@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.entity;
 
 import net.tridentsdk.Coordinates;
@@ -33,11 +34,9 @@ import net.tridentsdk.util.Vector;
  *
  * @author The TridentSDK Team
  */
-@InternalUseOnly
-public class EntityTracker {
+@InternalUseOnly public class EntityTracker {
     public void track(Entity entity, byte... meta) {
-        if (entity instanceof TridentPlayer)
-            return;
+        if (entity instanceof TridentPlayer) return;
         PacketPlayOutSpawnMob packet = new PacketPlayOutSpawnMob();
         packet.set("entityId", entity.getId())
                 .set("type", EntityType.NOT_IMPL)
@@ -55,8 +54,7 @@ public class EntityTracker {
         if (entity instanceof Player) {
             PlayerMoveEvent event = new PlayerMoveEvent((Player) entity, from, to);
             Trident.getEventManager().call(event);
-            if (!event.isIgnored())
-                sendMove(entity, to, diff);
+            if (!event.isIgnored()) sendMove(entity, to, diff);
 
             return;
         }

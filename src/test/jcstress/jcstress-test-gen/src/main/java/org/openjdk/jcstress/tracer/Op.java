@@ -22,6 +22,7 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
+
 package org.openjdk.jcstress.tracer;
 
 public class Op {
@@ -50,11 +51,6 @@ public class Op {
         return new Op(type, varId, resId);
     }
 
-    public enum Type {
-        LOAD,
-        STORE,
-    }
-
     public Type getType() {
         return type;
     }
@@ -73,5 +69,10 @@ public class Op {
             default:
                 throw new IllegalStateException();
         }
+    }
+
+    public enum Type {
+        LOAD,
+        STORE,
     }
 }

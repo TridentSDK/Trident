@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.netty.protocol;
 
 import net.tridentsdk.perf.FastClass;
@@ -53,8 +54,7 @@ abstract class PacketManager {
 
             Class<?> cls = applicableMap.get(id);
 
-            if (cls == null)
-                cls = applicableMap.get(-1);
+            if (cls == null) cls = applicableMap.get(-1);
 
             FastClass fastClass = FastClass.get(cls);
 

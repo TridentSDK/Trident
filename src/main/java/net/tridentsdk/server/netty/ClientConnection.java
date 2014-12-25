@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.netty;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import net.tridentsdk.concurrent.ConcurrentCache;
-import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.protocol.Protocol;
 import net.tridentsdk.server.packets.login.PacketLoginOutSetCompression;
@@ -47,8 +47,7 @@ public class ClientConnection {
     /**
      * Map of client connections registered
      */
-    protected static final ConcurrentCache<InetSocketAddress, ClientConnection> clientData =
-            new ConcurrentCache<>();
+    protected static final ConcurrentCache<InetSocketAddress, ClientConnection> clientData = new ConcurrentCache<>();
 
     /**
      * Random for generating the verification token
@@ -60,6 +59,15 @@ public class ClientConnection {
     protected static final Cipher cipher = getCipher();
 
     /* Network fields */
+    private static final Callable<ClientConnection> NULL_CALLABLE = new Callable<ClientConnection>() {
+        @Override
+        public ClientConnection call() throws Exception {
+            return null;
+        }
+    };
+    private final Object BARRIER;
+
+    /* Encryption and client data fields */
     /**
      * The client's connection address
      */
@@ -68,8 +76,6 @@ public class ClientConnection {
      * The data channel
      */
     protected Channel channel;
-
-    /* Encryption and client data fields */
     /**
      * The login key pair
      */
@@ -94,9 +100,7 @@ public class ClientConnection {
      * Whether or not encryption is enabled
      */
     protected volatile boolean compressionEnabled = false;
-
     private IvParameterSpec ivSpec;
-    private final Object BARRIER;
 
     /**
      * Creates a new connection handler for the joining channel stream
@@ -133,13 +137,6 @@ public class ClientConnection {
         return clientData.keys().contains(address);
     }
 
-    private static final Callable<ClientConnection> NULL_CALLABLE = new Callable<ClientConnection>() {
-        @Override
-        public ClientConnection call() throws Exception {
-            return null;
-        }
-    };
-
     /**
      * Gets the connection by the IP address
      *
@@ -159,6 +156,7 @@ public class ClientConnection {
     public static ClientConnection getConnection(ChannelHandlerContext chx) {
         return getConnection((InetSocketAddress) chx.channel().remoteAddress());
     }
+
     /**
      * Registers the client channel with a protocol connection wrapper
      *
@@ -250,11 +248,11 @@ public class ClientConnection {
      * Allows compression on the server and client
      */
     public void enableCompression() {
-        if(compressionEnabled) {
+        if (compressionEnabled) {
             TridentLogger.error(new UnsupportedOperationException("Compression is already enabled!"));
         }
 
-        if(stage != Protocol.ClientStage.LOGIN)  {
+        if (stage != Protocol.ClientStage.LOGIN) {
             TridentLogger.error(new UnsupportedOperationException());
         }
 
@@ -351,9 +349,9 @@ public class ClientConnection {
      * Removes the client's server side client handler
      */
     public void logout() {
-        if(this instanceof PlayerConnection)
+        if (this instanceof PlayerConnection)
             ThreadsManager.remove(PlayerConnection.getConnection(getAddress()).getPlayer());
-        
+
         clientData.remove(this.address);
         this.channel.close();
     }

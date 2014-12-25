@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.entity;
 
 import com.google.common.util.concurrent.AtomicDouble;
@@ -36,6 +37,14 @@ import java.util.UUID;
  */
 public abstract class TridentLivingEntity extends TridentEntity implements LivingEntity {
     /**
+     * Describes projectile logic
+     */
+    public final DecoratedImpalable impalable = Decorator.newImpalable(true);
+    /**
+     * The entity health
+     */
+    protected final AtomicDouble health = new AtomicDouble(0.0);
+    /**
      * Whether the entity is dead
      */
     protected volatile boolean dead;
@@ -44,23 +53,13 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
      */
     protected volatile boolean canPickup = true;
     /**
-     * The entity health
-     */
-    protected final AtomicDouble health = new AtomicDouble(0.0);
-    /**
      * The maximum available health
      */
     protected volatile double maxHealth;
 
     /**
-     * Describes projectile logic
-     */
-    public final DecoratedImpalable impalable = Decorator.newImpalable(true);
-
-    /**
-     * Inherits from {@link TridentEntity}
-     *
-     * <p>The entity is immediately set "non-dead" after {@code super} call</p>
+     * Inherits from {@link TridentEntity} <p/> <p>The entity is immediately set "non-dead" after {@code super}
+     * call</p>
      */
     public TridentLivingEntity(UUID id, Coordinates spawnLocation) {
         super(id, spawnLocation);
@@ -135,8 +134,7 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
 
     @Override
     public void put(Projectile projectile) {
-        if (dead)
-            return;
+        if (dead) return;
         impalable.put(projectile);
 
         // Response

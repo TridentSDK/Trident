@@ -22,6 +22,7 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
+
 package org.openjdk.jcstress.tests.trident;
 
 import org.openjdk.jcstress.annotations.*;
@@ -30,16 +31,13 @@ import org.openjdk.jcstress.infra.results.BooleanResult2;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 
-@JCStressTest
-@Outcome(id = "[true, true]", expect = Expect.ACCEPTABLE, desc = "JMM works like it should")
+@JCStressTest @Outcome(id = "[true, true]", expect = Expect.ACCEPTABLE, desc = "JMM works like it should")
 @Outcome(id = "[false, true]", expect = Expect.FORBIDDEN, desc = "Volatile array does not work")
-@Outcome(expect = Expect.FORBIDDEN)
-public class JMMTest {
-    // volatileArray
-    private AtomicReferenceArray<Item> items = new AtomicReferenceArray<>(10);
-
+@Outcome(expect = Expect.FORBIDDEN) public class JMMTest {
     // volatileObject
     private final Object original = new Object();
+    // volatileArray
+    private AtomicReferenceArray<Item> items = new AtomicReferenceArray<>(10);
     private volatile Object object = original;
 
     /**
@@ -70,14 +68,11 @@ public class JMMTest {
 
     @Arbiter
     public void check(Item item, BooleanResult2 result2) {
-        if (items.get(0) == item)
-            result2.r1 = true;
+        if (items.get(0) == item) result2.r1 = true;
 
-        if (object != null && object != original)
-            result2.r2 = true;
+        if (object != null && object != original) result2.r2 = true;
     }
 
-    @State
-    public static class Item {
+    @State public static class Item {
     }
 }

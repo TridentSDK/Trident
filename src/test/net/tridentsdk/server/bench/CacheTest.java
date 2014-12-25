@@ -34,8 +34,7 @@ import java.util.concurrent.TimeUnit;
 /*
 Benchmark results: http://bit.ly/1A21o5O
  */
-@State(Scope.Benchmark)
-public class CacheTest {
+@State(Scope.Benchmark) public class CacheTest {
     private static final ConcurrentCache<Object, Object> CACHE = new ConcurrentCache<>();
     private static final ConcurrentHashMap<Object, Object> CONCURRENT_HASH_MAP = new ConcurrentHashMap<>();
 
@@ -46,26 +45,19 @@ public class CacheTest {
             return "LOL";
         }
     };
+    @Param({ "1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024" })
+    private int cpuTokens;
 
     public static void main0(String[] args) {
         CACHE.retrieve(key, CALLABLE);
         System.out.println(CACHE.remove(key));
     }
 
-    @Setup
-    public void setUp() {
-        CONCURRENT_HASH_MAP.put(key, CALLABLE);
-    }
-
     public static void main(String[] args) throws RunnerException {
-        Options opt = new OptionsBuilder()
-                .include(".*" + CacheTest.class.getSimpleName() + ".*") // CLASS
-                .timeUnit(TimeUnit.NANOSECONDS)
-                .mode(Mode.AverageTime)
-                .warmupIterations(20)
-                .warmupTime(TimeValue.milliseconds(1))              // ALLOWED TIME
-                .measurementIterations(5)
-                .measurementTime(TimeValue.milliseconds(1))         // ALLOWED TIME
+        Options opt = new OptionsBuilder().include(".*" + CacheTest.class.getSimpleName() + ".*") // CLASS
+                .timeUnit(TimeUnit.NANOSECONDS).mode(Mode.AverageTime).warmupIterations(20).warmupTime(
+                        TimeValue.milliseconds(1))              // ALLOWED TIME
+                .measurementIterations(5).measurementTime(TimeValue.milliseconds(1))         // ALLOWED TIME
                 .forks(1)                                           // FORKS
                 .verbosity(VerboseMode.SILENT)                      // GRAPH
                 .threads(4)                                         // THREADS
@@ -74,8 +66,10 @@ public class CacheTest {
         Benchmarks.chart(Benchmarks.parse(new Runner(opt).run()), "ConcurrentCache vs ConcurrentHashMap"); // TITLE
     }
 
-    @Param({"1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024"})
-    private int cpuTokens;
+    @Setup
+    public void setUp() {
+        CONCURRENT_HASH_MAP.put(key, CALLABLE);
+    }
 
     @Benchmark
     public void control() {

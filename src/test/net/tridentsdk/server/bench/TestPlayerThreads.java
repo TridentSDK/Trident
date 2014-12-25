@@ -104,8 +104,8 @@ n.t.s.TestPlayerThreads.autoBox         avgt         5        7.113        0.323
 n.t.s.TestPlayerThreads.explicitBox     avgt         5        7.097        0.301    ns/op
  */
 public class TestPlayerThreads {
-    public static final Player PLAYER = TridentPlayer.spawnPlayer(ClientConnection.registerConnection(
-            new CTXProper().channel()), UUID.randomUUID());
+    public static final Player PLAYER = TridentPlayer.spawnPlayer(
+            ClientConnection.registerConnection(new CTXProper().channel()), UUID.randomUUID());
 
     /* @Benchmark public void explicitBox(Blackhole blackhole) {
         blackhole.consume(Integer.valueOf(69));
@@ -116,8 +116,7 @@ public class TestPlayerThreads {
     } */
 
     public static void main(String... args) throws RunnerException {
-        Options opt = new OptionsBuilder()
-                .include(".*" + TestPlayerThreads.class.getSimpleName() + ".*")
+        Options opt = new OptionsBuilder().include(".*" + TestPlayerThreads.class.getSimpleName() + ".*")
                 .timeUnit(TimeUnit.NANOSECONDS)
                 .mode(Mode.AverageTime)
                 .warmupIterations(10)

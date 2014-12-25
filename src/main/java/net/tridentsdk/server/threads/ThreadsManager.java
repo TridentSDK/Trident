@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.threads;
 
 import net.tridentsdk.concurrent.TaskExecutor;
@@ -33,8 +34,7 @@ import java.util.Collection;
  *
  * @author The TridentSDK Team
  */
-@ThreadSafe
-public final class ThreadsManager implements ThreadFactory {
+@ThreadSafe public final class ThreadsManager implements ThreadFactory {
     private static final ExecutorFactory<Entity> entities = new ConcurrentTaskExecutor<>(2);
     private static final ExecutorFactory<Player> players = new ConcurrentTaskExecutor<>(4);
     private static final ExecutorFactory<TridentPlugin> plugins = new ConcurrentTaskExecutor<>(2);
@@ -105,7 +105,6 @@ public final class ThreadsManager implements ThreadFactory {
         return entities;
     }
 
-
     /**
      * Gets the executor for the player thread pool
      *
@@ -116,7 +115,6 @@ public final class ThreadsManager implements ThreadFactory {
         return players;
     }
 
-
     /**
      * Gets the executor for the plugin thread pool
      *
@@ -126,7 +124,6 @@ public final class ThreadsManager implements ThreadFactory {
     public static ExecutorFactory<TridentPlugin> pluginExecutor() {
         return plugins;
     }
-
 
     /**
      * Gets the executor for the world thread pool

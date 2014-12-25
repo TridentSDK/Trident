@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.world.gen;
 
 import net.tridentsdk.Coordinates;
@@ -44,9 +45,9 @@ public class ChunkTile {
     /**
      * Creates a new pending chunk tile
      *
-     * @param x x coordinate of the tile
-     * @param y y coordinate of the tile
-     * @param z z coordinate of the tile
+     * @param x         x coordinate of the tile
+     * @param y         y coordinate of the tile
+     * @param z         z coordinate of the tile
      * @param substance the material to set at the location
      * @return the new pending chunk tile
      */

@@ -22,13 +22,10 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
+
 package org.openjdk.jcstress.infra.collectors;
 
-import java.io.EOFException;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
+import java.io.*;
 
 /**
  * Reads test state from the file.
@@ -74,5 +71,4 @@ public class DiskReadCollector {
             // expected
         }
     }
-
 }

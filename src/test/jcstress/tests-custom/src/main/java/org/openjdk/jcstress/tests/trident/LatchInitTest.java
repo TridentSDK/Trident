@@ -22,6 +22,7 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
+
 package org.openjdk.jcstress.tests.trident;
 
 import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
@@ -37,33 +38,26 @@ import org.openjdk.jcstress.infra.results.BooleanResult4;
 import java.nio.file.Paths;
 import java.util.concurrent.ConcurrentMap;
 
-@JCStressTest
-@Outcome(id = "[true, true, true, true]", expect = Expect.ACCEPTABLE, desc = "Latches work")
-@Outcome(expect = Expect.FORBIDDEN)
-@State
-public class LatchInitTest {
+@JCStressTest @Outcome(id = "[true, true, true, true]", expect = Expect.ACCEPTABLE, desc = "Latches work")
+@Outcome(expect = Expect.FORBIDDEN) @State public class LatchInitTest {
     @Actor
     public void collect(BooleanResult4 result4) {
-        if (Factories.collect() != null)
-            result4.r1 = true;
+        if (Factories.collect() != null) result4.r1 = true;
     }
 
     @Actor
     public void thread(BooleanResult4 result4) {
-        if (Factories.threads() != null)
-            result4.r2 = true;
+        if (Factories.threads() != null) result4.r2 = true;
     }
 
     @Actor
     public void config(BooleanResult4 result4) {
-        if (Factories.configs() != null)
-            result4.r3 = true;
+        if (Factories.configs() != null) result4.r3 = true;
     }
 
     @Actor
     public void task(BooleanResult4 result4) {
-        if (Factories.tasks() != null)
-            result4.r4 = true;
+        if (Factories.tasks() != null) result4.r4 = true;
     }
 
     @Actor

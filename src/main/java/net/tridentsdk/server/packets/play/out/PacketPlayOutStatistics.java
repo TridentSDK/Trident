@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
@@ -22,6 +23,7 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutStatistics extends OutPacket {
 
+    public static final OutPacket DEFAULT_STATISTIC = new PacketPlayOutStatistics().set("entries", null);
     protected StatisticEntry[] entries;
 
     @Override
@@ -36,8 +38,8 @@ public class PacketPlayOutStatistics extends OutPacket {
     @Override
     public void encode(ByteBuf buf) {
 
-        if(this.entries == null) {
-            Codec.writeVarInt32(buf,0);
+        if (this.entries == null) {
+            Codec.writeVarInt32(buf, 0);
             return;
         }
         Codec.writeVarInt32(buf, this.entries.length);
@@ -72,7 +74,4 @@ public class PacketPlayOutStatistics extends OutPacket {
             Codec.writeVarInt32(buf, this.value);
         }
     }
-
-    public static final OutPacket DEFAULT_STATISTIC = new PacketPlayOutStatistics()
-            .set("entries", null);
 }

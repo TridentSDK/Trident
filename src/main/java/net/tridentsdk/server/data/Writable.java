@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.data;
 
 import io.netty.buffer.ByteBuf;
@@ -26,9 +27,7 @@ import io.netty.buffer.ByteBuf;
 public interface Writable {
     /**
      * Writes the data contained by the current implementation into serialized form in the provided {@link
-     * io.netty.buffer.ByteBuf}
-     * <p/>
-     * <p>Check the implementation source to see serialization spec</p>
+     * io.netty.buffer.ByteBuf} <p/> <p>Check the implementation source to see serialization spec</p>
      *
      * @param buf the buffer to toPacket the serialized form to
      */

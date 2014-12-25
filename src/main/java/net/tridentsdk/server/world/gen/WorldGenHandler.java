@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.world.gen;
 
 import net.tridentsdk.world.World;
@@ -35,7 +36,8 @@ public class WorldGenHandler {
     }
 
     public void apply(World world) {
-        for (ChunkTile tile : generator.doGen(world))
+        for (ChunkTile tile : generator.doGen(world)) {
             tile.apply(world);
+        }
     }
 }

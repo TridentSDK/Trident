@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.netty.packet;
 
 import io.netty.buffer.ByteBuf;
@@ -40,8 +41,7 @@ public class PacketEncrypter extends MessageToByteEncoder<ByteBuf> {
      * java.lang.Object, io.netty.buffer.ByteBuf)
      */
     @Override
-    protected void encode(ChannelHandlerContext ctx, ByteBuf msg, ByteBuf out)
-            throws Exception {
+    protected void encode(ChannelHandlerContext ctx, ByteBuf msg, ByteBuf out) throws Exception {
         if (this.connection.isEncryptionEnabled()) {
             out.writeBytes(this.connection.encrypt(Codec.toArray(msg)));
         } else {

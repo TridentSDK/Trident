@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
@@ -25,7 +26,7 @@ import net.tridentsdk.world.ChunkLocation;
 public class PacketPlayOutMultiBlockChange extends OutPacket {
 
     protected ChunkLocation chunkLocation;
-    protected RecordBuilder[] records = {};
+    protected RecordBuilder[] records = { };
 
     @Override
     public int getId() {
@@ -41,7 +42,7 @@ public class PacketPlayOutMultiBlockChange extends OutPacket {
     }
 
     public void cleanup() {
-        RecordBuilder[] newRecords = {};
+        RecordBuilder[] newRecords = { };
 
         for (RecordBuilder value : this.records) {
             if (value != null) {

@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
@@ -87,7 +88,8 @@ public class PacketPlayInClientStatus extends InPacket {
                 break;
 
             default:
-                TridentLogger.error(new IllegalArgumentException("Client sent invalid status, maybe modified?")); // catched by
+                TridentLogger.error(
+                        new IllegalArgumentException("Client sent invalid status, maybe modified?")); // catched by
                 // PacketHandler
         }
     }
@@ -105,8 +107,7 @@ public class PacketPlayInClientStatus extends InPacket {
 
         public static StatusType getStatus(int id) {
             for (StatusType type : StatusType.values()) {
-                if (type.getId() == id)
-                    return type;
+                if (type.getId() == id) return type;
             }
 
             return null;

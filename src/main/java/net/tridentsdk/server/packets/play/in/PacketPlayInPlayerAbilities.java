@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
@@ -79,7 +80,8 @@ public class PacketPlayInPlayerAbilities extends InPacket {
         TridentPlayer player = ((PlayerConnection) connection).getPlayer();
 
         if (player.getFlyingSpeed() * 250.0F != this.flyingSpeed) {
-            TridentLogger.error(new IllegalArgumentException("Client sent invalid flying speed, possibly hack installed"));
+            TridentLogger.error(
+                    new IllegalArgumentException("Client sent invalid flying speed, possibly hack installed"));
         }
 
         // TODO: act accordingly

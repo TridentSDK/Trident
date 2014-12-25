@@ -46,11 +46,11 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
+
 package org.openjdk.jcstress.util;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 import java.util.PriorityQueue;
 
@@ -60,7 +60,10 @@ public class Multisets {
         // crude and inefficient
         PriorityQueue<Pair<T, Integer>> q = new PriorityQueue<>(10, (o1, o2) -> o2.k2.compareTo(o1.k2));
 
-        q.addAll(set.keys().stream().map(key -> new Pair<>(key, set.count(key))).collect(java.util.stream.Collectors.toList()));
+        q.addAll(set.keys()
+                         .stream()
+                         .map(key -> new Pair<>(key, set.count(key)))
+                         .collect(java.util.stream.Collectors.toList()));
 
         List<T> result = new ArrayList<>();
         for (int t = 0; (t < top && !q.isEmpty()); t++) {
@@ -79,5 +82,4 @@ public class Multisets {
             this.k2 = k2;
         }
     }
-
 }

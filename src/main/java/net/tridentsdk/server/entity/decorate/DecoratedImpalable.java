@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.entity.decorate;
 
 import com.google.common.base.Function;
@@ -32,12 +33,11 @@ import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.Set;
 
-@ThreadSafe
-public abstract class DecoratedImpalable implements Impalable {
-    private volatile Entity impaledEntity;
-    private volatile Tile impaledTile;
+@ThreadSafe public abstract class DecoratedImpalable implements Impalable {
     private final Set<WeakReference<Projectile>> projectiles = Sets.newSetFromMap(
             new ConcurrentHashMapV8<WeakReference<Projectile>, Boolean>());
+    private volatile Entity impaledEntity;
+    private volatile Tile impaledTile;
 
     @Override
     public abstract boolean isImpaledEntity();
@@ -74,14 +74,14 @@ public abstract class DecoratedImpalable implements Impalable {
 
     @Override
     public List<Projectile> projectiles() {
-        return new ImmutableList.Builder<Projectile>().addAll(Iterators.transform(projectiles.iterator(),
-                new Function<WeakReference<Projectile>, Projectile>() {
-            @Nullable
-            @Override
-            public Projectile apply(WeakReference<Projectile> projectileWeakReference) {
-                return projectileWeakReference.get();
-            }
-        })).build();
+        return new ImmutableList.Builder<Projectile>().addAll(
+                Iterators.transform(projectiles.iterator(), new Function<WeakReference<Projectile>, Projectile>() {
+                                        @Nullable
+                                        @Override
+                                        public Projectile apply(WeakReference<Projectile> projectileWeakReference) {
+                                            return projectileWeakReference.get();
+                                        }
+                                    })).build();
     }
 
     public void applyTo(Entity entity) {

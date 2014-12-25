@@ -49,5 +49,4 @@ public class OpenAddressHashCounterTest {
 
         Assert.assertEquals(1000, cnt.elementSet().size());
     }
-
 }

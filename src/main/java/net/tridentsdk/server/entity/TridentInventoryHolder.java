@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.entity;
 
 import net.tridentsdk.Coordinates;
@@ -30,13 +31,12 @@ import java.util.UUID;
  * @author The TridentSDK Team
  */
 public abstract class TridentInventoryHolder extends TridentLivingEntity implements InventoryHolder {
+    private final Object BARRIER;
     /**
      * The inventory held by the entity
      */
     @Volatile(policy = "Do not set after construction", reason = "Barrier", fix = "Set in constructor, do not change")
     protected Inventory inventory;
-
-    private final Object BARRIER;
 
     /**
      * Inherits constructor from {@link TridentLivingEntity}

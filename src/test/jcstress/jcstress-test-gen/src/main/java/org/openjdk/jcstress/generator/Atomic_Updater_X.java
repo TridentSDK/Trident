@@ -22,19 +22,19 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
+
 package org.openjdk.jcstress.generator;
 
 public class Atomic_Updater_X implements Primitive {
-
-    private String unitValue;
-    private String defaultValue;
-    private String rValue;
-    private String setValue;
 
     private final Class<?> guardType;
     private final Class<?> primType;
     private final AcqType acqType;
     private final RelType relType;
+    private String unitValue;
+    private String defaultValue;
+    private String rValue;
+    private String setValue;
 
     public Atomic_Updater_X(Class<?> guardType, Class<?> primType, AcqType acqType, RelType relType) {
         this.guardType = guardType;
@@ -50,36 +50,41 @@ public class Atomic_Updater_X implements Primitive {
 
     @Override
     public String printStateField(String klassName) {
-        return "final " + guardType.getSimpleName() + "<" + klassName + "> g = " + guardType.getSimpleName() + ".<" + klassName + ">newUpdater(" + klassName + ".class, \"v\");" + "\n"
-               + "volatile " + primType.getSimpleName() + " v;";
+        return "final " + guardType.getSimpleName() + "<" + klassName + "> g = " + guardType.getSimpleName() + ".<" +
+                klassName + ">newUpdater(" + klassName + ".class, \"v\");" + "\n" + "volatile " + primType
+                .getSimpleName() + " v;";
     }
 
     @Override
     public String printAcquire(String region) {
         switch (acqType) {
             case CAS:
-                return String.format("r.r1 = g.compareAndSet(this, %s, %s) ? %s : %s; \n" + region,
-                        setValue,
-                        defaultValue,
-                        setValue,
-                        defaultValue
-                );
+                return String.format("r.r1 = g.compareAndSet(this, %s, %s) ? %s : %s; \n" + region, setValue,
+                                     defaultValue, setValue, defaultValue);
             case get:
-                return "r.r1 = g.get(this) == " + defaultValue + "? " + defaultValue + " : " + setValue + " ; \n" + region;
+                return "r.r1 = g.get(this) == " + defaultValue + "? " + defaultValue + " : " + setValue + " ; \n" +
+                        region;
             case incrementAndGet:
-                return "r.r1 = g.incrementAndGet(this) == (" + defaultValue + " + " + unitValue + ") ? " + defaultValue + " : " + setValue + "; \n" + region;
+                return "r.r1 = g.incrementAndGet(this) == (" + defaultValue + " + " + unitValue + ") ? " +
+                        defaultValue + " : " + setValue + "; \n" + region;
             case getAndIncrement:
-                return "r.r1 = g.getAndIncrement(this) == " + defaultValue + "? " + defaultValue + " : " + setValue + " ; \n" + region;
+                return "r.r1 = g.getAndIncrement(this) == " + defaultValue + "? " + defaultValue + " : " + setValue +
+                        " ; \n" + region;
             case decrementAndGet:
-                return "r.r1 = g.decrementAndGet(this) == (" + defaultValue + " - " + unitValue + ") ? " + defaultValue + " : " + setValue + "; \n" + region;
+                return "r.r1 = g.decrementAndGet(this) == (" + defaultValue + " - " + unitValue + ") ? " +
+                        defaultValue + " : " + setValue + "; \n" + region;
             case getAndDecrement:
-                return "r.r1 = g.getAndDecrement(this) == " + defaultValue + "? " + defaultValue + " : " + setValue + " ; \n" + region;
+                return "r.r1 = g.getAndDecrement(this) == " + defaultValue + "? " + defaultValue + " : " + setValue +
+                        " ; \n" + region;
             case addAndGet:
-                return "r.r1 = g.addAndGet(this, " + rValue + ") == (" + defaultValue + " + " + rValue + ") ? " + defaultValue + " : " + setValue + "; \n" + region;
+                return "r.r1 = g.addAndGet(this, " + rValue + ") == (" + defaultValue + " + " + rValue + ") ? " +
+                        defaultValue + " : " + setValue + "; \n" + region;
             case getAndAdd:
-                return "r.r1 = g.getAndAdd(this, " + rValue + ") == " + defaultValue + "? " + defaultValue + " : " + setValue + " ; \n" + region;
+                return "r.r1 = g.getAndAdd(this, " + rValue + ") == " + defaultValue + "? " + defaultValue + " : " +
+                        setValue + " ; \n" + region;
             case getAndSet:
-                return "r.r1 = g.getAndSet(this, " + rValue + ") == " + defaultValue + "? " + defaultValue + " : " + setValue + " ; \n" + region;
+                return "r.r1 = g.getAndSet(this, " + rValue + ") == " + defaultValue + "? " + defaultValue + " : " +
+                        setValue + " ; \n" + region;
             default:
                 throw new IllegalStateException("" + acqType);
         }
@@ -89,9 +94,9 @@ public class Atomic_Updater_X implements Primitive {
     public String printRelease(String region) {
         switch (relType) {
             case set:
-                return region + "g.set(this, " +setValue + ");";
+                return region + "g.set(this, " + setValue + ");";
             case CAS:
-                return region + "g.compareAndSet(this, " + defaultValue + ", " +setValue + ");";
+                return region + "g.compareAndSet(this, " + defaultValue + ", " + setValue + ");";
             case incrementAndGet:
                 return region + "g.incrementAndGet(this);";
             case getAndIncrement:
@@ -115,5 +120,4 @@ public class Atomic_Updater_X implements Primitive {
     public String getClassName() {
         return guardType.getName();
     }
-
 }

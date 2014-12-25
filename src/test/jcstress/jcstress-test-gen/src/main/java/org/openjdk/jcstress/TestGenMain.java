@@ -22,6 +22,7 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
+
 package org.openjdk.jcstress;
 
 import org.openjdk.jcstress.generator.TestGenerator;
@@ -37,5 +38,4 @@ public class TestGenMain {
             throw new IllegalStateException("Please provide the destination dir");
         }
     }
-
 }
