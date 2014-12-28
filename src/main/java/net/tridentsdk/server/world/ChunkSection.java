@@ -76,7 +76,7 @@ final class ChunkSection implements NBTSerializable {
                                     bData); // TODO: get none-relative location
 
                 /* TODO get the type and deal with block data accordingly */
-            switch (block.getSubstance()) {
+            switch (block.substance()) {
                 default:
                     break;
             }

@@ -20,12 +20,12 @@ package net.tridentsdk.server.entity;
 import net.tridentsdk.Coordinates;
 import net.tridentsdk.Trident;
 import net.tridentsdk.base.Substance;
-import net.tridentsdk.concurrent.TaskExecutor;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.docs.PossiblyThreadSafe;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.EntityProperties;
 import net.tridentsdk.entity.EntityType;
+import net.tridentsdk.factory.ExecutorFactory;
 import net.tridentsdk.meta.nbt.*;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutDestroyEntities;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutEntityTeleport;
@@ -52,7 +52,7 @@ import java.util.concurrent.atomic.AtomicLong;
     /**
      * Internal entity tracker, used to spawn the entity and track movement, etc.
      */
-    protected static final EntityManager MANAGER = new EntityManager();
+    protected static final EntityHandler HANDLER = new EntityHandler();
     /**
      * The distance the entity has fallen
      */
@@ -84,7 +84,7 @@ import java.util.concurrent.atomic.AtomicLong;
     /**
      * Entity task executor
      */
-    protected volatile TaskExecutor executor;
+    protected volatile ExecutorFactory<? extends Entity> executor;
     /**
      * The movement vector for the entity
      */
@@ -131,9 +131,9 @@ import java.util.concurrent.atomic.AtomicLong;
         this.loc = spawnLocation;
 
         for (double y = this.loc.getY(); y > 0.0; y--) {
-            Coordinates l = Coordinates.create(this.loc.getWorld(), this.loc.getX(), y, this.loc.getZ());
+            Coordinates l = Coordinates.create(this.loc.world(), this.loc.getX(), y, this.loc.getZ());
 
-            if (l.getTile().getSubstance() != Substance.AIR) {
+            if (l.tile().substance() != Substance.AIR) {
                 this.fallDistance.set((long) (this.loc.getY() - y));
                 this.onGround = this.fallDistance.get() == 0.0D;
 
@@ -153,7 +153,7 @@ import java.util.concurrent.atomic.AtomicLong;
      * @return the current entity
      */
     public TridentEntity spawn() {
-        MANAGER.registerEntity(this);
+        HANDLER.registerEntity(this);
         return this;
     }
 
@@ -172,9 +172,9 @@ import java.util.concurrent.atomic.AtomicLong;
         this.loc = location;
 
         for (double y = this.loc.getY(); y > 0.0; y--) {
-            Coordinates l = Coordinates.create(this.loc.getWorld(), this.loc.getX(), y, this.loc.getZ());
+            Coordinates l = Coordinates.create(this.loc.world(), this.loc.getX(), y, this.loc.getZ());
 
-            if (l.getWorld().getTileAt(l).getSubstance() != Substance.AIR) {
+            if (l.world().tileAt(l).substance() != Substance.AIR) {
                 this.fallDistance.set((long) (this.loc.getY() - y));
                 this.onGround = this.fallDistance.get() == 0.0D;
 
@@ -189,7 +189,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
     @Override
     public World getWorld() {
-        return this.loc.getWorld();
+        return this.loc.world();
     }
 
     @Override
@@ -245,7 +245,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
     @Override
     public Set<Entity> getNearbyEntities(double radius) {
-        Set<Entity> entities = getLocation().getWorld().getEntities();
+        Set<Entity> entities = getLocation().world().entities();
         Set<Entity> near = new HashSet<>();
         for (Entity entity : entities) {
             if (entity.getLocation().distanceSquared(getLocation()) <= radius) near.add(entity);
@@ -264,7 +264,7 @@ import java.util.concurrent.atomic.AtomicLong;
         PacketPlayOutDestroyEntities packet = new PacketPlayOutDestroyEntities();
         packet.set("destroyedEntities", new int[] { getId() });
         TridentPlayer.sendAll(packet);
-        MANAGER.removeEntity(this);
+        HANDLER.removeEntity(this);
     }
 
     @Override
@@ -304,7 +304,7 @@ import java.util.concurrent.atomic.AtomicLong;
      * @param newCoords the new location for the entity
      */
     public void doMove(Coordinates newCoords) {
-        MANAGER.trackMovement(this, getLocation(), newCoords);
+        HANDLER.trackMovement(this, getLocation(), newCoords);
         this.setLocation(newCoords);
     }
 

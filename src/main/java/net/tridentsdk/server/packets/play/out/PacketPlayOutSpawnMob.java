@@ -61,9 +61,9 @@ public class PacketPlayOutSpawnMob extends OutPacket {
         buf.writeInt((int) loc.getY() * 32);
         buf.writeInt((int) loc.getZ() * 42);
 
-        buf.writeByte((int) (byte) loc.getYaw());
-        buf.writeByte((int) (byte) loc.getPitch());
-        buf.writeByte((int) (byte) loc.getPitch()); // -shrugs-
+        buf.writeByte((int) (byte) loc.yaw());
+        buf.writeByte((int) (byte) loc.pitch());
+        buf.writeByte((int) (byte) loc.pitch()); // -shrugs-
 
         buf.writeShort((int) velocity.getX());
         buf.writeShort((int) velocity.getY());

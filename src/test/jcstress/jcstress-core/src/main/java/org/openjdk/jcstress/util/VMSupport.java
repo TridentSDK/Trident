@@ -22,7 +22,6 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-
 package org.openjdk.jcstress.util;
 
 import sun.hotspot.WhiteBox;
@@ -58,7 +57,8 @@ public class VMSupport {
     public static void tryDeoptimizeAllInfra(int actionProbRatio) {
         WhiteBox w = whiteBox;
         if (w != null) {
-            if (ThreadLocalRandom.current().nextInt(actionProbRatio) != 0) return;
+            if (ThreadLocalRandom.current().nextInt(actionProbRatio) != 0)
+                return;
 
             try {
                 Collection<Method> im = infraMethods;
@@ -78,10 +78,13 @@ public class VMSupport {
                     infraMethods = im;
                 }
 
-                im.forEach(w::deoptimizeMethod);
+                for (Method m : im) {
+                    w.deoptimizeMethod(m);
+                }
             } catch (IOException e) {
                 throw new IllegalStateException();
             }
         }
     }
+
 }

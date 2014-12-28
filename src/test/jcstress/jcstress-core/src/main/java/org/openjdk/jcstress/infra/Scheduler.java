@@ -22,12 +22,12 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-
 package org.openjdk.jcstress.infra;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -73,4 +73,5 @@ public class Scheduler {
     public interface ScheduledTask extends Runnable {
         int getTokens();
     }
+
 }

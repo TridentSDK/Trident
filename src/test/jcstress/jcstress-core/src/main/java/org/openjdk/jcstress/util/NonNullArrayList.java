@@ -22,7 +22,6 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-
 package org.openjdk.jcstress.util;
 
 import java.util.ArrayList;
@@ -33,4 +32,5 @@ public class NonNullArrayList<E> extends ArrayList<E> {
     public boolean add(E e) {
         return (e != null) && super.add(e);
     }
+
 }

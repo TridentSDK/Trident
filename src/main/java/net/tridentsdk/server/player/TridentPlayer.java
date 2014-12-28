@@ -30,7 +30,7 @@ import net.tridentsdk.server.entity.ParameterValue;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.packets.play.out.*;
-import net.tridentsdk.server.threads.ThreadsManager;
+import net.tridentsdk.server.threads.ThreadsHandler;
 import net.tridentsdk.server.world.TridentChunk;
 import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.util.TridentLogger;
@@ -68,19 +68,19 @@ import java.util.UUID;
 
         final TridentPlayer p = EntityBuilder.create()
                 .uuid(id)
-                .spawnLocation(TridentServer.WORLD.getSpawn())
-                .executor(ThreadsManager.playerExecutor())
+                .spawnLocation(TridentServer.WORLD.spawnLocation())
+                .executor(ThreadsHandler.playerExecutor())
                 .build(TridentPlayer.class, ParameterValue.from(CompoundTag.class, offlinePlayer),
                        ParameterValue.from(TridentWorld.class, TridentServer.WORLD),
                        ParameterValue.from(ClientConnection.class, connection));
 
-        p.executor.addTask(new Runnable() {
+        p.executor.execute(new Runnable() {
             @Override
             public void run() {
                 p.connection.sendPacket(new PacketPlayOutJoinGame().set("entityId", p.getId())
                                                 .set("gamemode", p.getGameMode())
                                                 .set("dimension", ((TridentWorld) p.getWorld()).getDimesion())
-                                                .set("difficulty", p.getWorld().getDifficulty())
+                                                .set("difficulty", p.getWorld().difficulty())
                                                 .set("maxPlayers", (short) 10)
                                                 .set("levelType", LevelType.DEFAULT));
 
@@ -99,7 +99,7 @@ import java.util.UUID;
                 slots[43] = new Slot(new Item(Substance.APPLE));
                 //p.connection.sendPacket(new PacketPlayOutWindowItems().set("windowId", 0).set("slots", slots));
                 p.sendChunks(3);
-                for (Entity entity : p.getWorld().getEntities()) {
+                for (Entity entity : p.getWorld().entities()) {
                     // Register mob, packet sent to new player
                 }
             }
@@ -124,7 +124,7 @@ import java.util.UUID;
 
     @Override
     public void tick() {
-        this.executor.addTask(new Runnable() {
+        this.executor.execute(new Runnable() {
             @Override
             public void run() {
                 TridentPlayer.super.tick();
@@ -153,7 +153,7 @@ import java.util.UUID;
      * TODO: Create Message API and utilize it
      */
     public void kickPlayer(final String reason) {
-        this.executor.addTask(new Runnable() {
+        this.executor.execute(new Runnable() {
             @Override
             public void run() {
                 TridentPlayer.this.connection.sendPacket(new PacketPlayOutDisconnect().set("reason", reason));
@@ -166,7 +166,7 @@ import java.util.UUID;
     }
 
     public void setSlot(final short slot) {
-        this.executor.addTask(new Runnable() {
+        this.executor.execute(new Runnable() {
             @Override
             public void run() {
                 if ((int) slot > 8 || (int) slot < 0) {
@@ -181,7 +181,7 @@ import java.util.UUID;
     @Override
     public void sendRaw(final String... messages) {
         // TODO: Verify proper implementation
-        this.executor.addTask(new Runnable() {
+        this.executor.execute(new Runnable() {
             @Override
             public void run() {
                 for (String message : messages) {
@@ -201,7 +201,7 @@ import java.util.UUID;
 
         for (int x = (centX - viewDistance); x <= (centX + viewDistance); x += 1) {
             for (int z = (centZ - viewDistance); z <= (centZ + viewDistance); z += 1) {
-                connection.sendPacket(((TridentChunk) getWorld().getChunkAt(x, z, true)).toPacket());
+                connection.sendPacket(((TridentChunk) getWorld().chunkAt(x, z, true)).toPacket());
             }
         }
     }

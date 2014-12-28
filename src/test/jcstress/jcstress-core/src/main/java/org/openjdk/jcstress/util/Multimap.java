@@ -46,8 +46,8 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-
 package org.openjdk.jcstress.util;
+
 
 import java.util.Collection;
 
@@ -62,14 +62,13 @@ public interface Multimap<K, V> {
     /**
      * Put the element pair.
      *
-     * @param key   key
+     * @param key key
      * @param value value
      */
     void put(K key, V value);
 
     /**
      * Get all values associated with the key
-     *
      * @param key key
      * @return collection of values
      */
@@ -77,7 +76,6 @@ public interface Multimap<K, V> {
 
     /**
      * Checks if multimap is empty
-     *
      * @return true, if empty
      */
     boolean isEmpty();
@@ -89,7 +87,6 @@ public interface Multimap<K, V> {
 
     /**
      * Keys in the map
-     *
      * @return collection of keys
      */
     Collection<K> keys();
@@ -97,4 +94,5 @@ public interface Multimap<K, V> {
     Collection<V> values();
 
     void remove(K key);
+
 }

@@ -29,7 +29,7 @@ import java.util.Map;
  *
  * @author The TridentSDK Team
  */
-@ThreadSafe public class WindowManager {
+@ThreadSafe public class WindowHandler {
     private static final Map<Integer, TridentWindow> windows = new ConcurrentHashMapV8<>();
 
     /**

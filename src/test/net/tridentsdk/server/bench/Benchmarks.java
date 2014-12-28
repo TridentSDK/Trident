@@ -1,10 +1,10 @@
 package net.tridentsdk.server.bench;
 
 import com.google.common.collect.LinkedListMultimap;
+import com.google.common.collect.Lists;
 import org.openjdk.jmh.results.BenchmarkResult;
 import org.openjdk.jmh.results.RunResult;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -97,7 +97,7 @@ public class Benchmarks {
             dataBuilder.append("|");
 
             String label = keys[i];
-            List<Double> doubles = new ArrayList<>(data.get(label));
+            List<Double> doubles = Lists.newArrayList(data.get(label));
             for (int j = 0; j < doubles.size(); j++) {
                 dataBuilder.append(roundTo3(doubles.get(j) - base[j]));
                 if (j != doubles.size() - 1) dataBuilder.append(",");

@@ -22,7 +22,6 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-
 package org.openjdk.jcstress.infra.runners;
 
 import org.openjdk.jcstress.Options;
@@ -36,7 +35,11 @@ import org.openjdk.jcstress.util.VMSupport;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Collection;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Basic runner for concurrency tests.
@@ -64,7 +67,8 @@ public abstract class Runner<R> {
     }
 
     /**
-     * Run the test. This method blocks until test is complete
+     * Run the test.
+     * This method blocks until test is complete
      */
     public void run() {
         testLog.println("Running " + testName);
@@ -97,6 +101,7 @@ public abstract class Runner<R> {
         }
         testLog.println();
     }
+
 
     protected void dumpFailure(String testName, Status status) {
         TestResult result = new TestResult(testName, status);
@@ -145,7 +150,7 @@ public abstract class Runner<R> {
                 }
             }
 
-            if (TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime) > Math.max(control.time, 60 * 1000)) {
+            if (TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime) > Math.max(control.time, 60*1000)) {
                 dumpFailure(testName, Status.TIMEOUT_ERROR);
                 return;
             }

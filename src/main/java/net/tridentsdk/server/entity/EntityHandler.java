@@ -31,6 +31,7 @@ import net.tridentsdk.util.TridentLogger;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -38,7 +39,7 @@ import java.util.Map;
  *
  * @author The TridentSDK Team
  */
-@ThreadSafe public final class EntityManager {
+@ThreadSafe public final class EntityHandler {
     private final Map<Integer, Entity> entities = new ConcurrentHashMapV8<>();
     private final EntityTracker tracker = new EntityTracker();
 
@@ -46,7 +47,7 @@ import java.util.Map;
      * Constructs the EntityManager for use by the server ONLY <p/> <p>In other words, DON'T USE IT</p>
      */
     @InternalUseOnly
-    public EntityManager() {
+    public EntityHandler() {
         if (!Trident.isTrident()) TridentLogger.error(
                 new UnsupportedOperationException("EntityManager can only be initalized by TridentSDK!"));
     }
@@ -99,7 +100,7 @@ import java.util.Map;
      * @param <T>  the entity type
      * @return the list of entities with the specified type
      */
-    public <T> ArrayList<T> getEntities(final Class<T> type) {
+    public <T> List<T> getEntities(final Class<T> type) {
         Predicate<Entity> pred = new Predicate<Entity>() {
             @Override
             public boolean apply(Entity e) {

@@ -27,8 +27,9 @@ import net.tridentsdk.factory.CollectFactory;
 import net.tridentsdk.factory.ConfigFactory;
 import net.tridentsdk.factory.ExecutorFactory;
 import net.tridentsdk.factory.Factories;
+import net.tridentsdk.plugin.TridentPlugin;
 import net.tridentsdk.server.TridentScheduler;
-import net.tridentsdk.server.threads.ThreadsManager;
+import net.tridentsdk.server.threads.ThreadsHandler;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
 import org.openjdk.jmh.runner.Runner;
@@ -54,6 +55,8 @@ Benchmark results: http://bit.ly/1B3psZv
     private static final TaskExecutor EXECUTOR = EXEC.scaledThread();
     // Cannot be initialized first, else whole class cannot be loaded completely
     private final net.tridentsdk.event.EventHandler EVENT_MANAGER = new net.tridentsdk.event.EventHandler();
+    private static final TridentPlugin PLUGIN = new Plugin();
+    private static class Plugin extends TridentPlugin {}
 
     static {
         Factories.init(new CollectFactory() {
@@ -62,7 +65,7 @@ Benchmark results: http://bit.ly/1B3psZv
                 return new ConcurrentHashMapV8<>();
             }
         });
-        Factories.init(new ThreadsManager());
+        Factories.init(new ThreadsHandler());
         Factories.init(new TridentScheduler());
 
         final JsonConfig innerConfig = new JsonConfig(new File("toplel"));
@@ -80,22 +83,23 @@ Benchmark results: http://bit.ly/1B3psZv
     public static void main0(String[] args) {
         final EventBusPerformance performance = new EventBusPerformance();
         for (int i = 0; i < 10; i++) {
-            EXEC.scaledThread().addTask(new Runnable() {
+            EXEC.execute(new Runnable() {
                 @Override
                 public void run() {
                     // THIS IS INCORRECT - DO NOT DO IT!!!!
-                    performance.EVENT_MANAGER.registerListener(EXEC.scaledThread(), LISTENER);
+                    performance.EVENT_MANAGER.registerListener(PLUGIN, EXEC.scaledThread(), LISTENER);
                 }
             });
         }
         performance.EVENT_MANAGER.call(EVENT);
-        ThreadsManager.stopAll();
+        ThreadsHandler.stopAll();
     }
 
     public static void main(String[] args) throws RunnerException {
-        Options opt = new OptionsBuilder().include(".*" + EventBusPerformance.class.getSimpleName() + ".*") // CLASS
-                .timeUnit(TimeUnit.NANOSECONDS).mode(Mode.AverageTime).warmupIterations(20).warmupTime(
-                        TimeValue.milliseconds(1))              // ALLOWED TIME
+        Options opt = new OptionsBuilder()
+                .include(".*" + EventBusPerformance.class.getSimpleName() + ".*") // CLASS
+                .timeUnit(TimeUnit.NANOSECONDS).mode(Mode.AverageTime).warmupIterations(20)
+                .warmupTime(TimeValue.milliseconds(1))              // ALLOWED TIME
                 .measurementIterations(5).measurementTime(TimeValue.milliseconds(1))         // ALLOWED TIME
                 .forks(1)                                           // FORKS
                 .verbosity(VerboseMode.NORMAL)                      // GRAPH
@@ -107,7 +111,7 @@ Benchmark results: http://bit.ly/1B3psZv
 
     public void main1(String[] args) {
         while (true) {
-            EVENT_MANAGER.registerListener(EXECUTOR, LISTENER);
+            EVENT_MANAGER.registerListener(PLUGIN, EXECUTOR, LISTENER);
         }
     }
 
@@ -125,7 +129,7 @@ Benchmark results: http://bit.ly/1B3psZv
     @Benchmark
     public void eventManagerRegister() {
         Blackhole.consumeCPU(cpuTokens);
-        EVENT_MANAGER.registerListener(EXECUTOR, LISTENER);
+        EVENT_MANAGER.registerListener(PLUGIN, EXECUTOR, LISTENER);
     }
 
     @Benchmark

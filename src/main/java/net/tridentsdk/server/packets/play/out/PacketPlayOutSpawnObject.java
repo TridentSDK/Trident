@@ -48,9 +48,9 @@ public class PacketPlayOutSpawnObject extends OutPacket {
         buf.writeInt((int) l.getY() * 32);
         buf.writeInt((int) l.getZ() * 32);
 
-        buf.writeByte((int) (byte) l.getYaw());
-        buf.writeByte((int) (byte) l.getPitch());
-        buf.writeByte((int) (byte) l.getPitch()); // -shrugs-
+        buf.writeByte((int) (byte) l.yaw());
+        buf.writeByte((int) (byte) l.pitch());
+        buf.writeByte((int) (byte) l.pitch()); // -shrugs-
 
         buf.writeShort((int) v.getX());
         buf.writeShort((int) v.getY());

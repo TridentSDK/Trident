@@ -22,10 +22,10 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-
 package org.openjdk.jcstress.util;
 
 import org.openjdk.jcstress.infra.results.IntResult2;
+import org.openjdk.jcstress.util.UnsafeHolder;
 
 public class ContendedSupport {
     public static boolean tryContended() {

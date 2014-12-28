@@ -35,7 +35,7 @@ import net.tridentsdk.factory.CollectFactory;
 import net.tridentsdk.factory.ConfigFactory;
 import net.tridentsdk.factory.Factories;
 import net.tridentsdk.server.netty.ClientChannelInitializer;
-import net.tridentsdk.server.threads.ThreadsManager;
+import net.tridentsdk.server.threads.ThreadsHandler;
 import net.tridentsdk.util.TridentLogger;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -114,6 +114,7 @@ import static com.google.common.collect.Lists.newArrayList;
 
         TridentLogger.log("Starting server process...");
 
+        // TODO make possible to change the config safely ._.
         init(new JsonConfig(f));
     }
 
@@ -134,7 +135,7 @@ import static com.google.common.collect.Lists.newArrayList;
                 return new ConcurrentHashMapV8<>();
             }
         });
-        Factories.init(new ThreadsManager());
+        Factories.init(new ThreadsHandler());
         Factories.init(new TridentScheduler());
         Factories.init(new ConfigFactory() {
             @Override

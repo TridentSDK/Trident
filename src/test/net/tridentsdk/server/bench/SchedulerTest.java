@@ -17,12 +17,17 @@
 
 package net.tridentsdk.server.bench;
 
+import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
 import net.tridentsdk.concurrent.TridentRunnable;
+import net.tridentsdk.config.JsonConfig;
+import net.tridentsdk.factory.CollectFactory;
+import net.tridentsdk.factory.ConfigFactory;
 import net.tridentsdk.factory.Factories;
 import net.tridentsdk.plugin.TridentPlugin;
 import net.tridentsdk.plugin.annotation.PluginDescription;
 import net.tridentsdk.server.TridentScheduler;
-import net.tridentsdk.server.threads.ThreadsManager;
+import net.tridentsdk.server.threads.ThreadsHandler;
+import net.tridentsdk.util.TridentLogger;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
 import org.openjdk.jmh.results.RunResult;
@@ -31,17 +36,36 @@ import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 import org.openjdk.jmh.runner.options.TimeValue;
-import org.openjdk.jmh.runner.options.VerboseMode;
 
+import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 
 /*
 Benchmark results: http://bit.ly/12fTNow
  */
 @State(Scope.Benchmark) public class SchedulerTest {
+    static {
+        TridentLogger.init();
+        Factories.init(new ConfigFactory() {
+            @Override
+            public JsonConfig serverConfig() {
+                return new JsonConfig(Paths.get("/topkek"));
+            }
+        });
+        Factories.init(new CollectFactory() {
+            @Override
+            public <K, V> ConcurrentMap<K, V> createMap() {
+                return new ConcurrentHashMapV8<>();
+            }
+        });
+        Factories.init(new TridentScheduler());
+        Factories.init(new ThreadsHandler());
+    }
     private static final TridentScheduler scheduler = new TridentScheduler();
-    @Param({ "1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024" })
+
+    //@Param({ "1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024" })
     private int cpuTokens;
 
     public static void main8(String... args) throws InterruptedException {
@@ -72,11 +96,11 @@ Benchmark results: http://bit.ly/12fTNow
 
     public static void main(String... args) throws RunnerException {
         Options opt = new OptionsBuilder().include(".*" + SchedulerTest.class.getSimpleName() + ".*") // CLASS
-                .timeUnit(TimeUnit.NANOSECONDS).mode(Mode.AverageTime).warmupIterations(20).warmupTime(
-                        TimeValue.milliseconds(20))              // ALLOWED TIME
-                .measurementIterations(5).measurementTime(TimeValue.milliseconds(20))         // ALLOWED TIME
+                .timeUnit(TimeUnit.NANOSECONDS).mode(Mode.AverageTime).warmupIterations(25)
+                .warmupTime(TimeValue.milliseconds(20))             // ALLOWED TIME
+                .measurementIterations(5).measurementTime(TimeValue.milliseconds(25))         // ALLOWED TIME
                 .forks(1)                                           // FORKS
-                .verbosity(VerboseMode.SILENT)                      // GRAPH
+                //.verbosity(VerboseMode.SILENT)                      // GRAPH
                 .build();
 
         Collection<RunResult> results = new Runner(opt).run();
@@ -96,7 +120,7 @@ Benchmark results: http://bit.ly/12fTNow
                 public void run() {
                     System.out.println("LOL: " + finalI);
                 }
-            }, 0L, 20L);
+            }, 0L, 1L);
         }
         for (int i = 0; i < 100; i++) {
             Thread.sleep(50);
@@ -108,21 +132,21 @@ Benchmark results: http://bit.ly/12fTNow
 
     @Setup
     public void setup() {
-        Factories.init(new ThreadsManager());
+        Factories.init(new ThreadsHandler());
         for (int i = 0; i < 100000; i++) {
             @PluginDescription(name = "LOLCODE") class PluginImpl extends TridentPlugin {
             }
 
-            scheduler.asyncLater(new PluginImpl(), new TridentRunnable() {
+            scheduler.asyncRepeat(new PluginImpl(), new TridentRunnable() {
                 @Override
                 public void run() {
                     System.out.print("");
                 }
-            }, 1L);
+            }, 0L, 1L);
         }
     }
 
-    @Benchmark
+    //@Benchmark
     public void control() {
         Blackhole.consumeCPU(cpuTokens);
     }

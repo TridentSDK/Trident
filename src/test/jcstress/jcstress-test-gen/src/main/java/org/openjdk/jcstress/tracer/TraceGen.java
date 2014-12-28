@@ -22,7 +22,6 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-
 package org.openjdk.jcstress.tracer;
 
 import org.openjdk.jcstress.generator.ResultGenerator;
@@ -31,7 +30,16 @@ import org.openjdk.jcstress.generator.Utils;
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 public class TraceGen {
 
@@ -131,15 +139,16 @@ public class TraceGen {
 
             List<String> mappedResult = new ArrayList<>();
             for (Map<Integer, Integer> m : scResults) {
-                List<String> mappedValues = m.values()
-                        .stream()
-                        .map(this::mapConst)
-                        .collect(java.util.stream.Collectors.toList());
+                List<String> mappedValues = new ArrayList<>();
+                for (int v : m.values()) {
+                    mappedValues.add(mapConst(v));
+                }
                 mappedResult.add(mappedValues.toString());
             }
 
             emit(mt, mappedResult);
-            if ((testCount++ % 1000) == 0) System.out.print(".");
+            if ((testCount++ % 1000) == 0)
+                System.out.print(".");
         }
         System.out.println();
         System.out.println(testCount + " interesting multi-traces");
@@ -188,16 +197,17 @@ public class TraceGen {
         pw.println();
 
         Set<Integer> exist = new HashSet<>();
-        for (Trace trace : mt.traces) {
-            trace.ops.stream()
-                    .filter(op -> exist.add(op.getVarId()))
-                    .forEach((Op op) -> pw.println("   volatile int x" + op.getVarId() + ";"));
+        for (Trace trace : mt.traces)  {
+            for (Op op : trace.ops) {
+                if (exist.add(op.getVarId()))
+                    pw.println("   volatile int x" + op.getVarId() + ";");
+            }
         }
         pw.println();
 
         for (int t = 0; t < threads; t++) {
             pw.println("    @Actor");
-            pw.println("    public void actor" + (t + 1) + "(" + resultName + " r) {");
+            pw.println("    public void actor" + (t+1) + "(" + resultName + " r) {");
 
             for (Op op : mt.traces.get(t).ops) {
                 switch (op.getType()) {
@@ -234,7 +244,9 @@ public class TraceGen {
     private List<Trace> product(List<Trace> traces, List<Op> ops) {
         List<Trace> newTraces = new ArrayList<>();
         for (Trace trace : traces) {
-            newTraces.addAll(ops.stream().map(trace::pushTail).collect(java.util.stream.Collectors.toList()));
+            for (Op op : ops) {
+                newTraces.add(trace.pushTail(op));
+            }
         }
         return newTraces;
     }
@@ -305,10 +317,10 @@ public class TraceGen {
         }
 
         public List<Trace> allPermutations() {
-            List<Trace> traces = Utils.permutate(ops)
-                    .stream()
-                    .map(Trace::new)
-                    .collect(java.util.stream.Collectors.toList());
+            List<Trace> traces = new ArrayList<>();
+            for (List<Op> perm : Utils.permutate(ops)) {
+                traces.add(new Trace(perm));
+            }
             return traces;
         }
 
@@ -398,14 +410,17 @@ public class TraceGen {
         }
 
         public boolean hasNonMatchingLoads() {
-            Set<Integer> stores = ops.stream()
-                    .filter(op -> op.getType() == Op.Type.STORE)
-                    .map(Op::getVarId)
-                    .collect(java.util.stream.Collectors.toSet());
+            Set<Integer> stores = new HashSet<>();
+            for (Op op : ops) {
+                if (op.getType() == Op.Type.STORE) {
+                    stores.add(op.getVarId());
+                }
+            }
 
             for (Op op : ops) {
                 if (op.getType() == Op.Type.LOAD) {
-                    if (!stores.contains(op.getVarId())) return true;
+                    if (!stores.contains(op.getVarId()))
+                        return true;
                 }
             }
 
@@ -413,14 +428,17 @@ public class TraceGen {
         }
 
         public boolean hasNonMatchingStores() {
-            Set<Integer> loads = ops.stream()
-                    .filter(op -> op.getType() == Op.Type.LOAD)
-                    .map(Op::getVarId)
-                    .collect(java.util.stream.Collectors.toSet());
+            Set<Integer> loads = new HashSet<>();
+            for (Op op : ops) {
+                if (op.getType() == Op.Type.LOAD) {
+                    loads.add(op.getVarId());
+                }
+            }
 
             for (Op op : ops) {
                 if (op.getType() == Op.Type.STORE) {
-                    if (!loads.contains(op.getVarId())) return true;
+                    if (!loads.contains(op.getVarId()))
+                        return true;
                 }
             }
 
@@ -440,7 +458,10 @@ public class TraceGen {
             this.original = original;
 
             this.traces = new ArrayList<>();
-            traces.addAll(copy.stream().filter(t -> !t.ops.isEmpty()).collect(java.util.stream.Collectors.toList()));
+            for (Trace t : copy) {
+                if (!t.ops.isEmpty())
+                    traces.add(t);
+            }
 
             Collections.sort(traces, (o1, o2) -> o1.id().compareTo(o2.id()));
         }
@@ -459,9 +480,9 @@ public class TraceGen {
                 Trace cT = copy.get(t);
                 if (cT.ops.isEmpty()) {
                     copy.remove(t);
-                    newTraces.addAll(new MultiTrace(original, copy).linearize()
-                                             .stream()
-                                             .collect(java.util.stream.Collectors.toList()));
+                    for (Trace trace : new MultiTrace(original, copy).linearize()) {
+                        newTraces.add(trace);
+                    }
                 } else {
                     Op op = cT.ops.get(0);
                     copy.set(t, cT.removeFirst());
@@ -470,10 +491,9 @@ public class TraceGen {
                         copy.remove(t);
                     }
 
-                    newTraces.addAll(new MultiTrace(original, copy).linearize()
-                                             .stream()
-                                             .map(trace -> trace.pushHead(op))
-                                             .collect(java.util.stream.Collectors.toList()));
+                    for (Trace trace : new MultiTrace(original, copy).linearize()) {
+                        newTraces.add(trace.pushHead(op));
+                    }
                 }
             }
 
@@ -504,4 +524,5 @@ public class TraceGen {
             return sb.toString();
         }
     }
+
 }

@@ -22,7 +22,6 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-
 package org.openjdk.jcstress.infra.runners;
 
 import org.openjdk.jcstress.Options;
@@ -31,6 +30,7 @@ import org.openjdk.jcstress.Options;
  * @author Aleksey Shipilev (aleksey.shipilev@oracle.com)
  */
 public class Control {
+    public volatile boolean isStopped;
     public final boolean shouldYield;
     public final boolean verbose;
     public final int minStride;
@@ -38,7 +38,6 @@ public class Control {
     public final int time;
     public final int iters;
     public final int deoptRatio;
-    public volatile boolean isStopped;
 
     public Control(Options opts) {
         time = opts.getTime();

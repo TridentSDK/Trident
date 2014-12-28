@@ -22,7 +22,6 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-
 package org.openjdk.jcstress.annotations;
 
 import java.lang.annotation.ElementType;
@@ -31,8 +30,14 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotates the class treated as test state. <p/> Important invariants: - State classes should have a default
- * constructor; - All initializations in constructors and instance initializers are visible to all actors;
+ * Annotates the class treated as test state.
+ * <p/>
+ * Important invariants:
+ *   - State classes should have a default constructor;
+ *   - All initializations in constructors and instance initializers are
+ *     visible to all actors;
  */
-@Target(ElementType.TYPE) @Retention(RetentionPolicy.RUNTIME) public @interface State {
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface State {
 }

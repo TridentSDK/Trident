@@ -24,21 +24,21 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Class used to store login usernames during the login stage
  */
-public final class LoginManager {
+public final class LoginHandler {
     /**
      * Instance of the class
      */
-    protected static final LoginManager instance = new LoginManager();
+    protected static final LoginHandler instance = new LoginHandler();
 
     /**
      * Map used to store usernames with the address as the key
      */
     protected final Map<InetSocketAddress, String> loginNames = new ConcurrentHashMap<>();
 
-    protected LoginManager() {
+    protected LoginHandler() {
     }
 
-    public static LoginManager getInstance() {
+    public static LoginHandler getInstance() {
         return instance;
     }
 

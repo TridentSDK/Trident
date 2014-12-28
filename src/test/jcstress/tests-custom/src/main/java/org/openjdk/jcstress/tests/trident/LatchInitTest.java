@@ -25,56 +25,56 @@
 
 package org.openjdk.jcstress.tests.trident;
 
-import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
-import net.tridentsdk.config.JsonConfig;
-import net.tridentsdk.factory.CollectFactory;
-import net.tridentsdk.factory.ConfigFactory;
-import net.tridentsdk.factory.Factories;
-import net.tridentsdk.server.TridentScheduler;
-import net.tridentsdk.server.threads.ThreadsManager;
 import org.openjdk.jcstress.annotations.*;
-import org.openjdk.jcstress.infra.results.BooleanResult4;
+import org.openjdk.jcstress.infra.results.BooleanResult1;
 
-import java.nio.file.Paths;
-import java.util.concurrent.ConcurrentMap;
+import javax.annotation.concurrent.ThreadSafe;
+import java.util.concurrent.CountDownLatch;
 
 @JCStressTest @Outcome(id = "[true, true, true, true]", expect = Expect.ACCEPTABLE, desc = "Latches work")
-@Outcome(expect = Expect.FORBIDDEN) @State public class LatchInitTest {
-    @Actor
-    public void collect(BooleanResult4 result4) {
-        if (Factories.collect() != null) result4.r1 = true;
-    }
+@Outcome(expect = Expect.FORBIDDEN) public class LatchInitTest {
+    private final Object object = new Object();
 
     @Actor
-    public void thread(BooleanResult4 result4) {
-        if (Factories.threads() != null) result4.r2 = true;
+    public void count(HeldValueLatch<Object> latch, BooleanResult1 result1) {
+        latch.countDown(object);
     }
 
-    @Actor
-    public void config(BooleanResult4 result4) {
-        if (Factories.configs() != null) result4.r3 = true;
+    @Arbiter
+    public void await(HeldValueLatch<Object> latch, BooleanResult1 result1) {
+        try {
+            result1.r1 = latch.await() == object;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
-    @Actor
-    public void task(BooleanResult4 result4) {
-        if (Factories.tasks() != null) result4.r4 = true;
-    }
+    @State
+    @ThreadSafe public static class HeldValueLatch<V> {
+        private final CountDownLatch latch = new CountDownLatch(1);
+        private volatile V value;
 
-    @Actor
-    public void setup() {
-        Factories.init(new ConfigFactory() {
-            @Override
-            public JsonConfig serverConfig() {
-                return new JsonConfig(Paths.get("/topkek"));
-            }
-        });
-        Factories.init(new CollectFactory() {
-            @Override
-            public <K, V> ConcurrentMap<K, V> createMap() {
-                return new ConcurrentHashMapV8<>();
-            }
-        });
-        Factories.init(new TridentScheduler());
-        Factories.init(new ThreadsManager());
+        /**
+         * Sets the value in the latch <p/> <p>The effects of setting this only once is unspecified</p> <p/> <p>This is
+         * unsynchronized because all actions prior to counting down <em>happens-before</em> another thread awaits the
+         * value</p>
+         *
+         * @param value the value to set to the latch
+         */
+        public void countDown(V value) {
+            this.value = value;
+            latch.countDown();
+        }
+
+        /**
+         * Acquires the value held be the latch, or blocks to wait for the value to become available
+         *
+         * @return the value held by the latch
+         * @throws InterruptedException if the operation was interrupted while blocked
+         */
+        public V await() throws InterruptedException {
+            latch.await();
+            return value;
+        }
     }
 }

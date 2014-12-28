@@ -22,7 +22,6 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-
 package org.openjdk.jcstress.infra.grading;
 
 import org.openjdk.jcstress.annotations.Expect;
@@ -39,10 +38,10 @@ import java.util.List;
  * @author Aleksey Shipilev (aleksey.shipilev@oracle.com)
  */
 public class TestGrading {
-    public final List<String> failureMessages;
     public boolean isPassed;
     public boolean hasInteresting;
     public boolean hasSpec;
+    public final List<String> failureMessages;
 
     public TestGrading(TestResult r, TestInfo test) {
         failureMessages = new NonNullArrayList<>();
@@ -154,4 +153,5 @@ public class TestGrading {
                 throw new IllegalStateException("No grading for expect type = " + expect);
         }
     }
+
 }

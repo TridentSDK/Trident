@@ -18,6 +18,7 @@
 package net.tridentsdk.server.threads;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Queues;
 import net.tridentsdk.Defaults;
 import net.tridentsdk.concurrent.ConcurrentCache;
 import net.tridentsdk.concurrent.TaskExecutor;
@@ -27,7 +28,6 @@ import net.tridentsdk.perf.Performance;
 import net.tridentsdk.util.TridentLogger;
 
 import javax.annotation.concurrent.ThreadSafe;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Queue;
@@ -36,19 +36,54 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 
 /**
- * Thread list to allow task execution in a shared thread scaled with removal <p/> <p>Allows assignment of a worker to
- * the user</p>
+ * Thread list to allow task execution in a shared thread scaled with removal
+ *
+ * <p>Allows assignment of a worker to the user.</p>
+ *
+ * <p>This is a concurrency baseline used in Trident. Anywhere there needs to be threads, the ConcurrentTaskExecutor
+ * is the go-to class for thread pooling and task execution. This class serves the purpose to provide a fixed thread
+ * pool whose function is optimized task execution concurrently, as the name suggests. The motivation behind extensive
+ * testing and optimization of this class is to improve the existing executor framework to execute tasks with lower
+ * submission latency, and the fact that the entire concurrency design falls upon this single class to keep up with the
+ * demands of the server.</p>
+ *
+ * <p>Task metrics are performed in each worker in order to balance task execution between the threads in the pool.
+ * Thread confinement and consistency can be achieved by acquiring a single internal worker thread, which provides the
+ * necessary methods and external handling within the pool to allow the request to keep executing tasks on the worker
+ * while still having the same balancing scalability provided by the distributed {@link #execute(Runnable)} method.</p>
+ *
+ * <p>A different approach is used to task execution by the workers. Instead of using a linked concurrent collection,
+ * which increases the latency between submission and execution phases of the task, the worker stores tasks queued to
+ * execute using an {@link java.util.concurrent.ArrayBlockingQueue}. This suppresses GC overhead and latency by direct
+ * array store instead of node linking. Albeit fast, linked collections do not out perform an array based queue under
+ * realistic server load. However, because array based queues cannot resize, they are fixed at a default 20000000 tasks.
+ * The resulting drawback is limited task size. In response, a second linked collection which is used for overflow tasks
+ * and checked every other iteration of the task executor. However, due to the improved latency of task execution, the
+ * likelihood of a task ever reaching this collection is very small under normal server load.</p>
  *
  * @param <E> the assignment type, if used
  * @author The TridentSDK Team
  */
 @ThreadSafe public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implements ExecutorFactory<E> {
+    private static final int EMERGENCY_MARGIN = 4;
+    private static final int TASK_LENGTH = 20000000;
+
     private static final int STARTING = 0;
     private static final int RUNNING = 1;
     private static final int SHUTTING_DOWN = 2;
     private static final int STOPPED = 3;
 
     private final AtomicReferenceArray<ThreadWorker> executors;
+    private final int scale;
+
+    private final Callable<ThreadWorker> obtainWorker = new Callable<ThreadWorker>() {
+        @Override
+        public ThreadWorker call() throws Exception {
+            ThreadWorker worker = (ThreadWorker) scaledThread();
+            worker.increment();
+            return worker;
+        }
+    };
 
     // We cache assignments, if it is retrieved again while loading into the map, there would be 2 requests for the same
     // thing concurrently, which is bad for performance in the long run
@@ -56,6 +91,7 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
     private final ConcurrentCache<E, ThreadWorker> assigned = new ConcurrentCache<>();
 
     private volatile int state = STARTING;
+    private final AtomicInteger emergencyScale = new AtomicInteger(1);
 
     /**
      * Create a new executor using the number of threads to scale
@@ -63,7 +99,8 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
      * @param scale the threads to use
      */
     public ConcurrentTaskExecutor(int scale) {
-        executors = new AtomicReferenceArray<>(scale);
+        this.scale = scale;
+        executors = new AtomicReferenceArray<>(scale + EMERGENCY_MARGIN);
 
         for (int i = 0; i < scale; i++) {
             executors.set(i, new ThreadWorker(i).startWorker());
@@ -75,7 +112,7 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
     @Override
     public TaskExecutor scaledThread() {
         ThreadWorker lowest = null;
-        for (int i = 0, n = executors.length(); i < n; i++) {
+        for (int i = 0, n = executors.length() - EMERGENCY_MARGIN; i < n; i++) {
             ThreadWorker thread = executors.get(i);
             if (lowest == null) lowest = thread;
             if (lowest.get() > thread.get()) lowest = thread;
@@ -86,14 +123,7 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
 
     @Override
     public TaskExecutor assign(E assignment) {
-        return assigned.retrieve(assignment, new Callable<ThreadWorker>() {
-            @Override
-            public ThreadWorker call() throws Exception {
-                ThreadWorker worker = (ThreadWorker) scaledThread();
-                worker.increment();
-                return worker;
-            }
-        });
+        return assigned.retrieve(assignment, obtainWorker);
     }
 
     @Override
@@ -119,7 +149,7 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
 
     @Override
     public List<TaskExecutor> threadList() {
-        List<TaskExecutor> execs = new ArrayList<>();
+        List<TaskExecutor> execs = Lists.newArrayList();
         for (int i = 0, n = executors.length(); i < n; i++) {
             execs.add(executors.get(i));
         }
@@ -166,17 +196,54 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
 
     @Override
     public void execute(Runnable runnable) {
-        scaledThread().addTask(runnable);
+        if (!scaledThread().addTask(runnable)) {
+            // Overflow of tasks
+            int threadIndex;
+
+            // Check existing threads for space
+            for (int i = 0; i < executors.length(); i++) {
+                ThreadWorker worker = executors.get(i);
+                if (worker == null) // Emergency thread not set
+                    continue;
+                if (worker.tasks.size() < TASK_LENGTH) {
+                    worker.tasks.add(runnable);
+                    return;
+                }
+            }
+
+            // If we reach here, no EXISTING thread has capacity to handle
+            // Create a new overflow worker with an emergency index
+            threadIndex = this.emergencyScale.incrementAndGet() + scale;
+            if (!(threadIndex > executors.length())) // Make sure we have enough space for the extra thread
+                handleShutdown(threadIndex, new ArrayBlockingQueue<>(TASK_LENGTH, false, Lists.newArrayList(runnable)));
+
+            // Out of emergency threads
+            TridentLogger.error(new IllegalStateException("Task overflow from executor"));
+        }
     }
 
     public void handleShutdown(int index, Queue<Runnable> remaining) {
-        if (state < SHUTTING_DOWN) executors.set(index, new ThreadWorker(index).startWorker(remaining));
-        else executors.set(index, null);
+        if (state < SHUTTING_DOWN) {
+            if (index > this.scale) {
+                executors.set(index, new OverflowWorker(index).startWorker(remaining));
+            } else executors.set(index, new ThreadWorker(index).startWorker(remaining));
+        } else executors.set(index, null);
+
         remaining.clear();
     }
 
-    @AccessNoDoc private final class ThreadWorker extends Thread implements TaskExecutor {
-        private final BlockingQueue<Runnable> tasks = new LinkedBlockingQueue<>();
+    // This class is designed to use an ArrayBlockingQueue
+    // The normal Java executor uses a LinkedBlockingQueue
+    // which can take up to 700 nanos on the test machine
+    // using an ArrayBlockingQueue can speed up the insert
+    // 3-4 times as fast
+    // However, using an ArrayBlockingQueue incurs significant
+    // risk of task overloading and memory problems
+    // To counter this, two queues are implemented, where tasks
+    @AccessNoDoc private class ThreadWorker extends Thread implements TaskExecutor {
+        protected final BlockingQueue<Runnable> tasks = Queues.newArrayBlockingQueue(TASK_LENGTH);
+        private final ConcurrentLinkedQueue<Runnable> overflow = new ConcurrentLinkedQueue<>();
+
         private final AtomicInteger integer = new AtomicInteger(0);
 
         private final int index;
@@ -208,8 +275,14 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
         }
 
         @Override
-        public void addTask(Runnable task) {
-            tasks.add(task);
+        public boolean addTask(Runnable task) {
+            try {
+                tasks.add(task);
+                return true;
+            } catch (IllegalStateException e) {
+                overflow.add(task);
+                return false;
+            }
         }
 
         @Override
@@ -218,21 +291,75 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
 
             while (!isInterrupted()) {
                 try {
-                    tasks.take().run();
-                } catch (InterruptedException e) {
-                    handleShutdown(index, tasks);
-                    return;
+                    Runnable task;
+                    int cycles = 0;
+                    do {
+                        task = nextTask();
+                        if (cycles++ > 256)   // Spin for 256 cycles, block the thread after that
+                            break;            // Primary reason because server much more likely to
+                    } while (task == null);   // to wait a short period of time. Block if inactive
+
+                    if (task == null)
+                        task = tasks.take();
+
+                    task.run();
+                    decrement();
                 } catch (Exception e) {
                     TridentLogger.error(e);
                     handleShutdown(index, tasks);
+                    tasks.clear();
                     return;
                 }
             }
         }
 
+        private final AtomicInteger switcher = new AtomicInteger();
+
+        private Runnable nextTask() throws InterruptedException {
+            Runnable task = tasks.poll(); // First take from assigned tasks
+            if (task == null || switcher.compareAndSet(1, 0))
+                task = overflow.poll();   // Try overflow tasks
+
+            switcher.incrementAndGet();
+            return task;
+        }
+
         @Override
         public Thread asThread() {
             return this;
+        }
+    }
+
+    private class OverflowWorker extends ThreadWorker {
+        // DO NOT STEAL
+
+        private OverflowWorker(int index) {
+            super(index);
+        }
+
+        @Override
+        public void run() {
+            while (!isInterrupted()) {
+                try {
+                    Runnable task = tasks.take();
+                    task.run();
+
+                    int cycles = 0;
+                    while (tasks.peek() == null) // Wait for new tasks
+                        if (cycles++ == 1024) {  // No overflow tasks after 1024 cycles, exit
+                            interrupt();
+                            break;
+                        }
+                } catch (Exception e) {
+                    TridentLogger.error(e); // Move the tasks back onto a normal thread, usually clear by then
+                    handleShutdown(((ThreadWorker) scaledThread()).index, tasks);
+                    tasks.clear();
+                    return;
+                }
+            }
+
+            // Exit the thread and clean up
+            emergencyScale.decrementAndGet();
         }
     }
 }

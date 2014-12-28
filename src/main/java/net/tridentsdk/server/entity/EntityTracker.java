@@ -44,16 +44,16 @@ import net.tridentsdk.util.Vector;
                 .set("metadata", meta == null ? new byte[] { (byte) ((1 << 5 | 1 & 0x1F) & 0xFF), (short) 10 } : meta);
         // TODO
         TridentPlayer.sendAll(packet);
-        entity.getWorld().getEntities().add(entity);
+        entity.getWorld().entities().add(entity);
     }
 
     public void trackMovement(Entity entity, Coordinates from, Coordinates to) {
         // TODO right order?
-        Vector diff = from.toVector().subtract(to.toVector());
+        Vector diff = from.asVector().subtract(to.asVector());
 
         if (entity instanceof Player) {
             PlayerMoveEvent event = new PlayerMoveEvent((Player) entity, from, to);
-            Trident.getEventManager().call(event);
+            Trident.getEventHandler().call(event);
             if (!event.isIgnored()) sendMove(entity, to, diff);
 
             return;
@@ -66,8 +66,8 @@ import net.tridentsdk.util.Vector;
         PacketPlayOutEntityCompleteMove move = new PacketPlayOutEntityCompleteMove();
         move.set("entityId", entity.getId())
                 .set("difference", diff)
-                .set("yaw", to.getYaw())
-                .set("pitch", to.getPitch())
+                .set("yaw", to.yaw())
+                .set("pitch", to.pitch())
                 .set("flags", null);
         TridentPlayer.sendAll(move);
     }

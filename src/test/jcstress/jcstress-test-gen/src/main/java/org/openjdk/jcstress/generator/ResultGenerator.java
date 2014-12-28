@@ -22,7 +22,6 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-
 package org.openjdk.jcstress.generator;
 
 import java.io.FileNotFoundException;
@@ -53,7 +52,8 @@ public class ResultGenerator {
         name += "_Result";
 
         // already generated
-        if (!generatedResults.add(name)) return name;
+        if (!generatedResults.add(name))
+            return name;
 
         String pathname = Utils.ensureDir(srcRoot + "/" + "org.openjdk.jcstress.infra.results.".replaceAll("\\.", "/"));
 
@@ -97,14 +97,10 @@ public class ResultGenerator {
                     pw.println("        result = 31*result + (int) (r" + n + " ^ (r" + n + " >>> 32));");
                 }
                 if (k == double.class) {
-                    pw.println(
-                            "        result = 31*result + (int) (Double.doubleToLongBits(r" + n + ") ^ (Double" +
-                                    ".doubleToLongBits(r" + n + ") >>> 32));");
+                    pw.println("        result = 31*result + (int) (Double.doubleToLongBits(r" + n + ") ^ (Double.doubleToLongBits(r" + n + ") >>> 32));");
                 }
                 if (k == float.class) {
-                    pw.println(
-                            "        result = 31*result + (int) (Float.floatToIntBits(r" + n + ") ^ (Float" +
-                                    ".floatToIntBits(r" + n + ") >>> 32));");
+                    pw.println("        result = 31*result + (int) (Float.floatToIntBits(r" + n + ") ^ (Float.floatToIntBits(r" + n + ") >>> 32));");
                 }
                 n++;
             }
@@ -121,8 +117,8 @@ public class ResultGenerator {
         {
             int n = 1;
             for (Class k : types.all()) {
-                if (k == boolean.class || k == byte.class || k == short.class || k == char.class || k == int.class ||
-                        k == long.class) {
+                if (k == boolean.class || k == byte.class || k == short.class || k == char.class
+                        || k == int.class || k == long.class) {
                     pw.println("        if (r" + n + " != that.r" + n + ") return false;");
                 }
                 if (k == double.class) {
@@ -144,7 +140,8 @@ public class ResultGenerator {
         {
             int n = 1;
             for (Class k : types.all()) {
-                if (n != 1) pw.print(" + \", \" + ");
+                if (n != 1)
+                    pw.print(" + \", \" + ");
                 if (k == char.class) {
                     pw.print("(r" + n + " + 0)");
                 } else {

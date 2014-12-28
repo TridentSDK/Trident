@@ -22,7 +22,6 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-
 package org.openjdk.jcstress.annotations;
 
 import java.lang.annotation.ElementType;
@@ -31,11 +30,16 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Points to another class with test meta-information. <p/> <p>When placed over {@link JCStressTest} class, the {@link
- * Description}, {@link Outcome}, {@link Ref}, and other annotations will be inherited from the pointed class. This
- * allows to declare the description, grading and references only once for a group of tests.</p>
+ * Points to another class with test meta-information.
+ *
+ * <p>When placed over {@link JCStressTest} class, the {@link Description}, {@link Outcome},
+ * {@link Ref}, and other annotations will be inherited from the pointed class. This allows
+ * to declare the description, grading and references only once for a group of tests.</p>
  */
-@Target(ElementType.TYPE) @Retention(RetentionPolicy.RUNTIME) public @interface JCStressMeta {
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface JCStressMeta {
 
     Class value();
+
 }

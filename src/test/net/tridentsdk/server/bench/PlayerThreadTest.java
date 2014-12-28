@@ -19,7 +19,7 @@ package net.tridentsdk.server.bench;
 
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.factory.Factories;
-import net.tridentsdk.server.threads.ThreadsManager;
+import net.tridentsdk.server.threads.ThreadsHandler;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
@@ -58,7 +58,7 @@ import java.util.concurrent.TimeUnit;
                 .build();
 
         new Runner(opt).run();
-        ThreadsManager.stopAll();
+        ThreadsHandler.stopAll();
     }
 
     @Benchmark

@@ -77,7 +77,7 @@ public class PacketPlayInPlayerMove extends InPacket {
 
         PlayerMoveEvent event = new PlayerMoveEvent(player, from, to);
 
-        TridentServer.getInstance().getEventManager().call(event);
+        TridentServer.getInstance().getEventHandler().call(event);
 
         if (event.isIgnored()) {
             PacketPlayOutEntityTeleport cancel = new PacketPlayOutEntityTeleport();

@@ -22,7 +22,6 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-
 package org.openjdk.jcstress.generator;
 
 public class VolatileReadWrite implements Primitive {
@@ -52,4 +51,5 @@ public class VolatileReadWrite implements Primitive {
     public String getClassName() {
         return null;
     }
+
 }

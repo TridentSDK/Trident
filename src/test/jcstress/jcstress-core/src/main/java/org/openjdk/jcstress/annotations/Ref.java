@@ -22,15 +22,22 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-
 package org.openjdk.jcstress.annotations;
 
-import java.lang.annotation.*;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Repeatable;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * Provides the external reference for the test case (URL, BibTeX, ISBN, etc.)
  */
-@Inherited @Target(ElementType.TYPE) @Retention(RetentionPolicy.RUNTIME) @Repeatable(Ref.Refs.class)
+@Inherited
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@Repeatable(Ref.Refs.class)
 public @interface Ref {
 
     /**
@@ -41,7 +48,10 @@ public @interface Ref {
     /**
      * Container annotation for {@link org.openjdk.jcstress.annotations.Ref}.
      */
-    @Inherited @Target(ElementType.TYPE) @Retention(RetentionPolicy.RUNTIME) @interface Refs {
+    @Inherited
+    @Target(ElementType.TYPE)
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface Refs {
         Ref[] value();
     }
 }

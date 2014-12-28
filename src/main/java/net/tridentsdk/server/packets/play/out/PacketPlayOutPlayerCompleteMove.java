@@ -44,8 +44,8 @@ public class PacketPlayOutPlayerCompleteMove extends OutPacket {
         buf.writeDouble(this.location.getY());
         buf.writeDouble(this.location.getZ());
 
-        buf.writeFloat(this.location.getYaw());
-        buf.writeFloat(this.location.getPitch());
+        buf.writeFloat(this.location.yaw());
+        buf.writeFloat(this.location.pitch());
 
         buf.writeByte((int) this.flags);
     }

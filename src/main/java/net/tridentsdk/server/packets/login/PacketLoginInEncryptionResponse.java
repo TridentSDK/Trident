@@ -132,7 +132,7 @@ public class PacketLoginInEncryptionResponse extends InPacket {
             return;
         }
 
-        String name = LoginManager.getInstance().getName(connection.getAddress());
+        String name = LoginHandler.getInstance().getName(connection.getAddress());
         StringBuilder sb = new StringBuilder();
 
         try {
@@ -187,7 +187,7 @@ public class PacketLoginInEncryptionResponse extends InPacket {
         UUID id = UUID.fromString(packet.getUuid());
 
         // Remove stored information in LoginManager and spawn the player
-        LoginManager.getInstance().finish(connection.getAddress());
+        LoginHandler.getInstance().finish(connection.getAddress());
         TridentPlayer.spawnPlayer(connection, id);
     }
 

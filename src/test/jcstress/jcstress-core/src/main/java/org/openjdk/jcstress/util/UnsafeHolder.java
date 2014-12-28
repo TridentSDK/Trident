@@ -22,7 +22,6 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-
 package org.openjdk.jcstress.util;
 
 public class UnsafeHolder {
@@ -39,8 +38,9 @@ public class UnsafeHolder {
     }
 
     /**
-     * Returns a sun.misc.Unsafe.  Suitable for use in a 3rd party package. Replace with a simple call to
-     * Unsafe.getUnsafe when integrating into a jdk.
+     * Returns a sun.misc.Unsafe.  Suitable for use in a 3rd party package.
+     * Replace with a simple call to Unsafe.getUnsafe when integrating
+     * into a jdk.
      *
      * @return a sun.misc.Unsafe
      */
@@ -49,15 +49,18 @@ public class UnsafeHolder {
             return sun.misc.Unsafe.getUnsafe();
         } catch (SecurityException se) {
             try {
-                return java.security.AccessController.doPrivileged(
-                        (java.security.PrivilegedExceptionAction<sun.misc.Unsafe>) () -> {
-                            java.lang.reflect.Field f = sun.misc.Unsafe.class.getDeclaredField("theUnsafe");
-                            f.setAccessible(true);
-                            return (sun.misc.Unsafe) f.get(null);
-                        });
+                return java.security.AccessController.doPrivileged
+                    ((java.security.PrivilegedExceptionAction<sun.misc.Unsafe>) () -> {
+                        java.lang.reflect.Field f = sun.misc
+                            .Unsafe.class.getDeclaredField("theUnsafe");
+                        f.setAccessible(true);
+                        return (sun.misc.Unsafe) f.get(null);
+                    });
             } catch (java.security.PrivilegedActionException e) {
-                throw new RuntimeException("Could not initialize intrinsics", e.getCause());
+                throw new RuntimeException("Could not initialize intrinsics",
+                                           e.getCause());
             }
         }
     }
+
 }

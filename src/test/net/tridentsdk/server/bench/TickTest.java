@@ -7,7 +7,7 @@ import net.tridentsdk.factory.ConfigFactory;
 import net.tridentsdk.factory.Factories;
 import net.tridentsdk.server.TridentScheduler;
 import net.tridentsdk.server.threads.MainThread;
-import net.tridentsdk.server.threads.ThreadsManager;
+import net.tridentsdk.server.threads.ThreadsHandler;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
 import org.openjdk.jmh.runner.Runner;
@@ -52,7 +52,7 @@ tick 5.0183914333333336E7
             }
         });
         Factories.init(new TridentScheduler());
-        Factories.init(new ThreadsManager());
+        Factories.init(new ThreadsHandler());
     }
 
     private static final MainThread THREAD = new MainThread(20);

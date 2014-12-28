@@ -22,7 +22,6 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-
 package org.openjdk.jcstress.infra.results;
 
 import org.openjdk.jcstress.annotations.Result;
@@ -30,7 +29,8 @@ import sun.misc.Contended;
 
 import java.io.Serializable;
 
-@Result public class IntResult4 implements Serializable {
+@Result
+public class IntResult4 implements Serializable {
 
     @Contended
     public int r1;
@@ -72,4 +72,5 @@ import java.io.Serializable;
         result = 31 * result + r4;
         return result;
     }
+
 }

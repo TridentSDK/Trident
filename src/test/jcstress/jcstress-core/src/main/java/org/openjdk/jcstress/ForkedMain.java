@@ -22,7 +22,6 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-
 package org.openjdk.jcstress;
 
 import org.openjdk.jcstress.infra.collectors.NetworkOutputCollector;
@@ -51,4 +50,5 @@ public class ForkedMain {
         new JCStress().run(opts, true, collector);
         collector.close();
     }
+
 }

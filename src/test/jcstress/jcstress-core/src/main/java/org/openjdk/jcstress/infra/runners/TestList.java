@@ -22,7 +22,6 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-
 package org.openjdk.jcstress.infra.runners;
 
 import org.openjdk.jcstress.annotations.Expect;
@@ -45,7 +44,7 @@ public class TestList {
 
     private static Map<String, TestInfo> getTests() {
         if (tests == null) {
-            Map<String, TestInfo> m = new HashMap<>();
+            Map<String, TestInfo> m = new HashMap<String, TestInfo>();
             InputStream stream = null;
             try {
                 stream = TestList.class.getResourceAsStream(LIST);
@@ -65,9 +64,9 @@ public class TestList {
                         TestInfo testInfo = new TestInfo(name, runner, description, actorCount, requiresFork);
                         m.put(name, testInfo);
                         for (int c = 0; c < caseCount; c++) {
-                            String state = ls[(6 + 3 * c)];
-                            String expect = ls[6 + 3 * c + 1];
-                            String desc = ls[6 + 3 * c + 2];
+                            String state  = ls[6 + 3*c + 0];
+                            String expect = ls[6 + 3*c + 1];
+                            String desc  = ls[6 + 3*c + 2];
                             testInfo.addCase(new StateCase(state, Expect.valueOf(expect), desc));
                         }
 

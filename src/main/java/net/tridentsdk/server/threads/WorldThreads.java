@@ -17,8 +17,6 @@
 
 package net.tridentsdk.server.threads;
 
-import net.tridentsdk.concurrent.TaskExecutor;
-
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
@@ -34,29 +32,25 @@ import javax.annotation.concurrent.ThreadSafe;
      * Used when the server ticks, to tell this thing to tick
      */
     protected static void notifyTick() {
-        for (TaskExecutor executor : ThreadsManager.worldExecutor().threadList()) {
-            executor.addTask(new Runnable() {
+        ThreadsHandler.worldExecutor().execute(new Runnable() {
                 @Override
                 public void run() {
-                    // TODO: maybe move this somewhere else?
-                    // TODO: tick the chunk
-                }
-            });
-        }
+                // TODO: maybe move this somewhere else?
+                // TODO: tick the chunk
+            }
+        });
     }
 
     /**
      * Notifies the server to tick redstone activities
      */
     public static void notifyRedstoneTick() {
-        for (TaskExecutor executor : ThreadsManager.worldExecutor().threadList()) {
-            executor.addTask(new Runnable() {
-                @Override
-                public void run() {
-                    // TODO: maybe move this somewhere else?
-                    // TODO: tick the world's redstone
-                }
-            });
-        }
+        ThreadsHandler.worldExecutor().execute(new Runnable() {
+            @Override
+            public void run() {
+                // TODO: maybe move this somewhere else?
+                // TODO: tick the world's redstone
+            }
+        });
     }
 }

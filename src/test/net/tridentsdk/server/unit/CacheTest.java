@@ -11,7 +11,7 @@ import net.tridentsdk.factory.CollectFactory;
 import net.tridentsdk.factory.ConfigFactory;
 import net.tridentsdk.factory.Factories;
 import net.tridentsdk.server.TridentScheduler;
-import net.tridentsdk.server.threads.ThreadsManager;
+import net.tridentsdk.server.threads.ThreadsHandler;
 import net.tridentsdk.util.TridentLogger;
 import org.junit.Rule;
 import org.junit.Test;
@@ -36,7 +36,7 @@ public class CacheTest extends AbstractTest {
             }
         });
         Factories.init(new TridentScheduler());
-        Factories.init(new ThreadsManager());
+        Factories.init(new ThreadsHandler());
     }
 
     private final ConcurrentCache<Object, Object> cache = new ConcurrentCache<>();

@@ -27,8 +27,8 @@ import net.tridentsdk.server.packets.play.out.PacketPlayOutPluginMessage;
 import net.tridentsdk.server.player.OfflinePlayer;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.threads.MainThread;
-import net.tridentsdk.server.threads.ThreadsManager;
-import net.tridentsdk.server.window.WindowManager;
+import net.tridentsdk.server.threads.ThreadsHandler;
+import net.tridentsdk.server.window.WindowHandler;
 import net.tridentsdk.server.world.RegionFileCache;
 import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.server.world.TridentWorldLoader;
@@ -60,8 +60,8 @@ import java.util.UUID;
 
     private final RegionFileCache regionCache;
 
-    private final WindowManager windowManager;
-    private final EventHandler eventManager;
+    private final WindowHandler windowHandler;
+    private final EventHandler eventHandler;
 
     private final TridentPluginHandler pluginHandler;
     private final TridentScheduler scheduler;
@@ -72,8 +72,8 @@ import java.util.UUID;
         this.config = config;
         this.protocol = new Protocol();
         this.regionCache = new RegionFileCache();
-        this.windowManager = new WindowManager();
-        this.eventManager = new EventHandler();
+        this.windowHandler = new WindowHandler();
+        this.eventHandler = new EventHandler();
         this.pluginHandler = new TridentPluginHandler();
         this.scheduler = new TridentScheduler();
         this.logger = TridentLogger.getLogger();
@@ -132,7 +132,7 @@ import java.util.UUID;
     }
 
     @Override
-    public JsonConfig getConfig() {
+    public JsonConfig config() {
         return this.config;
     }
 
@@ -147,7 +147,7 @@ import java.util.UUID;
         TridentLogger.log("Shutting down worker threads...");
         this.scheduler.stop();
         TridentLogger.log("Shutting down server process...");
-        ThreadsManager.stopAll();
+        ThreadsHandler.stopAll();
         TridentLogger.log("Server shutdown successfully.");
     }
 
@@ -172,7 +172,7 @@ import java.util.UUID;
 
     @Override
     public Difficulty getDifficulty() {
-        byte difficulty = this.getConfig().getByte("difficulty", Defaults.DIFFICULTY.toByte());
+        byte difficulty = this.config().getByte("difficulty", Defaults.DIFFICULTY.toByte());
         switch (difficulty) {
             case 0:
                 return Difficulty.PEACEFUL;
@@ -188,12 +188,12 @@ import java.util.UUID;
 
     @Override
     public Window getWindow(int id) {
-        return this.windowManager.getWindow(id);
+        return this.windowHandler.getWindow(id);
     }
 
     @Override
-    public EventHandler getEventManager() {
-        return this.eventManager;
+    public EventHandler getEventHandler() {
+        return this.eventHandler;
     }
 
     @Override

@@ -60,9 +60,9 @@ public class TridentTile implements Tile {
     public TridentTile(Coordinates location) {
         this.location = location;
 
-        // Note: Avoid recursion by not creating a new instance from World#getTileAt(Location)
-        Tile worldBlock = location.getWorld().getTileAt(location);
-        this.material = worldBlock.getSubstance();
+        // Note: Avoid recursion by not creating a new instance from World#tileAt(Location)
+        Tile worldBlock = location.world().tileAt(location);
+        this.material = worldBlock.substance();
     }
 
     public TridentTile(Coordinates location, Substance substance, byte meta) {
@@ -72,7 +72,7 @@ public class TridentTile implements Tile {
     }
 
     @Override
-    public Substance getSubstance() {
+    public Substance substance() {
         return this.material;
     }
 
@@ -82,12 +82,12 @@ public class TridentTile implements Tile {
     }
 
     @Override
-    public Coordinates getLocation() {
+    public Coordinates location() {
         return this.location;
     }
 
     @Override
-    public byte getMeta() {
+    public byte meta() {
         return this.data;
     }
 
@@ -98,7 +98,7 @@ public class TridentTile implements Tile {
 
     @Override
     public Tile relativeTile(Vector vector) {
-        return new TridentTile(this.location.getRelative(vector));
+        return new TridentTile(this.location.relative(vector));
     }
 
     @Override

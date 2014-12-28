@@ -26,7 +26,7 @@ import net.tridentsdk.server.netty.protocol.Protocol;
 import net.tridentsdk.server.packets.login.PacketLoginOutSetCompression;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutDisconnect;
 import net.tridentsdk.server.player.PlayerConnection;
-import net.tridentsdk.server.threads.ThreadsManager;
+import net.tridentsdk.server.threads.ThreadsHandler;
 import net.tridentsdk.util.TridentLogger;
 
 import javax.crypto.Cipher;
@@ -350,7 +350,7 @@ public class ClientConnection {
      */
     public void logout() {
         if (this instanceof PlayerConnection)
-            ThreadsManager.remove(PlayerConnection.getConnection(getAddress()).getPlayer());
+            ThreadsHandler.remove(PlayerConnection.getConnection(getAddress()).getPlayer());
 
         clientData.remove(this.address);
         this.channel.close();

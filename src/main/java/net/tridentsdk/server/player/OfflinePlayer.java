@@ -64,12 +64,12 @@ import java.util.UUID;
     protected PlayerAbilities abilities = new PlayerAbilities();
 
     public OfflinePlayer(CompoundTag tag, TridentWorld world) {
-        super(null, world.getSpawn());
+        super(null, world.spawnLocation());
 
         load(tag);
 
         dimension = Dimension.getDimension(((IntTag) tag.getTag("Dimension")).getValue());
-        gameMode = GameMode.getGameMode(((IntTag) tag.getTag("playerGameType")).getValue());
+        gameMode = GameMode.gamemodeOf(((IntTag) tag.getTag("playerGameType")).getValue());
         score = ((IntTag) tag.getTag("Score")).getValue();
         selectedSlot = (short) ((IntTag) tag.getTag("SelectedItemSlot")).getValue();
 
@@ -78,7 +78,7 @@ import java.util.UUID;
                                                ((IntTag) tag.getTag("SpawnY")).getValue(),
                                                ((IntTag) tag.getTag("SpawnZ")).getValue());
         } else {
-            spawnLocation = world.getSpawn();
+            spawnLocation = world.spawnLocation();
         }
 
         hunger = (short) ((IntTag) tag.getTag("foodLevel")).getValue();
@@ -118,7 +118,7 @@ import java.util.UUID;
 
     public static CompoundTag generatePlayer(UUID id) {
         World defaultWorld = TridentServer.WORLD;
-        Coordinates spawnLocation = defaultWorld.getSpawn();
+        Coordinates spawnLocation = defaultWorld.spawnLocation();
         CompoundTagBuilder<NBTBuilder> builder = NBTBuilder.newBase(id.toString());
 
         builder.stringTag("id", String.valueOf(counter.incrementAndGet()));
@@ -291,7 +291,7 @@ import java.util.UUID;
     }
 
     @Override
-    public String getLastMessage() {
+    public String lastMessage() {
         return null;
     }
 

@@ -22,10 +22,13 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-
 package sun.hotspot.parser;
 
 public class DiagnosticCommand {
+
+    public enum DiagnosticArgumentType {
+        JLONG, BOOLEAN, STRING, NANOTIME, STRINGARRAY, MEMORYSIZE
+    }
 
     private String name;
     private String desc;
@@ -33,8 +36,8 @@ public class DiagnosticCommand {
     private boolean mandatory;
     private String defaultValue;
 
-    public DiagnosticCommand(String name, String desc, DiagnosticArgumentType type, boolean mandatory, String
-            defaultValue) {
+    public DiagnosticCommand(String name, String desc, DiagnosticArgumentType type,
+            boolean mandatory, String defaultValue) {
         this.name = name;
         this.desc = desc;
         this.type = type;
@@ -60,9 +63,5 @@ public class DiagnosticCommand {
 
     public String getDefaultValue() {
         return defaultValue;
-    }
-
-    public enum DiagnosticArgumentType {
-        JLONG, BOOLEAN, STRING, NANOTIME, STRINGARRAY, MEMORYSIZE
     }
 }

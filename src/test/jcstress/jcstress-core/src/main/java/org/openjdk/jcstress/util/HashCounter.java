@@ -22,10 +22,13 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-
 package org.openjdk.jcstress.util;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -59,7 +62,8 @@ public class HashCounter<T> implements Counter<T> {
             ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
             ObjectInputStream ois = new ObjectInputStream(bis);
 
-            @SuppressWarnings("unchecked") T t = (T) ois.readObject();
+            @SuppressWarnings("unchecked")
+            T t = (T)ois.readObject();
 
             return t;
         } catch (IOException | ClassNotFoundException e) {
@@ -81,4 +85,5 @@ public class HashCounter<T> implements Counter<T> {
     private static class Holder {
         public long value;
     }
+
 }

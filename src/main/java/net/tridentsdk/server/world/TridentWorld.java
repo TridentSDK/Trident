@@ -100,11 +100,11 @@ public class TridentWorld implements World {
         spawnLocation.setZ(((IntTag) level.getTag("SpawnZ")).getValue());
 
         dimension = Dimension.OVERWORLD;
-        // difficulty = Difficulty.getDifficulty(((IntTag) level.getTag("Difficulty")).getValue()); from tests does
+        // difficulty = Difficulty.difficultyOf(((IntTag) level.getTag("Difficulty")).getValue()); from tests does
         // not exist
         difficulty = Difficulty.NORMAL;
-        defaultGamemode = GameMode.getGameMode(((IntTag) level.getTag("GameType")).getValue());
-        type = LevelType.getLevelType(((StringTag) level.getTag("generatorName")).getValue());
+        defaultGamemode = GameMode.gamemodeOf(((IntTag) level.getTag("GameType")).getValue());
+        type = LevelType.levelTypeOf(((StringTag) level.getTag("generatorName")).getValue());
 
         TridentLogger.log("Loaded level.dat successfully! Moving on to region files...");
 
@@ -161,17 +161,17 @@ public class TridentWorld implements World {
     }
 
     @Override
-    public String getName() {
+    public String name() {
         return this.name;
     }
 
     @Override
-    public Chunk getChunkAt(int x, int z, boolean generateIfNotFound) {
-        return this.getChunkAt(ChunkLocation.create(x, z), generateIfNotFound);
+    public Chunk chunkAt(int x, int z, boolean generateIfNotFound) {
+        return this.chunkAt(ChunkLocation.create(x, z), generateIfNotFound);
     }
 
     @Override
-    public TridentChunk getChunkAt(ChunkLocation location, boolean generateIfNotFound) {
+    public TridentChunk chunkAt(ChunkLocation location, boolean generateIfNotFound) {
         if (location == null) {
             return null;
         }
@@ -208,7 +208,7 @@ public class TridentWorld implements World {
             return null;
         }
 
-        if (this.getChunkAt(location, false) == null) {
+        if (this.chunkAt(location, false) == null) {
             if (this.loader.chunkExists(this, x, z)) {
                 this.addChunkAt(location, this.loader.loadChunk(this, x, z));
             } else {
@@ -218,19 +218,19 @@ public class TridentWorld implements World {
             }
         }
 
-        return this.getChunkAt(location, false);
+        return this.chunkAt(location, false);
     }
 
     @Override
-    public Tile getTileAt(Coordinates location) {
-        if (!location.getWorld().getName().equals(this.getName()))
+    public Tile tileAt(Coordinates location) {
+        if (!location.world().name().equals(this.name()))
             throw new IllegalArgumentException("Provided location does not have the same world!");
 
         int x = (int) Math.round(location.getX());
         int y = (int) Math.round(location.getY());
         int z = (int) Math.round(location.getZ());
 
-        return this.getChunkAt(WorldUtils.getChunkLocation(x, z), true).getTileAt(x % 16, y, z % 16);
+        return this.chunkAt(WorldUtils.getChunkLocation(x, z), true).tileAt(x % 16, y, z % 16);
     }
 
     public void addChunkAt(ChunkLocation location, Chunk chunk) {
@@ -246,37 +246,37 @@ public class TridentWorld implements World {
     }
 
     @Override
-    public Difficulty getDifficulty() {
+    public Difficulty difficulty() {
         return difficulty;
     }
 
     @Override
-    public GameMode getDefaultGamemode() {
+    public GameMode defaultGamemode() {
         return defaultGamemode;
     }
 
     @Override
-    public LevelType getLevelType() {
+    public LevelType levelType() {
         return type;
     }
 
     @Override
-    public Coordinates getSpawn() {
+    public Coordinates spawnLocation() {
         return spawnLocation;
     }
 
     @Override
-    public Dimension getDimension() {
+    public Dimension dimension() {
         return null;
     }
 
     @Override
-    public boolean getGamerule(String rule) {
+    public boolean gameRule(String rule) {
         return false;
     }
 
     @Override
-    public long getTime() {
+    public long time() {
         return 0;
     }
 
@@ -286,7 +286,7 @@ public class TridentWorld implements World {
     }
 
     @Override
-    public int getRainTime() {
+    public int rainTime() {
         return 0;
     }
 
@@ -296,7 +296,7 @@ public class TridentWorld implements World {
     }
 
     @Override
-    public int getThunderTime() {
+    public int thunderTime() {
         return 0;
     }
 
@@ -306,27 +306,27 @@ public class TridentWorld implements World {
     }
 
     @Override
-    public int getBorderSize() {
+    public int borderSize() {
         return 0;
     }
 
     @Override
-    public Coordinates getBorderCenter() {
+    public Coordinates borderCenter() {
         return null;
     }
 
     @Override
-    public int getBorderSizeContraction() {
+    public int borderSizeContraction() {
         return 0;
     }
 
     @Override
-    public int getBorderSizeContractionTime() {
+    public int borderSizeContractionTime() {
         return 0;
     }
 
     @Override
-    public Set<Entity> getEntities() {
+    public Set<Entity> entities() {
         return entities;
     }
 

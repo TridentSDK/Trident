@@ -21,7 +21,7 @@ import net.tridentsdk.Coordinates;
 import net.tridentsdk.Trident;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.factory.ExecutorFactory;
-import net.tridentsdk.factory.Factories;
+import net.tridentsdk.server.threads.ThreadsHandler;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.World;
 
@@ -44,7 +44,7 @@ public final class EntityBuilder {
         @Override
         public World call() {
             for (World world : Trident.getWorlds()) {
-                if (world.getName().equals("world")) return world;
+                if (world.name().equals("world")) return world;
             }
             return null;
         }
@@ -102,7 +102,7 @@ public final class EntityBuilder {
         try {
             Constructor<T> constructor = entityType.getConstructor(UUID.class, Coordinates.class);
             entity = constructor.newInstance(uuid, spawn);
-            entity.executor = executor != null ? executor.assign(entity) : Factories.threads().entityThread(entity);
+            entity.executor = executor != null ? executor : ThreadsHandler.entityExecutor();
             entity.godMode = god;
             entity.passenger = passenger;
             entity.displayName = displayName;
@@ -131,7 +131,7 @@ public final class EntityBuilder {
         try {
             Constructor<T> constructor = entityType.getConstructor(params);
             entity = constructor.newInstance(args);
-            entity.executor = executor != null ? executor.assign(entity) : Factories.threads().entityThread(entity);
+            entity.executor = executor != null ? executor : ThreadsHandler.entityExecutor();
             entity.godMode = god;
             entity.passenger = passenger;
             entity.displayName = displayName;

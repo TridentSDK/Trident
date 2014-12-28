@@ -26,51 +26,30 @@
 package org.openjdk.jcstress.tests.trident;
 
 import org.openjdk.jcstress.annotations.*;
-import org.openjdk.jcstress.infra.results.BooleanResult2;
-
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicReferenceArray;
+import org.openjdk.jcstress.infra.results.BooleanResult1;
 
 @JCStressTest @Outcome(id = "[true, true]", expect = Expect.ACCEPTABLE, desc = "JMM works like it should")
 @Outcome(id = "[false, true]", expect = Expect.FORBIDDEN, desc = "Volatile array does not work")
-@Outcome(expect = Expect.FORBIDDEN) public class JMMTest {
-    // volatileObject
-    private final Object original = new Object();
+@Outcome(expect = Expect.FORBIDDEN) public class ArrayTest {
     // volatileArray
-    private AtomicReferenceArray<Item> items = new AtomicReferenceArray<>(10);
-    private volatile Object object = original;
+    private Item[] items = new Item[10];
 
     /**
      * Tests visibility of an object array
      */
     @Actor
-    public void volatileArray(Item item, BooleanResult2 result2) {
-        items.set(0, item);
-    }
-
-    /**
-     * Tests the visibility of an object set to a volatile field
-     */
-    @Actor
-    public void volatileObject(Item item, BooleanResult2 result2) {
-        final CountDownLatch latch = new CountDownLatch(1);
-        new Thread(() -> {
-            object = new Object();
-            latch.countDown();
-        }).start();
-
-        try {
-            latch.await();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+    public void volatileArray(Item item, BooleanResult1 result1) {
+        synchronized (this) {
+            items[0] = item;
         }
     }
 
     @Arbiter
-    public void check(Item item, BooleanResult2 result2) {
-        if (items.get(0) == item) result2.r1 = true;
-
-        if (object != null && object != original) result2.r2 = true;
+    public void check(Item item, BooleanResult1 result1) {
+        synchronized (this) {
+            if (items[0] == item)
+                result1.r1 = true;
+        }
     }
 
     @State public static class Item {

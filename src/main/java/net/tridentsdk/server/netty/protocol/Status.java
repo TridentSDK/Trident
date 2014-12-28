@@ -23,7 +23,7 @@ import net.tridentsdk.server.packets.status.PacketStatusInRequest;
 import net.tridentsdk.server.packets.status.PacketStatusOutPing;
 import net.tridentsdk.server.packets.status.PacketStatusOutResponse;
 
-@AccessNoDoc class Status extends PacketManager {
+@AccessNoDoc class Status extends ProtocolHandler {
     Status() {
         this.inPackets.put(0x00, PacketStatusInRequest.class);
         this.inPackets.put(0x01, PacketStatusInPing.class);

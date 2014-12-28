@@ -17,7 +17,6 @@
 
 package net.tridentsdk.server.threads;
 
-import net.tridentsdk.concurrent.TaskExecutor;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.living.Player;
@@ -34,7 +33,7 @@ import java.util.Collection;
  *
  * @author The TridentSDK Team
  */
-@ThreadSafe public final class ThreadsManager implements ThreadFactory {
+@ThreadSafe public final class ThreadsHandler implements ThreadFactory {
     private static final ExecutorFactory<Entity> entities = new ConcurrentTaskExecutor<>(2);
     private static final ExecutorFactory<Player> players = new ConcurrentTaskExecutor<>(4);
     private static final ExecutorFactory<TridentPlugin> plugins = new ConcurrentTaskExecutor<>(2);
@@ -136,28 +135,13 @@ import java.util.Collection;
     }
 
     @Override
-    public TaskExecutor entityThread(Entity entity) {
-        return entityExecutor().assign(entity);
-    }
-
-    @Override
     public Collection<Entity> entities() {
         return entityExecutor().values();
     }
 
     @Override
-    public TaskExecutor playerThread(Player player) {
-        return playerExecutor().assign(player);
-    }
-
-    @Override
     public Collection<Player> players() {
         return playerExecutor().values();
-    }
-
-    @Override
-    public TaskExecutor worldThread(World world) {
-        return worldExecutor().assign(world);
     }
 
     @Override

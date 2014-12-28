@@ -22,30 +22,32 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-
 package org.openjdk.jcstress.util;
 
 import java.util.Collection;
 
 /**
- * Computes the histogram on arbitrary results. Watch for optimized contracts for the methods.
+ * Computes the histogram on arbitrary results.
+ * Watch for optimized contracts for the methods.
  *
  * @param <R> result type.
  */
 public interface Counter<R> {
 
     /**
-     * Records the result. The result can mutate after the record() is finished.
+     * Records the result.
+     * The result can mutate after the record() is finished.
      *
      * @param result result to record
      */
     void record(R result);
 
     /**
-     * Records the result with given occurrences count. The result can mutate after the call is finished.
+     * Records the result with given occurrences count.
+     * The result can mutate after the call is finished.
      *
      * @param result result to record
-     * @param count  number of occurences to record
+     * @param count number of occurences to record
      */
     void record(R result, long count);
 
@@ -58,8 +60,8 @@ public interface Counter<R> {
 
     /**
      * Return the collection of accumulated unique results.
-     *
      * @return set
      */
     Collection<R> elementSet();
+
 }

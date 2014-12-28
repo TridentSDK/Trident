@@ -22,11 +22,20 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-
 package org.openjdk.jcstress.infra.processors;
 
 import org.openjdk.jcstress.Options;
-import org.openjdk.jcstress.annotations.*;
+import org.openjdk.jcstress.annotations.Actor;
+import org.openjdk.jcstress.annotations.Arbiter;
+import org.openjdk.jcstress.annotations.Description;
+import org.openjdk.jcstress.annotations.JCStressMeta;
+import org.openjdk.jcstress.annotations.JCStressTest;
+import org.openjdk.jcstress.annotations.Mode;
+import org.openjdk.jcstress.annotations.Outcome;
+import org.openjdk.jcstress.annotations.Ref;
+import org.openjdk.jcstress.annotations.Result;
+import org.openjdk.jcstress.annotations.Signal;
+import org.openjdk.jcstress.annotations.State;
 import org.openjdk.jcstress.infra.collectors.TestResultCollector;
 import org.openjdk.jcstress.infra.runners.Control;
 import org.openjdk.jcstress.infra.runners.Runner;
@@ -41,7 +50,14 @@ import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
-import javax.lang.model.element.*;
+import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.AnnotationValue;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.PackageElement;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
 import javax.lang.model.util.ElementFilter;
 import javax.tools.Diagnostic;
 import javax.tools.FileObject;
@@ -49,38 +65,26 @@ import javax.tools.StandardLocation;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-@SupportedSourceVersion(SourceVersion.RELEASE_6) public class JCStressTestProcessor extends AbstractProcessor {
+
+@SupportedSourceVersion(SourceVersion.RELEASE_6)
+public class JCStressTestProcessor extends AbstractProcessor {
 
     private final List<TestInfo> tests = new ArrayList<>();
-
-    public static String getGeneratedName(Element ci) {
-        String name = "";
-        do {
-            name = ci.getSimpleName() + (name.isEmpty() ? "" : "_" + name);
-            ci = ci.getEnclosingElement();
-        } while (ci != null && ci.getKind() != ElementKind.PACKAGE);
-        return name + "_jcstress";
-    }
-
-    public static String getQualifiedName(Element ci) {
-        String name = "";
-        while (true) {
-            Element parent = ci.getEnclosingElement();
-            if (parent == null || parent.getKind() == ElementKind.PACKAGE) {
-                name = ((TypeElement) ci).getQualifiedName() + (name.isEmpty() ? "" : "." + name);
-                break;
-            } else {
-                name = ci.getSimpleName() + (name.isEmpty() ? "" : "." + name);
-            }
-            ci = parent;
-        }
-        return name;
-    }
 
     @Override
     public Set<String> getSupportedAnnotationTypes() {
@@ -115,15 +119,15 @@ import java.util.concurrent.atomic.AtomicReference;
             }
         } else {
             try {
-                FileObject file = processingEnv.getFiler()
-                        .createResource(StandardLocation.CLASS_OUTPUT, "", TestList.LIST.substring(1));
+                FileObject file = processingEnv.getFiler().createResource(StandardLocation.CLASS_OUTPUT, "", TestList.LIST.substring(1));
                 PrintWriter writer = new PrintWriter(file.openWriter());
                 for (TestInfo test : tests) {
-                    writer.print(test.getTest()
-                                         .getQualifiedName() + "===,===" + test.getGeneratedName() + "===,===" + test
-                            .getDescription() + "===,===" + test
-                                         .getActors()
-                                         .size() + "===,===" + test.isRequiresFork());
+                    writer.print(
+                            test.getTest().getQualifiedName()
+                            + "===,===" + test.getGeneratedName()
+                            + "===,===" + test.getDescription()
+                            + "===,===" + test.getActors().size()
+                            + "===,===" + test.isRequiresFork());
 
                     int size = 0;
                     for (Outcome c : test.cases()) {
@@ -151,8 +155,7 @@ import java.util.concurrent.atomic.AtomicReference;
                 }
                 writer.close();
             } catch (IOException ex) {
-                processingEnv.getMessager()
-                        .printMessage(Diagnostic.Kind.ERROR, "Error writing MicroBenchmark list " + ex);
+                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Error writing MicroBenchmark list " + ex);
             }
         }
         return true;
@@ -168,9 +171,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
         for (AnnotationMirror m : e.getAnnotationMirrors()) {
             if (gradingName.equals(m.getAnnotationType().toString())) {
-                for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : m.getElementValues()
-                        .entrySet()) {
-                    if ("value".equals(entry.getKey().getSimpleName().toString())) {
+                for(Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : m.getElementValues().entrySet()) {
+                    if("value".equals(entry.getKey().getSimpleName().toString())) {
                         AnnotationValue value = entry.getValue();
                         parseMeta(processingEnv.getElementUtils().getTypeElement(value.getValue().toString()), info);
                         break;
@@ -202,15 +204,11 @@ import java.util.concurrent.atomic.AtomicReference;
                 } else if (paramClass.getAnnotation(Result.class) != null) {
                     info.setResult(paramClass);
                 } else {
-                    if (e.getAnnotation(JCStressTest.class)
-                            .value() != Mode.Termination || !paramClass.getQualifiedName()
-                            .toString()
-                            .equals("java.lang.Thread")) {
+                    if (e.getAnnotation(JCStressTest.class).value() != Mode.Termination ||
+                            !paramClass.getQualifiedName().toString().equals("java.lang.Thread")) {
                         throw new GenerationException("The parameter for @" + Actor.class.getSimpleName() +
-                                                              " methods requires either @" + State.class
-                                .getSimpleName() + " or @" + Result.class
-                                .getSimpleName() +
-                                                              " annotated class", var);
+                                " methods requires either @" + State.class.getSimpleName() + " or @" + Result.class.getSimpleName() +
+                                " annotated class", var);
                     }
                 }
             }
@@ -263,23 +261,45 @@ import java.util.concurrent.atomic.AtomicReference;
         }
     }
 
+    public static String getGeneratedName(Element ci) {
+        String name = "";
+        do {
+            name = ci.getSimpleName() + (name.isEmpty() ? "" : "_" + name);
+            ci = ci.getEnclosingElement();
+        } while (ci != null && ci.getKind() != ElementKind.PACKAGE);
+        return name + "_jcstress";
+    }
+
+    public static String getQualifiedName(Element ci) {
+        String name = "";
+        while (true) {
+            Element parent = ci.getEnclosingElement();
+            if (parent == null || parent.getKind() == ElementKind.PACKAGE) {
+                name = ((TypeElement)ci).getQualifiedName() + (name.isEmpty() ? "" : "." + name);
+                break;
+            } else {
+                name = ci.getSimpleName() + (name.isEmpty() ? "" : "." + name);
+            }
+            ci = parent;
+        }
+        return name;
+    }
+
     private void generateContinuous(TestInfo info) {
         if (info.getState() == null) {
             throw new GenerationException("@" + JCStressTest.class.getSimpleName() + " defines no @" +
-                                                  State.class.getSimpleName() + " to work with", info.getTest());
+                    State.class.getSimpleName() + " to work with", info.getTest());
         }
 
         if (info.getResult() == null) {
             throw new GenerationException("@" + JCStressTest.class.getSimpleName() + " defines no @" +
-                                                  Result.class.getSimpleName() + " to work with", info.getTest());
+                    Result.class.getSimpleName() + " to work with", info.getTest());
         }
 
         PrintWriter pw;
         Writer writer;
         try {
-            writer = processingEnv.getFiler()
-                    .createSourceFile(getPackageName(info.getTest()) + ".generated." + getGeneratedName(info.getTest()))
-                    .openWriter();
+            writer = processingEnv.getFiler().createSourceFile(getPackageName(info.getTest()) + ".generated." + getGeneratedName(info.getTest())).openWriter();
             pw = new PrintWriter(writer);
         } catch (IOException e) {
             throw new GenerationException("IOException: " + e.getMessage(), info.getTest());
@@ -298,8 +318,7 @@ import java.util.concurrent.atomic.AtomicReference;
         pw.println("public class " + getGeneratedName(info.getTest()) + " extends Runner<" + r + "> {");
         pw.println();
 
-        pw.println("    public " + getGeneratedName(
-                info.getTest()) + "(Options opts, TestResultCollector collector, ExecutorService pool) {");
+        pw.println("    public " + getGeneratedName(info.getTest()) + "(Options opts, TestResultCollector collector, ExecutorService pool) {");
         pw.println("        super(opts, collector, pool, \"" + getQualifiedName(info.getTest()) + "\");");
         pw.println("    }");
         pw.println();
@@ -350,9 +369,7 @@ import java.util.concurrent.atomic.AtomicReference;
         pw.println("        Collection<Future<?>> tasks = new ArrayList<>();");
 
         for (ExecutableElement a : info.getActors()) {
-            pw.println(
-                    "        tasks.add(pool.submit(new Runner_" + a.getSimpleName() + "(control, counter, test, " +
-                            "version, epoch)));");
+            pw.println("        tasks.add(pool.submit(new Runner_" + a.getSimpleName() + "(control, counter, test, version, epoch)));");
         }
 
         pw.println();
@@ -376,9 +393,7 @@ import java.util.concurrent.atomic.AtomicReference;
         pw.println("        final AtomicReference<StateHolder<Pair>> version;");
         pw.println("        final AtomicInteger epoch;");
         pw.println();
-        pw.println(
-                "        public RunnerBase(Control control, Counter<" + r + "> counter, " + t + " test, " +
-                        "AtomicReference<StateHolder<Pair>> version, AtomicInteger epoch) {");
+        pw.println("        public RunnerBase(Control control, Counter<" + r + "> counter, " + t + " test, AtomicReference<StateHolder<Pair>> version, AtomicInteger epoch) {");
         pw.println("            this.control = control;");
         pw.println("            this.counter = counter;");
         pw.println("            this.test = test;");
@@ -395,11 +410,9 @@ import java.util.concurrent.atomic.AtomicReference;
             pw.println();
             pw.println("             for (Pair p : pairs) {");
             if (info.getState().equals(info.getTest())) {
-                emitMethod(pw, info.getArbiter(), "                p.s." + info.getArbiter().getSimpleName(), "p.s",
-                           "p.r");
+                emitMethod(pw, info.getArbiter(), "                p.s." + info.getArbiter().getSimpleName(), "p.s", "p.r");
             } else {
-                emitMethod(pw, info.getArbiter(), "                test." + info.getArbiter().getSimpleName(), "p.s",
-                           "p.r");
+                emitMethod(pw, info.getArbiter(), "                test." + info.getArbiter().getSimpleName(), "p.s", "p.r");
             }
             pw.println("            }");
         }
@@ -408,9 +421,7 @@ import java.util.concurrent.atomic.AtomicReference;
         pw.println("                counter.record(p.r);");
         pw.println("            }");
         pw.println();
-        pw.println(
-                "            int newLen = holder.hasLaggedWorkers ? Math.max(control.minStride, Math.min(len * 2, " +
-                        "control.maxStride)) : len;");
+        pw.println("            int newLen = holder.hasLaggedWorkers ? Math.max(control.minStride, Math.min(len * 2, control.maxStride)) : len;");
         pw.println();
         pw.println("            for (Pair p : pairs) {");
         pw.println("                " + r + " r = p.r;");
@@ -436,8 +447,7 @@ import java.util.concurrent.atomic.AtomicReference;
                     pw.print("false");
                     break;
                 default:
-                    throw new GenerationException(
-                            "Unable to handle @" + Result.class.getSimpleName() + " field of type " + type, var);
+                    throw new GenerationException("Unable to handle @" + Result.class.getSimpleName() + " field of type " + type, var);
             }
             pw.println(";");
         }
@@ -464,12 +474,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
         for (ExecutableElement a : info.getActors()) {
             pw.println();
-            pw.println(
-                    "    public static class Runner_" + a.getSimpleName() + " extends RunnerBase implements Callable " +
-                            "{");
-            pw.println(
-                    "        public Runner_" + a.getSimpleName() + "(Control control, Counter<" + r + "> counter, " +
-                            t + " test, AtomicReference<StateHolder<Pair>> version, AtomicInteger epoch) {");
+            pw.println("    public static class Runner_" + a.getSimpleName() + " extends RunnerBase implements Callable {");
+            pw.println("        public Runner_" + a.getSimpleName() + "(Control control, Counter<" + r + "> counter, " + t + " test, AtomicReference<StateHolder<Pair>> version, AtomicInteger epoch) {");
             pw.println("            super(control, counter, test, version, epoch);");
             pw.println("        }");
             pw.println();
@@ -530,14 +536,12 @@ import java.util.concurrent.atomic.AtomicReference;
     private void generateTermination(TestInfo info) {
         if (info.getSignal() == null) {
             throw new GenerationException("@" + JCStressTest.class.getSimpleName() + " with mode=" + Mode.Termination +
-                                                  " should have a @" + Signal.class.getSimpleName() + " method",
-                                          info.getTest());
+                    " should have a @" + Signal.class.getSimpleName() + " method", info.getTest());
         }
 
         if (info.getActors().size() != 1) {
             throw new GenerationException("@" + JCStressTest.class.getSimpleName() + " with mode=" + Mode.Termination +
-                                                  " should have only the single @" + Actor.class.getName(),
-                                          info.getTest());
+                    " should have only the single @" + Actor.class.getName(), info.getTest());
         }
 
         String generatedName = getGeneratedName(info.getTest());
@@ -545,9 +549,7 @@ import java.util.concurrent.atomic.AtomicReference;
         PrintWriter pw;
         Writer writer;
         try {
-            writer = processingEnv.getFiler()
-                    .createSourceFile(getPackageName(info.getTest()) + ".generated." + generatedName)
-                    .openWriter();
+            writer = processingEnv.getFiler().createSourceFile(getPackageName(info.getTest()) + ".generated." + generatedName).openWriter();
             pw = new PrintWriter(writer);
         } catch (IOException e) {
             throw new GenerationException("IOException: " + e.getMessage(), info.getTest());
@@ -564,9 +566,7 @@ import java.util.concurrent.atomic.AtomicReference;
         pw.println("public class " + generatedName + " extends Runner<" + generatedName + ".Outcome> {");
         pw.println();
 
-        pw.println(
-                "    public " + generatedName + "(Options opts, TestResultCollector collector, ExecutorService pool) " +
-                        "{");
+        pw.println("    public " + generatedName + "(Options opts, TestResultCollector collector, ExecutorService pool) {");
         pw.println("        super(opts, collector, pool, \"" + getQualifiedName(info.getTest()) + "\");");
         pw.println("    }");
         pw.println();
@@ -617,12 +617,10 @@ import java.util.concurrent.atomic.AtomicReference;
         pw.println();
 
         if (info.getTest().equals(info.getState())) {
-            pw.println("            final " + info.getState().getSimpleName() + " state = new " + info.getState()
-                    .getSimpleName() + "();");
+            pw.println("            final " + info.getState().getSimpleName() + " state = new " + info.getState().getSimpleName() + "();");
         } else {
             if (info.getState() != null) {
-                pw.println("            final " + info.getState().getSimpleName() + " state = new " + info.getState()
-                        .getSimpleName() + "();");
+                pw.println("            final " + info.getState().getSimpleName() + " state = new " + info.getState().getSimpleName() + "();");
             }
             pw.println("            final " + t + " test = new " + t + "();");
         }
@@ -656,11 +654,9 @@ import java.util.concurrent.atomic.AtomicReference;
         pw.println("            try {");
 
         if (info.getTest().equals(info.getState())) {
-            emitMethodTermination(pw, info.getSignal(), "                state." + info.getSignal().getSimpleName(),
-                                  "state");
+            emitMethodTermination(pw, info.getSignal(), "                state." + info.getSignal().getSimpleName(), "state");
         } else {
-            emitMethodTermination(pw, info.getSignal(), "                test." + info.getSignal().getSimpleName(),
-                                  "state");
+            emitMethodTermination(pw, info.getSignal(), "                test." + info.getSignal().getSimpleName(), "state");
         }
 
         pw.println("            } catch (Exception e) {");
@@ -700,8 +696,7 @@ import java.util.concurrent.atomic.AtomicReference;
         pw.close();
     }
 
-    private void emitMethod(PrintWriter pw, ExecutableElement el, String lvalue, String stateAccessor, String
-            resultAccessor) {
+    private void emitMethod(PrintWriter pw, ExecutableElement el, String lvalue, String stateAccessor, String resultAccessor) {
         pw.print(lvalue + "(");
 
         boolean isFirst = true;
@@ -743,10 +738,15 @@ import java.util.concurrent.atomic.AtomicReference;
     }
 
     private void printImports(PrintWriter pw, TestInfo info) {
-        Class<?>[] imports = new Class<?>[] { ArrayList.class, Arrays.class, Collection.class, Callable.class,
-                ExecutorService.class, Future.class, TimeUnit.class, AtomicInteger.class, AtomicReference.class,
-                Options.class, TestResultCollector.class, Control.class, Runner.class, StateHolder.class, ArrayUtils
-                .class, Counter.class, VMSupport.class, OpenAddressHashCounter.class, ExecutionException.class };
+        Class<?>[] imports = new Class<?>[] {
+                ArrayList.class, Arrays.class, Collection.class,
+                Callable.class, ExecutorService.class, Future.class, TimeUnit.class,
+                AtomicInteger.class, AtomicReference.class,
+                Options.class, TestResultCollector.class,
+                Control.class, Runner.class, StateHolder.class,
+                ArrayUtils.class, Counter.class,
+                VMSupport.class, OpenAddressHashCounter.class, ExecutionException.class
+        };
 
         for (Class<?> c : imports) {
             pw.println("import " + c.getName() + ';');
@@ -769,6 +769,7 @@ import java.util.concurrent.atomic.AtomicReference;
         while (walk.getKind() != ElementKind.PACKAGE) {
             walk = walk.getEnclosingElement();
         }
-        return ((PackageElement) walk).getQualifiedName().toString();
+        return ((PackageElement)walk).getQualifiedName().toString();
     }
+
 }

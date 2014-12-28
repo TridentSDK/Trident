@@ -89,14 +89,14 @@ public abstract class TridentProjectile extends TridentEntity implements Project
                                 }
 
                                 if (impalable[0] == null) {
-                                    Tile tile = getLocation().getTile();
-                                    if (tile.getSubstance() == Substance.AIR) {
+                                    Tile tile = getLocation().tile();
+                                    if (tile.substance() == Substance.AIR) {
                                         for (int i = 0; i < 2; i++) {
-                                            Tile newTile = getLocation().toVector()
+                                            Tile newTile = getLocation().asVector()
                                                     .multiply(i)
-                                                    .toLocation(getLocation().getWorld())
-                                                    .getTile();
-                                            if (newTile.getSubstance() != Substance.AIR) impalable[0] = newTile;
+                                                    .toLocation(getLocation().world())
+                                                    .tile();
+                                            if (newTile.substance() != Substance.AIR) impalable[0] = newTile;
                                         }
                                     }
                                 }
@@ -129,7 +129,7 @@ public abstract class TridentProjectile extends TridentEntity implements Project
 
     @Override
     public void setLauncher(final ProjectileLauncher shooter) {
-        super.executor.addTask(new Runnable() {
+        super.executor.execute(new Runnable() {
             @Override
             public void run() {
                 TridentProjectile.this.source = new WeakReference<>(shooter);

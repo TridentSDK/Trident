@@ -22,7 +22,6 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-
 package org.openjdk.jcstress.util;
 
 import java.util.Arrays;
@@ -46,4 +45,5 @@ public class Bridges {
             return Arrays.toString((Object[]) o);
         }
     }
+
 }

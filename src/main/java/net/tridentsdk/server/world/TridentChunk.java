@@ -17,6 +17,7 @@
 
 package net.tridentsdk.server.world;
 
+import com.google.common.collect.Lists;
 import net.tridentsdk.Coordinates;
 import net.tridentsdk.base.Tile;
 import net.tridentsdk.meta.nbt.*;
@@ -28,7 +29,6 @@ import net.tridentsdk.world.ChunkLocation;
 import net.tridentsdk.world.ChunkSnapshot;
 import net.tridentsdk.world.Dimension;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class TridentChunk implements Chunk {
@@ -76,17 +76,17 @@ public class TridentChunk implements Chunk {
     }
 
     @Override
-    public ChunkLocation getLocation() {
+    public ChunkLocation location() {
         return this.location;
     }
 
     @Override
-    public TridentWorld getWorld() {
+    public TridentWorld world() {
         return this.world;
     }
 
     @Override
-    public Tile getTileAt(int relX, int y, int relZ) {
+    public Tile tileAt(int relX, int y, int relZ) {
         int index = WorldUtils.getBlockArrayIndex(relX, y, relZ);
 
         return new TridentTile(Coordinates.create(this.world, relX + this.getX() * 16, y, relZ + this.getZ() * 16)
@@ -96,7 +96,7 @@ public class TridentChunk implements Chunk {
 
     @Override
     public ChunkSnapshot snapshot() {
-        List<CompoundTag> sections = new ArrayList<>();
+        List<CompoundTag> sections = Lists.newArrayList();
         for (ChunkSection section : this.sections) {
             sections.add(NBTSerializer.serialize(section));
         }
@@ -112,7 +112,7 @@ public class TridentChunk implements Chunk {
         int size = 0;
         int sectionSize = ChunkSection.LENGTH * 5 / 2;
 
-        if (world.getDimension() == Dimension.OVERWORLD) sectionSize += ChunkSection.LENGTH / 2;
+        if (world.dimension() == Dimension.OVERWORLD) sectionSize += ChunkSection.LENGTH / 2;
 
         size += count * sectionSize + 256;
 
@@ -175,7 +175,7 @@ public class TridentChunk implements Chunk {
                 CompoundTag ct = (CompoundTag) t;
 
                 this.sections[i] = NBTSerializer.deserialize(ChunkSection.class, ct);
-                this.sections[i].loadBlocks(getWorld());
+                this.sections[i].loadBlocks(world());
             }
         }
 
@@ -183,7 +183,7 @@ public class TridentChunk implements Chunk {
             //TridentEntity entity = EntityBuilder.create().build(TridentEntity.class);
 
             //entity.load((CompoundTag) t);
-            //world.getEntities().add(entity);
+            //world.entities().add(entity);
         }
 
         /* Load extras */

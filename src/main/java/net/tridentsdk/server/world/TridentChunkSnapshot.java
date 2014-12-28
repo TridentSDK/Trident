@@ -64,7 +64,7 @@ public class TridentChunkSnapshot implements ChunkSnapshot {
     }
 
     @Override
-    public ChunkLocation getLocation() {
+    public ChunkLocation location() {
         return location;
     }
 
@@ -79,12 +79,12 @@ public class TridentChunkSnapshot implements ChunkSnapshot {
     }
 
     @Override
-    public World getWorld() {
+    public World world() {
         return world;
     }
 
     @Override
-    public Tile getTileAt(int relX, int y, int relZ) {
+    public Tile tileAt(int relX, int y, int relZ) {
         return null;
     }
 

@@ -22,7 +22,6 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-
 package org.openjdk.jcstress.generator;
 
 import java.util.EnumSet;
@@ -30,14 +29,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Atomic_X implements Primitive {
 
-    private final Class<?> guardType;
-    private final Class<?> primType;
-    private final AcqType acqType;
-    private final RelType relType;
     private String unitValue;
     private String defaultValue;
     private String rValue;
     private String setValue;
+
+    private final Class<?> guardType;
+    private final Class<?> primType;
+    private final AcqType acqType;
+    private final RelType relType;
 
     public Atomic_X(Class<?> guardType, Class<?> primType, AcqType acqType, RelType relType) {
         this.guardType = guardType;
@@ -51,8 +51,8 @@ public class Atomic_X implements Primitive {
         setValue = TestGenerator.getSetValue(primType);
 
         if (guardType == AtomicBoolean.class) {
-            if (!EnumSet.of(AcqType.get, AcqType.CAS).contains(acqType) || !EnumSet.of(RelType.set, RelType.CAS)
-                    .contains(relType)) {
+            if (!EnumSet.of(AcqType.get, AcqType.CAS).contains(acqType) ||
+                !EnumSet.of(RelType.set, RelType.CAS).contains(relType)) {
                 throw new IllegalArgumentException();
             }
         }
@@ -67,31 +67,28 @@ public class Atomic_X implements Primitive {
     public String printAcquire(String region) {
         switch (acqType) {
             case CAS:
-                return String.format("r.r1 = g.compareAndSet(%s, %s) ? %s : %s; \n" + region, setValue, defaultValue,
-                                     setValue, defaultValue);
+                return String.format("r.r1 = g.compareAndSet(%s, %s) ? %s : %s; \n" + region,
+                        setValue,
+                        defaultValue,
+                        setValue,
+                        defaultValue
+                );
             case get:
                 return "r.r1 = g.get() == " + defaultValue + "? " + defaultValue + " : " + setValue + " ; \n" + region;
             case incrementAndGet:
-                return "r.r1 = g.incrementAndGet() == (" + defaultValue + " + " + unitValue + ") ? " + defaultValue +
-                        " : " + setValue + "; \n" + region;
+                return "r.r1 = g.incrementAndGet() == (" + defaultValue + " + " + unitValue + ") ? " + defaultValue + " : " + setValue + "; \n" + region;
             case getAndIncrement:
-                return "r.r1 = g.getAndIncrement() == " + defaultValue + "? " + defaultValue + " : " + setValue + " ;" +
-                        " \n" + region;
+                return "r.r1 = g.getAndIncrement() == " + defaultValue + "? " + defaultValue + " : " + setValue + " ; \n" + region;
             case decrementAndGet:
-                return "r.r1 = g.decrementAndGet() == (" + defaultValue + " - " + unitValue + ") ? " + defaultValue +
-                        " : " + setValue + "; \n" + region;
+                return "r.r1 = g.decrementAndGet() == (" + defaultValue + " - " + unitValue + ") ? " + defaultValue + " : " + setValue + "; \n" + region;
             case getAndDecrement:
-                return "r.r1 = g.getAndDecrement() == " + defaultValue + "? " + defaultValue + " : " + setValue + " ;" +
-                        " \n" + region;
+                return "r.r1 = g.getAndDecrement() == " + defaultValue + "? " + defaultValue + " : " + setValue + " ; \n" + region;
             case addAndGet:
-                return "r.r1 = g.addAndGet(" + rValue + ") == (" + defaultValue + " + " + rValue + ") ? " +
-                        defaultValue + " : " + setValue + "; \n" + region;
+                return "r.r1 = g.addAndGet(" + rValue + ") == (" + defaultValue + " + " + rValue + ") ? " + defaultValue + " : " + setValue + "; \n" + region;
             case getAndAdd:
-                return "r.r1 = g.getAndAdd(" + rValue + ") == " + defaultValue + "? " + defaultValue + " : " +
-                        setValue + " ; \n" + region;
+                return "r.r1 = g.getAndAdd(" + rValue + ") == " + defaultValue + "? " + defaultValue + " : " + setValue + " ; \n" + region;
             case getAndSet:
-                return "r.r1 = g.getAndSet(" + rValue + ") == " + defaultValue + "? " + defaultValue + " : " +
-                        setValue + " ; \n" + region;
+                return "r.r1 = g.getAndSet(" + rValue + ") == " + defaultValue + "? " + defaultValue + " : " + setValue + " ; \n" + region;
             default:
                 throw new IllegalStateException("" + acqType);
         }
@@ -101,9 +98,9 @@ public class Atomic_X implements Primitive {
     public String printRelease(String region) {
         switch (relType) {
             case set:
-                return region + "g.set(" + setValue + ");";
+                return region + "g.set(" +setValue + ");";
             case CAS:
-                return region + "g.compareAndSet(" + defaultValue + ", " + setValue + ");";
+                return region + "g.compareAndSet(" + defaultValue + ", " +setValue + ");";
             case incrementAndGet:
                 return region + "g.incrementAndGet();";
             case getAndIncrement:
@@ -127,4 +124,5 @@ public class Atomic_X implements Primitive {
     public String getClassName() {
         return guardType.getName();
     }
+
 }

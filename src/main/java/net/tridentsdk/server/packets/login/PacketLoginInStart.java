@@ -146,7 +146,7 @@ public class PacketLoginInStart extends InPacket {
             return;
         }
 
-        LoginManager.getInstance().initLogin(connection.getAddress(), this.getName());
+        LoginHandler.getInstance().initLogin(connection.getAddress(), this.getName());
         PacketLoginOutEncryptionRequest p = new PacketLoginOutEncryptionRequest();
 
         // Generate the 4 byte token and update the packet

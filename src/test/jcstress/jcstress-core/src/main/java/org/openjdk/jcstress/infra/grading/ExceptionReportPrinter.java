@@ -22,8 +22,8 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-
 package org.openjdk.jcstress.infra.grading;
+
 
 import org.openjdk.jcstress.Options;
 import org.openjdk.jcstress.infra.State;
@@ -39,10 +39,16 @@ import org.openjdk.jcstress.util.TreeMultimap;
 
 import javax.xml.bind.JAXBException;
 import java.io.FileNotFoundException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
- * Exception report. <p/> Throws deferred test exceptions, if any.
+ * Exception report.
+ *
+ * Throws deferred test exceptions, if any.
  *
  * @author Aleksey Shipilev (aleksey.shipilev@oracle.com)
  */
@@ -51,8 +57,7 @@ public class ExceptionReportPrinter {
     private final List<String> failures;
     private final InProcessCollector collector;
 
-    public ExceptionReportPrinter(Options opts, InProcessCollector collector) throws JAXBException,
-            FileNotFoundException {
+    public ExceptionReportPrinter(Options opts, InProcessCollector collector) throws JAXBException, FileNotFoundException {
         this.collector = collector;
         failures = new ArrayList<>();
     }
@@ -133,9 +138,9 @@ public class ExceptionReportPrinter {
                 if (description != null) {
                     TestGrading grading = new TestGrading(result, description);
                     if (!grading.failureMessages.isEmpty()) {
-                        failures.addAll(grading.failureMessages.stream()
-                                                .map(msg -> result.getName() + ": " + msg)
-                                                .collect(java.util.stream.Collectors.toList()));
+                        for (String msg : grading.failureMessages) {
+                            failures.add(result.getName() + ": " + msg);
+                        }
                     }
                 } else {
                     failures.add("TEST BUG: " + result.getName() + " description is not found.");
@@ -148,4 +153,5 @@ public class ExceptionReportPrinter {
                 throw new IllegalStateException("Unhandled status: " + result.status());
         }
     }
+
 }

@@ -10,7 +10,7 @@ import net.tridentsdk.factory.CollectFactory;
 import net.tridentsdk.factory.ConfigFactory;
 import net.tridentsdk.factory.Factories;
 import net.tridentsdk.server.TridentScheduler;
-import net.tridentsdk.server.threads.ThreadsManager;
+import net.tridentsdk.server.threads.ThreadsHandler;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -49,6 +49,6 @@ public class LatchInitTest extends AbstractTest {
             }
         });
         Factories.init(new TridentScheduler());
-        Factories.init(new ThreadsManager());
+        Factories.init(new ThreadsHandler());
     }
 }

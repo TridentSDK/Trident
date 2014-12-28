@@ -22,7 +22,6 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-
 package sun.misc;
 
 import java.lang.reflect.Field;
@@ -32,10 +31,6 @@ import java.security.ProtectionDomain;
  * Transitional interface, allows to compile the project against old JDKs.
  */
 public abstract class Unsafe {
-
-    public static Unsafe getUnsafe() {
-        throw new IllegalStateException("Can't touch this");
-    }
 
     public abstract void loadFence();
 
@@ -137,7 +132,9 @@ public abstract class Unsafe {
 
     public abstract void setMemory(long address, long bytes, byte value);
 
-    public abstract void copyMemory(Object srcBase, long srcOffset, Object destBase, long destOffset, long bytes);
+    public abstract void copyMemory(Object srcBase, long srcOffset,
+                                  Object destBase, long destOffset,
+                                  long bytes);
 
     public abstract void copyMemory(long srcAddress, long destAddress, long bytes);
 
@@ -161,14 +158,16 @@ public abstract class Unsafe {
 
     public abstract int pageSize();
 
-    public abstract Class<?> defineClass(String name, byte[] b, int off, int len, ClassLoader loader,
-                                         ProtectionDomain protectionDomain);
+    public abstract Class<?> defineClass(String name, byte[] b, int off, int len,
+                                       ClassLoader loader,
+                                       ProtectionDomain protectionDomain);
 
     public abstract Class<?> defineClass(String name, byte[] b, int off, int len);
 
     public abstract Class<?> defineAnonymousClass(Class<?> hostClass, byte[] data, Object[] cpPatches);
 
-    public abstract Object allocateInstance(Class<?> cls) throws InstantiationException;
+    public abstract Object allocateInstance(Class<?> cls)
+            throws InstantiationException;
 
     public abstract void monitorEnter(Object o);
 
@@ -178,11 +177,17 @@ public abstract class Unsafe {
 
     public abstract void throwException(Throwable ee);
 
-    public abstract boolean compareAndSwapObject(Object o, long offset, Object expected, Object x);
+    public abstract boolean compareAndSwapObject(Object o, long offset,
+                                                     Object expected,
+                                                     Object x);
 
-    public abstract boolean compareAndSwapInt(Object o, long offset, int expected, int x);
+    public abstract boolean compareAndSwapInt(Object o, long offset,
+                                                  int expected,
+                                                  int x);
 
-    public abstract boolean compareAndSwapLong(Object o, long offset, long expected, long x);
+    public abstract boolean compareAndSwapLong(Object o, long offset,
+                                                   long expected,
+                                                   long x);
 
     public abstract Object getObjectVolatile(Object o, long offset);
 
@@ -232,6 +237,10 @@ public abstract class Unsafe {
 
     public abstract int getLoadAverage(double[] loadavg, int nelems);
 
+    public static Unsafe getUnsafe() {
+        throw new IllegalStateException("Can't touch this");
+    }
+
     public abstract long getLong(java.lang.Object o, long l);
 
     public abstract void putLong(java.lang.Object o, long l, long l1);
@@ -257,4 +266,5 @@ public abstract class Unsafe {
     public abstract long getAndSetLong(Object o, long offset, long x);
 
     public abstract Object getAndSetObject(Object o, long offset, Object x);
+
 }

@@ -66,8 +66,8 @@ public class PacketPlayInClientStatus extends InPacket {
                 PacketPlayOutPlayerRespawn respawn = new PacketPlayOutPlayerRespawn();
 
                 respawn.set("dimension", (int) ((TridentWorld) world).getDimesion().toByte())
-                        .set("difficulity", (int) world.getDifficulty().toByte())
-                        .set("gameMode", (int) world.getDefaultGamemode().toByte()
+                        .set("difficulity", (int) world.difficulty().toByte())
+                        .set("gameMode", (int) world.defaultGamemode().toByte()
                         /* todo make this specific to the player */);
 
                 connection.sendPacket(respawn);

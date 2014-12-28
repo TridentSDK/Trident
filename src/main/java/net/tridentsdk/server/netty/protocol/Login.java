@@ -20,7 +20,7 @@ package net.tridentsdk.server.netty.protocol;
 import net.tridentsdk.docs.AccessNoDoc;
 import net.tridentsdk.server.packets.login.*;
 
-@AccessNoDoc class Login extends PacketManager {
+@AccessNoDoc class Login extends ProtocolHandler {
     Login() {
         this.inPackets.put(0x00, PacketLoginInStart.class);
         this.inPackets.put(0x01, PacketLoginInEncryptionResponse.class);

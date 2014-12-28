@@ -66,7 +66,7 @@ public class ChunkTile {
      */
     public void apply(World world) {
         // Executes after chunk is created by handler
-        Tile tile = world.getTileAt(Coordinates.create(world, x, y, z));
+        Tile tile = world.tileAt(Coordinates.create(world, x, y, z));
         tile.setSubstance(substance);
         tile.setMeta(data);
     }

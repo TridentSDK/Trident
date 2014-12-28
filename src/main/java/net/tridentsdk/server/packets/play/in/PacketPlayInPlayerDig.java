@@ -124,7 +124,7 @@ public class PacketPlayInPlayerDig extends InPacket {
                 break;
         }
 
-        TridentServer.getInstance().getEventManager().call((Event) event);
+        TridentServer.getInstance().getEventHandler().call((Event) event);
 
         if (event == null || event.isIgnored()) return;
 

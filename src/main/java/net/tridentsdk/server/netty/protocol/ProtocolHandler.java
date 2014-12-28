@@ -26,11 +26,11 @@ import net.tridentsdk.util.TridentLogger;
 import java.util.HashMap;
 import java.util.Map;
 
-abstract class PacketManager {
+abstract class ProtocolHandler {
     protected final Map<Integer, Class<? extends Packet>> inPackets = new HashMap<>();
     protected final Map<Integer, Class<? extends Packet>> outPackets = new HashMap<>();
 
-    PacketManager() {
+    ProtocolHandler() {
         this.inPackets.put(-1, UnknownPacket.class);
         this.outPackets.put(-1, UnknownPacket.class);
     }

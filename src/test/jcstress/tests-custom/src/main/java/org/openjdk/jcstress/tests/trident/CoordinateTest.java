@@ -22,32 +22,45 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-package org.openjdk.jcstress.infra;
+package org.openjdk.jcstress.tests.trident;
 
-import org.openjdk.jcstress.annotations.Expect;
+import net.tridentsdk.server.world.TridentWorldLoader;
+import net.tridentsdk.world.World;
+import org.openjdk.jcstress.annotations.*;
+import org.openjdk.jcstress.infra.results.BooleanResult2;
 
+@JCStressTest
+@Outcome(id = "[true, true]", expect = Expect.ACCEPTABLE, desc = "Setting an object and double works concurrently")
+@Outcome(expect = Expect.FORBIDDEN)
+public class CoordinateTest {
+    private final World world = new TridentWorldLoader().load("world");
+    private final double aDouble = 7.34;
 
-public class StateCase {
-
-    private final String state;
-    private final Expect expect;
-    private final String description;
-
-    public StateCase(String state, Expect expect, String description) {
-        this.state = state;
-        this.expect = expect;
-        this.description = description;
+    @Actor
+    public void editWorld(Coordinates state, BooleanResult2 result2) {
+        state.world = world;
     }
 
-    public String state() {
-        return state;
+    @Actor
+    public void editDouble(Coordinates state, BooleanResult2 result2) {
+        state.x = aDouble;
     }
 
-    public Expect expect() {
-        return expect;
+    @Arbiter
+    public void check(Coordinates state, BooleanResult2 result4) {
+        result4.r1 = state.world == this.world;
+        result4.r2 = state.x == this.aDouble;
     }
 
-    public String description() {
-        return description;
+    @State
+    public static class Coordinates implements Cloneable {
+        private volatile double x;
+        private volatile double y;
+        private volatile double z;
+
+        private volatile World world;
+
+        private volatile float yaw;
+        private volatile float pitch;
     }
 }

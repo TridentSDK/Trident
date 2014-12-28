@@ -22,8 +22,8 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-
 package org.openjdk.jcstress.infra.grading;
+
 
 import org.openjdk.jcstress.Options;
 import org.openjdk.jcstress.annotations.Expect;
@@ -34,15 +34,23 @@ import org.openjdk.jcstress.infra.TestInfo;
 import org.openjdk.jcstress.infra.collectors.InProcessCollector;
 import org.openjdk.jcstress.infra.collectors.TestResult;
 import org.openjdk.jcstress.infra.runners.TestList;
-import org.openjdk.jcstress.util.*;
+import org.openjdk.jcstress.util.Environment;
+import org.openjdk.jcstress.util.HashMultimap;
+import org.openjdk.jcstress.util.LongHashMultiset;
+import org.openjdk.jcstress.util.Multimap;
+import org.openjdk.jcstress.util.TreeMultimap;
 
 import javax.xml.bind.JAXBException;
 import java.awt.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
  * Prints HTML reports.
@@ -53,9 +61,10 @@ public class HTMLReportPrinter {
 
     private final String resultDir;
     private final InProcessCollector collector;
+    private int cellStyle = 1;
+
     private final ConsoleReportPrinter printer;
     private final boolean verbose;
-    private int cellStyle = 1;
 
     public HTMLReportPrinter(Options opts, InProcessCollector collector) throws JAXBException, FileNotFoundException {
         this.collector = collector;
@@ -63,19 +72,6 @@ public class HTMLReportPrinter {
         this.resultDir = opts.getResultDest();
         this.verbose = opts.isVerbose();
         new File(resultDir).mkdirs();
-    }
-
-    public static String cutKlass(String fqname) {
-        return fqname.substring(fqname.lastIndexOf(".") + 1);
-    }
-
-    public static int getRoughCount(TestResult r) {
-        long sum = 0;
-        for (State s : r.getStates()) {
-            sum += s.getCount();
-        }
-
-        return (int) Math.floor(Math.log10(sum));
     }
 
     public void parse() throws FileNotFoundException, JAXBException {
@@ -114,7 +110,9 @@ public class HTMLReportPrinter {
 
                 root.setEnv(env);
 
-                auxData.forEach(root::addAuxData);
+                for (String data : auxData) {
+                    root.addAuxData(data);
+                }
 
                 results.put(name, root);
             }
@@ -130,32 +128,28 @@ public class HTMLReportPrinter {
         PrintWriter output = new PrintWriter(resultDir + "/index.html");
 
         output.println("\n" +
-                               "<html>\n" +
-                               "<head>\n" +
-                               "<title>Java Concurrency Stress test report</title>\n" +
-                               " <style type=\"text/css\">\n" +
-                               "   table { font-size: 9pt; }\n" +
-                               "   a { color: #000000; }\n" +
-                               "   .progress { padding: 0px; }\n" +
-                               "   .header { text-align: left; }\n" +
-                               "   .section1 { font-size: 12pt; background-color: #BDB76B; color: #000000; " +
-                               "font-weight: bold;}\n" +
-                               "   .section2 { font-size: 12pt; background-color: #F0E68C; color: #000000; " +
-                               "font-weight: bold;}\n" +
-                               "   .cell1 { background-color: #FAFAD2; }\n" +
-                               "   .cell2 { background-color: #EEE8AA; }\n" +
-                               "   .passedProgress { background-color: #00AA00; color: #FFFFFF; text-align: center; " +
-                               "font-weight: bold; }\n" +
-                               "   .failedProgress { background-color: #FF0000; color: #FFFFFF; text-align: center; " +
-                               "font-weight: bold; }\n" +
-                               "   .passed { color: #00AA00; text-align: center; font-weight: bold; }\n" +
-                               "   .failed { color: #FF0000; text-align: center; font-weight: bold; }\n" +
-                               "   .interesting { color: #0000FF; text-align: center; font-weight: bold; }\n" +
-                               "   .spec { color: #AAAA00; text-align: center; font-weight: bold; }\n" +
-                               "   .endResult { font-size: 48pt; text-align: center; font-weight: bold; }\n" +
-                               " </style>\n" +
-                               "</head>\n" +
-                               "<body>");
+                "<html>\n" +
+                "<head>\n" +
+                "<title>Java Concurrency Stress test report</title>\n" +
+                " <style type=\"text/css\">\n" +
+                "   table { font-size: 9pt; }\n" +
+                "   a { color: #000000; }\n" +
+                "   .progress { padding: 0px; }\n" +
+                "   .header { text-align: left; }\n" +
+                "   .section1 { font-size: 12pt; background-color: #BDB76B; color: #000000; font-weight: bold;}\n" +
+                "   .section2 { font-size: 12pt; background-color: #F0E68C; color: #000000; font-weight: bold;}\n" +
+                "   .cell1 { background-color: #FAFAD2; }\n" +
+                "   .cell2 { background-color: #EEE8AA; }\n" +
+                "   .passedProgress { background-color: #00AA00; color: #FFFFFF; text-align: center; font-weight: bold; }\n" +
+                "   .failedProgress { background-color: #FF0000; color: #FFFFFF; text-align: center; font-weight: bold; }\n" +
+                "   .passed { color: #00AA00; text-align: center; font-weight: bold; }\n" +
+                "   .failed { color: #FF0000; text-align: center; font-weight: bold; }\n" +
+                "   .interesting { color: #0000FF; text-align: center; font-weight: bold; }\n" +
+                "   .spec { color: #AAAA00; text-align: center; font-weight: bold; }\n" +
+                "   .endResult { font-size: 48pt; text-align: center; font-weight: bold; }\n" +
+                " </style>\n" +
+                "</head>\n" +
+                "<body>");
 
         output.println("<table width=\"100%\" cellspacing=\"20\">");
         output.println("<tr>");
@@ -202,9 +196,7 @@ public class HTMLReportPrinter {
             output.println("</p>");
 
             output.println("<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\"><tr>");
-            output.println(
-                    "<td nowrap><b>Overall pass rate:</b> " + passedCount + "/" + (passedCount + failedCount) +
-                            "&nbsp;</td>");
+            output.println("<td nowrap><b>Overall pass rate:</b> " + passedCount + "/" + (passedCount + failedCount) + "&nbsp;</td>");
             if (passedProgress > 0) {
                 output.println("<td width=\"" + passedProgress + "%\" class=\"passedProgress\">&nbsp;</td>");
             }
@@ -238,9 +230,7 @@ public class HTMLReportPrinter {
                                 if (key.equals("launcher")) continue;
 
                                 if (!lastV.equalsIgnoreCase(value)) {
-                                    System.err.println(
-                                            "Mismatched environment for key = " + key + ", was = " + lastV + ", now =" +
-                                                    " " + value);
+                                    System.err.println("Mismatched environment for key = " + key + ", was = " + lastV + ", now = "  + value);
                                 }
                             }
                         }
@@ -281,12 +271,9 @@ public class HTMLReportPrinter {
         }
     }
 
-    private void printFailedTests(Map<String, TestResult> results, Multimap<String, String> packages, PrintWriter
-            output) throws
-            FileNotFoundException, JAXBException {
+    private void printFailedTests(Map<String, TestResult> results, Multimap<String, String> packages, PrintWriter output) throws FileNotFoundException, JAXBException {
         output.println("<h3>FAILED tests:<br>");
-        output.println(
-                "&nbsp;Some asserts have been violated.<br>&nbsp;Correct implementations should have none.</h3>");
+        output.println("&nbsp;Some asserts have been violated.<br>&nbsp;Correct implementations should have none.</h3>");
         output.println("<table cellspacing=0 cellpadding=0 width=\"100%\">");
 
         boolean hadAnyTests = false;
@@ -318,13 +305,10 @@ public class HTMLReportPrinter {
         output.println("<br>");
     }
 
-    private void printErrorTests(Map<String, TestResult> results, Multimap<String, String> packages, PrintWriter
-            output) throws
-            FileNotFoundException, JAXBException {
+
+    private void printErrorTests(Map<String, TestResult> results, Multimap<String, String> packages, PrintWriter output) throws FileNotFoundException, JAXBException {
         output.println("<h3>ERROR tests:<br>");
-        output.println(
-                "&nbsp;Tests break for some reason, other than failing the assert.<br>&nbsp;Correct implementations " +
-                        "should have none.</h3>");
+        output.println("&nbsp;Tests break for some reason, other than failing the assert.<br>&nbsp;Correct implementations should have none.</h3>");
         output.println("<table cellspacing=0 cellpadding=0 width=\"100%\">");
 
         boolean hadAnyTests = false;
@@ -355,9 +339,7 @@ public class HTMLReportPrinter {
         output.println("<br>");
     }
 
-    private void printInterestingTests(Map<String, TestResult> results, Multimap<String, String> packages,
-                                       PrintWriter output) throws
-            FileNotFoundException, JAXBException {
+    private void printInterestingTests(Map<String, TestResult> results, Multimap<String, String> packages, PrintWriter output) throws FileNotFoundException, JAXBException {
         output.println("<h3>INTERESTING tests:<br>");
         output.println("&nbsp;Some interesting behaviors observed.<br>&nbsp;This is for the plain curiosity.</h3>");
         output.println("<table cellspacing=0 cellpadding=0 width=\"100%\">");
@@ -390,13 +372,9 @@ public class HTMLReportPrinter {
         output.println("<br>");
     }
 
-    private void printSpecTests(Map<String, TestResult> results, Multimap<String, String> packages, PrintWriter
-            output) throws
-            FileNotFoundException, JAXBException {
+    private void printSpecTests(Map<String, TestResult> results, Multimap<String, String> packages, PrintWriter output) throws FileNotFoundException, JAXBException {
         output.println("<h3>SPEC tests:<br>");
-        output.println(
-                "&nbsp;Formally acceptable, but surprising results are observed.<br>&nbsp;Implementations going " +
-                        "beyond the minimal requirements should have none.</h3>");
+        output.println("&nbsp;Formally acceptable, but surprising results are observed.<br>&nbsp;Implementations going beyond the minimal requirements should have none.</h3>");
         output.println("<table cellspacing=0 cellpadding=0 width=\"100%\">");
 
         boolean hadAnyTests = false;
@@ -428,16 +406,14 @@ public class HTMLReportPrinter {
         output.println("<br>");
     }
 
-    private void printAllTests(Map<String, TestResult> results, Multimap<String, String> packages, PrintWriter
-            output) throws
-            FileNotFoundException, JAXBException {
+    private void printAllTests(Map<String, TestResult> results, Multimap<String, String> packages, PrintWriter output) throws FileNotFoundException, JAXBException {
         output.println("<h3>ALL tests:</h3>");
         output.println("<table cellspacing=0 cellpadding=0 width=\"100%\">\n" +
-                               "<tr>\n" +
-                               " <th class=\"header\">Test</th>\n" +
-                               " <th class=\"header\">Cycles</th>\n" +
-                               " <th class=\"header\">Results</th>\n" +
-                               "</tr>");
+                "<tr>\n" +
+                " <th class=\"header\">Test</th>\n" +
+                " <th class=\"header\">Cycles</th>\n" +
+                " <th class=\"header\">Results</th>\n" +
+                "</tr>");
 
         for (String k : packages.keys()) {
             emitPackage(output, k);
@@ -463,21 +439,23 @@ public class HTMLReportPrinter {
 
     private void emitPackage(PrintWriter pw, String pack) {
         pw.println("<tr class=\"section2\">\n" +
-                           "   <td><b>" + pack + "</b></td>\n" +
-                           "   <td>&nbsp;</td>\n" +
-                           "   <td>&nbsp;</td>\n" +
-                           "   <td>&nbsp;</td>\n" +
-                           "   <td>&nbsp;</td>\n" +
-                           "   <td></td>" +
-                           "</tr>");
+                "   <td><b>" + pack + "</b></td>\n" +
+                "   <td>&nbsp;</td>\n" +
+                "   <td>&nbsp;</td>\n" +
+                "   <td>&nbsp;</td>\n" +
+                "   <td>&nbsp;</td>\n" +
+                "   <td></td>" +
+                "</tr>");
     }
 
-    public void emitTest(PrintWriter output, TestResult result, TestInfo description) throws FileNotFoundException,
-            JAXBException {
+    public static String cutKlass(String fqname) {
+        return fqname.substring(fqname.lastIndexOf(".") + 1);
+    }
+
+    public void emitTest(PrintWriter output, TestResult result, TestInfo description) throws FileNotFoundException, JAXBException {
         cellStyle = 3 - cellStyle;
         output.println("<tr class=\"cell" + cellStyle + "\">");
-        output.println("<td>&nbsp;&nbsp;&nbsp;<a href=\"" + result.getName() + ".html\">" + cutKlass(
-                result.getName()) + "</a></td>");
+        output.println("<td>&nbsp;&nbsp;&nbsp;<a href=\"" + result.getName() + ".html\">" + cutKlass(result.getName()) + "</a></td>");
         output.printf("<td>> 10<sup>%d</sup></td>", getRoughCount(result));
         if (description != null) {
             TestGrading grading = new TestGrading(result, description);
@@ -507,12 +485,10 @@ public class HTMLReportPrinter {
         output.println("</tr>");
     }
 
-    public void emitTestFailure(PrintWriter output, TestResult result, TestInfo description) throws
-            FileNotFoundException, JAXBException {
+    public void emitTestFailure(PrintWriter output, TestResult result, TestInfo description) throws FileNotFoundException, JAXBException {
         cellStyle = 3 - cellStyle;
         output.println("<tr class=\"cell" + cellStyle + "\">");
-        output.println("<td>&nbsp;&nbsp;&nbsp;<a href=\"" + result.getName() + ".html\">" + cutKlass(
-                result.getName()) + "</a></td>");
+        output.println("<td>&nbsp;&nbsp;&nbsp;<a href=\"" + result.getName() + ".html\">" + cutKlass(result.getName()) + "</a></td>");
         output.println("<td></td>");
         if (description != null) {
             switch (result.status()) {
@@ -550,6 +526,16 @@ public class HTMLReportPrinter {
         }
         output.println("</tr>");
     }
+
+    public static int getRoughCount(TestResult r) {
+        long sum = 0;
+        for (State s : r.getStates()) {
+            sum += s.getCount();
+        }
+
+        return (int) Math.floor(Math.log10(sum));
+    }
+
 
     public void parseTest(PrintWriter output, TestResult r, TestInfo test) throws FileNotFoundException, JAXBException {
         if (test == null) {
@@ -619,7 +605,9 @@ public class HTMLReportPrinter {
         if (!r.getAuxData().isEmpty()) {
             output.println("<p><b>Auxiliary data</b></p>");
             output.println("<pre>");
-            r.getAuxData().forEach(output::println);
+            for (String data : r.getAuxData()) {
+                output.println(data);
+            }
             output.println("</pre>");
             output.println();
         }
@@ -671,4 +659,5 @@ public class HTMLReportPrinter {
                 throw new IllegalStateException();
         }
     }
+
 }

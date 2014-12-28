@@ -22,7 +22,6 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-
 package org.openjdk.jcstress.util;
 
 import java.util.HashMap;
@@ -54,4 +53,5 @@ public class LongHashMultiset<T> {
     private static class Holder {
         public long value;
     }
+
 }

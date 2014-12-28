@@ -17,12 +17,12 @@
 
 package net.tridentsdk.server.data;
 
+import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.docs.Volatile;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.util.ArrayTool;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -124,7 +124,7 @@ public class PropertyBuilder implements Writable {
      * @return the current instance
      */
     public PropertyBuilder cleanup() {
-        Collection<String> list = new ArrayList<>();
+        Collection<String> list = Lists.newArrayList();
 
         for (String value : this.modifiers) {
             if (value != null) {

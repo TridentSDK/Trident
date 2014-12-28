@@ -89,7 +89,7 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
 
     @Override
     public Coordinates getEyeLocation() {
-        return this.getLocation().getRelative(new Vector(0.0d, 1.0d, 0.0d));
+        return this.getLocation().relative(new Vector(0.0d, 1.0d, 0.0d));
     }
 
     @Override
