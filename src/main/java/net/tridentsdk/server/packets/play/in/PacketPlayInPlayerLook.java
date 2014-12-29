@@ -72,7 +72,7 @@ public class PacketPlayInPlayerLook extends InPacket {
 
         PlayerMoveEvent event = new PlayerMoveEvent(player, from, to);
 
-        TridentServer.getInstance().getEventHandler().call(event);
+        TridentServer.getInstance().eventHandler().call(event);
 
         if (event.isIgnored()) {
             PacketPlayOutEntityTeleport cancel = new PacketPlayOutEntityTeleport();

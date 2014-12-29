@@ -17,7 +17,6 @@
 
 package net.tridentsdk.server.player;
 
-import net.tridentsdk.Trident;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.living.Player;
@@ -86,7 +85,7 @@ import java.util.UUID;
 
                 p.connection.sendPacket(PacketPlayOutPluginMessage.VANILLA_CHANNEL);
                 p.connection.sendPacket(
-                        new PacketPlayOutServerDifficulty().set("difficulty", Trident.getServer().getDifficulty()));
+                        new PacketPlayOutServerDifficulty().set("difficulty", p.getWorld().difficulty()));
                 p.connection.sendPacket(new PacketPlayOutSpawnPosition().set("location", p.getSpawnLocation()));
                 p.connection.sendPacket(p.abilities.asPacket());
                 p.connection.sendPacket(new PacketPlayOutPlayerCompleteMove().set("location", p.getSpawnLocation())

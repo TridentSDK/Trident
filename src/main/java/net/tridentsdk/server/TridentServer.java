@@ -127,7 +127,7 @@ import java.util.UUID;
      * @return the port occupied by the server
      */
     @Override
-    public int getPort() {
+    public int port() {
         return this.config.getInt("port", 25565);
     }
 
@@ -152,7 +152,7 @@ import java.util.UUID;
     }
 
     @Override
-    public Set<World> getWorlds() {
+    public Set<World> worlds() {
         Set<World> worlds = Sets.newHashSet();
         worlds.addAll(worldLoader.getWorlds());
 
@@ -160,18 +160,18 @@ import java.util.UUID;
     }
 
     @Override
-    public InetAddress getServerIp() {
+    public InetAddress serverIp() {
         return null;
     }
 
     @Override
-    public String getVersion() {
+    public String version() {
         // TODO: Make this more eloquent
         return "1.0-SNAPSHOT";
     }
 
     @Override
-    public Difficulty getDifficulty() {
+    public Difficulty difficulty() {
         byte difficulty = this.config().getByte("difficulty", Defaults.DIFFICULTY.asByte());
         switch (difficulty) {
             case 0:
@@ -187,12 +187,12 @@ import java.util.UUID;
     }
 
     @Override
-    public Window getWindow(int id) {
+    public Window windowBy(int id) {
         return this.windowHandler.getWindow(id);
     }
 
     @Override
-    public EventHandler getEventHandler() {
+    public EventHandler eventHandler() {
         return this.eventHandler;
     }
 

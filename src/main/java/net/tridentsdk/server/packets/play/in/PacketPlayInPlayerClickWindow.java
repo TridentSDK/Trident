@@ -101,10 +101,10 @@ public class PacketPlayInPlayerClickWindow extends InPacket {
 
     @Override
     public void handleReceived(ClientConnection connection) {
-        Window window = TridentServer.getInstance().getWindow(this.windowId);
+        Window window = TridentServer.getInstance().windowBy(this.windowId);
         PlayerClickItemEvent clickEvent = new PlayerClickItemEvent(window, this.clickedSlot, (int) this.actionNumber);
 
-        TridentServer.getInstance().getEventHandler().call(clickEvent);
+        TridentServer.getInstance().eventHandler().call(clickEvent);
 
         if (clickEvent.isIgnored()) {
         }
