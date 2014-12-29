@@ -175,8 +175,8 @@ import java.nio.charset.Charset;
      * @param buf the buffer to get data from
      * @return bytes the array of bytes
      */
-    public static byte[] toArray(ByteBuf buf) {
-        return toArray(buf, buf.readableBytes());
+    public static byte[] asArray(ByteBuf buf) {
+        return asArray(buf, buf.readableBytes());
     }
 
     /**
@@ -186,7 +186,7 @@ import java.nio.charset.Charset;
      * @param length the length to toPacket
      * @return bytes the array of bytes
      */
-    public static byte[] toArray(ByteBuf buf, int length) {
+    public static byte[] asArray(ByteBuf buf, int length) {
         byte[] bytes = new byte[length];
         buf.readBytes(bytes);
         return bytes;

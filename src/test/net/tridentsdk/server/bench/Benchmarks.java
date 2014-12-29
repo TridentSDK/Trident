@@ -73,8 +73,8 @@ public class Benchmarks {
 
     // Insertion order required
     public static void chart(LinkedListMultimap<String, Double> data, String what) {
-        String[] keys = toString(data.asMap().keySet().toArray());
-        double[] base = toDouble(data.get("control").toArray());
+        String[] keys = asString(data.asMap().keySet().toArray());
+        double[] base = asDouble(data.get("control").toArray());
 
         StringBuilder builder = new StringBuilder("http://chart.googleapis.com/chart?").append(
                 "cht=lxy")                             // Chart type: Line/xy
@@ -148,7 +148,7 @@ public class Benchmarks {
         return letters[index];
     }
 
-    private static String[] toString(Object[] objs) {
+    private static String[] asString(Object[] objs) {
         String[] strings = new String[objs.length];
         for (int i = 0; i < objs.length; i++) {
             strings[i] = (String) objs[i];
@@ -157,7 +157,7 @@ public class Benchmarks {
         return strings;
     }
 
-    private static double[] toDouble(Object[] objs) {
+    private static double[] asDouble(Object[] objs) {
         double[] doubles = new double[objs.length];
         for (int i = 0; i < objs.length; i++) {
             doubles[i] = (double) objs[i];

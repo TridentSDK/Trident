@@ -60,7 +60,7 @@ import java.util.UUID;
 
     public static Player spawnPlayer(ClientConnection connection, UUID id) {
         CompoundTag offlinePlayer = (OfflinePlayer.getOfflinePlayer(
-                id) == null) ? null : OfflinePlayer.getOfflinePlayer(id).toNbt();
+                id) == null) ? null : OfflinePlayer.getOfflinePlayer(id).asNbt();
 
         if (offlinePlayer == null) {
             offlinePlayer = OfflinePlayer.generatePlayer(id);
@@ -88,7 +88,7 @@ import java.util.UUID;
                 p.connection.sendPacket(
                         new PacketPlayOutServerDifficulty().set("difficulty", Trident.getServer().getDifficulty()));
                 p.connection.sendPacket(new PacketPlayOutSpawnPosition().set("location", p.getSpawnLocation()));
-                p.connection.sendPacket(p.abilities.toPacket());
+                p.connection.sendPacket(p.abilities.asPacket());
                 p.connection.sendPacket(new PacketPlayOutPlayerCompleteMove().set("location", p.getSpawnLocation())
                                                 .set("flags", (byte) 0));
 
@@ -201,7 +201,7 @@ import java.util.UUID;
 
         for (int x = (centX - viewDistance); x <= (centX + viewDistance); x += 1) {
             for (int z = (centZ - viewDistance); z <= (centZ + viewDistance); z += 1) {
-                connection.sendPacket(((TridentChunk) getWorld().chunkAt(x, z, true)).toPacket());
+                connection.sendPacket(((TridentChunk) getWorld().chunkAt(x, z, true)).asPacket());
             }
         }
     }

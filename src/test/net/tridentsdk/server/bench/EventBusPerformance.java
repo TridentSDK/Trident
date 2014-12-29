@@ -54,7 +54,7 @@ Benchmark results: http://bit.ly/1B3psZv
     private static final ExecutorFactory<?> EXEC = Factories.threads().executor(2);
     private static final TaskExecutor EXECUTOR = EXEC.scaledThread();
     // Cannot be initialized first, else whole class cannot be loaded completely
-    private final net.tridentsdk.event.EventHandler EVENT_MANAGER = new net.tridentsdk.event.EventHandler();
+    private final net.tridentsdk.event.EventHandler EVENT_MANAGER = net.tridentsdk.event.EventHandler.create();
     private static final TridentPlugin PLUGIN = new Plugin();
     private static class Plugin extends TridentPlugin {}
 
@@ -66,7 +66,7 @@ Benchmark results: http://bit.ly/1B3psZv
             }
         });
         Factories.init(new ThreadsHandler());
-        Factories.init(new TridentScheduler());
+        Factories.init(TridentScheduler.create());
 
         final JsonConfig innerConfig = new JsonConfig(new File("toplel"));
         Factories.init(new ConfigFactory() {

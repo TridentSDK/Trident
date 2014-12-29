@@ -94,7 +94,7 @@ public abstract class TridentProjectile extends TridentEntity implements Project
                                         for (int i = 0; i < 2; i++) {
                                             Tile newTile = getLocation().asVector()
                                                     .multiply(i)
-                                                    .toLocation(getLocation().world())
+                                                    .asLocation(getLocation().world())
                                                     .tile();
                                             if (newTile.substance() != Substance.AIR) impalable[0] = newTile;
                                         }

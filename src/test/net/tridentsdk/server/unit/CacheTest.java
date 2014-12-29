@@ -35,11 +35,11 @@ public class CacheTest extends AbstractTest {
                 return new ConcurrentHashMapV8<>();
             }
         });
-        Factories.init(new TridentScheduler());
+        Factories.init(TridentScheduler.create());
         Factories.init(new ThreadsHandler());
     }
 
-    private final ConcurrentCache<Object, Object> cache = new ConcurrentCache<>();
+    private final ConcurrentCache<Object, Object> cache = ConcurrentCache.create();
     @Rule
     public ConcurrentRule concurrently = new ConcurrentRule();
     @Rule

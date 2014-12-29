@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 Benchmark results: http://bit.ly/1rdMWrp
  */
 @State(Scope.Benchmark) public class LatchTest {
-    private static final HeldValueLatch<HeldValueLatch<?>> LATCH = new HeldValueLatch<>();
+    private static final HeldValueLatch<HeldValueLatch<?>> LATCH = HeldValueLatch.create();
     @Param({ "1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024" })
     private int cpuTokens;
 

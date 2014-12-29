@@ -47,7 +47,7 @@ public class ClientConnection {
     /**
      * Map of client connections registered
      */
-    protected static final ConcurrentCache<InetSocketAddress, ClientConnection> clientData = new ConcurrentCache<>();
+    protected static final ConcurrentCache<InetSocketAddress, ClientConnection> clientData = ConcurrentCache.create();
 
     /**
      * Random for generating the verification token

@@ -210,7 +210,7 @@ public class RegionFile {
     public void saveChunkData(TridentChunk chunk) throws IOException, NBTException {
         /* Gets the ChunkData in a byte array form */
         ByteArrayOutputStream nbtStream = new ByteArrayOutputStream();
-        new NBTEncoder(new DataOutputStream(new ByteArrayOutputStream())).encode(chunk.toNbt());
+        new NBTEncoder(new DataOutputStream(new ByteArrayOutputStream())).encode(chunk.asNbt());
         byte[] uncompressed = nbtStream.toByteArray();
         
         /* Gonna only use Zlib compression by default */

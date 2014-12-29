@@ -104,7 +104,7 @@ public class TridentChunk implements Chunk {
                                         lightPopulated, terrainPopulated);
     }
 
-    public PacketPlayOutMapChunkBulk toPacket() {
+    public PacketPlayOutMapChunkBulk asPacket() {
         PacketPlayOutMapChunkBulk chunkBulk = new PacketPlayOutMapChunkBulk();
 
         int bitmask = (1 << sections.length) - 1;
@@ -194,7 +194,7 @@ public class TridentChunk implements Chunk {
         this.inhabitedTime = inhabitedTime.getValue(); // Cumulative number of ticks player have been in the chunk
     }
 
-    public CompoundTag toNbt() {
+    public CompoundTag asNbt() {
         return null;
     }
 }

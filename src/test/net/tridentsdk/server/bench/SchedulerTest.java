@@ -60,10 +60,10 @@ Benchmark results: http://bit.ly/12fTNow
                 return new ConcurrentHashMapV8<>();
             }
         });
-        Factories.init(new TridentScheduler());
+        Factories.init(TridentScheduler.create());
         Factories.init(new ThreadsHandler());
     }
-    private static final TridentScheduler scheduler = new TridentScheduler();
+    private static final TridentScheduler scheduler = TridentScheduler.create();
 
     //@Param({ "1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024" })
     private int cpuTokens;
@@ -88,7 +88,7 @@ Benchmark results: http://bit.ly/12fTNow
     }
 
     public static void main1(String... args) {
-        TridentScheduler scheduler = new TridentScheduler();
+        TridentScheduler scheduler = TridentScheduler.create();
         while (true) {
             scheduler.tick();
         }
@@ -101,6 +101,7 @@ Benchmark results: http://bit.ly/12fTNow
                 .measurementIterations(5).measurementTime(TimeValue.milliseconds(25))         // ALLOWED TIME
                 .forks(1)                                           // FORKS
                 //.verbosity(VerboseMode.SILENT)                      // GRAPH
+                .threads(1)
                 .build();
 
         Collection<RunResult> results = new Runner(opt).run();
@@ -109,7 +110,7 @@ Benchmark results: http://bit.ly/12fTNow
     }
 
     public static void main0(String... args) throws InterruptedException {
-        TridentScheduler scheduler = new TridentScheduler();
+        TridentScheduler scheduler = TridentScheduler.create();
         for (int i = 0; i < 100; i++) {
             @PluginDescription(name = "LOLCODE") class PluginImpl extends TridentPlugin {
             }

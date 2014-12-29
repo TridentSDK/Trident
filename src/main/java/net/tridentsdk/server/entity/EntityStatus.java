@@ -100,7 +100,7 @@ public enum EntityStatus {
      *
      * @return the {@code byte} ID value
      */
-    public byte toByte() {
+    public byte asByte() {
         return this.b;
     }
 }

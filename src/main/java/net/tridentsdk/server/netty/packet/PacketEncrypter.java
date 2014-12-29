@@ -43,7 +43,7 @@ public class PacketEncrypter extends MessageToByteEncoder<ByteBuf> {
     @Override
     protected void encode(ChannelHandlerContext ctx, ByteBuf msg, ByteBuf out) throws Exception {
         if (this.connection.isEncryptionEnabled()) {
-            out.writeBytes(this.connection.encrypt(Codec.toArray(msg)));
+            out.writeBytes(this.connection.encrypt(Codec.asArray(msg)));
         } else {
             out.writeBytes(msg);
         }

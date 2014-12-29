@@ -4,5 +4,5 @@
   "motd": "Just another TridentSDK server",
   "max-players": 10,
   "compression-threshold": 256,
-  "in-a-hurry-mode": true
+  "generateflatlands": true
 }

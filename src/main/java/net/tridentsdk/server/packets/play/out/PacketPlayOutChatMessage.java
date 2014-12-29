@@ -34,7 +34,7 @@ public class PacketPlayOutChatMessage extends OutPacket {
     @Override
     public void encode(ByteBuf buf) {
         Codec.writeString(buf, this.jsonMessage);
-        buf.writeByte((int) this.position.toByte());
+        buf.writeByte((int) this.position.asByte());
     }
 
     public enum ChatPosition {
@@ -48,7 +48,7 @@ public class PacketPlayOutChatMessage extends OutPacket {
             this.b = (byte) b;
         }
 
-        public byte toByte() {
+        public byte asByte() {
             return this.b;
         }
     }

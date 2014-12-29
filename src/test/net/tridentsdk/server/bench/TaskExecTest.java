@@ -27,10 +27,8 @@ import net.tridentsdk.server.TridentScheduler;
 import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
 import net.tridentsdk.server.threads.ThreadsHandler;
 import net.tridentsdk.util.TridentLogger;
-import org.openjdk.jmh.annotations.Benchmark;
-import org.openjdk.jmh.annotations.Mode;
-import org.openjdk.jmh.annotations.Scope;
-import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.annotations.*;
+import org.openjdk.jmh.infra.Blackhole;
 import org.openjdk.jmh.results.RunResult;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
@@ -73,10 +71,10 @@ Process finished with exit code 0
                 return new ConcurrentHashMapV8<>();
             }
         });
-        Factories.init(new TridentScheduler());
+        Factories.init(TridentScheduler.create());
         Factories.init(new ThreadsHandler());
     }
-    private static final ConcurrentTaskExecutor<String> TASK_EXECUTOR = new ConcurrentTaskExecutor<>(4);
+    private static final ConcurrentTaskExecutor<String> TASK_EXECUTOR = ConcurrentTaskExecutor.create(4);
     private static final TaskExecutor EXECUTOR = TASK_EXECUTOR.scaledThread();
     private static final ExecutorService JAVA = Executors.newFixedThreadPool(4);
     private static final Runnable RUNNABLE = new Runnable() {
@@ -88,8 +86,8 @@ Process finished with exit code 0
         }
     };
 
-    //@Param({ "1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024" })
-    //private int cpuTokens;
+    @Param({ "1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024" })
+    private int cpuTokens;
 
     public static void main(String... args) throws RunnerException {
         Options opt = new OptionsBuilder().include(".*" + TaskExecTest.class.getSimpleName() + ".*") // CLASS
@@ -113,17 +111,17 @@ Process finished with exit code 0
 
     @Benchmark
     public void executorFactory() {
-        //Blackhole.consumeCPU(cpuTokens);
+        Blackhole.consumeCPU(cpuTokens);
         TASK_EXECUTOR.execute(RUNNABLE);
     }
 
     @Benchmark
-    public void executorService() {
-        //Blackhole.consumeCPU(cpuTokens);
+    public void zexecutorService() {
+        Blackhole.consumeCPU(cpuTokens);
         JAVA.execute(RUNNABLE);
     }
 
-    //@Benchmark
+    @Benchmark
     public void concurrentTaskExecutor() {
         //Blackhole.consumeCPU(cpuTokens);
         EXECUTOR.addTask(RUNNABLE);

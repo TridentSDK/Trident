@@ -17,18 +17,18 @@
 
 package net.tridentsdk.server.netty.protocol;
 
+import com.google.common.collect.Maps;
 import net.tridentsdk.perf.FastClass;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.packet.PacketType;
 import net.tridentsdk.server.netty.packet.UnknownPacket;
 import net.tridentsdk.util.TridentLogger;
 
-import java.util.HashMap;
 import java.util.Map;
 
 abstract class ProtocolHandler {
-    protected final Map<Integer, Class<? extends Packet>> inPackets = new HashMap<>();
-    protected final Map<Integer, Class<? extends Packet>> outPackets = new HashMap<>();
+    protected final Map<Integer, Class<? extends Packet>> inPackets = Maps.newHashMap();
+    protected final Map<Integer, Class<? extends Packet>> outPackets = Maps.newHashMap();
 
     ProtocolHandler() {
         this.inPackets.put(-1, UnknownPacket.class);

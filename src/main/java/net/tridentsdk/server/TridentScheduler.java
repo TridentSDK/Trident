@@ -30,7 +30,6 @@ import javax.annotation.concurrent.ThreadSafe;
 import java.util.Iterator;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * TridentScheduler is a scheduling utility that is used to reflect ScheduledTasks at a given offset of the current
@@ -79,7 +78,19 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 @ThreadSafe public class TridentScheduler implements TaskFactory {
     private final Queue<ScheduledTaskImpl> taskList = new ConcurrentLinkedQueue<>();
-    private final ExecutorFactory<?> taskExecutor = new ConcurrentTaskExecutor<>(3);
+    private final ExecutorFactory<?> taskExecutor = ConcurrentTaskExecutor.create(3);
+
+    private TridentScheduler() {
+    }
+
+    /**
+     * Creates a new scheduler
+     *
+     * @return the new scheduler
+     */
+    public static TridentScheduler create() {
+        return new TridentScheduler();
+    }
 
     public void tick() {
         Iterator<ScheduledTaskImpl> iterator = taskList.iterator();
@@ -158,7 +169,7 @@ import java.util.concurrent.atomic.AtomicLong;
         private final Runnable runner;
 
         private volatile long interval;
-        private final AtomicLong run = new AtomicLong(0);
+        private volatile long run = 0;
 
         public ScheduledTaskImpl(TridentPlugin plugin, SchedulerType type, final TridentRunnable runnable, long step) {
             this.plugin = plugin;
@@ -252,16 +263,16 @@ import java.util.concurrent.atomic.AtomicLong;
 
                 case ASYNC_LATER:
                     // Maybe over if the interval set lower
-                    if (run.get() >= interval)
+                    if (run >= interval)
                         this.executor.addTask(this.runner);
-                    run.incrementAndGet();
+                    ++run;
                     break;
 
                 case ASYNC_REPEAT:
                     // Maybe over if the interval set lower
-                    if (run.get() >= interval)
+                    if (run >= interval)
                         this.executor.addTask(this.runner);
-                    run.incrementAndGet();
+                    ++run;
                     break;
 
                 case SYNC_RUN:
@@ -270,16 +281,16 @@ import java.util.concurrent.atomic.AtomicLong;
 
                 case SYNC_LATER:
                     // May be over if the interval set lower
-                    if (run.get() >= interval)
+                    if (run >= interval)
                         this.executor.addTask(this.runner);
-                    run.incrementAndGet();
+                    ++run;
                     break;
 
                 case SYNC_REPEAT:
                     // May be over if the interval set lower
-                    if (run.get() >= interval)
+                    if (run >= interval)
                         this.executor.addTask(this.runner);
-                    run.incrementAndGet();
+                    ++run;
                     break;
             }
         }

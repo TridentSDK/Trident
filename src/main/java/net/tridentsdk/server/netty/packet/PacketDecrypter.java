@@ -47,7 +47,7 @@ public class PacketDecrypter extends ByteToMessageDecoder {
         ByteBuf bufOut = ctx.alloc().buffer(in.readableBytes());
 
         if (this.connection.isEncryptionEnabled()) {
-            bufOut.writeBytes(this.connection.decrypt(Codec.toArray(in)));
+            bufOut.writeBytes(this.connection.decrypt(Codec.asArray(in)));
         } else {
             bufOut.writeBytes(in);
         }

@@ -17,6 +17,7 @@
 
 package net.tridentsdk.server.entity;
 
+import com.google.common.collect.Sets;
 import net.tridentsdk.Coordinates;
 import net.tridentsdk.Trident;
 import net.tridentsdk.base.Substance;
@@ -34,7 +35,6 @@ import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.util.Vector;
 import net.tridentsdk.world.World;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -52,7 +52,7 @@ import java.util.concurrent.atomic.AtomicLong;
     /**
      * Internal entity tracker, used to spawn the entity and track movement, etc.
      */
-    protected static final EntityHandler HANDLER = new EntityHandler();
+    protected static final EntityHandler HANDLER = EntityHandler.create();
     /**
      * The distance the entity has fallen
      */
@@ -246,7 +246,7 @@ import java.util.concurrent.atomic.AtomicLong;
     @Override
     public Set<Entity> getNearbyEntities(double radius) {
         Set<Entity> entities = getLocation().world().entities();
-        Set<Entity> near = new HashSet<>();
+        Set<Entity> near = Sets.newHashSet();
         for (Entity entity : entities) {
             if (entity.getLocation().distanceSquared(getLocation()) <= radius) near.add(entity);
         }

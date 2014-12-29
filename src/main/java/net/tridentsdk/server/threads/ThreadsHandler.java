@@ -34,10 +34,10 @@ import java.util.Collection;
  * @author The TridentSDK Team
  */
 @ThreadSafe public final class ThreadsHandler implements ThreadFactory {
-    private static final ExecutorFactory<Entity> entities = new ConcurrentTaskExecutor<>(2);
-    private static final ExecutorFactory<Player> players = new ConcurrentTaskExecutor<>(4);
-    private static final ExecutorFactory<TridentPlugin> plugins = new ConcurrentTaskExecutor<>(2);
-    private static final ExecutorFactory<World> worlds = new ConcurrentTaskExecutor<>(4);
+    private static final ExecutorFactory<Entity> entities = ConcurrentTaskExecutor.create(2);
+    private static final ExecutorFactory<Player> players = ConcurrentTaskExecutor.create(4);
+    private static final ExecutorFactory<TridentPlugin> plugins = ConcurrentTaskExecutor.create(2);
+    private static final ExecutorFactory<World> worlds = ConcurrentTaskExecutor.create(4);
 
     /**
      * Stops all the executors and clears all caches of concurrent threads
@@ -151,6 +151,6 @@ import java.util.Collection;
 
     @Override
     public <T> ExecutorFactory<T> executor(int threads) {
-        return new ConcurrentTaskExecutor<>(threads);
+        return ConcurrentTaskExecutor.create(threads);
     }
 }

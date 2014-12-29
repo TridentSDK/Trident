@@ -136,7 +136,7 @@ import static com.google.common.collect.Lists.newArrayList;
             }
         });
         Factories.init(new ThreadsHandler());
-        Factories.init(new TridentScheduler());
+        Factories.init(TridentScheduler.create());
         Factories.init(new ConfigFactory() {
             @Override
             public JsonConfig serverConfig() {

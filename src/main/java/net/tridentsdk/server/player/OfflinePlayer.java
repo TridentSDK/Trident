@@ -155,7 +155,7 @@ import java.util.UUID;
         builder.byteTag("OnGround", (byte) 1);
         builder.byteTag("Invulnerable", (byte) 0);
 
-        builder.intTag("Dimension", Dimension.OVERWORLD.toByte());
+        builder.intTag("Dimension", Dimension.OVERWORLD.asByte());
         builder.intTag("PortalCooldown", 900);
 
         builder.stringTag("CustomName", "");
@@ -165,8 +165,8 @@ import java.util.UUID;
 
         builder.compoundTag(new CompoundTag("Riding"));
 
-        builder.intTag("Dimension", Dimension.OVERWORLD.toByte());
-        builder.intTag("playerGameType", GameMode.SURVIVAL.toByte());
+        builder.intTag("Dimension", Dimension.OVERWORLD.asByte());
+        builder.intTag("playerGameType", GameMode.SURVIVAL.asByte());
         builder.intTag("Score", 0);
         builder.intTag("SelectedGameSlot", 0);
 
@@ -301,11 +301,11 @@ import java.util.UUID;
         return null;
     }
 
-    public CompoundTag toNbt() {
+    public CompoundTag asNbt() {
         CompoundTag tag = new CompoundTag(getUniqueId().toString());
 
-        tag.addTag(new IntTag("Dimension").setValue(dimension.toByte()));
-        tag.addTag(new IntTag("playerGameType").setValue(gameMode.toByte()));
+        tag.addTag(new IntTag("Dimension").setValue(dimension.asByte()));
+        tag.addTag(new IntTag("playerGameType").setValue(gameMode.asByte()));
         tag.addTag(new IntTag("Score").setValue(score));
         tag.addTag(new IntTag("SelectedItemSlot").setValue(selectedSlot));
 

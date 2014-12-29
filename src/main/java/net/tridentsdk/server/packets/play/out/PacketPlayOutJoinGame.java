@@ -67,9 +67,9 @@ public class PacketPlayOutJoinGame extends OutPacket {
     public void encode(ByteBuf buf) {
         buf.writeInt(this.entityId);
 
-        buf.writeByte((int) this.gamemode.toByte());
-        buf.writeByte((int) this.dimension.toByte());
-        buf.writeByte((int) this.difficulty.toByte());
+        buf.writeByte((int) this.gamemode.asByte());
+        buf.writeByte((int) this.dimension.asByte());
+        buf.writeByte((int) this.difficulty.asByte());
         buf.writeByte((int) this.maxPlayers);
 
         Codec.writeString(buf, this.levelType.toString());

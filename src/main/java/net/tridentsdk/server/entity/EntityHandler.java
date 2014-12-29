@@ -30,7 +30,7 @@ import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.util.TridentLogger;
 
 import javax.annotation.concurrent.ThreadSafe;
-import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -43,13 +43,17 @@ import java.util.Map;
     private final Map<Integer, Entity> entities = new ConcurrentHashMapV8<>();
     private final EntityTracker tracker = new EntityTracker();
 
+    @InternalUseOnly
+    private EntityHandler() {
+        if (!Trident.isTrident()) TridentLogger.error(
+                new UnsupportedOperationException("EntityManager can only be initalized by TridentSDK!"));
+    }
+
     /**
      * Constructs the EntityManager for use by the server ONLY <p/> <p>In other words, DON'T USE IT</p>
      */
-    @InternalUseOnly
-    public EntityHandler() {
-        if (!Trident.isTrident()) TridentLogger.error(
-                new UnsupportedOperationException("EntityManager can only be initalized by TridentSDK!"));
+    public static EntityHandler create() {
+        return new EntityHandler();
     }
 
     /**
@@ -100,14 +104,14 @@ import java.util.Map;
      * @param <T>  the entity type
      * @return the list of entities with the specified type
      */
-    public <T> List<T> getEntities(final Class<T> type) {
-        Predicate<Entity> pred = new Predicate<Entity>() {
+    public <T extends Entity> List<T> getEntities(final Class<T> type) {
+        Predicate<T> pred = new Predicate<T>() {
             @Override
             public boolean apply(Entity e) {
                 return Predicates.assignableFrom(type.getClass()).apply(e.getClass());
             }
         };
 
-        return (ArrayList<T>) Lists.newArrayList(Iterators.filter(this.entities.values().iterator(), pred));
+        return Lists.newArrayList(Iterators.filter((Iterator<T>) this.entities.values().iterator(), pred));
     }
 }

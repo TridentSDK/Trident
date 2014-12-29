@@ -70,7 +70,7 @@ public class PlayerAbilities implements NBTSerializable {
         return instantBreak == 1;
     }
 
-    public OutPacket toPacket() {
+    public OutPacket asPacket() {
         OutPacket packet = new PacketPlayOutPlayerAbilities();
         byte flags = (byte) ((isInvulnerable() ? 8 : 0) | (canFly() ? 4 : 0) | (canInstantBreak() ? 2 : 0));
 

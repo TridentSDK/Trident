@@ -88,17 +88,12 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
     // We cache assignments, if it is retrieved again while loading into the map, there would be 2 requests for the same
     // thing concurrently, which is bad for performance in the long run
     // It is better to have it slow now to cache correctly than time later to doubly receive
-    private final ConcurrentCache<E, ThreadWorker> assigned = new ConcurrentCache<>();
+    private final ConcurrentCache<E, ThreadWorker> assigned = ConcurrentCache.create();
 
     private volatile int state = STARTING;
     private final AtomicInteger emergencyScale = new AtomicInteger(1);
 
-    /**
-     * Create a new executor using the number of threads to scale
-     *
-     * @param scale the threads to use
-     */
-    public ConcurrentTaskExecutor(int scale) {
+    private ConcurrentTaskExecutor(int scale) {
         this.scale = scale;
         executors = new AtomicReferenceArray<>(scale + EMERGENCY_MARGIN);
 
@@ -109,10 +104,20 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
         state = RUNNING;
     }
 
+    /**
+     * Create a new executor using the number of threads to scale
+     *
+     * @param scale the threads to use
+     * @return a new concurrent task executor pool
+     */
+    public static <E> ConcurrentTaskExecutor<E> create(int scale) {
+        return new ConcurrentTaskExecutor<>(scale);
+    }
+
     @Override
     public TaskExecutor scaledThread() {
         ThreadWorker lowest = null;
-        for (int i = 0, n = executors.length() - EMERGENCY_MARGIN; i < n; i++) {
+        for (int i = 0, n = scale; i < n; i++) {
             ThreadWorker thread = executors.get(i);
             if (lowest == null) lowest = thread;
             if (lowest.get() > thread.get()) lowest = thread;
@@ -206,8 +211,12 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
                 if (worker == null) // Emergency thread not set
                     continue;
                 if (worker.tasks.size() < TASK_LENGTH) {
-                    worker.tasks.add(runnable);
-                    return;
+                    if (worker.tasks.add(runnable)) {
+                        return;
+                    }
+
+                    // Can't add to a worker, probably an overflow worker.
+                    // Continue looking
                 }
             }
 
@@ -234,12 +243,13 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
 
     // This class is designed to use an ArrayBlockingQueue
     // The normal Java executor uses a LinkedBlockingQueue
-    // which can take up to 700 nanos on the test machine
+    // which can take up to 600-700 nanos on the test machine
     // using an ArrayBlockingQueue can speed up the insert
-    // 3-4 times as fast
+    // which is consistently 550 nanos
     // However, using an ArrayBlockingQueue incurs significant
     // risk of task overloading and memory problems
     // To counter this, two queues are implemented, where tasks
+    // are placed in the case the array queue is overloaded
     @AccessNoDoc private class ThreadWorker extends Thread implements TaskExecutor {
         protected final BlockingQueue<Runnable> tasks = Queues.newArrayBlockingQueue(TASK_LENGTH);
         private final ConcurrentLinkedQueue<Runnable> overflow = new ConcurrentLinkedQueue<>();
@@ -274,15 +284,18 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
             return startWorker();
         }
 
+        // Remove overflow queue usage
         @Override
         public boolean addTask(Runnable task) {
             try {
                 tasks.add(task);
-                return true;
+                increment();
             } catch (IllegalStateException e) {
                 overflow.add(task);
                 return false;
             }
+
+            return true;
         }
 
         @Override
@@ -291,13 +304,7 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
 
             while (!isInterrupted()) {
                 try {
-                    Runnable task;
-                    int cycles = 0;
-                    do {
-                        task = nextTask();
-                        if (cycles++ > 256)   // Spin for 256 cycles, block the thread after that
-                            break;            // Primary reason because server much more likely to
-                    } while (task == null);   // to wait a short period of time. Block if inactive
+                    Runnable task = nextTask();
 
                     if (task == null)
                         task = tasks.take();
@@ -313,14 +320,11 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
             }
         }
 
-        private final AtomicInteger switcher = new AtomicInteger();
-
         private Runnable nextTask() throws InterruptedException {
-            Runnable task = tasks.poll(); // First take from assigned tasks
-            if (task == null || switcher.compareAndSet(1, 0))
-                task = overflow.poll();   // Try overflow tasks
+            Runnable task;
+            if ((task = overflow.poll()) == null)
+                task = tasks.poll();
 
-            switcher.incrementAndGet();
             return task;
         }
 
@@ -331,10 +335,19 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
     }
 
     private class OverflowWorker extends ThreadWorker {
-        // DO NOT STEAL
-
         private OverflowWorker(int index) {
             super(index);
+        }
+
+        @Override
+        public boolean addTask(Runnable task) {
+            try {
+                tasks.add(task);
+            } catch (IllegalStateException e) {
+                return false;
+            }
+
+            return true;
         }
 
         @Override

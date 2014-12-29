@@ -43,6 +43,6 @@ public class PacketPlayOutEntityStatus extends OutPacket {
     @Override
     public void encode(ByteBuf buf) {
         Codec.writeVarInt32(buf, this.entityId);
-        buf.writeByte((int) this.status.toByte());
+        buf.writeByte((int) this.status.asByte());
     }
 }

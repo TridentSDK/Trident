@@ -140,7 +140,7 @@ public class Slot implements Writable, NBTSerializable {
         }
     }
 
-    public Item toItem() {
+    public Item item() {
         Item is = new Item(Substance.fromString(String.valueOf(id)));
 
         is.setQuantity(quantity);

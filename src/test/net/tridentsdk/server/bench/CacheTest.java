@@ -35,7 +35,7 @@ import java.util.concurrent.TimeUnit;
 Benchmark results: http://bit.ly/1A21o5O
  */
 @State(Scope.Benchmark) public class CacheTest {
-    private static final ConcurrentCache<Object, Object> CACHE = new ConcurrentCache<>();
+    private static final ConcurrentCache<Object, Object> CACHE = ConcurrentCache.create();
     private static final ConcurrentHashMap<Object, Object> CONCURRENT_HASH_MAP = new ConcurrentHashMap<>();
 
     private static final Object key = new Object();

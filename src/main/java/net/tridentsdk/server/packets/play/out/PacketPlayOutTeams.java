@@ -81,7 +81,7 @@ public class PacketPlayOutTeams extends OutPacket {
     @Override
     public void encode(ByteBuf buf) {
         Codec.writeString(buf, this.teamName);
-        buf.writeByte((int) this.mode.toByte());
+        buf.writeByte((int) this.mode.asByte());
 
         if (this.mode.b == 1 || this.mode.b == 2) {
             Codec.writeString(buf, this.teamDisplay);
@@ -116,7 +116,7 @@ public class PacketPlayOutTeams extends OutPacket {
             this.b = (byte) i;
         }
 
-        public byte toByte() {
+        public byte asByte() {
             return this.b;
         }
     }

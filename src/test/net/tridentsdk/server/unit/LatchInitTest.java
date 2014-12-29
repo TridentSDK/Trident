@@ -48,7 +48,7 @@ public class LatchInitTest extends AbstractTest {
                 return new ConcurrentHashMapV8<>();
             }
         });
-        Factories.init(new TridentScheduler());
+        Factories.init(TridentScheduler.create());
         Factories.init(new ThreadsHandler());
     }
 }

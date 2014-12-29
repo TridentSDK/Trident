@@ -17,6 +17,7 @@
 
 package net.tridentsdk.server;
 
+import com.google.common.collect.Sets;
 import net.tridentsdk.*;
 import net.tridentsdk.config.JsonConfig;
 import net.tridentsdk.entity.living.Player;
@@ -39,7 +40,6 @@ import org.slf4j.Logger;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.net.InetAddress;
-import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -73,9 +73,9 @@ import java.util.UUID;
         this.protocol = new Protocol();
         this.regionCache = new RegionFileCache();
         this.windowHandler = new WindowHandler();
-        this.eventHandler = new EventHandler();
+        this.eventHandler = EventHandler.create();
         this.pluginHandler = new TridentPluginHandler();
-        this.scheduler = new TridentScheduler();
+        this.scheduler = TridentScheduler.create();
         this.logger = TridentLogger.getLogger();
         this.mainThread = new MainThread(20);
         this.worldLoader = new TridentWorldLoader();
@@ -153,7 +153,7 @@ import java.util.UUID;
 
     @Override
     public Set<World> getWorlds() {
-        Set<World> worlds = new LinkedHashSet<>();
+        Set<World> worlds = Sets.newHashSet();
         worlds.addAll(worldLoader.getWorlds());
 
         return worlds;
@@ -172,7 +172,7 @@ import java.util.UUID;
 
     @Override
     public Difficulty getDifficulty() {
-        byte difficulty = this.config().getByte("difficulty", Defaults.DIFFICULTY.toByte());
+        byte difficulty = this.config().getByte("difficulty", Defaults.DIFFICULTY.asByte());
         switch (difficulty) {
             case 0:
                 return Difficulty.PEACEFUL;

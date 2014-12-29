@@ -51,7 +51,7 @@ tick 5.0183914333333336E7
                 return new ConcurrentHashMapV8<>();
             }
         });
-        Factories.init(new TridentScheduler());
+        Factories.init(TridentScheduler.create());
         Factories.init(new ThreadsHandler());
     }
 
