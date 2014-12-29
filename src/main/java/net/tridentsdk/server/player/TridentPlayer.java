@@ -67,9 +67,10 @@ import java.util.UUID;
 
         final TridentPlayer p = EntityBuilder.create()
                 .uuid(id)
-                .spawnLocation(TridentServer.WORLD.spawnLocation())
+                .spawnLocation(TridentServer.WORLD.spawnLocation()) // TODO this is temporary for testing
                 .executor(ThreadsHandler.playerExecutor())
                 .build(TridentPlayer.class, ParameterValue.from(CompoundTag.class, offlinePlayer),
+                       // TODO this is temporary for testing
                        ParameterValue.from(TridentWorld.class, TridentServer.WORLD),
                        ParameterValue.from(ClientConnection.class, connection));
 

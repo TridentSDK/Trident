@@ -19,7 +19,6 @@ package net.tridentsdk.server.entity;
 
 import com.google.common.collect.Sets;
 import net.tridentsdk.Coordinates;
-import net.tridentsdk.Trident;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.docs.PossiblyThreadSafe;
@@ -28,6 +27,7 @@ import net.tridentsdk.entity.EntityProperties;
 import net.tridentsdk.entity.EntityType;
 import net.tridentsdk.factory.ExecutorFactory;
 import net.tridentsdk.meta.nbt.*;
+import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutDestroyEntities;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutEntityTeleport;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutEntityVelocity;
@@ -348,7 +348,8 @@ import java.util.concurrent.atomic.AtomicLong;
         /* Set data */
         this.id = counter.incrementAndGet();
 
-        loc = Coordinates.create(Trident.getWorlds().iterator().next(), 0, 0, 0);
+        // TODO this is temporary for testing
+        loc = Coordinates.create(TridentServer.WORLD, 0, 0, 0);
         velocity = new Vector(0, 0, 0);
 
         this.uniqueId = new UUID(uuidMost.getValue(), uuidLeast.getValue());

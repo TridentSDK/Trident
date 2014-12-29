@@ -117,6 +117,7 @@ import java.util.UUID;
     }
 
     public static CompoundTag generatePlayer(UUID id) {
+        // TODO this is temporary for testing
         World defaultWorld = TridentServer.WORLD;
         Coordinates spawnLocation = defaultWorld.spawnLocation();
         CompoundTagBuilder<NBTBuilder> builder = NBTBuilder.newBase(id.toString());

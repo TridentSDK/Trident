@@ -17,8 +17,11 @@
 
 package net.tridentsdk.server;
 
-import com.google.common.collect.Sets;
-import net.tridentsdk.*;
+import com.google.common.collect.Maps;
+import net.tridentsdk.Defaults;
+import net.tridentsdk.DisplayInfo;
+import net.tridentsdk.Server;
+import net.tridentsdk.Trident;
 import net.tridentsdk.config.JsonConfig;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.EventHandler;
@@ -40,7 +43,7 @@ import org.slf4j.Logger;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.net.InetAddress;
-import java.util.Set;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -49,6 +52,7 @@ import java.util.UUID;
  * @author The TridentSDK Team
  */
 @ThreadSafe public final class TridentServer implements Server {
+    // TODO this is temporary for testing
     public static final TridentWorld WORLD = (TridentWorld) new TridentWorldLoader().load("world");
     private static final DisplayInfo INFO = new DisplayInfo();
 
@@ -152,9 +156,10 @@ import java.util.UUID;
     }
 
     @Override
-    public Set<World> worlds() {
-        Set<World> worlds = Sets.newHashSet();
-        worlds.addAll(worldLoader.getWorlds());
+    public Map<String, World> worlds() {
+        Map<String, World> worlds = Maps.newHashMap();
+        for (World world : worldLoader.getWorlds())
+            worlds.put(world.name(), world);
 
         return worlds;
     }
@@ -168,22 +173,6 @@ import java.util.UUID;
     public String version() {
         // TODO: Make this more eloquent
         return "1.0-SNAPSHOT";
-    }
-
-    @Override
-    public Difficulty difficulty() {
-        byte difficulty = this.config().getByte("difficulty", Defaults.DIFFICULTY.asByte());
-        switch (difficulty) {
-            case 0:
-                return Difficulty.PEACEFUL;
-            case 1:
-                return Difficulty.EASY;
-            case 2:
-                return Difficulty.NORMAL;
-            case 3:
-                return Difficulty.HARD;
-        }
-        return null;
     }
 
     @Override

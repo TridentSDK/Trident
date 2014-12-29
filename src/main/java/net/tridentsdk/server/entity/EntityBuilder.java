@@ -43,7 +43,7 @@ public final class EntityBuilder {
     private Coordinates spawn = Coordinates.create(new Callable<World>() {
         @Override
         public World call() {
-            for (World world : Trident.getWorlds()) {
+            for (World world : Trident.getWorlds().values()) {
                 if (world.name().equals("world")) return world;
             }
             return null;
