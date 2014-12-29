@@ -18,6 +18,7 @@
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
@@ -34,6 +35,6 @@ public class PacketPlayOutSetCompression extends OutPacket {
 
     @Override
     public void encode(ByteBuf buf) {
-        Codec.writeVarInt32(buf, Integer.MAX_VALUE);
+        Codec.writeVarInt32(buf, TridentServer.getInstance().getCompressionThreshold());
     }
 }
