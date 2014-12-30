@@ -63,8 +63,6 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
  * and checked every other iteration of the task executor. However, due to the improved latency of task execution, the
  * likelihood of a task ever reaching this collection is very small under normal server load.</p>
  *
- * <p></p>
- *
  * @param <E> the assignment type, if used
  * @author The TridentSDK Team
  */
@@ -72,7 +70,7 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
     private static final Set<ConcurrentTaskExecutor<?>> EXECUTORS = Sets.newHashSet();
 
     private static final int EMERGENCY_MARGIN = 4;
-    private static final int TASK_LENGTH = 20000000;
+    private static final int TASK_LENGTH = calcTaskLen();
 
     private static final int STARTING = 0;
     private static final int RUNNING = 1;
@@ -108,6 +106,16 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
         }
 
         state = RUNNING;
+    }
+
+    private static int calcTaskLen() {
+        long max = ((Runtime.getRuntime().maxMemory() - 25_000_000) / 4) / 13;
+        int len;
+        if (max > (long) Integer.MAX_VALUE)
+            len = Integer.MAX_VALUE - 8;
+        else len = (int) max;
+
+        return len;
     }
 
     /**

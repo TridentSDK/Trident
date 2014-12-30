@@ -38,6 +38,7 @@ import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 import org.openjdk.jmh.runner.options.TimeValue;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.nio.file.Paths;
@@ -250,7 +251,7 @@ Iteration  20: 496.674 ns/op
 
     public static void main(String[] args) {
         // Latency tests
-        System.out.println("========= Starting tests =========");
+        System.out.println("========= Starting tests: TRIDENT =========");
 
         System.out.println();
 
@@ -291,10 +292,10 @@ Iteration  20: 496.674 ns/op
 
             if (i % 100_000 == 0)
                 try {
-                Thread.sleep(50);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+                    Thread.sleep(50);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
 
             if (i % 10_000_000 == 0 && i != 0) {
                 System.out.println("Iteration " + i + ": " + big[0].divide(
@@ -308,7 +309,67 @@ Iteration  20: 496.674 ns/op
         System.out.println("Complete. " + big[0].divide(new BigDecimal(100_000_000), 3, RoundingMode.UP)
                 .toString() + " ns/op");
 
+        doJavaTest();
+    }
 
+    static void doJavaTest() {
+        System.out.println("========= Starting tests: JAVA =========");
+
+        System.out.println();
+
+        System.out.println("========= Warming up the system =========");
+        final BigDecimal[] decimal = { new BigDecimal(0) };
+        for (int i = 0; i < 1_000; i++) {
+            final long begin = System.nanoTime();
+            JAVA.execute(new Runnable() {
+                @Override
+                public void run() {
+                    long stop = System.nanoTime();
+                    decimal[0] = decimal[0].add(new BigDecimal(stop - begin));
+                }
+            });
+
+            if (i % 100 == 0 && i != 0) {
+                System.out.println("Warmup iteration " + i + ": " + decimal[0].divide(
+                        new BigDecimal(1_000), 3, RoundingMode.UNNECESSARY)
+                        .toString() + " ns/op");
+            }
+        }
+
+        System.out.println("========= Warm up complete =========");
+
+        System.out.println();
+
+        System.out.println("========= Starting tests =========");
+        final BigDecimal[] big = { new BigDecimal(0) };
+        for (int i = 0; i < 100_000_000; i++) {
+            final long begin = System.nanoTime();
+            JAVA.execute(new Runnable() {
+                @Override
+                public void run() {
+                    long stop = System.nanoTime();
+                    big[0] = big[0].add(new BigDecimal(stop - begin));
+                }
+            });
+
+            if (i % 100_000 == 0)
+                try {
+                    Thread.sleep(50);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+            if (i % 10_000_000 == 0 && i != 0) {
+                System.out.println("Iteration " + i + ": " + big[0].divide(
+                        new BigDecimal(100_000_000), 3, RoundingMode.UP)
+                        .toString() + " ns/op");
+            }
+        }
+
+        System.out.println("========= Ended test =========");
+
+        System.out.println("Complete. " + big[0].divide(new BigDecimal(100_000_000), 3, RoundingMode.UP)
+                .toString() + " ns/op");
     }
 
     //@Param({ "1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024" })

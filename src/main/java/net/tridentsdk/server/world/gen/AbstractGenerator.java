@@ -33,9 +33,11 @@ public abstract class AbstractGenerator {
     /**
      * Where ChunkLocation is the x/z of the block for the height to be specified in the value
      *
-     * @return the height map for the chunk
+     * @param x the x coordinate to find the height
+     * @param z the z coordinate to find the height
+     * @return the height at that coordinate
      */
-    abstract Map<ChunkLocation, Float> heightMap();
+    public abstract int height(int x, int z);
 
     /**
      * The tile to be set at the coordinates
@@ -45,13 +47,19 @@ public abstract class AbstractGenerator {
      * @param z the z coordinate
      * @return the tile to be set at the coordinates
      */
-    abstract ChunkTile atCoordinate(int x, int y, int z);
+    public abstract ChunkTile atCoordinate(int x, int y, int z);
 
-    public List<ChunkTile> doGen(World world) {
+    public List<ChunkTile> doGen(ChunkLocation corner1, ChunkLocation corner2) {
         List<ChunkTile> gen = Lists.newArrayList();
-        for (Map.Entry<ChunkLocation, Float> e : this.heightMap().entrySet()) {
-            ChunkLocation l = e.getKey();
-            gen.add(atCoordinate(l.getX(), e.getValue().intValue(), l.getZ()));
+        for (int x = corner1.getX(); x < corner2.getZ(); x++) {
+            for (int z = corner1.getZ(); z < corner2.getZ(); z++) {
+                int height = height(x, z);
+
+                gen.add(atCoordinate(x, height, z));
+                for (int i = height; i > 0; i--) {
+                    gen.add(atCoordinate(x, i, z));
+                }
+            }
         }
 
         return gen;

@@ -53,7 +53,7 @@ import static com.google.common.collect.Lists.newArrayList;
  *
  * @author The TridentSDK Team
  */
-@ThreadSafe final class TridentStart {
+@ThreadSafe public final class TridentStart {
     static {
         TridentLogger.init();
     }

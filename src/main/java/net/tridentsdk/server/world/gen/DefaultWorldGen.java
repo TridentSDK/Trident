@@ -29,19 +29,11 @@ import java.util.Map;
  * @author The TridentSDK Team
  */
 public class DefaultWorldGen extends AbstractGenerator {
+    private final PerlinNoise noise = new PerlinNoise(16, 256);
+
     @Override
-    public Map<ChunkLocation, Float> heightMap() {
-        int size = 16;
-        Map<ChunkLocation, Float> map = Maps.newHashMap();
-        PerlinNoise noise = new PerlinNoise(size, 256);
-
-        for (int x = 0; x < size; x++) {
-            for (int z = 0; z < size; z++) {
-                map.put(ChunkLocation.create(x, z), noise.noise(x, z));
-            }
-        }
-
-        return map;
+    public int height(int x, int z) {
+        return (int) noise.noise(x, z);
     }
 
     @Override

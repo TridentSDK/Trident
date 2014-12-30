@@ -1,0 +1,6 @@
+syntax: glob
+.idea/
+*.iml
+target/
+jcstress.*
+results/

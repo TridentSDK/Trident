@@ -49,7 +49,7 @@ public final class EntityBuilder {
             return null;
         }
     }.call(), 0, 0, 0);
-    private ExecutorFactory<TridentEntity> executor;
+    private ExecutorFactory<Entity> executor;
     private boolean god;
     private Entity passenger;
     private String displayName;
@@ -72,8 +72,8 @@ public final class EntityBuilder {
         return this;
     }
 
-    public EntityBuilder executor(ExecutorFactory<? extends Entity> executor) {
-        this.executor = (ExecutorFactory<TridentEntity>) executor;
+    public EntityBuilder executor(ExecutorFactory<Entity> executor) {
+        this.executor = executor;
         return this;
     }
 

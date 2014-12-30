@@ -84,7 +84,7 @@ import java.util.concurrent.atomic.AtomicLong;
     /**
      * Entity task executor
      */
-    protected volatile ExecutorFactory<? extends Entity> executor;
+    protected volatile ExecutorFactory<Entity> executor;
     /**
      * The movement vector for the entity
      */
@@ -154,6 +154,7 @@ import java.util.concurrent.atomic.AtomicLong;
      */
     public TridentEntity spawn() {
         HANDLER.registerEntity(this);
+        executor.assign(this);
         return this;
     }
 
