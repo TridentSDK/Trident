@@ -51,6 +51,6 @@ public class PacketPlayInKeepAlive extends InPacket {
     public void handleReceived(ClientConnection connection) {
         PlayerConnection pc = (PlayerConnection) connection;
         pc.markSentKeepAlive(false); // Player ticks and checks this flag
-        if (pc.getStage().equals(Protocol.ClientStage.PLAY)) pc.getPlayer().sendChunks(1);
+        //if (pc.getStage().equals(Protocol.ClientStage.PLAY)) pc.getPlayer().sendChunks(1);
     }
 }

@@ -57,6 +57,7 @@ public class PacketPlayOutMapChunkBulk extends OutPacket {
         Codec.writeVarInt32(buf, this.columnCount);
         this.meta.write(buf);
 
+        Codec.writeVarInt32(buf, data.length);
         buf.writeBytes(this.data);
     }
 }

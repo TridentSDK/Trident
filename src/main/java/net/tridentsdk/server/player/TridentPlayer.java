@@ -91,6 +91,7 @@ import java.util.UUID;
                 p.connection.sendPacket(p.abilities.asPacket());
                 p.connection.sendPacket(new PacketPlayOutPlayerCompleteMove().set("location", p.getSpawnLocation())
                                                 .set("flags", (byte) 0));
+                p.sendChunks(3);
 
                 p.connection.sendPacket(PacketPlayOutStatistics.DEFAULT_STATISTIC);
 
@@ -98,7 +99,6 @@ import java.util.UUID;
                 Slot[] slots = new Slot[44];
                 slots[43] = new Slot(new Item(Substance.APPLE));
                 //p.connection.sendPacket(new PacketPlayOutWindowItems().set("windowId", 0).set("slots", slots));
-                p.sendChunks(3);
                 for (Entity entity : p.getWorld().entities()) {
                     // Register mob, packet sent to new player
                 }
