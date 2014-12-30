@@ -1,0 +1,20 @@
+before_install:
+  - git clone -b travis `git config --get remote.origin.url` target/travis
+  - chmod 777 "scripts/javadoc.sh"
+after_script: ./scripts/javadoc.sh
+script: mvn clean install deploy --settings target/travis/settings.xml
+language: java
+notifications:
+  email: false
+  hipchat:
+    rooms:
+      secure: fphyBTWwJ0bE41mJkxukMseWknNP6j7lpWYwskvCn++D3AJj59crlk0oGlMCM6s/pCOtM868TLHSL8oW/kbnOddQSvkBvpGLPh41tAh6euvYvpUJpWivuuNfhi3HtFEtcv+H0XgLX99McOeCvwxi3bhaqKJen1wrwo7VTpVJihY=
+install: true
+matrix:
+  include:
+  - jdk: openjdk7
+env:
+  global:
+  - secure: Qv3lWydc65BlLDv2IGtRC1+NTOyytKOqAGOVSO5/NFvH1mX8VE1yBm+vop/S/Tj6iUxOSzxD47xDQAZt/T13SKKFUngqu83uQS4bwu8QK6aNVp2xxphLNwqprcxXIbvY4L5NxOd0lE050ITgJhyz+tVwW/0yfc7BTvw7t8iOkLI=
+  - secure: R5fqbgn9y+uZ8sjQul0tIrZoqqOIFBe8Peqop9onDx4/ffczZJvPkkPlI/PIYEUVRNEteSP+y1RSTGxTFNmeiX1NLWfB5mdT8dmKharKkWFuDKWwMdaOuWbdWjALT/dx4yrgY3UHsM7GO2h7T67owPL3c3k83IDlPgBI7CKSryc=
+  - secure: k5SUYYpfcBsvaWuIEtjKFk/7mOVwrxrcsx7Fba5GaO4oTHuomfDRc+NS6PI92Krkm6ZNV2HNSREwTbTSLRZ2L6iR8S2z3vbcg4ZvYnDJ94DxqSgBqc/b8En9mEGv16t8Q7g+vJfjKITpgO76hS3dEKD+RFpHbxz1m8gDalsA7M4=
