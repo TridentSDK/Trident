@@ -17,6 +17,7 @@
 
 package net.tridentsdk.server.world;
 
+import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
 import net.tridentsdk.meta.nbt.NBTException;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.Chunk;
@@ -29,11 +30,10 @@ import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.util.Collection;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.zip.DataFormatException;
 
 public class TridentWorldLoader implements WorldLoader {
-    private final Map<String, TridentWorld> worlds = new ConcurrentHashMap<>();
+    private final Map<String, TridentWorld> worlds = new ConcurrentHashMapV8<>();
 
     public TridentWorldLoader() {
         for (File file : getWorldContainer().listFiles()) {

@@ -36,7 +36,6 @@ import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
 import net.tridentsdk.server.threads.MainThread;
 import net.tridentsdk.server.threads.ThreadsHandler;
 import net.tridentsdk.server.window.WindowHandler;
-import net.tridentsdk.server.world.RegionFileCache;
 import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.server.world.TridentWorldLoader;
 import net.tridentsdk.util.TridentLogger;
@@ -65,8 +64,6 @@ import java.util.UUID;
     private final Protocol protocol;
     private final Logger logger;
 
-    private final RegionFileCache regionCache;
-
     private final WindowHandler windowHandler;
     private final EventHandler eventHandler;
 
@@ -77,7 +74,6 @@ import java.util.UUID;
     private TridentServer(JsonConfig config) {
         this.config = config;
         this.protocol = new Protocol();
-        this.regionCache = new RegionFileCache();
         this.windowHandler = new WindowHandler();
         this.eventHandler = EventHandler.create();
         this.pluginHandler = new TridentPluginHandler();
@@ -116,10 +112,6 @@ import java.util.UUID;
      */
     public Protocol getProtocol() {
         return this.protocol;
-    }
-
-    public RegionFileCache getRegionFileCache() {
-        return this.regionCache;
     }
 
     public int getCompressionThreshold() {

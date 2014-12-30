@@ -28,7 +28,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * A (simple) cache for RegionFiles
  */
 public class RegionFileCache {
-
     final Map<Path, RegionFile> regionFiles = new ConcurrentHashMap<>();
 
     public RegionFile getRegionFile(Path worldPath, ChunkLocation location) {

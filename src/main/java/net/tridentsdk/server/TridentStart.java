@@ -29,6 +29,7 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import net.tridentsdk.Defaults;
+import net.tridentsdk.Trident;
 import net.tridentsdk.config.JsonConfig;
 import net.tridentsdk.docs.Volatile;
 import net.tridentsdk.factory.CollectFactory;
@@ -139,6 +140,14 @@ import static com.google.common.collect.Lists.newArrayList;
 
         TridentLogger.log("Creating server...");
         TridentServer.createServer(config);
+
+        // Load plugins
+        File fi = new File(System.getProperty("user.dir") + File.separator + "plugins");
+        if (!fi.exists())
+            fi.mkdir();
+
+        for (File file : new File(System.getProperty("user.dir") + File.separator + "plugins").listFiles())
+            Trident.getPluginHandler().load(file);
 
         TridentLogger.log("Setting thread exception handlers...");
         Thread.setDefaultUncaughtExceptionHandler(Defaults.EXCEPTION_HANDLER);
