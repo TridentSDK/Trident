@@ -25,11 +25,14 @@ import net.tridentsdk.Trident;
 import net.tridentsdk.config.JsonConfig;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.EventHandler;
+import net.tridentsdk.factory.Factories;
+import net.tridentsdk.plugin.TridentPlugin;
 import net.tridentsdk.plugin.TridentPluginHandler;
 import net.tridentsdk.server.netty.protocol.Protocol;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutPluginMessage;
 import net.tridentsdk.server.player.OfflinePlayer;
 import net.tridentsdk.server.player.TridentPlayer;
+import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
 import net.tridentsdk.server.threads.MainThread;
 import net.tridentsdk.server.threads.ThreadsHandler;
 import net.tridentsdk.server.window.WindowHandler;
@@ -68,7 +71,6 @@ import java.util.UUID;
     private final EventHandler eventHandler;
 
     private final TridentPluginHandler pluginHandler;
-    private final TridentScheduler scheduler;
 
     private final TridentWorldLoader worldLoader;
 
@@ -79,7 +81,6 @@ import java.util.UUID;
         this.windowHandler = new WindowHandler();
         this.eventHandler = EventHandler.create();
         this.pluginHandler = new TridentPluginHandler();
-        this.scheduler = TridentScheduler.create();
         this.logger = TridentLogger.getLogger();
         this.mainThread = new MainThread(20);
         this.worldLoader = new TridentWorldLoader();
@@ -148,10 +149,21 @@ import java.util.UUID;
         //TODO: Cleanup stuff...
         TridentLogger.log("Shutting down server connections...");
         TridentStart.close();
+
+        TridentLogger.log("Shutting down plugins...");
+        for (TridentPlugin plugin : getPluginHandler().getPlugins())
+            getPluginHandler().disable(plugin);
+
         TridentLogger.log("Shutting down worker threads...");
-        this.scheduler.stop();
+        ((TridentScheduler) Factories.tasks()).stop();
+
         TridentLogger.log("Shutting down server process...");
         ThreadsHandler.stopAll();
+
+        TridentLogger.log("Shutting down thread pools...");
+        for (ConcurrentTaskExecutor<?> executor : ConcurrentTaskExecutor.executors())
+            executor.shutdown();
+
         TridentLogger.log("Server shutdown successfully.");
     }
 
@@ -198,6 +210,11 @@ import java.util.UUID;
     @Override
     public DisplayInfo getInfo() {
         return INFO;
+    }
+
+    @Override
+    public Logger getLogger() {
+        return logger;
     }
 
     @Override

@@ -32,7 +32,6 @@ import net.tridentsdk.Defaults;
 import net.tridentsdk.config.JsonConfig;
 import net.tridentsdk.docs.Volatile;
 import net.tridentsdk.factory.CollectFactory;
-import net.tridentsdk.factory.ConfigFactory;
 import net.tridentsdk.factory.Factories;
 import net.tridentsdk.server.netty.ClientChannelInitializer;
 import net.tridentsdk.server.threads.ThreadsHandler;
@@ -137,12 +136,6 @@ import static com.google.common.collect.Lists.newArrayList;
         });
         Factories.init(new ThreadsHandler());
         Factories.init(TridentScheduler.create());
-        Factories.init(new ConfigFactory() {
-            @Override
-            public JsonConfig serverConfig() {
-                return config;
-            }
-        });
 
         TridentLogger.log("Creating server...");
         TridentServer.createServer(config);

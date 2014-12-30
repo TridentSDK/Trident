@@ -22,7 +22,6 @@ import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.factory.ExecutorFactory;
 import net.tridentsdk.factory.ThreadFactory;
-import net.tridentsdk.plugin.TridentPlugin;
 import net.tridentsdk.world.World;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -36,7 +35,6 @@ import java.util.Collection;
 @ThreadSafe public final class ThreadsHandler implements ThreadFactory {
     private static final ExecutorFactory<Entity> entities = ConcurrentTaskExecutor.create(2);
     private static final ExecutorFactory<Player> players = ConcurrentTaskExecutor.create(4);
-    private static final ExecutorFactory<TridentPlugin> plugins = ConcurrentTaskExecutor.create(2);
     private static final ExecutorFactory<World> worlds = ConcurrentTaskExecutor.create(4);
 
     /**
@@ -50,7 +48,6 @@ import java.util.Collection;
         // TODO safely add hooks
         entityExecutor().shutdown();
         playerExecutor().shutdown();
-        pluginExecutor().shutdown();
         worldExecutor().shutdown();
     }
 
@@ -72,16 +69,6 @@ import java.util.Collection;
     @InternalUseOnly
     public static void remove(Player player) {
         playerExecutor().removeAssignment(player);
-    }
-
-    /**
-     * Decaches the plugin handler from the mappings
-     *
-     * @param plugin the plugin to remove from the cache
-     */
-    @InternalUseOnly
-    public static void remove(TridentPlugin plugin) {
-        pluginExecutor().removeAssignment(plugin);
     }
 
     /**
@@ -112,16 +99,6 @@ import java.util.Collection;
     @InternalUseOnly
     public static ExecutorFactory<Player> playerExecutor() {
         return players;
-    }
-
-    /**
-     * Gets the executor for the plugin thread pool
-     *
-     * @return the executor
-     */
-    @InternalUseOnly
-    public static ExecutorFactory<TridentPlugin> pluginExecutor() {
-        return plugins;
     }
 
     /**

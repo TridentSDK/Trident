@@ -19,10 +19,12 @@ package net.tridentsdk.server.threads;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Queues;
+import com.google.common.collect.Sets;
 import net.tridentsdk.Defaults;
 import net.tridentsdk.concurrent.ConcurrentCache;
 import net.tridentsdk.concurrent.TaskExecutor;
 import net.tridentsdk.docs.AccessNoDoc;
+import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.factory.ExecutorFactory;
 import net.tridentsdk.util.TridentLogger;
 
@@ -30,6 +32,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import java.util.Collection;
 import java.util.List;
 import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReferenceArray;
@@ -66,6 +69,8 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
  * @author The TridentSDK Team
  */
 @ThreadSafe public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implements ExecutorFactory<E> {
+    private static final Set<ConcurrentTaskExecutor<?>> EXECUTORS = Sets.newHashSet();
+
     private static final int EMERGENCY_MARGIN = 4;
     private static final int TASK_LENGTH = 20000000;
 
@@ -112,7 +117,19 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
      * @return a new concurrent task executor pool
      */
     public static <E> ConcurrentTaskExecutor<E> create(int scale) {
-        return new ConcurrentTaskExecutor<>(scale);
+        ConcurrentTaskExecutor<E> executor = new ConcurrentTaskExecutor<>(scale);
+        EXECUTORS.add(executor);
+        return executor;
+    }
+
+    /**
+     * Obtains a set of all the executors ever made in the instance of the server
+     *
+     * @return the set of created task executors
+     */
+    @InternalUseOnly
+    public static Set<ConcurrentTaskExecutor<?>> executors() {
+        return EXECUTORS;
     }
 
     @Override
