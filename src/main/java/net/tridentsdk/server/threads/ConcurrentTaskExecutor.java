@@ -24,7 +24,6 @@ import net.tridentsdk.concurrent.ConcurrentCache;
 import net.tridentsdk.concurrent.TaskExecutor;
 import net.tridentsdk.docs.AccessNoDoc;
 import net.tridentsdk.factory.ExecutorFactory;
-import net.tridentsdk.perf.Performance;
 import net.tridentsdk.util.TridentLogger;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -61,6 +60,8 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
  * and checked every other iteration of the task executor. However, due to the improved latency of task execution, the
  * likelihood of a task ever reaching this collection is very small under normal server load.</p>
  *
+ * <p></p>
+ *
  * @param <E> the assignment type, if used
  * @author The TridentSDK Team
  */
@@ -73,8 +74,11 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
     private static final int SHUTTING_DOWN = 2;
     private static final int STOPPED = 3;
 
+    private volatile int state = STARTING;
+
     private final AtomicReferenceArray<ThreadWorker> executors;
     private final int scale;
+    private final AtomicInteger emergencyScale = new AtomicInteger(1);
 
     private final Callable<ThreadWorker> obtainWorker = new Callable<ThreadWorker>() {
         @Override
@@ -89,9 +93,6 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
     // thing concurrently, which is bad for performance in the long run
     // It is better to have it slow now to cache correctly than time later to doubly receive
     private final ConcurrentCache<E, ThreadWorker> assigned = ConcurrentCache.create();
-
-    private volatile int state = STARTING;
-    private final AtomicInteger emergencyScale = new AtomicInteger(1);
 
     private ConcurrentTaskExecutor(int scale) {
         this.scale = scale;
@@ -136,6 +137,7 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
         assigned.retrieve(assignment, new Callable<ThreadWorker>() {
             @Override
             public ThreadWorker call() throws Exception {
+                ((ThreadWorker) executor).increment();
                 return (ThreadWorker) executor;
             }
         });
@@ -155,7 +157,7 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
     @Override
     public List<TaskExecutor> threadList() {
         List<TaskExecutor> execs = Lists.newArrayList();
-        for (int i = 0, n = executors.length(); i < n; i++) {
+        for (int i = 0, n = scale; i < n; i++) {
             execs.add(executors.get(i));
         }
         return execs;
@@ -164,16 +166,14 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
     @Override
     public void shutdown() {
         state = SHUTTING_DOWN;
-        for (TaskExecutor thread : this.threadList()) {
+        for (int i = 0, n = scale; i < n; i++) {
+            ThreadWorker thread = executors.get(i);
+            if (thread == null) continue; // We want every single thread, including the overflow
             thread.interrupt();
-        }
-        for (E e : assigned.keys()) {
-            ThreadWorker worker = assigned.remove(e);
-
-            Performance.getUnsafe().unpark(worker);
-            worker.interrupt(); // Just in case
+            executors.set(i, null);
         }
 
+        assigned.clear();
         state = STOPPED;
     }
 
@@ -201,14 +201,14 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
 
     @Override
     public void execute(Runnable runnable) {
-        if (!scaledThread().addTask(runnable)) {
+        if (!((ThreadWorker) scaledThread()).tasks.add(runnable)) {
             // Overflow of tasks
             int threadIndex;
 
             // Check existing threads for space
             for (int i = 0; i < executors.length(); i++) {
                 ThreadWorker worker = executors.get(i);
-                if (worker == null) // Emergency thread not set
+                if (worker == null) // Emergency thread, not set yet
                     continue;
                 if (worker.tasks.size() < TASK_LENGTH) {
                     if (worker.tasks.add(runnable)) {
@@ -243,9 +243,9 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
 
     // This class is designed to use an ArrayBlockingQueue
     // The normal Java executor uses a LinkedBlockingQueue
-    // which can take up to 600-700 nanos on the test machine
+    // which fluctuates at 600-700 nanos on the test machine
     // using an ArrayBlockingQueue can speed up the insert
-    // which is consistently 550 nanos
+    // which fluctuates between 180-250 nanos, 3 times gain
     // However, using an ArrayBlockingQueue incurs significant
     // risk of task overloading and memory problems
     // To counter this, two queues are implemented, where tasks
@@ -254,6 +254,7 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
         protected final BlockingQueue<Runnable> tasks = Queues.newArrayBlockingQueue(TASK_LENGTH);
         private final ConcurrentLinkedQueue<Runnable> overflow = new ConcurrentLinkedQueue<>();
 
+        // Not tasks, assignments
         private final AtomicInteger integer = new AtomicInteger(0);
 
         private final int index;
@@ -289,7 +290,6 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
         public boolean addTask(Runnable task) {
             try {
                 tasks.add(task);
-                increment();
             } catch (IllegalStateException e) {
                 overflow.add(task);
                 return false;
@@ -304,13 +304,19 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
 
             while (!isInterrupted()) {
                 try {
-                    Runnable task = nextTask();
+                    Runnable task;
+
+                    int cycles = 0;
+                    do {
+                        task = nextTask();
+                        if (cycles++ > 256)
+                            break;
+                    } while (task == null);
 
                     if (task == null)
                         task = tasks.take();
 
                     task.run();
-                    decrement();
                 } catch (Exception e) {
                     TridentLogger.error(e);
                     handleShutdown(index, tasks);

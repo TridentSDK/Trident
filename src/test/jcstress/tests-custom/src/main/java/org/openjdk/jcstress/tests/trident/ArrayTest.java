@@ -39,17 +39,14 @@ import org.openjdk.jcstress.infra.results.BooleanResult1;
      */
     @Actor
     public void volatileArray(Item item, BooleanResult1 result1) {
-        synchronized (this) {
-            items[0] = item;
-        }
+        items[0] = item;
+        items = items;
     }
 
     @Arbiter
     public void check(Item item, BooleanResult1 result1) {
-        synchronized (this) {
-            if (items[0] == item)
-                result1.r1 = true;
-        }
+        if (items[0] == item)
+            result1.r1 = true;
     }
 
     @State public static class Item {

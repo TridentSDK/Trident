@@ -63,7 +63,7 @@ public class PacketEncoder extends MessageToByteEncoder<ByteBuf> {
     }
 
     private void sendCompressed(ByteBuf msg, ByteBuf out) throws IOException {
-        Deflater deflater = new Deflater();
+        Deflater deflater = new Deflater(Deflater.BEST_COMPRESSION);
         int index = msg.readerIndex();
         int length = msg.readableBytes();
 
