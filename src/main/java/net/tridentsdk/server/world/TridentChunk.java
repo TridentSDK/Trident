@@ -135,10 +135,6 @@ public class TridentChunk implements Chunk {
             data[pos++] = 0;
         }
 
-        if (pos != size) {
-            TridentLogger.error(new IllegalStateException("Wrote " + pos + " when expected " + size + " bytes"));
-        }
-
         chunkBulk.set("meta", new ChunkMetaBuilder().bitmap((short) bitmask).location(location));
         chunkBulk.set("data", data);
         chunkBulk.set("lightSent", true);

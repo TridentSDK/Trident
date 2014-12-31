@@ -27,10 +27,7 @@ import net.tridentsdk.server.TridentScheduler;
 import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
 import net.tridentsdk.server.threads.ThreadsHandler;
 import net.tridentsdk.util.TridentLogger;
-import org.openjdk.jmh.annotations.Benchmark;
-import org.openjdk.jmh.annotations.Mode;
-import org.openjdk.jmh.annotations.Scope;
-import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.results.RunResult;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
@@ -42,10 +39,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.nio.file.Paths;
 import java.util.Collection;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /*
 Thread-1
@@ -221,24 +215,16 @@ Iteration  20: 496.674 ns/op
 @State(Scope.Benchmark) public class TaskExecTest {
     static {
         TridentLogger.init();
-        Factories.init(new ConfigFactory() {
-            @Override
-            public JsonConfig serverConfig() {
-                return new JsonConfig(Paths.get("/topkek"));
-            }
-        });
         Factories.init(new CollectFactory() {
             @Override
             public <K, V> ConcurrentMap<K, V> createMap() {
                 return new ConcurrentHashMapV8<>();
             }
         });
-        Factories.init(TridentScheduler.create());
-        Factories.init(ThreadsHandler.create());
     }
-    private static final ConcurrentTaskExecutor<String> TASK_EXECUTOR = ConcurrentTaskExecutor.create(16);
-    private static final TaskExecutor EXECUTOR = TASK_EXECUTOR.scaledThread();
-    private static final ExecutorService JAVA = Executors.newFixedThreadPool(16);
+    private static ConcurrentTaskExecutor<String> TASK_EXECUTOR;
+    private static TaskExecutor EXECUTOR;
+    private static final ExecutorService JAVA = Executors.newFixedThreadPool(13);
     private static final Runnable RUNNABLE = new Runnable() {
         int anInt = 0;
 
@@ -248,7 +234,13 @@ Iteration  20: 496.674 ns/op
         }
     };
 
-    public static void main(String[] args) {
+    @Setup
+    public void setup() {
+        TASK_EXECUTOR = ConcurrentTaskExecutor.create(13);
+        EXECUTOR = TASK_EXECUTOR.scaledThread();
+    }
+
+    public static void main0(String[] args) {
         // Latency tests
         System.out.println("========= Starting tests: TRIDENT =========");
 
@@ -374,7 +366,7 @@ Iteration  20: 496.674 ns/op
     //@Param({ "1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024" })
     private int cpuTokens;
 
-    public static void main0(String... args) throws RunnerException {
+    public static void main(String... args) throws RunnerException {
         Options opt = new OptionsBuilder().include(".*" + TaskExecTest.class.getSimpleName() + ".*") // CLASS
                 .timeUnit(TimeUnit.NANOSECONDS).mode(Mode.AverageTime).warmupIterations(20)
                 .warmupTime(TimeValue.milliseconds(10))              // ALLOWED TIME

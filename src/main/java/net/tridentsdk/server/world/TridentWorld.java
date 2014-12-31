@@ -48,10 +48,10 @@ public class TridentWorld implements World {
     private final Random random;
     private final WorldLoader loader;
     private final Coordinates spawnLocation;
-    private Dimension dimension;
-    private Difficulty difficulty;
-    private GameMode defaultGamemode;
-    private LevelType type;
+    private volatile Dimension dimension;
+    private volatile Difficulty difficulty;
+    private volatile GameMode defaultGamemode;
+    private volatile LevelType type;
 
     TridentWorld(String name, WorldLoader loader) {
         this.name = name;
@@ -78,6 +78,7 @@ public class TridentWorld implements World {
                     toByteArray(new GZIPInputStream(new ByteArrayInputStream(compressedData)))))).decode()
                     .getTagAs("Data");
         } catch (FileNotFoundException ignored) {
+            TridentLogger.error(new IllegalArgumentException("Could not find world " + name));
             return;
         } catch (Exception ex) {
             TridentLogger.log("Unable to load level.dat! Printing stacktrace...");
@@ -241,10 +242,6 @@ public class TridentWorld implements World {
         this.loadedChunks.put(location, (TridentChunk) chunk);
     }
 
-    public Dimension getDimesion() {
-        return dimension;
-    }
-
     @Override
     public Difficulty difficulty() {
         return difficulty;
@@ -267,7 +264,7 @@ public class TridentWorld implements World {
 
     @Override
     public Dimension dimension() {
-        return null;
+        return dimension;
     }
 
     @Override

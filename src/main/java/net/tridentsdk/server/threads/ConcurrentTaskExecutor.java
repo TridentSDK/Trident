@@ -30,10 +30,7 @@ import net.tridentsdk.factory.ExecutorFactory;
 import net.tridentsdk.util.TridentLogger;
 
 import javax.annotation.concurrent.ThreadSafe;
-import java.util.Collection;
-import java.util.List;
-import java.util.Queue;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReferenceArray;
@@ -89,7 +86,6 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
         @Override
         public ThreadWorker call() throws Exception {
             ThreadWorker worker = (ThreadWorker) scaledThread();
-            worker.increment();
             return worker;
         }
     };
@@ -113,7 +109,7 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
     private static int calcTaskLen() {
         int objectSize = 4;
         if (ARCH_64) objectSize = 8;
-        long max = ((Runtime.getRuntime().maxMemory() - 25_000_000) / objectSize) / 13;
+        long max = (Runtime.getRuntime().freeMemory() / objectSize) / 13; // TODO adjust thread count
         int len;
         if (max > (long) Integer.MAX_VALUE)
             len = Integer.MAX_VALUE - 8;
@@ -144,16 +140,15 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
         return EXECUTORS;
     }
 
+    private final AtomicInteger scaler = new AtomicInteger(0);
+
     @Override
     public TaskExecutor scaledThread() {
-        ThreadWorker lowest = null;
-        for (int i = 0, n = scale; i < n; i++) {
-            ThreadWorker thread = executors.get(i);
-            if (lowest == null) lowest = thread;
-            if (lowest.get() > thread.get()) lowest = thread;
-        }
+        int curr;
+        if ((curr = scaler.getAndIncrement()) > scale - 3)
+            scaler.set(0);
 
-        return lowest;
+        return executors.get(curr);
     }
 
     @Override
@@ -166,7 +161,6 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
         assigned.retrieve(assignment, new Callable<ThreadWorker>() {
             @Override
             public ThreadWorker call() throws Exception {
-                ((ThreadWorker) executor).increment();
                 return (ThreadWorker) executor;
             }
         });
@@ -174,8 +168,7 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
 
     @Override
     public void removeAssignment(E assignment) {
-        ThreadWorker thread = this.assigned.remove(assignment);
-        thread.decrement();
+        this.assigned.remove(assignment);
     }
 
     @Override
@@ -230,7 +223,8 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
 
     @Override
     public void execute(Runnable runnable) {
-        if (!((ThreadWorker) scaledThread()).tasks.add(runnable)) {
+        ThreadWorker exec = (ThreadWorker) scaledThread();
+        if (!exec.tasks.add(runnable)) {
             // Overflow of tasks
             int threadIndex;
 
@@ -252,11 +246,13 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
             // If we reach here, no EXISTING thread has capacity to handle
             // Create a new overflow worker with an emergency index
             threadIndex = this.emergencyScale.incrementAndGet() + scale;
-            if (!(threadIndex > executors.length())) // Make sure we have enough space for the extra thread
+            if (!(threadIndex > executors.length())) {// Make sure we have enough space for the extra thread
                 handleShutdown(threadIndex, new ArrayBlockingQueue<>(TASK_LENGTH, false, Lists.newArrayList(runnable)));
+                return;
+            }
 
-            // Out of emergency threads
-            TridentLogger.error(new IllegalStateException("Task overflow from executor"));
+            // Use the overflow if necessary
+            exec.addTask(runnable);
         }
     }
 
@@ -280,28 +276,13 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
     // To counter this, two queues are implemented, where tasks
     // are placed in the case the array queue is overloaded
     @AccessNoDoc private class ThreadWorker extends Thread implements TaskExecutor {
-        protected final BlockingQueue<Runnable> tasks = Queues.newArrayBlockingQueue(TASK_LENGTH);
+        protected final BlockingQueue<Runnable> tasks = new ArrayBlockingQueue<>(TASK_LENGTH);
         private final ConcurrentLinkedQueue<Runnable> overflow = new ConcurrentLinkedQueue<>();
-
-        // Not tasks, assignments
-        private final AtomicInteger integer = new AtomicInteger(0);
 
         private final int index;
 
         private ThreadWorker(int index) {
             this.index = index;
-        }
-
-        public void increment() {
-            integer.incrementAndGet();
-        }
-
-        public void decrement() {
-            integer.decrementAndGet();
-        }
-
-        public int get() {
-            return integer.get();
         }
 
         public ThreadWorker startWorker() {
@@ -338,7 +319,7 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
                     int cycles = 0;
                     do {
                         task = nextTask();
-                        if (cycles++ > 256)
+                        if (cycles++ > 64)
                             break;
                     } while (task == null);
 

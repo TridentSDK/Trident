@@ -79,7 +79,7 @@ import java.util.UUID;
             public void run() {
                 p.connection.sendPacket(new PacketPlayOutJoinGame().set("entityId", p.getId())
                                                 .set("gamemode", p.getGameMode())
-                                                .set("dimension", ((TridentWorld) p.getWorld()).getDimesion())
+                                                .set("dimension", p.getWorld().dimension())
                                                 .set("difficulty", p.getWorld().difficulty())
                                                 .set("maxPlayers", (short) 10)
                                                 .set("levelType", LevelType.DEFAULT));
