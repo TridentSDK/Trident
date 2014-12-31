@@ -105,6 +105,8 @@ import java.util.UUID;
             }
         });
 
+        ThreadsHandler.playerExecutor().assign(p);
+
         return p;
     }
 
