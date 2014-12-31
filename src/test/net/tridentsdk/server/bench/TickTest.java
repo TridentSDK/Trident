@@ -52,7 +52,7 @@ tick 5.0183914333333336E7
             }
         });
         Factories.init(TridentScheduler.create());
-        Factories.init(new ThreadsHandler());
+        Factories.init(ThreadsHandler.create());
     }
 
     private static final MainThread THREAD = new MainThread(20);

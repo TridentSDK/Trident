@@ -20,6 +20,7 @@ package net.tridentsdk.server.threads;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Queues;
 import com.google.common.collect.Sets;
+import io.netty.util.internal.PlatformDependent;
 import net.tridentsdk.Defaults;
 import net.tridentsdk.concurrent.ConcurrentCache;
 import net.tridentsdk.concurrent.TaskExecutor;
@@ -70,6 +71,7 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
     private static final Set<ConcurrentTaskExecutor<?>> EXECUTORS = Sets.newHashSet();
 
     private static final int EMERGENCY_MARGIN = 4;
+    private static final boolean ARCH_64 = System.getProperty("os.arch").contains("64");
     private static final int TASK_LENGTH = calcTaskLen();
 
     private static final int STARTING = 0;
@@ -109,7 +111,9 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
     }
 
     private static int calcTaskLen() {
-        long max = ((Runtime.getRuntime().maxMemory() - 25_000_000) / 4) / 13;
+        int objectSize = 4;
+        if (ARCH_64) objectSize = 8;
+        long max = ((Runtime.getRuntime().maxMemory() - 25_000_000) / objectSize) / 13;
         int len;
         if (max > (long) Integer.MAX_VALUE)
             len = Integer.MAX_VALUE - 8;

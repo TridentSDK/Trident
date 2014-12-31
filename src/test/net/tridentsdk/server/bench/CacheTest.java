@@ -17,7 +17,13 @@
 
 package net.tridentsdk.server.bench;
 
+import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
 import net.tridentsdk.concurrent.ConcurrentCache;
+import net.tridentsdk.factory.CollectFactory;
+import net.tridentsdk.factory.Factories;
+import net.tridentsdk.server.TridentScheduler;
+import net.tridentsdk.server.threads.ThreadsHandler;
+import net.tridentsdk.util.TridentLogger;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
 import org.openjdk.jmh.runner.Runner;
@@ -25,16 +31,28 @@ import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 import org.openjdk.jmh.runner.options.TimeValue;
-import org.openjdk.jmh.runner.options.VerboseMode;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 
 /*
 Benchmark results: http://bit.ly/1A21o5O
  */
 @State(Scope.Benchmark) public class CacheTest {
+    static {
+        TridentLogger.init();
+        Factories.init(new CollectFactory() {
+            @Override
+            public <K, V> ConcurrentMap<K, V> createMap() {
+                return new ConcurrentHashMapV8<>();
+            }
+        });
+        Factories.init(ThreadsHandler.create());
+        Factories.init(TridentScheduler.create());
+    }
+
     private static final ConcurrentCache<Object, Object> CACHE = ConcurrentCache.create();
     private static final ConcurrentHashMap<Object, Object> CONCURRENT_HASH_MAP = new ConcurrentHashMap<>();
 
@@ -45,7 +63,7 @@ Benchmark results: http://bit.ly/1A21o5O
             return "LOL";
         }
     };
-    @Param({ "1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024" })
+    //@Param({ "1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024" })
     private int cpuTokens;
 
     public static void main0(String[] args) {
@@ -59,7 +77,7 @@ Benchmark results: http://bit.ly/1A21o5O
                         TimeValue.milliseconds(1))              // ALLOWED TIME
                 .measurementIterations(5).measurementTime(TimeValue.milliseconds(1))         // ALLOWED TIME
                 .forks(1)                                           // FORKS
-                .verbosity(VerboseMode.SILENT)                      // GRAPH
+                //.verbosity(VerboseMode.SILENT)                      // GRAPH
                 .threads(4)                                         // THREADS
                 .build();
 
@@ -71,20 +89,20 @@ Benchmark results: http://bit.ly/1A21o5O
         CONCURRENT_HASH_MAP.put(key, CALLABLE);
     }
 
-    @Benchmark
+    //@Benchmark
     public void control() {
         Blackhole.consumeCPU(cpuTokens);
     }
 
     @Benchmark
     public void retrieve(Blackhole bh) {
-        Blackhole.consumeCPU(cpuTokens);
+        //Blackhole.consumeCPU(cpuTokens);
         bh.consume(CACHE.retrieve(key, CALLABLE));
     }
 
-    @Benchmark
+    //@Benchmark
     public void chmRetrieve(Blackhole bh) {
-        Blackhole.consumeCPU(cpuTokens);
+        //Blackhole.consumeCPU(cpuTokens);
         bh.consume(CONCURRENT_HASH_MAP.get(key));
     }
 }

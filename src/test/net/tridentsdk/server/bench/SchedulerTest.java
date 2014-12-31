@@ -151,7 +151,7 @@ Trident is 10x faster than Bukkit
             }
         });
         Factories.init(TridentScheduler.create());
-        Factories.init(new ThreadsHandler());
+        Factories.init(ThreadsHandler.create());
     }
     private static final TridentScheduler scheduler = TridentScheduler.create();
 
@@ -223,7 +223,7 @@ Trident is 10x faster than Bukkit
 
     @Setup
     public void setup() {
-        Factories.init(new ThreadsHandler());
+        Factories.init(ThreadsHandler.create());
         for (int i = 0; i < 100000; i++) {
             @PluginDescription(name = "LOLCODE") class PluginImpl extends TridentPlugin {
             }

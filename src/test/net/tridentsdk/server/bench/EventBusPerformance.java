@@ -65,7 +65,7 @@ Benchmark results: http://bit.ly/1B3psZv
                 return new ConcurrentHashMapV8<>();
             }
         });
-        Factories.init(new ThreadsHandler());
+        Factories.init(ThreadsHandler.create());
         Factories.init(TridentScheduler.create());
 
         final JsonConfig innerConfig = new JsonConfig(new File("toplel"));

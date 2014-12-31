@@ -49,7 +49,7 @@ public class ExecutorTest {
                 return new ConcurrentHashMapV8<>();
             }
         });
-        Factories.init(new ThreadsHandler());
+        Factories.init(ThreadsHandler.create());
         Factories.init(TridentScheduler.create());
         Factories.init(new ConfigFactory() {
             @Override

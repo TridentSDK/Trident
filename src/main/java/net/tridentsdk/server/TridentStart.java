@@ -137,7 +137,7 @@ import static com.google.common.collect.Lists.newArrayList;
                 return new ConcurrentHashMapV8<>();
             }
         });
-        Factories.init(new ThreadsHandler());
+        Factories.init(ThreadsHandler.create());
         Factories.init(TridentScheduler.create());
 
         TridentLogger.log("Creating server...");

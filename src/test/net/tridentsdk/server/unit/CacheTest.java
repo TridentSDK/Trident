@@ -36,7 +36,7 @@ public class CacheTest extends AbstractTest {
             }
         });
         Factories.init(TridentScheduler.create());
-        Factories.init(new ThreadsHandler());
+        Factories.init(ThreadsHandler.create());
     }
 
     private final ConcurrentCache<Object, Object> cache = ConcurrentCache.create();

@@ -37,6 +37,19 @@ import java.util.Collection;
     private static final ExecutorFactory<Player> players = ConcurrentTaskExecutor.create(4);
     private static final ExecutorFactory<World> worlds = ConcurrentTaskExecutor.create(4);
 
+    private ThreadsHandler() {
+    }
+
+    /**
+     * Creates the threads handler for internal use
+     *
+     * @return the new thread handler
+     */
+    @InternalUseOnly
+    public static ThreadsHandler create() {
+        return new ThreadsHandler();
+    }
+
     /**
      * Stops all the executors and clears all caches of concurrent threads
      */

@@ -49,6 +49,6 @@ public class LatchInitTest extends AbstractTest {
             }
         });
         Factories.init(TridentScheduler.create());
-        Factories.init(new ThreadsHandler());
+        Factories.init(ThreadsHandler.create());
     }
 }

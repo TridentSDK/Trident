@@ -38,7 +38,6 @@ import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 import org.openjdk.jmh.runner.options.TimeValue;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.nio.file.Paths;
@@ -235,7 +234,7 @@ Iteration  20: 496.674 ns/op
             }
         });
         Factories.init(TridentScheduler.create());
-        Factories.init(new ThreadsHandler());
+        Factories.init(ThreadsHandler.create());
     }
     private static final ConcurrentTaskExecutor<String> TASK_EXECUTOR = ConcurrentTaskExecutor.create(16);
     private static final TaskExecutor EXECUTOR = TASK_EXECUTOR.scaledThread();

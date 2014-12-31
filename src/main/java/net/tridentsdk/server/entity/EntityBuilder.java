@@ -72,8 +72,8 @@ public final class EntityBuilder {
         return this;
     }
 
-    public EntityBuilder executor(ExecutorFactory<Entity> executor) {
-        this.executor = executor;
+    public EntityBuilder executor(ExecutorFactory<? extends Entity> executor) {
+        this.executor = (ExecutorFactory<Entity>) executor;
         return this;
     }
 
