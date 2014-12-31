@@ -32,6 +32,7 @@ import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 import org.openjdk.jmh.runner.options.TimeValue;
 
+import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -86,7 +87,12 @@ Benchmark results: http://bit.ly/1A21o5O
 
     @Setup
     public void setUp() {
-        CONCURRENT_HASH_MAP.put(key, CALLABLE);
+        CONCURRENT_HASH_MAP.put(key, new Callable<Object>() {
+            @Override
+            public Object call() throws Exception {
+                return new Object();
+            }
+        });
     }
 
     //@Benchmark
@@ -97,7 +103,12 @@ Benchmark results: http://bit.ly/1A21o5O
     @Benchmark
     public void retrieve(Blackhole bh) {
         //Blackhole.consumeCPU(cpuTokens);
-        bh.consume(CACHE.retrieve(key, CALLABLE));
+        bh.consume(CACHE.retrieve(key, new Callable<Object>() {
+            @Override
+            public Object call() throws Exception {
+                return new Object();
+            }
+        }));
     }
 
     //@Benchmark
