@@ -140,15 +140,17 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
         return EXECUTORS;
     }
 
-    private final AtomicInteger scaler = new AtomicInteger(0);
+    private int counter = 0;
 
     @Override
     public TaskExecutor scaledThread() {
-        int curr;
-        if ((curr = scaler.getAndIncrement()) > scale - 3)
-            scaler.set(0);
+        synchronized (this) {
+            if (counter == scale) {
+                counter = 0;
+            }
 
-        return executors.get(curr);
+            return executors.get(counter++);
+        }
     }
 
     @Override
@@ -179,9 +181,8 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
     @Override
     public List<TaskExecutor> threadList() {
         List<TaskExecutor> execs = Lists.newArrayList();
-        for (int i = 0, n = scale; i < n; i++) {
+        for (int i = 0, n = scale; i < n; i++)
             execs.add(executors.get(i));
-        }
         return execs;
     }
 
@@ -224,7 +225,9 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
     @Override
     public void execute(Runnable runnable) {
         ThreadWorker exec = (ThreadWorker) scaledThread();
-        if (!exec.tasks.add(runnable)) {
+        try {
+            exec.tasks.add(runnable);
+        } catch (IllegalStateException e){
             // Overflow of tasks
             int threadIndex;
 
@@ -234,8 +237,10 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
                 if (worker == null) // Emergency thread, not set yet
                     continue;
                 if (worker.tasks.size() < TASK_LENGTH) {
-                    if (worker.tasks.add(runnable)) {
-                        return;
+                    try {
+                        worker.tasks.add(runnable);
+                    } catch (IllegalStateException ignored) {
+                        // Ignore, keep looking
                     }
 
                     // Can't add to a worker, probably an overflow worker.
@@ -246,7 +251,7 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
             // If we reach here, no EXISTING thread has capacity to handle
             // Create a new overflow worker with an emergency index
             threadIndex = this.emergencyScale.incrementAndGet() + scale;
-            if (!(threadIndex > executors.length())) {// Make sure we have enough space for the extra thread
+            if (!(threadIndex >= executors.length())) { // Make sure we have enough space for the extra thread
                 handleShutdown(threadIndex, new ArrayBlockingQueue<>(TASK_LENGTH, false, Lists.newArrayList(runnable)));
                 return;
             }
@@ -319,7 +324,7 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
                     int cycles = 0;
                     do {
                         task = nextTask();
-                        if (cycles++ > 64)
+                        if (cycles++ > 256)
                             break;
                     } while (task == null);
 
@@ -327,10 +332,12 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
                         task = tasks.take();
 
                     task.run();
+                } catch (InterruptedException e) {
+                    handleShutdown(index, tasks);
+                    return;
                 } catch (Exception e) {
                     TridentLogger.error(e);
                     handleShutdown(index, tasks);
-                    tasks.clear();
                     return;
                 }
             }
@@ -379,10 +386,11 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
                             interrupt();
                             break;
                         }
+                } catch (InterruptedException e) {
+                    return;
                 } catch (Exception e) {
                     TridentLogger.error(e); // Move the tasks back onto a normal thread, usually clear by then
                     handleShutdown(((ThreadWorker) scaledThread()).index, tasks);
-                    tasks.clear();
                     return;
                 }
             }
