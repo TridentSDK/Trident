@@ -225,9 +225,7 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
     @Override
     public void execute(Runnable runnable) {
         ThreadWorker exec = (ThreadWorker) scaledThread();
-        try {
-            exec.tasks.add(runnable);
-        } catch (IllegalStateException e){
+        if (!exec.tasks.offer(runnable)) {
             // Overflow of tasks
             int threadIndex;
 
@@ -237,12 +235,8 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
                 if (worker == null) // Emergency thread, not set yet
                     continue;
                 if (worker.tasks.size() < TASK_LENGTH) {
-                    try {
-                        worker.tasks.add(runnable);
-                    } catch (IllegalStateException ignored) {
-                        // Ignore, keep looking
-                    }
-
+                    if (worker.tasks.offer(runnable))
+                        return;
                     // Can't add to a worker, probably an overflow worker.
                     // Continue looking
                 }
@@ -303,9 +297,7 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
         // Remove overflow queue usage
         @Override
         public boolean addTask(Runnable task) {
-            try {
-                tasks.add(task);
-            } catch (IllegalStateException e) {
+            if (!tasks.offer(task)) {
                 overflow.add(task);
                 return false;
             }
@@ -319,17 +311,20 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
 
             while (!isInterrupted()) {
                 try {
-                    Runnable task;
+                    Runnable task = nextTask();
 
                     int cycles = 0;
-                    do {
+                    while (task == null) {
                         task = nextTask();
-                        if (cycles++ > 256)
+                        Thread.yield();
+                        if (cycles++ > 1024)
                             break;
-                    } while (task == null);
+                    }
 
-                    if (task == null)
+                    if (task == null) {
+                        Thread.yield();
                         task = tasks.take();
+                    }
 
                     task.run();
                 } catch (InterruptedException e) {

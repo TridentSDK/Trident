@@ -231,7 +231,7 @@ Iteration  20: 700.935 ns/op
         EXECUTOR = TASK_EXECUTOR.scaledThread();
     }
 
-    public static void main(String[] args) {
+    public static void main2(String[] args) {
         new TaskExecTest().setup();
 
         while (true) {
@@ -243,7 +243,7 @@ Iteration  20: 700.935 ns/op
         }
     }
 
-    public static void main0(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws InterruptedException {
         new TaskExecTest().setup();
 
         // Latency tests
@@ -399,7 +399,7 @@ Iteration  20: 700.935 ns/op
     //@Param({ "1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024" })
     private int cpuTokens;
 
-    public static void main2(String... args) throws RunnerException {
+    public static void main0(String... args) throws RunnerException {
         Options opt = new OptionsBuilder().include(".*" + TaskExecTest.class.getSimpleName() + ".*") // CLASS
                 .timeUnit(TimeUnit.NANOSECONDS).mode(Mode.AverageTime).warmupIterations(20)
                 .warmupTime(TimeValue.milliseconds(10))              // ALLOWED TIME
