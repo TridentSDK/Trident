@@ -19,16 +19,12 @@ package net.tridentsdk.server.entity;
 
 import com.google.common.util.concurrent.AtomicDouble;
 import net.tridentsdk.Coordinates;
-import net.tridentsdk.base.Tile;
-import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.LivingEntity;
 import net.tridentsdk.entity.decorate.Impalable;
-import net.tridentsdk.entity.projectile.Projectile;
 import net.tridentsdk.server.entity.decorate.DecoratedImpalable;
 import net.tridentsdk.server.entity.decorate.Decorator;
 import net.tridentsdk.util.Vector;
 
-import java.util.List;
 import java.util.UUID;
 
 /**

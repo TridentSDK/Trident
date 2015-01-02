@@ -18,9 +18,7 @@
 package net.tridentsdk.server.threads;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Queues;
 import com.google.common.collect.Sets;
-import io.netty.util.internal.PlatformDependent;
 import net.tridentsdk.Defaults;
 import net.tridentsdk.concurrent.ConcurrentCache;
 import net.tridentsdk.concurrent.TaskExecutor;

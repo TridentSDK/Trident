@@ -19,10 +19,8 @@ package net.tridentsdk.server.world.gen;
 
 import com.google.common.collect.Lists;
 import net.tridentsdk.world.ChunkLocation;
-import net.tridentsdk.world.World;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * The base class for implementing world generation extensions

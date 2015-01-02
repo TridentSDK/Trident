@@ -25,7 +25,6 @@ import net.tridentsdk.server.packets.play.out.PacketPlayOutPlayerRespawn;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutStatistics;
 import net.tridentsdk.server.player.PlayerConnection;
 import net.tridentsdk.server.player.TridentPlayer;
-import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.World;
 

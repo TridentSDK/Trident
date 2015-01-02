@@ -23,7 +23,6 @@ import net.tridentsdk.base.Tile;
 import net.tridentsdk.meta.nbt.*;
 import net.tridentsdk.server.data.ChunkMetaBuilder;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutMapChunkBulk;
-import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.Chunk;
 import net.tridentsdk.world.ChunkLocation;
 import net.tridentsdk.world.ChunkSnapshot;

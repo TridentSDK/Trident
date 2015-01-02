@@ -17,11 +17,7 @@
 
 package net.tridentsdk.server.world.gen;
 
-import com.google.common.collect.Maps;
 import net.tridentsdk.base.Substance;
-import net.tridentsdk.world.ChunkLocation;
-
-import java.util.Map;
 
 /**
  * Default world generator engine for Trident
