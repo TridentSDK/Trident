@@ -49,52 +49,52 @@ import java.util.concurrent.*;
 # Benchmark mode: Average time, time/op
 # Benchmark: net.tridentsdk.server.bench.TaskExecTest.concurrentTaskExecutor
 # VM invoker: /usr/lib/jvm/java-8-oracle/jre/bin/java
-# VM options: -Didea.launcher.port=7547 -Didea.launcher.bin.path=/home/agenttroll/idea-IU-139.659.2/bin -Dfile.encoding=UTF-8
+# VM options: -Didea.launcher.port=7533 -Didea.launcher.bin.path=/home/agenttroll/idea-IU-139.659.2/bin -Dfile.encoding=UTF-8
 # Fork: 1 of 1
-# Warmup Iteration   1: 185.148 ns/op
-# Warmup Iteration   2: 4069331.189 ns/op
-# Warmup Iteration   3: 242.858 ns/op
-# Warmup Iteration   4: 159.020 ns/op
-# Warmup Iteration   5: 161.967 ns/op
-# Warmup Iteration   6: 142.806 ns/op
-# Warmup Iteration   7: 173.058 ns/op
-# Warmup Iteration   8: 201.502 ns/op
-# Warmup Iteration   9: 159.542 ns/op
-# Warmup Iteration  10: 180.848 ns/op
-# Warmup Iteration  11: 184.059 ns/op
-# Warmup Iteration  12: 166.272 ns/op
-# Warmup Iteration  13: 144.897 ns/op
-# Warmup Iteration  14: 150.372 ns/op
-# Warmup Iteration  15: 175.727 ns/op
-# Warmup Iteration  16: 190.755 ns/op
-# Warmup Iteration  17: 147.131 ns/op
-# Warmup Iteration  18: 147.997 ns/op
-# Warmup Iteration  19: 148.328 ns/op
-# Warmup Iteration  20: 216.091 ns/op
-Iteration   1: 167.419 ns/op
-Iteration   2: 155.956 ns/op
-Iteration   3: 139.882 ns/op
-Iteration   4: 163.833 ns/op
-Iteration   5: 171.991 ns/op
-Iteration   6: 156.741 ns/op
-Iteration   7: 144.120 ns/op
-Iteration   8: 155.814 ns/op
-Iteration   9: 167.400 ns/op
-Iteration  10: 146.550 ns/op
-Iteration  11: 174.257 ns/op
-Iteration  12: 145.339 ns/op
-Iteration  13: 186.664 ns/op
-Iteration  14: 157.914 ns/op
-Iteration  15: 138.310 ns/op
-Iteration  16: 208.806 ns/op
-Iteration  17: 171.702 ns/op
-Iteration  18: 388.687 ns/op
-Iteration  19: 205.263 ns/op
-Iteration  20: 162.675 ns/op
+# Warmup Iteration   1: 219.315 ns/op
+# Warmup Iteration   2: 285.642 ns/op
+# Warmup Iteration   3: 155.855 ns/op
+# Warmup Iteration   4: 204.775 ns/op
+# Warmup Iteration   5: 141.379 ns/op
+# Warmup Iteration   6: 161.633 ns/op
+# Warmup Iteration   7: 137.856 ns/op
+# Warmup Iteration   8: 188.196 ns/op
+# Warmup Iteration   9: 170.865 ns/op
+# Warmup Iteration  10: 148.636 ns/op
+# Warmup Iteration  11: 140.670 ns/op
+# Warmup Iteration  12: 174.672 ns/op
+# Warmup Iteration  13: 245.167 ns/op
+# Warmup Iteration  14: 206.736 ns/op
+# Warmup Iteration  15: 165.800 ns/op
+# Warmup Iteration  16: 137.532 ns/op
+# Warmup Iteration  17: 146.333 ns/op
+# Warmup Iteration  18: 175.270 ns/op
+# Warmup Iteration  19: 145.019 ns/op
+# Warmup Iteration  20: 165.366 ns/op
+Iteration   1: 139.423 ns/op
+Iteration   2: 177.423 ns/op
+Iteration   3: 190.496 ns/op
+Iteration   4: 149.753 ns/op
+Iteration   5: 134.228 ns/op
+Iteration   6: 145.109 ns/op
+Iteration   7: 249.146 ns/op
+Iteration   8: 144.618 ns/op
+Iteration   9: 138.846 ns/op
+Iteration  10: 157.834 ns/op
+Iteration  11: 136.593 ns/op
+Iteration  12: 177.654 ns/op
+Iteration  13: 148.664 ns/op
+Iteration  14: 142.966 ns/op
+Iteration  15: 155.117 ns/op
+Iteration  16: 138.167 ns/op
+Iteration  17: 159.238 ns/op
+Iteration  18: 145.195 ns/op
+Iteration  19: 141.196 ns/op
+Iteration  20: 151.857 ns/op
 
-Result: 175.466 ±(99.9%) 46.653 ns/op [Average]
-  Statistics: (min, avg, max) = (138.310, 175.466, 388.687), stdev = 53.726
-  Confidence interval (99.9%): [128.813, 222.119]
+Result: 156.176 ±(99.9%) 23.069 ns/op [Average]
+  Statistics: (min, avg, max) = (134.228, 156.176, 249.146), stdev = 26.566
+  Confidence interval (99.9%): [133.107, 179.245]
 
 
 # Run progress: 33.33% complete, ETA 00:00:18
@@ -104,52 +104,52 @@ Result: 175.466 ±(99.9%) 46.653 ns/op [Average]
 # Benchmark mode: Average time, time/op
 # Benchmark: net.tridentsdk.server.bench.TaskExecTest.executorFactory
 # VM invoker: /usr/lib/jvm/java-8-oracle/jre/bin/java
-# VM options: -Didea.launcher.port=7547 -Didea.launcher.bin.path=/home/agenttroll/idea-IU-139.659.2/bin -Dfile.encoding=UTF-8
+# VM options: -Didea.launcher.port=7533 -Didea.launcher.bin.path=/home/agenttroll/idea-IU-139.659.2/bin -Dfile.encoding=UTF-8
 # Fork: 1 of 1
-# Warmup Iteration   1: 6120.575 ns/op
-# Warmup Iteration   2: 581.558 ns/op
-# Warmup Iteration   3: 474.803 ns/op
-# Warmup Iteration   4: 596.237 ns/op
-# Warmup Iteration   5: 538.567 ns/op
-# Warmup Iteration   6: 502.149 ns/op
-# Warmup Iteration   7: 505.541 ns/op
-# Warmup Iteration   8: 489.634 ns/op
-# Warmup Iteration   9: 523.221 ns/op
-# Warmup Iteration  10: 519.844 ns/op
-# Warmup Iteration  11: 508.277 ns/op
-# Warmup Iteration  12: 491.924 ns/op
-# Warmup Iteration  13: 541.791 ns/op
-# Warmup Iteration  14: 496.153 ns/op
-# Warmup Iteration  15: 514.919 ns/op
-# Warmup Iteration  16: 517.730 ns/op
-# Warmup Iteration  17: 555.552 ns/op
-# Warmup Iteration  18: 505.587 ns/op
-# Warmup Iteration  19: 509.407 ns/op
-# Warmup Iteration  20: 492.392 ns/op
-Iteration   1: 497.816 ns/op
-Iteration   2: 511.653 ns/op
-Iteration   3: 507.683 ns/op
-Iteration   4: 696.446 ns/op
-Iteration   5: 533.837 ns/op
-Iteration   6: 490.147 ns/op
-Iteration   7: 520.532 ns/op
-Iteration   8: 1608.380 ns/op
-Iteration   9: 556.288 ns/op
-Iteration  10: 591.093 ns/op
-Iteration  11: 496.549 ns/op
-Iteration  12: 497.442 ns/op
-Iteration  13: 486.791 ns/op
-Iteration  14: 497.051 ns/op
-Iteration  15: 487.380 ns/op
-Iteration  16: 534.568 ns/op
-Iteration  17: 504.520 ns/op
-Iteration  18: 552.875 ns/op
-Iteration  19: 475.768 ns/op
-Iteration  20: 557.079 ns/op
+# Warmup Iteration   1: 2163.737 ns/op
+# Warmup Iteration   2: 715.500 ns/op
+# Warmup Iteration   3: 577.522 ns/op
+# Warmup Iteration   4: 541.910 ns/op
+# Warmup Iteration   5: 685.531 ns/op
+# Warmup Iteration   6: 618.261 ns/op
+# Warmup Iteration   7: 598.105 ns/op
+# Warmup Iteration   8: 644.750 ns/op
+# Warmup Iteration   9: 669.798 ns/op
+# Warmup Iteration  10: 652.997 ns/op
+# Warmup Iteration  11: 644.813 ns/op
+# Warmup Iteration  12: 582.286 ns/op
+# Warmup Iteration  13: 566.301 ns/op
+# Warmup Iteration  14: 599.330 ns/op
+# Warmup Iteration  15: 673.478 ns/op
+# Warmup Iteration  16: 606.519 ns/op
+# Warmup Iteration  17: 695.408 ns/op
+# Warmup Iteration  18: 656.450 ns/op
+# Warmup Iteration  19: 569.002 ns/op
+# Warmup Iteration  20: 671.927 ns/op
+Iteration   1: 637.646 ns/op
+Iteration   2: 626.256 ns/op
+Iteration   3: 582.457 ns/op
+Iteration   4: 657.705 ns/op
+Iteration   5: 636.927 ns/op
+Iteration   6: 652.630 ns/op
+Iteration   7: 558.914 ns/op
+Iteration   8: 664.720 ns/op
+Iteration   9: 595.476 ns/op
+Iteration  10: 555.478 ns/op
+Iteration  11: 571.490 ns/op
+Iteration  12: 629.394 ns/op
+Iteration  13: 552.070 ns/op
+Iteration  14: 585.507 ns/op
+Iteration  15: 686.352 ns/op
+Iteration  16: 527.302 ns/op
+Iteration  17: 665.020 ns/op
+Iteration  18: 637.844 ns/op
+Iteration  19: 612.158 ns/op
+Iteration  20: 626.036 ns/op
 
-Result: 580.195 ±(99.9%) 214.562 ns/op [Average]
-  Statistics: (min, avg, max) = (475.768, 580.195, 1608.380), stdev = 247.090
-  Confidence interval (99.9%): [365.633, 794.757]
+Result: 613.069 ±(99.9%) 38.707 ns/op [Average]
+  Statistics: (min, avg, max) = (527.302, 613.069, 686.352), stdev = 44.575
+  Confidence interval (99.9%): [574.362, 651.776]
 
 
 # Run progress: 66.67% complete, ETA 00:00:09
@@ -159,48 +159,48 @@ Result: 580.195 ±(99.9%) 214.562 ns/op [Average]
 # Benchmark mode: Average time, time/op
 # Benchmark: net.tridentsdk.server.bench.TaskExecTest.zexecutorService
 # VM invoker: /usr/lib/jvm/java-8-oracle/jre/bin/java
-# VM options: -Didea.launcher.port=7547 -Didea.launcher.bin.path=/home/agenttroll/idea-IU-139.659.2/bin -Dfile.encoding=UTF-8
+# VM options: -Didea.launcher.port=7533 -Didea.launcher.bin.path=/home/agenttroll/idea-IU-139.659.2/bin -Dfile.encoding=UTF-8
 # Fork: 1 of 1
-# Warmup Iteration   1: 10413.885 ns/op
-# Warmup Iteration   2: 320.260 ns/op
-# Warmup Iteration   3: 702.735 ns/op
-# Warmup Iteration   4: 1227.080 ns/op
-# Warmup Iteration   5: 501.978 ns/op
-# Warmup Iteration   6: 424.570 ns/op
-# Warmup Iteration   7: 473.661 ns/op
-# Warmup Iteration   8: 457.455 ns/op
-# Warmup Iteration   9: 462.080 ns/op
-# Warmup Iteration  10: 553.377 ns/op
-# Warmup Iteration  11: 467.909 ns/op
-# Warmup Iteration  12: 428.878 ns/op
-# Warmup Iteration  13: 441.982 ns/op
-# Warmup Iteration  14: 473.931 ns/op
-# Warmup Iteration  15: 557.871 ns/op
-# Warmup Iteration  16: 500.453 ns/op
-# Warmup Iteration  17: 572.301 ns/op
-# Warmup Iteration  18: 565.199 ns/op
-# Warmup Iteration  19: 543.752 ns/op
-# Warmup Iteration  20: 583.444 ns/op
-Iteration   1: 537.213 ns/op
-Iteration   2: 431.084 ns/op
-Iteration   3: 463.535 ns/op
-Iteration   4: 515.218 ns/op
-Iteration   5: 558.815 ns/op
-Iteration   6: 437.751 ns/op
-Iteration   7: 475.910 ns/op
-Iteration   8: 496.112 ns/op
-Iteration   9: 877.763 ns/op
-Iteration  10: 538.377 ns/op
-Iteration  11: 561.707 ns/op
-Iteration  12: 482.599 ns/op
-Iteration  13: 494.747 ns/op
-Iteration  14: 601.233 ns/op
-Iteration  15: 519.853 ns/op
-Iteration  16: 648.214 ns/op
-Iteration  17: 552.371 ns/op
-Iteration  18: 516.099 ns/op
-Iteration  19: 442.282 ns/op
-Iteration  20: 700.935 ns/op
+# Warmup Iteration   1: 418.382 ns/op
+# Warmup Iteration   2: 316.825 ns/op
+# Warmup Iteration   3: 446.281 ns/op
+# Warmup Iteration   4: 600.024 ns/op
+# Warmup Iteration   5: 411.992 ns/op
+# Warmup Iteration   6: 429.422 ns/op
+# Warmup Iteration   7: 455.621 ns/op
+# Warmup Iteration   8: 416.499 ns/op
+# Warmup Iteration   9: 926.426 ns/op
+# Warmup Iteration  10: 452.824 ns/op
+# Warmup Iteration  11: 483.843 ns/op
+# Warmup Iteration  12: 466.315 ns/op
+# Warmup Iteration  13: 394.396 ns/op
+# Warmup Iteration  14: 400.922 ns/op
+# Warmup Iteration  15: 510.021 ns/op
+# Warmup Iteration  16: 501.432 ns/op
+# Warmup Iteration  17: 485.537 ns/op
+# Warmup Iteration  18: 437.357 ns/op
+# Warmup Iteration  19: 483.114 ns/op
+# Warmup Iteration  20: 562.341 ns/op
+Iteration   1: 358.942 ns/op
+Iteration   2: 516.338 ns/op
+Iteration   3: 748.485 ns/op
+Iteration   4: 393.251 ns/op
+Iteration   5: 364.233 ns/op
+Iteration   6: 415.009 ns/op
+Iteration   7: 468.357 ns/op
+Iteration   8: 338.761 ns/op
+Iteration   9: 463.513 ns/op
+Iteration  10: 415.037 ns/op
+Iteration  11: 321.793 ns/op
+Iteration  12: 399.287 ns/op
+Iteration  13: 465.627 ns/op
+Iteration  14: 440.006 ns/op
+Iteration  15: 448.482 ns/op
+Iteration  16: 609.140 ns/op
+Iteration  17: 499.988 ns/op
+Iteration  18: 491.382 ns/op
+Iteration  19: 451.590 ns/op
+Iteration  20: 384.370 ns/op
  */
 
 @State(Scope.Benchmark) public class TaskExecTest {
@@ -243,7 +243,7 @@ Iteration  20: 700.935 ns/op
         }
     }
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main0(String[] args) throws InterruptedException {
         new TaskExecTest().setup();
 
         // Latency tests
@@ -399,7 +399,7 @@ Iteration  20: 700.935 ns/op
     //@Param({ "1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024" })
     private int cpuTokens;
 
-    public static void main0(String... args) throws RunnerException {
+    public static void main(String... args) throws RunnerException {
         Options opt = new OptionsBuilder().include(".*" + TaskExecTest.class.getSimpleName() + ".*") // CLASS
                 .timeUnit(TimeUnit.NANOSECONDS).mode(Mode.AverageTime).warmupIterations(20)
                 .warmupTime(TimeValue.milliseconds(10))              // ALLOWED TIME
