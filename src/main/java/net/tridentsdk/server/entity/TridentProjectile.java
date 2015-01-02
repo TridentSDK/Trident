@@ -96,7 +96,8 @@ public abstract class TridentProjectile extends TridentEntity implements Project
                                                     .multiply(i)
                                                     .asLocation(getLocation().world())
                                                     .tile();
-                                            if (newTile.substance() != Substance.AIR) impalable[0] = newTile;
+                                            if (newTile.substance() != Substance.AIR)
+                                                impalable[0] = newTile.asImpalable();
                                         }
                                     }
                                 }

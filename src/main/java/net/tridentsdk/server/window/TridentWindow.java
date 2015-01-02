@@ -116,9 +116,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
     @Override
     public void setSlot(int index, Item value) {
-        Item[] contents = this.contents;
         contents[index] = value;
-        Item[] read = this.contents; // Flush caches, make entire array visible
+        this.contents = this.contents; // Flush caches, make entire array visible
 
         PacketPlayOutSetSlot setSlot = new PacketPlayOutSetSlot();
         setSlot.set("windowId", getId()).set("slot", (short) index).set("item", new Slot(value));

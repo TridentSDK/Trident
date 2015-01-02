@@ -17,31 +17,21 @@
 
 package net.tridentsdk.server.world;
 
-import com.google.common.base.Function;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterators;
-import com.google.common.collect.Sets;
 import net.tridentsdk.Coordinates;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.base.Tile;
 import net.tridentsdk.docs.InternalUseOnly;
-import net.tridentsdk.entity.Entity;
-import net.tridentsdk.entity.projectile.Projectile;
-import net.tridentsdk.factory.Factories;
+import net.tridentsdk.entity.decorate.Impalable;
+import net.tridentsdk.server.entity.decorate.DecoratedImpalable;
+import net.tridentsdk.server.entity.decorate.Decorator;
 import net.tridentsdk.util.Vector;
-
-import javax.annotation.Nullable;
-import java.lang.ref.WeakReference;
-import java.util.Collection;
-import java.util.Set;
 
 public class TridentTile implements Tile {
     private final Coordinates location;
     /**
      * Describes projectile logic
      */
-    private final Set<WeakReference<Projectile>> projectiles = Sets.newSetFromMap(
-            Factories.collect().<WeakReference<Projectile>, Boolean>createMap());
+    private final DecoratedImpalable impalable = Decorator.newImpalable(false);
     /**
      * The type for this block
      */
@@ -102,49 +92,7 @@ public class TridentTile implements Tile {
     }
 
     @Override
-    public boolean isImpaledEntity() {
-        return false;
-    }
-
-    @Override
-    public boolean isImpaledTile() {
-        return true;
-    }
-
-    @Override
-    public Entity impaledEntity() {
-        return null;
-    }
-
-    @Override
-    public Tile impaledTile() {
-        return this;
-    }
-
-    @Override
-    public void put(Projectile projectile) {
-        this.projectiles.add(new WeakReference<>(projectile));
-    }
-
-    @Override
-    public boolean remove(Projectile projectile) {
-        return this.projectiles.remove(new WeakReference<>(projectile));
-    }
-
-    @Override
-    public void clear() {
-        this.projectiles.clear();
-    }
-
-    @Override
-    public Collection<Projectile> projectiles() {
-        return new ImmutableSet.Builder<Projectile>().addAll(
-                Iterators.transform(projectiles.iterator(), new Function<WeakReference<Projectile>, Projectile>() {
-                                        @Nullable
-                                        @Override
-                                        public Projectile apply(WeakReference<Projectile> projectileWeakReference) {
-                                            return projectileWeakReference.get();
-                                        }
-                                    })).build();
+    public Impalable asImpalable() {
+        return this.impalable;
     }
 }

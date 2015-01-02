@@ -22,6 +22,7 @@ import net.tridentsdk.Coordinates;
 import net.tridentsdk.base.Tile;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.LivingEntity;
+import net.tridentsdk.entity.decorate.Impalable;
 import net.tridentsdk.entity.projectile.Projectile;
 import net.tridentsdk.server.entity.decorate.DecoratedImpalable;
 import net.tridentsdk.server.entity.decorate.Decorator;
@@ -113,48 +114,8 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
     }
 
     @Override
-    public boolean isImpaledEntity() {
-        return impalable.isImpaledEntity();
-    }
-
-    @Override
-    public boolean isImpaledTile() {
-        return impalable.isImpaledTile();
-    }
-
-    @Override
-    public Entity impaledEntity() {
-        return impalable.impaledEntity();
-    }
-
-    @Override
-    public Tile impaledTile() {
-        return null;
-    }
-
-    @Override
-    public void put(Projectile projectile) {
-        if (dead) return;
-        impalable.put(projectile);
-
-        // Response
-        impalable.applyTo(this);
-    }
-
-    @Override
-    public boolean remove(Projectile projectile) {
-        return impalable.remove(projectile);
-    }
-
-    @Override
-    public void clear() {
-        // TODO remove the projectile entities
-        impalable.clear();
-    }
-
-    @Override
-    public List<Projectile> projectiles() {
-        return impalable.projectiles();
+    public Impalable asImpalable() {
+        return impalable;
     }
 
     @Override
