@@ -36,12 +36,6 @@ public class LatchInitTest extends AbstractTest {
 
     @Before
     public void setup() {
-        Factories.init(new ConfigFactory() {
-            @Override
-            public JsonConfig serverConfig() {
-                return new JsonConfig(Paths.get("/topkek"));
-            }
-        });
         Factories.init(new CollectFactory() {
             @Override
             public <K, V> ConcurrentMap<K, V> createMap() {

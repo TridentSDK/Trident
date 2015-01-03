@@ -169,7 +169,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
         private final Runnable runner;
 
         private volatile long interval;
-        private volatile long run = 0;
+        private long run = 0L;
 
         public ScheduledTaskImpl(TridentPlugin plugin, SchedulerType type, final TridentRunnable runnable, long step) {
             this.plugin = plugin;

@@ -138,12 +138,6 @@ Trident is 10x faster than Bukkit
 @State(Scope.Benchmark) public class SchedulerTest {
     static {
         TridentLogger.init();
-        Factories.init(new ConfigFactory() {
-            @Override
-            public JsonConfig serverConfig() {
-                return new JsonConfig(Paths.get("/topkek"));
-            }
-        });
         Factories.init(new CollectFactory() {
             @Override
             public <K, V> ConcurrentMap<K, V> createMap() {

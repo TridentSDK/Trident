@@ -172,18 +172,19 @@ import static com.google.common.collect.Lists.newArrayList;
             TridentLogger.log("Server started!");
             f.channel().closeFuture().sync();
         } catch (InterruptedException e) {
-            //This exception is caught if server is closed.
+            // This exception is caught if server is closed.
         } catch (Exception e) {
             TridentLogger.error("Server closed, error occurred");
             TridentLogger.error(e);
+            Trident.shutdown();
         } finally {
-            TridentLogger.error("Server shutting down...");
-            TridentServer.getInstance().shutdown();
+            // Clean-up method just in case
+            close();
         }
     }
 
     /**
-     * Shuts down the server by closing the backed event loops
+     * Shuts down the backed event loops
      */
     public static void close() {
         //Correct way to close the socket and shut down the server

@@ -69,12 +69,6 @@ Benchmark results: http://bit.ly/1B3psZv
         Factories.init(TridentScheduler.create());
 
         final JsonConfig innerConfig = new JsonConfig(new File("toplel"));
-        Factories.init(new ConfigFactory() {
-            @Override
-            public JsonConfig serverConfig() {
-                return innerConfig;
-            }
-        });
     }
 
     @Param({ "1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024" })

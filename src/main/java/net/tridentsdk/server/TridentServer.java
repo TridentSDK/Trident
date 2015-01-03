@@ -139,9 +139,6 @@ import java.util.UUID;
     @Override
     public void shutdown() {
         //TODO: Cleanup stuff...
-        TridentLogger.log("Shutting down server connections...");
-        TridentStart.close();
-
         TridentLogger.log("Shutting down plugins...");
         for (TridentPlugin plugin : getPluginHandler().getPlugins())
             getPluginHandler().disable(plugin);
@@ -155,6 +152,9 @@ import java.util.UUID;
         TridentLogger.log("Shutting down thread pools...");
         for (ConcurrentTaskExecutor<?> executor : ConcurrentTaskExecutor.executors())
             executor.shutdown();
+
+        TridentLogger.log("Shutting down server connections...");
+        TridentStart.close();
 
         TridentLogger.log("Server shutdown successfully.");
     }

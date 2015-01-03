@@ -23,12 +23,6 @@ import java.util.concurrent.ConcurrentMap;
 public class CacheTest extends AbstractTest {
     static {
         TridentLogger.init();
-        Factories.init(new ConfigFactory() {
-            @Override
-            public JsonConfig serverConfig() {
-                return new JsonConfig(Paths.get("/topkek"));
-            }
-        });
         Factories.init(new CollectFactory() {
             @Override
             public <K, V> ConcurrentMap<K, V> createMap() {

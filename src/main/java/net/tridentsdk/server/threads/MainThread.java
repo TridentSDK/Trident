@@ -18,6 +18,8 @@
 package net.tridentsdk.server.threads;
 
 import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.factory.Factories;
+import net.tridentsdk.server.TridentScheduler;
 import net.tridentsdk.server.player.TridentPlayer;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -102,7 +104,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
         // TODO: check the worlds to make sure they're not suffering
 
-        //((TridentScheduler) Factories.tasks()).tick();
+        ((TridentScheduler) Factories.tasks()).tick();
 
         this.calcAndWait((int) (System.currentTimeMillis() - startTime));
     }
