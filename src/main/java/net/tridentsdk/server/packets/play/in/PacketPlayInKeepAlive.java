@@ -22,8 +22,8 @@ import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
-import net.tridentsdk.server.packets.play.out.PacketPlayOutKeepAlive;
 import net.tridentsdk.server.player.PlayerConnection;
+import net.tridentsdk.util.TridentLogger;
 
 /**
  * Sent by the packet to keep the connection alive
@@ -50,14 +50,10 @@ public class PacketPlayInKeepAlive extends InPacket {
     @Override
     public void handleReceived(ClientConnection connection) {
         PlayerConnection pc = (PlayerConnection) connection;
-        pc.markSentKeepAlive(false);
 
-        System.out.println("Received keep alive");
+        if(!pc.hasSentKeepAlive())
+            return;
 
-        // Respond with the same ID
-        pc.sendPacket(new PacketPlayOutKeepAlive().set("keepAliveId", keepAliveId));
-
-        // Player ticks and checks this flag
-        //if (pc.getStage().equals(Protocol.ClientStage.PLAY)) pc.getPlayer().sendChunks(1);
+        pc.handleKeepAlive(this);
     }
 }

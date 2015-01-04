@@ -74,6 +74,10 @@ import javax.annotation.concurrent.ThreadSafe;
 
         try {
             packet.handleReceived(this.connection);
+
+            if(connection instanceof PlayerConnection) {
+                ((PlayerConnection) connection).resetReadCounter();
+            }
         } catch (Exception ex) {
             TridentLogger.error(ex);
 

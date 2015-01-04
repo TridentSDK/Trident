@@ -24,9 +24,14 @@ import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
 
+import javax.xml.bind.DatatypeConverter;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.zip.Deflater;
 
 /**
@@ -54,6 +59,9 @@ public class PacketEncoder extends MessageToByteEncoder<ByteBuf> {
             Codec.writeVarInt32(out, msg.readableBytes());
             out.writeBytes(msg);
         }
+
+        Files.write(Paths.get("lastpacket.txt"), Arrays.asList(DatatypeConverter.printHexBinary(Codec.asArray(out.copy()))),
+                Charset.defaultCharset());
     }
 
     private void sendDecompressed(ByteBuf msg, ByteBuf out) {

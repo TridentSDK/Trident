@@ -181,7 +181,7 @@ public class ClientConnection {
         // Create new ByteBuf
         ByteBuf buffer = this.channel.alloc().buffer();
 
-        System.out.println("Sent " + packet.getClass().getSimpleName());
+        TridentLogger.log("Sent " + packet.getClass().getSimpleName());
 
         Codec.writeVarInt32(buffer, packet.getId());
         packet.encode(buffer);

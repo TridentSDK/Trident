@@ -17,6 +17,7 @@
 
 package net.tridentsdk.server.player;
 
+import net.tridentsdk.Trident;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.living.Player;
@@ -102,10 +103,10 @@ import java.util.UUID;
                 for (Entity entity : p.getWorld().entities()) {
                     // Register mob, packet sent to new player
                 }
+
+                ThreadsHandler.playerExecutor().assign(p);
             }
         });
-
-        ThreadsHandler.playerExecutor().assign(p);
 
         return p;
     }
@@ -130,21 +131,8 @@ import java.util.UUID;
             @Override
             public void run() {
                 TridentPlayer.super.tick();
-                long keepAlive = ticksExisted.get();
-                boolean keepAliveSent = connection.hasSentKeepAlive();
 
-                if (keepAlive >= 300L && !keepAliveSent) {
-                    // send Keep Alive packet if not sent already
-                    connection.sendPacket(new PacketPlayOutKeepAlive());
-
-                    ticksExisted.set(0);
-                    connection.markSentKeepAlive(true);
-                    return;
-                } else if (keepAlive >= 600L) {
-                    // kick the player for not responding to the keep alive within 30 seconds/600 ticks
-                    kickPlayer("Timed out!");
-                }
-
+                connection.tick();
                 ticksExisted.incrementAndGet();
             }
         });
