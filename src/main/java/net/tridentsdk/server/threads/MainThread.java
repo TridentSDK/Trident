@@ -52,6 +52,7 @@ import java.util.concurrent.atomic.AtomicInteger;
      * @param ticksPerSecond the amount of heartbeats per second
      */
     public MainThread(int ticksPerSecond) {
+        super("Trident - Tick Thread");
         this.zeroBase = System.currentTimeMillis();
         instance = this;
         this.ticksPerSecond = ticksPerSecond;

@@ -33,9 +33,9 @@ import java.util.Collection;
  * @author The TridentSDK Team
  */
 @ThreadSafe public final class ThreadsHandler implements ThreadFactory {
-    private static final ExecutorFactory<Entity> entities = ConcurrentTaskExecutor.create(2);
-    private static final ExecutorFactory<Player> players = ConcurrentTaskExecutor.create(4);
-    private static final ExecutorFactory<World> worlds = ConcurrentTaskExecutor.create(4);
+    private static final ExecutorFactory<Entity> entities = ConcurrentTaskExecutor.create(2, "Entities");
+    private static final ExecutorFactory<Player> players = ConcurrentTaskExecutor.create(4, "Players");
+    private static final ExecutorFactory<World> worlds = ConcurrentTaskExecutor.create(4, "Worlds");
 
     private ThreadsHandler() {
     }
@@ -55,7 +55,6 @@ import java.util.Collection;
      */
     @InternalUseOnly
     public static void stopAll() {
-        BackgroundTaskExecutor.SERVICE.shutdownNow();
         MainThread.getInstance().interrupt();
 
         // TODO safely add hooks
@@ -140,7 +139,7 @@ import java.util.Collection;
     }
 
     @Override
-    public <T> ExecutorFactory<T> executor(int threads) {
-        return ConcurrentTaskExecutor.create(threads);
+    public <T> ExecutorFactory<T> executor(int threads, String name) {
+        return ConcurrentTaskExecutor.create(threads, name);
     }
 }

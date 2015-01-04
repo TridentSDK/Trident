@@ -28,7 +28,10 @@ import net.tridentsdk.factory.ExecutorFactory;
 import net.tridentsdk.util.TridentLogger;
 
 import javax.annotation.concurrent.ThreadSafe;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReferenceArray;
@@ -78,6 +81,7 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
 
     private final AtomicReferenceArray<ThreadWorker> executors;
     private final int scale;
+    private final String name;
     private final AtomicInteger emergencyScale = new AtomicInteger(1);
 
     private final Callable<ThreadWorker> obtainWorker = new Callable<ThreadWorker>() {
@@ -93,12 +97,13 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
     // It is better to have it slow now to cache correctly than time later to doubly receive
     private final ConcurrentCache<E, ThreadWorker> assigned = ConcurrentCache.create();
 
-    private ConcurrentTaskExecutor(int scale) {
+    private ConcurrentTaskExecutor(int scale, String name) {
         this.scale = scale;
+        this.name = name;
         executors = new AtomicReferenceArray<>(scale + EMERGENCY_MARGIN);
 
         for (int i = 0; i < scale; i++) {
-            executors.set(i, new ThreadWorker(i).startWorker());
+            executors.set(i, new ThreadWorker(i, name).startWorker());
         }
 
         state = RUNNING;
@@ -107,7 +112,7 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
     private static int calcTaskLen() {
         int objectSize = 4;
         if (ARCH_64) objectSize = 8;
-        long max = (Runtime.getRuntime().freeMemory() / objectSize) / 13; // TODO adjust thread count
+        long max = (Runtime.getRuntime().freeMemory() / objectSize) / 15; // TODO adjust thread count
         int len;
         if (max > (long) Integer.MAX_VALUE)
             len = Integer.MAX_VALUE - 8;
@@ -122,8 +127,8 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
      * @param scale the threads to use
      * @return a new concurrent task executor pool
      */
-    public static <E> ConcurrentTaskExecutor<E> create(int scale) {
-        ConcurrentTaskExecutor<E> executor = new ConcurrentTaskExecutor<>(scale);
+    public static <E> ConcurrentTaskExecutor<E> create(int scale, String name) {
+        ConcurrentTaskExecutor<E> executor = new ConcurrentTaskExecutor<>(scale, name);
         EXECUTORS.add(executor);
         return executor;
     }
@@ -257,7 +262,7 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
         if (state < SHUTTING_DOWN) {
             if (index > this.scale) {
                 executors.set(index, new OverflowWorker(index).startWorker(remaining));
-            } else executors.set(index, new ThreadWorker(index).startWorker(remaining));
+            } else executors.set(index, new ThreadWorker(index, name).startWorker(remaining));
         } else executors.set(index, null);
 
         remaining.clear();
@@ -267,7 +272,7 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
     // The normal Java executor uses a LinkedBlockingQueue
     // which fluctuates at 600-700 nanos on the test machine
     // using an ArrayBlockingQueue can speed up the insert
-    // which fluctuates between 180-250 nanos, 3 times gain
+    // so that the performance equates to that of the Java impl
     // However, using an ArrayBlockingQueue incurs significant
     // risk of task overloading and memory problems
     // To counter this, two queues are implemented, where tasks
@@ -278,7 +283,11 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
 
         private final int index;
 
-        private ThreadWorker(int index) {
+        private ThreadWorker(int index, String name) {
+            // This is only safe because it is constructed in the CTE factory, otherwise the size
+            // may change throughout the threads as the executors expand
+            // tip - don't try this at home!
+            super("Trident - CTE " + EXECUTORS.size() + " Thread " + index + " - " + name);
             this.index = index;
         }
 
@@ -290,6 +299,13 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
         public ThreadWorker startWorker(Queue<Runnable> tasks) {
             this.tasks.addAll(tasks);
             return startWorker();
+        }
+
+        @Override
+        public void interrupt() {
+            tasks.clear();
+            overflow.clear();
+            super.interrupt();
         }
 
         // Remove overflow queue usage
@@ -352,7 +368,7 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
 
     private class OverflowWorker extends ThreadWorker {
         private OverflowWorker(int index) {
-            super(index);
+            super(index, name + " (Overflow)");
         }
 
         @Override
@@ -374,11 +390,13 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
                     task.run();
 
                     int cycles = 0;
-                    while (tasks.peek() == null) // Wait for new tasks
-                        if (cycles++ == 1024) {  // No overflow tasks after 1024 cycles, exit
+                    while (tasks.peek() == null) { // Wait for new tasks
+                        Thread.yield();
+                        if (cycles++ == 1024) {    // No overflow tasks after 1024 cycles, exit
                             interrupt();
                             break;
                         }
+                    }
                 } catch (InterruptedException e) {
                     return;
                 } catch (Exception e) {

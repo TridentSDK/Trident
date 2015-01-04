@@ -24,7 +24,6 @@ import net.tridentsdk.concurrent.TaskExecutor;
 import net.tridentsdk.config.JsonConfig;
 import net.tridentsdk.event.Listener;
 import net.tridentsdk.factory.CollectFactory;
-import net.tridentsdk.factory.ConfigFactory;
 import net.tridentsdk.factory.ExecutorFactory;
 import net.tridentsdk.factory.Factories;
 import net.tridentsdk.plugin.TridentPlugin;
@@ -51,7 +50,7 @@ Benchmark results: http://bit.ly/1B3psZv
     private static final EventHandler HANDLER = new EventHandler();
     private static final Listener LISTENER = new EventListener();
     private static final net.tridentsdk.event.Event EVENT = new Event();
-    private static final ExecutorFactory<?> EXEC = Factories.threads().executor(2);
+    private static final ExecutorFactory<?> EXEC = Factories.threads().executor(2, "EventBusPerformnace");
     private static final TaskExecutor EXECUTOR = EXEC.scaledThread();
     // Cannot be initialized first, else whole class cannot be loaded completely
     private final net.tridentsdk.event.EventHandler EVENT_MANAGER = net.tridentsdk.event.EventHandler.create();

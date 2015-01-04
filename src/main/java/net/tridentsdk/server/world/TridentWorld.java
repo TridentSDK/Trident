@@ -24,13 +24,13 @@ import net.tridentsdk.Difficulty;
 import net.tridentsdk.GameMode;
 import net.tridentsdk.base.Tile;
 import net.tridentsdk.entity.Entity;
+import net.tridentsdk.factory.Factories;
 import net.tridentsdk.meta.nbt.*;
 import net.tridentsdk.server.player.OfflinePlayer;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.*;
 
 import java.io.*;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -42,7 +42,7 @@ public class TridentWorld implements World {
     private static final int MAX_CHUNKS = 49; // TODO changed temp for packet compatibility
 
     private final Map<ChunkLocation, TridentChunk> loadedChunks = new ConcurrentHashMapV8<>();
-    private final Set<Entity> entities = Collections.newSetFromMap(new ConcurrentHashMapV8<Entity, Boolean>());
+    private final Set<Entity> entities = Factories.collect().createSet();
 
     private final String name;
     private final Random random;

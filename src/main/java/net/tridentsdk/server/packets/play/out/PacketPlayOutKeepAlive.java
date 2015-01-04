@@ -21,8 +21,6 @@ import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 public class PacketPlayOutKeepAlive extends OutPacket {
 
     protected int keepAliveId = -1;

@@ -23,7 +23,6 @@ import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.player.PlayerConnection;
-import net.tridentsdk.util.TridentLogger;
 
 /**
  * Sent by the packet to keep the connection alive

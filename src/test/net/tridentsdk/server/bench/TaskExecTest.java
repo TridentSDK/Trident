@@ -34,7 +34,10 @@ import org.openjdk.jmh.runner.options.TimeValue;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Collection;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /*
 # Run progress: 0.00% complete, ETA 00:00:01
@@ -222,7 +225,7 @@ Iteration  20: 384.370 ns/op
 
     @Setup
     public void setup() {
-        TASK_EXECUTOR = ConcurrentTaskExecutor.create(13);
+        TASK_EXECUTOR = ConcurrentTaskExecutor.create(13, "TaskExecTest");
         EXECUTOR = TASK_EXECUTOR.scaledThread();
     }
 

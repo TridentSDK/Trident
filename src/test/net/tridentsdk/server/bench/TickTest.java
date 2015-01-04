@@ -1,9 +1,7 @@
 package net.tridentsdk.server.bench;
 
 import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
-import net.tridentsdk.config.JsonConfig;
 import net.tridentsdk.factory.CollectFactory;
-import net.tridentsdk.factory.ConfigFactory;
 import net.tridentsdk.factory.Factories;
 import net.tridentsdk.server.TridentScheduler;
 import net.tridentsdk.server.threads.MainThread;
@@ -17,7 +15,6 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 import org.openjdk.jmh.runner.options.TimeValue;
 import org.openjdk.jmh.runner.options.VerboseMode;
 
-import java.nio.file.Paths;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 
@@ -53,7 +50,13 @@ tick 5.0183914333333336E7
     @Param({ "1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024" })
     private int cpuTokens;
 
-    public static void main(String[] args) throws RunnerException {
+    public static void main(String[] args) {
+        for (int i = 0; i < 100; i++) {
+            THREAD.doRun();
+        }
+    }
+
+    public static void main0(String[] args) throws RunnerException {
         Options opt = new OptionsBuilder().include(".*" + TickTest.class.getSimpleName() + ".*") // CLASS
                 .timeUnit(TimeUnit.NANOSECONDS).mode(Mode.AverageTime).warmupIterations(20).warmupTime(
                         TimeValue.milliseconds(50))              // ALLOWED TIME

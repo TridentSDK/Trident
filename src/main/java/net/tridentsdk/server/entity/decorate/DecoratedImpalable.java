@@ -20,12 +20,11 @@ package net.tridentsdk.server.entity.decorate;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterators;
-import com.google.common.collect.Sets;
-import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
 import net.tridentsdk.base.Tile;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.decorate.Impalable;
 import net.tridentsdk.entity.projectile.Projectile;
+import net.tridentsdk.factory.Factories;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
@@ -34,8 +33,7 @@ import java.util.List;
 import java.util.Set;
 
 @ThreadSafe public abstract class DecoratedImpalable implements Impalable {
-    private final Set<WeakReference<Projectile>> projectiles = Sets.newSetFromMap(
-            new ConcurrentHashMapV8<WeakReference<Projectile>, Boolean>());
+    private final Set<WeakReference<Projectile>> projectiles = Factories.collect().createSet();
     private volatile Entity impaledEntity;
     private volatile Tile impaledTile;
 

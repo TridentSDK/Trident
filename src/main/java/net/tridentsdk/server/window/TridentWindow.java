@@ -19,9 +19,9 @@ package net.tridentsdk.server.window;
 
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
 import net.tridentsdk.docs.Volatile;
 import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.factory.Factories;
 import net.tridentsdk.server.data.Slot;
 import net.tridentsdk.server.packets.play.in.PacketPlayInPlayerCloseWindow;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutOpenWindow;
@@ -33,7 +33,6 @@ import net.tridentsdk.window.inventory.InventoryType;
 import net.tridentsdk.window.inventory.Item;
 
 import javax.annotation.concurrent.ThreadSafe;
-import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -52,7 +51,7 @@ import java.util.concurrent.atomic.AtomicInteger;
     private final String name;
     private final int length;
     private final InventoryType type;
-    private final Set<Player> users = Collections.newSetFromMap(new ConcurrentHashMapV8<Player, Boolean>());
+    private final Set<Player> users = Factories.collect().createSet();
     @Volatile(policy = "Do not write individual elements", reason = "Thread safe array", fix = "See Line 110")
     private volatile Item[] contents;
 

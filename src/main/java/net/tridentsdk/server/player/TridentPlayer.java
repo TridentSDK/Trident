@@ -17,7 +17,6 @@
 
 package net.tridentsdk.server.player;
 
-import net.tridentsdk.Trident;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.living.Player;
@@ -31,6 +30,7 @@ import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.packets.play.out.*;
 import net.tridentsdk.server.threads.ThreadsHandler;
+import net.tridentsdk.server.window.TridentWindow;
 import net.tridentsdk.server.world.TridentChunk;
 import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.util.TridentLogger;
@@ -99,12 +99,10 @@ import java.util.UUID;
                 // Wait for response
                 Slot[] slots = new Slot[44];
                 slots[43] = new Slot(new Item(Substance.APPLE));
-                //p.connection.sendPacket(new PacketPlayOutWindowItems().set("windowId", 0).set("slots", slots));
+                p.connection.sendPacket(new PacketPlayOutWindowItems().set("windowId", 0).set("slots", slots));
                 for (Entity entity : p.getWorld().entities()) {
                     // Register mob, packet sent to new player
                 }
-
-                ThreadsHandler.playerExecutor().assign(p);
             }
         });
 

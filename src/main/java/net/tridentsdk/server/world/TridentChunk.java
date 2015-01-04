@@ -23,6 +23,7 @@ import net.tridentsdk.base.Tile;
 import net.tridentsdk.meta.nbt.*;
 import net.tridentsdk.server.data.ChunkMetaBuilder;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutMapChunkBulk;
+import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.Chunk;
 import net.tridentsdk.world.ChunkLocation;
 import net.tridentsdk.world.ChunkSnapshot;
@@ -132,6 +133,11 @@ public class TridentChunk implements Chunk {
 
         for (int i = 0; i < 256; i += 1) {
             data[pos++] = 0;
+        }
+
+        if (pos != size) {
+            TridentLogger.error(new IllegalArgumentException("Pos: " + pos + " does not equal size: " + size));
+            return null;
         }
 
         chunkBulk.set("meta", new ChunkMetaBuilder().bitmap((short) bitmask).location(location));

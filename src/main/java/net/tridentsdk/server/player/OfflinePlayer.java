@@ -17,7 +17,6 @@
 
 package net.tridentsdk.server.player;
 
-import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
 import net.tridentsdk.Coordinates;
 import net.tridentsdk.GameMode;
 import net.tridentsdk.entity.Entity;
@@ -25,6 +24,7 @@ import net.tridentsdk.entity.EntityProperties;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.entity.projectile.Projectile;
 import net.tridentsdk.event.entity.EntityDamageEvent;
+import net.tridentsdk.factory.Factories;
 import net.tridentsdk.meta.nbt.*;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.data.Slot;
@@ -37,14 +37,12 @@ import net.tridentsdk.world.Dimension;
 import net.tridentsdk.world.World;
 
 import javax.annotation.concurrent.ThreadSafe;
-import java.util.Collections;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 
 @ThreadSafe public class OfflinePlayer extends TridentInventoryHolder implements Player {
-    private static final Set<OfflinePlayer> players = Collections.newSetFromMap(
-            new ConcurrentHashMapV8<OfflinePlayer, Boolean>());
+    private static final Set<OfflinePlayer> players = Factories.collect().createSet();
 
     protected String name;
     protected Dimension dimension;

@@ -78,7 +78,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 @ThreadSafe public class TridentScheduler implements TaskFactory {
     private final Queue<ScheduledTaskImpl> taskList = new ConcurrentLinkedQueue<>();
-    private final ExecutorFactory<?> taskExecutor = ConcurrentTaskExecutor.create(3);
+    private final ExecutorFactory<?> taskExecutor = ConcurrentTaskExecutor.create(3, "Scheduler");
 
     private TridentScheduler() {
     }
@@ -114,6 +114,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
     public void stop() {
         taskExecutor.shutdown();
+        taskList.clear();
     }
 
     @Override

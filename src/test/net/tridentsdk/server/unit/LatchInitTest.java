@@ -5,9 +5,7 @@ import com.google.code.tempusfugit.concurrency.RepeatingRule;
 import com.google.code.tempusfugit.concurrency.annotations.Concurrent;
 import com.google.code.tempusfugit.concurrency.annotations.Repeating;
 import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
-import net.tridentsdk.config.JsonConfig;
 import net.tridentsdk.factory.CollectFactory;
-import net.tridentsdk.factory.ConfigFactory;
 import net.tridentsdk.factory.Factories;
 import net.tridentsdk.server.TridentScheduler;
 import net.tridentsdk.server.threads.ThreadsHandler;
@@ -15,7 +13,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import java.nio.file.Paths;
 import java.util.concurrent.ConcurrentMap;
 
 public class LatchInitTest extends AbstractTest {

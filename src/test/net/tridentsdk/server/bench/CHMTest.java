@@ -17,8 +17,8 @@
 
 package net.tridentsdk.server.bench;
 
-import com.google.common.collect.Sets;
 import io.netty.util.internal.ConcurrentSet;
+import net.tridentsdk.factory.Factories;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
 import org.openjdk.jmh.runner.Runner;
@@ -29,7 +29,6 @@ import org.openjdk.jmh.runner.options.TimeValue;
 import org.openjdk.jmh.runner.options.VerboseMode;
 
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 /*
@@ -37,7 +36,7 @@ Benchmark results: http://bit.ly/1y90tml
  */
 @State(Scope.Benchmark) public class CHMTest {
     private static final Set<Object> SET = new ConcurrentSet<>();
-    private static final Set<Object> SET0 = Sets.newSetFromMap(new ConcurrentHashMap<Object, Boolean>());
+    private static final Set<Object> SET0 = Factories.collect().createSet();
 
     private static final Object OBJECT = new Object();
     @Param({ "1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024" })
