@@ -22,6 +22,7 @@ import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 
 import javax.annotation.concurrent.ThreadSafe;
+import java.math.BigInteger;
 import java.nio.charset.Charset;
 
 /**
@@ -52,6 +53,15 @@ import java.nio.charset.Charset;
         buf.readBytes(bytes);
 
         return new String(bytes, CHARSET);
+    }
+
+    /**
+     * Gets the byte length of provided integer
+     * @param integer integer to get the byte length of
+     * @return byte length of the integer
+     */
+    public static int sizeOf(int integer) {
+        return BigInteger.valueOf(integer).toByteArray().length;
     }
 
     /**

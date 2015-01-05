@@ -94,6 +94,6 @@ public class PacketPlayInPlayerMove extends InPacket {
 
         // set fields
 
-        TridentPlayer.sendAll(move);
+        //TridentPlayer.sendAll(move);
     }
 }

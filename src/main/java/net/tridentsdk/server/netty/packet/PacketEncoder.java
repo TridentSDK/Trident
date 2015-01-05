@@ -65,7 +65,7 @@ public class PacketEncoder extends MessageToByteEncoder<ByteBuf> {
     }
 
     private void sendDecompressed(ByteBuf msg, ByteBuf out) {
-        Codec.writeVarInt32(out, msg.readableBytes() + BigInteger.valueOf(0).toByteArray().length);
+        Codec.writeVarInt32(out, msg.readableBytes() + Codec.sizeOf(0));
         Codec.writeVarInt32(out, 0);
         out.writeBytes(msg);
     }
@@ -101,7 +101,7 @@ public class PacketEncoder extends MessageToByteEncoder<ByteBuf> {
 
         deflater.end();
 
-        Codec.writeVarInt32(out, afterCompress + BigInteger.valueOf(length).toByteArray().length);
+        Codec.writeVarInt32(out, afterCompress + Codec.sizeOf(length));
         Codec.writeVarInt32(out, length);
         out.writeBytes(compressed.toByteArray());
     }

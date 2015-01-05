@@ -49,10 +49,19 @@ public class PacketDecoder extends ReplayingDecoder<Void> {
     @Override
     protected void decode(ChannelHandlerContext context, ByteBuf buf, List<Object> objects) throws Exception {
         boolean compressed = connection.isCompressionEnabled();
+        int fullLength = -1;
+
+        if(compressed) {
+            fullLength = Codec.readVarInt32(buf);
+        }
+
         this.rawLength = Codec.readVarInt32(buf);
 
-        if (!(compressed) || rawLength < TridentServer.getInstance().getCompressionThreshold()) {
-            ByteBuf data = buf.readBytes(this.rawLength);
+        if(rawLength == 0)
+            compressed = false;
+
+        if (!(compressed) && rawLength < TridentServer.getInstance().getCompressionThreshold()) {
+            ByteBuf data = buf.readBytes((fullLength == -1) ? rawLength : (fullLength - Codec.sizeOf(0)));
 
             objects.add(new PacketData(data));
             return;

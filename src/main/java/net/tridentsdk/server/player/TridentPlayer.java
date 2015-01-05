@@ -17,24 +17,20 @@
 
 package net.tridentsdk.server.player;
 
-import net.tridentsdk.base.Substance;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.factory.Factories;
 import net.tridentsdk.meta.nbt.CompoundTag;
 import net.tridentsdk.server.TridentServer;
-import net.tridentsdk.server.data.Slot;
 import net.tridentsdk.server.entity.EntityBuilder;
 import net.tridentsdk.server.entity.ParameterValue;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.packets.play.out.*;
 import net.tridentsdk.server.threads.ThreadsHandler;
-import net.tridentsdk.server.window.TridentWindow;
 import net.tridentsdk.server.world.TridentChunk;
 import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.util.TridentLogger;
-import net.tridentsdk.window.inventory.Item;
 import net.tridentsdk.world.LevelType;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -42,7 +38,8 @@ import java.util.Collection;
 import java.util.Locale;
 import java.util.UUID;
 
-@ThreadSafe public class TridentPlayer extends OfflinePlayer {
+@ThreadSafe
+public class TridentPlayer extends OfflinePlayer {
     private final PlayerConnection connection;
     private volatile Locale locale;
 
@@ -88,18 +85,17 @@ import java.util.UUID;
                 p.connection.sendPacket(PacketPlayOutPluginMessage.VANILLA_CHANNEL);
                 p.connection.sendPacket(
                         new PacketPlayOutServerDifficulty().set("difficulty", p.getWorld().difficulty()));
+
+                p.sendChunks(7);
+
                 p.connection.sendPacket(new PacketPlayOutSpawnPosition().set("location", p.getSpawnLocation()));
                 p.connection.sendPacket(p.abilities.asPacket());
                 p.connection.sendPacket(new PacketPlayOutPlayerCompleteMove().set("location", p.getSpawnLocation())
                                                 .set("flags", (byte) 0));
-                p.sendChunks(3);
 
                 p.connection.sendPacket(PacketPlayOutStatistics.DEFAULT_STATISTIC);
 
                 // Wait for response
-                Slot[] slots = new Slot[44];
-                slots[43] = new Slot(new Item(Substance.APPLE));
-                p.connection.sendPacket(new PacketPlayOutWindowItems().set("windowId", 0).set("slots", slots));
                 for (Entity entity : p.getWorld().entities()) {
                     // Register mob, packet sent to new player
                 }
@@ -186,12 +182,25 @@ import java.util.UUID;
     public void sendChunks(int viewDistance) {
         int centX = ((int) Math.floor(loc.getX())) >> 4;
         int centZ = ((int) Math.floor(loc.getZ())) >> 4;
+        PacketPlayOutMapChunkBulk bulk = new PacketPlayOutMapChunkBulk();
+        int i = 0;
 
-        for (int x = (centX - viewDistance); x <= (centX + viewDistance); x += 1) {
-            for (int z = (centZ - viewDistance); z <= (centZ + viewDistance); z += 1) {
-                connection.sendPacket(((TridentChunk) getWorld().chunkAt(x, z, true)).asPacket());
+        for (int x = (centX - (viewDistance / 2)); x <= (centX + (viewDistance / 2)); x += 1) {
+            for (int z = (centZ - (viewDistance / 2)); z <= (centZ + (viewDistance / 2)); z += 1) {
+                bulk.addEntry(((TridentChunk) getWorld().chunkAt(x, z, true)).asPacket());
+
+                ++i;
+
+                if(i >= 30) { // 30 being the rough amount of chunks needed to be sent hitting the protocol limit
+                    connection.sendPacket(bulk);
+
+                    bulk = new PacketPlayOutMapChunkBulk();
+                    i = 0;
+                }
             }
         }
+
+        connection.sendPacket(bulk);
     }
 
     public void setLocale(Locale locale) {

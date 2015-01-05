@@ -107,7 +107,7 @@ import java.util.concurrent.ThreadLocalRandom;
         packet.set("keepAliveId", id);
         keepAliveId = id;
 
-        sendPacket(packet);
+        //sendPacket(packet);
         TridentLogger.log("id: " + id);
     }
 

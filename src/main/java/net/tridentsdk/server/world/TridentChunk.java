@@ -22,6 +22,8 @@ import net.tridentsdk.Coordinates;
 import net.tridentsdk.base.Tile;
 import net.tridentsdk.meta.nbt.*;
 import net.tridentsdk.server.data.ChunkMetaBuilder;
+import net.tridentsdk.server.netty.packet.OutPacket;
+import net.tridentsdk.server.packets.play.out.PacketPlayOutChunkData;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutMapChunkBulk;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.Chunk;
@@ -29,6 +31,8 @@ import net.tridentsdk.world.ChunkLocation;
 import net.tridentsdk.world.ChunkSnapshot;
 import net.tridentsdk.world.Dimension;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.List;
 
 public class TridentChunk implements Chunk {
@@ -104,8 +108,8 @@ public class TridentChunk implements Chunk {
                                         lightPopulated, terrainPopulated);
     }
 
-    public PacketPlayOutMapChunkBulk asPacket() {
-        PacketPlayOutMapChunkBulk chunkBulk = new PacketPlayOutMapChunkBulk();
+    public PacketPlayOutChunkData asPacket() {
+        PacketPlayOutChunkData packet = new PacketPlayOutChunkData();
 
         int bitmask = (1 << sections.length) - 1;
         int count = sections.length;
@@ -116,36 +120,37 @@ public class TridentChunk implements Chunk {
 
         size += count * sectionSize + 256;
 
-        byte[] data = new byte[size];
-        int pos = 0;
+        //byte[] data = new byte[size];
+        ByteArrayOutputStream data = new ByteArrayOutputStream();
+        //int pos = 0;
 
         for (ChunkSection section : sections) {
             for (byte b : section.getTypes()) {
-                data[pos++] = (byte) (b & 0xff);
-                data[pos++] = (byte) (b >> 8);
+                data.write(b & 0xff);
+                data.write(b >> 8);
             }
         }
 
         for (ChunkSection section : sections) {
-            System.arraycopy(section.blockLight, 0, data, pos, section.blockLight.length);
-            pos += section.blockLight.length;
+            try {
+                data.write(section.blockLight);
+            } catch (IOException ignored) {}
         }
 
         for (int i = 0; i < 256; i += 1) {
-            data[pos++] = 0;
+            data.write(0);
         }
 
-        if (pos != size) {
+        /*if (pos != size) {
             TridentLogger.error(new IllegalArgumentException("Pos: " + pos + " does not equal size: " + size));
             return null;
-        }
+        } */
 
-        chunkBulk.set("meta", new ChunkMetaBuilder().bitmap((short) bitmask).location(location));
-        chunkBulk.set("data", data);
-        chunkBulk.set("lightSent", true);
-        chunkBulk.set("columnCount", sections.length);
+        packet.set("chunkLocation", location);
+        packet.set("bitmask", (short) bitmask);
+        packet.set("data", data.toByteArray());
 
-        return chunkBulk;
+        return packet;
     }
 
     public void load(CompoundTag root) {

@@ -18,46 +18,43 @@
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.server.data.ChunkMetaBuilder;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
+import net.tridentsdk.world.ChunkLocation;
+
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class PacketPlayOutMapChunkBulk extends OutPacket {
 
     protected boolean lightSent;
-    protected int columnCount;
-    protected ChunkMetaBuilder meta;
-    protected byte[] data;
+    protected final List<PacketPlayOutChunkData> entries = new CopyOnWriteArrayList<>();
 
     @Override
     public int getId() {
         return 0x26;
     }
 
-    public boolean isLightSent() {
-        return this.lightSent;
-    }
-
-    public int getColumnCount() {
-        return this.columnCount;
-    }
-
-    public ChunkMetaBuilder getMeta() {
-        return this.meta;
-    }
-
-    public byte[] getData() {
-        return this.data;
+    public void addEntry(PacketPlayOutChunkData entry) {
+        entries.add(entry);
     }
 
     @Override
     public void encode(ByteBuf buf) {
         buf.writeBoolean(this.lightSent);
 
-        Codec.writeVarInt32(buf, this.columnCount);
-        this.meta.write(buf);
+        Codec.writeVarInt32(buf, entries.size());
 
-        Codec.writeVarInt32(buf, data.length);
-        buf.writeBytes(this.data);
+        for(PacketPlayOutChunkData packet : entries) {
+            ChunkLocation location = packet.getChunkLocation();
+
+            buf.writeInt(location.getX());
+            buf.writeInt(location.getZ());
+            buf.writeShort(packet.getBitmask());
+        }
+
+        for(PacketPlayOutChunkData packet : entries) {
+            buf.writeBytes(packet.getData());
+        }
     }
 }

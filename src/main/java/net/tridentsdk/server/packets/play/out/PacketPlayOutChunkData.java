@@ -24,10 +24,10 @@ import net.tridentsdk.world.ChunkLocation;
 
 public class PacketPlayOutChunkData extends OutPacket {
 
-    protected final byte[] data = { };
+    protected byte[] data = { };
     protected ChunkLocation chunkLocation;
     protected boolean continuous;
-    protected short primaryBitMap;
+    protected short bitmask;
 
     @Override
     public int getId() {
@@ -42,8 +42,8 @@ public class PacketPlayOutChunkData extends OutPacket {
         return this.continuous;
     }
 
-    public short getPrimaryBitMap() {
-        return this.primaryBitMap;
+    public short getBitmask() {
+        return this.bitmask;
     }
 
     public byte[] getData() {
@@ -56,7 +56,7 @@ public class PacketPlayOutChunkData extends OutPacket {
         buf.writeInt(this.chunkLocation.getZ());
 
         buf.writeBoolean(this.continuous);
-        buf.writeByte((int) this.primaryBitMap);
+        buf.writeByte((int) this.bitmask);
 
         Codec.writeVarInt32(buf, this.data.length);
         buf.writeBytes(this.data);
