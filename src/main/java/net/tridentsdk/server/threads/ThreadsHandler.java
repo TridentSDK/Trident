@@ -17,11 +17,14 @@
 
 package net.tridentsdk.server.threads;
 
+import net.tridentsdk.Trident;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.factory.ExecutorFactory;
 import net.tridentsdk.factory.ThreadFactory;
+import net.tridentsdk.server.TridentServer;
+import net.tridentsdk.server.TridentStart;
 import net.tridentsdk.world.World;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -55,7 +58,7 @@ import java.util.Collection;
      */
     @InternalUseOnly
     public static void stopAll() {
-        MainThread.getInstance().interrupt();
+        TridentServer.getInstance().getMainThread().interrupt();
 
         // TODO safely add hooks
         entityExecutor().shutdown();

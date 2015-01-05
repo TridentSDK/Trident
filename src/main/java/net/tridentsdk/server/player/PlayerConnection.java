@@ -27,11 +27,11 @@ import net.tridentsdk.server.packets.play.in.PacketPlayInKeepAlive;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutKeepAlive;
 import net.tridentsdk.util.TridentLogger;
 
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 import java.net.InetSocketAddress;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Represents the connection the player has to the server
@@ -41,9 +41,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 @ThreadSafe public class PlayerConnection extends ClientConnection {
     private final TridentPlayer player;
 
-    private final AtomicInteger keepAliveId = new AtomicInteger(-1);
-    private final AtomicInteger readCounter = new AtomicInteger();
-    private final AtomicInteger writeCounter = new AtomicInteger();
+    @GuardedBy("this")
+    private int keepAliveId = -1;
+    @GuardedBy("this")
+    private int readCounter = 0;
+    @GuardedBy("this")
+    private int writeCounter = 0;
 
     private PlayerConnection(ClientConnection connection, TridentPlayer player) {
         // remove old connection, and replace it with this one
@@ -91,8 +94,8 @@ import java.util.concurrent.atomic.AtomicInteger;
     }
 
     @InternalUseOnly
-    public void sendKeepAlive() {
-        int oldId = keepAliveId.get();
+    public synchronized void sendKeepAlive() {
+        int oldId = keepAliveId;
 
         if(oldId != -1)
             return;
@@ -102,51 +105,56 @@ import java.util.concurrent.atomic.AtomicInteger;
         OutPacket packet = new PacketPlayOutKeepAlive();
 
         packet.set("keepAliveId", id);
-        keepAliveId.set(id);
+        keepAliveId = id;
 
         sendPacket(packet);
         TridentLogger.log("id: " + id);
     }
 
     @InternalUseOnly
-    public void handleKeepAlive(PacketPlayInKeepAlive keepAlive) {
-        int currentId = keepAliveId.get();
+    public synchronized void handleKeepAlive(PacketPlayInKeepAlive keepAlive) {
+        int currentId = keepAliveId;
 
         if(keepAlive.getId() != currentId)
             return;
 
-        keepAliveId.set(-1);
-        readCounter.set(0);
+        keepAliveId = -1;
+        readCounter = 0;
     }
 
     @InternalUseOnly
-    public void resetReadCounter() {
-        readCounter.set(0);
+    public synchronized void resetReadCounter() {
+        readCounter = 0;
     }
 
     @Override
     public void sendPacket(Packet packet) {
         super.sendPacket(packet);
 
-        writeCounter.set(0); // reset write counter
+        synchronized (this) {
+            writeCounter = 0; // reset write counter
+        }
     }
 
-    void tick() {
-        writeCounter.incrementAndGet();
-        readCounter.incrementAndGet();
+    // Entire method is not needed to be synchronized
+    // But release and reacquire from conditions can be expensive
+    // Lock striping can be performed by the JIT anyways
+    synchronized void tick() {
+        ++writeCounter;
+        ++readCounter;
 
-        int read = readCounter.get();
-        int write = writeCounter.get();
+        int read = readCounter;
+        int write = writeCounter;
 
-        if(read >= 300) {
-            if(keepAliveId.get() == -1) {
+        if (read >= 300) {
+            if (keepAliveId == -1) {
                 sendKeepAlive();
-            } else if(read >= 600) {
+            } else if (read >= 600) {
                 player.kickPlayer("Timed out!");
             }
         }
 
-        if(write >= 300) {
+        if (write >= 300) {
             sendKeepAlive();
         }
     }
@@ -156,7 +164,7 @@ import java.util.concurrent.atomic.AtomicInteger;
      *
      * @return {@code true} to represent the player keep alive has been sent
      */
-    public boolean hasSentKeepAlive() {
-        return keepAliveId.get() == -1;
+    public synchronized boolean hasSentKeepAlive() {
+        return keepAliveId == -1;
     }
 }

@@ -118,6 +118,10 @@ import java.util.UUID;
         return this.config.getInt("compression-threshold", Defaults.COMPRESSION_THRESHHOLD);
     }
 
+    public MainThread getMainThread() {
+        return mainThread;
+    }
+
     /**
      * Gets the port the server currently runs on
      *

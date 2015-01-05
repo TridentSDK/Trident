@@ -31,7 +31,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author The TridentSDK Team
  */
 @ThreadSafe public class MainThread extends Thread {
-    private static MainThread instance;
     private final AtomicInteger ticksElapsed = new AtomicInteger();
     private final AtomicInteger notLostTicksElapsed = new AtomicInteger();
     private final AtomicInteger ticksToWait = new AtomicInteger();
@@ -54,16 +53,8 @@ import java.util.concurrent.atomic.AtomicInteger;
     public MainThread(int ticksPerSecond) {
         super("Trident - Tick Thread");
         this.zeroBase = System.currentTimeMillis();
-        instance = this;
         this.ticksPerSecond = ticksPerSecond;
         this.tickLength = 1000 / ticksPerSecond;
-    }
-
-    /**
-     * Gets the main instance of the thread runner
-     */
-    public static MainThread getInstance() {
-        return instance;
     }
 
     public void doRun() {

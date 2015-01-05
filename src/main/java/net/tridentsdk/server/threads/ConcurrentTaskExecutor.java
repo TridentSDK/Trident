@@ -27,6 +27,7 @@ import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.factory.ExecutorFactory;
 import net.tridentsdk.util.TridentLogger;
 
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Collection;
 import java.util.List;
@@ -143,6 +144,7 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
         return EXECUTORS;
     }
 
+    @GuardedBy("this")
     private int counter = 0;
 
     @Override
