@@ -59,7 +59,7 @@ import javax.annotation.concurrent.ThreadSafe;
             data.decrypt(this.connection);
         }
 
-        Packet packet = this.protocol.getPacket(data.getId(), this.connection.getStage(), PacketType.IN);
+        Packet packet = this.protocol.getPacket(data.getId(), this.connection.getStage(), PacketDirection.IN);
 
         //If packet is unknown disconnect the client, as said client seems to be modified
         if (packet.getId() == -1) {

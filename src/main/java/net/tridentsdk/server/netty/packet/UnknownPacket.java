@@ -51,7 +51,7 @@ import javax.annotation.concurrent.ThreadSafe;
      * {@inheritDoc} <p/> <p>Returns {@code null}, since we don't know where the packet came from</p>
      */
     @Override
-    public PacketType getType() {
+    public PacketDirection getDirection() {
         return null;
     }
 

@@ -21,7 +21,7 @@ import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.Packet;
-import net.tridentsdk.server.netty.packet.PacketType;
+import net.tridentsdk.server.netty.packet.PacketDirection;
 import net.tridentsdk.util.TridentLogger;
 
 /**
@@ -41,8 +41,8 @@ public class PacketLoginOutDisconnect implements Packet {
     }
 
     @Override
-    public PacketType getType() {
-        return PacketType.OUT;
+    public PacketDirection getDirection() {
+        return PacketDirection.OUT;
     }
 
     @Override

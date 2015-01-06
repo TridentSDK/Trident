@@ -21,8 +21,11 @@ import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.factory.Factories;
 import net.tridentsdk.server.TridentScheduler;
 import net.tridentsdk.server.player.TridentPlayer;
+import net.tridentsdk.server.util.CircularArrayIterator;
+import net.tridentsdk.server.util.ConcurrentCircularArray;
 
 import javax.annotation.concurrent.ThreadSafe;
+import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -31,11 +34,17 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author The TridentSDK Team
  */
 @ThreadSafe public class MainThread extends Thread {
+
+    private static final int RECENT_TICKS_KEPT = 40;
+    private static final String NAME = "Trident - Tick Thread";
+
     private final AtomicInteger ticksElapsed = new AtomicInteger();
     private final AtomicInteger notLostTicksElapsed = new AtomicInteger();
     private final AtomicInteger ticksToWait = new AtomicInteger();
     private final int ticksPerSecond;
     private final int tickLength;
+
+    private final ConcurrentCircularArray<Integer> recentTickLength = new ConcurrentCircularArray<>(RECENT_TICKS_KEPT);
 
     /**
      * system.currenttimemillis() when the server's first tick happened, used to keep on schedule, subject to change
@@ -51,7 +60,7 @@ import java.util.concurrent.atomic.AtomicInteger;
      * @param ticksPerSecond the amount of heartbeats per second
      */
     public MainThread(int ticksPerSecond) {
-        super("Trident - Tick Thread");
+        super(NAME);
         this.zeroBase = System.currentTimeMillis();
         this.ticksPerSecond = ticksPerSecond;
         this.tickLength = 1000 / ticksPerSecond;
@@ -98,7 +107,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
         ((TridentScheduler) Factories.tasks()).tick();
 
-        this.calcAndWait((int) (System.currentTimeMillis() - startTime));
+        int timeInTick = (int) (System.currentTimeMillis() - startTime);
+        recentTickLength.add(timeInTick);
+        this.calcAndWait(timeInTick);
     }
 
     @Override
@@ -181,6 +192,24 @@ import java.util.concurrent.atomic.AtomicInteger;
     @Override
     public UncaughtExceptionHandler getUncaughtExceptionHandler() {
         return super.getUncaughtExceptionHandler();
+    }
+
+    /**
+     * Used to get the length of the average tick for the past 40 ticks
+     *
+     * <p>Does not count ticks that have been skipped via MainThread#pauseTicking()</p>
+     *
+     * @return the average length of a tick for the past 40 ticks
+     */
+    public double getAverageTickLength() {
+        Iterator<Integer> iter = recentTickLength.iterator();
+
+        double total = 0d;
+        while(iter.hasNext()) {
+            total += iter.next();
+        }
+
+        return total/RECENT_TICKS_KEPT;
     }
 
     /**

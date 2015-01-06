@@ -18,6 +18,7 @@
 package net.tridentsdk.server.netty.packet;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.server.netty.ClientConnection;
 
 /**
@@ -42,13 +43,26 @@ public interface Packet {
     void encode(ByteBuf buf);
 
     /**
-     * Handles the packet after receiving it from a connection
+     * Handles the packet after receiving it from a connection, is invoked by the ClientConnection that received it
+     *
+     * <p>Used to allow the packet to notify the {@link net.tridentsdk.server.netty.ClientConnection}
+     * of packets the server receives, and make changes specific to this packet</p>
      *
      * @param connection The connection that sent the packet
      */
+    @InternalUseOnly
     void handleReceived(ClientConnection connection);
 
+    /**
+     * Gets the ID of this packet, according to the protocol specification
+     * @return packet ID
+     */
     int getId();
 
-    PacketType getType();
+    /**
+     * Returns the packet direction
+     * @return {@link net.tridentsdk.server.netty.packet.PacketDirection#IN} or
+     * {@link net.tridentsdk.server.netty.packet.PacketDirection#OUT} depending on direction
+     */
+    PacketDirection getDirection();
 }

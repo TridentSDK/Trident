@@ -20,7 +20,7 @@ package net.tridentsdk.server.packets.login;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
-import net.tridentsdk.server.netty.packet.PacketType;
+import net.tridentsdk.server.netty.packet.PacketDirection;
 
 /**
  * @author The TridentSDK Team
@@ -53,8 +53,8 @@ public class PacketLoginOutEncryptionRequest extends OutPacket {
     }
 
     @Override
-    public PacketType getType() {
-        return PacketType.OUT;
+    public PacketDirection getDirection() {
+        return PacketDirection.OUT;
     }
 
     @Override

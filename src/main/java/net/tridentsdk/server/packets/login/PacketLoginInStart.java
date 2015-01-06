@@ -24,7 +24,7 @@ import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
-import net.tridentsdk.server.netty.packet.PacketType;
+import net.tridentsdk.server.netty.packet.PacketDirection;
 import net.tridentsdk.server.netty.protocol.Protocol;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.util.TridentLogger;
@@ -59,8 +59,8 @@ public class PacketLoginInStart extends InPacket {
     }
 
     @Override
-    public PacketType getType() {
-        return PacketType.IN;
+    public PacketDirection getDirection() {
+        return PacketDirection.IN;
     }
 
     /**

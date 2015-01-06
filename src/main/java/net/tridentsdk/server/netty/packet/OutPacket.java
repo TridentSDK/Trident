@@ -33,8 +33,8 @@ public abstract class OutPacket implements Packet {
     }
 
     @Override
-    public PacketType getType() {
-        return PacketType.OUT;
+    public PacketDirection getDirection() {
+        return PacketDirection.OUT;
     }
 
     /**

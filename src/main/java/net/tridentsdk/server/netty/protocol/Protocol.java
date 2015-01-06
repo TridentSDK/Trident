@@ -18,7 +18,7 @@
 package net.tridentsdk.server.netty.protocol;
 
 import net.tridentsdk.server.netty.packet.Packet;
-import net.tridentsdk.server.netty.packet.PacketType;
+import net.tridentsdk.server.netty.packet.PacketDirection;
 import net.tridentsdk.util.TridentLogger;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -50,7 +50,7 @@ import javax.annotation.concurrent.ThreadSafe;
         return this.handshake;
     }
 
-    public Packet getPacket(int id, ClientStage stage, PacketType type) {
+    public Packet getPacket(int id, ClientStage stage, PacketDirection type) {
         switch (stage) {
             case PLAY:
                 return this.play.getPacket(id, type);

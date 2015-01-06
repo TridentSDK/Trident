@@ -26,6 +26,8 @@ import java.security.NoSuchAlgorithmException;
 /**
  * Produces RSA encryption digests
  *
+ * <p>Used to create encrypted packets that the server sends to clients</p>
+ *
  * @author The TridentSDK Team
  */
 public final class RSA {

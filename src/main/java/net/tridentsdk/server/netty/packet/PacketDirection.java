@@ -22,7 +22,7 @@ package net.tridentsdk.server.netty.packet;
  *
  * @author The TridentSDK Team
  */
-public enum PacketType {
+public enum PacketDirection {
     /**
      * For packets which are received from the client
      */

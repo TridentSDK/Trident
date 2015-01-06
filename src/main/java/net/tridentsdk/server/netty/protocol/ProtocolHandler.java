@@ -20,7 +20,7 @@ package net.tridentsdk.server.netty.protocol;
 import com.google.common.collect.Maps;
 import net.tridentsdk.perf.FastClass;
 import net.tridentsdk.server.netty.packet.Packet;
-import net.tridentsdk.server.netty.packet.PacketType;
+import net.tridentsdk.server.netty.packet.PacketDirection;
 import net.tridentsdk.server.netty.packet.UnknownPacket;
 import net.tridentsdk.util.TridentLogger;
 
@@ -35,7 +35,7 @@ abstract class ProtocolHandler {
         this.outPackets.put(-1, UnknownPacket.class);
     }
 
-    public Packet getPacket(int id, PacketType type) {
+    public Packet getPacket(int id, PacketDirection type) {
         try {
             Map<Integer, Class<? extends Packet>> applicableMap;
 

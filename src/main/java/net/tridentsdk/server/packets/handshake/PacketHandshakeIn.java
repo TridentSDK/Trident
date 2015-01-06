@@ -22,7 +22,7 @@ import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
-import net.tridentsdk.server.netty.packet.PacketType;
+import net.tridentsdk.server.netty.packet.PacketDirection;
 import net.tridentsdk.server.netty.protocol.Protocol;
 
 /**
@@ -37,12 +37,12 @@ public class PacketHandshakeIn extends InPacket {
     protected int protocolVersion;
 
     /**
-     * Beleived to stay as "localhost", more documentation required
+     * Believed to stay as "localhost", more documentation required
      */
     protected String address;
 
     /**
-     * Beleived to be always "25565", more documentation required
+     * Believed to be always "25565", more documentation required
      */
     protected short port;
 
@@ -66,8 +66,8 @@ public class PacketHandshakeIn extends InPacket {
     }
 
     @Override
-    public PacketType getType() {
-        return PacketType.OUT;
+    public PacketDirection getDirection() {
+        return PacketDirection.OUT;
     }
 
     /**

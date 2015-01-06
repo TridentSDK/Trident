@@ -66,7 +66,7 @@ public class PacketPlayInBlockPlace extends InPacket {
         return this.location;
     }
 
-    public byte getDirection() {
+    public byte getBlockDirection() {
         return this.direction;
     }
 

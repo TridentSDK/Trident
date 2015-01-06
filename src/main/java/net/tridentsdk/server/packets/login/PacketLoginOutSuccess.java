@@ -21,7 +21,7 @@ import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
-import net.tridentsdk.server.netty.packet.PacketType;
+import net.tridentsdk.server.netty.packet.PacketDirection;
 
 /**
  * TODO not an expert on this - AgentTroll
@@ -48,8 +48,8 @@ public class PacketLoginOutSuccess extends OutPacket {
     }
 
     @Override
-    public PacketType getType() {
-        return PacketType.OUT;
+    public PacketDirection getDirection() {
+        return PacketDirection.OUT;
     }
 
     public ClientConnection getConnection() {

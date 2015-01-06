@@ -19,7 +19,7 @@ package net.tridentsdk.server.packets.status;
 
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.netty.packet.OutPacket;
-import net.tridentsdk.server.netty.packet.PacketType;
+import net.tridentsdk.server.netty.packet.PacketDirection;
 
 /**
  * The response sent by the server for PacketStatusInPing
@@ -44,7 +44,7 @@ public class PacketStatusOutPing extends OutPacket {
     }
 
     @Override
-    public PacketType getType() {
-        return PacketType.OUT;
+    public PacketDirection getDirection() {
+        return PacketDirection.OUT;
     }
 }

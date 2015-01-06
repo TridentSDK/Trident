@@ -24,7 +24,9 @@ import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
 
 /**
- * Final step of the pipeline: encrypts all data and sends it to the client
+ * An encoder that encrypts the information contained in the raw packet
+ *
+ * <p>This is first stage in the outbound packet pipeline</p>
  *
  * @author The TridentSDK Team
  */

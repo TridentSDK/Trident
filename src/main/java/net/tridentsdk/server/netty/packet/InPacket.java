@@ -21,12 +21,15 @@ import io.netty.buffer.ByteBuf;
 import net.tridentsdk.util.TridentLogger;
 
 /**
+ * Provides the basis for a packet that is being received by the server
+ *
  * @author The TridentSDK Team
  */
 public abstract class InPacket implements Packet {
 
     /**
-     * {@inheritDoc} <p/> <p>Cannot be encoded</p>
+     * {@inheritDoc} <p/> <p>Packets coming into the server cannot be encoded, as that is not practical under any
+     * circumstances</p>
      */
     @Override
     public void encode(ByteBuf buf) {
@@ -34,7 +37,7 @@ public abstract class InPacket implements Packet {
     }
 
     @Override
-    public PacketType getType() {
-        return PacketType.IN;
+    public PacketDirection getDirection() {
+        return PacketDirection.IN;
     }
 }

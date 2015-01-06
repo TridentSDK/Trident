@@ -46,7 +46,7 @@ public class PacketPlayOutSpawnPainting extends OutPacket {
         return this.location;
     }
 
-    public short getDirection() {
+    public short getPaintingDirection() {
         return this.direction;
     }
 
