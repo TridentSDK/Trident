@@ -69,6 +69,8 @@ import javax.annotation.concurrent.ThreadSafe;
             return;
         }
 
+        TridentLogger.log("Received packet: " + packet.getClass().getSimpleName().replaceAll("Packet", "").replaceAll("Player", ""));
+
         // decode and handle the packet
         packet.decode(data.getData());
 

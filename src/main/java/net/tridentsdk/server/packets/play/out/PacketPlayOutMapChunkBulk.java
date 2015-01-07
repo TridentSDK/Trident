@@ -27,7 +27,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class PacketPlayOutMapChunkBulk extends OutPacket {
 
-    protected boolean lightSent;
+    protected boolean lightSent = true;
     protected final List<PacketPlayOutChunkData> entries = new CopyOnWriteArrayList<>();
 
     @Override

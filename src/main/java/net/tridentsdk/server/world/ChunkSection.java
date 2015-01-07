@@ -83,8 +83,8 @@ final class ChunkSection implements NBTSerializable {
                 material = Substance.AIR; // check if valid
             }
 
-            block = new TridentTile(Coordinates.create(world, 0, 0, 0), material,
-                                    bData); // TODO: get none-relative location
+            block = new TridentTile(Coordinates.create(world, 0, 0, 0), material, // dummy location
+                                    bData);
 
                 /* TODO get the type and deal with block data accordingly */
             switch (block.substance()) {

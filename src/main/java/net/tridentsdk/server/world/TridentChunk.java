@@ -140,7 +140,17 @@ public class TridentChunk implements Chunk {
         for (ChunkSection section : sections) {
             try {
                 data.write(section.blockLight);
-            } catch (IOException ignored) {}
+            } catch (IOException e) {
+                TridentLogger.error(e);
+            }
+        }
+
+        for (ChunkSection section : sections) {
+            try {
+                data.write(section.skyLight);
+            } catch (IOException e) {
+                TridentLogger.error(e);
+            }
         }
 
         for (int i = 0; i < 256; i += 1) {
