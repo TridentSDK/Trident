@@ -28,7 +28,7 @@ import net.tridentsdk.world.World;
 
 final class ChunkSection implements NBTSerializable {
     static final int LENGTH = 4096; // 16^3 (width * height * depth)
-    private final Tile[] blcks = new Tile[LENGTH];
+    final Tile[] blcks = new Tile[LENGTH];
     @NBTField(name = "Blocks", type = TagType.BYTE_ARRAY)
     protected byte[] rawTypes;
     @NBTField(name = "Add", type = TagType.BYTE_ARRAY)

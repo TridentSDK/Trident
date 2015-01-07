@@ -17,6 +17,7 @@
 
 package net.tridentsdk.server.player;
 
+import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.factory.Factories;
@@ -41,6 +42,7 @@ import java.util.UUID;
 @ThreadSafe
 public class TridentPlayer extends OfflinePlayer {
     private final PlayerConnection connection;
+    private volatile boolean loggingIn = true;
     private volatile Locale locale;
 
     public TridentPlayer(CompoundTag tag, TridentWorld world, ClientConnection connection) {
@@ -83,26 +85,35 @@ public class TridentPlayer extends OfflinePlayer {
                                                 .set("levelType", LevelType.DEFAULT));
 
                 p.connection.sendPacket(PacketPlayOutPluginMessage.VANILLA_CHANNEL);
-                p.connection.sendPacket(
-                        new PacketPlayOutServerDifficulty().set("difficulty", p.getWorld().difficulty()));
-
-                p.sendChunks(7);
-
+                p.connection.sendPacket(new PacketPlayOutServerDifficulty().set("difficulty", p.getWorld().difficulty()));
                 p.connection.sendPacket(new PacketPlayOutSpawnPosition().set("location", p.getSpawnLocation()));
                 p.connection.sendPacket(p.abilities.asPacket());
                 p.connection.sendPacket(new PacketPlayOutPlayerCompleteMove().set("location", p.getSpawnLocation())
-                                                .set("flags", (byte) 0));
-
-                p.connection.sendPacket(PacketPlayOutStatistics.DEFAULT_STATISTIC);
-
-                // Wait for response
-                for (Entity entity : p.getWorld().entities()) {
-                    // Register mob, packet sent to new player
-                }
+                        .set("flags", (byte) 0));
             }
         });
 
         return p;
+    }
+
+    public boolean isLoggingIn() {
+        return loggingIn;
+    }
+
+    @InternalUseOnly
+    public void resumeLogin() {
+        if(!loggingIn)
+            return;
+
+        sendChunks(7);
+        connection.sendPacket(PacketPlayOutStatistics.DEFAULT_STATISTIC);
+
+        // Wait for response
+        for (Entity entity : getWorld().entities()) {
+            // Register mob, packet sent to new player
+        }
+
+        loggingIn = false;
     }
 
     public static Player getPlayer(UUID id) {
@@ -185,8 +196,8 @@ public class TridentPlayer extends OfflinePlayer {
         PacketPlayOutMapChunkBulk bulk = new PacketPlayOutMapChunkBulk();
         int i = 0;
 
-        for (int x = (centX - (viewDistance / 2)); x <= (centX + (viewDistance / 2)); x += 1) {
-            for (int z = (centZ - (viewDistance / 2)); z <= (centZ + (viewDistance / 2)); z += 1) {
+        for (int x = (centX - (int) Math.floor(viewDistance / 2)); x <= (centX + (int) Math.floor(viewDistance / 2)); x += 1) {
+            for (int z = (centZ - (int) Math.floor(viewDistance / 2)); z <= (centZ + (int) Math.floor(viewDistance / 2)); z += 1) {
                 bulk.addEntry(((TridentChunk) getWorld().chunkAt(x, z, true)).asPacket());
 
                 ++i;

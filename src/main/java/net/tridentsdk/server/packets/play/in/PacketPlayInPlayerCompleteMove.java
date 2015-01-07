@@ -82,5 +82,8 @@ public class PacketPlayInPlayerCompleteMove extends PacketPlayInPlayerMove {
         }
 
         // process move
+
+        if(player.isLoggingIn())
+            player.resumeLogin();
     }
 }

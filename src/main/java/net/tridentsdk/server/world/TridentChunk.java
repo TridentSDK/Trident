@@ -92,9 +92,9 @@ public class TridentChunk implements Chunk {
     @Override
     public Tile tileAt(int relX, int y, int relZ) {
         int index = WorldUtils.getBlockArrayIndex(relX, y, relZ);
+        ChunkSection section = sections[WorldUtils.getSection(y)];
 
         return new TridentTile(Coordinates.create(this.world, relX + this.getX() * 16, y, relZ + this.getZ() * 16)
-                               //TODO
                 , null, (byte) 0);
     }
 

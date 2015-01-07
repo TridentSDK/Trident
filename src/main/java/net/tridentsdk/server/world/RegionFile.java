@@ -440,7 +440,13 @@ public class RegionFile {
          * @return offsetLoc in bytes
          */
         private int getOffsetLoc(Chunk c) {
-            return c.getX() + c.getZ() * 32;
+            return mod(c.getX()) + mod(c.getZ()) * 32;
         }
+
+        private int mod(int i) {
+            int in = i % 32;
+            return in < 0 ? in + 32 : in;
+        }
+
     }
 }
