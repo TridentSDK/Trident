@@ -350,7 +350,7 @@ public class ClientConnection {
      */
     public void logout() {
         if (this instanceof PlayerConnection)
-            ThreadsHandler.remove(PlayerConnection.getConnection(getAddress()).getPlayer());
+            ThreadsHandler.remove(((PlayerConnection) this).getPlayer());
 
         clientData.remove(this.address);
         this.channel.close();

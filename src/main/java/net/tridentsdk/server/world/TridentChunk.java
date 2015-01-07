@@ -93,17 +93,20 @@ public class TridentChunk implements Chunk {
     public Tile tileAt(int relX, int y, int relZ) {
         int index = WorldUtils.getBlockArrayIndex(relX, y, relZ);
         ChunkSection section = sections[WorldUtils.getSection(y)];
+        Tile tile = section.blcks[index];
 
-        return new TridentTile(Coordinates.create(this.world, relX + this.getX() * 16, y, relZ + this.getZ() * 16)
-                , null, (byte) 0);
+        return new TridentTile(Coordinates.create(this.world, relX + this.getX() * 16, y, relZ + this.getZ() * 16),
+                tile.substance(), tile.meta());
     }
 
     @Override
     public ChunkSnapshot snapshot() {
         List<CompoundTag> sections = Lists.newArrayList();
+
         for (ChunkSection section : this.sections) {
             sections.add(NBTSerializer.serialize(section));
         }
+
         return new TridentChunkSnapshot(world, location, sections, lastFileAccess, lastModified, inhabitedTime,
                                         lightPopulated, terrainPopulated);
     }
@@ -125,6 +128,9 @@ public class TridentChunk implements Chunk {
         //int pos = 0;
 
         for (ChunkSection section : sections) {
+            if(section == null)
+                continue;
+
             for (byte b : section.getTypes()) {
                 data.write(b & 0xff);
                 data.write(b >> 8);
@@ -171,7 +177,6 @@ public class TridentChunk implements Chunk {
         List<NBTTag> sectionsList = sections.listTags();
 
         this.sections = new ChunkSection[sectionsList.size()];
-        ChunkSection[] copy = this.sections;
 
         /* Load sections */
         for (int i = 0; i < sectionsList.size(); i += 1) {
@@ -180,8 +185,10 @@ public class TridentChunk implements Chunk {
             if (t instanceof CompoundTag) {
                 CompoundTag ct = (CompoundTag) t;
 
-                this.sections[i] = NBTSerializer.deserialize(ChunkSection.class, ct);
-                this.sections[i].loadBlocks(world());
+                ChunkSection section = NBTSerializer.deserialize(ChunkSection.class, ct);
+
+                section.loadBlocks(world());
+                this.sections[section.getY()] = section;
             }
         }
 

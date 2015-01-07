@@ -24,6 +24,7 @@ import net.tridentsdk.meta.nbt.NBTField;
 import net.tridentsdk.meta.nbt.NBTSerializable;
 import net.tridentsdk.meta.nbt.TagType;
 import net.tridentsdk.util.NibbleArray;
+import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.World;
 
 final class ChunkSection implements NBTSerializable {
@@ -39,9 +40,19 @@ final class ChunkSection implements NBTSerializable {
     protected byte[] blockLight;
     @NBTField(name = "BlockLight", type = TagType.BYTE_ARRAY)
     protected byte[] skyLight;
+    @NBTField(name = "Y", type = TagType.BYTE)
+    protected byte y;
     private byte[] types;
 
     protected ChunkSection() {
+    }
+
+    /**
+     * Gets the position in the section array
+     * @return
+     */
+    public byte getY() {
+        return y;
     }
 
     protected void loadBlocks(World world) {
