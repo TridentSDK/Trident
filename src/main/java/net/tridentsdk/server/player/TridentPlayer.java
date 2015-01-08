@@ -17,6 +17,8 @@
 
 package net.tridentsdk.server.player;
 
+import com.google.common.collect.Sets;
+import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.living.Player;
@@ -32,11 +34,13 @@ import net.tridentsdk.server.threads.ThreadsHandler;
 import net.tridentsdk.server.world.TridentChunk;
 import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.util.TridentLogger;
+import net.tridentsdk.world.ChunkLocation;
 import net.tridentsdk.world.LevelType;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Collection;
 import java.util.Locale;
+import java.util.Set;
 import java.util.UUID;
 
 @ThreadSafe
@@ -44,6 +48,7 @@ public class TridentPlayer extends OfflinePlayer {
     private final PlayerConnection connection;
     private volatile boolean loggingIn = true;
     private volatile Locale locale;
+    private final Set<ChunkLocation> knownChunks = Sets.newSetFromMap(new ConcurrentHashMapV8<ChunkLocation, Boolean>());
 
     public TridentPlayer(CompoundTag tag, TridentWorld world, ClientConnection connection) {
         super(tag, world);
@@ -137,6 +142,7 @@ public class TridentPlayer extends OfflinePlayer {
             public void run() {
                 TridentPlayer.super.tick();
 
+                sendChunks(TridentServer.getInstance().viewDistance());
                 connection.tick();
                 ticksExisted.incrementAndGet();
             }
@@ -198,7 +204,13 @@ public class TridentPlayer extends OfflinePlayer {
 
         for (int x = (centX - (int) Math.floor(viewDistance / 2)); x <= (centX + (int) Math.floor(viewDistance / 2)); x += 1) {
             for (int z = (centZ - (int) Math.floor(viewDistance / 2)); z <= (centZ + (int) Math.floor(viewDistance / 2)); z += 1) {
+                ChunkLocation location = ChunkLocation.create(x, z);
+
+                if(knownChunks.contains(location))
+                    continue;
+
                 bulk.addEntry(((TridentChunk) getWorld().chunkAt(x, z, true)).asPacket());
+                knownChunks.add(location);
 
                 ++i;
 

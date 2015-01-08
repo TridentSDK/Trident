@@ -97,7 +97,7 @@ public class TridentWorld implements World {
         TridentLogger.log("Loading values of level.dat....");
 
         spawnLocation.setX(((IntTag) level.getTag("SpawnX")).getValue());
-        spawnLocation.setY(((IntTag) level.getTag("SpawnY")).getValue() + 2);
+        spawnLocation.setY(((IntTag) level.getTag("SpawnY")).getValue() + 4);
         spawnLocation.setZ(((IntTag) level.getTag("SpawnZ")).getValue());
 
         dimension = Dimension.OVERWORLD;

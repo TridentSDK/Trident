@@ -84,11 +84,5 @@ public class PacketPlayInPlayerLook extends InPacket {
         }
 
         player.setLocation(to);
-
-        PacketPlayOutEntityLook headMove = new PacketPlayOutEntityLook();
-
-        headMove.set("entityId", player.getId()).set("location", to).set("onGround", player.isOnGround());
-
-        TridentPlayer.sendAll(headMove);
     }
 }

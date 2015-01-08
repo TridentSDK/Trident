@@ -57,7 +57,8 @@ public class PacketPlayInChat extends InPacket {
         TridentPlayer player = pc.getPlayer();
         OutPacket packet = new PacketPlayOutChatMessage();
 
-        packet.set("jsonMessage", new MessageBuilder(String.format("<%s> %s", player.getDisplayName(), this.message)));
+        packet.set("jsonMessage", new MessageBuilder(String.format("<%s> %s", player.getDisplayName(), this.message)).asJson()); // FIXME
+        packet.set("position", PacketPlayOutChatMessage.ChatPosition.CHAT);
 
         TridentPlayer.sendAll(packet);
     }

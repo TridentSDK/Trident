@@ -118,6 +118,10 @@ import java.util.UUID;
         return this.config.getInt("compression-threshold", Defaults.COMPRESSION_THRESHHOLD);
     }
 
+    public int viewDistance() {
+        return this.config.getInt("view-distance", Defaults.VIEW_DISTANCE);
+    }
+
     public MainThread getMainThread() {
         return mainThread;
     }

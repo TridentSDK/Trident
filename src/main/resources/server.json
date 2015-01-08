@@ -4,5 +4,6 @@
   "motd": "Just another TridentSDK server",
   "max-players": 10,
   "compression-threshold": 256,
-  "generateflatlands": true
+  "generateflatlands": true,
+  "view-distance": 15
 }
