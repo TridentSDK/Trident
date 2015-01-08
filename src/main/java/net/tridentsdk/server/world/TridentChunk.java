@@ -19,12 +19,14 @@ package net.tridentsdk.server.world;
 
 import com.google.common.collect.Lists;
 import net.tridentsdk.Coordinates;
+import net.tridentsdk.base.Substance;
 import net.tridentsdk.base.Tile;
 import net.tridentsdk.meta.nbt.*;
 import net.tridentsdk.server.data.ChunkMetaBuilder;
 import net.tridentsdk.server.netty.packet.OutPacket;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutChunkData;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutMapChunkBulk;
+import net.tridentsdk.util.NibbleArray;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.Chunk;
 import net.tridentsdk.world.ChunkLocation;
@@ -91,12 +93,25 @@ public class TridentChunk implements Chunk {
 
     @Override
     public Tile tileAt(int relX, int y, int relZ) {
-        int index = WorldUtils.getBlockArrayIndex(relX, y, relZ);
+        int index = WorldUtils.getBlockArrayIndex(relX, y % 16, relZ);
         ChunkSection section = sections[WorldUtils.getSection(y)];
-        Tile tile = section.blcks[index];
+        NibbleArray add = new NibbleArray(section.add);
+        NibbleArray data = new NibbleArray(section.data);
+
+        /* Get block data; use extras accordingly */
+        byte b = section.rawTypes[index];
+        int bAdd = add.get(index) << 8;
+        byte meta = data.get(index);
+        b += bAdd;
+
+        Substance material = Substance.fromString(String.valueOf(b));
+
+        if (material == null) {
+            material = Substance.AIR; // check if valid
+        }
 
         return new TridentTile(Coordinates.create(this.world, relX + this.getX() * 16, y, relZ + this.getZ() * 16),
-                tile.substance(), tile.meta());
+                material, meta);
     }
 
     @Override

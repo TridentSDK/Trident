@@ -29,7 +29,6 @@ import net.tridentsdk.world.World;
 
 final class ChunkSection implements NBTSerializable {
     static final int LENGTH = 4096; // 16^3 (width * height * depth)
-    final Tile[] blcks = new Tile[LENGTH];
     @NBTField(name = "Blocks", type = TagType.BYTE_ARRAY)
     protected byte[] rawTypes;
     @NBTField(name = "Add", type = TagType.BYTE_ARRAY)
@@ -86,22 +85,17 @@ final class ChunkSection implements NBTSerializable {
             block = new TridentTile(Coordinates.create(world, 0, 0, 0), material, // dummy location
                                     bData);
 
-                /* TODO get the type and deal with block data accordingly */
+            /* TODO get the type and deal with block data accordingly */
             switch (block.substance()) {
                 default:
                     break;
             }
 
-            blcks[i] = block;
             types[i] = (byte) (bAdd | ((b & 0xff) << 4) | bData);
         }
     }
 
     public byte[] getTypes() {
         return types;
-    }
-
-    public Tile[] getBlocks() {
-        return blcks;
     }
 }

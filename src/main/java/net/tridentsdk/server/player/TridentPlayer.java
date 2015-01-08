@@ -200,7 +200,7 @@ public class TridentPlayer extends OfflinePlayer {
         int centX = ((int) Math.floor(loc.getX())) >> 4;
         int centZ = ((int) Math.floor(loc.getZ())) >> 4;
         PacketPlayOutMapChunkBulk bulk = new PacketPlayOutMapChunkBulk();
-        int i = 0;
+        int length = 0;
 
         for (int x = (centX - (int) Math.floor(viewDistance / 2)); x <= (centX + (int) Math.floor(viewDistance / 2)); x += 1) {
             for (int z = (centZ - (int) Math.floor(viewDistance / 2)); z <= (centZ + (int) Math.floor(viewDistance / 2)); z += 1) {
@@ -209,16 +209,18 @@ public class TridentPlayer extends OfflinePlayer {
                 if(knownChunks.contains(location))
                     continue;
 
-                bulk.addEntry(((TridentChunk) getWorld().chunkAt(x, z, true)).asPacket());
+                PacketPlayOutChunkData data = ((TridentChunk) getWorld().chunkAt(x, z, true)).asPacket();
+
+                length += (10 + data.getData().length);
+
+                bulk.addEntry(data);
                 knownChunks.add(location);
 
-                ++i;
-
-                if(i >= 30) { // 30 being the rough amount of chunks needed to be sent hitting the protocol limit
+                if(length >= 0x1DAE40) { // send the packet if the length is close to the protocol maximum
                     connection.sendPacket(bulk);
 
                     bulk = new PacketPlayOutMapChunkBulk();
-                    i = 0;
+                    length = 0;
                 }
             }
         }

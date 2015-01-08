@@ -77,7 +77,7 @@ public final class WorldUtils {
      * @return the index of the block array containing the coordinates given
      */
     public static int getBlockArrayIndex(int x, int y, int z) {
-        return y << 8 + z << 4 + x;
+        return (y << 8) + (z << 4) + x;
     }
 
     /**
