@@ -46,17 +46,14 @@ public class TridentSnowball extends TridentProjectile {
 
     @Override
     protected void hit() {
-        if (this.impaled != null && this.impaled.isImpaledEntity()) {
-            if (this.impaled.impaledEntity() instanceof LivingEntity) {
-                LivingEntity ent = (LivingEntity) this.impaled.impaledEntity();
-
-                if (ent instanceof Blaze) {
-                    // Damage 3 hearts
-                } else if (ent instanceof EnderDragon) {
-                    // Damage 1 heart
-                } else {
-                    // Damage 0 hearts (knockback)
-                }
+        if (true) { // TODO
+            LivingEntity ent = null;
+            if (ent instanceof Blaze) {
+                // Damage 3 hearts
+            } else if (ent instanceof EnderDragon) {
+                // Damage 1 heart
+            } else {
+                // Damage 0 hearts (knockback)
             }
         } else {
             this.remove();

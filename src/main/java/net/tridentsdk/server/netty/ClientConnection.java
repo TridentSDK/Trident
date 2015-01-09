@@ -26,6 +26,7 @@ import net.tridentsdk.server.netty.protocol.Protocol;
 import net.tridentsdk.server.packets.login.PacketLoginOutSetCompression;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutDisconnect;
 import net.tridentsdk.server.player.PlayerConnection;
+import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.threads.ThreadsHandler;
 import net.tridentsdk.util.TridentLogger;
 
@@ -349,9 +350,11 @@ public class ClientConnection {
      * Removes the client's server side client handler
      */
     public void logout() {
+        TridentPlayer player = ((PlayerConnection) this).getPlayer();
         if (this instanceof PlayerConnection)
-            ThreadsHandler.remove(((PlayerConnection) this).getPlayer());
+            ThreadsHandler.remove(player);
 
+        player.remove();
         clientData.remove(this.address);
         this.channel.close();
     }

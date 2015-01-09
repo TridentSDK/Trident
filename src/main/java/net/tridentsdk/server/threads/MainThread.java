@@ -17,12 +17,15 @@
 
 package net.tridentsdk.server.threads;
 
+import net.tridentsdk.Trident;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.factory.Factories;
 import net.tridentsdk.server.TridentScheduler;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.util.CircularArrayIterator;
 import net.tridentsdk.server.util.ConcurrentCircularArray;
+import net.tridentsdk.server.world.TridentWorld;
+import net.tridentsdk.world.World;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Iterator;
@@ -85,9 +88,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
         this.notLostTicksElapsed.getAndIncrement();
 
-        // TODO: tick the worlds?
-        WorldThreads.notifyTick();
-
         /**
          * Tick the players
          */
@@ -95,13 +95,8 @@ import java.util.concurrent.atomic.AtomicInteger;
             player.tick();
         }
 
-        // alternate redstone ticks between ticks
-        if (this.redstoneTick) {
-            WorldThreads.notifyRedstoneTick();
-            this.redstoneTick = false;
-        } else {
-            this.redstoneTick = true;
-        }
+        for (World world : Trident.getWorlds().values())
+            ((TridentWorld) world).tick();
 
         // TODO: check the worlds to make sure they're not suffering
 

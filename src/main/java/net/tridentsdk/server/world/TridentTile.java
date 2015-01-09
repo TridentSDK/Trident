@@ -21,17 +21,10 @@ import net.tridentsdk.Coordinates;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.base.Tile;
 import net.tridentsdk.docs.InternalUseOnly;
-import net.tridentsdk.entity.decorate.Impalable;
-import net.tridentsdk.server.entity.decorate.DecoratedImpalable;
-import net.tridentsdk.server.entity.decorate.Decorator;
 import net.tridentsdk.util.Vector;
 
 public class TridentTile implements Tile {
     private final Coordinates location;
-    /**
-     * Describes projectile logic
-     */
-    private final DecoratedImpalable impalable = Decorator.newImpalable(false);
     /**
      * The type for this block
      */
@@ -89,10 +82,5 @@ public class TridentTile implements Tile {
     @Override
     public Tile relativeTile(Vector vector) {
         return new TridentTile(this.location.relative(vector));
-    }
-
-    @Override
-    public Impalable asImpalable() {
-        return this.impalable;
     }
 }

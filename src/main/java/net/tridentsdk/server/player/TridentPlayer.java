@@ -19,6 +19,8 @@ package net.tridentsdk.server.player;
 
 import com.google.common.collect.Sets;
 import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
+import net.tridentsdk.GameMode;
+import net.tridentsdk.base.Substance;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.living.Player;
@@ -31,24 +33,24 @@ import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.packets.play.out.*;
 import net.tridentsdk.server.threads.ThreadsHandler;
+import net.tridentsdk.server.window.TridentWindow;
 import net.tridentsdk.server.world.TridentChunk;
 import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.util.TridentLogger;
+import net.tridentsdk.window.inventory.InventoryType;
+import net.tridentsdk.window.inventory.Item;
 import net.tridentsdk.world.ChunkLocation;
 import net.tridentsdk.world.LevelType;
 
 import javax.annotation.concurrent.ThreadSafe;
-import java.util.Collection;
-import java.util.Locale;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @ThreadSafe
 public class TridentPlayer extends OfflinePlayer {
     private final PlayerConnection connection;
     private volatile boolean loggingIn = true;
     private volatile Locale locale;
-    private final Set<ChunkLocation> knownChunks = Sets.newSetFromMap(new ConcurrentHashMapV8<ChunkLocation, Boolean>());
+    private final Set<ChunkLocation> knownChunks = Factories.collect().createSet();
 
     public TridentPlayer(CompoundTag tag, TridentWorld world, ClientConnection connection) {
         super(tag, world);
@@ -83,7 +85,7 @@ public class TridentPlayer extends OfflinePlayer {
             @Override
             public void run() {
                 p.connection.sendPacket(new PacketPlayOutJoinGame().set("entityId", p.getId())
-                                                .set("gamemode", p.getGameMode())
+                                                .set("gamemode", GameMode.CREATIVE)
                                                 .set("dimension", p.getWorld().dimension())
                                                 .set("difficulty", p.getWorld().difficulty())
                                                 .set("maxPlayers", (short) 10)
@@ -112,6 +114,10 @@ public class TridentPlayer extends OfflinePlayer {
 
         sendChunks(7);
         connection.sendPacket(PacketPlayOutStatistics.DEFAULT_STATISTIC);
+
+        TridentWindow window = new TridentWindow("Inventory", 9, InventoryType.CHEST);
+        window.setSlot(0, new Item(Substance.DIAMOND_PICKAXE));
+        window.sendTo(this);
 
         // Wait for response
         for (Entity entity : getWorld().entities()) {

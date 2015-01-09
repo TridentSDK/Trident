@@ -50,15 +50,6 @@ public final class Decorator {
         return hostile;
     }
 
-    public static DecoratedImpalable newImpalable(final boolean forEntity) {
-        return new DecoratedImpalable() {
-            @Override
-            public boolean isImpaledEntity() {
-                return forEntity;
-            }
-        };
-    }
-
     public static DecoratedInventoryHolder newInventoryHolder(Entity entity, String string, int size, InventoryType
             type) {
         return new DecoratedInventoryHolder(entity, string, size, type);

@@ -126,6 +126,7 @@ public class TridentChunk implements Chunk {
                                         lightPopulated, terrainPopulated);
     }
 
+    private final ByteArrayOutputStream data = new ByteArrayOutputStream();
     public PacketPlayOutChunkData asPacket() {
         PacketPlayOutChunkData packet = new PacketPlayOutChunkData();
 
@@ -139,7 +140,6 @@ public class TridentChunk implements Chunk {
         size += count * sectionSize + 256;
 
         //byte[] data = new byte[size];
-        ByteArrayOutputStream data = new ByteArrayOutputStream();
         //int pos = 0;
 
         for (ChunkSection section : sections) {
@@ -180,6 +180,8 @@ public class TridentChunk implements Chunk {
         packet.set("chunkLocation", location);
         packet.set("bitmask", (short) bitmask);
         packet.set("data", data.toByteArray());
+
+        data.reset();
 
         return packet;
     }

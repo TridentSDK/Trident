@@ -20,6 +20,7 @@ package net.tridentsdk.server.netty.packet;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
+import io.netty.handler.codec.compression.JZlibEncoder;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
@@ -27,7 +28,6 @@ import net.tridentsdk.server.netty.Codec;
 import javax.xml.bind.DatatypeConverter;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -42,7 +42,10 @@ import java.util.zip.Deflater;
  * @author The TridentSDK Team
  */
 public class PacketEncoder extends MessageToByteEncoder<ByteBuf> {
-    //private final Deflater deflater = new Deflater(Deflater.BEST_SPEED);
+    private final Deflater deflater = new Deflater(Deflater.BEST_SPEED);
+    private final byte[] buffer = new byte[65536];
+    private final ByteArrayOutputStream compressed = new ByteArrayOutputStream();
+
     private ClientConnection connection;
 
     @Override
@@ -86,19 +89,14 @@ public class PacketEncoder extends MessageToByteEncoder<ByteBuf> {
      * necessary
      */
     private void sendCompressed(ByteBuf msg, ByteBuf out) throws IOException {
-        Deflater deflater = new Deflater(Deflater.BEST_COMPRESSION);
         int index = msg.readerIndex();
         int length = msg.readableBytes();
 
-        byte[] buffer = new byte[1024];
         byte[] decompressed = new byte[length];
 
         msg.readBytes(decompressed);
         deflater.setInput(decompressed);
         deflater.finish();
-
-        ByteArrayOutputStream compressed = new ByteArrayOutputStream();
-        //DeflaterOutputStream stream = new DeflaterOutputStream(compressed, deflater);
 
         while (!deflater.finished()) {
             int bytes = deflater.deflate(buffer);
@@ -114,10 +112,12 @@ public class PacketEncoder extends MessageToByteEncoder<ByteBuf> {
             return;
         }
 
-        deflater.end();
+        deflater.reset();
 
         Codec.writeVarInt32(out, afterCompress + Codec.sizeOf(length));
         Codec.writeVarInt32(out, length);
         out.writeBytes(compressed.toByteArray());
+
+        compressed.reset();
     }
 }

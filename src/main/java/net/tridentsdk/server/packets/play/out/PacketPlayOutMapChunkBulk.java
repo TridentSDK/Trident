@@ -18,17 +18,36 @@
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.factory.Factories;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 import net.tridentsdk.world.ChunkLocation;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.PriorityBlockingQueue;
 
 public class PacketPlayOutMapChunkBulk extends OutPacket {
 
     protected boolean lightSent = true;
-    protected final List<PacketPlayOutChunkData> entries = new CopyOnWriteArrayList<>();
+    protected final Queue<PacketPlayOutChunkData> entries = new PriorityBlockingQueue<>(1024, new Comparator<PacketPlayOutChunkData>() {
+        @Override
+        public int compare(PacketPlayOutChunkData o1, PacketPlayOutChunkData o2) {
+            ChunkLocation c = o1.getChunkLocation();
+            ChunkLocation c0 = o2.getChunkLocation();
+
+            int cx = c.getX();
+            int cz = c.getZ();
+
+            int c0x = c0.getX();
+            int c0z = c0.getZ();
+
+            return (Math.abs(cx) + Math.abs(cz)) - (Math.abs(c0x) + Math.abs(c0z));
+        }
+    });
 
     @Override
     public int getId() {

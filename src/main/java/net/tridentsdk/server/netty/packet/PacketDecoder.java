@@ -24,6 +24,7 @@ import io.netty.handler.codec.ReplayingDecoder;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
+import net.tridentsdk.server.player.PlayerConnection;
 
 import java.util.List;
 import java.util.zip.Inflater;
@@ -49,7 +50,6 @@ public class PacketDecoder extends ReplayingDecoder<Void> {
     public void handlerAdded(ChannelHandlerContext context) {
         this.connection = ClientConnection.getConnection(context);
     }
-
 
     @Override
     protected void decode(ChannelHandlerContext context, ByteBuf buf, List<Object> objects) throws Exception {

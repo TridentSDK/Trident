@@ -141,6 +141,7 @@ import java.util.concurrent.atomic.AtomicInteger;
             player.getConnection().sendPacket(window);
         }
 
+        addClosedListener(player);
         users.add(player);
     }
 

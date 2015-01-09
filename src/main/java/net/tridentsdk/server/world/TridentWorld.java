@@ -26,7 +26,10 @@ import net.tridentsdk.base.Tile;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.factory.Factories;
 import net.tridentsdk.meta.nbt.*;
+import net.tridentsdk.server.packets.play.out.PacketPlayOutTimeUpdate;
 import net.tridentsdk.server.player.OfflinePlayer;
+import net.tridentsdk.server.player.TridentPlayer;
+import net.tridentsdk.server.threads.ThreadsHandler;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.*;
 
@@ -44,6 +47,9 @@ public class TridentWorld implements World {
     private final Map<ChunkLocation, TridentChunk> loadedChunks = new ConcurrentHashMapV8<>();
     private final Set<Entity> entities = Factories.collect().createSet();
 
+    private volatile long age;
+    private volatile long time;
+
     private final String name;
     private final Random random;
     private final WorldLoader loader;
@@ -52,6 +58,7 @@ public class TridentWorld implements World {
     private volatile Difficulty difficulty;
     private volatile GameMode defaultGamemode;
     private volatile LevelType type;
+    private volatile boolean redstoneTick;
 
     TridentWorld(String name, WorldLoader loader) {
         this.name = name;
@@ -159,6 +166,21 @@ public class TridentWorld implements World {
 
             TridentLogger.log("Loaded all player data!");
         }
+    }
+
+    public void tick() {
+        ThreadsHandler.worldExecutor().execute(new Runnable() {
+            @Override
+            public void run() {
+                redstoneTick = !redstoneTick;
+
+                if (time >= 2400)
+                    time = 0;
+                if (time % 40 == 0)
+                    TridentPlayer.sendAll(new PacketPlayOutTimeUpdate().set("worldAge", age).set("time", time));
+                time++;
+            }
+        });
     }
 
     @Override
@@ -335,7 +357,6 @@ public class TridentWorld implements World {
     }
 
     private static class ChunkFilter implements FilenameFilter {
-
         @Override
         public boolean accept(File file, String s) {
             String[] strings = s.split("\\.");

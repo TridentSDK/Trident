@@ -18,12 +18,8 @@
 package net.tridentsdk.server.entity;
 
 import net.tridentsdk.Coordinates;
-import net.tridentsdk.base.Substance;
-import net.tridentsdk.base.Tile;
 import net.tridentsdk.concurrent.TridentRunnable;
-import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.EntityProperties;
-import net.tridentsdk.entity.decorate.Impalable;
 import net.tridentsdk.entity.living.ProjectileLauncher;
 import net.tridentsdk.entity.projectile.Projectile;
 import net.tridentsdk.factory.Factories;
@@ -41,10 +37,6 @@ public abstract class TridentProjectile extends TridentEntity implements Project
      * The source that fires the projectile
      */
     protected volatile WeakReference<ProjectileLauncher> source;
-    /**
-     * The impalable that the projectile hit, if any
-     */
-    protected volatile Impalable impaled;
 
     /**
      * Inherits UUID and spawnLocation from {@link TridentEntity}
@@ -66,50 +58,6 @@ public abstract class TridentProjectile extends TridentEntity implements Project
 
     @Override
     public void doHit() {
-        final Impalable[] impalable = { null };
-        Factories.tasks().asyncRepeat(null, new TridentRunnable() {
-            Coordinates last = null;
-            int countCheck = 0;
-
-            @Override
-            public void run() {
-                if (impalable[0] == null) {
-                    if (last == null) last = getLocation();
-                    else if (getLocation().equals(last)) {
-                        countCheck++;
-                        if (countCheck == 10) {
-                            if (((Entity) impalable[0]).getLocation().equals(last)) {
-                                for (Entity entity : getNearbyEntities(1)) {
-                                    if (entity instanceof Impalable) if (impalable[0] == null || ((Entity) impalable[0])
-                                            .getLocation()
-                                            .distanceSquared(getLocation()) > entity.getLocation()
-                                            .distanceSquared(getLocation())) {
-                                        impalable[0] = (Impalable) entity;
-                                    }
-                                }
-
-                                if (impalable[0] == null) {
-                                    Tile tile = getLocation().tile();
-                                    if (tile.substance() == Substance.AIR) {
-                                        for (int i = 0; i < 2; i++) {
-                                            Tile newTile = getLocation().asVector()
-                                                    .multiply(i)
-                                                    .asLocation(getLocation().world())
-                                                    .tile();
-                                            if (newTile.substance() != Substance.AIR)
-                                                impalable[0] = newTile.asImpalable();
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }, 0L, 1L);
-
-        impaled = impalable[0];
-        impalable[0].put(this);
         this.hit();
     }
 
@@ -117,11 +65,6 @@ public abstract class TridentProjectile extends TridentEntity implements Project
      * Performed when the projectile hits something
      */
     protected abstract void hit();
-
-    @Override
-    public Impalable getImpaled() {
-        return this.impaled;
-    }
 
     @Override
     public ProjectileLauncher getLauncher() {

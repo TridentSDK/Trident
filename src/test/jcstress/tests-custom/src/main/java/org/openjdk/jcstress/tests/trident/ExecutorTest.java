@@ -51,14 +51,8 @@ public class ExecutorTest {
         });
         Factories.init(ThreadsHandler.create());
         Factories.init(TridentScheduler.create());
-        Factories.init(new ConfigFactory() {
-            @Override
-            public JsonConfig serverConfig() {
-                return null;
-            }
-        });
     }
-    private final ConcurrentTaskExecutor<?> factory = ConcurrentTaskExecutor.create(2);
+    private final ConcurrentTaskExecutor<?> factory = ConcurrentTaskExecutor.create(2, "test");
     private final AtomicReference<State> reference = new AtomicReference<>();
 
     @Actor
