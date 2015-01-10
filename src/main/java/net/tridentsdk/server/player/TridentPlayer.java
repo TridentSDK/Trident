@@ -36,7 +36,8 @@ import net.tridentsdk.server.threads.ThreadsHandler;
 import net.tridentsdk.server.window.TridentWindow;
 import net.tridentsdk.server.world.TridentChunk;
 import net.tridentsdk.server.world.TridentWorld;
-import net.tridentsdk.util.TridentLogger;
+import net.tridentsdk.util.*;
+import net.tridentsdk.util.Vector;
 import net.tridentsdk.window.inventory.InventoryType;
 import net.tridentsdk.window.inventory.Item;
 import net.tridentsdk.world.ChunkLocation;
@@ -95,7 +96,7 @@ public class TridentPlayer extends OfflinePlayer {
                 p.connection.sendPacket(new PacketPlayOutServerDifficulty().set("difficulty", p.getWorld().difficulty()));
                 p.connection.sendPacket(new PacketPlayOutSpawnPosition().set("location", p.getSpawnLocation()));
                 p.connection.sendPacket(p.abilities.asPacket());
-                p.connection.sendPacket(new PacketPlayOutPlayerCompleteMove().set("location", p.getSpawnLocation())
+                p.connection.sendPacket(new PacketPlayOutPlayerCompleteMove().set("location", p.getSpawnLocation().add(new Vector(0, 80, 0)))
                         .set("flags", (byte) 0));
             }
         });

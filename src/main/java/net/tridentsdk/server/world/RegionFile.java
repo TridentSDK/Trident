@@ -18,19 +18,24 @@
 package net.tridentsdk.server.world;
 
 import com.google.common.math.IntMath;
+import net.tridentsdk.concurrent.ConcurrentCache;
 import net.tridentsdk.meta.nbt.CompoundTag;
 import net.tridentsdk.meta.nbt.NBTDecoder;
 import net.tridentsdk.meta.nbt.NBTEncoder;
 import net.tridentsdk.meta.nbt.NBTException;
+import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.Chunk;
 import net.tridentsdk.world.ChunkLocation;
 
 import java.io.*;
 import java.math.RoundingMode;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.BitSet;
+import java.util.concurrent.Callable;
 import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 import java.util.zip.GZIPInputStream;
@@ -42,6 +47,8 @@ import java.util.zip.Inflater;
 
 // TODO stop using locks on native methods
 public class RegionFile {
+    private static final ConcurrentCache<Path, RegionFile> FILE_CACHE = ConcurrentCache.create();
+
     //The path to the region file
     final Path path;
     //The class in charge of sector allocation
@@ -49,7 +56,7 @@ public class RegionFile {
     //The object to lock on to stop reading/writing simultaneously
     private final Object readWriteLock = new Object();
 
-    public RegionFile(Path path) throws IOException {
+    private RegionFile(Path path) throws IOException {
         this.path = path;
 
         synchronized (this.readWriteLock) {
@@ -91,6 +98,17 @@ public class RegionFile {
 
             access.close();
         }
+    }
+
+    public static RegionFile fromPath(String name, ChunkLocation location) {
+        final Path path = Paths.get(name + "/region/", WorldUtils.getRegionFile(location));
+
+        return FILE_CACHE.retrieve(path, new Callable<RegionFile>() {
+            @Override
+            public RegionFile call() throws Exception {
+                return new RegionFile(path);
+            }
+        });
     }
 
     /**

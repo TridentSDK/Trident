@@ -262,7 +262,7 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
 
     public void handleShutdown(int index, Queue<Runnable> remaining) {
         if (state < SHUTTING_DOWN) {
-            if (index > this.scale) {
+            if (index >= this.scale) {
                 executors.set(index, new OverflowWorker(index).startWorker(remaining));
             } else executors.set(index, new ThreadWorker(index, name).startWorker(remaining));
         } else executors.set(index, null);
@@ -329,16 +329,7 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
                 try {
                     Runnable task = nextTask();
 
-                    int cycles = 0;
-                    while (task == null) {
-                        task = nextTask();
-                        Thread.yield();
-                        if (cycles++ > 1024)
-                            break;
-                    }
-
                     if (task == null) {
-                        Thread.yield();
                         task = tasks.take();
                     }
 

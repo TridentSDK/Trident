@@ -97,10 +97,7 @@ public class TridentWorldLoader implements WorldLoader {
     @Override
     public TridentChunk loadChunk(World world, ChunkLocation location) {
         try {
-            RegionFile file = new RegionFile(
-                    FileSystems.getDefault().getPath(world.name() + "/region/", WorldUtils.getRegionFile(location)));
-
-            return file.loadChunkData((TridentWorld) world, location);
+            return RegionFile.fromPath(world.name(), location).loadChunkData((TridentWorld) world, location);
         } catch (IOException | DataFormatException | NBTException ex) {
             TridentLogger.error(ex);
         }
