@@ -19,13 +19,13 @@ package net.tridentsdk.server.command;
 import net.tridentsdk.Trident;
 import net.tridentsdk.plugin.annotation.CommandDescription;
 import net.tridentsdk.plugin.cmd.Command;
-import net.tridentsdk.plugin.cmd.TridentConsole;
+import net.tridentsdk.plugin.cmd.Console;
 
 @CommandDescription(name = "shutdown", permission = "trident.shutdown", aliases = "", priority = 0)
 class ShutdownCommand extends Command {
     @Override
-    public void handleConsole(TridentConsole sender, String arguments, String alias) {
-        sender.sendRaw(TridentConsole.YELLOW + "Server shutdown sent by CONSOLE");
+    public void handleConsole(Console sender, String arguments, String alias) {
+        sender.sendRaw(Console.YELLOW + "Server shutdown sent by CONSOLE");
         Trident.shutdown();
     }
 }

@@ -19,11 +19,11 @@ package net.tridentsdk.server.world;
 
 import net.tridentsdk.Coordinates;
 import net.tridentsdk.base.Substance;
-import net.tridentsdk.base.Tile;
+import net.tridentsdk.base.Block;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.util.Vector;
 
-public class TridentTile implements Tile {
+public class TridentBlock implements Block {
     private final Coordinates location;
     /**
      * The type for this block
@@ -40,15 +40,15 @@ public class TridentTile implements Tile {
      * @param location Location of the Block
      */
     @InternalUseOnly
-    public TridentTile(Coordinates location) {
+    public TridentBlock(Coordinates location) {
         this.location = location;
 
         // Note: Avoid recursion by not creating a new instance from World#tileAt(Location)
-        Tile worldBlock = location.world().tileAt(location);
+        Block worldBlock = location.world().tileAt(location);
         this.material = worldBlock.substance();
     }
 
-    public TridentTile(Coordinates location, Substance substance, byte meta) {
+    public TridentBlock(Coordinates location, Substance substance, byte meta) {
         this.location = location;
         this.material = substance;
         this.data = meta;
@@ -80,7 +80,7 @@ public class TridentTile implements Tile {
     }
 
     @Override
-    public Tile relativeTile(Vector vector) {
-        return new TridentTile(this.location.relative(vector));
+    public Block relativeTile(Vector vector) {
+        return new TridentBlock(this.location.relative(vector));
     }
 }

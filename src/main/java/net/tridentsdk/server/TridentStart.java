@@ -166,6 +166,7 @@ import static com.google.common.collect.Lists.newArrayList;
             int port = config.getInt("port", Defaults.PORT);
 
             TridentLogger.log("Binding socket to server address, using address:port " + ip + ":" + port);
+
             new ServerBootstrap()
                     .group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
@@ -178,11 +179,13 @@ import static com.google.common.collect.Lists.newArrayList;
 
             /////////////////////////// Console command handling ////////////////////////////////////
             Scanner scanner = new Scanner(System.in);
+
             while (true) {
                 System.out.print("$ ");
                 String command = scanner.next();
 
-                TridentServer.getInstance().invokeCommand(command);
+                TridentServer.getInstance().console().invokeCommand(command);
+
                 if (command.equalsIgnoreCase("shutdown"))
                     break;
             }

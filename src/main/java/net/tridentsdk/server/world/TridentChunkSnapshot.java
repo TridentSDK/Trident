@@ -17,7 +17,7 @@
 
 package net.tridentsdk.server.world;
 
-import net.tridentsdk.base.Tile;
+import net.tridentsdk.base.Block;
 import net.tridentsdk.meta.nbt.CompoundTag;
 import net.tridentsdk.world.Chunk;
 import net.tridentsdk.world.ChunkLocation;
@@ -84,7 +84,7 @@ public class TridentChunkSnapshot implements ChunkSnapshot {
     }
 
     @Override
-    public Tile tileAt(int relX, int y, int relZ) {
+    public Block tileAt(int relX, int y, int relZ) {
         return null;
     }
 

@@ -19,12 +19,11 @@ package net.tridentsdk.server.world;
 
 import net.tridentsdk.Coordinates;
 import net.tridentsdk.base.Substance;
-import net.tridentsdk.base.Tile;
+import net.tridentsdk.base.Block;
 import net.tridentsdk.meta.nbt.NBTField;
 import net.tridentsdk.meta.nbt.NBTSerializable;
 import net.tridentsdk.meta.nbt.TagType;
 import net.tridentsdk.util.NibbleArray;
-import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.World;
 
 final class ChunkSection implements NBTSerializable {
@@ -65,7 +64,7 @@ final class ChunkSection implements NBTSerializable {
         types = new byte[rawTypes.length];
 
         for (int i = 0; i < LENGTH; i += 1) {
-            Tile block;
+            Block block;
             byte b;
             byte bData;
             int bAdd;
@@ -82,7 +81,7 @@ final class ChunkSection implements NBTSerializable {
                 material = Substance.AIR; // check if valid
             }
 
-            block = new TridentTile(Coordinates.create(world, 0, 0, 0), material, // dummy location
+            block = new TridentBlock(Coordinates.create(world, 0, 0, 0), material, // dummy location
                                     bData);
 
             /* TODO get the type and deal with block data accordingly */

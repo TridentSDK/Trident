@@ -19,7 +19,7 @@ package net.tridentsdk.server.world.gen;
 
 import net.tridentsdk.Coordinates;
 import net.tridentsdk.base.Substance;
-import net.tridentsdk.base.Tile;
+import net.tridentsdk.base.Block;
 import net.tridentsdk.world.World;
 
 /**
@@ -66,8 +66,8 @@ public class ChunkTile {
      */
     public void apply(World world) {
         // Executes after chunk is created by handler
-        Tile tile = world.tileAt(Coordinates.create(world, x, y, z));
-        tile.setSubstance(substance);
-        tile.setMeta(data);
+        Block block = world.tileAt(Coordinates.create(world, x, y, z));
+        block.setSubstance(substance);
+        block.setMeta(data);
     }
 }

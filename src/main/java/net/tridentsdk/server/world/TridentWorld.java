@@ -22,7 +22,7 @@ import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
 import net.tridentsdk.Coordinates;
 import net.tridentsdk.Difficulty;
 import net.tridentsdk.GameMode;
-import net.tridentsdk.base.Tile;
+import net.tridentsdk.base.Block;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.factory.Factories;
 import net.tridentsdk.meta.nbt.*;
@@ -56,7 +56,7 @@ public class TridentWorld implements World {
     private volatile long existed;
     private volatile int rainTime;
     private volatile int thunderTime;
-    private volatile int borderSize;
+    private volatile double borderSize;
 
     private final String name;
     private final Random random;
@@ -125,7 +125,7 @@ public class TridentWorld implements World {
         difficulty = Difficulty.NORMAL;
         defaultGamemode = GameMode.gamemodeOf(((IntTag) level.getTag("GameType")).getValue());
         type = LevelType.levelTypeOf(((StringTag) level.getTag("generatorName")).getValue());
-        borderSize = ((IntTag) level.getTag("BorderSize")).getValue();
+        borderSize = ((DoubleTag) level.getTag("BorderSize")).getValue();
 
         time = ((LongTag) level.getTag("DayTime")).getValue();
         existed = ((LongTag) level.getTag("Time")).getValue();
@@ -319,7 +319,7 @@ public class TridentWorld implements World {
     }
 
     @Override
-    public Tile tileAt(Coordinates location) {
+    public Block tileAt(Coordinates location) {
         if (!location.world().name().equals(this.name()))
             throw new IllegalArgumentException("Provided location does not have the same world!");
 
@@ -399,7 +399,7 @@ public class TridentWorld implements World {
     }
 
     @Override
-    public int borderSize() {
+    public double borderSize() {
         return borderSize;
     }
 

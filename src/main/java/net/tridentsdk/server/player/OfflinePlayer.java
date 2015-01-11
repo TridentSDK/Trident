@@ -260,7 +260,7 @@ import java.util.UUID;
     }
 
     @Override
-    public String getLastCommand() {
+    public String lastCommand() {
         return null;
     }
 

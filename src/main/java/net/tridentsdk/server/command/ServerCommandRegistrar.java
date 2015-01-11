@@ -28,6 +28,7 @@ public class ServerCommandRegistrar {
         // Set it here in case some idiot tries to register twice
         registered = true;
 
+        // FIXME (does not register)
         Trident.commandHandler().addCommand(new ShutdownCommand());
     }
 }

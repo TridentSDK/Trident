@@ -18,7 +18,7 @@
 package net.tridentsdk.server.entity.block;
 
 import net.tridentsdk.Coordinates;
-import net.tridentsdk.base.Tile;
+import net.tridentsdk.base.Block;
 import net.tridentsdk.entity.EntityProperties;
 import net.tridentsdk.entity.block.ItemFrame;
 import net.tridentsdk.server.entity.TridentEntity;
@@ -52,7 +52,7 @@ public class TridentItemFrame extends TridentEntity implements ItemFrame {
     }
 
     @Override
-    public Tile getHangingBlock() {
+    public Block getHangingBlock() {
         return null;
     }
 }

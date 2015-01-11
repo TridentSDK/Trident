@@ -18,7 +18,7 @@
 package net.tridentsdk.server.entity.living;
 
 import net.tridentsdk.Coordinates;
-import net.tridentsdk.base.TileSnapshot;
+import net.tridentsdk.base.BlockSnapshot;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.EntityProperties;
 import net.tridentsdk.entity.living.Enderman;
@@ -35,7 +35,7 @@ public class TridentEnderman extends TridentLivingEntity implements Enderman {
     }
 
     @Override
-    public TileSnapshot getCarryingBlock() {
+    public BlockSnapshot getCarryingBlock() {
         return null;
     }
 

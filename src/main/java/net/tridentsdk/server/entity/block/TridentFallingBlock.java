@@ -18,7 +18,7 @@
 package net.tridentsdk.server.entity.block;
 
 import net.tridentsdk.Coordinates;
-import net.tridentsdk.base.TileSnapshot;
+import net.tridentsdk.base.BlockSnapshot;
 import net.tridentsdk.entity.EntityProperties;
 import net.tridentsdk.entity.block.FallingBlock;
 import net.tridentsdk.server.entity.TridentEntity;
@@ -31,7 +31,7 @@ public class TridentFallingBlock extends TridentEntity implements FallingBlock {
     }
 
     @Override
-    public TileSnapshot getSnapshot() {
+    public BlockSnapshot getSnapshot() {
         return null;
     }
 

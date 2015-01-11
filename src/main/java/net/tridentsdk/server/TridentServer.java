@@ -30,6 +30,8 @@ import net.tridentsdk.factory.Factories;
 import net.tridentsdk.plugin.TridentPlugin;
 import net.tridentsdk.plugin.TridentPluginHandler;
 import net.tridentsdk.plugin.cmd.CommandHandler;
+import net.tridentsdk.plugin.cmd.Console;
+import net.tridentsdk.server.command.TridentConsole;
 import net.tridentsdk.server.netty.protocol.Protocol;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutPluginMessage;
 import net.tridentsdk.server.player.OfflinePlayer;
@@ -55,7 +57,8 @@ import java.util.UUID;
  *
  * @author The TridentSDK Team
  */
-@ThreadSafe public final class TridentServer implements Server {
+@ThreadSafe
+public final class TridentServer implements Server {
     // TODO this is temporary for testing
     public static final TridentWorld WORLD = findWorld();
     private static final DisplayInfo INFO = new DisplayInfo();
@@ -69,9 +72,9 @@ import java.util.UUID;
     private final WindowHandler windowHandler;
     private final EventHandler eventHandler;
     private final CommandHandler commandHandler;
+    private final TridentConsole console;
 
     private final TridentPluginHandler pluginHandler;
-
     private final TridentWorldLoader worldLoader;
 
     private TridentServer(JsonConfig config) {
@@ -84,6 +87,7 @@ import java.util.UUID;
         this.logger = TridentLogger.getLogger();
         this.mainThread = new MainThread(20);
         this.worldLoader = new TridentWorldLoader();
+        this.console = new TridentConsole();
     }
 
     /**
@@ -140,6 +144,11 @@ import java.util.UUID;
 
     public MainThread getMainThread() {
         return mainThread;
+    }
+
+    @Override
+    public Console console() {
+        return console;
     }
 
     /**
@@ -242,32 +251,5 @@ import java.util.UUID;
     public Player playerBy(UUID id) {
         Player p = TridentPlayer.getPlayer(id);
         return p != null ? p : OfflinePlayer.getOfflinePlayer(id);
-    }
-
-
-    private volatile String lastCommand;
-    private volatile String lastMessage;
-
-    @Override
-    public void invokeCommand(String message) {
-        commandHandler.handleCommand(message, this);
-        lastCommand = message;
-    }
-
-    @Override
-    public String getLastCommand() {
-        return lastCommand;
-    }
-
-    @Override
-    public void sendRaw(String... messages) {
-        for (String s : messages)
-            TridentLogger.log(s);
-        lastMessage = messages[messages.length - 1];
-    }
-
-    @Override
-    public String lastMessage() {
-        return lastMessage;
     }
 }
