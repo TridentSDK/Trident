@@ -34,10 +34,14 @@ import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.*;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 public class TridentWorld implements World {
     private static final int SIZE = 1;
@@ -49,6 +53,10 @@ public class TridentWorld implements World {
 
     private volatile long age;
     private volatile long time;
+    private volatile long existed;
+    private volatile int rainTime;
+    private volatile int thunderTime;
+    private volatile int borderSize;
 
     private final String name;
     private final Random random;
@@ -58,7 +66,11 @@ public class TridentWorld implements World {
     private volatile Difficulty difficulty;
     private volatile GameMode defaultGamemode;
     private volatile LevelType type;
+
+    private volatile boolean difficultyLocked;
     private volatile boolean redstoneTick;
+    private volatile boolean raining;
+    private volatile boolean thundering;
 
     TridentWorld(String name, WorldLoader loader) {
         this.name = name;
@@ -113,6 +125,15 @@ public class TridentWorld implements World {
         difficulty = Difficulty.NORMAL;
         defaultGamemode = GameMode.gamemodeOf(((IntTag) level.getTag("GameType")).getValue());
         type = LevelType.levelTypeOf(((StringTag) level.getTag("generatorName")).getValue());
+        borderSize = ((IntTag) level.getTag("BorderSize")).getValue();
+
+        time = ((LongTag) level.getTag("DayTime")).getValue();
+        existed = ((LongTag) level.getTag("Time")).getValue();
+        raining = ((ByteTag) level.getTag("raining")).getValue() == 1;
+        rainTime = ((IntTag) level.getTag("rainTime")).getValue();
+        thundering = ((ByteTag) level.getTag("thundering")).getValue() == 1;
+        thunderTime = ((IntTag) level.getTag("thunderTime")).getValue();
+        difficultyLocked = ((ByteTag) level.getTag("DifficultyLocked")).getValue() == 1;
 
         TridentLogger.log("Loaded level.dat successfully! Moving on to region files...");
 
@@ -178,7 +199,22 @@ public class TridentWorld implements World {
                     time = 0;
                 if (time % 40 == 0)
                     TridentPlayer.sendAll(new PacketPlayOutTimeUpdate().set("worldAge", age).set("time", time));
+
+                rainTime--;
+                thunderTime--;
+
+                if (rainTime <= 0) {
+                    raining = !raining;
+                    rainTime = ThreadLocalRandom.current().nextInt();
+                }
+
+                if (thunderTime <= 0) {
+                    thundering = !thundering;
+                    thunderTime = ThreadLocalRandom.current().nextInt();
+                }
+
                 time++;
+                existed++;
             }
         });
     }
@@ -244,6 +280,44 @@ public class TridentWorld implements World {
         return this.chunkAt(location, false);
     }
 
+    public void save() {
+        CompoundTag tag = new CompoundTag("Data");
+
+        TridentLogger.log("Saving " + name + "...");
+        TridentLogger.log("Attempting to save level data...");
+
+        tag.addTag(new IntTag("SpawnX").setValue((int) spawnLocation.getX()));
+        tag.addTag(new IntTag("SpawnY").setValue((int) spawnLocation.getY()));
+        tag.addTag(new IntTag("SpawnZ").setValue((int) spawnLocation.getZ()));
+
+        tag.addTag(new ByteTag("Difficulty").setValue(difficulty.asByte()));
+        tag.addTag(new ByteTag("DifficultyLocked")
+                .setValue(difficultyLocked ? (byte) 1 : (byte) 0));
+        tag.addTag(new LongTag("DayTime").setValue(time));
+        tag.addTag(new LongTag("Time").setValue(existed));
+        tag.addTag(new ByteTag("raining")
+                .setValue(raining ? (byte) 1 : (byte) 0));
+
+        tag.addTag(new IntTag("rainTime").setValue(rainTime));
+        tag.addTag(new ByteTag("thundering")
+                .setValue(thundering ? (byte) 1 : (byte) 0));
+        tag.addTag(new IntTag("thunderTime").setValue(thunderTime));
+
+        // TODO add other level data
+
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+
+        try {
+            new NBTEncoder(new DataOutputStream(new GZIPOutputStream(os))).encode(tag);
+            Files.write(Paths.get(name, File.separator, "level.dat"), os.toByteArray());
+        } catch (IOException | NBTException ex) {
+            TridentLogger.log("Failed to save level data... printing stacktrace");
+            TridentLogger.error(ex);
+        }
+
+        // TODO save chunks
+    }
+
     @Override
     public Tile tileAt(Coordinates location) {
         if (!location.world().name().equals(this.name()))
@@ -296,27 +370,27 @@ public class TridentWorld implements World {
 
     @Override
     public long time() {
-        return 0;
+        return time;
     }
 
     @Override
     public boolean isRaining() {
-        return false;
+        return raining;
     }
 
     @Override
     public int rainTime() {
-        return 0;
+        return rainTime;
     }
 
     @Override
     public boolean isThundering() {
-        return false;
+        return thundering;
     }
 
     @Override
     public int thunderTime() {
-        return 0;
+        return thunderTime;
     }
 
     @Override
@@ -326,7 +400,7 @@ public class TridentWorld implements World {
 
     @Override
     public int borderSize() {
-        return 0;
+        return borderSize;
     }
 
     @Override
