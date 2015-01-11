@@ -20,19 +20,14 @@ package net.tridentsdk.server.packets.play.in;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.Coordinates;
 import net.tridentsdk.Trident;
-import net.tridentsdk.base.Substance;
 import net.tridentsdk.event.Cancellable;
 import net.tridentsdk.event.Event;
 import net.tridentsdk.event.player.PlayerMoveEvent;
-import net.tridentsdk.server.data.Slot;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.Packet;
-import net.tridentsdk.server.packets.play.out.PacketPlayOutEntityCompleteMove;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutEntityTeleport;
-import net.tridentsdk.server.packets.play.out.PacketPlayOutWindowItems;
 import net.tridentsdk.server.player.PlayerConnection;
 import net.tridentsdk.server.player.TridentPlayer;
-import net.tridentsdk.window.inventory.Item;
 
 /**
  * Packet sent when player moved both x, y, z and yaw, and pitch.
@@ -73,7 +68,7 @@ public class PacketPlayInPlayerCompleteMove extends PacketPlayInPlayerMove {
         super.location.setWorld(player.getWorld());
 
         Event event = new PlayerMoveEvent(player, player.getLocation(), super.location);
-        Trident.getEventHandler().call(event);
+        Trident.eventHandler().call(event);
 
         if (((Cancellable) event).isIgnored()) {
             PacketPlayOutEntityTeleport packet = new PacketPlayOutEntityTeleport();

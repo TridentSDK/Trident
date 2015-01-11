@@ -53,7 +53,7 @@ import net.tridentsdk.util.Vector;
 
         if (entity instanceof Player) {
             PlayerMoveEvent event = new PlayerMoveEvent((Player) entity, from, to);
-            Trident.getEventHandler().call(event);
+            Trident.eventHandler().call(event);
             if (!event.isIgnored()) sendMove(entity, to, diff);
 
             return;

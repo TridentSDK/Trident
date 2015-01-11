@@ -39,7 +39,7 @@ public class FlatWorldGen extends AbstractGenerator {
             case 3:
                 return ChunkTile.create(x, y, z, Substance.GRASS);
             default:
-                TridentLogger.error(new IllegalArgumentException("Cannot parse over 4 block height for flats"));
+                TridentLogger.error(new IllegalArgumentException("Cannot parse over/under 4 block height for flats"));
         }
 
         return null;

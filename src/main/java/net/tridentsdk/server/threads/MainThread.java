@@ -22,7 +22,6 @@ import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.factory.Factories;
 import net.tridentsdk.server.TridentScheduler;
 import net.tridentsdk.server.player.TridentPlayer;
-import net.tridentsdk.server.util.CircularArrayIterator;
 import net.tridentsdk.server.util.ConcurrentCircularArray;
 import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.world.World;
@@ -95,7 +94,7 @@ import java.util.concurrent.atomic.AtomicInteger;
             player.tick();
         }
 
-        for (World world : Trident.getWorlds().values())
+        for (World world : Trident.worlds().values())
             ((TridentWorld) world).tick();
 
         // TODO: check the worlds to make sure they're not suffering

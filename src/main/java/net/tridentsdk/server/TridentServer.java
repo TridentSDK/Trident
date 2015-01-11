@@ -22,12 +22,14 @@ import net.tridentsdk.Defaults;
 import net.tridentsdk.DisplayInfo;
 import net.tridentsdk.Server;
 import net.tridentsdk.Trident;
+import net.tridentsdk.concurrent.TridentRunnable;
 import net.tridentsdk.config.JsonConfig;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.EventHandler;
 import net.tridentsdk.factory.Factories;
 import net.tridentsdk.plugin.TridentPlugin;
 import net.tridentsdk.plugin.TridentPluginHandler;
+import net.tridentsdk.plugin.cmd.CommandHandler;
 import net.tridentsdk.server.netty.protocol.Protocol;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutPluginMessage;
 import net.tridentsdk.server.player.OfflinePlayer;
@@ -55,7 +57,7 @@ import java.util.UUID;
  */
 @ThreadSafe public final class TridentServer implements Server {
     // TODO this is temporary for testing
-    public static final TridentWorld WORLD = (TridentWorld) new TridentWorldLoader().load("world");
+    public static final TridentWorld WORLD = findWorld();
     private static final DisplayInfo INFO = new DisplayInfo();
 
     private final MainThread mainThread;
@@ -66,6 +68,7 @@ import java.util.UUID;
 
     private final WindowHandler windowHandler;
     private final EventHandler eventHandler;
+    private final CommandHandler commandHandler;
 
     private final TridentPluginHandler pluginHandler;
 
@@ -76,6 +79,7 @@ import java.util.UUID;
         this.protocol = new Protocol();
         this.windowHandler = new WindowHandler();
         this.eventHandler = EventHandler.create();
+        this.commandHandler = new CommandHandler();
         this.pluginHandler = new TridentPluginHandler();
         this.logger = TridentLogger.getLogger();
         this.mainThread = new MainThread(20);
@@ -94,6 +98,18 @@ import java.util.UUID;
 
         return server;
         // We CANNOT let the "this" instance escape during creation, else we lose thread-safety
+    }
+
+    private static TridentWorld findWorld() {
+        final TridentWorld[] world = new TridentWorld[1];
+        Factories.tasks().asyncLater(null, new TridentRunnable() {
+            @Override
+            public void run() {
+                while (Trident.getServer() == null) {}
+                world[0] = (TridentWorld) Trident.worlds().get("world");
+            }
+        }, 100L);
+        return world[0];
     }
 
     /**
@@ -148,8 +164,8 @@ import java.util.UUID;
     public void shutdown() {
         //TODO: Cleanup stuff...
         TridentLogger.log("Shutting down plugins...");
-        for (TridentPlugin plugin : getPluginHandler().getPlugins())
-            getPluginHandler().disable(plugin);
+        for (TridentPlugin plugin : pluginHandler().getPlugins())
+            pluginHandler().disable(plugin);
 
         TridentLogger.log("Shutting down worker threads...");
         ((TridentScheduler) Factories.tasks()).stop();
@@ -203,8 +219,13 @@ import java.util.UUID;
     }
 
     @Override
-    public TridentPluginHandler getPluginHandler() {
+    public TridentPluginHandler pluginHandler() {
         return this.pluginHandler;
+    }
+
+    @Override
+    public CommandHandler commandHandler() {
+        return commandHandler;
     }
 
     @Override
@@ -213,13 +234,40 @@ import java.util.UUID;
     }
 
     @Override
-    public Logger getLogger() {
+    public Logger logger() {
         return logger;
     }
 
     @Override
-    public Player getPlayer(UUID id) {
+    public Player playerBy(UUID id) {
         Player p = TridentPlayer.getPlayer(id);
         return p != null ? p : OfflinePlayer.getOfflinePlayer(id);
+    }
+
+
+    private volatile String lastCommand;
+    private volatile String lastMessage;
+
+    @Override
+    public void invokeCommand(String message) {
+        commandHandler.handleCommand(message, this);
+        lastCommand = message;
+    }
+
+    @Override
+    public String getLastCommand() {
+        return lastCommand;
+    }
+
+    @Override
+    public void sendRaw(String... messages) {
+        for (String s : messages)
+            TridentLogger.log(s);
+        lastMessage = messages[messages.length - 1];
+    }
+
+    @Override
+    public String lastMessage() {
+        return lastMessage;
     }
 }
