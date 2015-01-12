@@ -14,10 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.world.gen;
 
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.util.TridentLogger;
+import net.tridentsdk.world.gen.AbstractGenerator;
+import net.tridentsdk.world.gen.ChunkTile;
 
 /**
  * Generates a flat world using

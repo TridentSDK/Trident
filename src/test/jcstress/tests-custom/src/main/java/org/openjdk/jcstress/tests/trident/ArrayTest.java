@@ -28,9 +28,11 @@ package org.openjdk.jcstress.tests.trident;
 import org.openjdk.jcstress.annotations.*;
 import org.openjdk.jcstress.infra.results.BooleanResult1;
 
-@JCStressTest @Outcome(id = "[true, true]", expect = Expect.ACCEPTABLE, desc = "JMM works like it should")
+@JCStressTest
+@Outcome(id = "[true, true]", expect = Expect.ACCEPTABLE, desc = "JMM works like it should")
 @Outcome(id = "[false, true]", expect = Expect.FORBIDDEN, desc = "Volatile array does not work")
-@Outcome(expect = Expect.FORBIDDEN) public class ArrayTest {
+@Outcome(expect = Expect.FORBIDDEN)
+public class ArrayTest {
     // volatileArray
     private Item[] items = new Item[10];
 
@@ -49,6 +51,7 @@ import org.openjdk.jcstress.infra.results.BooleanResult1;
             result1.r1 = true;
     }
 
-    @State public static class Item {
+    @State
+    public static class Item {
     }
 }

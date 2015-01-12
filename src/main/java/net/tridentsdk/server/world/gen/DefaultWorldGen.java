@@ -18,6 +18,8 @@
 package net.tridentsdk.server.world.gen;
 
 import net.tridentsdk.base.Substance;
+import net.tridentsdk.world.gen.AbstractGenerator;
+import net.tridentsdk.world.gen.ChunkTile;
 
 /**
  * Default world generator engine for Trident

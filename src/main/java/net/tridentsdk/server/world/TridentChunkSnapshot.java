@@ -37,8 +37,8 @@ public class TridentChunkSnapshot implements ChunkSnapshot {
     private final byte terrainPopulated;
     private final CompoundTag[] sections;
 
-    public TridentChunkSnapshot(TridentWorld world, ChunkLocation location, List<CompoundTag> list, int
-            lastFileAccess, long lastModified, long inhabitedTime, byte lightPopulated, byte terrainPopulated) {
+    public TridentChunkSnapshot(TridentWorld world, ChunkLocation location, List<CompoundTag> list, int lastFileAccess,
+            long lastModified, long inhabitedTime, byte lightPopulated, byte terrainPopulated) {
         this.world = world;
         this.location = location;
         this.lastFileAccess = lastFileAccess;

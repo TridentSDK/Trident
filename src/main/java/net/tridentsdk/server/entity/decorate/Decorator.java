@@ -46,12 +46,13 @@ public final class Decorator {
 
     public static DecoratedHostile asHostile(LivingEntity entity, boolean apply) {
         DecoratedHostile hostile = new DecoratedHostile(entity);
-        if (apply) hostile.applyHostilityUpdate();
+        if (apply)
+            hostile.applyHostilityUpdate();
         return hostile;
     }
 
-    public static DecoratedInventoryHolder newInventoryHolder(Entity entity, String string, int size, InventoryType
-            type) {
+    public static DecoratedInventoryHolder newInventoryHolder(Entity entity, String string, int size,
+            InventoryType type) {
         return new DecoratedInventoryHolder(entity, string, size, type);
     }
 
@@ -69,7 +70,8 @@ public final class Decorator {
 
     public static DecoratedPeaceful asPeaceful(LivingEntity entity, boolean apply) {
         DecoratedPeaceful peaceful = new DecoratedPeaceful(entity);
-        if (apply) peaceful.applyPeaceUpdate();
+        if (apply)
+            peaceful.applyPeaceUpdate();
         return peaceful;
     }
 
@@ -83,7 +85,8 @@ public final class Decorator {
 
     public static DecoratedTradable asTradable(VillagerCareer career) {
         DecoratedTradable tradable = new DecoratedTradable();
-        if (career != null) tradable.applyUpdateTrades(career);
+        if (career != null)
+            tradable.applyUpdateTrades(career);
         return tradable;
     }
 }

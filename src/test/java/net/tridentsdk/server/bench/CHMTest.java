@@ -34,7 +34,8 @@ import java.util.concurrent.TimeUnit;
 /*
 Benchmark results: http://bit.ly/1y90tml
  */
-@State(Scope.Benchmark) public class CHMTest {
+@State(Scope.Benchmark)
+public class CHMTest {
     private static final Set<Object> SET = new ConcurrentSet<>();
     private static final Set<Object> SET0 = Factories.collect().createSet();
 

@@ -46,8 +46,8 @@ public class PacketPlayOutSpawnPlayer extends OutPacket {
 
     @Override
     public void encode(ByteBuf buf) {
-        Coordinates loc = this.player.getLocation();
-        UUID id = this.player.getUniqueId();
+        Coordinates loc = this.player.location();
+        UUID id = this.player.uniqueId();
 
         Codec.writeVarInt32(buf, this.entityId);
 

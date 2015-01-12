@@ -38,6 +38,7 @@ import java.util.zip.Deflater;
  * <p>Note that this is not thread safe, if it is to be used in multiple threads, multiple instances should be
  * created</p>
  * <p>This is the second and final in the outbound packet pipeline</p>
+ *
  * @author The TridentSDK Team
  */
 public class PacketEncoder extends MessageToByteEncoder<ByteBuf> {
@@ -54,7 +55,7 @@ public class PacketEncoder extends MessageToByteEncoder<ByteBuf> {
 
     @Override
     protected void encode(ChannelHandlerContext channelHandlerContext, ByteBuf msg, ByteBuf out) throws Exception {
-        int threshold = TridentServer.getInstance().getCompressionThreshold();
+        int threshold = TridentServer.instance().getCompressionThreshold();
         boolean underThreshold = msg.readableBytes() < threshold && threshold != -1;
 
         if (underThreshold && connection.isCompressionEnabled()) {
@@ -67,15 +68,14 @@ public class PacketEncoder extends MessageToByteEncoder<ByteBuf> {
         }
 
         // DEBUG
-        Files.write(Paths.get("lastpacket.txt"), Arrays.asList(DatatypeConverter.printHexBinary(Codec.asArray(out.copy()))),
-                Charset.defaultCharset());
+        Files.write(Paths.get("lastpacket.txt"),
+                Arrays.asList(DatatypeConverter.printHexBinary(Codec.asArray(out.copy()))), Charset.defaultCharset());
     }
 
     /**
      * Encodes the packet without checking for size to see if it should be compressed
      * <p>Still sends a VarInt 0 to indicate that this packet has not been compressed</p>
      * <p>This method of handling a packet is abnormal and is only used when compression is disabled</p>
-     *
      */
     private void sendDecompressed(ByteBuf msg, ByteBuf out) {
         Codec.writeVarInt32(out, msg.readableBytes() + Codec.sizeOf(0));

@@ -40,7 +40,8 @@ import java.util.concurrent.TimeUnit;
 /*
 Benchmark results: http://bit.ly/1A21o5O
  */
-@State(Scope.Benchmark) public class CacheTest {
+@State(Scope.Benchmark)
+public class CacheTest {
     static {
         TridentLogger.init();
         Factories.init(new CollectFactory() {
@@ -77,7 +78,7 @@ Benchmark results: http://bit.ly/1A21o5O
                         TimeValue.milliseconds(1))              // ALLOWED TIME
                 .measurementIterations(5).measurementTime(TimeValue.milliseconds(1))         // ALLOWED TIME
                 .forks(1)                                           // FORKS
-                //.verbosity(VerboseMode.SILENT)                      // GRAPH
+                        //.verbosity(VerboseMode.SILENT)                      // GRAPH
                 .threads(4)                                         // THREADS
                 .build();
 

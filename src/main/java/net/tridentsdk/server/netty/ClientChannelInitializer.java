@@ -31,7 +31,8 @@ import javax.annotation.concurrent.ThreadSafe;
  *
  * @author The TridentSDK Team
  */
-@ThreadSafe public class ClientChannelInitializer extends ChannelInitializer<SocketChannel> {
+@ThreadSafe
+public class ClientChannelInitializer extends ChannelInitializer<SocketChannel> {
     private ClientConnection connection;
 
     @Override

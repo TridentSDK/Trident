@@ -22,6 +22,7 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
+
 package org.openjdk.jcstress.tests.trident;
 
 import net.tridentsdk.server.world.TridentWorldLoader;

@@ -132,7 +132,8 @@ Iteration   5: 707540626.000 ns/op
 
 Trident is 10x faster than Bukkit
  */
-@State(Scope.Benchmark) public class SchedulerTest {
+@State(Scope.Benchmark)
+public class SchedulerTest {
     static {
         TridentLogger.init();
         Factories.init(new CollectFactory() {
@@ -144,13 +145,15 @@ Trident is 10x faster than Bukkit
         Factories.init(TridentScheduler.create());
         Factories.init(ThreadsHandler.create());
     }
+
     private static final TridentScheduler scheduler = TridentScheduler.create();
 
     //@Param({ "1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024" })
     private int cpuTokens;
 
     public static void main8(String... args) throws InterruptedException {
-        @PluginDescription(name = "LOLCODE") class PluginImpl extends TridentPlugin {
+        @PluginDescription(name = "LOLCODE")
+        class PluginImpl extends TridentPlugin {
         }
 
         for (int i = 0; i < 1000; i++) {
@@ -177,23 +180,23 @@ Trident is 10x faster than Bukkit
 
     public static void main(String... args) throws RunnerException {
         Options opt = new OptionsBuilder().include(".*" + SchedulerTest.class.getSimpleName() + ".*") // CLASS
-                .timeUnit(TimeUnit.NANOSECONDS).mode(Mode.AverageTime).warmupIterations(25)
-                .warmupTime(TimeValue.milliseconds(20))             // ALLOWED TIME
+                .timeUnit(TimeUnit.NANOSECONDS).mode(Mode.AverageTime).warmupIterations(25).warmupTime(
+                        TimeValue.milliseconds(20))             // ALLOWED TIME
                 .measurementIterations(5).measurementTime(TimeValue.milliseconds(25))         // ALLOWED TIME
                 .forks(1)                                           // FORKS
-                //.verbosity(VerboseMode.SILENT)                      // GRAPH
-                .threads(1)
-                .build();
+                        //.verbosity(VerboseMode.SILENT)                      // GRAPH
+                .threads(1).build();
 
         Collection<RunResult> results = new Runner(opt).run();
-        scheduler.stop();
+        scheduler.shutdown();
         Benchmarks.chart(Benchmarks.parse(results), "Scheduler+performance");
     }
 
     public static void main0(String... args) throws InterruptedException {
         TridentScheduler scheduler = TridentScheduler.create();
         for (int i = 0; i < 100; i++) {
-            @PluginDescription(name = "LOLCODE") class PluginImpl extends TridentPlugin {
+            @PluginDescription(name = "LOLCODE")
+            class PluginImpl extends TridentPlugin {
             }
 
             final int finalI = i;
@@ -209,14 +212,15 @@ Trident is 10x faster than Bukkit
             scheduler.tick();
         }
 
-        scheduler.stop();
+        scheduler.shutdown();
     }
 
     @Setup
     public void setup() {
         Factories.init(ThreadsHandler.create());
         for (int i = 0; i < 100000; i++) {
-            @PluginDescription(name = "LOLCODE") class PluginImpl extends TridentPlugin {
+            @PluginDescription(name = "LOLCODE")
+            class PluginImpl extends TridentPlugin {
             }
 
             scheduler.asyncRepeat(new PluginImpl(), new TridentRunnable() {

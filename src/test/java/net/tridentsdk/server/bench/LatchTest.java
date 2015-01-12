@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.bench;
 
 import net.tridentsdk.concurrent.HeldValueLatch;
@@ -31,7 +32,8 @@ import java.util.concurrent.TimeUnit;
 /*
 Benchmark results: http://bit.ly/1rdMWrp
  */
-@State(Scope.Benchmark) public class LatchTest {
+@State(Scope.Benchmark)
+public class LatchTest {
     private static final HeldValueLatch<HeldValueLatch<?>> LATCH = HeldValueLatch.create();
     @Param({ "1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024" })
     private int cpuTokens;

@@ -57,7 +57,7 @@ public class PacketPlayInClientStatus extends InPacket {
     @Override
     public void handleReceived(ClientConnection connection) {
         TridentPlayer player = ((PlayerConnection) connection).getPlayer();
-        World world = player.getWorld();
+        World world = player.world();
         StatusType type = StatusType.getStatus((int) this.actionId);
 
         switch (type) {
@@ -106,7 +106,8 @@ public class PacketPlayInClientStatus extends InPacket {
 
         public static StatusType getStatus(int id) {
             for (StatusType type : StatusType.values()) {
-                if (type.getId() == id) return type;
+                if (type.getId() == id)
+                    return type;
             }
 
             return null;

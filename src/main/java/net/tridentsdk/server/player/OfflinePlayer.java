@@ -22,7 +22,7 @@ import net.tridentsdk.GameMode;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.EntityProperties;
 import net.tridentsdk.entity.living.Player;
-import net.tridentsdk.entity.projectile.Projectile;
+import net.tridentsdk.entity.Projectile;
 import net.tridentsdk.event.entity.EntityDamageEvent;
 import net.tridentsdk.factory.Factories;
 import net.tridentsdk.meta.nbt.*;
@@ -41,7 +41,8 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 
-@ThreadSafe public class OfflinePlayer extends TridentInventoryHolder implements Player {
+@ThreadSafe
+public class OfflinePlayer extends TridentInventoryHolder implements Player {
     private static final Set<OfflinePlayer> players = Factories.collect().createSet();
 
     protected String name;
@@ -73,8 +74,7 @@ import java.util.UUID;
 
         if (tag.containsTag("SpawnX")) {
             spawnLocation = Coordinates.create(world, ((IntTag) tag.getTag("SpawnX")).getValue(),
-                                               ((IntTag) tag.getTag("SpawnY")).getValue(),
-                                               ((IntTag) tag.getTag("SpawnZ")).getValue());
+                    ((IntTag) tag.getTag("SpawnY")).getValue(), ((IntTag) tag.getTag("SpawnZ")).getValue());
         } else {
             spawnLocation = world.spawnLocation();
         }
@@ -106,7 +106,7 @@ import java.util.UUID;
 
     public static OfflinePlayer getOfflinePlayer(UUID id) {
         for (OfflinePlayer player : players) {
-            if (player.getUniqueId().equals(id)) {
+            if (player.uniqueId().equals(id)) {
                 return player;
             }
         }
@@ -210,7 +210,7 @@ import java.util.UUID;
 
     @Override
     public Item getHeldItem() {
-        return inventory.getItems()[selectedSlot + 36];
+        return inventory.items()[selectedSlot + 36];
     }
 
     @Override
@@ -275,12 +275,12 @@ import java.util.UUID;
     }
 
     @Override
-    public EntityDamageEvent getLastDamageCause() {
+    public EntityDamageEvent lastDamageEvent() {
         return null;
     }
 
     @Override
-    public Player hurtByPlayer() {
+    public Player lastPlayerDamager() {
         return null;
     }
 
@@ -301,7 +301,7 @@ import java.util.UUID;
     }
 
     public CompoundTag asNbt() {
-        CompoundTag tag = new CompoundTag(getUniqueId().toString());
+        CompoundTag tag = new CompoundTag(uniqueId().toString());
 
         tag.addTag(new IntTag("Dimension").setValue(dimension.asByte()));
         tag.addTag(new IntTag("playerGameType").setValue(gameMode.asByte()));
@@ -325,7 +325,7 @@ import java.util.UUID;
 
         ListTag inventoryTag = new ListTag("Inventory", TagType.COMPOUND);
 
-        /*for (ItemStack is : inventory.getItems()) {
+        /*for (ItemStack is : inventory.items()) {
             inventoryTag.addTag(NBTSerializer.serialize(new Slot(is)));
         }*/
 
@@ -333,7 +333,7 @@ import java.util.UUID;
 
         ListTag enderTag = new ListTag("EnderItems", TagType.COMPOUND);
 
-        /*for (ItemStack is : enderChest.getItems()) {
+        /*for (ItemStack is : enderChest.items()) {
             enderTag.addTag(NBTSerializer.serialize(new Slot(is)));
         }*/
 

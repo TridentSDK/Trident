@@ -36,7 +36,8 @@ import java.util.concurrent.TimeUnit;
 /*
 Benchmark charted results at: http://bit.ly/1vwutXc
  */
-@State(Scope.Benchmark) public class AsmVsSun {
+@State(Scope.Benchmark)
+public class AsmVsSun {
     private static final Obj OBJECT = new Obj();
     private static final Method METHOD = getMethod();
     private static final MethodImpl<Object, Integer> METHOD_MANAGER = new MethodImpl<>(METHOD);

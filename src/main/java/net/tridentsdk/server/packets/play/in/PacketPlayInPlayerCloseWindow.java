@@ -52,9 +52,9 @@ public class PacketPlayInPlayerCloseWindow extends InPacket {
 
     @Override
     public void handleReceived(ClientConnection connection) {
-        PlayerCloseWindowEvent event = new PlayerCloseWindowEvent(TridentServer.getInstance().windowBy(this.id));
+        PlayerCloseWindowEvent event = new PlayerCloseWindowEvent(TridentServer.instance().windowBy(this.id));
 
-        TridentServer.getInstance().eventHandler().call(event);
+        TridentServer.instance().eventHandler().fire(event);
 
         if (event.isIgnored()) {
             // force the window to be open

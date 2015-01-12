@@ -31,6 +31,6 @@ public class PacketLoginOutSetCompression extends OutPacket {
 
     @Override
     public void encode(ByteBuf buf) {
-        Codec.writeVarInt32(buf, TridentServer.getInstance().getCompressionThreshold());
+        Codec.writeVarInt32(buf, TridentServer.instance().getCompressionThreshold());
     }
 }

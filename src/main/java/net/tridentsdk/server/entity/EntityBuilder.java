@@ -44,7 +44,8 @@ public final class EntityBuilder {
         @Override
         public World call() {
             for (World world : Trident.worlds().values()) {
-                if (world.name().equals("world")) return world;
+                if (world.name().equals("world"))
+                    return world;
             }
             return null;
         }

@@ -124,7 +124,7 @@ public class PacketLoginInStart extends InPacket {
 
                 id = UUID.fromString(PacketLoginInEncryptionResponse.idDash.matcher(
                         array.getAsJsonArray().get(0).getAsJsonObject().get("id").getAsString())
-                                             .replaceAll("$1-$2-$3-$4-$5"));
+                        .replaceAll("$1-$2-$3-$4-$5"));
             } catch (Exception e) {
                 TridentLogger.error(e);
                 return;

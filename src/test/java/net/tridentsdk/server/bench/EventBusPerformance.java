@@ -45,31 +45,17 @@ import java.util.concurrent.TimeUnit;
 /*
 Benchmark results: http://bit.ly/1B3psZv
  */
-@State(Scope.Thread) public class EventBusPerformance {
+@State(Scope.Thread)
+public class EventBusPerformance {
     private static final EventBus EVENT_BUS = new EventBus();
     private static final EventHandler HANDLER = new EventHandler();
     private static final Listener LISTENER = new EventListener();
     private static final net.tridentsdk.event.Event EVENT = new Event();
     private static final ExecutorFactory<?> EXEC = Factories.threads().executor(2, "EventBusPerformnace");
     private static final TaskExecutor EXECUTOR = EXEC.scaledThread();
+    private static final TridentPlugin PLUGIN = new Plugin();
     // Cannot be initialized first, else whole class cannot be loaded completely
     private final net.tridentsdk.event.EventHandler EVENT_MANAGER = net.tridentsdk.event.EventHandler.create();
-    private static final TridentPlugin PLUGIN = new Plugin();
-    private static class Plugin extends TridentPlugin {}
-
-    static {
-        Factories.init(new CollectFactory() {
-            @Override
-            public <K, V> ConcurrentMap<K, V> createMap() {
-                return new ConcurrentHashMapV8<>();
-            }
-        });
-        Factories.init(ThreadsHandler.create());
-        Factories.init(TridentScheduler.create());
-
-        final JsonConfig innerConfig = new JsonConfig(new File("toplel"));
-    }
-
     @Param({ "1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024" })
     private int cpuTokens;
 
@@ -84,15 +70,14 @@ Benchmark results: http://bit.ly/1B3psZv
                 }
             });
         }
-        performance.EVENT_MANAGER.call(EVENT);
-        ThreadsHandler.stopAll();
+        performance.EVENT_MANAGER.fire(EVENT);
+        ThreadsHandler.shutdownAll();
     }
 
     public static void main(String[] args) throws RunnerException {
-        Options opt = new OptionsBuilder()
-                .include(".*" + EventBusPerformance.class.getSimpleName() + ".*") // CLASS
-                .timeUnit(TimeUnit.NANOSECONDS).mode(Mode.AverageTime).warmupIterations(20)
-                .warmupTime(TimeValue.milliseconds(1))              // ALLOWED TIME
+        Options opt = new OptionsBuilder().include(".*" + EventBusPerformance.class.getSimpleName() + ".*") // CLASS
+                .timeUnit(TimeUnit.NANOSECONDS).mode(Mode.AverageTime).warmupIterations(20).warmupTime(
+                        TimeValue.milliseconds(1))              // ALLOWED TIME
                 .measurementIterations(5).measurementTime(TimeValue.milliseconds(1))         // ALLOWED TIME
                 .forks(1)                                           // FORKS
                 .verbosity(VerboseMode.NORMAL)                      // GRAPH
@@ -134,7 +119,22 @@ Benchmark results: http://bit.ly/1B3psZv
     @Benchmark
     public void eventManagerDispatch() {
         Blackhole.consumeCPU(cpuTokens);
-        EVENT_MANAGER.call(EVENT);
+        EVENT_MANAGER.fire(EVENT);
+    }
+
+    private static class Plugin extends TridentPlugin {
+    }
+    static {
+        Factories.init(new CollectFactory() {
+            @Override
+            public <K, V> ConcurrentMap<K, V> createMap() {
+                return new ConcurrentHashMapV8<>();
+            }
+        });
+        Factories.init(ThreadsHandler.create());
+        Factories.init(TridentScheduler.create());
+
+        final JsonConfig innerConfig = new JsonConfig(new File("toplel"));
     }
 
     private static class Event extends net.tridentsdk.event.Event {

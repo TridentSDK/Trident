@@ -24,7 +24,6 @@ import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
-import net.tridentsdk.server.packets.play.out.PacketPlayOutEntityLook;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutEntityTeleport;
 import net.tridentsdk.server.player.PlayerConnection;
 import net.tridentsdk.server.player.TridentPlayer;
@@ -64,20 +63,20 @@ public class PacketPlayInPlayerLook extends InPacket {
     @Override
     public void handleReceived(ClientConnection connection) {
         TridentPlayer player = ((PlayerConnection) connection).getPlayer();
-        Coordinates from = player.getLocation();
-        Coordinates to = player.getLocation();
+        Coordinates from = player.location();
+        Coordinates to = player.location();
 
         to.setYaw(this.newYaw);
         to.setPitch(this.newPitch);
 
         PlayerMoveEvent event = new PlayerMoveEvent(player, from, to);
 
-        TridentServer.getInstance().eventHandler().call(event);
+        TridentServer.instance().eventHandler().fire(event);
 
         if (event.isIgnored()) {
             PacketPlayOutEntityTeleport cancel = new PacketPlayOutEntityTeleport();
 
-            cancel.set("entityId", player.getId()).set("location", from).set("onGround", player.isOnGround());
+            cancel.set("entityId", player.entityId()).set("location", from).set("onGround", player.onGround());
 
             TridentPlayer.sendAll(cancel);
             return;

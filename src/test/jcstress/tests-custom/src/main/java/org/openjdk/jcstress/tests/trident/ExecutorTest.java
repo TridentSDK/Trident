@@ -22,12 +22,11 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
+
 package org.openjdk.jcstress.tests.trident;
 
 import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
-import net.tridentsdk.config.JsonConfig;
 import net.tridentsdk.factory.CollectFactory;
-import net.tridentsdk.factory.ConfigFactory;
 import net.tridentsdk.factory.Factories;
 import net.tridentsdk.server.TridentScheduler;
 import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
@@ -52,6 +51,7 @@ public class ExecutorTest {
         Factories.init(ThreadsHandler.create());
         Factories.init(TridentScheduler.create());
     }
+
     private final ConcurrentTaskExecutor<?> factory = ConcurrentTaskExecutor.create(2, "test");
     private final AtomicReference<State> reference = new AtomicReference<>();
 
@@ -66,5 +66,6 @@ public class ExecutorTest {
     }
 
     @org.openjdk.jcstress.annotations.State
-    public static class State {}
+    public static class State {
+    }
 }

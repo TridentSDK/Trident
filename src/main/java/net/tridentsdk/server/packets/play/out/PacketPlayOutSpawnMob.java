@@ -51,8 +51,8 @@ public class PacketPlayOutSpawnMob extends OutPacket {
 
     @Override
     public void encode(ByteBuf buf) {
-        Coordinates loc = this.entity.getLocation();
-        Vector velocity = this.entity.getVelocity();
+        Coordinates loc = this.entity.location();
+        Vector velocity = this.entity.velocity();
 
         Codec.writeVarInt32(buf, this.entityId);
         buf.writeByte((int) (byte) this.type.ordinal()); // TODO: use the real type id

@@ -17,14 +17,12 @@
 
 package net.tridentsdk.server.threads;
 
-import net.tridentsdk.Trident;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.factory.ExecutorFactory;
 import net.tridentsdk.factory.ThreadFactory;
 import net.tridentsdk.server.TridentServer;
-import net.tridentsdk.server.TridentStart;
 import net.tridentsdk.world.World;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -35,7 +33,8 @@ import java.util.Collection;
  *
  * @author The TridentSDK Team
  */
-@ThreadSafe public final class ThreadsHandler implements ThreadFactory {
+@ThreadSafe
+public final class ThreadsHandler implements ThreadFactory {
     private static final ExecutorFactory<Entity> entities = ConcurrentTaskExecutor.create(2, "Entities");
     private static final ExecutorFactory<Player> players = ConcurrentTaskExecutor.create(4, "Players");
     private static final ExecutorFactory<World> worlds = ConcurrentTaskExecutor.create(4, "Worlds");
@@ -57,8 +56,8 @@ import java.util.Collection;
      * Stops all the executors and clears all caches of concurrent threads
      */
     @InternalUseOnly
-    public static void stopAll() {
-        TridentServer.getInstance().getMainThread().interrupt();
+    public static void shutdownAll() {
+        TridentServer.instance().getMainThread().interrupt();
 
         // TODO safely add hooks
         entityExecutor().shutdown();

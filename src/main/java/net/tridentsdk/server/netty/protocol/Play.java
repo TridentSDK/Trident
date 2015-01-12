@@ -21,7 +21,8 @@ import net.tridentsdk.docs.AccessNoDoc;
 import net.tridentsdk.server.packets.play.in.*;
 import net.tridentsdk.server.packets.play.out.*;
 
-@AccessNoDoc class Play extends ProtocolHandler {
+@AccessNoDoc
+class Play extends ProtocolHandler {
 
     Play() {
         super.inPackets.put(0x00, PacketPlayInKeepAlive.class);

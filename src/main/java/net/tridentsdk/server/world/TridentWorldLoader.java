@@ -18,40 +18,61 @@
 package net.tridentsdk.server.world;
 
 import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
+import net.tridentsdk.Trident;
+import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.meta.nbt.NBTException;
+import net.tridentsdk.server.world.gen.DefaultWorldGen;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.Chunk;
 import net.tridentsdk.world.ChunkLocation;
 import net.tridentsdk.world.World;
 import net.tridentsdk.world.WorldLoader;
+import net.tridentsdk.world.gen.AbstractGenerator;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileSystems;
 import java.util.Collection;
 import java.util.Map;
 import java.util.zip.DataFormatException;
 
+/**
+ * The world loading class, creates, saves, handles worlds
+ *
+ * @author The TridentSDK Team
+ */
 public class TridentWorldLoader implements WorldLoader {
-    private final Map<String, TridentWorld> worlds = new ConcurrentHashMapV8<>();
+    private static final Map<String, TridentWorld> worlds = new ConcurrentHashMapV8<>();
+    private final AbstractGenerator generator;
+
+    public TridentWorldLoader(AbstractGenerator generator) {
+        this.generator = generator;
+    }
 
     public TridentWorldLoader() {
-        for (File file : getWorldContainer().listFiles()) {
-            if (!(file.isDirectory()) || file.getName().contains(" ")) {
+        this(new DefaultWorldGen());
+    }
+
+    public Collection<TridentWorld> worlds() {
+        return worlds.values();
+    }
+
+    // Prevents this reference from escaping during construction
+    // besides, user created WorldLoaders should not re-create
+    // the world
+    @InternalUseOnly
+    public void loadAll() {
+        for (File file : Trident.fileContainer().toFile().listFiles()) {
+            if (!(file.isDirectory()) || file.getName().contains(" "))
                 continue;
-            }
 
             boolean isWorld = false;
 
-            for (File f : file.listFiles()) {
-                if (f.getName().equals("level.dat")) {
+            for (File f : file.listFiles())
+                if (f.getName().equals("level.dat"))
                     isWorld = true;
-                }
-            }
 
-            if (!(isWorld)) {
+            if (!(isWorld))
                 continue;
-            }
 
             load(file.getName());
         }
@@ -67,11 +88,9 @@ public class TridentWorldLoader implements WorldLoader {
 
     @Override
     public void save(World world) {
-        // TODO
-    }
-
-    public Collection<TridentWorld> getWorlds() {
-        return worlds.values();
+        TridentWorld w = (TridentWorld) world;
+        for (Chunk chunk : w.loadedChunks())
+            saveChunk(chunk);
     }
 
     @Override
@@ -110,7 +129,8 @@ public class TridentWorldLoader implements WorldLoader {
         // TODO
     }
 
-    public File getWorldContainer() {
-        return new File(System.getProperty("user.dir"));
+    @Override
+    public AbstractGenerator generator() {
+        return generator;
     }
 }

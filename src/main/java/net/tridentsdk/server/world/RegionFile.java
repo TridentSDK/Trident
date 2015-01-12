@@ -23,14 +23,12 @@ import net.tridentsdk.meta.nbt.CompoundTag;
 import net.tridentsdk.meta.nbt.NBTDecoder;
 import net.tridentsdk.meta.nbt.NBTEncoder;
 import net.tridentsdk.meta.nbt.NBTException;
-import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.Chunk;
 import net.tridentsdk.world.ChunkLocation;
 
 import java.io.*;
 import java.math.RoundingMode;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -44,8 +42,6 @@ import java.util.zip.Inflater;
 /**
  * Represents a Region File (in region/ directory) in memory
  */
-
-// TODO stop using locks on native methods
 public class RegionFile {
     private static final ConcurrentCache<Path, RegionFile> FILE_CACHE = ConcurrentCache.create();
 
@@ -53,7 +49,7 @@ public class RegionFile {
     final Path path;
     //The class in charge of sector allocation
     final SectorStorage sectors;
-    //The object to lock on to stop reading/writing simultaneously
+    //The object to lock on to shutdown reading/writing simultaneously
     private final Object readWriteLock = new Object();
 
     private RegionFile(Path path) throws IOException {
@@ -112,7 +108,8 @@ public class RegionFile {
     }
 
     /**
-     * Packs the file with empty bytes in order to fit the specifications The idea behind the packing is for speed (file
+     * Packs the file with empty bytes in order to fit the specifications The idea behind the packing is for speed
+     * (file
      * systems work better with 4KiB chunks apparently)
      */
     private void packFile(RandomAccessFile access) throws IOException {
@@ -250,7 +247,7 @@ public class RegionFile {
             this.sectors.setDataSectors(chunk, sectorLength);
             //Clears up all the now-free sectors
             this.sectors.freeSectors(this.sectors.getSectorOffset(chunk) + sectorLength - 1,
-                                     oldSectorLength - sectorLength);
+                    oldSectorLength - sectorLength);
         }
         //If the length is bigger, we need to find a new location!
         else if (sectorLength > oldSectorLength) {
@@ -465,6 +462,5 @@ public class RegionFile {
             int in = i % 32;
             return in < 0 ? in + 32 : in;
         }
-
     }
 }

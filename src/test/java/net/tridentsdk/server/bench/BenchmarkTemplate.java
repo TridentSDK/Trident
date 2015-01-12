@@ -28,7 +28,8 @@ import org.openjdk.jmh.runner.options.VerboseMode;
 
 import java.util.concurrent.TimeUnit;
 
-@State(Scope.Benchmark) public class BenchmarkTemplate {
+@State(Scope.Benchmark)
+public class BenchmarkTemplate {
     @Param({ "1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024" })
     private int cpuTokens;
 

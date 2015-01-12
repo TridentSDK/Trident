@@ -46,7 +46,8 @@ import java.util.concurrent.atomic.AtomicLong;
  *
  * @author The TridentSDK Team
  */
-@PossiblyThreadSafe public class TridentEntity implements Entity {
+@PossiblyThreadSafe
+public class TridentEntity implements Entity {
     @InternalUseOnly
     protected static final AtomicInteger counter = new AtomicInteger(-1);
     /**
@@ -160,12 +161,12 @@ import java.util.concurrent.atomic.AtomicLong;
 
     @Override
     public void teleport(double x, double y, double z) {
-        this.teleport(Coordinates.create(this.getWorld(), x, y, z));
+        this.teleport(Coordinates.create(this.world(), x, y, z));
     }
 
     @Override
     public void teleport(Entity entity) {
-        this.teleport(entity.getLocation());
+        this.teleport(entity.location());
     }
 
     @Override
@@ -184,17 +185,17 @@ import java.util.concurrent.atomic.AtomicLong;
         }
 
         TridentPlayer.sendAll(new PacketPlayOutEntityTeleport().set("entityId", this.id)
-                                      .set("location", this.loc)
-                                      .set("onGround", this.onGround));
+                .set("location", this.loc)
+                .set("onGround", this.onGround));
     }
 
     @Override
-    public World getWorld() {
+    public World world() {
         return this.loc.world();
     }
 
     @Override
-    public Coordinates getLocation() {
+    public Coordinates location() {
         return this.loc;
     }
 
@@ -203,7 +204,7 @@ import java.util.concurrent.atomic.AtomicLong;
     }
 
     @Override
-    public Vector getVelocity() {
+    public Vector velocity() {
         return this.velocity;
     }
 
@@ -215,7 +216,7 @@ import java.util.concurrent.atomic.AtomicLong;
     }
 
     @Override
-    public String getDisplayName() {
+    public String displayName() {
         return this.displayName;
     }
 
@@ -230,46 +231,46 @@ import java.util.concurrent.atomic.AtomicLong;
     }
 
     @Override
-    public UUID getUniqueId() {
+    public UUID uniqueId() {
         return this.uniqueId;
     }
 
-    @Override
     public void tick() {
         this.ticksExisted.incrementAndGet();
     }
 
     @Override
-    public boolean isOnGround() {
+    public boolean onGround() {
         return this.onGround;
     }
 
     @Override
-    public Set<Entity> getNearbyEntities(double radius) {
-        Set<Entity> entities = getLocation().world().entities();
+    public Set<Entity> withinRange(double radius) {
+        Set<Entity> entities = location().world().entities();
         Set<Entity> near = Sets.newHashSet();
         for (Entity entity : entities) {
-            if (entity.getLocation().distanceSquared(getLocation()) <= radius) near.add(entity);
+            if (entity.location().distanceSquared(location()) <= radius)
+                near.add(entity);
         }
 
         return near;
     }
 
     @Override
-    public int getId() {
+    public int entityId() {
         return this.id;
     }
 
     @Override
     public void remove() {
         PacketPlayOutDestroyEntities packet = new PacketPlayOutDestroyEntities();
-        packet.set("destroyedEntities", new int[] { getId() });
+        packet.set("destroyedEntities", new int[] { entityId() });
         TridentPlayer.sendAll(packet);
         HANDLER.removeEntity(this);
     }
 
     @Override
-    public Entity getPassenger() {
+    public Entity passenger() {
         return this.passenger;
     }
 
@@ -286,7 +287,7 @@ import java.util.concurrent.atomic.AtomicLong;
     }
 
     @Override
-    public EntityType getType() {
+    public EntityType type() {
         return null;
     }
 
@@ -305,7 +306,7 @@ import java.util.concurrent.atomic.AtomicLong;
      * @param newCoords the new location for the entity
      */
     public void doMove(Coordinates newCoords) {
-        HANDLER.trackMovement(this, getLocation(), newCoords);
+        HANDLER.trackMovement(this, location(), newCoords);
         this.setLocation(newCoords);
     }
 

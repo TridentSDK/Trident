@@ -54,11 +54,12 @@ abstract class ProtocolHandler {
 
             Class<?> cls = applicableMap.get(id);
 
-            if (cls == null) cls = applicableMap.get(-1);
+            if (cls == null)
+                cls = applicableMap.get(-1);
 
             FastClass fastClass = FastClass.get(cls);
 
-            return fastClass.getConstructor().newInstance();
+            return fastClass.constructor().newInstance();
         } catch (Exception ex) {
             TridentLogger.error(new RuntimeException(ex.getMessage()));
             return null;

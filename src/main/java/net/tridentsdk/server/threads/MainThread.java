@@ -35,7 +35,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @author The TridentSDK Team
  */
-@ThreadSafe public class MainThread extends Thread {
+@ThreadSafe
+public class MainThread extends Thread {
 
     private static final int RECENT_TICKS_KEPT = 40;
     private static final String NAME = "Trident - Tick Thread";
@@ -91,7 +92,7 @@ import java.util.concurrent.atomic.AtomicInteger;
          * Tick the players
          */
         for (final Player player : TridentPlayer.getPlayers()) {
-            player.tick();
+            ((TridentPlayer) player).tick();
         }
 
         for (World world : Trident.worlds().values())
@@ -199,11 +200,11 @@ import java.util.concurrent.atomic.AtomicInteger;
         Iterator<Integer> iter = recentTickLength.iterator();
 
         double total = 0d;
-        while(iter.hasNext()) {
+        while (iter.hasNext()) {
             total += iter.next();
         }
 
-        return total/RECENT_TICKS_KEPT;
+        return total / RECENT_TICKS_KEPT;
     }
 
     /**

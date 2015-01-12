@@ -43,7 +43,7 @@ public class DecoratedTameable extends LivingDecorationAdapter implements Tameab
 
     @Override
     public UUID getOwner() {
-        return tamer.getUniqueId();
+        return tamer.uniqueId();
     }
 
     @Override

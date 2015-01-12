@@ -14,13 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.util;
 
 import com.google.code.tempusfugit.concurrency.annotations.ThreadSafe;
 
-
 import java.util.Iterator;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -36,12 +35,10 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class ConcurrentCircularArray<E> {
 
     protected final AtomicReferenceArray<E> backing;
+    private final int maxSize;
+    private final ReadWriteLock rwLock;
     private int current;
     private int size;
-
-    private final int maxSize;
-
-    private final ReadWriteLock rwLock;
 
     public ConcurrentCircularArray(final int length) {
         backing = new AtomicReferenceArray<E>(length);
@@ -75,7 +72,6 @@ public class ConcurrentCircularArray<E> {
                     current++;
                 }
             }
-
         } finally {
             lock.unlock();
         }
@@ -123,21 +119,21 @@ public class ConcurrentCircularArray<E> {
      * Removes the value from the circular array
      *
      * <p>Does not collapse the array, only replaces the value with null</p>
-     * @param i the index of the value to replace
+     *
+     * @param i     the index of the value to replace
      * @param value if this removal is to be checked for modification, the value that is expected, otherwise, null
      * @return if a specific value was expected, whether it was successfully removed
      */
-    protected boolean remove (int i, E value) {
+    protected boolean remove(int i, E value) {
         Lock lock = rwLock.writeLock();
         lock.lock();
         try {
             if (value == null) {
-                backing.set(i,null);
+                backing.set(i, null);
                 size--;
-            }
-            else {
+            } else {
                 boolean retVal = backing.compareAndSet(i, value, null);
-                if(retVal) {
+                if (retVal) {
                     size--;
                 }
                 return retVal;
@@ -158,7 +154,7 @@ public class ConcurrentCircularArray<E> {
         return size == maxSize;
     }
 
-    public int getMaxSize () {
+    public int getMaxSize() {
         return maxSize;
     }
 }

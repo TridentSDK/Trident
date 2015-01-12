@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.util;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -42,13 +43,10 @@ public class CircularArrayIterator<E> implements Iterator<E> {
     // The number of items read
     private int read;
 
-
     /**
      * Creates a new Iterator based on the ConcurrentCircularArray
      * <p/>
      * <p>Expects a read lock to be in place when constructing</p>
-     *
-     * @param parent
      */
     protected CircularArrayIterator(ConcurrentCircularArray<E> parent) {
         this.parent = parent;
@@ -72,7 +70,6 @@ public class CircularArrayIterator<E> implements Iterator<E> {
 
     /**
      * @return null if an error, otherwise the next value
-     * @throws NoSuchElementException
      */
     @Override
     public E next() throws NoSuchElementException {
@@ -105,8 +102,6 @@ public class CircularArrayIterator<E> implements Iterator<E> {
 
     /**
      * Guarantees that this value has not been changed since the iterator was created before removing the value
-     *
-     * @returns whether or not this removal was successful
      */
     public boolean strictRemove() {
         return parent.remove(current, (E) contents[current]);

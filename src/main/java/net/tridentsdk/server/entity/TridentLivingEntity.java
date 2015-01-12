@@ -58,7 +58,7 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
     }
 
     @Override
-    public double getHealth() {
+    public double health() {
         return this.health.get();
     }
 
@@ -68,7 +68,7 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
     }
 
     @Override
-    public double getMaxHealth() {
+    public double maxHealth() {
         return this.maxHealth;
     }
 
@@ -78,12 +78,12 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
     }
 
     @Override
-    public Coordinates getEyeLocation() {
-        return this.getLocation().relative(new Vector(0.0d, 1.0d, 0.0d));
+    public Coordinates headLocation() {
+        return this.location().relative(new Vector(0.0d, 1.0d, 0.0d));
     }
 
     @Override
-    public long getRemainingAir() {
+    public long remainingAir() {
         return this.airTicks.get();
     }
 
@@ -93,7 +93,7 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
     }
 
     @Override
-    public boolean canPickupItems() {
+    public boolean canCollectItems() {
         return this.canPickup;
     }
 

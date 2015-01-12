@@ -18,11 +18,9 @@
 package net.tridentsdk.server.entity;
 
 import net.tridentsdk.Coordinates;
-import net.tridentsdk.concurrent.TridentRunnable;
 import net.tridentsdk.entity.EntityProperties;
 import net.tridentsdk.entity.living.ProjectileLauncher;
-import net.tridentsdk.entity.projectile.Projectile;
-import net.tridentsdk.factory.Factories;
+import net.tridentsdk.entity.Projectile;
 
 import java.lang.ref.WeakReference;
 import java.util.UUID;
@@ -67,7 +65,7 @@ public abstract class TridentProjectile extends TridentEntity implements Project
     protected abstract void hit();
 
     @Override
-    public ProjectileLauncher getLauncher() {
+    public ProjectileLauncher launcher() {
         return this.source.get();
     }
 

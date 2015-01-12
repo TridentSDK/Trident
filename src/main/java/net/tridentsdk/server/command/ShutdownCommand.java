@@ -14,18 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.command;
 
 import net.tridentsdk.Trident;
 import net.tridentsdk.plugin.annotation.CommandDescription;
 import net.tridentsdk.plugin.cmd.Command;
-import net.tridentsdk.plugin.cmd.Console;
+import net.tridentsdk.plugin.cmd.ServerConsole;
 
 @CommandDescription(name = "shutdown", permission = "trident.shutdown", aliases = "", priority = 0)
 class ShutdownCommand extends Command {
     @Override
-    public void handleConsole(Console sender, String arguments, String alias) {
-        sender.sendRaw(Console.YELLOW + "Server shutdown sent by CONSOLE");
+    public void handleConsole(ServerConsole sender, String arguments, String alias) {
+        sender.sendRaw(ServerConsole.YELLOW + "Server shutdown sent by CONSOLE");
         Trident.shutdown();
     }
 }

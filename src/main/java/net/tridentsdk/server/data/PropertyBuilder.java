@@ -144,6 +144,7 @@ public class PropertyBuilder implements Writable {
         buf.writeDouble(this.value);
         Codec.writeVarInt32(buf, this.modifiers.length);
 
-        for (String s : this.modifiers) Codec.writeString(buf, s);
+        for (String s : this.modifiers)
+            Codec.writeString(buf, s);
     }
 }

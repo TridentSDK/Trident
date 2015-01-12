@@ -29,7 +29,8 @@ import java.util.Map;
  *
  * @author The TridentSDK Team
  */
-@ThreadSafe public class WindowHandler {
+@ThreadSafe
+public class WindowHandler {
     private static final Map<Integer, TridentWindow> windows = new ConcurrentHashMapV8<>();
 
     /**
@@ -48,7 +49,7 @@ import java.util.Map;
      * @param window the window to be registered
      */
     public void registerWindow(TridentWindow window) {
-        windows.put(window.getId(), window);
+        windows.put(window.windowId(), window);
     }
 
     /**

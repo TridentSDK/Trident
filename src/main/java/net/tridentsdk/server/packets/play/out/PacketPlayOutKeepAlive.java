@@ -36,7 +36,7 @@ public class PacketPlayOutKeepAlive extends OutPacket {
 
     @Override
     public void encode(ByteBuf buf) {
-        if(keepAliveId == -1) {
+        if (keepAliveId == -1) {
             return; // id was not set
         }
 

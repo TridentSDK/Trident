@@ -39,14 +39,16 @@ import java.util.Map;
  *
  * @author The TridentSDK Team
  */
-@ThreadSafe public final class EntityHandler {
+@ThreadSafe
+public final class EntityHandler {
     private final Map<Integer, Entity> entities = new ConcurrentHashMapV8<>();
     private final EntityTracker tracker = new EntityTracker();
 
     @InternalUseOnly
     private EntityHandler() {
-        if (!Trident.isTrident()) TridentLogger.error(
-                new UnsupportedOperationException("EntityManager can only be initalized by TridentSDK!"));
+        if (!Trident.isTrident())
+            TridentLogger.error(
+                    new UnsupportedOperationException("EntityManager can only be initalized by TridentSDK!"));
     }
 
     /**
@@ -62,8 +64,9 @@ import java.util.Map;
      * @param entity the entity to manage
      */
     public void registerEntity(Entity entity) {
-        this.entities.put(entity.getId(), entity);
-        if (entity instanceof TridentPlayer) return;
+        this.entities.put(entity.entityId(), entity);
+        if (entity instanceof TridentPlayer)
+            return;
         // tracker.track(entity);
     }
 
@@ -73,7 +76,7 @@ import java.util.Map;
      * @param entity the entity to remove
      */
     public void removeEntity(Entity entity) {
-        this.entities.remove(entity.getId());
+        this.entities.remove(entity.entityId());
     }
 
     /**

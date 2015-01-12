@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.bench;
 
 import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
@@ -50,7 +51,8 @@ tick 5.01045108E7
 tick 5.0183914333333336E7
  */
 // Used for baseline measurements
-@State(Scope.Benchmark) public class TickTest {
+@State(Scope.Benchmark)
+public class TickTest {
     static {
         Factories.init(new CollectFactory() {
             @Override

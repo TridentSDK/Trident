@@ -36,12 +36,13 @@ import javax.annotation.concurrent.ThreadSafe;
  *
  * @author The TridentSDK Team
  */
-@ThreadSafe public class PacketHandler extends SimpleChannelInboundHandler<PacketData> {
+@ThreadSafe
+public class PacketHandler extends SimpleChannelInboundHandler<PacketData> {
     private final Protocol protocol;
     private ClientConnection connection;
 
     public PacketHandler() {
-        this.protocol = ((TridentServer) Trident.getServer()).getProtocol();
+        this.protocol = ((TridentServer) Trident.instance()).getProtocol();
     }
 
     @Override
@@ -69,7 +70,10 @@ import javax.annotation.concurrent.ThreadSafe;
             return;
         }
 
-        TridentLogger.log("Received packet: " + packet.getClass().getSimpleName().replaceAll("Packet", "").replaceAll("Player", ""));
+        TridentLogger.log("Received packet: " + packet.getClass()
+                .getSimpleName()
+                .replaceAll("Packet", "")
+                .replaceAll("Player", ""));
 
         // decode and handle the packet
         packet.decode(data.getData());
@@ -77,7 +81,7 @@ import javax.annotation.concurrent.ThreadSafe;
         try {
             packet.handleReceived(this.connection);
 
-            if(connection instanceof PlayerConnection) {
+            if (connection instanceof PlayerConnection) {
                 ((PlayerConnection) connection).resetReadCounter();
             }
         } catch (Exception ex) {

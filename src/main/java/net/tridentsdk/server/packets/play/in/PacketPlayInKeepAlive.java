@@ -50,7 +50,7 @@ public class PacketPlayInKeepAlive extends InPacket {
     public void handleReceived(ClientConnection connection) {
         PlayerConnection pc = (PlayerConnection) connection;
 
-        if(!pc.hasSentKeepAlive())
+        if (!pc.hasSentKeepAlive())
             return;
 
         pc.handleKeepAlive(this);

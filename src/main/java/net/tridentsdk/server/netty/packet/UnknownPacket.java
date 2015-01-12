@@ -28,7 +28,8 @@ import javax.annotation.concurrent.ThreadSafe;
  *
  * @author The TridentSDK Team
  */
-@ThreadSafe public class UnknownPacket implements Packet {
+@ThreadSafe
+public class UnknownPacket implements Packet {
     @Override
     public Packet decode(ByteBuf buf) {
         return this;

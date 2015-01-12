@@ -28,7 +28,8 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 
 import java.util.concurrent.TimeUnit;
 
-@State(Scope.Benchmark) public class PlayerThreadTest {
+@State(Scope.Benchmark)
+public class PlayerThreadTest {
     // private static final Queue<Object> QUEUE = new ConcurrentLinkedQueue<>();
     private static Player player;
 
@@ -58,7 +59,7 @@ import java.util.concurrent.TimeUnit;
                 .build();
 
         new Runner(opt).run();
-        ThreadsHandler.stopAll();
+        ThreadsHandler.shutdownAll();
     }
 
     @Benchmark

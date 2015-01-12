@@ -76,7 +76,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  *
  * @author The TridentSDK Team
  */
-@ThreadSafe public class TridentScheduler implements TaskFactory {
+@ThreadSafe
+public class TridentScheduler implements TaskFactory {
     private final Queue<ScheduledTaskImpl> taskList = new ConcurrentLinkedQueue<>();
     private final ExecutorFactory<?> taskExecutor = ConcurrentTaskExecutor.create(3, "Scheduler");
 
@@ -112,7 +113,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
         }
     }
 
-    public void stop() {
+    public void shutdown() {
         taskExecutor.shutdown();
         taskList.clear();
     }
@@ -138,8 +139,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
     }
 
     @Override
-    public ScheduledTask asyncRepeat(final TridentPlugin plugin, final TridentRunnable runnable, long delay, final
-    long initialInterval) {
+    public ScheduledTask asyncRepeat(final TridentPlugin plugin, final TridentRunnable runnable, long delay,
+            final long initialInterval) {
         // Schedule repeating ScheduledTask later
         return this.asyncLater(plugin, new TridentRunnable() {
             @Override
@@ -150,8 +151,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
     }
 
     @Override
-    public ScheduledTask syncRepeat(final TridentPlugin plugin, final TridentRunnable runnable, long delay, final
-    long initialInterval) {
+    public ScheduledTask syncRepeat(final TridentPlugin plugin, final TridentRunnable runnable, long delay,
+            final long initialInterval) {
         // Schedule repeating ScheduledTask later
         return this.syncLater(plugin, new TridentRunnable() {
             @Override
@@ -201,7 +202,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
                     };
                 }
             } else {
-                this.executor = plugin.getExecutor();
+                this.executor = plugin.executor();
                 if (!type.name().contains("REPEAT")) {
                     this.runner = new Runnable() {
                         @Override

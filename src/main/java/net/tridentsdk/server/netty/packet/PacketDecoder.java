@@ -24,7 +24,6 @@ import io.netty.handler.codec.ReplayingDecoder;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
-import net.tridentsdk.server.player.PlayerConnection;
 
 import java.util.List;
 import java.util.zip.Inflater;
@@ -36,7 +35,8 @@ import java.util.zip.Inflater;
  * <p>This is needed to interpret the data sent correctly, and make sure that the data maintains its transmission
  * integrity.<p/>
  *
- * <p>Note this is not thread safe. It should only be used on one thread, or create a new instance for each channel.</p>
+ * <p>Note this is not thread safe. It should only be used on one thread, or create a new instance for each
+ * channel.</p>
  *
  * @author The TridentSDK Team
  */
@@ -65,7 +65,7 @@ public class PacketDecoder extends ReplayingDecoder<Void> {
         if (rawLength == 0)
             compressed = false;
 
-        if (!(compressed) && rawLength < TridentServer.getInstance().getCompressionThreshold()) {
+        if (!(compressed) && rawLength < TridentServer.instance().getCompressionThreshold()) {
             ByteBuf data = buf.readBytes((fullLength == -1) ? rawLength : (fullLength - Codec.sizeOf(0)));
 
             objects.add(new PacketData(data));

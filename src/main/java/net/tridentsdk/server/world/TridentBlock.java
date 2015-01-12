@@ -18,8 +18,8 @@
 package net.tridentsdk.server.world;
 
 import net.tridentsdk.Coordinates;
-import net.tridentsdk.base.Substance;
 import net.tridentsdk.base.Block;
+import net.tridentsdk.base.Substance;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.util.Vector;
 
@@ -80,7 +80,7 @@ public class TridentBlock implements Block {
     }
 
     @Override
-    public Block relativeTile(Vector vector) {
+    public Block relativeBlock(Vector vector) {
         return new TridentBlock(this.location.relative(vector));
     }
 }

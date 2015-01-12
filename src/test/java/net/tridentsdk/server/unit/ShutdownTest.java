@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.unit;
 
 import net.tridentsdk.Trident;
@@ -40,7 +41,7 @@ public class ShutdownTest {
                     Trident.shutdown();
                 }
             }).start();
-            TridentStart.main(new String[] {});
+            TridentStart.main(new String[] { });
         } catch (Exception e) {
             e.printStackTrace();
         }

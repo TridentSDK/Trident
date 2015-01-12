@@ -22,7 +22,7 @@ import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.EntityProperties;
 import net.tridentsdk.entity.living.Chicken;
 import net.tridentsdk.entity.living.Player;
-import net.tridentsdk.entity.projectile.Projectile;
+import net.tridentsdk.entity.Projectile;
 import net.tridentsdk.event.entity.EntityDamageEvent;
 import net.tridentsdk.server.entity.TridentLivingEntity;
 
@@ -74,12 +74,12 @@ public class TridentChicken extends TridentLivingEntity implements Chicken {
     }
 
     @Override
-    public EntityDamageEvent getLastDamageCause() {
+    public EntityDamageEvent lastDamageEvent() {
         return null;
     }
 
     @Override
-    public Player hurtByPlayer() {
+    public Player lastPlayerDamager() {
         return null;
     }
 

@@ -25,7 +25,6 @@ import net.tridentsdk.server.netty.packet.PacketHandler;
 import net.tridentsdk.server.netty.protocol.Protocol;
 import net.tridentsdk.server.packets.play.in.PacketPlayInKeepAlive;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutKeepAlive;
-import net.tridentsdk.util.TridentLogger;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
@@ -38,7 +37,8 @@ import java.util.concurrent.ThreadLocalRandom;
  *
  * @author The TridentSDK Team
  */
-@ThreadSafe public class PlayerConnection extends ClientConnection {
+@ThreadSafe
+public class PlayerConnection extends ClientConnection {
     private final TridentPlayer player;
 
     @GuardedBy("this")
@@ -97,7 +97,7 @@ import java.util.concurrent.ThreadLocalRandom;
     public synchronized void sendKeepAlive() {
         int oldId = keepAliveId;
 
-        if(oldId != -1)
+        if (oldId != -1)
             return;
 
         int id = ThreadLocalRandom.current().nextInt();
@@ -114,7 +114,7 @@ import java.util.concurrent.ThreadLocalRandom;
     public synchronized void handleKeepAlive(PacketPlayInKeepAlive keepAlive) {
         int currentId = keepAliveId;
 
-        if(keepAlive.getId() != currentId)
+        if (keepAlive.getId() != currentId)
             return;
 
         keepAliveId = -1;

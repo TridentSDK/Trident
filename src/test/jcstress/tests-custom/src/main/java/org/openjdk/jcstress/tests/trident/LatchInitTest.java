@@ -31,8 +31,10 @@ import org.openjdk.jcstress.infra.results.BooleanResult1;
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.concurrent.CountDownLatch;
 
-@JCStressTest @Outcome(id = "[true, true, true, true]", expect = Expect.ACCEPTABLE, desc = "Latches work")
-@Outcome(expect = Expect.FORBIDDEN) public class LatchInitTest {
+@JCStressTest
+@Outcome(id = "[true, true, true, true]", expect = Expect.ACCEPTABLE, desc = "Latches work")
+@Outcome(expect = Expect.FORBIDDEN)
+public class LatchInitTest {
     private final Object object = new Object();
 
     @Actor
@@ -50,7 +52,8 @@ import java.util.concurrent.CountDownLatch;
     }
 
     @State
-    @ThreadSafe public static class HeldValueLatch<V> {
+    @ThreadSafe
+    public static class HeldValueLatch<V> {
         private final CountDownLatch latch = new CountDownLatch(1);
         private volatile V value;
 

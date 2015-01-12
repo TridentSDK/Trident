@@ -30,7 +30,7 @@ import net.tridentsdk.factory.Factories;
 import net.tridentsdk.plugin.TridentPlugin;
 import net.tridentsdk.plugin.TridentPluginHandler;
 import net.tridentsdk.plugin.cmd.CommandHandler;
-import net.tridentsdk.plugin.cmd.Console;
+import net.tridentsdk.plugin.cmd.ServerConsole;
 import net.tridentsdk.server.command.TridentConsole;
 import net.tridentsdk.server.netty.protocol.Protocol;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutPluginMessage;
@@ -45,6 +45,8 @@ import net.tridentsdk.server.world.TridentWorldLoader;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.window.Window;
 import net.tridentsdk.world.World;
+import net.tridentsdk.world.WorldLoader;
+import net.tridentsdk.world.gen.AbstractGenerator;
 import org.slf4j.Logger;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -84,7 +86,7 @@ public final class TridentServer implements Server {
         this.eventHandler = EventHandler.create();
         this.commandHandler = new CommandHandler();
         this.pluginHandler = new TridentPluginHandler();
-        this.logger = TridentLogger.getLogger();
+        this.logger = TridentLogger.logger();
         this.mainThread = new MainThread(20);
         this.worldLoader = new TridentWorldLoader();
         this.console = new TridentConsole();
@@ -99,6 +101,7 @@ public final class TridentServer implements Server {
         TridentServer server = new TridentServer(config);
         Trident.setServer(server);
         server.mainThread.start();
+        server.worldLoader.loadAll();
 
         return server;
         // We CANNOT let the "this" instance escape during creation, else we lose thread-safety
@@ -109,7 +112,8 @@ public final class TridentServer implements Server {
         Factories.tasks().asyncLater(null, new TridentRunnable() {
             @Override
             public void run() {
-                while (Trident.getServer() == null) {}
+                while (Trident.instance() == null) {
+                }
                 world[0] = (TridentWorld) Trident.worlds().get("world");
             }
         }, 100L);
@@ -121,8 +125,8 @@ public final class TridentServer implements Server {
      *
      * @return the server singleton
      */
-    public static TridentServer getInstance() {
-        return (TridentServer) Trident.getServer();
+    public static TridentServer instance() {
+        return (TridentServer) Trident.instance();
     }
 
     /**
@@ -147,7 +151,7 @@ public final class TridentServer implements Server {
     }
 
     @Override
-    public Console console() {
+    public ServerConsole console() {
         return console;
     }
 
@@ -177,10 +181,10 @@ public final class TridentServer implements Server {
             pluginHandler().disable(plugin);
 
         TridentLogger.log("Shutting down worker threads...");
-        ((TridentScheduler) Factories.tasks()).stop();
+        ((TridentScheduler) Factories.tasks()).shutdown();
 
         TridentLogger.log("Shutting down server process...");
-        ThreadsHandler.stopAll();
+        ThreadsHandler.shutdownAll();
 
         TridentLogger.log("Shutting down thread pools...");
         for (ConcurrentTaskExecutor<?> executor : ConcurrentTaskExecutor.executors())
@@ -195,10 +199,15 @@ public final class TridentServer implements Server {
     @Override
     public Map<String, World> worlds() {
         Map<String, World> worlds = Maps.newHashMap();
-        for (World world : worldLoader.getWorlds())
+        for (World world : worldLoader.worlds())
             worlds.put(world.name(), world);
 
         return worlds;
+    }
+
+    @Override
+    public WorldLoader newWorldLoader(AbstractGenerator generator) {
+        return new TridentWorldLoader(generator);
     }
 
     @Override
@@ -238,7 +247,7 @@ public final class TridentServer implements Server {
     }
 
     @Override
-    public DisplayInfo getInfo() {
+    public DisplayInfo info() {
         return INFO;
     }
 

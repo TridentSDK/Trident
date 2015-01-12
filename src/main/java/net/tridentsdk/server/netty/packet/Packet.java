@@ -55,12 +55,14 @@ public interface Packet {
 
     /**
      * Gets the ID of this packet, according to the protocol specification
+     *
      * @return packet ID
      */
     int getId();
 
     /**
      * Returns the packet direction
+     *
      * @return {@link net.tridentsdk.server.netty.packet.PacketDirection#IN} or
      * {@link net.tridentsdk.server.netty.packet.PacketDirection#OUT} depending on direction
      */

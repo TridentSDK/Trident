@@ -43,7 +43,7 @@ public class DecoratedInventoryHolder extends DecorationAdapter<Entity> implemen
 
     @Override
     public Item getContent(int slot) {
-        return inventory.getItems()[slot];
+        return inventory.items()[slot];
     }
 
     public void applyOpenWindow(Player player) {

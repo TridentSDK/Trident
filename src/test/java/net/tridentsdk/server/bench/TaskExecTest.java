@@ -201,7 +201,8 @@ Iteration  19: 451.590 ns/op
 Iteration  20: 384.370 ns/op
  */
 
-@State(Scope.Benchmark) public class TaskExecTest {
+@State(Scope.Benchmark)
+public class TaskExecTest {
     static {
         TridentLogger.init();
         Factories.init(new CollectFactory() {
@@ -211,8 +212,6 @@ Iteration  20: 384.370 ns/op
             }
         });
     }
-    private static ConcurrentTaskExecutor<String> TASK_EXECUTOR;
-    private static TaskExecutor EXECUTOR;
     private static final ExecutorService JAVA = Executors.newFixedThreadPool(13);
     private static final Runnable RUNNABLE = new Runnable() {
         int anInt = 0;
@@ -222,12 +221,10 @@ Iteration  20: 384.370 ns/op
             anInt++;
         }
     };
-
-    @Setup
-    public void setup() {
-        TASK_EXECUTOR = ConcurrentTaskExecutor.create(13, "TaskExecTest");
-        EXECUTOR = TASK_EXECUTOR.scaledThread();
-    }
+    private static ConcurrentTaskExecutor<String> TASK_EXECUTOR;
+    private static TaskExecutor EXECUTOR;
+    //@Param({ "1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024" })
+    private int cpuTokens;
 
     public static void main2(String[] args) {
         new TaskExecTest().setup();
@@ -262,9 +259,8 @@ Iteration  20: 384.370 ns/op
             });
 
             if (i % 100 == 0 && i != 0) {
-                System.out.println("Warmup iteration " + i + ": " + decimal[0].divide(
-                                                   new BigDecimal(1_000), 3, RoundingMode.UNNECESSARY)
-                                                   .toString() + " ns/op");
+                System.out.println("Warmup iteration " + i + ": " + decimal[0].divide(new BigDecimal(1_000), 3,
+                        RoundingMode.UNNECESSARY).toString() + " ns/op");
             }
         }
 
@@ -292,16 +288,16 @@ Iteration  20: 384.370 ns/op
                 }
 
             if (i % 10_000_000 == 0 && i != 0) {
-                System.out.println("Iteration " + i + ": " + big[0].divide(
-                        new BigDecimal(100_000_000), 3, RoundingMode.UP)
-                        .toString() + " ns/op");
+                System.out.println(
+                        "Iteration " + i + ": " + big[0].divide(new BigDecimal(100_000_000), 3, RoundingMode.UP)
+                                .toString() + " ns/op");
             }
         }
 
         System.out.println("========= Ended test =========");
 
-        System.out.println("Complete. " + big[0].divide(new BigDecimal(100_000_000), 3, RoundingMode.UP)
-                .toString() + " ns/op");
+        System.out.println(
+                "Complete. " + big[0].divide(new BigDecimal(100_000_000), 3, RoundingMode.UP).toString() + " ns/op");
 
         // Clear all the useless tasks
         TASK_EXECUTOR.shutdown();
@@ -333,9 +329,8 @@ Iteration  20: 384.370 ns/op
             });
 
             if (i % 100 == 0 && i != 0) {
-                System.out.println("Warmup iteration " + i + ": " + decimal[0].divide(
-                        new BigDecimal(1_000), 3, RoundingMode.UNNECESSARY)
-                        .toString() + " ns/op");
+                System.out.println("Warmup iteration " + i + ": " + decimal[0].divide(new BigDecimal(1_000), 3,
+                        RoundingMode.UNNECESSARY).toString() + " ns/op");
             }
         }
 
@@ -363,16 +358,16 @@ Iteration  20: 384.370 ns/op
                 }
 
             if (i % 10_000_000 == 0 && i != 0) {
-                System.out.println("Iteration " + i + ": " + big[0].divide(
-                        new BigDecimal(100_000_000), 3, RoundingMode.UP)
-                        .toString() + " ns/op");
+                System.out.println(
+                        "Iteration " + i + ": " + big[0].divide(new BigDecimal(100_000_000), 3, RoundingMode.UP)
+                                .toString() + " ns/op");
             }
         }
 
         System.out.println("========= Ended test =========");
 
-        System.out.println("Complete. " + big[0].divide(new BigDecimal(100_000_000), 3, RoundingMode.UP)
-                .toString() + " ns/op");
+        System.out.println(
+                "Complete. " + big[0].divide(new BigDecimal(100_000_000), 3, RoundingMode.UP).toString() + " ns/op");
     }
 
     public static void main1(String[] args) {
@@ -394,22 +389,24 @@ Iteration  20: 384.370 ns/op
         }
     }
 
-    //@Param({ "1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024" })
-    private int cpuTokens;
-
     public static void main(String... args) throws RunnerException {
         Options opt = new OptionsBuilder().include(".*" + TaskExecTest.class.getSimpleName() + ".*") // CLASS
-                .timeUnit(TimeUnit.NANOSECONDS).mode(Mode.AverageTime).warmupIterations(20)
-                .warmupTime(TimeValue.milliseconds(10))              // ALLOWED TIME
-                .measurementIterations(20)
-                .measurementTime(TimeValue.milliseconds(10))         // ALLOWED TIME
+                .timeUnit(TimeUnit.NANOSECONDS).mode(Mode.AverageTime).warmupIterations(20).warmupTime(
+                        TimeValue.milliseconds(10))              // ALLOWED TIME
+                .measurementIterations(20).measurementTime(TimeValue.milliseconds(10))         // ALLOWED TIME
                 .forks(1)                                           // FORKS
-                //.verbosity(VerboseMode.SILENT)                      // GRAPH
+                        //.verbosity(VerboseMode.SILENT)                      // GRAPH
                 .threads(4)                                         // THREADS
                 .build();
 
         Collection<RunResult> results = new Runner(opt).run();
         Benchmarks.chart(Benchmarks.parse(results), "ConcurrentTaskExecutor vs ExecutorService");
+    }
+
+    @Setup
+    public void setup() {
+        TASK_EXECUTOR = ConcurrentTaskExecutor.create(13, "TaskExecTest");
+        EXECUTOR = TASK_EXECUTOR.scaledThread();
     }
 
     //@Benchmark

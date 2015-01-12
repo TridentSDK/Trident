@@ -30,7 +30,8 @@ import java.nio.charset.Charset;
  *
  * @author The TridentSDK Team
  */
-@ThreadSafe public final class Codec {
+@ThreadSafe
+public final class Codec {
     //Current charset used by strings is UTF_8
     /**
      * The charset used for Strings
@@ -57,6 +58,7 @@ import java.nio.charset.Charset;
 
     /**
      * Gets the byte length of provided integer
+     *
      * @param integer integer to get the byte length of
      * @return byte length of the integer
      */

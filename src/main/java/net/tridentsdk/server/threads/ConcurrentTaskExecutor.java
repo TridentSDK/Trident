@@ -58,15 +58,18 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
  * which increases the latency between submission and execution phases of the task, the worker stores tasks queued to
  * execute using an {@link java.util.concurrent.ArrayBlockingQueue}. This suppresses GC overhead and latency by direct
  * array store instead of node linking. Albeit fast, linked collections do not out perform an array based queue under
- * realistic server load. However, because array based queues cannot resize, they are fixed at a default 20000000 tasks.
- * The resulting drawback is limited task size. In response, a second linked collection which is used for overflow tasks
+ * realistic server load. However, because array based queues cannot resize, they are fixed at a default 20000000
+ * tasks.
+ * The resulting drawback is limited task size. In response, a second linked collection which is used for overflow
+ * tasks
  * and checked every other iteration of the task executor. However, due to the improved latency of task execution, the
  * likelihood of a task ever reaching this collection is very small under normal server load.</p>
  *
  * @param <E> the assignment type, if used
  * @author The TridentSDK Team
  */
-@ThreadSafe public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implements ExecutorFactory<E> {
+@ThreadSafe
+public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implements ExecutorFactory<E> {
     private static final Set<ConcurrentTaskExecutor<?>> EXECUTORS = Sets.newHashSet();
 
     private static final int EMERGENCY_MARGIN = 4;
@@ -77,14 +80,10 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
     private static final int RUNNING = 1;
     private static final int SHUTTING_DOWN = 2;
     private static final int STOPPED = 3;
-
-    private volatile int state = STARTING;
-
     private final AtomicReferenceArray<ThreadWorker> executors;
     private final int scale;
     private final String name;
     private final AtomicInteger emergencyScale = new AtomicInteger(1);
-
     private final Callable<ThreadWorker> obtainWorker = new Callable<ThreadWorker>() {
         @Override
         public ThreadWorker call() throws Exception {
@@ -92,11 +91,13 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
             return worker;
         }
     };
-
     // We cache assignments, if it is retrieved again while loading into the map, there would be 2 requests for the same
     // thing concurrently, which is bad for performance in the long run
     // It is better to have it slow now to cache correctly than time later to doubly receive
     private final ConcurrentCache<E, ThreadWorker> assigned = ConcurrentCache.create();
+    private volatile int state = STARTING;
+    @GuardedBy("this")
+    private int counter = 0;
 
     private ConcurrentTaskExecutor(int scale, String name) {
         this.scale = scale;
@@ -112,12 +113,14 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
 
     private static int calcTaskLen() {
         int objectSize = 4;
-        if (ARCH_64) objectSize = 8;
+        if (ARCH_64)
+            objectSize = 8;
         long max = (Runtime.getRuntime().freeMemory() / objectSize) / 15; // TODO adjust thread count
         int len;
         if (max > (long) Integer.MAX_VALUE)
             len = Integer.MAX_VALUE - 8;
-        else len = (int) max;
+        else
+            len = (int) max;
 
         return len;
     }
@@ -143,9 +146,6 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
     public static Set<ConcurrentTaskExecutor<?>> executors() {
         return EXECUTORS;
     }
-
-    @GuardedBy("this")
-    private int counter = 0;
 
     @Override
     public TaskExecutor scaledThread() {
@@ -196,7 +196,8 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
         state = SHUTTING_DOWN;
         for (int i = 0, n = scale; i < n; i++) {
             ThreadWorker thread = executors.get(i);
-            if (thread == null) continue; // We want every single thread, including the overflow
+            if (thread == null)
+                continue; // We want every single thread, including the overflow
             thread.interrupt();
             executors.set(i, null);
         }
@@ -264,8 +265,10 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
         if (state < SHUTTING_DOWN) {
             if (index >= this.scale) {
                 executors.set(index, new OverflowWorker(index).startWorker(remaining));
-            } else executors.set(index, new ThreadWorker(index, name).startWorker(remaining));
-        } else executors.set(index, null);
+            } else
+                executors.set(index, new ThreadWorker(index, name).startWorker(remaining));
+        } else
+            executors.set(index, null);
 
         remaining.clear();
     }
@@ -279,7 +282,8 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
     // risk of task overloading and memory problems
     // To counter this, two queues are implemented, where tasks
     // are placed in the case the array queue is overloaded
-    @AccessNoDoc private class ThreadWorker extends Thread implements TaskExecutor {
+    @AccessNoDoc
+    private class ThreadWorker extends Thread implements TaskExecutor {
         protected final BlockingQueue<Runnable> tasks = new ArrayBlockingQueue<>(TASK_LENGTH);
         private final ConcurrentLinkedQueue<Runnable> overflow = new ConcurrentLinkedQueue<>();
 

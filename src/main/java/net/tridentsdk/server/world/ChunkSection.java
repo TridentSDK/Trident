@@ -18,8 +18,8 @@
 package net.tridentsdk.server.world;
 
 import net.tridentsdk.Coordinates;
-import net.tridentsdk.base.Substance;
 import net.tridentsdk.base.Block;
+import net.tridentsdk.base.Substance;
 import net.tridentsdk.meta.nbt.NBTField;
 import net.tridentsdk.meta.nbt.NBTSerializable;
 import net.tridentsdk.meta.nbt.TagType;
@@ -47,7 +47,6 @@ final class ChunkSection implements NBTSerializable {
 
     /**
      * Gets the position in the section array
-     * @return
      */
     public byte getY() {
         return y;
@@ -82,7 +81,7 @@ final class ChunkSection implements NBTSerializable {
             }
 
             block = new TridentBlock(Coordinates.create(world, 0, 0, 0), material, // dummy location
-                                    bData);
+                    bData);
 
             /* TODO get the type and deal with block data accordingly */
             switch (block.substance()) {

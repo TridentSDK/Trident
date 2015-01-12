@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.command;
 
 import net.tridentsdk.Trident;
@@ -28,7 +29,6 @@ public class ServerCommandRegistrar {
         // Set it here in case some idiot tries to register twice
         registered = true;
 
-        // FIXME (does not register)
-        Trident.commandHandler().addCommand(new ShutdownCommand());
+        Trident.commandHandler().addCommand(null, new ShutdownCommand());
     }
 }

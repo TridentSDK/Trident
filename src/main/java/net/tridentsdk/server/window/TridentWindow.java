@@ -41,7 +41,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @author The TridentSDK Team
  */
-@ThreadSafe public class TridentWindow implements Window {
+@ThreadSafe
+public class TridentWindow implements Window {
     /**
      * Counter for window ids, initial value is 2 to avoid confusion with a window and a player inventory
      */
@@ -79,37 +80,33 @@ import java.util.concurrent.atomic.AtomicInteger;
     }
 
     @Override
-    public int getId() {
+    public int windowId() {
         return this.id;
     }
 
     @Override
-    public Item[] getItems() {
+    public Item[] items() {
         return this.contents;
     }
 
     @Override
-    public int getLength() {
+    public int length() {
         return this.length;
-    }
-
-    @Override
-    public Item[] getContents() {
-        return contents;
     }
 
     //@Override
     public int getItemLength() {
         int counter = 0;
-        for (Item item : getItems()) {
-            if (item != null) counter++;
+        for (Item item : items()) {
+            if (item != null)
+                counter++;
         }
 
         return counter;
     }
 
     @Override
-    public String getName() {
+    public String name() {
         return this.name;
     }
 
@@ -119,7 +116,7 @@ import java.util.concurrent.atomic.AtomicInteger;
         this.contents = this.contents; // Flush caches, make entire array visible
 
         PacketPlayOutSetSlot setSlot = new PacketPlayOutSetSlot();
-        setSlot.set("windowId", getId()).set("slot", (short) index).set("item", new Slot(value));
+        setSlot.set("windowId", windowId()).set("slot", (short) index).set("item", new Slot(value));
 
         for (Player player : users) {
             ((TridentPlayer) player).getConnection().sendPacket(setSlot);
@@ -128,16 +125,16 @@ import java.util.concurrent.atomic.AtomicInteger;
 
     public void sendTo(TridentPlayer player) {
         PacketPlayOutOpenWindow window = new PacketPlayOutOpenWindow();
-        window.set("windowId", getId())
+        window.set("windowId", windowId())
                 .set("inventoryType", type)
-                .set("windowTitle", getName())
-                .set("slots", getLength())
+                .set("windowTitle", name())
+                .set("slots", length())
                 .set("entityId", -1);
         player.getConnection().sendPacket(window);
 
-        for (int i = 0; i < getLength(); i++) {
+        for (int i = 0; i < length(); i++) {
             PacketPlayOutSetSlot setSlot = new PacketPlayOutSetSlot();
-            setSlot.set("windowId", getId()).set("slot", (short) i).set("item", new Slot(getItems()[i]));
+            setSlot.set("windowId", windowId()).set("slot", (short) i).set("item", new Slot(items()[i]));
             player.getConnection().sendPacket(window);
         }
 
@@ -156,12 +153,13 @@ import java.util.concurrent.atomic.AtomicInteger;
             public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
                 if (msg instanceof PacketPlayInPlayerCloseWindow) {
                     PacketPlayInPlayerCloseWindow windowClose = (PacketPlayInPlayerCloseWindow) msg;
-                    if (windowClose.getWindowId() == getId()) for (Player player1 : users) {
-                        if (connection.getChannel().equals(ctx.channel())) {
-                            users.remove(player1);
-                            ctx.pipeline().remove(this);
+                    if (windowClose.getWindowId() == windowId())
+                        for (Player player1 : users) {
+                            if (connection.getChannel().equals(ctx.channel())) {
+                                users.remove(player1);
+                                ctx.pipeline().remove(this);
+                            }
                         }
-                    }
                 }
 
                 // Pass to the next channel handler

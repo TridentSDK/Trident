@@ -79,8 +79,10 @@ public class PerlinNoise {
         h *= 4; // Multiply here so adjust contrast.
 
         // Make sure it is -1 to 1. If you don't change contrast, you don't have to do this.
-        if (h > 1) h = 1;
-        if (h < -1) h = -1;
+        if (h > 1)
+            h = 1;
+        if (h < -1)
+            h = -1;
 
         return h;
     }
@@ -112,10 +114,14 @@ public class PerlinNoise {
      * Get the random direction.
      */
     private Vec2D random(int x, int y) {
-        if (x < 0) x = 0;
-        if (y < 0) y = 0;
-        if (x >= width) x = width;
-        if (y >= height) y = height;
+        if (x < 0)
+            x = 0;
+        if (y < 0)
+            y = 0;
+        if (x >= width)
+            x = width;
+        if (y >= height)
+            y = height;
         return values[x + y * width];
     }
 

@@ -38,8 +38,8 @@ public class PacketPlayOutSpawnObject extends OutPacket {
 
     @Override
     public void encode(ByteBuf buf) {
-        Coordinates l = this.entity.getLocation();
-        Vector v = this.entity.getVelocity();
+        Coordinates l = this.entity.location();
+        Vector v = this.entity.velocity();
 
         Codec.writeVarInt32(buf, this.entityId);
         buf.writeByte(this.type.ordinal()); // TODO: Get the correct id type

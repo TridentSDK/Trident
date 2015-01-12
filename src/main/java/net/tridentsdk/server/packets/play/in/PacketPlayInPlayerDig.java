@@ -60,8 +60,7 @@ public class PacketPlayInPlayerDig extends InPacket {
         long encodedLocation = buf.readLong();
 
         this.location = Coordinates.create(null, (double) (encodedLocation >> 38),
-                                           (double) (encodedLocation << 26 >> 52),
-                                           (double) (encodedLocation << 38 >> 38));
+                (double) (encodedLocation << 26 >> 52), (double) (encodedLocation << 38 >> 38));
         this.blockFace = (short) buf.readByte();
 
         return this;
@@ -124,11 +123,12 @@ public class PacketPlayInPlayerDig extends InPacket {
                 break;
         }
 
-        TridentServer.getInstance().eventHandler().call((Event) event);
+        TridentServer.instance().eventHandler().fire((Event) event);
 
-        if (event == null || event.isIgnored()) return;
+        if (event == null || event.isIgnored())
+            return;
 
-        this.location.setWorld(player.getWorld());
+        this.location.setWorld(player.world());
     }
 
     public enum DigStatus {

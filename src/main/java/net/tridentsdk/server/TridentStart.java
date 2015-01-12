@@ -56,7 +56,8 @@ import static com.google.common.collect.Lists.newArrayList;
  *
  * @author The TridentSDK Team
  */
-@ThreadSafe public final class TridentStart {
+@ThreadSafe
+public final class TridentStart {
     static {
         TridentLogger.init();
     }
@@ -167,8 +168,7 @@ import static com.google.common.collect.Lists.newArrayList;
 
             TridentLogger.log("Binding socket to server address, using address:port " + ip + ":" + port);
 
-            new ServerBootstrap()
-                    .group(bossGroup, workerGroup)
+            new ServerBootstrap().group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
                     .childHandler(new ClientChannelInitializer())
                     .option(ChannelOption.TCP_NODELAY, true)
@@ -181,10 +181,11 @@ import static com.google.common.collect.Lists.newArrayList;
             Scanner scanner = new Scanner(System.in);
 
             while (true) {
-                System.out.print("$ ");
-                String command = scanner.next();
+                System.out.print("$ \r");
+                String command = scanner.nextLine();
+                System.out.println(command);
 
-                TridentServer.getInstance().console().invokeCommand(command);
+                Trident.console().invokeCommand(command);
 
                 if (command.equalsIgnoreCase("shutdown"))
                     break;
@@ -194,6 +195,7 @@ import static com.google.common.collect.Lists.newArrayList;
         } catch (Exception e) {
             TridentLogger.error("Server closed, error occurred");
             TridentLogger.error(e);
+            Trident.shutdown();
         }
     }
 

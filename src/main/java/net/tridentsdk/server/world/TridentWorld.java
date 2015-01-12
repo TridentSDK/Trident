@@ -36,6 +36,7 @@ import net.tridentsdk.world.*;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -50,18 +51,15 @@ public class TridentWorld implements World {
 
     private final Map<ChunkLocation, TridentChunk> loadedChunks = new ConcurrentHashMapV8<>();
     private final Set<Entity> entities = Factories.collect().createSet();
-
-    private volatile long age;
+    private final String name;
+    private final Random random;
+    private final WorldLoader loader;
+    private final Coordinates spawnLocation;
     private volatile long time;
     private volatile long existed;
     private volatile int rainTime;
     private volatile int thunderTime;
     private volatile double borderSize;
-
-    private final String name;
-    private final Random random;
-    private final WorldLoader loader;
-    private final Coordinates spawnLocation;
     private volatile Dimension dimension;
     private volatile Difficulty difficulty;
     private volatile GameMode defaultGamemode;
@@ -100,7 +98,7 @@ public class TridentWorld implements World {
             TridentLogger.error(new IllegalArgumentException("Could not find world " + name));
             return;
         } catch (Exception ex) {
-            TridentLogger.log("Unable to load level.dat! Printing stacktrace...");
+            TridentLogger.error("Unable to load level.dat! Printing stacktrace...");
             TridentLogger.error(ex);
             return;
         } finally {
@@ -198,7 +196,7 @@ public class TridentWorld implements World {
                 if (time >= 2400)
                     time = 0;
                 if (time % 40 == 0)
-                    TridentPlayer.sendAll(new PacketPlayOutTimeUpdate().set("worldAge", age).set("time", time));
+                    TridentPlayer.sendAll(new PacketPlayOutTimeUpdate().set("worldAge", existed).set("time", time));
 
                 rainTime--;
                 thunderTime--;
@@ -217,6 +215,53 @@ public class TridentWorld implements World {
                 existed++;
             }
         });
+    }
+
+    public void addChunkAt(ChunkLocation location, Chunk chunk) {
+        if (location == null) {
+            TridentLogger.error(new NullPointerException("Location cannot be null"));
+        }
+
+        this.loadedChunks.put(location, (TridentChunk) chunk);
+    }
+
+    public Collection<TridentChunk> loadedChunks() {
+        return loadedChunks.values();
+    }
+
+    public void save() {
+        CompoundTag tag = new CompoundTag("Data");
+
+        TridentLogger.log("Saving " + name + "...");
+        TridentLogger.log("Attempting to save level data...");
+
+        tag.addTag(new IntTag("SpawnX").setValue((int) spawnLocation.getX()));
+        tag.addTag(new IntTag("SpawnY").setValue((int) spawnLocation.getY()));
+        tag.addTag(new IntTag("SpawnZ").setValue((int) spawnLocation.getZ()));
+
+        tag.addTag(new ByteTag("Difficulty").setValue(difficulty.asByte()));
+        tag.addTag(new ByteTag("DifficultyLocked").setValue(difficultyLocked ? (byte) 1 : (byte) 0));
+        tag.addTag(new LongTag("DayTime").setValue(time));
+        tag.addTag(new LongTag("Time").setValue(existed));
+        tag.addTag(new ByteTag("raining").setValue(raining ? (byte) 1 : (byte) 0));
+
+        tag.addTag(new IntTag("rainTime").setValue(rainTime));
+        tag.addTag(new ByteTag("thundering").setValue(thundering ? (byte) 1 : (byte) 0));
+        tag.addTag(new IntTag("thunderTime").setValue(thunderTime));
+
+        // TODO add other level data
+
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+
+        try {
+            new NBTEncoder(new DataOutputStream(new GZIPOutputStream(os))).encode(tag);
+            Files.write(Paths.get(name, File.separator, "level.dat"), os.toByteArray());
+        } catch (IOException | NBTException ex) {
+            TridentLogger.log("Failed to save level data... printing stacktrace");
+            TridentLogger.error(ex);
+        }
+
+        // TODO save chunks
     }
 
     @Override
@@ -280,44 +325,6 @@ public class TridentWorld implements World {
         return this.chunkAt(location, false);
     }
 
-    public void save() {
-        CompoundTag tag = new CompoundTag("Data");
-
-        TridentLogger.log("Saving " + name + "...");
-        TridentLogger.log("Attempting to save level data...");
-
-        tag.addTag(new IntTag("SpawnX").setValue((int) spawnLocation.getX()));
-        tag.addTag(new IntTag("SpawnY").setValue((int) spawnLocation.getY()));
-        tag.addTag(new IntTag("SpawnZ").setValue((int) spawnLocation.getZ()));
-
-        tag.addTag(new ByteTag("Difficulty").setValue(difficulty.asByte()));
-        tag.addTag(new ByteTag("DifficultyLocked")
-                .setValue(difficultyLocked ? (byte) 1 : (byte) 0));
-        tag.addTag(new LongTag("DayTime").setValue(time));
-        tag.addTag(new LongTag("Time").setValue(existed));
-        tag.addTag(new ByteTag("raining")
-                .setValue(raining ? (byte) 1 : (byte) 0));
-
-        tag.addTag(new IntTag("rainTime").setValue(rainTime));
-        tag.addTag(new ByteTag("thundering")
-                .setValue(thundering ? (byte) 1 : (byte) 0));
-        tag.addTag(new IntTag("thunderTime").setValue(thunderTime));
-
-        // TODO add other level data
-
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-
-        try {
-            new NBTEncoder(new DataOutputStream(new GZIPOutputStream(os))).encode(tag);
-            Files.write(Paths.get(name, File.separator, "level.dat"), os.toByteArray());
-        } catch (IOException | NBTException ex) {
-            TridentLogger.log("Failed to save level data... printing stacktrace");
-            TridentLogger.error(ex);
-        }
-
-        // TODO save chunks
-    }
-
     @Override
     public Block tileAt(Coordinates location) {
         if (!location.world().name().equals(this.name()))
@@ -330,14 +337,6 @@ public class TridentWorld implements World {
         return this.chunkAt(WorldUtils.getChunkLocation(x, z), true).tileAt(x % 16, y, z % 16);
     }
 
-    public void addChunkAt(ChunkLocation location, Chunk chunk) {
-        if (location == null) {
-            TridentLogger.error(new NullPointerException("Location cannot be null"));
-        }
-
-        this.loadedChunks.put(location, (TridentChunk) chunk);
-    }
-
     @Override
     public Difficulty difficulty() {
         return difficulty;
@@ -346,6 +345,11 @@ public class TridentWorld implements World {
     @Override
     public GameMode defaultGamemode() {
         return defaultGamemode;
+    }
+
+    @Override
+    public WorldLoader loader() {
+        return loader;
     }
 
     @Override

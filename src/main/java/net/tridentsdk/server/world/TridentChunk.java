@@ -19,8 +19,8 @@ package net.tridentsdk.server.world;
 
 import com.google.common.collect.Lists;
 import net.tridentsdk.Coordinates;
-import net.tridentsdk.base.Substance;
 import net.tridentsdk.base.Block;
+import net.tridentsdk.base.Substance;
 import net.tridentsdk.meta.nbt.*;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutChunkData;
 import net.tridentsdk.util.NibbleArray;
@@ -29,6 +29,7 @@ import net.tridentsdk.world.Chunk;
 import net.tridentsdk.world.ChunkLocation;
 import net.tridentsdk.world.ChunkSnapshot;
 import net.tridentsdk.world.Dimension;
+import net.tridentsdk.world.gen.WorldGenHandler;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -37,13 +38,12 @@ import java.util.List;
 public class TridentChunk implements Chunk {
     private final TridentWorld world;
     private final ChunkLocation location;
+    private final ByteArrayOutputStream data = new ByteArrayOutputStream();
     private volatile int lastFileAccess;
-
     private volatile long lastModified;
     private volatile long inhabitedTime;
     private volatile byte lightPopulated;
     private volatile byte terrainPopulated;
-
     private volatile ChunkSection[] sections;
 
     public TridentChunk(TridentWorld world, int x, int z) {
@@ -66,6 +66,8 @@ public class TridentChunk implements Chunk {
 
     @Override
     public void generate() {
+        WorldGenHandler handler = WorldGenHandler.create(world.loader().generator());
+        handler.apply(world, location, location);
     }
 
     @Override
@@ -120,10 +122,9 @@ public class TridentChunk implements Chunk {
         }
 
         return new TridentChunkSnapshot(world, location, sections, lastFileAccess, lastModified, inhabitedTime,
-                                        lightPopulated, terrainPopulated);
+                lightPopulated, terrainPopulated);
     }
 
-    private final ByteArrayOutputStream data = new ByteArrayOutputStream();
     public PacketPlayOutChunkData asPacket() {
         PacketPlayOutChunkData packet = new PacketPlayOutChunkData();
 
@@ -132,7 +133,8 @@ public class TridentChunk implements Chunk {
         int size = 0;
         int sectionSize = ChunkSection.LENGTH * 5 / 2;
 
-        if (world.dimension() == Dimension.OVERWORLD) sectionSize += ChunkSection.LENGTH / 2;
+        if (world.dimension() == Dimension.OVERWORLD)
+            sectionSize += ChunkSection.LENGTH / 2;
 
         size += count * sectionSize + 256;
 
@@ -140,7 +142,7 @@ public class TridentChunk implements Chunk {
         //int pos = 0;
 
         for (ChunkSection section : sections) {
-            if(section == null)
+            if (section == null)
                 continue;
 
             for (byte b : section.getTypes()) {

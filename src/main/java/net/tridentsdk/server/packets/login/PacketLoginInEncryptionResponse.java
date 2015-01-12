@@ -126,7 +126,7 @@ public class PacketLoginInEncryptionResponse extends InPacket {
         // Check that we got the same verification token;
         if (!Arrays.equals(connection.getVerificationToken(), token)) {
             TridentLogger.log("Client with IP " + connection.getAddress().getHostName() +
-                                      " has sent an invalid token!");
+                    " has sent an invalid token!");
 
             connection.logout();
             return;
@@ -138,8 +138,8 @@ public class PacketLoginInEncryptionResponse extends InPacket {
         try {
             // Contact Mojang's session servers, to finalize creating the session as well as get the client's UUID
             URL url = new URL("https://sessionserver.mojang.com/session/minecraft/hasJoined?username=" +
-                                      URLEncoder.encode(name, "UTF-8") + "&serverId=" +
-                                      new BigInteger(HashGenerator.getHash(connection, sharedSecret)).toString(16));
+                    URLEncoder.encode(name, "UTF-8") + "&serverId=" +
+                    new BigInteger(HashGenerator.getHash(connection, sharedSecret)).toString(16));
             HttpsURLConnection c = (HttpsURLConnection) url.openConnection();
             int code = c.getResponseCode();
 
