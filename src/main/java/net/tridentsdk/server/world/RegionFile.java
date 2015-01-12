@@ -51,6 +51,7 @@ public class RegionFile {
     final SectorStorage sectors;
     //The object to lock on to shutdown reading/writing simultaneously
     private final Object readWriteLock = new Object();
+    private final byte[] buffer = new byte[1024];
 
     private RegionFile(Path path) throws IOException {
         this.path = path;
@@ -194,8 +195,6 @@ public class RegionFile {
                 ByteArrayOutputStream output = new ByteArrayOutputStream();
                 inflater.setInput(compressedData);
 
-                byte[] buffer = new byte[1024];
-
                 while (!(inflater.finished())) {
                     int count = inflater.inflate(buffer);
 
@@ -223,16 +222,24 @@ public class RegionFile {
      * Pass in a chunk to save its data to the file
      */
     public void saveChunkData(TridentChunk chunk) throws IOException, NBTException {
-        /* Gets the ChunkData in a byte array form */
+        /* Gets the Chunk in a byte array form */
         ByteArrayOutputStream nbtStream = new ByteArrayOutputStream();
-        new NBTEncoder(new DataOutputStream(new ByteArrayOutputStream())).encode(chunk.asNbt());
+        new NBTEncoder(new DataOutputStream(nbtStream)).encode(chunk.asNbt());
         byte[] uncompressed = nbtStream.toByteArray();
         
         /* Gonna only use Zlib compression by default */
         Deflater deflater = new Deflater();
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+
         deflater.setInput(uncompressed);
-        byte[] compressed = new byte[(int) deflater.getBytesRead()];
-        deflater.deflate(compressed);
+        deflater.finish();
+
+        while(!deflater.finished()) {
+            int bytes = deflater.deflate(buffer);
+            os.write(buffer, 0, bytes);
+        }
+
+        byte[] compressed = os.toByteArray();
         
         /* Compare and sector lengths*/
         //The extra byte is for compression type (always saved as 1 for now)

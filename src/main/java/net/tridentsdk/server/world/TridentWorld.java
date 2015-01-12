@@ -184,6 +184,19 @@ public class TridentWorld implements World {
             }
 
             TridentLogger.log("Loaded all player data!");
+
+            TridentLogger.log("Loading spawn chunks...");
+
+            int centX = ((int) Math.floor(spawnLocation.getX())) >> 4;
+            int centZ = ((int) Math.floor(spawnLocation.getZ())) >> 4;
+
+            for(int x = (centX - 7); x <= (centX + 7); x++) {
+                for(int z = (centZ - 7); z <= (centZ + 7); z++) {
+                    chunkAt(x, z, true);
+                }
+            }
+
+            TridentLogger.log("Loaded spawn chunks!");
         }
     }
 
@@ -238,12 +251,15 @@ public class TridentWorld implements World {
         tag.addTag(new IntTag("SpawnX").setValue((int) spawnLocation.getX()));
         tag.addTag(new IntTag("SpawnY").setValue((int) spawnLocation.getY()));
         tag.addTag(new IntTag("SpawnZ").setValue((int) spawnLocation.getZ()));
+        tag.addTag(new DoubleTag("BorderSize").setValue(borderSize));
 
         tag.addTag(new ByteTag("Difficulty").setValue(difficulty.asByte()));
         tag.addTag(new ByteTag("DifficultyLocked").setValue(difficultyLocked ? (byte) 1 : (byte) 0));
         tag.addTag(new LongTag("DayTime").setValue(time));
         tag.addTag(new LongTag("Time").setValue(existed));
         tag.addTag(new ByteTag("raining").setValue(raining ? (byte) 1 : (byte) 0));
+        tag.addTag(new IntTag("GameType").setValue(defaultGamemode.asByte()));
+        tag.addTag(new StringTag("generatorName").setValue(type.toString()));
 
         tag.addTag(new IntTag("rainTime").setValue(rainTime));
         tag.addTag(new ByteTag("thundering").setValue(thundering ? (byte) 1 : (byte) 0));
@@ -254,14 +270,32 @@ public class TridentWorld implements World {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
 
         try {
-            new NBTEncoder(new DataOutputStream(new GZIPOutputStream(os))).encode(tag);
+            GZIPOutputStream gzip = new GZIPOutputStream(os);
+            CompoundTag root = new CompoundTag("root");
+
+            root.addTag(tag);
+
+            new NBTEncoder(new DataOutputStream(gzip)).encode(root);
+            gzip.close();
+
             Files.write(Paths.get(name, File.separator, "level.dat"), os.toByteArray());
         } catch (IOException | NBTException ex) {
-            TridentLogger.log("Failed to save level data... printing stacktrace");
+            TridentLogger.warn("Failed to save level data... printing stacktrace");
             TridentLogger.error(ex);
         }
 
+        TridentLogger.log("Saved " + name + " successfully!");
+
         // TODO save chunks
+        for(TridentChunk chunk : loadedChunks()) {
+            try {
+                RegionFile.fromPath(name, chunk.location()).saveChunkData(chunk);
+            } catch (IOException | NBTException ex) {
+                TridentLogger.warn("Failed to save chunk at (" + chunk.getX() +
+                        "," + chunk.getZ() + "), printing stacktrace...");
+                TridentLogger.error(ex);
+            }
+        }
     }
 
     @Override

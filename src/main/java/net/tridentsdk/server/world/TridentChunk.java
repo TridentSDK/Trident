@@ -234,6 +234,27 @@ public class TridentChunk implements Chunk {
     }
 
     public CompoundTag asNbt() {
-        return null;
+        CompoundTag root = new CompoundTag("root");
+        CompoundTag level = new CompoundTag("level");
+
+        level.addTag(new LongTag("LastUpdate").setValue(world.time()));
+        level.addTag(new ByteTag("LightPopulated").setValue(lightPopulated));
+        level.addTag(new ByteTag("TerrainPopulated").setValue(terrainPopulated));
+
+        level.addTag(new LongTag("InhabitedTime").setValue(inhabitedTime));
+        level.addTag(new IntArrayTag("HeightMap").setValue(new int[1024])); // placeholder TODO
+
+        ListTag sections = new ListTag("Sections", TagType.COMPOUND);
+
+        for(ChunkSection section : this.sections) {
+            sections.addTag(NBTSerializer.serialize(section));
+        }
+
+        level.addTag(sections);
+        level.addTag(new ListTag("Entities", TagType.COMPOUND)); // another placeholder TODO
+
+        root.addTag(level);
+
+        return root;
     }
 }
