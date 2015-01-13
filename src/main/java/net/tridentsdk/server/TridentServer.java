@@ -181,7 +181,6 @@ public final class TridentServer implements Server {
             pluginHandler().disable(plugin);
 
         TridentLogger.log("Saving worlds...");
-
         for (World world : worldLoader.worlds())
             ((TridentWorld) world).save();
 
@@ -211,7 +210,7 @@ public final class TridentServer implements Server {
     }
 
     @Override
-    public WorldLoader newWorldLoader(AbstractGenerator generator) {
+    public WorldLoader newWorldLoader(Class<? extends AbstractGenerator> generator) {
         return new TridentWorldLoader(generator);
     }
 

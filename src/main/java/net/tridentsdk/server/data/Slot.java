@@ -24,7 +24,6 @@ import net.tridentsdk.meta.nbt.*;
 import net.tridentsdk.window.inventory.Item;
 
 public class Slot implements Writable, NBTSerializable {
-
     @NBTField(name = "id", type = TagType.SHORT)
     private short id;
     private Substance mat;

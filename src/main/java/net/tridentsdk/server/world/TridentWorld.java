@@ -78,7 +78,6 @@ public class TridentWorld implements World {
         spawnLocation = Coordinates.create(this, 0d, 0d, 0d);
 
         TridentLogger.log("Starting to load " + name + "...");
-        TridentLogger.log("Attempting to load level.dat...");
 
         File directory = new File(name + File.separator);
         File levelFile = new File(directory, "level.dat");
@@ -91,9 +90,10 @@ public class TridentWorld implements World {
             byte[] compressedData = new byte[fis.available()];
             fis.read(compressedData);
 
-            level = new NBTDecoder(new DataInputStream(new ByteArrayInputStream(ByteStreams.
-                    toByteArray(new GZIPInputStream(new ByteArrayInputStream(compressedData)))))).decode()
-                    .getTagAs("Data");
+            level = new NBTDecoder(new DataInputStream(new ByteArrayInputStream(ByteStreams.toByteArray(
+                    new GZIPInputStream(
+                            new ByteArrayInputStream(compressedData)
+                    ))))).decode().getTagAs("Data");
         } catch (FileNotFoundException ignored) {
             TridentLogger.error(new IllegalArgumentException("Could not find world " + name));
             return;
@@ -112,7 +112,6 @@ public class TridentWorld implements World {
         }
 
         TridentLogger.log("Loading values of level.dat....");
-
         spawnLocation.setX(((IntTag) level.getTag("SpawnX")).getValue());
         spawnLocation.setY(((IntTag) level.getTag("SpawnY")).getValue() + 4);
         spawnLocation.setZ(((IntTag) level.getTag("SpawnZ")).getValue());
@@ -132,8 +131,7 @@ public class TridentWorld implements World {
         thundering = ((ByteTag) level.getTag("thundering")).getValue() == 1;
         thunderTime = ((IntTag) level.getTag("thunderTime")).getValue();
         difficultyLocked = ((ByteTag) level.getTag("DifficultyLocked")).getValue() == 1;
-
-        TridentLogger.log("Loaded level.dat successfully! Moving on to region files...");
+        TridentLogger.success("Loaded level.dat successfully. Moving on to region files...");
 
         // TODO: load other values
 
@@ -144,12 +142,12 @@ public class TridentWorld implements World {
                     new IllegalStateException("Region folder is rather non-existent or isn't a directory!"));
         }
 
-        TridentLogger.log("Loaded region files successfully! Moving onto player data...");
+        TridentLogger.success("Loaded region files successfully. Moving onto player data...");
 
         File playerData = new File(directory, "playerdata");
 
         if (!(playerData.exists()) || !(playerData.isDirectory())) {
-            TridentLogger.log("Player data folder does not exist! Creating folder...");
+            TridentLogger.warn("Player data folder does not exist. Creating folder...");
             playerData.mkdir();
         } else {
             TridentLogger.log("Scanning player data...");
@@ -167,7 +165,7 @@ public class TridentWorld implements World {
                     opData = new NBTDecoder(new DataInputStream(new ByteArrayInputStream(ByteStreams.
                             toByteArray(new GZIPInputStream(new ByteArrayInputStream(compressedData)))))).decode();
                 } catch (IOException | NBTException ex) {
-                    TridentLogger.log("Unable to load " + f.getName() + "! Printing stacktrace...");
+                    TridentLogger.log("Unable to load " + f.getName() + ". Printing stacktrace...");
                     TridentLogger.error(ex);
                     continue;
                 } finally {
@@ -182,11 +180,9 @@ public class TridentWorld implements World {
 
                 new OfflinePlayer(opData, this); // will automatically register itself
             }
-
-            TridentLogger.log("Loaded all player data!");
+            TridentLogger.success("Loaded all player data.");
 
             TridentLogger.log("Loading spawn chunks...");
-
             int centX = ((int) Math.floor(spawnLocation.getX())) >> 4;
             int centZ = ((int) Math.floor(spawnLocation.getZ())) >> 4;
 
@@ -195,8 +191,7 @@ public class TridentWorld implements World {
                     chunkAt(x, z, true);
                 }
             }
-
-            TridentLogger.log("Loaded spawn chunks!");
+            TridentLogger.success("Loaded spawn chunks.");
         }
     }
 

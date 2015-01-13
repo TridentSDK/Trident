@@ -24,7 +24,7 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 import net.tridentsdk.server.netty.packet.PacketDirection;
 
 /**
- * TODO not an expert on this - AgentTroll
+ * Indicates a successful login
  *
  * @author The TridentSDK Team
  */

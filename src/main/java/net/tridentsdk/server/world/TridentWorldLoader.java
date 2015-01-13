@@ -31,6 +31,12 @@ import net.tridentsdk.world.gen.AbstractGenerator;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Map;
 import java.util.zip.DataFormatException;
@@ -44,12 +50,26 @@ public class TridentWorldLoader implements WorldLoader {
     private static final Map<String, TridentWorld> worlds = new ConcurrentHashMapV8<>();
     private final AbstractGenerator generator;
 
-    public TridentWorldLoader(AbstractGenerator generator) {
-        this.generator = generator;
+    public TridentWorldLoader(Class<? extends AbstractGenerator> generator) {
+        AbstractGenerator gen;
+        try {
+            Constructor<? extends AbstractGenerator> g = generator.getDeclaredConstructor();
+            gen = g.newInstance();
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            TridentLogger.error(e);
+            gen = new DefaultWorldGen();
+        } catch (NoSuchMethodException e) {
+            TridentLogger.error("Provided generator does not have a default constructor");
+            TridentLogger.error("Switching to the default");
+            TridentLogger.error(e);
+            gen = new DefaultWorldGen();
+        }
+
+        this.generator = gen;
     }
 
     public TridentWorldLoader() {
-        this(new DefaultWorldGen());
+        this(DefaultWorldGen.class);
     }
 
     public Collection<TridentWorld> worlds() {
@@ -67,13 +87,51 @@ public class TridentWorldLoader implements WorldLoader {
 
             boolean isWorld = false;
 
-            for (File f : file.listFiles())
-                if (f.getName().equals("level.dat"))
+            for (File f : file.listFiles()) {
+                if (f.getName().equals("level.dat")) {
                     isWorld = true;
+                    continue;
+                }
+
+                if (f.getName().equals("gensig")) {
+                    String className = null;
+                    try {
+                        byte[] sig = Files.readAllBytes(Trident
+                                .fileContainer()
+                                .resolve(file.getName())
+                                .resolve("gensig"));
+                        className = new String(sig);
+                        if (!className.equals(this.getClass().getName())) {
+                            // Create a new loader with that class, don't load it with this one
+                            new TridentWorldLoader(Class.forName(className).asSubclass(AbstractGenerator.class));
+                            isWorld = false;
+                        }
+                    } catch (IOException e) {
+                        TridentLogger.error(e);
+                        isWorld = true;
+                    } catch (ClassNotFoundException e) {
+                        TridentLogger.error("Could not find loader " + className + ", resorting to default");
+                        TridentLogger.error(e);
+
+                        // Nevermind, load with this one anyways
+                        isWorld = true;
+                    }
+                }
+            }
 
             if (!(isWorld))
                 continue;
 
+            Path gensig = Trident.fileContainer().resolve(file.getName()).resolve("gensig");
+            if (!Files.exists(gensig)) {
+                try {
+                    Files.createFile(gensig);
+                    Files.write(gensig, generator().getClass().getName().getBytes(Charset.defaultCharset()));
+                } catch (IOException e) {
+                    TridentLogger.error("Could not write gensig file");
+                    TridentLogger.error(e);
+                }
+            }
             load(file.getName());
         }
     }
