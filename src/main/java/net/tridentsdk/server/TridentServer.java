@@ -24,7 +24,10 @@ import net.tridentsdk.Server;
 import net.tridentsdk.Trident;
 import net.tridentsdk.concurrent.TridentRunnable;
 import net.tridentsdk.config.JsonConfig;
+import net.tridentsdk.entity.EntityType;
 import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.entity.living.ai.AiHandler;
+import net.tridentsdk.entity.living.ai.AiModule;
 import net.tridentsdk.event.EventHandler;
 import net.tridentsdk.factory.Factories;
 import net.tridentsdk.plugin.TridentPlugin;
@@ -32,6 +35,7 @@ import net.tridentsdk.plugin.TridentPluginHandler;
 import net.tridentsdk.plugin.cmd.CommandHandler;
 import net.tridentsdk.plugin.cmd.ServerConsole;
 import net.tridentsdk.server.command.TridentConsole;
+import net.tridentsdk.server.entity.living.ai.TridentAiHandler;
 import net.tridentsdk.server.netty.protocol.Protocol;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutPluginMessage;
 import net.tridentsdk.server.player.OfflinePlayer;
@@ -78,6 +82,7 @@ public final class TridentServer implements Server {
 
     private final TridentPluginHandler pluginHandler;
     private final TridentWorldLoader worldLoader;
+    private final AiHandler aiHandler;
 
     private TridentServer(JsonConfig config) {
         this.config = config;
@@ -90,6 +95,7 @@ public final class TridentServer implements Server {
         this.mainThread = new MainThread(20);
         this.worldLoader = new TridentWorldLoader();
         this.console = new TridentConsole();
+        this.aiHandler = new TridentAiHandler();
     }
 
     /**
@@ -264,5 +270,10 @@ public final class TridentServer implements Server {
     public Player playerBy(UUID id) {
         Player p = TridentPlayer.getPlayer(id);
         return p != null ? p : OfflinePlayer.getOfflinePlayer(id);
+    }
+
+    @Override
+    public AiHandler aiHandler() {
+        return aiHandler;
     }
 }

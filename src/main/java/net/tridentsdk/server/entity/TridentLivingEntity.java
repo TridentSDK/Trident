@@ -19,10 +19,14 @@ package net.tridentsdk.server.entity;
 
 import com.google.common.util.concurrent.AtomicDouble;
 import net.tridentsdk.Coordinates;
+import net.tridentsdk.Trident;
 import net.tridentsdk.entity.LivingEntity;
+import net.tridentsdk.entity.living.ai.AiModule;
+import net.tridentsdk.entity.living.ai.Path;
 import net.tridentsdk.util.Vector;
 
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * An entity that has health
@@ -46,6 +50,18 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
      * The maximum available health
      */
     protected volatile double maxHealth;
+
+    private volatile AiModule ai;
+
+    /**
+     * The amount of time this entity should "rest" for, i.e. does not think, but simply follows a path
+     */
+    private final AtomicInteger restTicks = new AtomicInteger(0);
+
+    /**
+     * The path that this entity should be following
+     */
+    private volatile Path path;
 
     /**
      * Inherits from {@link TridentEntity} <p/> <p>The entity is immediately set "non-dead" after {@code super}
@@ -106,5 +122,31 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
     public void remove() {
         dead = true;
         super.remove();
+    }
+
+    @Override
+    public void setAiModule(AiModule module) {
+        this.ai = module;
+    }
+
+    @Override
+    public AiModule aiModule() {
+        if(ai == null) {
+            return Trident.instance().aiHandler().getDefaultAiFor(type());
+        }
+        else {
+            return ai;
+        }
+    }
+
+    @Override
+    public void performAiUpdate() {
+        if(this.restTicks.get() == 0) {
+            this.restTicks.set(this.aiModule().think(this));
+        }
+        else {
+            this.restTicks.getAndDecrement();
+            // TODO: follow path
+        }
     }
 }
