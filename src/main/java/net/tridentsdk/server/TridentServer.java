@@ -66,7 +66,7 @@ import java.util.UUID;
 @ThreadSafe
 public final class TridentServer implements Server {
     // TODO this is temporary for testing
-    public static final TridentWorld WORLD = findWorld();
+    public static TridentWorld WORLD;
     private static final DisplayInfo INFO = new DisplayInfo();
 
     private final MainThread mainThread;
@@ -108,22 +108,10 @@ public final class TridentServer implements Server {
         Trident.setServer(server);
         server.mainThread.start();
         server.worldLoader.loadAll();
+        TridentServer.WORLD = (TridentWorld) server.worlds().get("world");
 
         return server;
         // We CANNOT let the "this" instance escape during creation, else we lose thread-safety
-    }
-
-    private static TridentWorld findWorld() {
-        final TridentWorld[] world = new TridentWorld[1];
-        Factories.tasks().asyncLater(null, new TridentRunnable() {
-            @Override
-            public void run() {
-                while (Trident.instance() == null) {
-                }
-                world[0] = (TridentWorld) Trident.worlds().get("world");
-            }
-        }, 100L);
-        return world[0];
     }
 
     /**

@@ -1,19 +1,20 @@
 package net.tridentsdk.server.entity.living.ai;
 
+import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
 import net.tridentsdk.entity.EntityType;
 import net.tridentsdk.entity.living.ai.AiHandler;
 import net.tridentsdk.entity.living.ai.AiModule;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Implementation of interface
+ *
+ * @author The TridentSDK Team
  */
 public class TridentAiHandler implements AiHandler {
-
-    private final Map<EntityType, AiModule> modules = new ConcurrentHashMap<>();
+    private final Map<EntityType, AiModule> modules = new ConcurrentHashMapV8<>();
     private final Map<EntityType, AiModule> nativeModules = new HashMap<>();
 
     public TridentAiHandler () {
@@ -22,7 +23,7 @@ public class TridentAiHandler implements AiHandler {
     }
 
     @Override
-    public AiModule getDefaultAiFor(EntityType type) {
+    public AiModule defaultAIFor(EntityType type) {
         if(modules.get(type) == null) {
             return nativeModules.get(type);
         }
@@ -37,7 +38,7 @@ public class TridentAiHandler implements AiHandler {
     }
 
     @Override
-    public AiModule getNativeAiFor(EntityType type) {
+    public AiModule nativeAIFor(EntityType type) {
         return nativeModules.get(type);
     }
 }
