@@ -149,4 +149,13 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
             // TODO: follow path
         }
     }
+
+    @Override
+    public Path path() {
+        return path;
+    }
+
+    public void setPath(Path path) {
+        this.path = path;
+    }
 }
