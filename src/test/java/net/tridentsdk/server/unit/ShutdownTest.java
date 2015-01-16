@@ -26,7 +26,7 @@ public class ShutdownTest {
         new ShutdownTest().startStop();
     }
 
-    @Test
+    //@Test
     public void startStop() {
         try {
             new Thread(new Runnable() {

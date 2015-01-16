@@ -57,7 +57,7 @@ public final class ThreadsHandler implements ThreadFactory {
      */
     @InternalUseOnly
     public static void shutdownAll() {
-        TridentServer.instance().getMainThread().interrupt();
+        TridentServer.instance().mainThread().interrupt();
 
         // TODO safely add hooks
         entityExecutor().shutdown();

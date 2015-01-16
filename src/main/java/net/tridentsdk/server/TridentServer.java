@@ -22,12 +22,9 @@ import net.tridentsdk.Defaults;
 import net.tridentsdk.DisplayInfo;
 import net.tridentsdk.Server;
 import net.tridentsdk.Trident;
-import net.tridentsdk.concurrent.TridentRunnable;
 import net.tridentsdk.config.JsonConfig;
-import net.tridentsdk.entity.EntityType;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.entity.living.ai.AiHandler;
-import net.tridentsdk.entity.living.ai.AiModule;
 import net.tridentsdk.event.EventHandler;
 import net.tridentsdk.factory.Factories;
 import net.tridentsdk.plugin.TridentPlugin;
@@ -140,7 +137,7 @@ public final class TridentServer implements Server {
         return this.config.getInt("view-distance", Defaults.VIEW_DISTANCE);
     }
 
-    public MainThread getMainThread() {
+    public MainThread mainThread() {
         return mainThread;
     }
 

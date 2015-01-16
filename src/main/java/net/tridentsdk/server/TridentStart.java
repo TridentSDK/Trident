@@ -33,6 +33,7 @@ import net.tridentsdk.config.JsonConfig;
 import net.tridentsdk.docs.Volatile;
 import net.tridentsdk.factory.CollectFactory;
 import net.tridentsdk.factory.Factories;
+import net.tridentsdk.plugin.cmd.PlatformColor;
 import net.tridentsdk.server.command.ServerCommandRegistrar;
 import net.tridentsdk.server.netty.ClientChannelInitializer;
 import net.tridentsdk.server.threads.ThreadsHandler;
@@ -181,14 +182,17 @@ public final class TridentStart {
             Scanner scanner = new Scanner(System.in);
 
             while (true) {
-                System.out.print("$ \r");
-                String command = scanner.nextLine();
-                System.out.println(command);
+                System.out.print("$" + PlatformColor.getColor("cursoreol2"));
+                String command = scanner.next();
 
                 Trident.console().invokeCommand(command);
 
-                if (command.equalsIgnoreCase("shutdown"))
-                    break;
+                switch (command) {
+                    case "shutdown":
+                        return;
+                    case "stop":
+                        return;
+                }
             }
         } catch (InterruptedException e) {
             // This exception is caught if server is closed.

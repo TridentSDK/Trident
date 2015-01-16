@@ -17,7 +17,9 @@
 
 package net.tridentsdk.server.command;
 
+import net.tridentsdk.Defaults;
 import net.tridentsdk.Trident;
+import net.tridentsdk.concurrent.TaskExecutor;
 
 public class ServerCommandRegistrar {
     private static volatile boolean registered;
@@ -29,6 +31,6 @@ public class ServerCommandRegistrar {
         // Set it here in case some idiot tries to register twice
         registered = true;
 
-        Trident.commandHandler().addCommand(null, new ShutdownCommand());
+        Trident.commandHandler().addCommand(null, Defaults.DIRECT_EXECUTOR, new ShutdownCommand());
     }
 }
