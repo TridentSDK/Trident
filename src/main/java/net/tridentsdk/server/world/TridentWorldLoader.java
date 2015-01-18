@@ -36,7 +36,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Map;
 import java.util.zip.DataFormatException;
@@ -96,10 +95,8 @@ public class TridentWorldLoader implements WorldLoader {
                 if (f.getName().equals("gensig")) {
                     String className = null;
                     try {
-                        byte[] sig = Files.readAllBytes(Trident
-                                .fileContainer()
-                                .resolve(file.getName())
-                                .resolve("gensig"));
+                        byte[] sig = Files.readAllBytes(
+                                Trident.fileContainer().resolve(file.getName()).resolve("gensig"));
                         className = new String(sig);
                         if (!className.equals(this.getClass().getName())) {
                             // Create a new loader with that class, don't load it with this one
@@ -139,8 +136,8 @@ public class TridentWorldLoader implements WorldLoader {
     @Override
     public World load(String world) {
         TridentWorld w = new TridentWorld(world, this);
-
         worlds.put(world, w);
+
         return w;
     }
 
@@ -152,8 +149,16 @@ public class TridentWorldLoader implements WorldLoader {
     }
 
     @Override
+    public World createWorld(String name) {
+        TridentWorld world = TridentWorld.createWorld(name, this);
+        worlds.put(name, world);
+
+        return world;
+    }
+
+    @Override
     public boolean worldExists(String world) {
-        return this.worlds.containsKey(world);
+        return worlds.containsKey(world);
     }
 
     @Override

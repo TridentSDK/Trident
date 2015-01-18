@@ -17,20 +17,14 @@
 
 package net.tridentsdk.server.command;
 
-import net.tridentsdk.Defaults;
-import net.tridentsdk.Trident;
+import net.tridentsdk.plugin.annotation.CommandDescription;
+import net.tridentsdk.plugin.cmd.Command;
+import net.tridentsdk.plugin.cmd.ServerConsole;
 
-public class ServerCommandRegistrar {
-    private static volatile boolean registered;
+@CommandDescription(name = "help", permission = "trident.help", aliases = "")
+public class HelpCommand extends Command {
+    @Override
+    public void handleConsole(ServerConsole sender, String arguments, String alias) {
 
-    public static void registerAll() {
-        if (registered)
-            return;
-
-        // Set it here in case some idiot tries to register twice
-        registered = true;
-
-        Trident.commandHandler().addCommand(null, Defaults.DIRECT_EXECUTOR, new ShutdownCommand());
-        Trident.commandHandler().addCommand(null, Defaults.DIRECT_EXECUTOR, new HelpCommand());
     }
 }

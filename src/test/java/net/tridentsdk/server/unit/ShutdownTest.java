@@ -19,7 +19,6 @@ package net.tridentsdk.server.unit;
 
 import net.tridentsdk.Trident;
 import net.tridentsdk.server.TridentStart;
-import org.junit.Test;
 
 public class ShutdownTest {
     public static void main(String[] args) {

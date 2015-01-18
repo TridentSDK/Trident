@@ -234,7 +234,7 @@ public class RegionFile {
         deflater.setInput(uncompressed);
         deflater.finish();
 
-        while(!deflater.finished()) {
+        while (!deflater.finished()) {
             int bytes = deflater.deflate(buffer);
             os.write(buffer, 0, bytes);
         }

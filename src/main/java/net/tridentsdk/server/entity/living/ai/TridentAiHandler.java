@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.entity.living.ai;
 
 import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
@@ -33,24 +34,23 @@ public class TridentAiHandler implements AiHandler {
     private final Map<EntityType, AiModule> modules = new ConcurrentHashMapV8<>();
     private final Map<EntityType, AiModule> nativeModules = new HashMap<>();
 
-    public TridentAiHandler () {
+    public TridentAiHandler() {
         // TODO add default AIs
         nativeModules.put(EntityType.CREEPER, new CreeperAiModule());
     }
 
     @Override
     public AiModule defaultAIFor(EntityType type) {
-        if(modules.get(type) == null) {
+        if (modules.get(type) == null) {
             return nativeModules.get(type);
-        }
-        else {
+        } else {
             return modules.get(type);
         }
     }
 
     @Override
     public void setDefaultAiFor(EntityType type, AiModule module) {
-        modules.put(type,module);
+        modules.put(type, module);
     }
 
     @Override

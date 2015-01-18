@@ -124,6 +124,7 @@ public class EventBusPerformance {
 
     private static class Plugin extends TridentPlugin {
     }
+
     static {
         Factories.init(new CollectFactory() {
             @Override

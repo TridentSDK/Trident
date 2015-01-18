@@ -246,7 +246,7 @@ public class TridentChunk implements Chunk {
 
         ListTag sections = new ListTag("Sections", TagType.COMPOUND);
 
-        for(ChunkSection section : this.sections) {
+        for (ChunkSection section : this.sections) {
             sections.addTag(NBTSerializer.serialize(section));
         }
 

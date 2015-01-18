@@ -93,8 +93,7 @@ public class TridentPlayer extends OfflinePlayer {
                         .set("levelType", LevelType.DEFAULT));
 
                 p.connection.sendPacket(PacketPlayOutPluginMessage.VANILLA_CHANNEL);
-                p.connection.sendPacket(
-                        new PacketPlayOutServerDifficulty().set("difficulty", p.world().difficulty()));
+                p.connection.sendPacket(new PacketPlayOutServerDifficulty().set("difficulty", p.world().difficulty()));
                 p.connection.sendPacket(new PacketPlayOutSpawnPosition().set("location", p.getSpawnLocation()));
                 p.connection.sendPacket(p.abilities.asPacket());
                 p.connection.sendPacket(new PacketPlayOutPlayerCompleteMove().set("location",

@@ -62,10 +62,9 @@ import java.util.UUID;
  */
 @ThreadSafe
 public final class TridentServer implements Server {
+    private static final DisplayInfo INFO = new DisplayInfo();
     // TODO this is temporary for testing
     public static TridentWorld WORLD;
-    private static final DisplayInfo INFO = new DisplayInfo();
-
     private final MainThread mainThread;
 
     private final JsonConfig config;
@@ -106,6 +105,11 @@ public final class TridentServer implements Server {
         server.mainThread.start();
         server.worldLoader.loadAll();
         TridentServer.WORLD = (TridentWorld) server.worlds().get("world");
+
+        /* if (WORLD == null) {
+            World world = server.worldLoader.createWorld("world");
+            WORLD = (TridentWorld) world;
+        } */
 
         return server;
         // We CANNOT let the "this" instance escape during creation, else we lose thread-safety

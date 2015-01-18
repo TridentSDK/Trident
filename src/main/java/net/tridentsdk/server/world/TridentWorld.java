@@ -18,6 +18,7 @@
 package net.tridentsdk.server.world;
 
 import com.google.common.io.ByteStreams;
+import com.sun.beans.util.Cache;
 import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
 import net.tridentsdk.Coordinates;
 import net.tridentsdk.Difficulty;
@@ -70,12 +71,15 @@ public class TridentWorld implements World {
     private volatile boolean raining;
     private volatile boolean thundering;
 
-    TridentWorld(String name, WorldLoader loader) {
+    private TridentWorld(String name, WorldLoader loader, Random random) {
         this.name = name;
         this.loader = loader;
-        this.random = new Random();
+        this.random = random;
+        this.spawnLocation = Coordinates.create(this, 0d, 0d, 0d);
+    }
 
-        spawnLocation = Coordinates.create(this, 0d, 0d, 0d);
+    TridentWorld(String name, WorldLoader loader) {
+        this(name, loader, new Random());
 
         TridentLogger.log("Starting to load " + name + "...");
 
@@ -90,10 +94,9 @@ public class TridentWorld implements World {
             byte[] compressedData = new byte[fis.available()];
             fis.read(compressedData);
 
-            level = new NBTDecoder(new DataInputStream(new ByteArrayInputStream(ByteStreams.toByteArray(
-                    new GZIPInputStream(
-                            new ByteArrayInputStream(compressedData)
-                    ))))).decode().getTagAs("Data");
+            level = new NBTDecoder(new DataInputStream(new ByteArrayInputStream(
+                    ByteStreams.toByteArray(new GZIPInputStream(new ByteArrayInputStream(compressedData)))))).decode()
+                    .getTagAs("Data");
         } catch (FileNotFoundException ignored) {
             TridentLogger.error(new IllegalArgumentException("Could not find world " + name));
             return;
@@ -186,13 +189,68 @@ public class TridentWorld implements World {
             int centX = ((int) Math.floor(spawnLocation.getX())) >> 4;
             int centZ = ((int) Math.floor(spawnLocation.getZ())) >> 4;
 
-            for(int x = (centX - 7); x <= (centX + 7); x++) {
-                for(int z = (centZ - 7); z <= (centZ + 7); z++) {
+            for (int x = (centX - 7); x <= (centX + 7); x++) {
+                for (int z = (centZ - 7); z <= (centZ + 7); z++) {
                     chunkAt(x, z, true);
                 }
             }
             TridentLogger.success("Loaded spawn chunks.");
         }
+    }
+
+    static TridentWorld createWorld(String name, WorldLoader loader) {
+        TridentWorld world = new TridentWorld(name, loader, new Random());
+
+        try {
+            TridentLogger.log("Starting to load " + name + "...");
+
+            TridentLogger.log("Creating directories and setting values...");
+            File directory = new File(name + File.separator);
+            File levelFile = new File(directory, "level.dat");
+            File region = new File(directory, "region" + File.separator);
+            File playerData = new File(directory, "playerdata");
+            directory.mkdir();
+            levelFile.createNewFile();
+            region.mkdir();
+            playerData.mkdir();
+
+            world.dimension = Dimension.OVERWORLD;
+            // difficulty = Difficulty.difficultyOf(((IntTag) level.getTag("Difficulty")).getValue());
+            // from tests does not exist
+            world.difficulty = Difficulty.NORMAL;
+            world.defaultGamemode = GameMode.SURVIVAL;
+            world.type = LevelType.DEFAULT;
+            world.borderSize = 60000000;
+            world.time = 0;
+            world.existed = 0;
+            world.raining = false;
+            world.rainTime = 0;
+            world.thundering = false;
+            world.thunderTime = 0;
+            world.difficultyLocked = false;
+            TridentLogger.success("Created directories and set all values");
+
+            // TODO: load other values
+
+            TridentLogger.log("Loading spawn chunks...");
+            int centX = ((int) Math.floor(world.spawnLocation.getX())) >> 4;
+            int centZ = ((int) Math.floor(world.spawnLocation.getZ())) >> 4;
+
+            for (int x = (centX - 7); x <= (centX + 7); x++)
+                for (int z = (centZ - 7); z <= (centZ + 7); z++)
+                    world.chunkAt(x, z, true);
+            TridentLogger.success("Loaded spawn chunks.");
+
+            world.spawnLocation.setX(0);
+            world.spawnLocation.setY(64);
+            world.spawnLocation.setZ(0);
+
+            world.save();
+        } catch (IOException e) {
+            TridentLogger.error(e);
+        }
+
+        return world;
     }
 
     public void tick() {
@@ -282,7 +340,7 @@ public class TridentWorld implements World {
         TridentLogger.log("Saved " + name + " successfully!");
 
         // TODO save chunks
-        for(TridentChunk chunk : loadedChunks()) {
+        for (TridentChunk chunk : loadedChunks()) {
             try {
                 RegionFile.fromPath(name, chunk.location()).saveChunkData(chunk);
             } catch (IOException | NBTException ex) {

@@ -19,8 +19,8 @@ package net.tridentsdk.server.entity;
 
 import net.tridentsdk.Coordinates;
 import net.tridentsdk.entity.EntityProperties;
-import net.tridentsdk.entity.living.ProjectileLauncher;
 import net.tridentsdk.entity.Projectile;
+import net.tridentsdk.entity.living.ProjectileLauncher;
 
 import java.lang.ref.WeakReference;
 import java.util.UUID;
