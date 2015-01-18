@@ -18,7 +18,6 @@
 package net.tridentsdk.server.world;
 
 import com.google.common.io.ByteStreams;
-import com.sun.beans.util.Cache;
 import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
 import net.tridentsdk.Coordinates;
 import net.tridentsdk.Difficulty;
