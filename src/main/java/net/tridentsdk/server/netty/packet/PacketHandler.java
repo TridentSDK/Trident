@@ -51,7 +51,7 @@ public class PacketHandler extends SimpleChannelInboundHandler<PacketData> {
     }
 
     /**
-     * Converts the PacketData to a Packet depending on the ConnectionStage of the Client <p/> {@inheritDoc}
+     * Converts the PacketData to a Packet depending on the ConnectionStage of the Client  {@inheritDoc}
      */
     @Override
     protected void messageReceived(ChannelHandlerContext context, PacketData data) throws Exception {

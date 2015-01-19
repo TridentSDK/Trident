@@ -33,7 +33,7 @@ public class PacketPlayInPackStatus extends InPacket {
      */
     protected String hash;
     /**
-     * Result/Status <p/> 0 - Successfully loaded 1 - Declined 2 - Failed download 3 - Accepted <p/> TODO Change to
+     * Result/Status  0 - Successfully loaded 1 - Declined 2 - Failed download 3 - Accepted  TODO Change to
      * enum
      */
     protected int result;

@@ -31,9 +31,9 @@ import java.util.zip.Inflater;
 /**
  * Decoder that decompresses (if needed) and reads the length of the packet data sent from the stream in the form
  * of the byte buffer.
- * <p/>
+ *
  * <p>This is needed to interpret the data sent correctly, and make sure that the data maintains its transmission
- * integrity.<p/>
+ * integrity.
  *
  * <p>Note this is not thread safe. It should only be used on one thread, or create a new instance for each
  * channel.</p>

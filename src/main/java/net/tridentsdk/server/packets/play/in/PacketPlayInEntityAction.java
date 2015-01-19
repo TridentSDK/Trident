@@ -25,7 +25,7 @@ import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.util.TridentLogger;
 
 /**
- * Sent by the client when doing any of the action types below. <p/> Note: Client will send ActionType#START_SPRINTING
+ * Sent by the client when doing any of the action types below.  Note: Client will send ActionType#START_SPRINTING
  * when "Leave bed" is clicked
  *
  * @see ActionType

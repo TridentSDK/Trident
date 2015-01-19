@@ -47,7 +47,7 @@ public class PacketHandshakeIn extends InPacket {
     protected short port;
 
     /**
-     * The next stage the client will be going into <p/> 1 for STATUS 2 for LOGIN
+     * The next stage the client will be going into  1 for STATUS 2 for LOGIN
      */
     protected int nextState;
 
@@ -71,7 +71,9 @@ public class PacketHandshakeIn extends InPacket {
     }
 
     /**
-     * {@inheritDoc} <p/> <p>Nothing is done here</p>
+     * {@inheritDoc}
+     *
+     * <p>Nothing is done here</p>
      */
     @Override
     public void handleReceived(ClientConnection connection) {

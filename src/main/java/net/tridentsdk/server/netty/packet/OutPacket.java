@@ -50,7 +50,9 @@ public abstract class OutPacket implements Packet {
     }
 
     /**
-     * {@inheritDoc} <p/> <p>Cannot be decoded</p>
+     * {@inheritDoc}
+     *
+     * <p>Cannot be decoded</p>
      */
     @Override
     public Packet decode(ByteBuf buf) {
@@ -59,7 +61,9 @@ public abstract class OutPacket implements Packet {
     }
 
     /**
-     * {@inheritDoc} <p/> <p>Cannot be received</p>
+     * {@inheritDoc}
+     *
+     * <p>Cannot be received</p>
      */
     @Override
     public void handleReceived(ClientConnection connection) {

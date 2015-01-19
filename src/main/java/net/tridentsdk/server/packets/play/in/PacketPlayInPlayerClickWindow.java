@@ -36,7 +36,7 @@ public class PacketPlayInPlayerClickWindow extends InPacket {
      */
     protected int windowId;
     /**
-     * The button used in the click, dependent on action number <p/> TODO reference to wiki
+     * The button used in the click, dependent on action number  TODO reference to wiki
      */
     protected int clickedButton;
 

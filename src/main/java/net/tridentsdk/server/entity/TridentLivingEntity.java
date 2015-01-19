@@ -61,8 +61,9 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
     private volatile Path path;
 
     /**
-     * Inherits from {@link TridentEntity} <p/> <p>The entity is immediately set "non-dead" after {@code super}
-     * call</p>
+     * Inherits from {@link TridentEntity}
+     *
+     * <p>The entity is immediately set "non-dead" after {@code super} call</p>
      */
     public TridentLivingEntity(UUID id, Coordinates spawnLocation) {
         super(id, spawnLocation);

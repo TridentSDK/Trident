@@ -47,9 +47,10 @@ public class Position implements Writable {
     }
 
     /**
-     * Sets the wrapped position <p/> <p>This does not change the value of already written locations. This is purely
-     * for
-     * purposes of performance, but removes concurrency.</p>
+     * Sets the wrapped position
+     *
+     * <p>This does not change the value of already written locations. This is purely for purposes of performance,
+     * but removes concurrency.</p>
      *
      * @param loc the location to wrap with writable format
      */

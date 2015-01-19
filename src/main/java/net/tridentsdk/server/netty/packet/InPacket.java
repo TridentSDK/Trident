@@ -28,8 +28,9 @@ import net.tridentsdk.util.TridentLogger;
 public abstract class InPacket implements Packet {
 
     /**
-     * {@inheritDoc} <p/> <p>Packets coming into the server cannot be encoded, as that is not practical under any
-     * circumstances</p>
+     * {@inheritDoc}
+     *
+     * <p>Packets coming into the server cannot be encoded, as that is not practical under any circumstances</p>
      */
     @Override
     public void encode(ByteBuf buf) {

@@ -36,7 +36,9 @@ public class UnknownPacket implements Packet {
     }
 
     /**
-     * {@inheritDoc} <p/> <p>Cannot be encoded. Throws UnsupportedOperationException</p>
+     * {@inheritDoc}
+     *
+     * <p>Cannot be encoded. Throws UnsupportedOperationException</p>
      */
     @Override
     public void encode(ByteBuf buf) {
@@ -49,7 +51,9 @@ public class UnknownPacket implements Packet {
     }
 
     /**
-     * {@inheritDoc} <p/> <p>Returns {@code null}, since we don't know where the packet came from</p>
+     * {@inheritDoc}
+     *
+     * <p>Returns {@code null}, since we don't know where the packet came from</p>
      */
     @Override
     public PacketDirection getDirection() {
@@ -57,7 +61,9 @@ public class UnknownPacket implements Packet {
     }
 
     /**
-     * {@inheritDoc} <p/> <p>Does not do anything</p>
+     * {@inheritDoc}
+     *
+     * <p>Does not do anything</p>
      */
     @Override
     public void handleReceived(ClientConnection connection) {

@@ -51,7 +51,9 @@ public final class EntityHandler {
     }
 
     /**
-     * Constructs the EntityManager for use by the server ONLY <p/> <p>In other words, DON'T USE IT</p>
+     * Constructs the EntityManager for use by the server ONLY
+     *
+     * <p>In other words, DON'T USE IT</p>
      */
     public static EntityHandler create() {
         return new EntityHandler();

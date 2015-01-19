@@ -65,7 +65,9 @@ public class PacketLoginOutDisconnect implements Packet {
     }
 
     /**
-     * {@inheritDoc} <p/> <p>Cannot be decoded</p>
+     * {@inheritDoc}
+     *
+     * <p>Cannot be decoded</p>
      */
     @Override
     public Packet decode(ByteBuf buf) {

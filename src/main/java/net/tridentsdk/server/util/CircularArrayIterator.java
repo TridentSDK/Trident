@@ -23,10 +23,10 @@ import java.util.NoSuchElementException;
 
 /**
  * An iterator for {@link net.tridentsdk.server.util.ConcurrentCircularArray}
- * <p/>
+ *
  * <p>Removals are done on a best effort basis, and are not guaranteed to reflect the
  * same value at removal as they do when this object is created, use with caution.</p>
- * <p/>
+ *
  * <p>Should only be used by one thread at a time</p>
  */
 @NotThreadSafe
@@ -45,7 +45,7 @@ public class CircularArrayIterator<E> implements Iterator<E> {
 
     /**
      * Creates a new Iterator based on the ConcurrentCircularArray
-     * <p/>
+     *
      * <p>Expects a read lock to be in place when constructing</p>
      */
     protected CircularArrayIterator(ConcurrentCircularArray<E> parent) {

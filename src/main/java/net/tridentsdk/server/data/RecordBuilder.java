@@ -21,8 +21,9 @@ import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.netty.Codec;
 
 /**
- * Records the state of a block as it was when the snapshot was taken <p/> <p>Note that this may not always represent
- * the most accurate view of the block in question.</p>
+ * Records the state of a block as it was when the snapshot was taken
+ *
+ * <p>Note that this may not always represent the most accurate view of the block in question.</p>
  *
  * @author The TridentSDK Team
  */
