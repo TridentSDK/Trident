@@ -64,7 +64,7 @@ public class PacketPlayInPluginMessage extends InPacket {
 
     @Override
     public void handleReceived(ClientConnection connection) {
-        PluginChannel channel = ChannelHandler.getInstance().getPluginChannel(this.channel);
+        PluginChannel channel = ChannelHandler.getInstance().forChannel(this.channel);
 
         if (channel != null) {
             channel.process(this.data);

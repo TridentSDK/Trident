@@ -32,6 +32,7 @@ import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.threads.ThreadsHandler;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.*;
+import net.tridentsdk.world.gen.WorldGenHandler;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -193,6 +194,7 @@ public class TridentWorld implements World {
                     chunkAt(x, z, true);
                 }
             }
+
             TridentLogger.success("Loaded spawn chunks.");
         }
     }
@@ -238,6 +240,11 @@ public class TridentWorld implements World {
             for (int x = (centX - 7); x <= (centX + 7); x++)
                 for (int z = (centZ - 7); z <= (centZ + 7); z++)
                     world.chunkAt(x, z, true);
+
+            WorldGenHandler handler = WorldGenHandler.create(loader.generator());
+            handler.apply(world,
+                    ChunkLocation.create(centX - 7, centZ - 7),
+                    ChunkLocation.create(centX + 7, centZ + 7));
             TridentLogger.success("Loaded spawn chunks.");
 
             world.spawnLocation.setX(0);

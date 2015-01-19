@@ -182,7 +182,7 @@ public final class TridentStart {
             Scanner scanner = new Scanner(System.in);
 
             while (true) {
-                System.out.print("$" + PlatformColor.getColor("cursoreol2"));
+                System.out.print("$" + PlatformColor.forColor("cursoreol2"));
                 String command = scanner.next();
 
                 Trident.console().invokeCommand(command);
