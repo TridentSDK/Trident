@@ -47,8 +47,7 @@ public final class EntityHandler {
     @InternalUseOnly
     private EntityHandler() {
         if (!Trident.isTrident())
-            TridentLogger.error(
-                    new UnsupportedOperationException("EntityManager can only be initalized by TridentSDK!"));
+            TridentLogger.error(new IllegalAccessException("EntityManager can only be initalized by TridentSDK!"));
     }
 
     /**

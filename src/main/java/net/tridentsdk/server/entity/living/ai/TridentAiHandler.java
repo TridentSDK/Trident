@@ -40,7 +40,7 @@ public class TridentAiHandler implements AiHandler {
     }
 
     @Override
-    public AiModule defaultAIFor(EntityType type) {
+    public AiModule defaultAiFor(EntityType type) {
         if (modules.get(type) == null) {
             return nativeModules.get(type);
         } else {

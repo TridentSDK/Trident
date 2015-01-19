@@ -129,13 +129,12 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
     @Override
     public AiModule aiModule() {
         if (ai == null) {
-            return Trident.instance().aiHandler().defaultAIFor(type());
+            return Trident.instance().aiHandler().defaultAiFor(type());
         } else {
             return ai;
         }
     }
 
-    @Override
     public void performAiUpdate() {
         if (this.restTicks.get() == 0) {
             this.restTicks.set(this.aiModule().think(this));
