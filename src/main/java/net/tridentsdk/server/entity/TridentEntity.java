@@ -246,10 +246,11 @@ public class TridentEntity implements Entity {
 
     @Override
     public Set<Entity> withinRange(double radius) {
+        double squared = radius * radius;
         Set<Entity> entities = location().world().entities();
         Set<Entity> near = Sets.newHashSet();
         for (Entity entity : entities) {
-            if (entity.location().distanceSquared(location()) <= radius)
+            if (entity.location().distanceSquared(location()) <= squared)
                 near.add(entity);
         }
 
