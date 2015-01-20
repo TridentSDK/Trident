@@ -20,6 +20,8 @@ package net.tridentsdk.server.entity;
 import net.tridentsdk.Coordinates;
 import net.tridentsdk.Trident;
 import net.tridentsdk.entity.Entity;
+import net.tridentsdk.entity.EntityBuilder;
+import net.tridentsdk.entity.ParameterValue;
 import net.tridentsdk.factory.ExecutorFactory;
 import net.tridentsdk.server.threads.ThreadsHandler;
 import net.tridentsdk.util.TridentLogger;
@@ -38,8 +40,7 @@ import java.util.concurrent.Callable;
  *
  * @author The TridentSDK Team
  */
-@NotThreadSafe // Designed for use in a single method
-public final class EntityBuilder {
+public final class TridentEntityBuilder extends EntityBuilder {
     private UUID uuid = UUID.randomUUID();
     private Coordinates spawn = Coordinates.create(new Callable<World>() {
         @Override
@@ -57,52 +58,54 @@ public final class EntityBuilder {
     private String displayName;
     private boolean silent;
 
-    private EntityBuilder() {
+    private TridentEntityBuilder() {
     }
 
-    public static EntityBuilder create() {
-        return new EntityBuilder();
+    public static TridentEntityBuilder create() {
+        return new TridentEntityBuilder();
     }
 
-    public EntityBuilder uuid(UUID uuid) {
+    public TridentEntityBuilder uuid(UUID uuid) {
         this.uuid = uuid;
         return this;
     }
 
-    public EntityBuilder spawnLocation(Coordinates spawn) {
+    public TridentEntityBuilder spawnLocation(Coordinates spawn) {
         this.spawn = spawn;
         return this;
     }
 
-    public EntityBuilder executor(ExecutorFactory<? extends Entity> executor) {
+    public TridentEntityBuilder executor(ExecutorFactory<? extends Entity> executor) {
         this.executor = (ExecutorFactory<Entity>) executor;
         return this;
     }
 
-    public EntityBuilder god(boolean god) {
+    public TridentEntityBuilder god(boolean god) {
         this.god = god;
         return this;
     }
 
-    public EntityBuilder passenger(Entity passenger) {
+    public TridentEntityBuilder passenger(Entity passenger) {
         this.passenger = passenger;
         return this;
     }
 
-    public EntityBuilder displayName(String displayName) {
+    public TridentEntityBuilder displayName(String displayName) {
         this.displayName = displayName;
         return this;
     }
 
-    public EntityBuilder silent(boolean silent) {
+    public TridentEntityBuilder silent(boolean silent) {
         this.silent = silent;
         return this;
     }
 
-    public <T extends TridentEntity> T build(Class<T> entityType) {
-        T entity = null;
+    // TODO in reality these should be impl classes??
+    public <T extends Entity> T build(Class<T> entityType) {
+        TridentEntity entity = null;
         try {
-            Constructor<T> constructor = entityType.getConstructor(UUID.class, Coordinates.class);
+            Constructor<? extends TridentEntity> constructor = (Constructor<? extends TridentEntity>)
+                    entityType.getConstructor(UUID.class, Coordinates.class);
             entity = constructor.newInstance(uuid, spawn);
             entity.executor = executor != null ? executor : ThreadsHandler.entityExecutor();
             entity.godMode = god;
@@ -116,10 +119,10 @@ public final class EntityBuilder {
             TridentLogger.error(e);
         }
 
-        return entity;
+        return (T) entity;
     }
 
-    public <T extends TridentEntity> T build(Class<T> entityType, ParameterValue<?>... parameterValues) {
+    public <T extends Entity> T build(Class<T> entityType, ParameterValue<?>... parameterValues) {
         int paramLen = parameterValues.length;
         Class[] params = new Class[paramLen];
         Object[] args = new Object[paramLen];
@@ -129,9 +132,9 @@ public final class EntityBuilder {
             args[i] = value.value();
         }
 
-        T entity = null;
+        TridentEntity entity = null;
         try {
-            Constructor<T> constructor = entityType.getConstructor(params);
+            Constructor<? extends TridentEntity> constructor = entityType.getConstructor(params);
             entity = constructor.newInstance(args);
             entity.executor = executor != null ? executor : ThreadsHandler.entityExecutor();
             entity.godMode = god;
@@ -145,6 +148,6 @@ public final class EntityBuilder {
             TridentLogger.error(e);
         }
 
-        return entity;
+        return (T) entity;
     }
 }

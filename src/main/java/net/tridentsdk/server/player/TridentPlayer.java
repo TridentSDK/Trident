@@ -25,8 +25,8 @@ import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.factory.Factories;
 import net.tridentsdk.meta.nbt.CompoundTag;
 import net.tridentsdk.server.TridentServer;
-import net.tridentsdk.server.entity.EntityBuilder;
-import net.tridentsdk.server.entity.ParameterValue;
+import net.tridentsdk.server.entity.TridentEntityBuilder;
+import net.tridentsdk.entity.ParameterValue;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.packets.play.out.*;
@@ -74,7 +74,7 @@ public class TridentPlayer extends OfflinePlayer {
             offlinePlayer = OfflinePlayer.generatePlayer(id);
         }
 
-        final TridentPlayer p = EntityBuilder.create().uuid(id).spawnLocation(
+        final TridentPlayer p = TridentEntityBuilder.create().uuid(id).spawnLocation(
                 TridentServer.WORLD.spawnLocation()) // TODO this is temporary for testing
                 .executor(ThreadsHandler.playerExecutor())
                 .build(TridentPlayer.class, ParameterValue.from(CompoundTag.class, offlinePlayer),
