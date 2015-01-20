@@ -294,6 +294,8 @@ public class TridentScheduler implements TaskFactory {
                         this.executor.addTask(this.runner);
                     ++run;
                     break;
+                default:
+                    throw new IllegalStateException("How did this happen?");
             }
         }
     }

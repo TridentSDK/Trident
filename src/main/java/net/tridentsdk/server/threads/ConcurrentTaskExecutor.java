@@ -87,8 +87,7 @@ public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implement
     private final Callable<ThreadWorker> obtainWorker = new Callable<ThreadWorker>() {
         @Override
         public ThreadWorker call() throws Exception {
-            ThreadWorker worker = (ThreadWorker) scaledThread();
-            return worker;
+            return (ThreadWorker) scaledThread();
         }
     };
     // We cache assignments, if it is retrieved again while loading into the map, there would be 2 requests for the same

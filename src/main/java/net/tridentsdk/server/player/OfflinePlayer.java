@@ -194,7 +194,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     }
 
     @Override
-    public float getFlyingSpeed() {
+    public float flyingSpeed() {
         return abilities.flySpeed;
     }
 
@@ -204,22 +204,22 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     }
 
     @Override
-    public Locale getLocale() {
+    public Locale locale() {
         return null;
     }
 
     @Override
-    public Item getHeldItem() {
+    public Item heldItem() {
         return inventory.items()[selectedSlot + 36];
     }
 
     @Override
-    public GameMode getGameMode() {
+    public GameMode gameMode() {
         return gameMode;
     }
 
     @Override
-    public float getMoveSpeed() {
+    public float moveSpeed() {
         return 0;
     }
 
@@ -229,7 +229,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     }
 
     @Override
-    public float getSneakSpeed() {
+    public float sneakSpeed() {
         return 0;
     }
 
@@ -239,7 +239,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     }
 
     @Override
-    public float getWalkSpeed() {
+    public float walkSpeed() {
         return abilities.walkingSpeed;
     }
 

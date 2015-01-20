@@ -17,6 +17,7 @@
 
 package net.tridentsdk.server.world;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteStreams;
 import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
 import net.tridentsdk.Coordinates;
@@ -24,6 +25,7 @@ import net.tridentsdk.Difficulty;
 import net.tridentsdk.GameMode;
 import net.tridentsdk.base.Block;
 import net.tridentsdk.entity.Entity;
+import net.tridentsdk.entity.EntityType;
 import net.tridentsdk.factory.Factories;
 import net.tridentsdk.meta.nbt.*;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutTimeUpdate;
@@ -242,8 +244,7 @@ public class TridentWorld implements World {
                     world.chunkAt(x, z, true);
 
             WorldGenHandler handler = WorldGenHandler.create(loader.generator());
-            handler.apply(world,
-                    ChunkLocation.create(centX - 7, centZ - 7),
+            handler.apply(world, ChunkLocation.create(centX - 7, centZ - 7),
                     ChunkLocation.create(centX + 7, centZ + 7));
             TridentLogger.success("Loaded spawn chunks.");
 
@@ -517,7 +518,7 @@ public class TridentWorld implements World {
 
     @Override
     public Set<Entity> entities() {
-        return entities;
+        return ImmutableSet.copyOf(this.entities);
     }
 
     private static class PlayerFilter implements FilenameFilter {

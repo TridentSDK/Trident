@@ -6,12 +6,11 @@
 
 package net.tridentsdk.server.world.gen;
 
+import net.tridentsdk.util.FastRandom;
+
 import java.util.Random;
 
 public class PerlinNoise {
-    // Just a Random class object so I can fill my noise map with random directions.
-    public static final Random random = new Random();
-
     // Width and Height of the map.
     public int width, height;
 
@@ -32,7 +31,7 @@ public class PerlinNoise {
 
         for (int y = 0; y < height + 1; y++) {
             for (int x = 0; x < width + 1; x++) {
-                int rot = random.nextInt(359); // Random direction.
+                int rot = (int) FastRandom.random(359); // Random direction.
 
                 // Store random direction of length 1 to our directions array.
                 values[x + y * width] = point(new Vec2D(0, 0), new Vec2D(0, -1), rot);

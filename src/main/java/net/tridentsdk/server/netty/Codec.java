@@ -111,7 +111,8 @@ public final class Codec {
         }
 
         // 0x7f = 127
-        return result += (b & 0x7f) << indent;
+        result += (b & 0x7f) << indent;
+        return result;
     }
 
     /**

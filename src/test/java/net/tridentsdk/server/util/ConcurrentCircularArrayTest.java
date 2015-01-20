@@ -46,7 +46,7 @@ public class ConcurrentCircularArrayTest {
             fail("Failed to over add elements");
         }
 
-        Double[] testArray = (Double[]) buildArray(array2, Double.class);
+        Double[] testArray = buildArray(array2, Double.class);
 
         if (arrayContains(testArray, 1D)) {
             fail("Failed to overwrite value");

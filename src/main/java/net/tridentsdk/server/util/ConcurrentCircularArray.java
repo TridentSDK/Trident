@@ -41,7 +41,7 @@ public class ConcurrentCircularArray<E> {
     private int size;
 
     public ConcurrentCircularArray(final int length) {
-        backing = new AtomicReferenceArray<E>(length);
+        backing = new AtomicReferenceArray<>(length);
         // The position of the value to write
         current = 0;
         size = 0;
@@ -93,7 +93,7 @@ public class ConcurrentCircularArray<E> {
         Iterator<E> retVal = null;
 
         try {
-            retVal = new CircularArrayIterator<E>(this);
+            retVal = new CircularArrayIterator<>(this);
         } finally {
             lock.unlock();
         }

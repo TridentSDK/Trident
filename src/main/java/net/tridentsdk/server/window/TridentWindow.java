@@ -20,9 +20,13 @@ package net.tridentsdk.server.window;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
 import net.tridentsdk.docs.Volatile;
+import net.tridentsdk.entity.DroppedItem;
+import net.tridentsdk.entity.EntityType;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.factory.Factories;
 import net.tridentsdk.server.data.Slot;
+import net.tridentsdk.server.entity.EntityBuilder;
+import net.tridentsdk.server.entity.TridentEntity;
 import net.tridentsdk.server.packets.play.in.PacketPlayInPlayerCloseWindow;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutOpenWindow;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutSetSlot;
@@ -120,6 +124,22 @@ public class TridentWindow implements Window {
 
         for (Player player : users) {
             ((TridentPlayer) player).getConnection().sendPacket(setSlot);
+        }
+    }
+
+    @Override
+    public void putItem(Item item) {
+        for (int i = 0; i < contents.length; i++) {
+            if (contents[i] == null) {
+                setSlot(i, item);
+                return;
+            }
+        }
+
+        for (Player user : users) {
+            // TODO implement
+            TridentEntity dropped = EntityBuilder.create().spawnLocation(user.location()).build(TridentEntity.class);
+            // TODO set dropped type
         }
     }
 

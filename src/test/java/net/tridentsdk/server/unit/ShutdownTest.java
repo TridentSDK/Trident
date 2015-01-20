@@ -40,7 +40,7 @@ public class ShutdownTest {
                     Trident.shutdown();
                 }
             }).start();
-            TridentStart.main(new String[] { });
+            TridentStart.main();
         } catch (Exception e) {
             e.printStackTrace();
         }

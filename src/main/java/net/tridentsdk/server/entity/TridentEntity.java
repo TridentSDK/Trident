@@ -312,7 +312,7 @@ public class TridentEntity implements Entity {
 
     public void load(CompoundTag tag) {
         /* IDs */
-        String id = ((StringTag) tag.getTag("id")).getValue(); // EntityType, in form of a string
+        String type = ((StringTag) tag.getTag("id")).getValue(); // EntityType, in form of a string
         LongTag uuidMost = tag.getTagAs("UUIDMost"); // most signifigant bits of UUID
         LongTag uuidLeast = tag.getTagAs("UUIDLeast"); // least signifigant bits of UUID
 

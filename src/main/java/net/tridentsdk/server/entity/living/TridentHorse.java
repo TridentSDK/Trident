@@ -29,7 +29,6 @@ import net.tridentsdk.window.inventory.Item;
 import java.util.UUID;
 
 public class TridentHorse extends TridentLivingEntity implements Horse {
-
     public TridentHorse(UUID id, Coordinates spawnLocation) {
         super(id, spawnLocation);
     }
@@ -86,11 +85,6 @@ public class TridentHorse extends TridentLivingEntity implements Horse {
 
     @Override
     public Inventory getInventory() {
-        return null;
-    }
-
-    @Override
-    public Item getContent(int slot) {
         return null;
     }
 

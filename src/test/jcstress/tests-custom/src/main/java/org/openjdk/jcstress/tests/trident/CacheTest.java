@@ -25,11 +25,12 @@
 
 package org.openjdk.jcstress.tests.trident;
 
-import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
+import net.tridentsdk.concurrent.HeldValueLatch;
+import net.tridentsdk.factory.Factories;
+import net.tridentsdk.util.TridentLogger;
 import org.openjdk.jcstress.annotations.*;
 import org.openjdk.jcstress.infra.results.BooleanResult4;
 
-import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentMap;
 
@@ -72,8 +73,21 @@ public class CacheTest {
 
     @State
     public static class ConcurrentCache<K, V> {
-        private static final Object PLACE_HOLDER = new Object();
-        private final ConcurrentMap<K, Object> cache = new ConcurrentHashMapV8<>();
+        private final ConcurrentMap<K, HeldValueLatch<V>> cache = Factories.collect().createMap();
+
+        private ConcurrentCache() {
+        }
+
+        /**
+         * Creates a new cache
+         *
+         * @param <K> the key type
+         * @param <V> the value type
+         * @return a new cache
+         */
+        public static <K, V> ConcurrentCache<K, V> create() {
+            return new ConcurrentCache<>();
+        }
 
         /**
          * Retrieves the key in the cache, or adds the return value of the callable provided
@@ -83,41 +97,27 @@ public class CacheTest {
          * @return the return value of the callable
          */
         public V retrieve(K k, Callable<V> callable) {
-            Object value = cache.get(k);
-            if (value == null) {
-                V v = null;
-                value = cache.putIfAbsent(k, PLACE_HOLDER);
+            while (true) {
+                HeldValueLatch<V> value = cache.get(k);
                 if (value == null) {
-                    try {
-                        v = callable.call();
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                    HeldValueLatch<V> latch = HeldValueLatch.create();
+                    value = cache.putIfAbsent(k, latch);
+                    if (value == null) {
+                        value = latch;
+                        try {
+                            value.countDown(callable.call());
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
+                }
 
-                    cache.replace(k, PLACE_HOLDER, v);
-                    value = v;
+                try {
+                    return value.await();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
             }
-
-            return (V) value;
-        }
-
-        public Set<K> keys() {
-            return this.cache.keySet();
-        }
-
-        /**
-         * The values of the cache
-         *
-         * @return the cache values
-         */
-        public Collection<V> values() {
-            Collection<V> list = new ArrayList<>();
-            for (Object v : this.cache.values()) {
-                list.add((V) v);
-            }
-
-            return list;
         }
 
         /**
@@ -127,26 +127,18 @@ public class CacheTest {
          * @return the old value assigned to the key, otherwise, {@code null} if not in the cache
          */
         public V remove(K k) {
-            Object val = this.cache.get(k);
+            HeldValueLatch<V> val = this.cache.get(k);
 
             if (val == null)
                 return null;
 
             this.cache.remove(k);
-            return (V) val;
-        }
-
-        /**
-         * Returns the backing map of this cache
-         *
-         * @return the underlying map
-         */
-        public Set<Map.Entry<K, V>> entries() {
-            Set<Map.Entry<K, V>> entries = new HashSet<>();
-            for (Map.Entry<K, Object> entry : cache.entrySet()) {
-                entries.add(new AbstractMap.SimpleEntry<>(entry.getKey(), (V) entry.getValue()));
+            try {
+                return val.await();
+            } catch (InterruptedException e) {
+                TridentLogger.error(e);
+                return null;
             }
-            return entries;
         }
     }
 }

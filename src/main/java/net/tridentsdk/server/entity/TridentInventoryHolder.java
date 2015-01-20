@@ -50,9 +50,4 @@ public abstract class TridentInventoryHolder extends TridentLivingEntity impleme
     public Inventory getInventory() {
         return this.inventory;
     }
-
-    @Override
-    public Item getContent(int slot) {
-        return this.inventory.items()[slot];
-    }
 }
