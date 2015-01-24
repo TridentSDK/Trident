@@ -34,10 +34,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.BitSet;
 import java.util.concurrent.Callable;
-import java.util.zip.DataFormatException;
-import java.util.zip.Deflater;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.Inflater;
+import java.util.zip.*;
 
 /**
  * Represents a Region File (in region/ directory) in memory
@@ -193,12 +190,11 @@ public class RegionFile {
             case 2:
                 Inflater inflater = new Inflater();
                 ByteArrayOutputStream output = new ByteArrayOutputStream();
+                InflaterOutputStream outputStream = new InflaterOutputStream(output, inflater);
                 inflater.setInput(compressedData);
 
                 while (!(inflater.finished())) {
-                    int count = inflater.inflate(buffer);
-
-                    output.write(buffer, 0, count);
+                    outputStream.write(buffer);
                 }
 
                 output.close();
