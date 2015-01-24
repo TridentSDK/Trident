@@ -74,8 +74,7 @@ public class TridentPlayer extends OfflinePlayer {
             offlinePlayer = OfflinePlayer.generatePlayer(id);
         }
 
-        final TridentPlayer p = TridentEntityBuilder.create().uuid(id).spawnLocation(
-                TridentServer.WORLD.spawnLocation()) // TODO this is temporary for testing
+        final TridentPlayer p = TridentEntityBuilder.create().uuid(id).spawn(TridentServer.WORLD.spawnLocation()) // TODO this is temporary for testing
                 .executor(ThreadsHandler.playerExecutor())
                 .build(TridentPlayer.class, ParameterValue.from(CompoundTag.class, offlinePlayer),
                         // TODO this is temporary for testing

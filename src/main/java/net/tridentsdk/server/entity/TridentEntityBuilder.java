@@ -69,7 +69,7 @@ public final class TridentEntityBuilder extends EntityBuilder {
         return this;
     }
 
-    public TridentEntityBuilder spawnLocation(Coordinates spawn) {
+    public TridentEntityBuilder spawn(Coordinates spawn) {
         this.spawn = spawn;
         return this;
     }
@@ -89,7 +89,7 @@ public final class TridentEntityBuilder extends EntityBuilder {
         return this;
     }
 
-    public TridentEntityBuilder displayName(String displayName) {
+    public TridentEntityBuilder name(String displayName) {
         this.displayName = displayName;
         return this;
     }
@@ -103,8 +103,8 @@ public final class TridentEntityBuilder extends EntityBuilder {
     public <T extends Entity> T build(Class<T> entityType) {
         TridentEntity entity = null;
         try {
-            Constructor<? extends TridentEntity> constructor = (Constructor<? extends TridentEntity>) entityType.getConstructor(
-                    UUID.class, Coordinates.class);
+            Constructor<? extends TridentEntity> constructor = (Constructor<? extends TridentEntity>)
+                    entityType.getConstructor(UUID.class, Coordinates.class);
             entity = constructor.newInstance(uuid, spawn);
             entity.executor = executor != null ? executor : ThreadsHandler.entityExecutor();
             entity.godMode = god;

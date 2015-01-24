@@ -137,7 +137,7 @@ public class TridentWindow implements Window {
         for (Player user : users) {
             // TODO implement
             TridentEntity dropped = TridentEntityBuilder.create()
-                    .spawnLocation(user.location())
+                    .spawn(user.location())
                     .build(TridentEntity.class);
             // TODO set dropped type
         }
