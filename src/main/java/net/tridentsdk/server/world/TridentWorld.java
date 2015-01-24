@@ -25,7 +25,6 @@ import net.tridentsdk.Difficulty;
 import net.tridentsdk.GameMode;
 import net.tridentsdk.base.Block;
 import net.tridentsdk.entity.Entity;
-import net.tridentsdk.entity.EntityType;
 import net.tridentsdk.factory.Factories;
 import net.tridentsdk.meta.nbt.*;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutTimeUpdate;

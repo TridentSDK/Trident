@@ -23,8 +23,8 @@ import net.tridentsdk.docs.Volatile;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.factory.Factories;
 import net.tridentsdk.server.data.Slot;
-import net.tridentsdk.server.entity.TridentEntityBuilder;
 import net.tridentsdk.server.entity.TridentEntity;
+import net.tridentsdk.server.entity.TridentEntityBuilder;
 import net.tridentsdk.server.packets.play.in.PacketPlayInPlayerCloseWindow;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutOpenWindow;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutSetSlot;
@@ -136,7 +136,9 @@ public class TridentWindow implements Window {
 
         for (Player user : users) {
             // TODO implement
-            TridentEntity dropped = TridentEntityBuilder.create().spawnLocation(user.location()).build(TridentEntity.class);
+            TridentEntity dropped = TridentEntityBuilder.create()
+                    .spawnLocation(user.location())
+                    .build(TridentEntity.class);
             // TODO set dropped type
         }
     }

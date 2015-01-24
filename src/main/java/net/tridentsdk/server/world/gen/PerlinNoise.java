@@ -8,8 +8,6 @@ package net.tridentsdk.server.world.gen;
 
 import net.tridentsdk.util.FastRandom;
 
-import java.util.Random;
-
 public class PerlinNoise {
     // Width and Height of the map.
     public int width, height;

@@ -21,7 +21,6 @@ import net.tridentsdk.Coordinates;
 import net.tridentsdk.docs.Volatile;
 import net.tridentsdk.entity.decorate.InventoryHolder;
 import net.tridentsdk.window.inventory.Inventory;
-import net.tridentsdk.window.inventory.Item;
 
 import java.util.UUID;
 

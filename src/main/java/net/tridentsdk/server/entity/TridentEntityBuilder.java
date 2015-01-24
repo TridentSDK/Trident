@@ -27,7 +27,6 @@ import net.tridentsdk.server.threads.ThreadsHandler;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.World;
 
-import javax.annotation.concurrent.NotThreadSafe;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.UUID;
@@ -104,8 +103,8 @@ public final class TridentEntityBuilder extends EntityBuilder {
     public <T extends Entity> T build(Class<T> entityType) {
         TridentEntity entity = null;
         try {
-            Constructor<? extends TridentEntity> constructor = (Constructor<? extends TridentEntity>)
-                    entityType.getConstructor(UUID.class, Coordinates.class);
+            Constructor<? extends TridentEntity> constructor = (Constructor<? extends TridentEntity>) entityType.getConstructor(
+                    UUID.class, Coordinates.class);
             entity = constructor.newInstance(uuid, spawn);
             entity.executor = executor != null ? executor : ThreadsHandler.entityExecutor();
             entity.godMode = god;
@@ -134,7 +133,8 @@ public final class TridentEntityBuilder extends EntityBuilder {
 
         TridentEntity entity = null;
         try {
-            Constructor<? extends TridentEntity> constructor = entityType.getConstructor(params);
+            Constructor<? extends TridentEntity> constructor = (Constructor<? extends TridentEntity>)
+                    entityType.getConstructor(params);
             entity = constructor.newInstance(args);
             entity.executor = executor != null ? executor : ThreadsHandler.entityExecutor();
             entity.godMode = god;
