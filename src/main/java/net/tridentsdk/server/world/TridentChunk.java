@@ -103,7 +103,7 @@ public class TridentChunk implements Chunk {
         byte meta = data.get(index);
         b += bAdd;
 
-        Substance material = Substance.fromString(String.valueOf(b));
+        Substance material = Substance.fromId(b);
 
         if (material == null) {
             material = Substance.AIR; // check if valid

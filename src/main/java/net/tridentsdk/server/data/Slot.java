@@ -39,7 +39,7 @@ public class Slot implements Writable, NBTSerializable {
 
     public Slot(ByteBuf buf) {
         this.id = (short) buf.readByte();
-        this.mat = Substance.fromString(String.valueOf(this.id));
+        this.mat = Substance.fromId((byte)this.id);
 
         if (this.id == -1) {
             return;
@@ -141,7 +141,7 @@ public class Slot implements Writable, NBTSerializable {
     }
 
     public Item item() {
-        Item is = new Item(Substance.fromString(String.valueOf(id)));
+        Item is = new Item(Substance.fromId((byte)id));
 
         is.setQuantity(quantity);
         is.setDamageValue(damageValue);

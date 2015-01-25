@@ -121,7 +121,7 @@ public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implement
         else
             len = (int) max;
 
-        return len;
+        return 10000;
     }
 
     /**
