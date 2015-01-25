@@ -4,6 +4,7 @@ import net.tridentsdk.Coordinates;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.server.data.RecordBuilder;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutMultiBlockChange;
+import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.world.WorldUtils;
 import net.tridentsdk.world.ChunkLocation;
 import net.tridentsdk.world.World;
@@ -131,6 +132,7 @@ public class DefaultMassChange implements MassChange {
             }
 
             packet.set("records", records).set("location", entry.getKey());
+            TridentPlayer.sendAll(packet);
         }
 
         return true;
