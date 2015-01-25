@@ -111,17 +111,23 @@ public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implement
     }
 
     private static int calcTaskLen() {
+        int maxSizePossible = 10_000;
+
+        // Determines the size of an object, depending on arch
+        // TODO base off of compressedOops?
+        // 4 bytes is basically an Object without fields
         int objectSize = 4;
         if (ARCH_64)
             objectSize = 8;
-        long max = (Runtime.getRuntime().freeMemory() / objectSize) / 15; // TODO adjust thread count
+
         int len;
-        if (max > (long) Integer.MAX_VALUE)
-            len = Integer.MAX_VALUE - 8;
+        long max = (Runtime.getRuntime().freeMemory() / objectSize) / 15; // TODO adjust thread count       
+        if (max > (long) maxSizePossible)
+            len = maxSizePossible();
         else
             len = (int) max;
 
-        return 10000;
+        return len;
     }
 
     /**
