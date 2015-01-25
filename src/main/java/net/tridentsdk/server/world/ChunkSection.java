@@ -74,7 +74,7 @@ final class ChunkSection implements NBTSerializable {
             b += bAdd;
             bData = data.get(i);
 
-            Substance material = Substance.fromString(String.valueOf(b));
+            Substance material = Substance.fromId(b);
 
             if (material == null) {
                 material = Substance.AIR; // check if valid

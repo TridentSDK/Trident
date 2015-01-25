@@ -421,6 +421,16 @@ public class TridentWorld implements World {
     }
 
     @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof TridentWorld) {
+            if(((TridentWorld)obj).name().equals(this.name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
     public Block tileAt(Coordinates location) {
         if (!location.world().name().equals(this.name()))
             throw new IllegalArgumentException("Provided location does not have the same world!");
