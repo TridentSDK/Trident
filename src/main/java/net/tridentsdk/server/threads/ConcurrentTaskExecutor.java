@@ -123,7 +123,7 @@ public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implement
         int len;
         long max = (Runtime.getRuntime().freeMemory() / objectSize) / 15; // TODO adjust thread count       
         if (max > (long) maxSizePossible)
-            len = maxSizePossible();
+            len = maxSizePossible;
         else
             len = (int) max;
 
