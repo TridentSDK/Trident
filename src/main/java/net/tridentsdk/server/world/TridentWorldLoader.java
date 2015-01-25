@@ -80,6 +80,7 @@ public class TridentWorldLoader implements WorldLoader {
     // the world
     @InternalUseOnly
     public void loadAll() {
+        TridentLogger.log("Loading worlds...");
         for (File file : Trident.fileContainer().toFile().listFiles()) {
             if (!(file.isDirectory()) || file.getName().contains(" "))
                 continue;
@@ -94,13 +95,15 @@ public class TridentWorldLoader implements WorldLoader {
 
                 if (f.getName().equals("gensig")) {
                     String className = null;
+
                     try {
                         byte[] sig = Files.readAllBytes(
                                 Trident.fileContainer().resolve(file.getName()).resolve("gensig"));
                         className = new String(sig);
                         if (!className.equals(this.getClass().getName())) {
                             // Create a new loader with that class, don't load it with this one
-                            new TridentWorldLoader(Class.forName(className).asSubclass(AbstractGenerator.class));
+                            new TridentWorldLoader(Class.forName(className).asSubclass(AbstractGenerator.class))
+                                    .load(file.getName());
                             isWorld = false;
                         }
                     } catch (IOException e) {
@@ -131,6 +134,8 @@ public class TridentWorldLoader implements WorldLoader {
             }
             load(file.getName());
         }
+
+        TridentLogger.log("Finished loading worlds!");
     }
 
     @Override

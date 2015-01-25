@@ -65,7 +65,7 @@ public class PacketDecoder extends ReplayingDecoder<Void> {
         if (rawLength == 0)
             compressed = false;
 
-        if (!(compressed) && rawLength < TridentServer.instance().getCompressionThreshold()) {
+        if (!(compressed) || rawLength < TridentServer.instance().getCompressionThreshold()) {
             ByteBuf data = buf.readBytes((fullLength == -1) ? rawLength : (fullLength - Codec.sizeOf(0)));
 
             objects.add(new PacketData(data));

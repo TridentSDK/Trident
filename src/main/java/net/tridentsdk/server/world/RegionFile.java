@@ -130,12 +130,16 @@ public class RegionFile {
 
     }
 
+    public TridentChunk loadChunkData(TridentWorld owner, ChunkLocation location) throws NBTException, IOException,
+            DataFormatException {
+        return loadChunkData(new TridentChunk(owner, location));
+    }
+
     /**
      * Pass in a chunk to load its data from file
      */
-    public TridentChunk loadChunkData(TridentWorld owner, ChunkLocation location) throws NBTException, IOException,
+    public TridentChunk loadChunkData(TridentChunk chunk) throws NBTException, IOException,
             DataFormatException {
-        TridentChunk chunk = new TridentChunk(owner, location);
         short compression;
         byte[] compressedData;
 
@@ -160,7 +164,8 @@ public class RegionFile {
             }
 
             //Jump to location of actual chunk data
-            access.seek((long) this.sectors.getDataLocation(chunk));
+            long dataLoc = (long) this.sectors.getDataLocation(chunk);
+            access.seek(dataLoc);
 
             // Read the length, and the compression type
             int length = access.readInt();
@@ -458,12 +463,7 @@ public class RegionFile {
          * @return offsetLoc in bytes
          */
         private int getOffsetLoc(Chunk c) {
-            return mod(c.getX()) + mod(c.getZ()) * 32;
-        }
-
-        private int mod(int i) {
-            int in = i % 32;
-            return in < 0 ? in + 32 : in;
+            return (c.getX() & 31) + (c.getZ() & 31) * 32;
         }
     }
 }

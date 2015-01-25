@@ -24,6 +24,7 @@ import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.protocol.Protocol;
 import net.tridentsdk.server.packets.login.PacketLoginOutDisconnect;
+import net.tridentsdk.server.packets.play.in.PacketPlayInPlayerMove;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutDisconnect;
 import net.tridentsdk.server.player.PlayerConnection;
 import net.tridentsdk.util.TridentLogger;
@@ -70,10 +71,12 @@ public class PacketHandler extends SimpleChannelInboundHandler<PacketData> {
             return;
         }
 
-        TridentLogger.log("Received packet: " + packet.getClass()
-                .getSimpleName()
-                .replaceAll("Packet", "")
-                .replaceAll("Player", ""));
+        if(!(packet instanceof PacketPlayInPlayerMove)) {
+            TridentLogger.log("Received packet: " + packet.getClass()
+                    .getSimpleName()
+                    .replaceAll("Packet", "")
+                    .replaceAll("Player", ""));
+        }
 
         // decode and handle the packet
         packet.decode(data.getData());

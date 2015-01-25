@@ -128,6 +128,14 @@ public class TridentChunk implements Chunk {
     public PacketPlayOutChunkData asPacket() {
         PacketPlayOutChunkData packet = new PacketPlayOutChunkData();
 
+        if(sections == null) {
+            try {
+                RegionFile.fromPath(world.name(), location).loadChunkData(this);
+            } catch (Exception e) {
+                TridentLogger.error(e);
+            }
+        }
+
         int bitmask = (1 << sections.length) - 1;
         int count = sections.length;
         int size = 0;

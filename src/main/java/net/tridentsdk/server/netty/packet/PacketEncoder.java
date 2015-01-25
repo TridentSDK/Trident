@@ -68,8 +68,6 @@ public class PacketEncoder extends MessageToByteEncoder<ByteBuf> {
         }
 
         // DEBUG
-        Files.write(Paths.get("lastpacket.txt"),
-                Arrays.asList(DatatypeConverter.printHexBinary(Codec.asArray(out.copy()))), Charset.defaultCharset());
     }
 
     /**

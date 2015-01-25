@@ -126,7 +126,8 @@ public class TridentWorld implements World {
         difficulty = Difficulty.NORMAL;
         defaultGamemode = GameMode.gamemodeOf(((IntTag) level.getTag("GameType")).getValue());
         type = LevelType.levelTypeOf(((StringTag) level.getTag("generatorName")).getValue());
-        borderSize = ((DoubleTag) level.getTag("BorderSize")).getValue();
+        borderSize = level.containsTag("BorderSize") ?
+                ((DoubleTag) level.getTag("BorderSize")).getValue() : 6000;
 
         time = ((LongTag) level.getTag("DayTime")).getValue();
         existed = ((LongTag) level.getTag("Time")).getValue();
@@ -134,7 +135,8 @@ public class TridentWorld implements World {
         rainTime = ((IntTag) level.getTag("rainTime")).getValue();
         thundering = ((ByteTag) level.getTag("thundering")).getValue() == 1;
         thunderTime = ((IntTag) level.getTag("thunderTime")).getValue();
-        difficultyLocked = ((ByteTag) level.getTag("DifficultyLocked")).getValue() == 1;
+        difficultyLocked = level.containsTag("DifficultyLocked") &&
+                ((ByteTag) level.getTag("DifficultyLocked")).getValue() == 1;
         TridentLogger.success("Loaded level.dat successfully. Moving on to region files...");
 
         // TODO: load other values
@@ -190,13 +192,13 @@ public class TridentWorld implements World {
             int centX = ((int) Math.floor(spawnLocation.getX())) >> 4;
             int centZ = ((int) Math.floor(spawnLocation.getZ())) >> 4;
 
-            for (int x = (centX - 7); x <= (centX + 7); x++) {
-                for (int z = (centZ - 7); z <= (centZ + 7); z++) {
+            for (int x = centX - 3; x <= centX + 3; x++) {
+                for (int z = centZ - 3; z <= centZ + 3; z++) {
                     chunkAt(x, z, true);
                 }
             }
 
-            TridentLogger.success("Loaded spawn chunks.");
+            TridentLogger.success("Loaded spawn chunks. ");
         }
     }
 

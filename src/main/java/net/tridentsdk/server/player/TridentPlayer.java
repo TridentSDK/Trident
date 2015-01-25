@@ -17,6 +17,7 @@
 
 package net.tridentsdk.server.player;
 
+import com.google.common.collect.Queues;
 import net.tridentsdk.GameMode;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.docs.InternalUseOnly;
@@ -42,15 +43,14 @@ import net.tridentsdk.world.ChunkLocation;
 import net.tridentsdk.world.LevelType;
 
 import javax.annotation.concurrent.ThreadSafe;
-import java.util.Collection;
-import java.util.Locale;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @ThreadSafe
 public class TridentPlayer extends OfflinePlayer {
     private final PlayerConnection connection;
     private final Set<ChunkLocation> knownChunks = Factories.collect().createSet();
+    private final Queue<PacketPlayOutMapChunkBulk> chunkQueue =
+            Queues.newConcurrentLinkedQueue();
     private volatile boolean loggingIn = true;
     private volatile Locale locale;
 
@@ -148,7 +148,11 @@ public class TridentPlayer extends OfflinePlayer {
             public void run() {
                 TridentPlayer.super.tick();
 
-                sendChunks(TridentServer.instance().viewDistance());
+                //sendChunks(TridentServer.instance().viewDistance());
+
+                if(!chunkQueue.isEmpty())
+                    connection.sendPacket(chunkQueue.poll());
+
                 connection.tick();
                 ticksExisted.incrementAndGet();
             }
@@ -208,10 +212,8 @@ public class TridentPlayer extends OfflinePlayer {
         PacketPlayOutMapChunkBulk bulk = new PacketPlayOutMapChunkBulk();
         int length = 0;
 
-        for (int x = (centX - (int) Math.floor(viewDistance / 2)); x <= (centX + (int) Math.floor(viewDistance / 2));
-             x += 1) {
-            for (int z = (centZ - (int) Math.floor(viewDistance / 2));
-                 z <= (centZ + (int) Math.floor(viewDistance / 2)); z += 1) {
+        for (int x = (centX - viewDistance / 2); x <= (centX + viewDistance / 2); x += 1) {
+            for (int z = (centZ - viewDistance / 2); z <= (centZ + viewDistance / 2); z += 1) {
                 ChunkLocation location = ChunkLocation.create(x, z);
 
                 if (knownChunks.contains(location))
