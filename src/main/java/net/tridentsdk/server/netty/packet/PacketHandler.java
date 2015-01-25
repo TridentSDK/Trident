@@ -71,13 +71,6 @@ public class PacketHandler extends SimpleChannelInboundHandler<PacketData> {
             return;
         }
 
-        if(!(packet instanceof PacketPlayInPlayerMove)) {
-            TridentLogger.log("Received packet: " + packet.getClass()
-                    .getSimpleName()
-                    .replaceAll("Packet", "")
-                    .replaceAll("Player", ""));
-        }
-
         // decode and handle the packet
         packet.decode(data.getData());
 

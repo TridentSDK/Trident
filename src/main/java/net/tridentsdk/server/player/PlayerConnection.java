@@ -100,7 +100,7 @@ public class PlayerConnection extends ClientConnection {
         if (oldId != -1)
             return;
 
-        int id = ThreadLocalRandom.current().nextInt();
+        int id = ThreadLocalRandom.current().nextInt(0x230000);
 
         OutPacket packet = new PacketPlayOutKeepAlive();
 

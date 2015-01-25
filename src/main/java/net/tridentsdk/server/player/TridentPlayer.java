@@ -30,6 +30,7 @@ import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.entity.TridentEntityBuilder;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.Packet;
+import net.tridentsdk.server.packets.play.in.PacketPlayInPlayerCompleteMove;
 import net.tridentsdk.server.packets.play.out.*;
 import net.tridentsdk.server.threads.ThreadsHandler;
 import net.tridentsdk.server.window.TridentWindow;
@@ -96,7 +97,7 @@ public class TridentPlayer extends OfflinePlayer {
                 p.connection.sendPacket(new PacketPlayOutSpawnPosition().set("location", p.getSpawnLocation()));
                 p.connection.sendPacket(p.abilities.asPacket());
                 p.connection.sendPacket(new PacketPlayOutPlayerCompleteMove().set("location",
-                        p.getSpawnLocation().add(new Vector(0, 80, 0))).set("flags", (byte) 0));
+                        p.getSpawnLocation()).set("flags", (byte) 0));
             }
         });
 
@@ -126,8 +127,10 @@ public class TridentPlayer extends OfflinePlayer {
         if (!loggingIn)
             return;
 
-        sendChunks(7);
         connection.sendPacket(PacketPlayOutStatistics.DEFAULT_STATISTIC);
+        sendChunks(7);
+        connection.sendPacket(new PacketPlayOutPlayerCompleteMove().set("location",
+                location()).set("flags", (byte) 0));
 
         TridentWindow window = new TridentWindow("Inventory", 9, InventoryType.CHEST);
         window.setSlot(0, new Item(Substance.DIAMOND_PICKAXE));
@@ -148,7 +151,8 @@ public class TridentPlayer extends OfflinePlayer {
             public void run() {
                 TridentPlayer.super.tick();
 
-                //sendChunks(TridentServer.instance().viewDistance());
+                if(!isLoggingIn())
+                    sendChunks(7);
 
                 if(!chunkQueue.isEmpty())
                     connection.sendPacket(chunkQueue.poll());
@@ -211,20 +215,30 @@ public class TridentPlayer extends OfflinePlayer {
         int centZ = ((int) Math.floor(loc.getZ())) >> 4;
         PacketPlayOutMapChunkBulk bulk = new PacketPlayOutMapChunkBulk();
         int length = 0;
+        int chunks = 0;
 
         for (int x = (centX - viewDistance / 2); x <= (centX + viewDistance / 2); x += 1) {
             for (int z = (centZ - viewDistance / 2); z <= (centZ + viewDistance / 2); z += 1) {
                 ChunkLocation location = ChunkLocation.create(x, z);
 
-                if (knownChunks.contains(location))
+                boolean contains = false;
+
+                for(ChunkLocation loc : knownChunks) {
+                    if(loc.equals(location)) {
+                        contains = true;
+                        break;
+                    }
+                }
+
+                if(contains) {
                     continue;
+                }
 
                 PacketPlayOutChunkData data = ((TridentChunk) world().chunkAt(x, z, true)).asPacket();
 
-                length += (10 + data.getData().length);
-
-                bulk.addEntry(data);
                 knownChunks.add(location);
+                bulk.addEntry(data);
+                length += (10 + data.getData().length);
 
                 if (length >= 0x1DAE40) { // send the packet if the length is close to the protocol maximum
                     connection.sendPacket(bulk);
@@ -232,10 +246,13 @@ public class TridentPlayer extends OfflinePlayer {
                     bulk = new PacketPlayOutMapChunkBulk();
                     length = 0;
                 }
+
+                chunks++;
             }
         }
 
-        connection.sendPacket(bulk);
+        if(bulk.hasEntries())
+            connection.sendPacket(bulk);
     }
 
     public void setLocale(Locale locale) {

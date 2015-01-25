@@ -55,6 +55,10 @@ public class PacketPlayOutMapChunkBulk extends OutPacket {
         entries.add(entry);
     }
 
+    public boolean hasEntries() {
+        return !entries.isEmpty();
+    }
+
     @Override
     public void encode(ByteBuf buf) {
         buf.writeBoolean(this.lightSent);
