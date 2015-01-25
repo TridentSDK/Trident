@@ -26,11 +26,11 @@ public class PacketPlayOutCamera extends OutPacket {
     protected int cameraId;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x43;
     }
 
-    public int getCameraId() {
+    public int cameraId() {
         return this.cameraId;
     }
 

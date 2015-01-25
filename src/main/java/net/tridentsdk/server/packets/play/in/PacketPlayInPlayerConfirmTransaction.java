@@ -34,7 +34,7 @@ public class PacketPlayInPlayerConfirmTransaction extends InPacket {
     protected boolean accepted;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x0F;
     }
 
@@ -48,11 +48,11 @@ public class PacketPlayInPlayerConfirmTransaction extends InPacket {
         return this;
     }
 
-    public short getActionNumber() {
+    public short actionNumber() {
         return this.actionNumber;
     }
 
-    public boolean isAccepted() {
+    public boolean accepted() {
         return this.accepted;
     }
 

@@ -28,7 +28,7 @@ public class TridentPrimeTNT extends TridentFallingBlock implements PrimeTNT {
     }
 
     @Override
-    public int getFuse() {
+    public int fuse() {
         return 0;
     }
 

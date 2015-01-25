@@ -34,7 +34,7 @@ public class PacketPlayInPlayerHeldItemChange extends InPacket {
     protected short slot;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x09;
     }
 
@@ -45,12 +45,12 @@ public class PacketPlayInPlayerHeldItemChange extends InPacket {
         return this;
     }
 
-    public short getSlot() {
+    public short slot() {
         return this.slot;
     }
 
     @Override
     public void handleReceived(ClientConnection connection) {
-        ((PlayerConnection) connection).getPlayer().setSlot(this.slot);
+        ((PlayerConnection) connection).player().setSlot(this.slot);
     }
 }

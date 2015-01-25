@@ -29,23 +29,23 @@ public class PacketPlayOutPlayerRespawn extends OutPacket {
     protected String levelType;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x07;
     }
 
-    public int getDimension() {
+    public int dimension() {
         return this.dimension;
     }
 
-    public int getDifficulty() {
+    public int difficulty() {
         return this.difficulty;
     }
 
-    public int getGameMode() {
+    public int gameMode() {
         return this.gameMode;
     }
 
-    public String getLevelType() {
+    public String levelType() {
         return this.levelType;
     }
 

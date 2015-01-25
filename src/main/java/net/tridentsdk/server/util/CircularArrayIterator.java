@@ -51,9 +51,9 @@ public class CircularArrayIterator<E> implements Iterator<E> {
     protected CircularArrayIterator(ConcurrentCircularArray<E> parent) {
         this.parent = parent;
 
-        contents = new Object[parent.getMaxSize()];
+        contents = new Object[parent.maxSize()];
         int notNulls = 0;
-        for (int i = 0; i < parent.getMaxSize(); i++) {
+        for (int i = 0; i < parent.maxSize(); i++) {
             contents[i] = parent.backing.get(i);
             if (contents[i] != null) {
                 notNulls++;
@@ -77,17 +77,17 @@ public class CircularArrayIterator<E> implements Iterator<E> {
             throw new NoSuchElementException("Iterator has run out of items");
         }
         current++;
-        if (current >= parent.getMaxSize()) {
+        if (current >= parent.maxSize()) {
             current = 0;
         }
         read++;
         // skips null values, effectively a while (value != null) loop with a limit to prevent infinite loops
-        for (int i = 0; i < parent.getMaxSize(); i++) {
+        for (int i = 0; i < parent.maxSize(); i++) {
             if (contents[current] != null) {
                 return (E) contents[current];
             }
             current++;
-            if (current >= parent.getMaxSize()) {
+            if (current >= parent.maxSize()) {
                 current = 0;
             }
         }

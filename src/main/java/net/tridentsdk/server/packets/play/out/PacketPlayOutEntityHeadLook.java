@@ -27,15 +27,15 @@ public class PacketPlayOutEntityHeadLook extends OutPacket {
     protected float headYaw;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x19;
     }
 
-    public int getEntityId() {
+    public int entityId() {
         return this.entityId;
     }
 
-    public float getHeadYaw() {
+    public float headYaw() {
         return this.headYaw;
     }
 

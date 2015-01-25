@@ -38,7 +38,7 @@ public class PacketPlayInUpdateSign extends InPacket {
     protected Coordinates signLocation;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x12;
     }
 
@@ -57,11 +57,11 @@ public class PacketPlayInUpdateSign extends InPacket {
         return this;
     }
 
-    public Coordinates getSignLocation() {
+    public Coordinates signLocation() {
         return this.signLocation;
     }
 
-    public String[] getJsonContents() {
+    public String[] jsonContents() {
         return this.jsonContents;
     }
 

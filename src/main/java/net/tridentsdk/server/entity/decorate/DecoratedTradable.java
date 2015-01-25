@@ -28,8 +28,8 @@ public class DecoratedTradable implements Tradeable {
     private final Collection<Trade> trades = Lists.newArrayList();
 
     @Override
-    public Collection<Trade> getTrades() {
-        return null;
+    public Collection<Trade> trades() {
+        return trades;
     }
 
     public void applyUpdateTrades(VillagerCareer career) {

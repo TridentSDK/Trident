@@ -36,11 +36,11 @@ public class PacketPlayInPlayerSpectate extends InPacket {
     protected UUID uuid;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x18;
     }
 
-    public UUID getUniqueId() {
+    public UUID uniqueId() {
         return this.uuid;
     }
 

@@ -58,7 +58,7 @@ public interface Packet {
      *
      * @return packet ID
      */
-    int getId();
+    int id();
 
     /**
      * Returns the packet direction
@@ -66,5 +66,5 @@ public interface Packet {
      * @return {@link net.tridentsdk.server.netty.packet.PacketDirection#IN} or
      * {@link net.tridentsdk.server.netty.packet.PacketDirection#OUT} depending on direction
      */
-    PacketDirection getDirection();
+    PacketDirection direction();
 }

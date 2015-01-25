@@ -28,19 +28,19 @@ public class PacketPlayOutSetSlot extends OutPacket {
     protected Slot item;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x2F;
     }
 
-    public int getWindowId() {
+    public int windowId() {
         return this.windowId;
     }
 
-    public short getSlot() {
+    public short slot() {
         return this.slot;
     }
 
-    public Slot getItem() {
+    public Slot item() {
         return this.item;
     }
 

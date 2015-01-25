@@ -26,15 +26,15 @@ public class PacketPlayOutTimeUpdate extends OutPacket {
     protected long time;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x03;
     }
 
-    public long getWorldAge() {
+    public long worldAge() {
         return this.worldAge;
     }
 
-    public long getTime() {
+    public long time() {
         return this.time;
     }
 

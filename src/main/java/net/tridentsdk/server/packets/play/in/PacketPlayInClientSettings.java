@@ -54,7 +54,7 @@ public class PacketPlayInClientSettings extends InPacket {
     protected byte skinParts;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x15;
     }
 
@@ -72,7 +72,7 @@ public class PacketPlayInClientSettings extends InPacket {
 
     @Override
     public void handleReceived(ClientConnection connection) {
-        TridentPlayer player = ((PlayerConnection) connection).getPlayer();
+        TridentPlayer player = ((PlayerConnection) connection).player();
 
         player.setLocale(locale);
     }

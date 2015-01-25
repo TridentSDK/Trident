@@ -28,19 +28,19 @@ public class PacketPlayOutEntityLook extends OutPacket {
     protected boolean onGround;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x16;
     }
 
-    public int getEntityId() {
+    public int entityId() {
         return this.entityId;
     }
 
-    public Coordinates getLocation() {
+    public Coordinates location() {
         return this.location;
     }
 
-    public boolean isOnGround() {
+    public boolean onGround() {
         return this.onGround;
     }
 

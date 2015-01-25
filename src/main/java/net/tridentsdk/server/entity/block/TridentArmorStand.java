@@ -33,7 +33,7 @@ public class TridentArmorStand extends TridentEntity implements ArmorStand {
     }
 
     @Override
-    public SlotProperties getSlotProperties() {
+    public SlotProperties slotProperties() {
         return null;
     }
 
@@ -58,7 +58,7 @@ public class TridentArmorStand extends TridentEntity implements ArmorStand {
     }
 
     @Override
-    public PartRotation[] getPose() {
+    public PartRotation[] pose() {
         return new PartRotation[0];
     }
 
@@ -68,7 +68,7 @@ public class TridentArmorStand extends TridentEntity implements ArmorStand {
     }
 
     @Override
-    public Item[] getEquipment() {
+    public Item[] equipment() {
         return new Item[0];
     }
 

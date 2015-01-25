@@ -26,11 +26,11 @@ public class PacketPlayOutResourcePackSend extends OutPacket {
     protected String url;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x48;
     }
 
-    public String getUrl() {
+    public String url() {
         return this.url;
     }
 

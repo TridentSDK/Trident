@@ -32,14 +32,24 @@ public class RecordBuilder implements Writable {
     private volatile byte y;
     private volatile byte z;
     private volatile int blockId;
+    private volatile int data;
 
     /**
      * Get the X location of the block
      *
      * @return the block's X location
      */
-    public byte getX() {
+    public byte x() {
         return this.x;
+    }
+
+    public int data() {
+        return data;
+    }
+
+    public RecordBuilder setData(int data) {
+        this.data = data;
+        return this;
     }
 
     /**
@@ -59,7 +69,7 @@ public class RecordBuilder implements Writable {
      *
      * @return the block's Y location
      */
-    public byte getY() {
+    public byte y() {
         return this.y;
     }
 
@@ -80,7 +90,7 @@ public class RecordBuilder implements Writable {
      *
      * @return the block's Z location
      */
-    public byte getZ() {
+    public byte z() {
         return this.z;
     }
 
@@ -101,7 +111,7 @@ public class RecordBuilder implements Writable {
      *
      * @return the ID number of the block
      */
-    public int getBlockId() {
+    public int blockId() {
         return this.blockId;
     }
 
@@ -119,6 +129,9 @@ public class RecordBuilder implements Writable {
 
     @Override
     public void write(ByteBuf buf) {
-        Codec.writeVarInt32(buf, this.blockId);
+        buf.writeShort((((x % 16) & 0xF) << 12) |
+                (((z % 16) & 0xF) << 8) |
+                (y & 0xFF));
+        Codec.writeVarInt32(buf, blockId << 4 | data);
     }
 }

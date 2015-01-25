@@ -33,7 +33,7 @@ public class TridentHorse extends TridentLivingEntity implements Horse {
     }
 
     @Override
-    public HorseType getBreed() {
+    public HorseType breed() {
         return null;
     }
 
@@ -43,7 +43,7 @@ public class TridentHorse extends TridentLivingEntity implements Horse {
     }
 
     @Override
-    public int getTemper() {
+    public int temper() {
         return 0;
     }
 
@@ -53,7 +53,7 @@ public class TridentHorse extends TridentLivingEntity implements Horse {
     }
 
     @Override
-    public HorseVariant getVariant() {
+    public HorseVariant variant() {
         return null;
     }
 
@@ -63,7 +63,7 @@ public class TridentHorse extends TridentLivingEntity implements Horse {
     }
 
     @Override
-    public int getAge() {
+    public int age() {
         return 0;
     }
 
@@ -83,7 +83,7 @@ public class TridentHorse extends TridentLivingEntity implements Horse {
     }
 
     @Override
-    public Inventory getInventory() {
+    public Inventory inventory() {
         return null;
     }
 
@@ -103,7 +103,7 @@ public class TridentHorse extends TridentLivingEntity implements Horse {
     }
 
     @Override
-    public UUID getOwner() {
+    public UUID owner() {
         return null;
     }
 

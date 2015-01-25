@@ -24,42 +24,42 @@ import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutSoundEffect extends OutPacket {
-    protected Audio soundName;
+    protected Audio sound;
     protected Coordinates loc;
     protected float volume; // f * 100
     protected int pitch; // 63 = 100%
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x29;
     }
 
     /**
      * @return Darude - Sandstorm
      */
-    public Audio getSoundName() {
-        return this.soundName;
+    public Audio sound() {
+        return this.sound;
     }
 
-    public Coordinates getLoc() {
+    public Coordinates location() {
         return this.loc;
     }
 
-    public float getVolume() {
+    public float volume() {
         return this.volume;
     }
 
-    public int getPitch() {
+    public int pitch() {
         return this.pitch;
     }
 
     @Override
     public void encode(ByteBuf buf) {
-        Codec.writeString(buf, this.soundName.toString());
+        Codec.writeString(buf, this.sound.toString());
 
-        buf.writeInt((int) this.loc.getX());
-        buf.writeInt((int) this.loc.getY());
-        buf.writeInt((int) this.loc.getZ());
+        buf.writeInt((int) this.loc.x());
+        buf.writeInt((int) this.loc.y());
+        buf.writeInt((int) this.loc.z());
 
         buf.writeFloat(this.volume);
         buf.writeByte(this.pitch);

@@ -48,7 +48,7 @@ final class ChunkSection implements NBTSerializable {
     /**
      * Gets the position in the section array
      */
-    public byte getY() {
+    public byte y() {
         return y;
     }
 
@@ -93,7 +93,7 @@ final class ChunkSection implements NBTSerializable {
         }
     }
 
-    public byte[] getTypes() {
+    public byte[] types() {
         return types;
     }
 }

@@ -35,12 +35,12 @@ public class TridentEnderman extends TridentLivingEntity implements Enderman {
     }
 
     @Override
-    public BlockSnapshot getCarryingBlock() {
+    public BlockSnapshot carryingBlock() {
         return null;
     }
 
     @Override
-    public int getEndermiteCount() {
+    public int endermiteCount() {
         return 0;
     }
 

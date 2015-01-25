@@ -29,15 +29,15 @@ public class PacketPlayOutPluginMessage extends OutPacket {
     protected byte[] data;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x3F;
     }
 
-    public String getChannel() {
+    public String channel() {
         return this.channel;
     }
 
-    public byte[] getData() {
+    public byte[] data() {
         return this.data;
     }
 

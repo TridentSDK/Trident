@@ -67,26 +67,26 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
 
         load(tag);
 
-        dimension = Dimension.getDimension(((IntTag) tag.getTag("Dimension")).getValue());
-        gameMode = GameMode.gamemodeOf(((IntTag) tag.getTag("playerGameType")).getValue());
-        score = ((IntTag) tag.getTag("Score")).getValue();
-        selectedSlot = (short) ((IntTag) tag.getTag("SelectedItemSlot")).getValue();
+        dimension = Dimension.dimension(((IntTag) tag.getTag("Dimension")).value());
+        gameMode = GameMode.gamemodeOf(((IntTag) tag.getTag("playerGameType")).value());
+        score = ((IntTag) tag.getTag("Score")).value();
+        selectedSlot = (short) ((IntTag) tag.getTag("SelectedItemSlot")).value();
 
         if (tag.containsTag("SpawnX")) {
-            spawnLocation = Coordinates.create(world, ((IntTag) tag.getTag("SpawnX")).getValue(),
-                    ((IntTag) tag.getTag("SpawnY")).getValue(), ((IntTag) tag.getTag("SpawnZ")).getValue());
+            spawnLocation = Coordinates.create(world, ((IntTag) tag.getTag("SpawnX")).value(),
+                    ((IntTag) tag.getTag("SpawnY")).value(), ((IntTag) tag.getTag("SpawnZ")).value());
         } else {
             spawnLocation = world.spawnLocation();
         }
 
-        hunger = (short) ((IntTag) tag.getTag("foodLevel")).getValue();
-        exhaustion = ((FloatTag) tag.getTag("foodExhaustionLevel")).getValue();
-        saturation = ((FloatTag) tag.getTag("foodSaturationLevel")).getValue();
-        foodTickTimer = ((IntTag) tag.getTag("foodTickTimer")).getValue();
-        xpLevel = ((IntTag) tag.getTag("XpLevel")).getValue();
-        xpPercent = ((IntTag) tag.getTag("XpP")).getValue();
-        xpTotal = ((IntTag) tag.getTag("XpLevel")).getValue();
-        xpSeed = ((IntTag) tag.getTag("XpSeed")).getValue();
+        hunger = (short) ((IntTag) tag.getTag("foodLevel")).value();
+        exhaustion = ((FloatTag) tag.getTag("foodExhaustionLevel")).value();
+        saturation = ((FloatTag) tag.getTag("foodSaturationLevel")).value();
+        foodTickTimer = ((IntTag) tag.getTag("foodTickTimer")).value();
+        xpLevel = ((IntTag) tag.getTag("XpLevel")).value();
+        xpPercent = ((IntTag) tag.getTag("XpP")).value();
+        xpTotal = ((IntTag) tag.getTag("XpLevel")).value();
+        xpSeed = ((IntTag) tag.getTag("XpSeed")).value();
 
         for (NBTTag t : ((ListTag) tag.getTag("Inventory")).listTags()) {
             Slot slot = NBTSerializer.deserialize(Slot.class, (CompoundTag) t);
@@ -126,9 +126,9 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
 
         ListTagBuilder<CompoundTagBuilder<NBTBuilder>> pos = builder.beginListTag("Pos", TagType.INT);
 
-        pos.tag((int) spawnLocation.getX());
-        pos.tag((int) spawnLocation.getY());
-        pos.tag((int) spawnLocation.getZ());
+        pos.tag((int) spawnLocation.x());
+        pos.tag((int) spawnLocation.y());
+        pos.tag((int) spawnLocation.z());
 
         builder = pos.endListTag();
 
@@ -189,7 +189,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
         return builder.endCompoundTag().build();
     }
 
-    public Coordinates getSpawnLocation() {
+    public Coordinates spawnLocation() {
         return spawnLocation;
     }
 
@@ -308,10 +308,10 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
         tag.addTag(new IntTag("Score").setValue(score));
         tag.addTag(new IntTag("SelectedItemSlot").setValue(selectedSlot));
 
-        //tag.addTag(NBTSerializer.serialize(new Slot(getItemInHand())));
-        tag.addTag(new IntTag("SpawnX").setValue((int) spawnLocation.getX()));
-        tag.addTag(new IntTag("SpawnY").setValue((int) spawnLocation.getY()));
-        tag.addTag(new IntTag("SpawnZ").setValue((int) spawnLocation.getZ()));
+        //tag.addTag(NBTSerializer.serialize(new Slot(itemInHand())));
+        tag.addTag(new IntTag("SpawnX").setValue((int) spawnLocation.x()));
+        tag.addTag(new IntTag("SpawnY").setValue((int) spawnLocation.y()));
+        tag.addTag(new IntTag("SpawnZ").setValue((int) spawnLocation.z()));
 
         tag.addTag(new ShortTag("foodLevel").setValue(hunger));
         tag.addTag(new FloatTag("foodExhaustionLevel").setValue(exhaustion));

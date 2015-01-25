@@ -34,7 +34,7 @@ public class TridentGhast extends TridentLivingEntity implements Ghast {
     }
 
     @Override
-    public float getFireballRadius() {
+    public float fireballRadius() {
         return 0.0F;
     }
 

@@ -26,23 +26,23 @@ public class PacketPlayOutPlayerCompleteMove extends OutPacket {
     protected byte flags;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x08;
     }
 
-    public Coordinates getLocation() {
+    public Coordinates location() {
         return this.location;
     }
 
-    public byte getFlags() {
+    public byte flags() {
         return this.flags;
     }
 
     @Override
     public void encode(ByteBuf buf) {
-        buf.writeDouble(this.location.getX());
-        buf.writeDouble(this.location.getY());
-        buf.writeDouble(this.location.getZ());
+        buf.writeDouble(this.location.x());
+        buf.writeDouble(this.location.y());
+        buf.writeDouble(this.location.z());
 
         buf.writeFloat(this.location.yaw());
         buf.writeFloat(this.location.pitch());

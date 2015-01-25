@@ -30,19 +30,19 @@ public class PacketPlayOutBlockAction extends OutPacket {
     protected int blockId;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x24;
     }
 
-    public Coordinates getLocation() {
+    public Coordinates location() {
         return this.location;
     }
 
-    public byte getByte1() {
+    public byte byte1() {
         return this.byte1;
     }
 
-    public byte getByte2() {
+    public byte byte2() {
         return this.byte2;
     }
 

@@ -27,15 +27,15 @@ public class PacketPlayOutCollectItem extends OutPacket {
     protected int collectorId;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x0E;
     }
 
-    public int getCollectedId() {
+    public int collectedId() {
         return this.collectedId;
     }
 
-    public int getCollectorId() {
+    public int colectorId() {
         return this.collectorId;
     }
 

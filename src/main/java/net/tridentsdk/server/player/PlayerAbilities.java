@@ -42,11 +42,11 @@ public class PlayerAbilities implements NBTSerializable {
     protected PlayerAbilities() {
     }
 
-    public float getWalkingSpeed() {
+    public float walkingSpeed() {
         return walkingSpeed;
     }
 
-    public float getFlySpeed() {
+    public float flyingSpeed() {
         return flySpeed;
     }
 

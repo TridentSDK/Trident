@@ -29,36 +29,22 @@ public class PacketPlayOutMultiBlockChange extends OutPacket {
     protected RecordBuilder[] records = { };
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x22;
     }
 
-    public ChunkLocation getChunkLocation() {
+    public ChunkLocation chunkLocation() {
         return this.chunkLocation;
     }
 
-    public RecordBuilder[] getRecords() {
+    public RecordBuilder[] records() {
         return this.records;
-    }
-
-    public void cleanup() {
-        RecordBuilder[] newRecords = { };
-
-        for (RecordBuilder value : this.records) {
-            if (value != null) {
-                newRecords[newRecords.length] = value;
-            }
-        }
-
-        this.records = newRecords;
     }
 
     @Override
     public void encode(ByteBuf buf) {
-        this.cleanup();
-
-        buf.writeInt(this.chunkLocation.getX());
-        buf.writeInt(this.chunkLocation.getZ());
+        buf.writeInt(this.chunkLocation.x());
+        buf.writeInt(this.chunkLocation.z());
 
         Codec.writeVarInt32(buf, this.records.length);
 

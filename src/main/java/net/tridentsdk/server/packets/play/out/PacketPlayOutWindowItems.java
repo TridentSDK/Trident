@@ -26,7 +26,7 @@ import net.tridentsdk.window.inventory.Item;
 public class PacketPlayOutWindowItems extends OutPacket {
     private static final Slot EMPTY = new Slot(new Item(Substance.AIR) {
         @Override
-        public int getId() {
+        public int id() {
             return -1;
         }
     });
@@ -35,15 +35,15 @@ public class PacketPlayOutWindowItems extends OutPacket {
     protected Slot[] slots;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x30;
     }
 
-    public int getWindowId() {
+    public int windowId() {
         return this.windowId;
     }
 
-    public Slot[] getSlots() {
+    public Slot[] slots() {
         return this.slots;
     }
 

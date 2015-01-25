@@ -29,19 +29,19 @@ public class PacketPlayOutBlockBreakAnimation extends OutPacket {
     protected short destroyStage;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x25;
     }
 
-    public int getEntityId() {
+    public int entityId() {
         return this.entityId;
     }
 
-    public Coordinates getLocation() {
+    public Coordinates location() {
         return this.location;
     }
 
-    public short getDestroyStage() {
+    public short destroyStage() {
         return this.destroyStage;
     }
 

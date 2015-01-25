@@ -35,31 +35,31 @@ public class PacketPlayOutJoinGame extends OutPacket {
     protected LevelType levelType;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x01;
     }
 
-    public int getEntityId() {
+    public int entityId() {
         return this.entityId;
     }
 
-    public GameMode getGamemode() {
+    public GameMode gameMode() {
         return this.gamemode;
     }
 
-    public Dimension getDimension() {
+    public Dimension dimension() {
         return this.dimension;
     }
 
-    public Difficulty getDifficulty() {
+    public Difficulty difficulty() {
         return this.difficulty;
     }
 
-    public short getMaxPlayers() {
+    public short maxPlayers() {
         return this.maxPlayers;
     }
 
-    public LevelType getLevelType() {
+    public LevelType levelType() {
         return this.levelType;
     }
 

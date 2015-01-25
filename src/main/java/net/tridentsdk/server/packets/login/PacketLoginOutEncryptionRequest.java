@@ -48,12 +48,12 @@ public class PacketLoginOutEncryptionRequest extends OutPacket {
     protected byte[] verifyToken;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x01;
     }
 
     @Override
-    public PacketDirection getDirection() {
+    public PacketDirection direction() {
         return PacketDirection.OUT;
     }
 
@@ -77,7 +77,7 @@ public class PacketLoginOutEncryptionRequest extends OutPacket {
      *
      * @return the encrypted key length
      */
-    public short getKeyLength() {
+    public short keyLength() {
         return this.keyLength;
     }
 
@@ -86,7 +86,7 @@ public class PacketLoginOutEncryptionRequest extends OutPacket {
      *
      * @return the client token length
      */
-    public short getTokenLength() {
+    public short tokenLength() {
         return this.tokenLength;
     }
 
@@ -95,7 +95,7 @@ public class PacketLoginOutEncryptionRequest extends OutPacket {
      *
      * @return the encryption key
      */
-    public byte[] getPublicKey() {
+    public byte[] publicKey() {
         return this.publicKey;
     }
 
@@ -104,7 +104,7 @@ public class PacketLoginOutEncryptionRequest extends OutPacket {
      *
      * @return the verification token
      */
-    public byte[] getVerifyToken() {
+    public byte[] verifyToken() {
         return this.verifyToken;
     }
 }

@@ -32,7 +32,7 @@ public class PacketPlayInPlayerFall extends InPacket {
     protected boolean onGround;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x03;
     }
 

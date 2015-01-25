@@ -47,7 +47,7 @@ public class PacketLoginInStart extends InPacket {
     protected String name;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x00;
     }
 
@@ -59,7 +59,7 @@ public class PacketLoginInStart extends InPacket {
     }
 
     @Override
-    public PacketDirection getDirection() {
+    public PacketDirection direction() {
         return PacketDirection.IN;
     }
 
@@ -68,7 +68,7 @@ public class PacketLoginInStart extends InPacket {
      *
      * @return the client name
      */
-    public String getName() {
+    public String name() {
         return this.name;
     }
 
@@ -92,7 +92,7 @@ public class PacketLoginInStart extends InPacket {
                 c.setDoInput(true);
 
                 // write the payload
-                c.getOutputStream().write(String.format("[ \"%s\" ]", getName()).getBytes());
+                c.getOutputStream().write(String.format("[ \"%s\" ]", name()).getBytes());
                 c.getOutputStream().close();
 
                 int responseCode = c.getResponseCode();
@@ -134,7 +134,7 @@ public class PacketLoginInStart extends InPacket {
 
             // set values in the packet
             success.uuid = id.toString();
-            success.username = getName();
+            success.username = name();
             success.connection = connection;
 
             // send the success packet and spawn the player
@@ -146,7 +146,7 @@ public class PacketLoginInStart extends InPacket {
             return;
         }
 
-        LoginHandler.getInstance().initLogin(connection.getAddress(), this.getName());
+        LoginHandler.getInstance().initLogin(connection.getAddress(), this.name());
         PacketLoginOutEncryptionRequest p = new PacketLoginOutEncryptionRequest();
 
         // Generate the 4 byte token and update the packet

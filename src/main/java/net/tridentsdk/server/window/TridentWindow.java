@@ -97,7 +97,7 @@ public class TridentWindow implements Window {
     }
 
     //@Override
-    public int getItemLength() {
+    public int itemLength() {
         int counter = 0;
         for (Item item : items()) {
             if (item != null)

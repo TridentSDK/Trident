@@ -29,15 +29,15 @@ public class PacketPlayOutPlayerListItem extends OutPacket {
     protected PlayerListDataBuilder[] playerListData;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x37;
     }
 
-    public int getAction() {
+    public int action() {
         return this.action;
     }
 
-    public PlayerListDataBuilder[] getPlayerListData() {
+    public PlayerListDataBuilder[] playerListData() {
         return this.playerListData;
     }
 

@@ -22,19 +22,15 @@ import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
-/*
- * @NotJavaDoc
- * Leave this until later stages of TridentSDK
- */
 public class PacketPlayOutSetCompression extends OutPacket {
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x46;
     }
 
     @Override
     public void encode(ByteBuf buf) {
-        Codec.writeVarInt32(buf, TridentServer.instance().getCompressionThreshold());
+        Codec.writeVarInt32(buf, TridentServer.instance().compressionThreshold());
     }
 }

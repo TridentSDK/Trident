@@ -35,7 +35,7 @@ public class PacketPlayInKeepAlive extends InPacket {
     protected int keepAliveId;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x00;
     }
 

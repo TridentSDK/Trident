@@ -39,7 +39,7 @@ public class Slot implements Writable, NBTSerializable {
 
     public Slot(ByteBuf buf) {
         this.id = (short) buf.readByte();
-        this.mat = Substance.fromId((byte)this.id);
+        this.mat = Substance.fromId((byte) this.id);
 
         if (this.id == -1) {
             return;
@@ -63,11 +63,11 @@ public class Slot implements Writable, NBTSerializable {
     public Slot(Item is) {
         if (is == null)
             return;
-        this.id = (short) is.getId();
-        this.mat = is.getType();
+        this.id = (short) is.id();
+        this.mat = is.type();
 
-        this.quantity = (byte) is.getQuantity();
-        this.damageValue = (byte) is.getDamageValue();
+        this.quantity = (byte) is.quantity();
+        this.damageValue = (byte) is.damageValue();
 
         // TODO: build NBT data
     }
@@ -80,7 +80,7 @@ public class Slot implements Writable, NBTSerializable {
      *
      * @return the item ID occupying the slot
      */
-    public int getId() {
+    public int id() {
         return this.id;
     }
 
@@ -89,7 +89,7 @@ public class Slot implements Writable, NBTSerializable {
      *
      * @return the item type occupying the slot
      */
-    public Substance getType() {
+    public Substance type() {
         return this.mat;
     }
 
@@ -98,7 +98,7 @@ public class Slot implements Writable, NBTSerializable {
      *
      * @return the amount of the item occupying the slot
      */
-    public short getQuantity() {
+    public short quantity() {
         return this.quantity;
     }
 
@@ -107,7 +107,7 @@ public class Slot implements Writable, NBTSerializable {
      *
      * @return the damage of the item occupying the slot
      */
-    public short getDamageValue() {
+    public short damageValue() {
         return this.damageValue;
     }
 
@@ -116,11 +116,11 @@ public class Slot implements Writable, NBTSerializable {
      *
      * @return the item NBT occupying the slot
      */
-    public CompoundTag getCompoundTag() {
+    public CompoundTag compoundTag() {
         return this.compoundTag;
     }
 
-    public byte getSlot() {
+    public byte slot() {
         return slot;
     }
 
@@ -141,7 +141,7 @@ public class Slot implements Writable, NBTSerializable {
     }
 
     public Item item() {
-        Item is = new Item(Substance.fromId((byte)id));
+        Item is = new Item(Substance.fromStringId(String.valueOf(id)));
 
         is.setQuantity(quantity);
         is.setDamageValue(damageValue);

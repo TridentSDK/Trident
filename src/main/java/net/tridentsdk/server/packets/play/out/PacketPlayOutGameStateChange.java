@@ -26,7 +26,7 @@ public class PacketPlayOutGameStateChange extends OutPacket {
     protected float value; // value differs depending on reason
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x2B;
     }
 

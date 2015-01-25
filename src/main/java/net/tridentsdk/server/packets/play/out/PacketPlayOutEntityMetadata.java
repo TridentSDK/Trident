@@ -27,7 +27,7 @@ public class PacketPlayOutEntityMetadata extends OutPacket {
     // TODO: metadata
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x0C;
     }
 

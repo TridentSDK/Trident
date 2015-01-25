@@ -168,12 +168,12 @@ public class TridentWorldLoader implements WorldLoader {
 
     @Override
     public boolean chunkExists(World world, int x, int z) {
-        return new File(world.name() + "/region/", WorldUtils.getRegionFile(x, z)).exists();
+        return new File(world.name() + "/region/", WorldUtils.regionFile(x, z)).exists();
     }
 
     @Override
     public boolean chunkExists(World world, ChunkLocation location) {
-        return this.chunkExists(world, location.getX(), location.getZ());
+        return this.chunkExists(world, location.x(), location.z());
     }
 
     @Override
@@ -194,7 +194,12 @@ public class TridentWorldLoader implements WorldLoader {
 
     @Override
     public void saveChunk(Chunk chunk) {
-        // TODO
+        try {
+            RegionFile.fromPath(chunk.world().name(), chunk.location())
+                    .saveChunkData((TridentChunk) chunk);
+        } catch (IOException | NBTException ex) {
+            TridentLogger.error(ex);
+        }
     }
 
     @Override

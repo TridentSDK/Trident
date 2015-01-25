@@ -43,24 +43,24 @@ public class PacketLoginOutSuccess extends OutPacket {
     protected ClientConnection connection;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x02;
     }
 
     @Override
-    public PacketDirection getDirection() {
+    public PacketDirection direction() {
         return PacketDirection.OUT;
     }
 
-    public ClientConnection getConnection() {
+    public ClientConnection connection() {
         return this.connection;
     }
 
-    public String getUuid() {
+    public String uniqueId() {
         return this.uuid;
     }
 
-    public String getUsername() {
+    public String username() {
         return this.username;
     }
 

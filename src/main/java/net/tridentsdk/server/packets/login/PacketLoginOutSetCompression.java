@@ -25,12 +25,12 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 public class PacketLoginOutSetCompression extends OutPacket {
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x03;
     }
 
     @Override
     public void encode(ByteBuf buf) {
-        Codec.writeVarInt32(buf, TridentServer.instance().getCompressionThreshold());
+        Codec.writeVarInt32(buf, TridentServer.instance().compressionThreshold());
     }
 }

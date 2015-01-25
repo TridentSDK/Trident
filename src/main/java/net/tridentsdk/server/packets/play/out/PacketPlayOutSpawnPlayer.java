@@ -32,15 +32,15 @@ public class PacketPlayOutSpawnPlayer extends OutPacket {
     // TODO: entity metadata
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x0C;
     }
 
-    public int getEntityId() {
+    public int entityId() {
         return this.entityId;
     }
 
-    public Player getPlayer() {
+    public Player player() {
         return this.player;
     }
 
@@ -54,11 +54,13 @@ public class PacketPlayOutSpawnPlayer extends OutPacket {
         buf.writeLong(id.getMostSignificantBits());
         buf.writeLong(id.getLeastSignificantBits());
 
-        buf.writeInt((int) loc.getX() * 32);
-        buf.writeInt((int) loc.getY() * 32);
-        buf.writeInt((int) loc.getZ() * 32);
+        buf.writeInt((int) loc.x() * 32);
+        buf.writeInt((int) loc.y() * 32);
+        buf.writeInt((int) loc.z() * 32);
 
         buf.writeByte((int) (byte) loc.yaw());
         buf.writeByte((int) (byte) loc.pitch());
+
+        buf.writeShort(player.heldItem().id());
     }
 }

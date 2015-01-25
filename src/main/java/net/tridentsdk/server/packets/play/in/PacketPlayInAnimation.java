@@ -28,7 +28,7 @@ import net.tridentsdk.server.netty.packet.Packet;
 public class PacketPlayInAnimation extends InPacket {
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x0A;
     }
 

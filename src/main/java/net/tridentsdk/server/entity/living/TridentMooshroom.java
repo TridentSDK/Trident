@@ -34,7 +34,7 @@ public class TridentMooshroom extends TridentLivingEntity implements Mooshroom {
     }
 
     @Override
-    public int getAge() {
+    public int age() {
         return 0;
     }
 

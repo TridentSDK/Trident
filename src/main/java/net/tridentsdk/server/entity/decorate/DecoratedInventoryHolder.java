@@ -36,7 +36,7 @@ public class DecoratedInventoryHolder extends DecorationAdapter<Entity> implemen
     }
 
     @Override
-    public Inventory getInventory() {
+    public Inventory inventory() {
         return (Inventory) inventory;
     }
 

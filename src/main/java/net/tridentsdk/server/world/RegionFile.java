@@ -95,7 +95,7 @@ public class RegionFile {
     }
 
     public static RegionFile fromPath(String name, ChunkLocation location) {
-        final Path path = Paths.get(name + "/region/", WorldUtils.getRegionFile(location));
+        final Path path = Paths.get(name + "/region/", WorldUtils.regionFile(location));
 
         return FILE_CACHE.retrieve(path, new Callable<RegionFile>() {
             @Override
@@ -147,14 +147,14 @@ public class RegionFile {
             RandomAccessFile access = new RandomAccessFile(this.path.toFile(), "rw");
 
             //Jump to timestamp location
-            access.seek((long) this.sectors.getTimeStampLocation(chunk));
+            access.seek((long) this.sectors.timeStampLoc(chunk));
 
             // Read Timestamp
             int lastUpdate = access.readInt();
 
             // Check to see whether the chunk needs the data loaded
             // Not sure why it would ever not need
-            if (chunk.getLastFileAccess() > lastUpdate) {
+            if (chunk.lastFileAccess() > lastUpdate) {
                 chunk.setLastFileAccess((int) (System.currentTimeMillis() / 1000L));
 
                 access.close();
@@ -164,7 +164,7 @@ public class RegionFile {
             }
 
             //Jump to location of actual chunk data
-            long dataLoc = (long) this.sectors.getDataLocation(chunk);
+            long dataLoc = (long) this.sectors.dataLoc(chunk);
             access.seek(dataLoc);
 
             // Read the length, and the compression type
@@ -248,13 +248,13 @@ public class RegionFile {
         //Sector length is rounded up to the nearest sector
         int sectorLength = IntMath.divide(actualLength, SectorStorage.SECTOR_LENGTH, RoundingMode.CEILING);
         //Checks if offsets need to change
-        int oldSectorLength = this.sectors.getDataSectors(chunk);
+        int oldSectorLength = this.sectors.dataSectors(chunk);
 
         //If the length is smaller, we can free up a sector
         if (sectorLength < oldSectorLength) {
             this.sectors.setDataSectors(chunk, sectorLength);
             //Clears up all the now-free sectors
-            this.sectors.freeSectors(this.sectors.getSectorOffset(chunk) + sectorLength - 1,
+            this.sectors.freeSectors(this.sectors.sectorOffest(chunk) + sectorLength - 1,
                     oldSectorLength - sectorLength);
         }
         //If the length is bigger, we need to find a new location!
@@ -262,20 +262,20 @@ public class RegionFile {
             this.sectors.setDataSectors(chunk, sectorLength);
 
             //Clears up all the space previously used by this chunk (we need to find a new space!
-            this.sectors.freeSectors(this.sectors.getSectorOffset(chunk), oldSectorLength);
+            this.sectors.freeSectors(this.sectors.sectorOffest(chunk), oldSectorLength);
 
             //Finds a new free location
             this.sectors.setSectorOffset(chunk, this.sectors.findFreeSectors(sectorLength));
         }
 
         //Update what sectors are being used
-        this.sectors.addSectors(this.sectors.getSectorOffset(chunk), this.sectors.getDataSectors(chunk));
+        this.sectors.addSectors(this.sectors.sectorOffest(chunk), this.sectors.dataSectors(chunk));
 
         synchronized (this.readWriteLock) {
             /* Write the actual chunk data */
             //Initialize access to the file
             RandomAccessFile access = new RandomAccessFile(this.path.toFile(), "rw");
-            access.seek((long) this.sectors.getDataLocation(chunk));
+            access.seek((long) this.sectors.dataLoc(chunk));
             access.write(actualLength);
 
             //We only use compression type 1 (zlib)
@@ -291,8 +291,8 @@ public class RegionFile {
             }
 
             //Write the new offset data to the header
-            access.seek((long) (4 * this.sectors.getOffsetLoc(chunk)));
-            access.write(this.sectors.getRawOffset(chunk));
+            access.seek((long) (4 * this.sectors.offsetLoc(chunk)));
+            access.write(this.sectors.rawOffset(chunk));
 
             //Pack the file as in the specifications
             this.packFile(access);
@@ -390,8 +390,8 @@ public class RegionFile {
          * @param c chunk
          * @return location in bytes
          */
-        int getTimeStampLocation(Chunk c) {
-            return 4 * this.getOffsetLoc(c) + SECTOR_LENGTH;
+        int timeStampLoc(Chunk c) {
+            return 4 * this.offsetLoc(c) + SECTOR_LENGTH;
         }
 
         /**
@@ -400,8 +400,8 @@ public class RegionFile {
          * @param c chunk
          * @return location in bytes
          */
-        int getDataLocation(Chunk c) {
-            return this.getSectorOffset(c) * SECTOR_LENGTH;
+        int dataLoc(Chunk c) {
+            return this.sectorOffest(c) * SECTOR_LENGTH;
         }
 
         /**
@@ -410,8 +410,8 @@ public class RegionFile {
          * @param c chunk
          * @return amount the amount of sectors
          */
-        int getDataSectors(Chunk c) {
-            return this.offsets[this.getOffsetLoc(c)] & 0xFF;
+        int dataSectors(Chunk c) {
+            return this.offsets[this.offsetLoc(c)] & 0xFF;
         }
 
         /**
@@ -421,8 +421,8 @@ public class RegionFile {
          * @param toSet the amount to set
          */
         void setDataSectors(Chunk c, int toSet) {
-            int old = this.offsets[this.getOffsetLoc(c)];
-            this.offsets[this.getOffsetLoc(c)] = old & 0xFFFFFF00 | toSet;
+            int old = this.offsets[this.offsetLoc(c)];
+            this.offsets[this.offsetLoc(c)] = old & 0xFFFFFF00 | toSet;
         }
 
         /**
@@ -431,8 +431,8 @@ public class RegionFile {
          * @param c chunk
          * @return amount the amount of sectors
          */
-        int getSectorOffset(Chunk c) {
-            return this.offsets[this.getOffsetLoc(c)] >> 8;
+        int sectorOffest(Chunk c) {
+            return this.offsets[this.offsetLoc(c)] >> 8;
         }
 
         /**
@@ -442,8 +442,8 @@ public class RegionFile {
          * @param toSet the amount to set
          */
         void setSectorOffset(Chunk c, int toSet) {
-            int old = this.offsets[this.getOffsetLoc(c)];
-            this.offsets[this.getOffsetLoc(c)] = old & 0x000000FF | toSet << 8;
+            int old = this.offsets[this.offsetLoc(c)];
+            this.offsets[this.offsetLoc(c)] = old & 0x000000FF | toSet << 8;
         }
 
         /**
@@ -452,8 +452,8 @@ public class RegionFile {
          * @param c chunk
          * @return offset
          */
-        private int getRawOffset(Chunk c) {
-            return this.offsets[this.getOffsetLoc(c)];
+        private int rawOffset(Chunk c) {
+            return this.offsets[this.offsetLoc(c)];
         }
 
         /**
@@ -462,8 +462,8 @@ public class RegionFile {
          * @param c chunk
          * @return offsetLoc in bytes
          */
-        private int getOffsetLoc(Chunk c) {
-            return (c.getX() & 31) + (c.getZ() & 31) * 32;
+        private int offsetLoc(Chunk c) {
+            return (c.x() & 31) + (c.z() & 31) * 32;
         }
     }
 }

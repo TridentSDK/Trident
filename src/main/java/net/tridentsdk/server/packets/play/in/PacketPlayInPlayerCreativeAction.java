@@ -40,11 +40,11 @@ public class PacketPlayInPlayerCreativeAction extends InPacket {
     protected Slot item;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x10;
     }
 
-    public Slot getItem() {
+    public Slot item() {
         return this.item;
     }
 
@@ -56,7 +56,7 @@ public class PacketPlayInPlayerCreativeAction extends InPacket {
         return this;
     }
 
-    public short getSlot() {
+    public short slot() {
         return this.slot;
     }
 

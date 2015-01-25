@@ -41,7 +41,7 @@ public class PacketPlayInSteerVehicle extends InPacket {
     protected short flags;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x0C;
     }
 

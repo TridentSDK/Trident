@@ -28,19 +28,19 @@ public class PacketPlayOutEntityTeleport extends OutPacket {
     protected boolean onGround;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x18;
     }
 
-    public int getEntityId() {
+    public int entityId() {
         return this.entityId;
     }
 
-    public Coordinates getLocation() {
+    public Coordinates location() {
         return this.location;
     }
 
-    public boolean isOnGround() {
+    public boolean onGround() {
         return this.onGround;
     }
 
@@ -48,9 +48,9 @@ public class PacketPlayOutEntityTeleport extends OutPacket {
     public void encode(ByteBuf buf) {
         Codec.writeVarInt32(buf, this.entityId);
 
-        buf.writeInt((int) this.location.getX() * 32);
-        buf.writeInt((int) this.location.getY() * 32);
-        buf.writeInt((int) this.location.getZ() * 32);
+        buf.writeInt((int) this.location.x() * 32);
+        buf.writeInt((int) this.location.y() * 32);
+        buf.writeInt((int) this.location.z() * 32);
 
         buf.writeByte((int) this.location.yaw());
         buf.writeByte((int) this.location.pitch());

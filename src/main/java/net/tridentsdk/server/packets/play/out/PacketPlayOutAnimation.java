@@ -27,15 +27,15 @@ public class PacketPlayOutAnimation extends OutPacket {
     protected int animationId;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x0B;
     }
 
-    public int getEntityId() {
+    public int entityId() {
         return this.entityId;
     }
 
-    public int getAnimationId() {
+    public int animationId() {
         return this.animationId;
     }
 

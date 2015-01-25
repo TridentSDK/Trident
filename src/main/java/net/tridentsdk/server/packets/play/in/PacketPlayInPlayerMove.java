@@ -43,7 +43,7 @@ public class PacketPlayInPlayerMove extends InPacket {
     protected boolean onGround;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x04;
     }
 
@@ -60,17 +60,17 @@ public class PacketPlayInPlayerMove extends InPacket {
         return this;
     }
 
-    public Coordinates getLocation() {
+    public Coordinates location() {
         return this.location;
     }
 
-    public boolean isOnGround() {
+    public boolean onGround() {
         return this.onGround;
     }
 
     @Override
     public void handleReceived(ClientConnection connection) {
-        TridentPlayer player = ((PlayerConnection) connection).getPlayer();
+        TridentPlayer player = ((PlayerConnection) connection).player();
         this.location.setWorld(player.world());
         Coordinates from = player.location();
         Coordinates to = this.location;

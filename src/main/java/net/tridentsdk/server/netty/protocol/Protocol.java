@@ -35,38 +35,38 @@ public class Protocol {
     private final Login login = new Login();
     private final Handshake handshake = new Handshake();
 
-    public Play getPlay() {
+    public Play play() {
         return this.play;
     }
 
-    public Status getStatus() {
+    public Status status() {
         return this.status;
     }
 
-    public Login getLogin() {
+    public Login login() {
         return this.login;
     }
 
-    public Handshake getHandshake() {
+    public Handshake handshake() {
         return this.handshake;
     }
 
     public Packet getPacket(int id, ClientStage stage, PacketDirection type) {
         switch (stage) {
             case PLAY:
-                return this.play.getPacket(id, type);
+                return this.play.packet(id, type);
 
             case HANDSHAKE:
-                return this.handshake.getPacket(id, type);
+                return this.handshake.packet(id, type);
 
             case STATUS:
-                return this.status.getPacket(id, type);
+                return this.status.packet(id, type);
 
             case LOGIN:
-                return this.login.getPacket(id, type);
+                return this.login.packet(id, type);
 
             default:
-                TridentLogger.error(new IllegalArgumentException(stage + " is not supported for Protocol#getPacket!"));
+                TridentLogger.error(new IllegalArgumentException(stage + " is not supported for Protocol#packet!"));
         }
         return null;
     }

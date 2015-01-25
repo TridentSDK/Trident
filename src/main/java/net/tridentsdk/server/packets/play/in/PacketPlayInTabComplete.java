@@ -45,7 +45,7 @@ public class PacketPlayInTabComplete extends InPacket {
     protected Coordinates lookedAtBlock;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x14;
     }
 
@@ -66,25 +66,25 @@ public class PacketPlayInTabComplete extends InPacket {
         return this;
     }
 
-    public String getText() {
+    public String text() {
         return this.text;
     }
 
-    public boolean isHasPosition() {
+    public boolean hasPosition() {
         return this.hasPosition;
     }
 
-    public Coordinates getLookedAtBlock() {
+    public Coordinates lookedAtBlock() {
         return this.lookedAtBlock;
     }
 
     @Override
     public void handleReceived(ClientConnection connection) {
-        PlayerTabCompleteEvent event = new PlayerTabCompleteEvent(((PlayerConnection) connection).getPlayer(),
+        PlayerTabCompleteEvent event = new PlayerTabCompleteEvent(((PlayerConnection) connection).player(),
                 this.text);
 
-        if (event.getSuggestions().length > 0) {
-            connection.sendPacket(new PacketPlayOutTabComplete().set("matches", event.getSuggestions()));
+        if (event.suggestions().length > 0) {
+            connection.sendPacket(new PacketPlayOutTabComplete().set("matches", event.suggestions()));
         }
     }
 }

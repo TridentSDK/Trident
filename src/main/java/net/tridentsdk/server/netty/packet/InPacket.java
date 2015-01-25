@@ -38,7 +38,7 @@ public abstract class InPacket implements Packet {
     }
 
     @Override
-    public PacketDirection getDirection() {
+    public PacketDirection direction() {
         return PacketDirection.IN;
     }
 }

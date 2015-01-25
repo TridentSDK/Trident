@@ -31,7 +31,7 @@ public class TridentPainting extends TridentEntity implements Painting {
     }
 
     @Override
-    public String getMotive() {
+    public String motive() {
         return null;
     }
 
@@ -46,7 +46,7 @@ public class TridentPainting extends TridentEntity implements Painting {
     }
 
     @Override
-    public Block getHangingBlock() {
+    public Block hangingBlock() {
         return null;
     }
 }

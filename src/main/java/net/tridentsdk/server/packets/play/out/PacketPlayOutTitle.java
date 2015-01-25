@@ -27,15 +27,15 @@ public class PacketPlayOutTitle extends OutPacket {
     protected Object[] values;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x45;
     }
 
-    public int getAction() {
+    public int action() {
         return this.action;
     }
 
-    public Object[] getValues() {
+    public Object[] values() {
         return this.values;
     }
 

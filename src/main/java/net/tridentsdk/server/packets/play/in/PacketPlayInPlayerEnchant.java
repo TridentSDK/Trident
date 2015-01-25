@@ -30,7 +30,7 @@ public class PacketPlayInPlayerEnchant extends InPacket {
     protected byte enchantment;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x11;
     }
 
@@ -42,7 +42,7 @@ public class PacketPlayInPlayerEnchant extends InPacket {
         return this;
     }
 
-    public byte getEnchantment() {
+    public byte enchantment() {
         return this.enchantment;
     }
 

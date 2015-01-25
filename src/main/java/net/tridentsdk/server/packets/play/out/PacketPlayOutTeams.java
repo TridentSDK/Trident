@@ -38,43 +38,43 @@ public class PacketPlayOutTeams extends OutPacket {
     protected String[] players;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x3E;
     }
 
-    public String getTeamName() {
+    public String team() {
         return this.teamName;
     }
 
-    public Mode getMode() {
+    public Mode mode() {
         return this.mode;
     }
 
-    public String getTeamDisplay() {
+    public String teamDisplay() {
         return this.teamDisplay;
     }
 
-    public String getTeamPrefix() {
+    public String teamPrefix() {
         return this.teamPrefix;
     }
 
-    public String getTeamSuffix() {
+    public String teamSuffix() {
         return this.teamSuffix;
     }
 
-    public short getFriendlyFire() {
+    public short friendlyFire() {
         return this.friendlyFire;
     }
 
-    public TagVisibility getTagVisibility() {
+    public TagVisibility tagVisibility() {
         return this.tagVisibility;
     }
 
-    public short getColor() {
+    public short color() {
         return this.color;
     }
 
-    public String[] getPlayers() {
+    public String[] players() {
         return this.players;
     }
 

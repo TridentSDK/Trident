@@ -107,7 +107,7 @@ public class TridentScheduler implements TaskFactory {
         while (true) {
             boolean added = taskList.add(wrap);
             if (added) {
-                wrap.getRunnable().markSchedule(wrap);
+                wrap.runnable().markSchedule(wrap);
                 return wrap;
             }
         }
@@ -227,7 +227,7 @@ public class TridentScheduler implements TaskFactory {
         }
 
         @Override
-        public long getInterval() {
+        public long interval() {
             return this.interval;
         }
 
@@ -237,17 +237,17 @@ public class TridentScheduler implements TaskFactory {
         }
 
         @Override
-        public SchedulerType getType() {
+        public SchedulerType type() {
             return this.type;
         }
 
         @Override
-        public TridentRunnable getRunnable() {
+        public TridentRunnable runnable() {
             return this.runnable;
         }
 
         @Override
-        public TridentPlugin getPlugin() {
+        public TridentPlugin owner() {
             return this.plugin;
         }
 

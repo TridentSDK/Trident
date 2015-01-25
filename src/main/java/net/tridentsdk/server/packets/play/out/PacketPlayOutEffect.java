@@ -29,19 +29,19 @@ public class PacketPlayOutEffect extends OutPacket {
     protected boolean playSound;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x28;
     }
 
-    public int getEffectId() {
+    public int effectId() {
         return this.effectId;
     }
 
-    public Coordinates getLoc() {
+    public Coordinates location() {
         return this.loc;
     }
 
-    public int getData() {
+    public int data() {
         return this.data;
     }
 

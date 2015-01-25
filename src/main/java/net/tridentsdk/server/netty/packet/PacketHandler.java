@@ -24,7 +24,6 @@ import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.protocol.Protocol;
 import net.tridentsdk.server.packets.login.PacketLoginOutDisconnect;
-import net.tridentsdk.server.packets.play.in.PacketPlayInPlayerMove;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutDisconnect;
 import net.tridentsdk.server.player.PlayerConnection;
 import net.tridentsdk.util.TridentLogger;
@@ -43,12 +42,12 @@ public class PacketHandler extends SimpleChannelInboundHandler<PacketData> {
     private ClientConnection connection;
 
     public PacketHandler() {
-        this.protocol = ((TridentServer) Trident.instance()).getProtocol();
+        this.protocol = ((TridentServer) Trident.instance()).protocol();
     }
 
     @Override
     public void handlerAdded(ChannelHandlerContext context) {
-        this.connection = ClientConnection.getConnection(context);
+        this.connection = ClientConnection.connection(context);
     }
 
     /**
@@ -64,10 +63,16 @@ public class PacketHandler extends SimpleChannelInboundHandler<PacketData> {
         Packet packet = this.protocol.getPacket(data.getId(), this.connection.getStage(), PacketDirection.IN);
 
         //If packet is unknown disconnect the client, as said client seems to be modified
-        if (packet.getId() == -1) {
+        if (packet.id() == -1) {
             this.connection.logout();
 
-            // TODO Print client info. stating that has sent an invalid packet and has been disconnected
+            if(connection instanceof PlayerConnection) {
+                PlayerConnection con = (PlayerConnection) connection;
+
+                TridentLogger.log(con.player().displayName() + " has been disconnected from the server " +
+                        "for sending an invalid packet (" +
+                        con.getAddress().getHostString() + "," + con.player().uniqueId().toString() + ")");
+            }
             return;
         }
 

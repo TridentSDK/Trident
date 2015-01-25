@@ -34,17 +34,12 @@ public class PacketStatusOutPing extends OutPacket {
     protected long clientTime;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x01;
     }
 
     @Override
     public void encode(ByteBuf buf) {
         buf.writeLong(this.clientTime);
-    }
-
-    @Override
-    public PacketDirection getDirection() {
-        return PacketDirection.OUT;
     }
 }

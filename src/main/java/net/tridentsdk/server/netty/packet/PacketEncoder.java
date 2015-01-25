@@ -24,13 +24,8 @@ import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
 
-import javax.xml.bind.DatatypeConverter;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.zip.Deflater;
 
 /**
@@ -50,12 +45,12 @@ public class PacketEncoder extends MessageToByteEncoder<ByteBuf> {
 
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
-        connection = ClientConnection.getConnection(ctx);
+        connection = ClientConnection.connection(ctx);
     }
 
     @Override
     protected void encode(ChannelHandlerContext channelHandlerContext, ByteBuf msg, ByteBuf out) throws Exception {
-        int threshold = TridentServer.instance().getCompressionThreshold();
+        int threshold = TridentServer.instance().compressionThreshold();
         boolean underThreshold = msg.readableBytes() < threshold && threshold != -1;
 
         if (underThreshold && connection.isCompressionEnabled()) {

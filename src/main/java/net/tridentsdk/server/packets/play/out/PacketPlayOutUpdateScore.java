@@ -29,23 +29,23 @@ public class PacketPlayOutUpdateScore extends OutPacket {
     protected int value;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x3C;
     }
 
-    public String getItemName() {
+    public String itemName() {
         return this.itemName;
     }
 
-    public UpdateType getUpdateType() {
+    public UpdateType updateType() {
         return this.type;
     }
 
-    public String getScoreName() {
+    public String score() {
         return this.scoreName;
     }
 
-    public int getValue() {
+    public int value() {
         return this.value;
     }
 

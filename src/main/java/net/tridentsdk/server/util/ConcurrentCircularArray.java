@@ -154,7 +154,7 @@ public class ConcurrentCircularArray<E> {
         return size == maxSize;
     }
 
-    public int getMaxSize() {
+    public int maxSize() {
         return maxSize;
     }
 }

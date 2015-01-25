@@ -27,15 +27,15 @@ public class PacketPlayOutRemoveEffect extends OutPacket {
     protected int effectId;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x0E;
     }
 
-    public int getEntityId() {
+    public int entityId() {
         return this.entityId;
     }
 
-    public int getEffectId() {
+    public int effectId() {
         return this.effectId;
     }
 

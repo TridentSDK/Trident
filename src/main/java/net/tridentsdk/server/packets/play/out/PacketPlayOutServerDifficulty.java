@@ -25,11 +25,11 @@ public class PacketPlayOutServerDifficulty extends OutPacket {
     protected Difficulty difficulty;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x41;
     }
 
-    public Difficulty getDifficulty() {
+    public Difficulty difficulty() {
         return this.difficulty;
     }
 

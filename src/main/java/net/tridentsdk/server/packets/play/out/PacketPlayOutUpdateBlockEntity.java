@@ -28,19 +28,19 @@ public class PacketPlayOutUpdateBlockEntity extends OutPacket {
     protected byte[] nbtData;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x35;
     }
 
-    public Coordinates getLoc() {
+    public Coordinates location() {
         return this.loc;
     }
 
-    public int getAction() {
+    public int action() {
         return this.action;
     }
 
-    public byte[] getNbtData() {
+    public byte[] nbtData() {
         return this.nbtData;
     }
 

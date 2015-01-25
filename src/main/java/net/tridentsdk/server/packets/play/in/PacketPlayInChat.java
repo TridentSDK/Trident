@@ -36,7 +36,7 @@ public class PacketPlayInChat extends InPacket {
     protected String message;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x01;
     }
 
@@ -47,14 +47,14 @@ public class PacketPlayInChat extends InPacket {
         return this;
     }
 
-    public String getMessage() {
+    public String message() {
         return this.message;
     }
 
     @Override
     public void handleReceived(ClientConnection connection) {
         PlayerConnection pc = (PlayerConnection) connection;
-        TridentPlayer player = pc.getPlayer();
+        TridentPlayer player = pc.player();
         OutPacket packet = new PacketPlayOutChatMessage();
 
         packet.set("jsonMessage",

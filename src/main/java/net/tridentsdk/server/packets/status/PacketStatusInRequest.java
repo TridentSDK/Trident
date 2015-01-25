@@ -34,26 +34,20 @@ import net.tridentsdk.server.player.TridentPlayer;
  */
 public class PacketStatusInRequest extends InPacket {
     @Override
-    public int getId() {
+    public int id() {
         return 0x00;
     }
 
     @Override
     public Packet decode(ByteBuf buf) {
         // No fields are in this packet, therefor no need for any decoding
-
         return this;
-    }
-
-    @Override
-    public PacketDirection getDirection() {
-        return PacketDirection.IN;
     }
 
     @Override
     public void handleReceived(ClientConnection connection) {
         PacketStatusOutResponse packet = new PacketStatusOutResponse();
-        PacketStatusOutResponse.Response response = packet.getResponse();
+        PacketStatusOutResponse.Response response = packet.response();
 
         // Set MOTD and max players based on the config TODO events
         response.description.text = TridentServer.instance().config().getString("motd", Defaults.MOTD);

@@ -31,12 +31,12 @@ public class PacketPlayInBlockPlace extends InPacket {
     protected Coordinates location;
     protected byte direction; // wat
     /**
-     * Position of the cursor, incorrect use of a Vector xD
+     * Position of the cursor, incorrect use of a Vector
      */
     protected Vector cursorPosition;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x08;
     }
 
@@ -61,15 +61,15 @@ public class PacketPlayInBlockPlace extends InPacket {
         return this;
     }
 
-    public Coordinates getLocation() {
+    public Coordinates location() {
         return this.location;
     }
 
-    public byte getBlockDirection() {
+    public byte blockDirection() {
         return this.direction;
     }
 
-    public Vector getCursorPosition() {
+    public Vector cursorPosition() {
         return this.cursorPosition;
     }
 

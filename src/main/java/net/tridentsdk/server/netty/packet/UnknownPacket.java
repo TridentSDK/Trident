@@ -46,7 +46,7 @@ public class UnknownPacket implements Packet {
     }
 
     @Override
-    public int getId() {
+    public int id() {
         return -1;
     }
 
@@ -56,7 +56,7 @@ public class UnknownPacket implements Packet {
      * <p>Returns {@code null}, since we don't know where the packet came from</p>
      */
     @Override
-    public PacketDirection getDirection() {
+    public PacketDirection direction() {
         return null;
     }
 

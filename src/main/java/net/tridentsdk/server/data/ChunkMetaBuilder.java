@@ -34,7 +34,7 @@ public class ChunkMetaBuilder implements Writable {
      *
      * @return the location of the chunk built into the metadata
      */
-    public ChunkLocation getLocation() {
+    public ChunkLocation location() {
         return this.location;
     }
 
@@ -55,7 +55,7 @@ public class ChunkMetaBuilder implements Writable {
      *
      * @return the chunk bitmap
      */
-    public short getBitmap() {
+    public short bitmap() {
         return this.bitmap;
     }
 
@@ -73,8 +73,8 @@ public class ChunkMetaBuilder implements Writable {
 
     @Override
     public void write(ByteBuf buf) {
-        buf.writeInt(this.location.getX());
-        buf.writeInt(this.location.getZ());
+        buf.writeInt(this.location.x());
+        buf.writeInt(this.location.z());
 
         buf.writeShort((int) this.bitmap);
     }

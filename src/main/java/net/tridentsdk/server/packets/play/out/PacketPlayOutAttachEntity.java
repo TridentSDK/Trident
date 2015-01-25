@@ -27,15 +27,15 @@ public class PacketPlayOutAttachEntity extends OutPacket {
     protected boolean leash;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x0B;
     }
 
-    public int getEntityId() {
+    public int entityId() {
         return this.entityId;
     }
 
-    public int getVehicleId() {
+    public int vehicleId() {
         return this.vehicleId;
     }
 

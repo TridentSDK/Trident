@@ -132,11 +132,11 @@ public class TridentEntity implements Entity {
         this.velocity = new Vector(0.0D, 0.0D, 0.0D);
         this.loc = spawnLocation;
 
-        for (double y = this.loc.getY(); y > 0.0; y--) {
-            Coordinates l = Coordinates.create(this.loc.world(), this.loc.getX(), y, this.loc.getZ());
+        for (double y = this.loc.y(); y > 0.0; y--) {
+            Coordinates l = Coordinates.create(this.loc.world(), this.loc.x(), y, this.loc.z());
 
             if (l.tile().substance() != Substance.AIR) {
-                this.fallDistance.set((long) (this.loc.getY() - y));
+                this.fallDistance.set((long) (this.loc.y() - y));
                 this.onGround = this.fallDistance.get() == 0.0D;
 
                 break;
@@ -155,7 +155,7 @@ public class TridentEntity implements Entity {
      * @return the current entity
      */
     public TridentEntity spawn() {
-        HANDLER.registerEntity(this);
+        HANDLER.register(this);
         executor.assign(this);
         return this;
     }
@@ -174,11 +174,11 @@ public class TridentEntity implements Entity {
     public void teleport(Coordinates location) {
         this.loc = location;
 
-        for (double y = this.loc.getY(); y > 0.0; y--) {
-            Coordinates l = Coordinates.create(this.loc.world(), this.loc.getX(), y, this.loc.getZ());
+        for (double y = this.loc.y(); y > 0.0; y--) {
+            Coordinates l = Coordinates.create(this.loc.world(), this.loc.x(), y, this.loc.z());
 
             if (l.world().tileAt(l).substance() != Substance.AIR) {
-                this.fallDistance.set((long) (this.loc.getY() - y));
+                this.fallDistance.set((long) (this.loc.y() - y));
                 this.onGround = this.fallDistance.get() == 0.0D;
 
                 break;
@@ -319,7 +319,7 @@ public class TridentEntity implements Entity {
 
     public void load(CompoundTag tag) {
         /* IDs */
-        String type = ((StringTag) tag.getTag("id")).getValue(); // EntityType, in form of a string
+        String type = ((StringTag) tag.getTag("id")).value(); // EntityType, in form of a string
         LongTag uuidMost = tag.getTagAs("UUIDMost"); // most signifigant bits of UUID
         LongTag uuidLeast = tag.getTagAs("UUIDLeast"); // least signifigant bits of UUID
 
@@ -361,7 +361,7 @@ public class TridentEntity implements Entity {
         loc = Coordinates.create(TridentServer.WORLD, 0, 0, 0);
         velocity = new Vector(0, 0, 0);
 
-        this.uniqueId = new UUID(uuidMost.getValue(), uuidLeast.getValue());
+        this.uniqueId = new UUID(uuidMost.value(), uuidLeast.value());
 
         double[] location = new double[3];
 
@@ -369,9 +369,9 @@ public class TridentEntity implements Entity {
             NBTTag t = pos.get(i);
 
             if (t instanceof DoubleTag) {
-                location[i] = ((DoubleTag) t).getValue();
+                location[i] = ((DoubleTag) t).value();
             } else {
-                location[i] = ((IntTag) t).getValue();
+                location[i] = ((IntTag) t).value();
             }
         }
 
@@ -386,9 +386,9 @@ public class TridentEntity implements Entity {
             NBTTag t = motion.get(i);
 
             if (t instanceof DoubleTag) {
-                velocity[i] = ((DoubleTag) t).getValue();
+                velocity[i] = ((DoubleTag) t).value();
             } else {
-                velocity[i] = ((IntTag) t).getValue();
+                velocity[i] = ((IntTag) t).value();
             }
         }
 
@@ -399,28 +399,28 @@ public class TridentEntity implements Entity {
 
         // set yaw and pitch from NBTTag
         if (rotation.get(0) instanceof IntTag) {
-            loc.setYaw(((IntTag) rotation.get(0)).getValue());
+            loc.setYaw(((IntTag) rotation.get(0)).value());
         } else {
-            loc.setYaw(((FloatTag) rotation.get(0)).getValue());
+            loc.setYaw(((FloatTag) rotation.get(0)).value());
         }
 
         if (rotation.get(1) instanceof IntTag) {
-            loc.setPitch(((IntTag) rotation.get(1)).getValue());
+            loc.setPitch(((IntTag) rotation.get(1)).value());
         } else {
-            loc.setPitch(((FloatTag) rotation.get(1)).getValue());
+            loc.setPitch(((FloatTag) rotation.get(1)).value());
         }
 
         this.fallDistance.set(
-                (long) fallDistance.getValue()); // FIXME: may lose precision, consider changing AtomicLong
-        this.fireTicks.set(fireTicks.getValue());
-        this.airTicks.set(airTicks.getValue());
-        this.portalCooldown.set(portalCooldown.getValue());
+                (long) fallDistance.value()); // FIXME: may lose precision, consider changing AtomicLong
+        this.fireTicks.set(fireTicks.value());
+        this.airTicks.set(airTicks.value());
+        this.portalCooldown.set(portalCooldown.value());
 
-        this.onGround = onGround.getValue() == 1;
-        this.godMode = invulnerable.getValue() == 1;
+        this.onGround = onGround.value() == 1;
+        this.godMode = invulnerable.value() == 1;
 
-        this.nameVisible = dnVisible.getValue() == 1;
-        this.silent = silent.getValue() == 1;
-        this.displayName = displayName.getValue();
+        this.nameVisible = dnVisible.value() == 1;
+        this.silent = silent.value() == 1;
+        this.displayName = displayName.value();
     }
 }

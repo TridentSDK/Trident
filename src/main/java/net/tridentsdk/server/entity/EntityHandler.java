@@ -64,7 +64,7 @@ public final class EntityHandler {
      *
      * @param entity the entity to manage
      */
-    public void registerEntity(Entity entity) {
+    public void register(Entity entity) {
         this.entities.put(entity.entityId(), entity);
         if (entity instanceof TridentPlayer)
             return;
@@ -97,7 +97,7 @@ public final class EntityHandler {
      * @param id the ID to find the entity by
      * @return the entity with the ID specified
      */
-    public Entity getEntity(int id) {
+    public Entity entityBy(int id) {
         return this.entities.get(id);
     }
 
@@ -108,7 +108,7 @@ public final class EntityHandler {
      * @param <T>  the entity type
      * @return the list of entities with the specified type
      */
-    public <T extends Entity> List<T> getEntities(final Class<T> type) {
+    public <T extends Entity> List<T> entities(final Class<T> type) {
         Predicate<T> pred = new Predicate<T>() {
             @Override
             public boolean apply(Entity e) {

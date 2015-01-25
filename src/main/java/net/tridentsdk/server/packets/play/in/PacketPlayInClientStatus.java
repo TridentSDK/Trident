@@ -39,11 +39,11 @@ public class PacketPlayInClientStatus extends InPacket {
     protected short actionId;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x15;
     }
 
-    public short getActionId() {
+    public short actionId() {
         return this.actionId;
     }
 
@@ -56,7 +56,7 @@ public class PacketPlayInClientStatus extends InPacket {
 
     @Override
     public void handleReceived(ClientConnection connection) {
-        TridentPlayer player = ((PlayerConnection) connection).getPlayer();
+        TridentPlayer player = ((PlayerConnection) connection).player();
         World world = player.world();
         StatusType type = StatusType.getStatus((int) this.actionId);
 

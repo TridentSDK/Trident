@@ -28,15 +28,15 @@ public class PacketPlayOutUpdateSign extends OutPacket {
     protected String[] messages;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x33;
     }
 
-    public Coordinates getLoc() {
+    public Coordinates location() {
         return this.loc;
     }
 
-    public String[] getMessages() {
+    public String[] messages() {
         return this.messages;
     }
 

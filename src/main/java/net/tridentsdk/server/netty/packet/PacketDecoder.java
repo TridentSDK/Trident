@@ -48,7 +48,7 @@ public class PacketDecoder extends ReplayingDecoder<Void> {
 
     @Override
     public void handlerAdded(ChannelHandlerContext context) {
-        this.connection = ClientConnection.getConnection(context);
+        this.connection = ClientConnection.connection(context);
     }
 
     @Override
@@ -65,7 +65,7 @@ public class PacketDecoder extends ReplayingDecoder<Void> {
         if (rawLength == 0)
             compressed = false;
 
-        if (!(compressed) || rawLength < TridentServer.instance().getCompressionThreshold()) {
+        if (!(compressed) || rawLength < TridentServer.instance().compressionThreshold()) {
             ByteBuf data = buf.readBytes((fullLength == -1) ? rawLength : (fullLength - Codec.sizeOf(0)));
 
             objects.add(new PacketData(data));

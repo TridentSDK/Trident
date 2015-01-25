@@ -46,14 +46,14 @@ public class PacketPlayInEntityAction extends InPacket {
     protected int jumpBoost;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x0B;
     }
 
     @Override
     public Packet decode(ByteBuf buf) {
         Codec.readVarInt32(buf); // ignore entity id as its the player's
-        this.type = ActionType.getAction((int) buf.readUnsignedByte());
+        this.type = ActionType.action((int) buf.readUnsignedByte());
         this.jumpBoost = Codec.readVarInt32(buf);
 
         return this;
@@ -82,7 +82,7 @@ public class PacketPlayInEntityAction extends InPacket {
             this.id = id;
         }
 
-        public static ActionType getAction(int id) {
+        public static ActionType action(int id) {
             for (ActionType type : ActionType.values()) {
                 if (type.id == id)
                     return type;

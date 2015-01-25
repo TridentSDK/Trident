@@ -31,7 +31,7 @@ public class TridentFallingBlock extends TridentEntity implements FallingBlock {
     }
 
     @Override
-    public BlockSnapshot getSnapshot() {
+    public BlockSnapshot blockSnapshot() {
         return null;
     }
 

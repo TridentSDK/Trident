@@ -42,7 +42,7 @@ public class PacketPlayInEntityInteract extends InPacket {
     protected Coordinates location;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x02;
     }
 
@@ -59,15 +59,15 @@ public class PacketPlayInEntityInteract extends InPacket {
         return this;
     }
 
-    public int getTarget() {
+    public int target() {
         return this.target;
     }
 
-    public InteractType getInteractType() {
+    public InteractType interactType() {
         return this.type;
     }
 
-    public Coordinates getLocation() {
+    public Coordinates location() {
         return this.location;
     }
 

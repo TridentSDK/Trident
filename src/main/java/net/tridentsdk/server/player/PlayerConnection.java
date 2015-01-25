@@ -80,7 +80,7 @@ public class PlayerConnection extends ClientConnection {
         return new PlayerConnection(connection, player);
     }
 
-    public static PlayerConnection getConnection(InetSocketAddress address) {
+    public static PlayerConnection connection(InetSocketAddress address) {
         return (PlayerConnection) ClientConnection.getConnection(address);
     }
 
@@ -89,7 +89,7 @@ public class PlayerConnection extends ClientConnection {
      *
      * @return the player that is wrapped
      */
-    public TridentPlayer getPlayer() {
+    public TridentPlayer player() {
         return this.player;
     }
 
@@ -114,7 +114,7 @@ public class PlayerConnection extends ClientConnection {
     public synchronized void handleKeepAlive(PacketPlayInKeepAlive keepAlive) {
         int currentId = keepAliveId;
 
-        if (keepAlive.getId() != currentId)
+        if (keepAlive.id() != currentId)
             return;
 
         keepAliveId = -1;

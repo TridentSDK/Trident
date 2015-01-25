@@ -27,19 +27,19 @@ public class PacketPlayOutPlayerAbilities extends OutPacket {
     protected float walkingSpeed;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x39;
     }
 
-    public byte getFlags() {
+    public byte flags() {
         return this.flags;
     }
 
-    public float getFlyingSpeed() {
+    public float flyingSpeed() {
         return this.flyingSpeed;
     }
 
-    public float getWalkingSpeed() {
+    public float walkingSpeed() {
         return this.walkingSpeed;
     }
 

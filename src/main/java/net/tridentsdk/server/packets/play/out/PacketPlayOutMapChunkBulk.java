@@ -32,14 +32,14 @@ public class PacketPlayOutMapChunkBulk extends OutPacket {
             new Comparator<PacketPlayOutChunkData>() {
                 @Override
                 public int compare(PacketPlayOutChunkData o1, PacketPlayOutChunkData o2) {
-                    ChunkLocation c = o1.getChunkLocation();
-                    ChunkLocation c0 = o2.getChunkLocation();
+                    ChunkLocation c = o1.chunkLocation();
+                    ChunkLocation c0 = o2.chunkLocation();
 
-                    int cx = c.getX();
-                    int cz = c.getZ();
+                    int cx = c.x();
+                    int cz = c.z();
 
-                    int c0x = c0.getX();
-                    int c0z = c0.getZ();
+                    int c0x = c0.x();
+                    int c0z = c0.z();
 
                     return (Math.abs(cx) + Math.abs(cz)) - (Math.abs(c0x) + Math.abs(c0z));
                 }
@@ -47,7 +47,7 @@ public class PacketPlayOutMapChunkBulk extends OutPacket {
     protected boolean lightSent = true;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x26;
     }
 
@@ -66,15 +66,15 @@ public class PacketPlayOutMapChunkBulk extends OutPacket {
         Codec.writeVarInt32(buf, entries.size());
 
         for (PacketPlayOutChunkData packet : entries) {
-            ChunkLocation location = packet.getChunkLocation();
+            ChunkLocation location = packet.chunkLocation();
 
-            buf.writeInt(location.getX());
-            buf.writeInt(location.getZ());
-            buf.writeShort(packet.getBitmask());
+            buf.writeInt(location.x());
+            buf.writeInt(location.z());
+            buf.writeShort(packet.bitmask());
         }
 
         for (PacketPlayOutChunkData packet : entries) {
-            buf.writeBytes(packet.getData());
+            buf.writeBytes(packet.data());
         }
     }
 }

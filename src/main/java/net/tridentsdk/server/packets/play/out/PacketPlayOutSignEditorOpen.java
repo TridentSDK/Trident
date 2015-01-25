@@ -26,7 +26,7 @@ public class PacketPlayOutSignEditorOpen extends OutPacket {
     protected Coordinates loc;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x36;
     }
 

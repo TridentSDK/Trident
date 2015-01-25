@@ -58,31 +58,31 @@ public class PacketPlayInPlayerClickWindow extends InPacket {
     protected Slot clickedItem;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x0E;
     }
 
-    public int getWindowId() {
+    public int windowId() {
         return this.windowId;
     }
 
-    public int getClickedButton() {
+    public int clickedButton() {
         return this.clickedButton;
     }
 
-    public short getClickedSlot() {
+    public short clickedSlot() {
         return this.clickedSlot;
     }
 
-    public short getActionNumber() {
+    public short actionNumber() {
         return this.actionNumber;
     }
 
-    public short getMode() {
+    public short mode() {
         return this.mode;
     }
 
-    public Slot getClickedItem() {
+    public Slot clickedItem() {
         return this.clickedItem;
     }
 

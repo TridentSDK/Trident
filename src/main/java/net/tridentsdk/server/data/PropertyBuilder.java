@@ -57,7 +57,7 @@ public class PropertyBuilder implements Writable {
      *
      * @return the property key
      */
-    public String getKey() {
+    public String key() {
         return this.key;
     }
 
@@ -78,7 +78,7 @@ public class PropertyBuilder implements Writable {
      *
      * @return the value of this property
      */
-    public double getValue() {
+    public double value() {
         return this.value;
     }
 
@@ -99,7 +99,7 @@ public class PropertyBuilder implements Writable {
      *
      * @return the property array
      */
-    public String[] getModifiers() {
+    public String[] modifiers() {
         return this.modifiers.clone();
     }
 

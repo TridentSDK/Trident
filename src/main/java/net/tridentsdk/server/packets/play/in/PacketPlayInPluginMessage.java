@@ -40,15 +40,15 @@ public class PacketPlayInPluginMessage extends InPacket {
     protected byte[] data;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x17;
     }
 
-    public String getChannel() {
+    public String channel() {
         return this.channel;
     }
 
-    public byte[] getData() {
+    public byte[] data() {
         return this.data;
     }
 
@@ -64,7 +64,7 @@ public class PacketPlayInPluginMessage extends InPacket {
 
     @Override
     public void handleReceived(ClientConnection connection) {
-        PluginChannel channel = ChannelHandler.getInstance().forChannel(this.channel);
+        PluginChannel channel = ChannelHandler.instance().forChannel(this.channel);
 
         if (channel != null) {
             channel.process(this.data);

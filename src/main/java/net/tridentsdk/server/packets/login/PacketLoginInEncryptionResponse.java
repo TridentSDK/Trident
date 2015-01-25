@@ -73,7 +73,7 @@ public class PacketLoginInEncryptionResponse extends InPacket {
     protected byte[] encryptedToken;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x01;
     }
 
@@ -97,7 +97,7 @@ public class PacketLoginInEncryptionResponse extends InPacket {
      *
      * @return the secret length
      */
-    public short getSecretLength() {
+    public short secretLength() {
         return this.secretLength;
     }
 
@@ -106,7 +106,7 @@ public class PacketLoginInEncryptionResponse extends InPacket {
      *
      * @return the token client length
      */
-    public short getTokenLength() {
+    public short tokenLength() {
         return this.tokenLength;
     }
 
@@ -132,7 +132,7 @@ public class PacketLoginInEncryptionResponse extends InPacket {
             return;
         }
 
-        String name = LoginHandler.getInstance().getName(connection.getAddress());
+        String name = LoginHandler.getInstance().name(connection.getAddress());
         StringBuilder sb = new StringBuilder();
 
         try {
@@ -184,7 +184,7 @@ public class PacketLoginInEncryptionResponse extends InPacket {
         connection.setStage(Protocol.ClientStage.PLAY);
 
         // Store the UUID to be used when spawning the player
-        UUID id = UUID.fromString(packet.getUuid());
+        UUID id = UUID.fromString(packet.uniqueId());
 
         // Remove stored information in LoginManager and spawn the player
         LoginHandler.getInstance().finish(connection.getAddress());

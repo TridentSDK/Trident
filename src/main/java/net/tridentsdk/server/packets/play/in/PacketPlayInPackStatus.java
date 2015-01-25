@@ -39,7 +39,7 @@ public class PacketPlayInPackStatus extends InPacket {
     protected int result;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x19;
     }
 
@@ -51,11 +51,11 @@ public class PacketPlayInPackStatus extends InPacket {
         return this;
     }
 
-    public String getHash() {
+    public String hash() {
         return this.hash;
     }
 
-    public int getResult() {
+    public int result() {
         return this.result;
     }
 

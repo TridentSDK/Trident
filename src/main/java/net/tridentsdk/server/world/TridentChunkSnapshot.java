@@ -69,13 +69,13 @@ public class TridentChunkSnapshot implements ChunkSnapshot {
     }
 
     @Override
-    public int getX() {
-        return location.getX();
+    public int x() {
+        return location.x();
     }
 
     @Override
-    public int getZ() {
-        return location.getZ();
+    public int z() {
+        return location.z();
     }
 
     @Override

@@ -39,11 +39,11 @@ public class PacketStatusOutResponse extends OutPacket {
     }
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x00;
     }
 
-    public Response getResponse() {
+    public Response response() {
         return this.response;
     }
 

@@ -35,47 +35,47 @@ public class PacketPlayOutMaps extends OutPacket {
     protected byte[] data;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x34;
     }
 
-    public int getItemDamage() {
+    public int itemDamage() {
         return this.itemDamage;
     }
 
-    public int getScale() {
+    public int scale() {
         return this.scale;
     }
 
-    public int getLength() {
+    public int length() {
         return this.length;
     }
 
-    public byte[] getIcons() {
+    public byte[] icons() {
         return this.icons;
     }
 
-    public byte getColumns() {
+    public byte columns() {
         return this.columns;
     }
 
-    public byte getRows() {
+    public byte rows() {
         return this.rows;
     }
 
-    public byte getX() {
+    public byte x() {
         return this.x;
     }
 
-    public byte getY() {
+    public byte y() {
         return this.y;
     }
 
-    public int getColumnLength() {
+    public int columnLength() {
         return this.columnLength;
     }
 
-    public byte[] getData() {
+    public byte[] data() {
         return this.data;
     }
 

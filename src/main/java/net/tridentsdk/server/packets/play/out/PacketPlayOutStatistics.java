@@ -27,21 +27,21 @@ public class PacketPlayOutStatistics extends OutPacket {
     protected StatisticEntry[] entries;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x37;
     }
 
-    public StatisticEntry[] getEntries() {
+    public StatisticEntry[] entries() {
         return this.entries;
     }
 
     @Override
     public void encode(ByteBuf buf) {
-
         if (this.entries == null) {
             Codec.writeVarInt32(buf, 0);
             return;
         }
+
         Codec.writeVarInt32(buf, this.entries.length);
 
         for (StatisticEntry entry : this.entries) {
@@ -53,7 +53,7 @@ public class PacketPlayOutStatistics extends OutPacket {
         protected String string;
         protected int value;
 
-        public String getString() {
+        public String string() {
             return this.string;
         }
 
@@ -61,7 +61,7 @@ public class PacketPlayOutStatistics extends OutPacket {
             this.string = string;
         }
 
-        public int getValue() {
+        public int value() {
             return this.value;
         }
 

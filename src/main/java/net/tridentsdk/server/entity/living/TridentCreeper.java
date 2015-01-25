@@ -44,7 +44,7 @@ public class TridentCreeper extends TridentLivingEntity implements Creeper {
     }
 
     @Override
-    public float getExplosionRadius() {
+    public float explosionRadius() {
         return 0.0F;
     }
 

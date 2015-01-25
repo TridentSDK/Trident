@@ -154,7 +154,7 @@ public class ClientConnection {
      * @param chx the context of which to find the client from
      * @return the client connection given the handler context, or {@code null} if not registered
      */
-    public static ClientConnection getConnection(ChannelHandlerContext chx) {
+    public static ClientConnection connection(ChannelHandlerContext chx) {
         return getConnection((InetSocketAddress) chx.channel().remoteAddress());
     }
 
@@ -184,7 +184,7 @@ public class ClientConnection {
 
         TridentLogger.log("Sent " + packet.getClass().getSimpleName());
 
-        Codec.writeVarInt32(buffer, packet.getId());
+        Codec.writeVarInt32(buffer, packet.id());
         packet.encode(buffer);
 
         // Write the packet and flush it
@@ -350,7 +350,7 @@ public class ClientConnection {
      * Removes the client's server side client handler
      */
     public void logout() {
-        TridentPlayer player = ((PlayerConnection) this).getPlayer();
+        TridentPlayer player = ((PlayerConnection) this).player();
         if (this instanceof PlayerConnection)
             ThreadsHandler.remove(player);
 

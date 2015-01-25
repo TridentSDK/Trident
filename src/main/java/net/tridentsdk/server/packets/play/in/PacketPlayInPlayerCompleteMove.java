@@ -43,7 +43,7 @@ public class PacketPlayInPlayerCompleteMove extends PacketPlayInPlayerMove {
     protected float newPitch;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x06;
     }
 
@@ -64,7 +64,7 @@ public class PacketPlayInPlayerCompleteMove extends PacketPlayInPlayerMove {
 
     @Override
     public void handleReceived(ClientConnection connection) {
-        TridentPlayer player = ((PlayerConnection) connection).getPlayer();
+        TridentPlayer player = ((PlayerConnection) connection).player();
         super.location.setWorld(player.world());
 
         Event event = new PlayerMoveEvent(player, player.location(), super.location);

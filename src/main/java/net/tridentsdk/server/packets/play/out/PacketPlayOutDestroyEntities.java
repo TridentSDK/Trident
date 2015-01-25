@@ -26,11 +26,11 @@ public class PacketPlayOutDestroyEntities extends OutPacket {
     protected int[] destroyedEntities;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x13;
     }
 
-    public int[] getDestroyedEntities() {
+    public int[] destroyedEntities() {
         return this.destroyedEntities;
     }
 

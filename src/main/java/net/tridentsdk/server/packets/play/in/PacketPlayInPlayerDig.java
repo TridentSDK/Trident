@@ -38,19 +38,19 @@ public class PacketPlayInPlayerDig extends InPacket {
     private short blockFace;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x07;
     }
 
-    public short getStatus() {
+    public short status() {
         return this.status;
     }
 
-    public Coordinates getLocation() {
+    public Coordinates location() {
         return this.location;
     }
 
-    public short getBlockFace() {
+    public short blockFace() {
         return this.blockFace;
     }
 
@@ -68,7 +68,7 @@ public class PacketPlayInPlayerDig extends InPacket {
 
     @Override
     public void handleReceived(ClientConnection connection) {
-        TridentPlayer player = ((PlayerConnection) connection).getPlayer();
+        TridentPlayer player = ((PlayerConnection) connection).player();
         DigStatus digStatus = DigStatus.getStatus(this.status);
         BlockOrientation face = null;
 

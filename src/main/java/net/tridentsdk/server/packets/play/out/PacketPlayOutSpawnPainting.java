@@ -30,23 +30,23 @@ public class PacketPlayOutSpawnPainting extends OutPacket {
     protected short direction;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x10;
     }
 
-    public int getEntityId() {
+    public int entityId() {
         return this.entityId;
     }
 
-    public String getTitle() {
+    public String title() {
         return this.title;
     }
 
-    public Coordinates getLocation() {
+    public Coordinates location() {
         return this.location;
     }
 
-    public short getPaintingDirection() {
+    public short paintingDirection() {
         return this.direction;
     }
 

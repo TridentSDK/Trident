@@ -35,7 +35,7 @@ public class TridentOcelot extends TridentLivingEntity implements Ocelot {
     }
 
     @Override
-    public OcelotType getBreed() {
+    public OcelotType breed() {
         return null;
     }
 
@@ -45,7 +45,7 @@ public class TridentOcelot extends TridentLivingEntity implements Ocelot {
     }
 
     @Override
-    public UUID getOwner() {
+    public UUID owner() {
         return null;
     }
 
@@ -55,7 +55,7 @@ public class TridentOcelot extends TridentLivingEntity implements Ocelot {
     }
 
     @Override
-    public int getAge() {
+    public int age() {
         return 0;
     }
 

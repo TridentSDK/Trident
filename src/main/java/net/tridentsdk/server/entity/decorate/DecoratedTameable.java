@@ -42,7 +42,7 @@ public class DecoratedTameable extends LivingDecorationAdapter implements Tameab
     }
 
     @Override
-    public UUID getOwner() {
+    public UUID owner() {
         return tamer.uniqueId();
     }
 
@@ -52,8 +52,8 @@ public class DecoratedTameable extends LivingDecorationAdapter implements Tameab
     }
 
     @Override
-    public int getAge() {
-        return functionalDelegate.getAge();
+    public int age() {
+        return functionalDelegate.age();
     }
 
     @Override

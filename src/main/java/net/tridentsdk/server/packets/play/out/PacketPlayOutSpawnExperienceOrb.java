@@ -28,19 +28,19 @@ public class PacketPlayOutSpawnExperienceOrb extends OutPacket {
     protected short count;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x11;
     }
 
-    public int getEntityId() {
+    public int entityId() {
         return this.entityId;
     }
 
-    public Coordinates getLocation() {
+    public Coordinates location() {
         return this.location;
     }
 
-    public short getCount() {
+    public short count() {
         return this.count;
     }
 
@@ -48,9 +48,9 @@ public class PacketPlayOutSpawnExperienceOrb extends OutPacket {
     public void encode(ByteBuf buf) {
         Codec.writeVarInt32(buf, this.entityId);
 
-        buf.writeInt((int) this.location.getX() * 32);
-        buf.writeInt((int) this.location.getY() * 32);
-        buf.writeInt((int) this.location.getZ() * 32);
+        buf.writeInt((int) this.location.x() * 32);
+        buf.writeInt((int) this.location.y() * 32);
+        buf.writeInt((int) this.location.z() * 32);
 
         buf.writeShort((int) this.count);
     }

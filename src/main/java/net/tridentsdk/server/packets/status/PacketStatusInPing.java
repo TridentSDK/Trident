@@ -37,7 +37,7 @@ public class PacketStatusInPing extends InPacket {
     protected long time;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x01;
     }
 
@@ -54,15 +54,12 @@ public class PacketStatusInPing extends InPacket {
         connection.setStage(Protocol.ClientStage.LOGIN);
     }
 
-    /**
-     * TODO not an expert on this lol - AgentTroll
-     */
-    public long getTime() {
+    public long time() {
         return this.time;
     }
 
     @Override
-    public PacketDirection getDirection() {
+    public PacketDirection direction() {
         return PacketDirection.IN;
     }
 }

@@ -35,7 +35,7 @@ abstract class ProtocolHandler {
         this.outPackets.put(-1, UnknownPacket.class);
     }
 
-    public Packet getPacket(int id, PacketDirection type) {
+    public Packet packet(int id, PacketDirection type) {
         try {
             Map<Integer, Class<? extends Packet>> applicableMap;
 

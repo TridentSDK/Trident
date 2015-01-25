@@ -34,7 +34,7 @@ public class TridentMagmaCube extends TridentLivingEntity implements MagmaCube {
     }
 
     @Override
-    public int getSize() {
+    public int size() {
         return 0;
     }
 

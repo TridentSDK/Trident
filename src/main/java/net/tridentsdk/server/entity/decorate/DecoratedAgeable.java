@@ -41,7 +41,7 @@ public abstract class DecoratedAgeable extends LivingDecorationAdapter {
      *
      * @return the age of this entity
      */
-    public int getAge() {
+    public int age() {
         return age;
     }
 

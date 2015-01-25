@@ -116,27 +116,27 @@ public class TridentWorld implements World {
         }
 
         TridentLogger.log("Loading values of level.dat....");
-        spawnLocation.setX(((IntTag) level.getTag("SpawnX")).getValue());
-        spawnLocation.setY(((IntTag) level.getTag("SpawnY")).getValue() + 5);
-        spawnLocation.setZ(((IntTag) level.getTag("SpawnZ")).getValue());
+        spawnLocation.setX(((IntTag) level.getTag("SpawnX")).value());
+        spawnLocation.setY(((IntTag) level.getTag("SpawnY")).value() + 5);
+        spawnLocation.setZ(((IntTag) level.getTag("SpawnZ")).value());
 
         dimension = Dimension.OVERWORLD;
-        // difficulty = Difficulty.difficultyOf(((IntTag) level.getTag("Difficulty")).getValue()); from tests does
+        // difficulty = Difficulty.difficultyOf(((IntTag) level.getTag("Difficulty")).value()); from tests does
         // not exist
         difficulty = Difficulty.NORMAL;
-        defaultGamemode = GameMode.gamemodeOf(((IntTag) level.getTag("GameType")).getValue());
-        type = LevelType.levelTypeOf(((StringTag) level.getTag("generatorName")).getValue());
+        defaultGamemode = GameMode.gamemodeOf(((IntTag) level.getTag("GameType")).value());
+        type = LevelType.levelTypeOf(((StringTag) level.getTag("generatorName")).value());
         borderSize = level.containsTag("BorderSize") ?
-                ((DoubleTag) level.getTag("BorderSize")).getValue() : 6000;
+                ((DoubleTag) level.getTag("BorderSize")).value() : 6000;
 
-        time = ((LongTag) level.getTag("DayTime")).getValue();
-        existed = ((LongTag) level.getTag("Time")).getValue();
-        raining = ((ByteTag) level.getTag("raining")).getValue() == 1;
-        rainTime = ((IntTag) level.getTag("rainTime")).getValue();
-        thundering = ((ByteTag) level.getTag("thundering")).getValue() == 1;
-        thunderTime = ((IntTag) level.getTag("thunderTime")).getValue();
+        time = ((LongTag) level.getTag("DayTime")).value();
+        existed = ((LongTag) level.getTag("Time")).value();
+        raining = ((ByteTag) level.getTag("raining")).value() == 1;
+        rainTime = ((IntTag) level.getTag("rainTime")).value();
+        thundering = ((ByteTag) level.getTag("thundering")).value() == 1;
+        thunderTime = ((IntTag) level.getTag("thunderTime")).value();
         difficultyLocked = level.containsTag("DifficultyLocked") &&
-                ((ByteTag) level.getTag("DifficultyLocked")).getValue() == 1;
+                ((ByteTag) level.getTag("DifficultyLocked")).value() == 1;
         TridentLogger.success("Loaded level.dat successfully. Moving on to region files...");
 
         // TODO: load other values
@@ -189,8 +189,8 @@ public class TridentWorld implements World {
             TridentLogger.success("Loaded all player data.");
 
             TridentLogger.log("Loading spawn chunks...");
-            int centX = ((int) Math.floor(spawnLocation.getX())) >> 4;
-            int centZ = ((int) Math.floor(spawnLocation.getZ())) >> 4;
+            int centX = ((int) Math.floor(spawnLocation.x())) >> 4;
+            int centZ = ((int) Math.floor(spawnLocation.z())) >> 4;
 
             for (int x = centX - 3; x <= centX + 3; x++) {
                 for (int z = centZ - 3; z <= centZ + 3; z++) {
@@ -219,7 +219,7 @@ public class TridentWorld implements World {
             playerData.mkdir();
 
             world.dimension = Dimension.OVERWORLD;
-            // difficulty = Difficulty.difficultyOf(((IntTag) level.getTag("Difficulty")).getValue());
+            // difficulty = Difficulty.difficultyOf(((IntTag) level.getTag("Difficulty")).value());
             // from tests does not exist
             world.difficulty = Difficulty.NORMAL;
             world.defaultGamemode = GameMode.SURVIVAL;
@@ -237,8 +237,8 @@ public class TridentWorld implements World {
             // TODO: load other values
 
             TridentLogger.log("Loading spawn chunks...");
-            int centX = ((int) Math.floor(world.spawnLocation.getX())) >> 4;
-            int centZ = ((int) Math.floor(world.spawnLocation.getZ())) >> 4;
+            int centX = ((int) Math.floor(world.spawnLocation.x())) >> 4;
+            int centZ = ((int) Math.floor(world.spawnLocation.z())) >> 4;
 
             for (int x = (centX - 7); x <= (centX + 7); x++)
                 for (int z = (centZ - 7); z <= (centZ + 7); z++)
@@ -309,9 +309,9 @@ public class TridentWorld implements World {
         TridentLogger.log("Saving " + name + "...");
         TridentLogger.log("Attempting to save level data...");
 
-        tag.addTag(new IntTag("SpawnX").setValue((int) spawnLocation.getX()));
-        tag.addTag(new IntTag("SpawnY").setValue((int) spawnLocation.getY()));
-        tag.addTag(new IntTag("SpawnZ").setValue((int) spawnLocation.getZ()));
+        tag.addTag(new IntTag("SpawnX").setValue((int) spawnLocation.x()));
+        tag.addTag(new IntTag("SpawnY").setValue((int) spawnLocation.y()));
+        tag.addTag(new IntTag("SpawnZ").setValue((int) spawnLocation.z()));
         tag.addTag(new DoubleTag("BorderSize").setValue(borderSize));
 
         tag.addTag(new ByteTag("Difficulty").setValue(difficulty.asByte()));
@@ -352,8 +352,8 @@ public class TridentWorld implements World {
             try {
                 RegionFile.fromPath(name, chunk.location()).saveChunkData(chunk);
             } catch (IOException | NBTException ex) {
-                TridentLogger.warn("Failed to save chunk at (" + chunk.getX() +
-                        "," + chunk.getZ() + "), printing stacktrace...");
+                TridentLogger.warn("Failed to save chunk at (" + chunk.x() +
+                        "," + chunk.z() + "), printing stacktrace...");
                 TridentLogger.error(ex);
             }
         }
@@ -396,8 +396,8 @@ public class TridentWorld implements World {
             return null;
         }
 
-        int x = location.getX();
-        int z = location.getZ();
+        int x = location.x();
+        int z = location.z();
 
         if (x > MAX_CHUNKS || x < -MAX_CHUNKS) {
             return null;
@@ -435,11 +435,11 @@ public class TridentWorld implements World {
         if (!location.world().name().equals(this.name()))
             throw new IllegalArgumentException("Provided location does not have the same world!");
 
-        int x = (int) Math.round(location.getX());
-        int y = (int) Math.round(location.getY());
-        int z = (int) Math.round(location.getZ());
+        int x = (int) Math.round(location.x());
+        int y = (int) Math.round(location.y());
+        int z = (int) Math.round(location.z());
 
-        return this.chunkAt(WorldUtils.getChunkLocation(x, z), true).tileAt(x % 16, y, z % 16);
+        return this.chunkAt(WorldUtils.chunkLocation(x, z), true).tileAt(x % 16, y, z % 16);
     }
 
     @Override
@@ -536,15 +536,6 @@ public class TridentWorld implements World {
         @Override
         public boolean accept(File file, String name) {
             return name.endsWith(".dat") && (name.length() == 41); // 41 for UUID, dashes, and extension
-        }
-    }
-
-    private static class ChunkFilter implements FilenameFilter {
-        @Override
-        public boolean accept(File file, String s) {
-            String[] strings = s.split("\\.");
-
-            return s.endsWith(".mca") && strings.length == 4 && strings[0].equals("r");
         }
     }
 }

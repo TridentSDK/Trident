@@ -30,30 +30,30 @@ public class PacketPlayOutChunkData extends OutPacket {
     protected short bitmask;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x21;
     }
 
-    public ChunkLocation getChunkLocation() {
+    public ChunkLocation chunkLocation() {
         return this.chunkLocation;
     }
 
-    public boolean isContinuous() {
+    public boolean continuous() {
         return this.continuous;
     }
 
-    public short getBitmask() {
+    public short bitmask() {
         return this.bitmask;
     }
 
-    public byte[] getData() {
+    public byte[] data() {
         return this.data;
     }
 
     @Override
     public void encode(ByteBuf buf) {
-        buf.writeInt(this.chunkLocation.getX());
-        buf.writeInt(this.chunkLocation.getZ());
+        buf.writeInt(this.chunkLocation.x());
+        buf.writeInt(this.chunkLocation.z());
 
         buf.writeBoolean(this.continuous);
         buf.writeByte((int) this.bitmask);

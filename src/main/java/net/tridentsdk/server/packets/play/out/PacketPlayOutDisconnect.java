@@ -26,11 +26,11 @@ public class PacketPlayOutDisconnect extends OutPacket {
     protected String reason;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x40;
     }
 
-    public String getReason() {
+    public String reason() {
         return this.reason;
     }
 

@@ -30,7 +30,7 @@ public class PacketPlayOutScoreboardObjective extends OutPacket {
     protected String type;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x3B;
     }
 

@@ -28,15 +28,15 @@ public class PacketPlayOutUseBed extends OutPacket {
     protected Coordinates bedHead;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x0A;
     }
 
-    public int getEntityId() {
+    public int entityId() {
         return this.entityId;
     }
 
-    public Coordinates getBedHead() {
+    public Coordinates bedHead() {
         return this.bedHead;
     }
 

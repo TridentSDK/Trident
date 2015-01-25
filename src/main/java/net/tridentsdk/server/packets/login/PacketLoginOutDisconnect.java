@@ -36,12 +36,12 @@ public class PacketLoginOutDisconnect implements Packet {
     protected String jsonMessage;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x00;
     }
 
     @Override
-    public PacketDirection getDirection() {
+    public PacketDirection direction() {
         return PacketDirection.OUT;
     }
 
@@ -55,7 +55,7 @@ public class PacketLoginOutDisconnect implements Packet {
     }
 
     // Here too...
-    public String getJsonMessage() {
+    public String jsonMessage() {
         return this.jsonMessage;
     }
 

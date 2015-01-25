@@ -28,15 +28,15 @@ public class PacketPlayOutBlockChange extends OutPacket {
     protected int blockId;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x23;
     }
 
-    public Coordinates getLocation() {
+    public Coordinates location() {
         return this.location;
     }
 
-    public int getBlockId() {
+    public int blockId() {
         return this.blockId;
     }
 

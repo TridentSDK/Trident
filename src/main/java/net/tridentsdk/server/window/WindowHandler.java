@@ -39,7 +39,7 @@ public class WindowHandler {
      * @param id the ID of a window
      * @return the window with the ID, or {@code null} if it doesn't exist
      */
-    public Window getWindow(int id) {
+    public Window window(int id) {
         return windows.get(id);
     }
 
@@ -57,7 +57,7 @@ public class WindowHandler {
      *
      * @return the windows registered
      */
-    public Collection<TridentWindow> getWindows() {
+    public Collection<TridentWindow> windows() {
         return windows.values();
     }
 }

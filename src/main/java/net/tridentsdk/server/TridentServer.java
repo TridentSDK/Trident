@@ -129,11 +129,11 @@ public final class TridentServer implements Server {
      *
      * @return the access to server protocol
      */
-    public Protocol getProtocol() {
+    public Protocol protocol() {
         return this.protocol;
     }
 
-    public int getCompressionThreshold() {
+    public int compressionThreshold() {
         return this.config.getInt("compression-threshold", Defaults.COMPRESSION_THRESHHOLD);
     }
 
@@ -172,7 +172,7 @@ public final class TridentServer implements Server {
     public void shutdown() {
         //TODO: Cleanup stuff...
         TridentLogger.log("Shutting down plugins...");
-        for (TridentPlugin plugin : pluginHandler().getPlugins())
+        for (TridentPlugin plugin : pluginHandler().plugins())
             pluginHandler().disable(plugin);
 
         TridentLogger.log("Saving worlds...");
@@ -222,7 +222,7 @@ public final class TridentServer implements Server {
 
     @Override
     public Window windowBy(int id) {
-        return this.windowHandler.getWindow(id);
+        return this.windowHandler.window(id);
     }
 
     @Override

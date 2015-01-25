@@ -34,7 +34,7 @@ public class TridentCow extends TridentLivingEntity implements Cow {
     }
 
     @Override
-    public int getAge() {
+    public int age() {
         return 0;
     }
 

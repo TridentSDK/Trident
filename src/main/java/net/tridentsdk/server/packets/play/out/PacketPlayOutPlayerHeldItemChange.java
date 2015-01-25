@@ -25,11 +25,11 @@ public class PacketPlayOutPlayerHeldItemChange extends OutPacket {
     protected byte slot;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x09;
     }
 
-    public byte getSlot() {
+    public byte slot() {
         return this.slot;
     }
 

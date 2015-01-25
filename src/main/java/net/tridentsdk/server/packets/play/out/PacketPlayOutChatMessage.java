@@ -27,7 +27,7 @@ public class PacketPlayOutChatMessage extends OutPacket {
     protected ChatPosition position;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x02;
     }
 

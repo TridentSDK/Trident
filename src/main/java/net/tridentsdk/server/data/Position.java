@@ -42,7 +42,7 @@ public class Position implements Writable {
      *
      * @return the location passed in by constructor or by {@link #setLoc(net.tridentsdk.Coordinates)}
      */
-    public Coordinates getLoc() {
+    public Coordinates location() {
         return this.loc;
     }
 
@@ -60,8 +60,8 @@ public class Position implements Writable {
 
     @Override
     public void write(ByteBuf buf) {
-        buf.writeLong((long) ((int) this.loc.getX() & 0x3FFFFFF) << 38 |
-                (long) ((int) this.loc.getY() & 0xFFF) << 26 |
-                (long) ((int) this.loc.getZ() & 0x3FFFFFF));
+        buf.writeLong((long) ((int) this.loc.x() & 0x3FFFFFF) << 38 |
+                (long) ((int) this.loc.y() & 0xFFF) << 26 |
+                (long) ((int) this.loc.z() & 0x3FFFFFF));
     }
 }

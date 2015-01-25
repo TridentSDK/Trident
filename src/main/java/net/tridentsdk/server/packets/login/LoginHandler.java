@@ -47,7 +47,7 @@ public final class LoginHandler {
         this.loginNames.put(address, name);
     }
 
-    public String getName(InetSocketAddress address) {
+    public String name(InetSocketAddress address) {
         return this.loginNames.get(address);
     }
 

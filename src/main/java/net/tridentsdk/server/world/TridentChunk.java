@@ -56,7 +56,7 @@ public class TridentChunk implements Chunk {
         this.lastFileAccess = 0;
     }
 
-    protected int getLastFileAccess() {
+    protected int lastFileAccess() {
         return this.lastFileAccess;
     }
 
@@ -71,13 +71,13 @@ public class TridentChunk implements Chunk {
     }
 
     @Override
-    public int getX() {
-        return location.getX();
+    public int x() {
+        return location.x();
     }
 
     @Override
-    public int getZ() {
-        return location.getZ();
+    public int z() {
+        return location.z();
     }
 
     @Override
@@ -92,8 +92,8 @@ public class TridentChunk implements Chunk {
 
     @Override
     public Block tileAt(int relX, int y, int relZ) {
-        int index = WorldUtils.getBlockArrayIndex(relX, y % 16, relZ);
-        ChunkSection section = sections[WorldUtils.getSection(y)];
+        int index = WorldUtils.blockArrayIndex(relX, y % 16, relZ);
+        ChunkSection section = sections[WorldUtils.section(y)];
         NibbleArray add = new NibbleArray(section.add);
         NibbleArray data = new NibbleArray(section.data);
 
@@ -109,7 +109,7 @@ public class TridentChunk implements Chunk {
             material = Substance.AIR; // check if valid
         }
 
-        return new TridentBlock(Coordinates.create(this.world, relX + this.getX() * 16, y, relZ + this.getZ() * 16),
+        return new TridentBlock(Coordinates.create(this.world, relX + this.x() * 16, y, relZ + this.z() * 16),
                 material, meta);
     }
 
@@ -153,7 +153,7 @@ public class TridentChunk implements Chunk {
             if (section == null)
                 continue;
 
-            for (byte b : section.getTypes()) {
+            for (byte b : section.types()) {
                 data.write(b & 0xff);
                 data.write(b >> 8);
             }
@@ -222,7 +222,7 @@ public class TridentChunk implements Chunk {
                 ChunkSection section = NBTSerializer.deserialize(ChunkSection.class, ct);
 
                 section.loadBlocks(world());
-                this.sections[section.getY()] = section;
+                this.sections[section.y()] = section;
             }
         }
 
@@ -234,11 +234,11 @@ public class TridentChunk implements Chunk {
         }
 
         /* Load extras */
-        this.lightPopulated = lightPopulated.getValue(); // Unknown use
-        this.terrainPopulated = terrainPopulated.getValue(); // if chunk was populated with special things (ores,
+        this.lightPopulated = lightPopulated.value(); // Unknown use
+        this.terrainPopulated = terrainPopulated.value(); // if chunk was populated with special things (ores,
         // trees, etc.), if 1 regenerate
-        this.lastModified = lastModifed.getValue(); // Tick when the chunk was last saved
-        this.inhabitedTime = inhabitedTime.getValue(); // Cumulative number of ticks player have been in the chunk
+        this.lastModified = lastModifed.value(); // Tick when the chunk was last saved
+        this.inhabitedTime = inhabitedTime.value(); // Cumulative number of ticks player have been in the chunk
     }
 
     public CompoundTag asNbt() {

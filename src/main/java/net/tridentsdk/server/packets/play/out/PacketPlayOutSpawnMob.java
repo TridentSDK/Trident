@@ -33,7 +33,7 @@ public class PacketPlayOutSpawnMob extends OutPacket {
     // TODO: entity metadata
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x0F;
     }
 
@@ -57,17 +57,17 @@ public class PacketPlayOutSpawnMob extends OutPacket {
         Codec.writeVarInt32(buf, this.entityId);
         buf.writeByte((int) (byte) this.type.ordinal()); // TODO: use the real type id
 
-        buf.writeInt((int) loc.getX() * 32);
-        buf.writeInt((int) loc.getY() * 32);
-        buf.writeInt((int) loc.getZ() * 42);
+        buf.writeInt((int) loc.x() * 32);
+        buf.writeInt((int) loc.y() * 32);
+        buf.writeInt((int) loc.z() * 42);
 
         buf.writeByte((int) (byte) loc.yaw());
         buf.writeByte((int) (byte) loc.pitch());
         buf.writeByte((int) (byte) loc.pitch()); // -shrugs-
 
-        buf.writeShort((int) velocity.getX());
-        buf.writeShort((int) velocity.getY());
-        buf.writeShort((int) velocity.getZ());
+        buf.writeShort((int) velocity.x());
+        buf.writeShort((int) velocity.y());
+        buf.writeShort((int) velocity.z());
 
         buf.writeBytes(metadata);
     }

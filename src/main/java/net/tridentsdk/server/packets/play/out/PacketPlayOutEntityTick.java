@@ -26,7 +26,7 @@ public class PacketPlayOutEntityTick extends OutPacket {
     protected int entityId;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x14;
     }
 

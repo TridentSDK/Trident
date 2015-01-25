@@ -27,15 +27,15 @@ public class PacketPlayOutDisplayScoreboard extends OutPacket {
     protected String scoreName;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x3D;
     }
 
-    public BoardType getBoardType() {
+    public BoardType boardType() {
         return this.boardType;
     }
 
-    public String getScoreName() {
+    public String score() {
         return this.scoreName;
     }
 

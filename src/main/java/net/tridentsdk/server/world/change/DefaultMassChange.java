@@ -2,12 +2,15 @@ package net.tridentsdk.server.world.change;
 
 import net.tridentsdk.Coordinates;
 import net.tridentsdk.base.Substance;
+import net.tridentsdk.server.data.RecordBuilder;
+import net.tridentsdk.server.packets.play.out.PacketPlayOutMultiBlockChange;
+import net.tridentsdk.server.world.WorldUtils;
+import net.tridentsdk.world.ChunkLocation;
 import net.tridentsdk.world.World;
 import net.tridentsdk.world.change.MassChange;
 
 import javax.annotation.concurrent.NotThreadSafe;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * The default implementation of MassChange, should be suitable for most usage cases
@@ -44,12 +47,12 @@ public class DefaultMassChange implements MassChange {
 
     @Override
     public void setBlock(int x, int y, int z, Substance substance) throws IllegalStateException {
-        setBlock(x, y, z, substance.getId(), (byte) 0);
+        setBlock(x, y, z, substance.id(), (byte) 0);
     }
 
     @Override
     public void setBlock(int x, int y, int z, Substance substance, byte data) throws IllegalStateException {
-        setBlock(x, y, z, substance.getId(), data);
+        setBlock(x, y, z, substance.id(), data);
     }
 
     @Override
@@ -72,9 +75,9 @@ public class DefaultMassChange implements MassChange {
     public void setBlock(Coordinates coords, int id, byte data) throws IllegalArgumentException,
             IllegalStateException {
         if (coords.world().equals(this.world)) {
-            setBlock((int) Math.round(coords.getX()),
-                    (int) Math.round(coords.getY()),
-                    (int) Math.round(coords.getZ()), id, data);
+            setBlock((int) Math.round(coords.x()),
+                    (int) Math.round(coords.y()),
+                    (int) Math.round(coords.z()), id, data);
         } else {
             throw new IllegalArgumentException("Coordinates provided do not match the world that this change is for");
         }
@@ -89,17 +92,47 @@ public class DefaultMassChange implements MassChange {
     @Override
     public void setBlock(Coordinates coords, Substance substance, byte data) throws IllegalArgumentException,
             IllegalStateException {
-        setBlock(coords,substance.getId(), data);
+        setBlock(coords, substance.id(), data);
     }
 
     @Override
     public boolean commitChanges() throws IllegalStateException {
-        // TODO make the changes and update to players
-
         if(committed) {
             throw new IllegalArgumentException("Change has already been committed.");
         }
 
-        return false;
+        Map<ChunkLocation, List<BlockChange>> map = new HashMap<>();
+
+        for(BlockChange change : changes) {
+            ChunkLocation location = WorldUtils.chunkLocation(change.x(), change.z());
+            List<BlockChange> updatedChanges = map.get(location);
+
+            if(updatedChanges == null) {
+                updatedChanges = new ArrayList<>();
+            }
+
+            updatedChanges.add(change);
+            map.put(location, updatedChanges);
+        }
+
+        for(Map.Entry<ChunkLocation, List<BlockChange>> entry : map.entrySet()) {
+            List<BlockChange> changes = entry.getValue();
+            PacketPlayOutMultiBlockChange packet = new PacketPlayOutMultiBlockChange();
+            RecordBuilder[] records = new RecordBuilder[changes.size()];
+
+            for (int i = 0; i < records.length; i++) {
+                BlockChange change = changes.get(i);
+
+                records[i] = new RecordBuilder().setBlockId(change.id())
+                        .setX((byte) change.x())
+                        .setY((byte) change.y())
+                        .setZ((byte) change.z())
+                        .setData(change.data());
+            }
+
+            packet.set("records", records).set("location", entry.getKey());
+        }
+
+        return true;
     }
 }

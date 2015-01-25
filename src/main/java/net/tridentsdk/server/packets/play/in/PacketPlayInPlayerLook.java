@@ -47,7 +47,7 @@ public class PacketPlayInPlayerLook extends InPacket {
     protected boolean onGround;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x05;
     }
 
@@ -62,7 +62,7 @@ public class PacketPlayInPlayerLook extends InPacket {
 
     @Override
     public void handleReceived(ClientConnection connection) {
-        TridentPlayer player = ((PlayerConnection) connection).getPlayer();
+        TridentPlayer player = ((PlayerConnection) connection).player();
         Coordinates from = player.location();
         Coordinates to = player.location();
 

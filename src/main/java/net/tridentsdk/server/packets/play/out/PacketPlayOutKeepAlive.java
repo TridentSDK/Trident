@@ -26,11 +26,11 @@ public class PacketPlayOutKeepAlive extends OutPacket {
     protected int keepAliveId = -1;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x00;
     }
 
-    public int getKeepAliveId() {
+    public int keepAliveId() {
         return this.keepAliveId;
     }
 

@@ -61,12 +61,12 @@ public class PacketHandshakeIn extends InPacket {
     }
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x00;
     }
 
     @Override
-    public PacketDirection getDirection() {
+    public PacketDirection direction() {
         return PacketDirection.OUT;
     }
 

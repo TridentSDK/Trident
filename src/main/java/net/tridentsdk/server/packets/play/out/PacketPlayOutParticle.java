@@ -32,11 +32,11 @@ public class PacketPlayOutParticle extends OutPacket {
     protected int[] data;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x2A;
     }
 
-    public int getParticleId() {
+    public int particleId() {
         return this.particleId;
     }
 
@@ -44,19 +44,19 @@ public class PacketPlayOutParticle extends OutPacket {
         return this.distance;
     }
 
-    public Coordinates getLoc() {
+    public Coordinates location() {
         return this.loc;
     }
 
-    public Vector getOffset() {
+    public Vector offset() {
         return this.offset;
     }
 
-    public float getParticleData() {
+    public float particleData() {
         return this.particleData;
     }
 
-    public int[] getData() {
+    public int[] data() {
         return this.data;
     }
 
@@ -65,13 +65,13 @@ public class PacketPlayOutParticle extends OutPacket {
         buf.writeInt(this.particleId);
         buf.writeBoolean(this.distance);
 
-        buf.writeFloat((float) this.loc.getX());
-        buf.writeFloat((float) this.loc.getY());
-        buf.writeFloat((float) this.loc.getZ());
+        buf.writeFloat((float) this.loc.x());
+        buf.writeFloat((float) this.loc.y());
+        buf.writeFloat((float) this.loc.z());
 
-        buf.writeFloat((float) this.offset.getX());
-        buf.writeFloat((float) this.offset.getY());
-        buf.writeFloat((float) this.offset.getZ());
+        buf.writeFloat((float) this.offset.x());
+        buf.writeFloat((float) this.offset.y());
+        buf.writeFloat((float) this.offset.z());
 
         buf.writeFloat(this.particleData);
         buf.writeInt(this.data.length);

@@ -32,7 +32,7 @@ public class DecoratedEquippable extends LivingDecorationAdapter implements Equi
     }
 
     @Override
-    public Item[] getEquipment() {
+    public Item[] equipment() {
         return equipment;
     }
 
@@ -47,7 +47,7 @@ public class DecoratedEquippable extends LivingDecorationAdapter implements Equi
             PacketPlayOutEntityEquipment entityEquipment = new PacketPlayOutEntityEquipment();
             entityEquipment.set("entityId", original().entityId())
                     .set("slot", (short) i + 5)
-                    .set(String.valueOf(i + 5), Long.decode(Integer.toHexString(stack.getId()) + "010000ffff"));
+                    .set(String.valueOf(i + 5), Long.decode(Integer.toHexString(stack.id()) + "010000ffff"));
             TridentPlayer.sendAll(entityEquipment);
         }
     }

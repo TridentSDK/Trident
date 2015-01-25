@@ -35,7 +35,7 @@ public class PacketDecrypter extends ByteToMessageDecoder {
 
     @Override
     public void handlerAdded(ChannelHandlerContext context) {
-        this.connection = ClientConnection.getConnection(context);
+        this.connection = ClientConnection.connection(context);
     }
 
     /* (non-Javadoc)

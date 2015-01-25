@@ -50,7 +50,7 @@ public class PacketPlayInPlayerAbilities extends InPacket {
     protected float walkingSpeed;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x13;
     }
 
@@ -64,21 +64,21 @@ public class PacketPlayInPlayerAbilities extends InPacket {
         return this;
     }
 
-    public byte getFlags() {
+    public byte flags() {
         return this.flags;
     }
 
-    public float getFlyingSpeed() {
+    public float flyingSpeed() {
         return this.flyingSpeed;
     }
 
-    public float getWalkingSpeed() {
+    public float walkingSpeed() {
         return this.walkingSpeed;
     }
 
     @Override
     public void handleReceived(ClientConnection connection) {
-        TridentPlayer player = ((PlayerConnection) connection).getPlayer();
+        TridentPlayer player = ((PlayerConnection) connection).player();
 
         if (player.flyingSpeed() * 250.0F != this.flyingSpeed) {
             TridentLogger.error(
