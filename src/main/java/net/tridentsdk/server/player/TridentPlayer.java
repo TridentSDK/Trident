@@ -218,19 +218,8 @@ public class TridentPlayer extends OfflinePlayer {
         for (int x = (centX - viewDistance / 2); x <= (centX + viewDistance / 2); x += 1) {
             for (int z = (centZ - viewDistance / 2); z <= (centZ + viewDistance / 2); z += 1) {
                 ChunkLocation location = ChunkLocation.create(x, z);
-
-                boolean contains = false;
-
-                for(ChunkLocation loc : knownChunks) {
-                    if(loc.equals(location)) {
-                        contains = true;
-                        break;
-                    }
-                }
-
-                if(contains) {
+                if (knownChunks.contains(location))
                     continue;
-                }
 
                 PacketPlayOutChunkData data = ((TridentChunk) world().chunkAt(x, z, true)).asPacket();
 
