@@ -408,12 +408,18 @@ public class TridentWorld implements World {
         }
 
         if (this.chunkAt(location, false) == null) {
-            if (this.loader.chunkExists(this, x, z)) {
-                this.addChunkAt(location, this.loader.loadChunk(this, x, z));
+            Chunk c = this.loader.loadChunk(this, x, z);
+
+            if (this.loader.chunkExists(this, x, z) && c != null) {
+                this.addChunkAt(location, c);
+                return (TridentChunk) c;
             } else {
                 TridentChunk chunk = new TridentChunk(this, x, z);
                 this.addChunkAt(location, chunk);
                 chunk.generate();
+                TridentLogger.log("Generated chunk at (" + x + "," + z + ")");
+
+                return chunk;
             }
         }
 

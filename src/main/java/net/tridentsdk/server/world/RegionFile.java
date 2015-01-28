@@ -170,6 +170,11 @@ public class RegionFile {
             // Read the length, and the compression type
             int length = access.readInt();
             compression = (short) access.readByte();
+
+            if(length <= 0) {
+                return null;
+            }
+
             compressedData = new byte[length - 1];
 
             // Read the compressed data

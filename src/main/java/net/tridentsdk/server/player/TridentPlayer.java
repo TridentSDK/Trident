@@ -35,7 +35,8 @@ import net.tridentsdk.server.threads.ThreadsHandler;
 import net.tridentsdk.server.window.TridentWindow;
 import net.tridentsdk.server.world.TridentChunk;
 import net.tridentsdk.server.world.TridentWorld;
-import net.tridentsdk.util.TridentLogger;
+import net.tridentsdk.util.*;
+import net.tridentsdk.util.Vector;
 import net.tridentsdk.window.inventory.InventoryType;
 import net.tridentsdk.window.inventory.Item;
 import net.tridentsdk.world.ChunkLocation;
@@ -95,7 +96,7 @@ public class TridentPlayer extends OfflinePlayer {
                 p.connection.sendPacket(new PacketPlayOutSpawnPosition().set("location", p.spawnLocation()));
                 p.connection.sendPacket(p.abilities.asPacket());
                 p.connection.sendPacket(new PacketPlayOutPlayerCompleteMove().set("location",
-                        p.spawnLocation()).set("flags", (byte) 0));
+                        p.spawnLocation()).set("flags", (byte) 1));
             }
         });
 
@@ -128,7 +129,7 @@ public class TridentPlayer extends OfflinePlayer {
         connection.sendPacket(PacketPlayOutStatistics.DEFAULT_STATISTIC);
         sendChunks(TridentServer.instance().viewDistance());
         connection.sendPacket(new PacketPlayOutPlayerCompleteMove().set("location",
-                location()).set("flags", (byte) 0));
+                location()).set("flags", (byte) 1));
 
         TridentWindow window = new TridentWindow("Inventory", 9, InventoryType.CHEST);
         window.setSlot(0, new Item(Substance.DIAMOND_PICKAXE));
@@ -140,6 +141,9 @@ public class TridentPlayer extends OfflinePlayer {
         }
 
         loggingIn = false;
+        connection.sendPacket(new PacketPlayOutEntityVelocity()
+                .set("entityId", entityId())
+                .set("velocity", new Vector(0, -0.1, 0)));
     }
 
     @Override
