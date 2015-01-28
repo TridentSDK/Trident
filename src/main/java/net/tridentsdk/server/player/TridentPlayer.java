@@ -126,7 +126,7 @@ public class TridentPlayer extends OfflinePlayer {
             return;
 
         connection.sendPacket(PacketPlayOutStatistics.DEFAULT_STATISTIC);
-        sendChunks(7);
+        sendChunks(TridentServer.instance().viewDistance());
         connection.sendPacket(new PacketPlayOutPlayerCompleteMove().set("location",
                 location()).set("flags", (byte) 0));
 
@@ -216,10 +216,14 @@ public class TridentPlayer extends OfflinePlayer {
         int chunks = 0;
 
         for (int x = (centX - viewDistance / 2); x <= (centX + viewDistance / 2); x += 1) {
-            for (int z = (centZ - viewDistance / 2); z <= (centZ + viewDistance / 2); z += 1) {
+            zl: for (int z = (centZ - viewDistance / 2); z <= (centZ + viewDistance / 2); z += 1) {
                 ChunkLocation location = ChunkLocation.create(x, z);
-                if (knownChunks.contains(location))
-                    continue;
+
+                for(ChunkLocation loc : knownChunks) {
+                    if(loc.equals(location)) {
+                        continue zl;
+                    }
+                }
 
                 PacketPlayOutChunkData data = ((TridentChunk) world().chunkAt(x, z, true)).asPacket();
 

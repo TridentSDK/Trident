@@ -20,6 +20,8 @@ package net.tridentsdk.server.packets.play.in;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.Coordinates;
 import net.tridentsdk.base.BlockOrientation;
+import net.tridentsdk.base.Substance;
+import net.tridentsdk.concurrent.TridentRunnable;
 import net.tridentsdk.event.Cancellable;
 import net.tridentsdk.event.Event;
 import net.tridentsdk.event.player.PlayerDigEvent;
@@ -30,7 +32,9 @@ import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.player.PlayerConnection;
 import net.tridentsdk.server.player.TridentPlayer;
+import net.tridentsdk.server.world.change.DefaultMassChange;
 import net.tridentsdk.util.TridentLogger;
+import net.tridentsdk.world.change.MassChange;
 
 public class PacketPlayInPlayerDig extends InPacket {
     private short status;
@@ -71,6 +75,18 @@ public class PacketPlayInPlayerDig extends InPacket {
         TridentPlayer player = ((PlayerConnection) connection).player();
         DigStatus digStatus = DigStatus.getStatus(this.status);
         BlockOrientation face = null;
+
+        // test mass changes
+
+        MassChange change = new DefaultMassChange(player.world());
+
+        for(int y = (int) player.location().y() + 2; y < 50; y++) {
+            change.setBlock((int) player.location().x(), y, (int) player.location().z(), Substance.DIRT);
+        }
+
+        change.commitChanges();
+
+        TridentLogger.log("ayy");
 
         switch (this.blockFace) {
             case 0:

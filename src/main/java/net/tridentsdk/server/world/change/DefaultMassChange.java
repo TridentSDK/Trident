@@ -131,7 +131,7 @@ public class DefaultMassChange implements MassChange {
                         .setData(change.data());
             }
 
-            packet.set("records", records).set("location", entry.getKey());
+            packet.set("records", records).set("chunkLocation", entry.getKey());
             TridentPlayer.sendAll(packet);
         }
 
