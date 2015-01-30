@@ -19,13 +19,16 @@ package net.tridentsdk.server.packets.login;
 
 import com.google.gson.JsonArray;
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.encryption.RSA;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.InPacket;
+import net.tridentsdk.server.netty.packet.OutPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.packet.PacketDirection;
 import net.tridentsdk.server.netty.protocol.Protocol;
+import net.tridentsdk.server.packets.play.out.PacketPlayOutDisconnect;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.util.TridentLogger;
 
@@ -127,6 +130,13 @@ public class PacketLoginInStart extends InPacket {
                         .replaceAll("$1-$2-$3-$4-$5"));
             } catch (Exception e) {
                 TridentLogger.error(e);
+                return;
+            }
+
+            if (TridentServer.WORLD == null) {
+                connection.sendPacket(new PacketLoginOutDisconnect()
+                        .setJsonMessage("{\"text\":\"Disconnected: no world on server\"}"));
+                TridentLogger.error("Rejected a client due to not having a map!");
                 return;
             }
 

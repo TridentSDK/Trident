@@ -350,11 +350,14 @@ public class ClientConnection {
      * Removes the client's server side client handler
      */
     public void logout() {
-        TridentPlayer player = ((PlayerConnection) this).player();
-        if (this instanceof PlayerConnection)
-            ThreadsHandler.remove(player);
 
-        player.remove();
+        if (this instanceof PlayerConnection) {
+            TridentPlayer player = ((PlayerConnection) this).player();
+            ThreadsHandler.remove(player);
+            player.remove();
+        }
+
+
         clientData.remove(this.address);
         this.channel.close();
     }

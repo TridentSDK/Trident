@@ -44,6 +44,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.nio.file.Files;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.concurrent.ConcurrentMap;
 
@@ -51,7 +52,7 @@ import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * Server class that starts the connection listener.
- *
+ * <p/>
  * <p>Despite the fact that this class is under protected access,
  * it is documented anyways because of its significance in the server</p>
  *
@@ -196,6 +197,8 @@ public final class TridentStart {
             }
         } catch (InterruptedException e) {
             // This exception is caught if server is closed.
+        } catch (NoSuchElementException e) {
+            // For some reason, this is thrown when the server is quit
         } catch (Exception e) {
             TridentLogger.error("Server closed, error occurred");
             TridentLogger.error(e);
@@ -206,6 +209,7 @@ public final class TridentStart {
     /**
      * Shuts down the backed event loops
      */
+
     public static void close() {
         // Correct way to close the socket and shut down the server
         workerGroup.shutdownGracefully().awaitUninterruptibly();

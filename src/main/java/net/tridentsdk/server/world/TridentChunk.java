@@ -94,13 +94,13 @@ public class TridentChunk implements Chunk {
     public Block tileAt(int relX, int y, int relZ) {
         int index = WorldUtils.blockArrayIndex(relX, y % 16, relZ);
         ChunkSection section = sections[WorldUtils.section(y)];
-        NibbleArray add = new NibbleArray(section.add);
-        NibbleArray data = new NibbleArray(section.data);
+        //NibbleArray add = new NibbleArray(section.add);
+        //NibbleArray data = new NibbleArray(section.data);
 
         /* Get block data; use extras accordingly */
         byte b = section.rawTypes[index];
-        int bAdd = add.get(index) << 8;
-        byte meta = data.get(index);
+        int bAdd = NibbleArray.get(section.add,index) << 8;
+        byte meta = NibbleArray.get(section.data,index);
         b += bAdd;
 
         Substance material = Substance.fromId(b);

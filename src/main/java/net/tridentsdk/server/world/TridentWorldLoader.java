@@ -134,7 +134,9 @@ public class TridentWorldLoader implements WorldLoader {
             }
             load(file.getName());
         }
-
+        if (worlds.size() == 0) {
+            TridentLogger.error("No worlds found, there is no world loaded!");
+        }
         TridentLogger.log("Finished loading worlds!");
     }
 

@@ -59,6 +59,13 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     protected float xpPercent;
     protected int xpTotal;
     protected int xpSeed;
+    protected boolean invulnerable;
+    protected int portalCooldown;
+    protected boolean onGround;
+    protected boolean customNameVisible;
+    protected int fireTicks;
+
+
     protected Inventory enderChest;
     protected PlayerAbilities abilities = new PlayerAbilities();
 
@@ -84,7 +91,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
         saturation = ((FloatTag) tag.getTag("foodSaturationLevel")).value();
         foodTickTimer = ((IntTag) tag.getTag("foodTickTimer")).value();
         xpLevel = ((IntTag) tag.getTag("XpLevel")).value();
-        xpPercent = ((IntTag) tag.getTag("XpP")).value();
+        xpPercent = ((FloatTag) tag.getTag("XpP")).value();
         xpTotal = ((IntTag) tag.getTag("XpLevel")).value();
         xpSeed = ((IntTag) tag.getTag("XpSeed")).value();
 
@@ -124,31 +131,31 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
         builder.longTag("UUIDMost", id.getMostSignificantBits());
         builder.longTag("UUIDLeast", id.getLeastSignificantBits());
 
-        ListTagBuilder<CompoundTagBuilder<NBTBuilder>> pos = builder.beginListTag("Pos", TagType.INT);
+        ListTagBuilder<CompoundTagBuilder<NBTBuilder>> pos = builder.beginListTag("Pos", TagType.DOUBLE);
 
-        pos.tag((int) spawnLocation.x());
-        pos.tag((int) spawnLocation.y());
-        pos.tag((int) spawnLocation.z());
+        pos.tag(spawnLocation.x());
+        pos.tag(spawnLocation.y());
+        pos.tag(spawnLocation.z());
 
         builder = pos.endListTag();
 
-        ListTagBuilder<CompoundTagBuilder<NBTBuilder>> motion = builder.beginListTag("Motion", TagType.INT);
+        ListTagBuilder<CompoundTagBuilder<NBTBuilder>> motion = builder.beginListTag("Motion", TagType.DOUBLE);
 
-        motion.tag(0);
-        motion.tag(0);
-        motion.tag(0);
+        motion.tag(0d);
+        motion.tag(0d);
+        motion.tag(0d);
 
         builder = motion.endListTag();
 
-        ListTagBuilder<CompoundTagBuilder<NBTBuilder>> rotation = builder.beginListTag("Rotation", TagType.INT);
+        ListTagBuilder<CompoundTagBuilder<NBTBuilder>> rotation = builder.beginListTag("Rotation", TagType.FLOAT);
 
-        rotation.tag(0);
-        rotation.tag(0);
+        rotation.tag(0f);
+        rotation.tag(0f);
 
         builder = rotation.endListTag();
 
         builder.floatTag("FallDistance", 0);
-        builder.shortTag("Fire", (short) 0);
+        builder.shortTag("Fire", (short) -20);
         builder.shortTag("Air", (short) 0);
 
         builder.byteTag("OnGround", (byte) 1);
@@ -158,7 +165,8 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
         builder.intTag("PortalCooldown", 900);
 
         builder.stringTag("CustomName", "");
-        builder.byteTag("CustomNameVisible", (byte) 0);
+        // does not apply to players
+        //builder.byteTag("CustomNameVisible", (byte) 0);
 
         builder.byteTag("Silent", (byte) 0);
 
@@ -175,7 +183,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
         builder.intTag("foodTickTimer", 0);
 
         builder.intTag("XpLevel", 0);
-        builder.intTag("XpP", 0);
+        builder.floatTag("XpP", 0);
         builder.intTag("XpLevel", 0);
         builder.intTag("XpSeed", 0); // actually give a proper seed
 
@@ -303,6 +311,9 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     public CompoundTag asNbt() {
         CompoundTag tag = new CompoundTag(uniqueId().toString());
 
+        tag.addTag(new LongTag("UUIDMost").setValue(uniqueId.getMostSignificantBits()));
+        tag.addTag(new LongTag("UUIDLeast").setValue(uniqueId.getLeastSignificantBits()));
+
         tag.addTag(new IntTag("Dimension").setValue(dimension.asByte()));
         tag.addTag(new IntTag("playerGameType").setValue(gameMode.asByte()));
         tag.addTag(new IntTag("Score").setValue(score));
@@ -313,15 +324,44 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
         tag.addTag(new IntTag("SpawnY").setValue((int) spawnLocation.y()));
         tag.addTag(new IntTag("SpawnZ").setValue((int) spawnLocation.z()));
 
-        tag.addTag(new ShortTag("foodLevel").setValue(hunger));
+        tag.addTag(new IntTag("foodLevel").setValue(hunger));
         tag.addTag(new FloatTag("foodExhaustionLevel").setValue(exhaustion));
         tag.addTag(new FloatTag("foodSaturationLevel").setValue(saturation));
-        tag.addTag(new IntTag("footTickTimer").setValue(foodTickTimer));
+        tag.addTag(new IntTag("foodTickTimer").setValue(foodTickTimer));
 
         tag.addTag(new IntTag("XpLevel").setValue(xpLevel));
         tag.addTag(new FloatTag("XpP").setValue(xpPercent));
         tag.addTag(new IntTag("XpTotal").setValue(xpTotal));
         tag.addTag(new IntTag("XpSeed").setValue(xpSeed));
+
+        tag.addTag(new ByteTag("Invulnerable").setValue(invulnerable));
+        tag.addTag(new IntTag("PortalCooldown").setValue(portalCooldown));
+        tag.addTag(new FloatTag("FallDistance").setValue(fallDistance.floatValue()));
+        tag.addTag(new ByteTag("OnGround").setValue(onGround));
+        tag.addTag(new ShortTag("Fire").setValue((short) fireTicks));
+        tag.addTag(new ShortTag("Air").setValue((short) airTicks.get()));
+        tag.addTag(new ByteTag("Silent").setValue(silent));
+        tag.addTag(new IntTag("SelectedItemSlot").setValue(selectedSlot));
+
+        ListTag position = new ListTag("Pos",TagType.DOUBLE);
+        position.addTag(new DoubleTag("").setValue(loc.x()));
+        position.addTag(new DoubleTag("").setValue(loc.y()));
+        position.addTag(new DoubleTag("").setValue(loc.z()));
+
+        tag.addTag(position);
+
+        ListTag motion = new ListTag("Motion",TagType.DOUBLE) ;
+        motion.addTag(new DoubleTag("").setValue(velocity.x()));
+        motion.addTag(new DoubleTag("").setValue(velocity.y()));
+        motion.addTag(new DoubleTag("").setValue(velocity.z()));
+
+        tag.addTag(motion);
+
+        ListTag rotation = new ListTag("Rotation", TagType.FLOAT);
+        rotation.addTag(new FloatTag("").setValue(loc.yaw()));
+        rotation.addTag(new FloatTag("").setValue(loc.pitch()));
+
+        tag.addTag(rotation);
 
         ListTag inventoryTag = new ListTag("Inventory", TagType.COMPOUND);
 

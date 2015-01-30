@@ -18,6 +18,7 @@
 package net.tridentsdk.server.entity;
 
 import com.google.common.collect.Sets;
+import com.google.common.util.concurrent.AtomicDouble;
 import net.tridentsdk.Coordinates;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.docs.InternalUseOnly;
@@ -58,7 +59,7 @@ public class TridentEntity implements Entity {
     /**
      * The distance the entity has fallen
      */
-    protected final AtomicLong fallDistance = new AtomicLong(0L);
+    protected final AtomicDouble fallDistance = new AtomicDouble(0L);
     /**
      * The ticks that have passed since the entity was spawned, and alive
      */
@@ -319,7 +320,10 @@ public class TridentEntity implements Entity {
 
     public void load(CompoundTag tag) {
         /* IDs */
-        String type = ((StringTag) tag.getTag("id")).value(); // EntityType, in form of a string
+        if(!(tag.getTag("id") instanceof NullTag)) {
+            // players will not have this value
+            String type = ((StringTag) tag.getTag("id")).value(); // EntityType, in form of a string
+        }
         LongTag uuidMost = tag.getTagAs("UUIDMost"); // most signifigant bits of UUID
         LongTag uuidLeast = tag.getTagAs("UUIDLeast"); // least signifigant bits of UUID
 

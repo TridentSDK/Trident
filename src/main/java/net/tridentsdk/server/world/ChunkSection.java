@@ -57,8 +57,8 @@ final class ChunkSection implements NBTSerializable {
             add = new byte[LENGTH];
         }
 
-        NibbleArray add = new NibbleArray(this.add);
-        NibbleArray data = new NibbleArray(this.data);
+        //NibbleArray add = new NibbleArray(this.add);
+        //NibbleArray data = new NibbleArray(this.data);
 
         types = new byte[rawTypes.length];
 
@@ -70,9 +70,9 @@ final class ChunkSection implements NBTSerializable {
 
             /* Get block data; use extras accordingly */
             b = rawTypes[i];
-            bAdd = add.get(i) << 8;
+            bAdd = NibbleArray.get(this.add,i) << 8;
             b += bAdd;
-            bData = data.get(i);
+            bData = NibbleArray.get(this.data,i);
 
             Substance material = Substance.fromId(b);
 
