@@ -336,18 +336,12 @@ public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implement
 
             while (!isInterrupted()) {
                 try {
-                    Runnable task = nextTask();
-
-                    if (task == null) {
-                        task = tasks.take();
-                    }
-
-                    task.run();
+                    nextTask().run();
                 } catch (InterruptedException e) {
                     handleShutdown(index, tasks);
                     return;
                 } catch (Exception e) {
-                    TridentLogger.error(e);
+                    e.printStackTrace();
                     handleShutdown(index, tasks);
                     return;
                 }
@@ -355,9 +349,11 @@ public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implement
         }
 
         private Runnable nextTask() throws InterruptedException {
-            Runnable task;
-            if ((task = overflow.poll()) == null)
-                task = tasks.poll();
+            Runnable task = overflow.poll();
+            if (task == null) {
+                if ((task = tasks.poll()) == null)
+                    return tasks.take();
+            }
 
             return task;
         }

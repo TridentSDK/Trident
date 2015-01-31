@@ -71,7 +71,7 @@ public class EntityTracker {
                 .set("difference", diff)
                 .set("yaw", to.yaw())
                 .set("pitch", to.pitch())
-                .set("flags", null);
+                .set("flags", (byte) 0);
         TridentPlayer.sendAll(move);
     }
 }
