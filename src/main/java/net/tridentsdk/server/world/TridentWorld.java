@@ -20,7 +20,7 @@ package net.tridentsdk.server.world;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteStreams;
 import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
-import net.tridentsdk.Coordinates;
+import net.tridentsdk.Position;
 import net.tridentsdk.Difficulty;
 import net.tridentsdk.GameMode;
 import net.tridentsdk.base.Block;
@@ -56,7 +56,7 @@ public class TridentWorld implements World {
     private final String name;
     private final Random random;
     private final WorldLoader loader;
-    private final Coordinates spawnLocation;
+    private final Position spawnLocation;
     private volatile long time;
     private volatile long existed;
     private volatile int rainTime;
@@ -76,7 +76,7 @@ public class TridentWorld implements World {
         this.name = name;
         this.loader = loader;
         this.random = random;
-        this.spawnLocation = Coordinates.create(this, 0d, 0d, 0d);
+        this.spawnLocation = Position.create(this, 0d, 0d, 0d);
     }
 
     TridentWorld(String name, WorldLoader loader) {
@@ -437,7 +437,7 @@ public class TridentWorld implements World {
     }
 
     @Override
-    public Block tileAt(Coordinates location) {
+    public Block tileAt(Position location) {
         if (!location.world().name().equals(this.name()))
             throw new IllegalArgumentException("Provided location does not have the same world!");
 
@@ -469,7 +469,7 @@ public class TridentWorld implements World {
     }
 
     @Override
-    public Coordinates spawnLocation() {
+    public Position spawnLocation() {
         return spawnLocation;
     }
 
@@ -519,7 +519,7 @@ public class TridentWorld implements World {
     }
 
     @Override
-    public Coordinates borderCenter() {
+    public Position borderCenter() {
         return null;
     }
 

@@ -18,13 +18,13 @@
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Coordinates;
+import net.tridentsdk.Position;
 import net.tridentsdk.server.data.RecordBuilder;
 import net.tridentsdk.server.netty.packet.OutPacket;
 import net.tridentsdk.util.Vector;
 
 public class PacketPlayOutExplosion extends OutPacket {
-    protected Coordinates loc;
+    protected Position loc;
     protected int recordCount;
     protected RecordBuilder[] records;
     protected Vector velocity;
@@ -34,7 +34,7 @@ public class PacketPlayOutExplosion extends OutPacket {
         return 0x27;
     }
 
-    public Coordinates location() {
+    public Position location() {
         return this.loc;
     }
 

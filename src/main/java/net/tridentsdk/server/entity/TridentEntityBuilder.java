@@ -17,7 +17,7 @@
 
 package net.tridentsdk.server.entity;
 
-import net.tridentsdk.Coordinates;
+import net.tridentsdk.Position;
 import net.tridentsdk.Trident;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.EntityBuilder;
@@ -45,7 +45,7 @@ import java.util.concurrent.Callable;
  */
 public final class TridentEntityBuilder extends EntityBuilder {
     private UUID uuid = UUID.randomUUID();
-    private Coordinates spawn = Coordinates.create(new Callable<World>() {
+    private Position spawn = Position.create(new Callable<World>() {
         @Override
         public World call() {
             for (World world : Trident.worlds().values()) {
@@ -73,7 +73,7 @@ public final class TridentEntityBuilder extends EntityBuilder {
         return this;
     }
 
-    public TridentEntityBuilder spawn(Coordinates spawn) {
+    public TridentEntityBuilder spawn(Position spawn) {
         this.spawn = spawn;
         return this;
     }
@@ -108,7 +108,7 @@ public final class TridentEntityBuilder extends EntityBuilder {
         TridentEntity entity = null;
         try {
             Constructor<? extends TridentEntity> constructor = (Constructor<? extends TridentEntity>)
-                    entityType.getConstructor(UUID.class, Coordinates.class);
+                    entityType.getConstructor(UUID.class, Position.class);
             entity = constructor.newInstance(uuid, spawn);
             entity.executor = executor != null ? executor : ThreadsHandler.entityExecutor();
             entity.godMode = god;

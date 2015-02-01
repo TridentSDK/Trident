@@ -17,7 +17,7 @@
 
 package net.tridentsdk.server.entity.block;
 
-import net.tridentsdk.Coordinates;
+import net.tridentsdk.Position;
 import net.tridentsdk.base.Block;
 import net.tridentsdk.entity.EntityProperties;
 import net.tridentsdk.entity.block.ItemFrame;
@@ -27,7 +27,7 @@ import net.tridentsdk.window.inventory.Item;
 import java.util.UUID;
 
 public class TridentItemFrame extends TridentEntity implements ItemFrame {
-    public TridentItemFrame(UUID id, Coordinates spawnLocation) {
+    public TridentItemFrame(UUID id, Position spawnLocation) {
         super(id, spawnLocation);
     }
 

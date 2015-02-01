@@ -22,7 +22,7 @@ import com.google.common.base.Predicates;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
-import net.tridentsdk.Coordinates;
+import net.tridentsdk.Position;
 import net.tridentsdk.Trident;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.entity.Entity;
@@ -87,7 +87,7 @@ public final class EntityHandler {
      * @param from   the original location
      * @param to     the new location
      */
-    public void trackMovement(Entity entity, Coordinates from, Coordinates to) {
+    public void trackMovement(Entity entity, Position from, Position to) {
         tracker.trackMovement(entity, from, to);
     }
 

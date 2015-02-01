@@ -18,7 +18,7 @@
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Coordinates;
+import net.tridentsdk.Position;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.InPacket;
@@ -39,7 +39,7 @@ public class PacketPlayInEntityInteract extends InPacket {
     /**
      * Location of the target, sent as 3 floats x, y, z
      */
-    protected Coordinates location;
+    protected Position location;
 
     @Override
     public int id() {
@@ -55,7 +55,7 @@ public class PacketPlayInEntityInteract extends InPacket {
         double y = (double) buf.readFloat();
         double z = (double) buf.readFloat();
 
-        this.location = Coordinates.create(null, x, y, z); // TODO: Get the clients world
+        this.location = Position.create(null, x, y, z); // TODO: Get the clients world
         return this;
     }
 
@@ -67,7 +67,7 @@ public class PacketPlayInEntityInteract extends InPacket {
         return this.type;
     }
 
-    public Coordinates location() {
+    public Position location() {
         return this.location;
     }
 

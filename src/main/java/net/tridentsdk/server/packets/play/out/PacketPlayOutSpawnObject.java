@@ -18,7 +18,7 @@
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Coordinates;
+import net.tridentsdk.Position;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.EntityType;
 import net.tridentsdk.server.netty.Codec;
@@ -37,7 +37,7 @@ public class PacketPlayOutSpawnObject extends OutPacket {
 
     @Override
     public void encode(ByteBuf buf) {
-        Coordinates l = this.entity.location();
+        Position l = this.entity.location();
         Vector v = this.entity.velocity();
 
         Codec.writeVarInt32(buf, this.entityId);

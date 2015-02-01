@@ -17,19 +17,16 @@
 
 package net.tridentsdk.server.world;
 
-import net.tridentsdk.Coordinates;
-import net.tridentsdk.base.Block;
-import net.tridentsdk.base.Substance;
+import net.tridentsdk.Position;
 import net.tridentsdk.meta.nbt.NBTField;
 import net.tridentsdk.meta.nbt.NBTSerializable;
 import net.tridentsdk.meta.nbt.TagType;
 import net.tridentsdk.util.NibbleArray;
-import net.tridentsdk.world.World;
 
 import java.util.Arrays;
 
 public final class ChunkSection implements NBTSerializable {
-    static final Coordinates DUMMY_COORDS = Coordinates.create(null, 0, 0, 0);
+    static final Position DUMMY_COORDS = Position.create(null, 0, 0, 0);
     static final int LENGTH = 4096; // 16^3 (width * height * depth)
 
     @NBTField(name = "Blocks", type = TagType.BYTE_ARRAY)

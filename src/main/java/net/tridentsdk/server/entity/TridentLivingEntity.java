@@ -18,7 +18,7 @@
 package net.tridentsdk.server.entity;
 
 import com.google.common.util.concurrent.AtomicDouble;
-import net.tridentsdk.Coordinates;
+import net.tridentsdk.Position;
 import net.tridentsdk.Trident;
 import net.tridentsdk.entity.LivingEntity;
 import net.tridentsdk.entity.living.ai.AiModule;
@@ -65,7 +65,7 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
      *
      * <p>The entity is immediately set "non-dead" after {@code super} call</p>
      */
-    public TridentLivingEntity(UUID id, Coordinates spawnLocation) {
+    public TridentLivingEntity(UUID id, Position spawnLocation) {
         super(id, spawnLocation);
 
         this.dead = false;
@@ -92,7 +92,7 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
     }
 
     @Override
-    public Coordinates headLocation() {
+    public Position headLocation() {
         return this.location().relative(new Vector(0.0d, 1.0d, 0.0d));
     }
 
