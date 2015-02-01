@@ -379,9 +379,9 @@ public class TridentWorld implements World {
 
         if (chunk == null && generateIfNotFound) {
             return this.generateChunk(location);
-        } else {
-            return chunk;
         }
+
+        return chunk;
     }
 
     @Override

@@ -44,7 +44,7 @@ public class TridentChunk implements Chunk {
     private volatile long inhabitedTime;
     private volatile byte lightPopulated;
     private volatile byte terrainPopulated;
-    private volatile ChunkSection[] sections;
+    public volatile ChunkSection[] sections;
 
     public TridentChunk(TridentWorld world, int x, int z) {
         this(world, ChunkLocation.create(x, z));
@@ -67,7 +67,7 @@ public class TridentChunk implements Chunk {
     @Override
     public void generate() {
         WorldGenHandler handler = WorldGenHandler.create(world.loader().generator());
-        handler.apply(world, location, location);
+        handler.apply(this);
     }
 
     @Override

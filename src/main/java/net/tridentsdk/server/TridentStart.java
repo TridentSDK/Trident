@@ -37,6 +37,7 @@ import net.tridentsdk.plugin.cmd.PlatformColor;
 import net.tridentsdk.server.command.ServerCommandRegistrar;
 import net.tridentsdk.server.netty.ClientChannelInitializer;
 import net.tridentsdk.server.threads.ThreadsHandler;
+import net.tridentsdk.server.world.gen.TridentGenFactory;
 import net.tridentsdk.util.TridentLogger;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -143,6 +144,7 @@ public final class TridentStart {
             });
             Factories.init(ThreadsHandler.create());
             Factories.init(TridentScheduler.create());
+            Factories.init(new TridentGenFactory());
             TridentLogger.success("Loaded API implementations.");
 
             TridentLogger.log("Creating server...");

@@ -96,7 +96,7 @@ public class TridentPlayer extends OfflinePlayer {
                 p.connection.sendPacket(new PacketPlayOutSpawnPosition().set("location", p.spawnLocation()));
                 p.connection.sendPacket(p.abilities.asPacket());
                 p.connection.sendPacket(new PacketPlayOutPlayerCompleteMove().set("location",
-                        p.spawnLocation()).set("flags", (byte) 1));
+                        p.spawnLocation().add(new Vector(0, 40, 0))).set("flags", (byte) 1));
             }
         });
 

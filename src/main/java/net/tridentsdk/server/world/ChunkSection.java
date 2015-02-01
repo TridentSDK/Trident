@@ -26,23 +26,23 @@ import net.tridentsdk.meta.nbt.TagType;
 import net.tridentsdk.util.NibbleArray;
 import net.tridentsdk.world.World;
 
-final class ChunkSection implements NBTSerializable {
+public final class ChunkSection implements NBTSerializable {
     static final int LENGTH = 4096; // 16^3 (width * height * depth)
     @NBTField(name = "Blocks", type = TagType.BYTE_ARRAY)
-    protected byte[] rawTypes;
+    public byte[] rawTypes;
     @NBTField(name = "Add", type = TagType.BYTE_ARRAY)
-    protected byte[] add;
+    public byte[] add;
     @NBTField(name = "Data", type = TagType.BYTE_ARRAY)
-    protected byte[] data;
+    public byte[] data;
     @NBTField(name = "BlockLight", type = TagType.BYTE_ARRAY)
-    protected byte[] blockLight;
+    public byte[] blockLight;
     @NBTField(name = "BlockLight", type = TagType.BYTE_ARRAY)
-    protected byte[] skyLight;
+    public byte[] skyLight;
     @NBTField(name = "Y", type = TagType.BYTE)
     protected byte y;
-    private byte[] types;
+    public byte[] types;
 
-    protected ChunkSection() {
+    public ChunkSection() {
     }
 
     /**

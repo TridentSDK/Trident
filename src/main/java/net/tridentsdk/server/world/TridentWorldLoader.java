@@ -21,7 +21,7 @@ import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
 import net.tridentsdk.Trident;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.meta.nbt.NBTException;
-import net.tridentsdk.server.world.gen.DefaultWorldGen;
+import net.tridentsdk.server.world.gen.FlatWorldGen;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.Chunk;
 import net.tridentsdk.world.ChunkLocation;
@@ -46,6 +46,7 @@ import java.util.zip.DataFormatException;
  * @author The TridentSDK Team
  */
 public class TridentWorldLoader implements WorldLoader {
+    private static final AbstractGenerator DEFAULT_GEN = new FlatWorldGen();
     private static final Map<String, TridentWorld> worlds = new ConcurrentHashMapV8<>();
     private final AbstractGenerator generator;
 
@@ -55,20 +56,22 @@ public class TridentWorldLoader implements WorldLoader {
             Constructor<? extends AbstractGenerator> g = generator.getDeclaredConstructor();
             gen = g.newInstance();
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            TridentLogger.error("Error occurred while instantiating generator " + generator.getName());
+            TridentLogger.error("Switching to the default");
             TridentLogger.error(e);
-            gen = new DefaultWorldGen();
+            gen = DEFAULT_GEN;
         } catch (NoSuchMethodException e) {
             TridentLogger.error("Provided generator does not have a default constructor");
             TridentLogger.error("Switching to the default");
             TridentLogger.error(e);
-            gen = new DefaultWorldGen();
+            gen = DEFAULT_GEN;
         }
 
         this.generator = gen;
     }
 
     public TridentWorldLoader() {
-        this(DefaultWorldGen.class);
+        this(DEFAULT_GEN.getClass());
     }
 
     public Collection<TridentWorld> worlds() {
