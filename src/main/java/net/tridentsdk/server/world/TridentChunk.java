@@ -153,9 +153,9 @@ public class TridentChunk implements Chunk {
             if (section == null)
                 continue;
 
-            for (byte b : section.types()) {
-                data.write(b & 0xff);
-                data.write(b >> 8);
+            for (char c : section.types()) {
+                data.write(c & 0xff);
+                data.write(c >> 8);
             }
         }
 

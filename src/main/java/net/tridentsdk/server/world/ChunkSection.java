@@ -44,7 +44,7 @@ public final class ChunkSection implements NBTSerializable {
     public byte[] skyLight;
     @NBTField(name = "Y", type = TagType.BYTE)
     protected byte y;
-    public byte[] types;
+    public char[] types;
 
     public ChunkSection() {
     }
@@ -66,39 +66,23 @@ public final class ChunkSection implements NBTSerializable {
 
         Arrays.fill(skyLight, (byte) 15);
 
-        types = new byte[rawTypes.length];
+        types = new char[rawTypes.length];
 
         for (int i = 0; i < LENGTH; i += 1) {
-            Block block;
             byte b;
             byte bData;
             int bAdd;
 
             /* Get block data; use extras accordingly */
             b = rawTypes[i];
-            bAdd = NibbleArray.get(this.add,i) << 8;
-            b += bAdd;
-            bData = NibbleArray.get(this.data,i);
+            bAdd = NibbleArray.get(this.add, i) << 12;
+            bData = NibbleArray.get(this.data, i);
 
-            Substance material = Substance.fromId(b);
-
-            if (material == null) {
-                material = Substance.AIR; // check if valid
-            }
-
-            block = new TridentBlock(DUMMY_COORDS, material, bData);
-
-            /* TODO get the type and deal with block data accordingly */
-            switch (block.substance()) {
-                default:
-                    break;
-            }
-
-            types[i] = (byte) (bAdd | ((b & 0xff) << 4) | bData);
+            types[i] = (char) (bAdd | ((b & 0xff) << 4) | bData);
         }
     }
 
-    public byte[] types() {
+    public char[] types() {
         return types;
     }
 }

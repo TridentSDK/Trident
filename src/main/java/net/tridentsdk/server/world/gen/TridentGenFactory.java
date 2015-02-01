@@ -38,7 +38,7 @@ public class TridentGenFactory implements GenFactory {
             // Already set
             if (sect == null) continue;
             sect.rawTypes = new byte[4096];
-            sect.types = new byte[4096];
+            sect.types = new char[4096];
             sect.blockLight = new byte[2048];
             sect.skyLight = new byte[2048];
 
@@ -47,7 +47,7 @@ public class TridentGenFactory implements GenFactory {
         }
 
         section.rawTypes = new byte[4096];
-        section.types = new byte[4096];
+        section.types = new char[4096];
         section.blockLight = new byte[2048];
         section.skyLight = new byte[2048];
 
@@ -66,7 +66,7 @@ public class TridentGenFactory implements GenFactory {
         section.add = add.array();
         section.data = data.array();
 
-        section.types[index] = (byte) (((b & 0xff) << 4) | tile.meta());
+        section.types[index] = (char) (((b & 0xff) << 4) | tile.meta());
         section.blockLight[index] = 16;
         section.skyLight[index] = 16;
     }
