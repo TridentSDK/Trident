@@ -26,8 +26,12 @@ import net.tridentsdk.meta.nbt.TagType;
 import net.tridentsdk.util.NibbleArray;
 import net.tridentsdk.world.World;
 
+import java.util.Arrays;
+
 public final class ChunkSection implements NBTSerializable {
+    static final Coordinates DUMMY_COORDS = Coordinates.create(null, 0, 0, 0);
     static final int LENGTH = 4096; // 16^3 (width * height * depth)
+
     @NBTField(name = "Blocks", type = TagType.BYTE_ARRAY)
     public byte[] rawTypes;
     @NBTField(name = "Add", type = TagType.BYTE_ARRAY)
@@ -52,13 +56,15 @@ public final class ChunkSection implements NBTSerializable {
         return y;
     }
 
-    protected void loadBlocks(World world) {
+    protected void loadBlocks() {
         if (add == null) {
             add = new byte[LENGTH];
         }
 
         //NibbleArray add = new NibbleArray(this.add);
         //NibbleArray data = new NibbleArray(this.data);
+
+        Arrays.fill(skyLight, (byte) 15);
 
         types = new byte[rawTypes.length];
 
@@ -80,8 +86,7 @@ public final class ChunkSection implements NBTSerializable {
                 material = Substance.AIR; // check if valid
             }
 
-            block = new TridentBlock(Coordinates.create(world, 0, 0, 0), material, // dummy location
-                    bData);
+            block = new TridentBlock(DUMMY_COORDS, material, bData);
 
             /* TODO get the type and deal with block data accordingly */
             switch (block.substance()) {

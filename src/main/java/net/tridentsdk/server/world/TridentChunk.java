@@ -221,7 +221,7 @@ public class TridentChunk implements Chunk {
 
                 ChunkSection section = NBTSerializer.deserialize(ChunkSection.class, ct);
 
-                section.loadBlocks(world());
+                section.loadBlocks();
                 this.sections[section.y()] = section;
             }
         }
