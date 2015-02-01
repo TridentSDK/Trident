@@ -91,7 +91,7 @@ public class MainThread extends Thread {
         /**
          * Tick the players
          */
-        for (final Player player : TridentPlayer.getPlayers()) {
+        for (final Player player : TridentPlayer.players()) {
             ((TridentPlayer) player).tick();
         }
 

@@ -18,13 +18,13 @@
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Coordinates;
+import net.tridentsdk.Position;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutEntityLook extends OutPacket {
     protected int entityId;
-    protected Coordinates location;
+    protected Position location;
     protected boolean onGround;
 
     @Override
@@ -36,7 +36,7 @@ public class PacketPlayOutEntityLook extends OutPacket {
         return this.entityId;
     }
 
-    public Coordinates location() {
+    public Position location() {
         return this.location;
     }
 

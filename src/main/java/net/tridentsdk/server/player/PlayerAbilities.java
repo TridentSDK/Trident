@@ -72,7 +72,8 @@ public class PlayerAbilities implements NBTSerializable {
 
     public OutPacket asPacket() {
         OutPacket packet = new PacketPlayOutPlayerAbilities();
-        byte flags = (byte) ((isInvulnerable() ? 8 : 0) | (canFly() ? 4 : 0) | (canInstantBreak() ? 2 : 0));
+        byte flags = (byte) ((isInvulnerable() ? 8 : 0) | (canFly() ? 4 : 0) | (isFlying() ? 2 : 0) |
+                (canInstantBreak() ? 1 : 0));
 
         packet.set("flags", flags);
         packet.set("flyingSpeed", flySpeed / 2);

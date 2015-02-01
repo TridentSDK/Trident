@@ -18,7 +18,7 @@
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Coordinates;
+import net.tridentsdk.Position;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
@@ -28,10 +28,10 @@ public class PacketPlayInBlockPlace extends InPacket {
     /**
      * Location of the block being placed
      */
-    protected Coordinates location;
+    protected Position location;
     protected byte direction; // wat
     /**
-     * Position of the cursor, incorrect use of a Vector
+     * PositionWritable of the cursor, incorrect use of a Vector
      */
     protected Vector cursorPosition;
 
@@ -44,7 +44,7 @@ public class PacketPlayInBlockPlace extends InPacket {
     public Packet decode(ByteBuf buf) {
         long encodedLocation = buf.readLong();
 
-        this.location = Coordinates.create(null, (double) (encodedLocation >> 38),
+        this.location = Position.create(null, (double) (encodedLocation >> 38),
                 (double) (encodedLocation << 26 >> 52), (double) (encodedLocation << 38 >> 38));
         this.direction = buf.readByte();
 
@@ -61,7 +61,7 @@ public class PacketPlayInBlockPlace extends InPacket {
         return this;
     }
 
-    public Coordinates location() {
+    public Position location() {
         return this.location;
     }
 

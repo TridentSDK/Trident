@@ -17,7 +17,7 @@
 
 package net.tridentsdk.server.player;
 
-import net.tridentsdk.Coordinates;
+import net.tridentsdk.Position;
 import net.tridentsdk.GameMode;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.EntityProperties;
@@ -50,7 +50,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     protected GameMode gameMode;
     protected int score;
     protected short selectedSlot;
-    protected Coordinates spawnLocation;
+    protected Position spawnLocation;
     protected short hunger;
     protected float exhaustion;
     protected float saturation;
@@ -80,7 +80,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
         selectedSlot = (short) ((IntTag) tag.getTag("SelectedItemSlot")).value();
 
         if (tag.containsTag("SpawnX")) {
-            spawnLocation = Coordinates.create(world, ((IntTag) tag.getTag("SpawnX")).value(),
+            spawnLocation = Position.create(world, ((IntTag) tag.getTag("SpawnX")).value(),
                     ((IntTag) tag.getTag("SpawnY")).value(), ((IntTag) tag.getTag("SpawnZ")).value());
         } else {
             spawnLocation = world.spawnLocation();
@@ -124,7 +124,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     public static CompoundTag generatePlayer(UUID id) {
         // TODO this is temporary for testing
         World defaultWorld = TridentServer.WORLD;
-        Coordinates spawnLocation = defaultWorld.spawnLocation();
+        Position spawnLocation = defaultWorld.spawnLocation();
         CompoundTagBuilder<NBTBuilder> builder = NBTBuilder.newBase(id.toString());
 
         builder.stringTag("id", String.valueOf(counter.incrementAndGet()));
@@ -197,7 +197,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
         return builder.endCompoundTag().build();
     }
 
-    public Coordinates spawnLocation() {
+    public Position spawnLocation() {
         return spawnLocation;
     }
 

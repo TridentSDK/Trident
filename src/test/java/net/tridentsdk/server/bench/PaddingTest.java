@@ -17,6 +17,7 @@
 
 package net.tridentsdk.server.bench;
 
+import net.tridentsdk.Position;
 import net.tridentsdk.world.World;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Mode;
@@ -32,7 +33,7 @@ import java.util.concurrent.TimeUnit;
 // AGENTTROLL
 public class PaddingTest {
     private static final Coordinates COORDINATES = new Coordinates(null, 0, 0, 0, 0, 0);
-    private static final net.tridentsdk.Coordinates COOR = net.tridentsdk.Coordinates.create(null, 0, 0, 0);
+    private static final Position COOR = Position.create(null, 0, 0, 0);
 
     public static void main(String[] args) throws RunnerException {
         Options opt = new OptionsBuilder().include(".*" + PaddingTest.class.getSimpleName() + ".*")

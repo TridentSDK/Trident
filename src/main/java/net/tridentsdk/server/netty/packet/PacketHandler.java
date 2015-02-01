@@ -24,6 +24,8 @@ import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.protocol.Protocol;
 import net.tridentsdk.server.packets.login.PacketLoginOutDisconnect;
+import net.tridentsdk.server.packets.play.in.PacketPlayInPlayerFall;
+import net.tridentsdk.server.packets.play.in.PacketPlayInPlayerMove;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutDisconnect;
 import net.tridentsdk.server.player.PlayerConnection;
 import net.tridentsdk.util.TridentLogger;
@@ -60,7 +62,7 @@ public class PacketHandler extends SimpleChannelInboundHandler<PacketData> {
             data.decrypt(this.connection);
         }
 
-        Packet packet = this.protocol.getPacket(data.getId(), this.connection.getStage(), PacketDirection.IN);
+        Packet packet = this.protocol.getPacket(data.getId(), this.connection.stage(), PacketDirection.IN);
 
         //If packet is unknown disconnect the client, as said client seems to be modified
         if (packet.id() == -1) {
@@ -71,7 +73,7 @@ public class PacketHandler extends SimpleChannelInboundHandler<PacketData> {
 
                 TridentLogger.log(con.player().displayName() + " has been disconnected from the server " +
                         "for sending an invalid packet (" +
-                        con.getAddress().getHostString() + "," + con.player().uniqueId().toString() + ")");
+                        con.address().getHostString() + "," + con.player().uniqueId().toString() + ")");
             }
             return;
         }
@@ -80,6 +82,11 @@ public class PacketHandler extends SimpleChannelInboundHandler<PacketData> {
         packet.decode(data.getData());
 
         try {
+            // START DEBUG
+            if(!(packet instanceof PacketPlayInPlayerFall) && !(packet instanceof PacketPlayInPlayerMove))
+                TridentLogger.log("Received packet " + packet.getClass().getSimpleName());
+            // END DEBUG
+
             packet.handleReceived(this.connection);
 
             if (connection instanceof PlayerConnection) {
@@ -88,7 +95,7 @@ public class PacketHandler extends SimpleChannelInboundHandler<PacketData> {
         } catch (Exception ex) {
             TridentLogger.error(ex);
 
-            switch (this.connection.getStage()) {
+            switch (this.connection.stage()) {
                 case LOGIN:
                     PacketLoginOutDisconnect disconnect = new PacketLoginOutDisconnect();
 

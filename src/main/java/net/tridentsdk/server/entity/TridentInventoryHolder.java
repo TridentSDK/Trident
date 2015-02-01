@@ -17,7 +17,7 @@
 
 package net.tridentsdk.server.entity;
 
-import net.tridentsdk.Coordinates;
+import net.tridentsdk.Position;
 import net.tridentsdk.docs.Volatile;
 import net.tridentsdk.entity.decorate.InventoryHolder;
 import net.tridentsdk.window.inventory.Inventory;
@@ -40,7 +40,7 @@ public abstract class TridentInventoryHolder extends TridentLivingEntity impleme
     /**
      * Inherits constructor from {@link TridentLivingEntity}
      */
-    public TridentInventoryHolder(UUID id, Coordinates spawnLocation) {
+    public TridentInventoryHolder(UUID id, Position spawnLocation) {
         super(id, spawnLocation);
         BARRIER = new Object();
     }

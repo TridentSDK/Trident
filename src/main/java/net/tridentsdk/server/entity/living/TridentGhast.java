@@ -17,7 +17,7 @@
 
 package net.tridentsdk.server.entity.living;
 
-import net.tridentsdk.Coordinates;
+import net.tridentsdk.Position;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.EntityProperties;
 import net.tridentsdk.entity.Projectile;
@@ -29,7 +29,7 @@ import net.tridentsdk.server.entity.TridentLivingEntity;
 import java.util.UUID;
 
 public class TridentGhast extends TridentLivingEntity implements Ghast {
-    public TridentGhast(UUID id, Coordinates spawnLocation) {
+    public TridentGhast(UUID id, Position spawnLocation) {
         super(id, spawnLocation);
     }
 

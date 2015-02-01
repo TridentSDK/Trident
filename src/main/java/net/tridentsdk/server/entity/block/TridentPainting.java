@@ -17,7 +17,7 @@
 
 package net.tridentsdk.server.entity.block;
 
-import net.tridentsdk.Coordinates;
+import net.tridentsdk.Position;
 import net.tridentsdk.base.Block;
 import net.tridentsdk.entity.EntityProperties;
 import net.tridentsdk.entity.block.Painting;
@@ -26,7 +26,7 @@ import net.tridentsdk.server.entity.TridentEntity;
 import java.util.UUID;
 
 public class TridentPainting extends TridentEntity implements Painting {
-    public TridentPainting(UUID uniqueId, Coordinates spawnLocation) {
+    public TridentPainting(UUID uniqueId, Position spawnLocation) {
         super(uniqueId, spawnLocation);
     }
 

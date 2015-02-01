@@ -18,7 +18,7 @@
 package net.tridentsdk.server.world;
 
 import com.google.common.collect.Lists;
-import net.tridentsdk.Coordinates;
+import net.tridentsdk.Position;
 import net.tridentsdk.base.Block;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.meta.nbt.*;
@@ -109,7 +109,7 @@ public class TridentChunk implements Chunk {
             material = Substance.AIR; // check if valid
         }
 
-        return new TridentBlock(Coordinates.create(this.world, relX + this.x() * 16, y, relZ + this.z() * 16),
+        return new TridentBlock(Position.create(this.world, relX + this.x() * 16, y, relZ + this.z() * 16),
                 material, meta);
     }
 
@@ -153,9 +153,9 @@ public class TridentChunk implements Chunk {
             if (section == null)
                 continue;
 
-            for (byte b : section.types()) {
-                data.write(b & 0xff);
-                data.write(b >> 8);
+            for (char c : section.types()) {
+                data.write(c & 0xff);
+                data.write(c >> 8);
             }
         }
 

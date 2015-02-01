@@ -18,7 +18,7 @@
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Coordinates;
+import net.tridentsdk.Position;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
@@ -46,7 +46,7 @@ public class PacketPlayOutSpawnPlayer extends OutPacket {
 
     @Override
     public void encode(ByteBuf buf) {
-        Coordinates loc = this.player.location();
+        Position loc = this.player.location();
         UUID id = this.player.uniqueId();
 
         Codec.writeVarInt32(buf, this.entityId);

@@ -18,7 +18,7 @@
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Coordinates;
+import net.tridentsdk.Position;
 import net.tridentsdk.event.player.PlayerTabCompleteEvent;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
@@ -40,9 +40,9 @@ public class PacketPlayInTabComplete extends InPacket {
      */
     protected boolean hasPosition;
     /**
-     * Position of the block the player is looking at, only sent if hasPosition is true
+     * PositionWritable of the block the player is looking at, only sent if hasPosition is true
      */
-    protected Coordinates lookedAtBlock;
+    protected Position lookedAtBlock;
 
     @Override
     public int id() {
@@ -60,7 +60,7 @@ public class PacketPlayInTabComplete extends InPacket {
             double y = (double) (encoded << 26 >> 52);
             double z = (double) (encoded << 38 >> 38);
 
-            this.lookedAtBlock = Coordinates.create(null, x, y, z);
+            this.lookedAtBlock = Position.create(null, x, y, z);
         }
 
         return this;
@@ -74,7 +74,7 @@ public class PacketPlayInTabComplete extends InPacket {
         return this.hasPosition;
     }
 
-    public Coordinates lookedAtBlock() {
+    public Position lookedAtBlock() {
         return this.lookedAtBlock;
     }
 

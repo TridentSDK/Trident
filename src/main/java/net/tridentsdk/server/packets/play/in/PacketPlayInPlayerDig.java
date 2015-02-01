@@ -18,7 +18,7 @@
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Coordinates;
+import net.tridentsdk.Position;
 import net.tridentsdk.base.BlockOrientation;
 import net.tridentsdk.event.Cancellable;
 import net.tridentsdk.event.Event;
@@ -34,7 +34,7 @@ import net.tridentsdk.util.TridentLogger;
 
 public class PacketPlayInPlayerDig extends InPacket {
     private short status;
-    private Coordinates location;
+    private Position location;
     private short blockFace;
 
     @Override
@@ -46,7 +46,7 @@ public class PacketPlayInPlayerDig extends InPacket {
         return this.status;
     }
 
-    public Coordinates location() {
+    public Position location() {
         return this.location;
     }
 
@@ -59,7 +59,7 @@ public class PacketPlayInPlayerDig extends InPacket {
         this.status = (short) buf.readByte();
         long encodedLocation = buf.readLong();
 
-        this.location = Coordinates.create(null, (double) (encodedLocation >> 38),
+        this.location = Position.create(null, (double) (encodedLocation >> 38),
                 (double) (encodedLocation << 26 >> 52), (double) (encodedLocation << 38 >> 38));
         this.blockFace = (short) buf.readByte();
 

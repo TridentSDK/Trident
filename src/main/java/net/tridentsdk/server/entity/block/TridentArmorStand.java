@@ -17,7 +17,7 @@
 
 package net.tridentsdk.server.entity.block;
 
-import net.tridentsdk.Coordinates;
+import net.tridentsdk.Position;
 import net.tridentsdk.entity.EntityProperties;
 import net.tridentsdk.entity.block.ArmorStand;
 import net.tridentsdk.entity.block.SlotProperties;
@@ -28,7 +28,7 @@ import net.tridentsdk.window.inventory.Item;
 import java.util.UUID;
 
 public class TridentArmorStand extends TridentEntity implements ArmorStand {
-    public TridentArmorStand(UUID id, Coordinates spawnLocation) {
+    public TridentArmorStand(UUID id, Position spawnLocation) {
         super(id, spawnLocation);
     }
 

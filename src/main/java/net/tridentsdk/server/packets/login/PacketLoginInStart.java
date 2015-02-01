@@ -24,11 +24,9 @@ import net.tridentsdk.server.encryption.RSA;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.InPacket;
-import net.tridentsdk.server.netty.packet.OutPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.packet.PacketDirection;
 import net.tridentsdk.server.netty.protocol.Protocol;
-import net.tridentsdk.server.packets.play.out.PacketPlayOutDisconnect;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.util.TridentLogger;
 
@@ -80,7 +78,7 @@ public class PacketLoginInStart extends InPacket {
         /*
          * If the client is the local machine, skip the encryption process and proceed to the PLAY stage
          */
-        if (connection.getAddress().getHostString().equals("127.0.0.1")) {
+        if (connection.address().getHostString().equals("127.0.0.1")) {
             UUID id;
 
             try {
@@ -156,12 +154,12 @@ public class PacketLoginInStart extends InPacket {
             return;
         }
 
-        LoginHandler.getInstance().initLogin(connection.getAddress(), this.name());
+        LoginHandler.getInstance().initLogin(connection.address(), this.name());
         PacketLoginOutEncryptionRequest p = new PacketLoginOutEncryptionRequest();
 
         // Generate the 4 byte token and update the packet
         connection.generateToken();
-        p.set("verifyToken", connection.getVerificationToken());
+        p.set("verifyToken", connection.verificationToken());
 
         try {
             /* Generate the 1024-bit encryption key specified for the client, only used during the LOGIN stage.

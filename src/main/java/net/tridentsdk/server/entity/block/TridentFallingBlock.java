@@ -17,7 +17,7 @@
 
 package net.tridentsdk.server.entity.block;
 
-import net.tridentsdk.Coordinates;
+import net.tridentsdk.Position;
 import net.tridentsdk.base.BlockSnapshot;
 import net.tridentsdk.entity.EntityProperties;
 import net.tridentsdk.entity.block.FallingBlock;
@@ -26,7 +26,7 @@ import net.tridentsdk.server.entity.TridentEntity;
 import java.util.UUID;
 
 public class TridentFallingBlock extends TridentEntity implements FallingBlock {
-    public TridentFallingBlock(UUID id, Coordinates spawnLocation) {
+    public TridentFallingBlock(UUID id, Position spawnLocation) {
         super(id, spawnLocation);
     }
 

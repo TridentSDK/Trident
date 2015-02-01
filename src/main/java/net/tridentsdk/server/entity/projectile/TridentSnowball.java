@@ -17,7 +17,7 @@
 
 package net.tridentsdk.server.entity.projectile;
 
-import net.tridentsdk.Coordinates;
+import net.tridentsdk.Position;
 import net.tridentsdk.entity.EntityProperties;
 import net.tridentsdk.entity.LivingEntity;
 import net.tridentsdk.entity.living.Blaze;
@@ -36,7 +36,7 @@ public class TridentSnowball extends TridentProjectile {
     /**
      * Inherits from {@link net.tridentsdk.server.entity.TridentProjectile}
      */
-    public TridentSnowball(UUID uniqueId, Coordinates spawnLocation, ProjectileLauncher source) {
+    public TridentSnowball(UUID uniqueId, Position spawnLocation, ProjectileLauncher source) {
         super(uniqueId, spawnLocation, source);
     }
 

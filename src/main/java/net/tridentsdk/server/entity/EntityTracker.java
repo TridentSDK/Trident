@@ -17,7 +17,7 @@
 
 package net.tridentsdk.server.entity;
 
-import net.tridentsdk.Coordinates;
+import net.tridentsdk.Position;
 import net.tridentsdk.Trident;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.entity.Entity;
@@ -49,7 +49,7 @@ public class EntityTracker {
         entity.world().entities().add(entity);
     }
 
-    public void trackMovement(Entity entity, Coordinates from, Coordinates to) {
+    public void trackMovement(Entity entity, Position from, Position to) {
         // TODO right order?
         Vector diff = from.asVector().subtract(to.asVector());
 
@@ -65,7 +65,7 @@ public class EntityTracker {
         sendMove(entity, to, diff);
     }
 
-    private void sendMove(Entity entity, Coordinates to, Vector diff) {
+    private void sendMove(Entity entity, Position to, Vector diff) {
         PacketPlayOutEntityCompleteMove move = new PacketPlayOutEntityCompleteMove();
         move.set("entityId", entity.entityId())
                 .set("difference", diff)

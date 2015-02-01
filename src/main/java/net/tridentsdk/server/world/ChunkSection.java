@@ -17,19 +17,16 @@
 
 package net.tridentsdk.server.world;
 
-import net.tridentsdk.Coordinates;
-import net.tridentsdk.base.Block;
-import net.tridentsdk.base.Substance;
+import net.tridentsdk.Position;
 import net.tridentsdk.meta.nbt.NBTField;
 import net.tridentsdk.meta.nbt.NBTSerializable;
 import net.tridentsdk.meta.nbt.TagType;
 import net.tridentsdk.util.NibbleArray;
-import net.tridentsdk.world.World;
 
 import java.util.Arrays;
 
 public final class ChunkSection implements NBTSerializable {
-    static final Coordinates DUMMY_COORDS = Coordinates.create(null, 0, 0, 0);
+    static final Position DUMMY_COORDS = Position.create(null, 0, 0, 0);
     static final int LENGTH = 4096; // 16^3 (width * height * depth)
 
     @NBTField(name = "Blocks", type = TagType.BYTE_ARRAY)
@@ -44,7 +41,7 @@ public final class ChunkSection implements NBTSerializable {
     public byte[] skyLight;
     @NBTField(name = "Y", type = TagType.BYTE)
     protected byte y;
-    public byte[] types;
+    public char[] types;
 
     public ChunkSection() {
     }
@@ -66,39 +63,23 @@ public final class ChunkSection implements NBTSerializable {
 
         Arrays.fill(skyLight, (byte) 15);
 
-        types = new byte[rawTypes.length];
+        types = new char[rawTypes.length];
 
         for (int i = 0; i < LENGTH; i += 1) {
-            Block block;
             byte b;
             byte bData;
             int bAdd;
 
             /* Get block data; use extras accordingly */
             b = rawTypes[i];
-            bAdd = NibbleArray.get(this.add,i) << 8;
-            b += bAdd;
-            bData = NibbleArray.get(this.data,i);
+            bAdd = NibbleArray.get(this.add, i) << 12;
+            bData = NibbleArray.get(this.data, i);
 
-            Substance material = Substance.fromId(b);
-
-            if (material == null) {
-                material = Substance.AIR; // check if valid
-            }
-
-            block = new TridentBlock(DUMMY_COORDS, material, bData);
-
-            /* TODO get the type and deal with block data accordingly */
-            switch (block.substance()) {
-                default:
-                    break;
-            }
-
-            types[i] = (byte) (bAdd | ((b & 0xff) << 4) | bData);
+            types[i] = (char) (bAdd | ((b & 0xff) << 4) | bData);
         }
     }
 
-    public byte[] types() {
+    public char[] types() {
         return types;
     }
 }

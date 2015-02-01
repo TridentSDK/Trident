@@ -17,7 +17,7 @@
 
 package net.tridentsdk.server.entity.living;
 
-import net.tridentsdk.Coordinates;
+import net.tridentsdk.Position;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.EntityProperties;
 import net.tridentsdk.entity.Projectile;
@@ -29,7 +29,7 @@ import net.tridentsdk.server.entity.TridentLivingEntity;
 import java.util.UUID;
 
 public class TridentEnderDragon extends TridentLivingEntity implements EnderDragon {
-    public TridentEnderDragon(UUID id, Coordinates spawnLocation) {
+    public TridentEnderDragon(UUID id, Position spawnLocation) {
         super(id, spawnLocation);
     }
 

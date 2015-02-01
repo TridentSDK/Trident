@@ -17,7 +17,7 @@
 
 package net.tridentsdk.server.entity.living;
 
-import net.tridentsdk.Coordinates;
+import net.tridentsdk.Position;
 import net.tridentsdk.entity.*;
 import net.tridentsdk.entity.living.Horse;
 import net.tridentsdk.entity.living.Player;
@@ -28,7 +28,7 @@ import net.tridentsdk.window.inventory.Inventory;
 import java.util.UUID;
 
 public class TridentHorse extends TridentLivingEntity implements Horse {
-    public TridentHorse(UUID id, Coordinates spawnLocation) {
+    public TridentHorse(UUID id, Position spawnLocation) {
         super(id, spawnLocation);
     }
 

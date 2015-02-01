@@ -18,13 +18,13 @@
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Coordinates;
-import net.tridentsdk.server.data.Position;
+import net.tridentsdk.Position;
+import net.tridentsdk.server.data.PositionWritable;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutEffect extends OutPacket {
     protected int effectId;
-    protected Coordinates loc;
+    protected Position loc;
     protected int data;
     protected boolean playSound;
 
@@ -37,7 +37,7 @@ public class PacketPlayOutEffect extends OutPacket {
         return this.effectId;
     }
 
-    public Coordinates location() {
+    public Position location() {
         return this.loc;
     }
 
@@ -53,7 +53,7 @@ public class PacketPlayOutEffect extends OutPacket {
     public void encode(ByteBuf buf) {
         buf.writeInt(this.effectId);
 
-        new Position(this.loc).write(buf);
+        new PositionWritable(this.loc).write(buf);
 
         buf.writeInt(this.data);
         buf.writeBoolean(this.playSound);

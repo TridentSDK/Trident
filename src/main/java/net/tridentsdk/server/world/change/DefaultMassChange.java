@@ -1,6 +1,6 @@
 package net.tridentsdk.server.world.change;
 
-import net.tridentsdk.Coordinates;
+import net.tridentsdk.Position;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.server.data.RecordBuilder;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutMultiBlockChange;
@@ -68,30 +68,30 @@ public class DefaultMassChange implements MassChange {
 
 
     @Override
-    public void setBlock(Coordinates coords, int id) throws IllegalStateException {
+    public void setBlock(Position coords, int id) throws IllegalStateException {
         setBlock(coords, id, (byte) 0);
     }
 
     @Override
-    public void setBlock(Coordinates coords, int id, byte data) throws IllegalArgumentException,
+    public void setBlock(Position coords, int id, byte data) throws IllegalArgumentException,
             IllegalStateException {
         if (coords.world().equals(this.world)) {
             setBlock((int) Math.round(coords.x()),
                     (int) Math.round(coords.y()),
                     (int) Math.round(coords.z()), id, data);
         } else {
-            throw new IllegalArgumentException("Coordinates provided do not match the world that this change is for");
+            throw new IllegalArgumentException("PositionWritable provided do not match the world that this change is for");
         }
     }
 
     @Override
-    public void setBlock(Coordinates coords, Substance substance) throws IllegalArgumentException,
+    public void setBlock(Position coords, Substance substance) throws IllegalArgumentException,
             IllegalStateException {
         setBlock(coords, substance, (byte) 0);
     }
 
     @Override
-    public void setBlock(Coordinates coords, Substance substance, byte data) throws IllegalArgumentException,
+    public void setBlock(Position coords, Substance substance, byte data) throws IllegalArgumentException,
             IllegalStateException {
         setBlock(coords, substance.id(), data);
     }

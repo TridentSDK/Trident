@@ -19,7 +19,7 @@ package net.tridentsdk.server.entity;
 
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.AtomicDouble;
-import net.tridentsdk.Coordinates;
+import net.tridentsdk.Position;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.docs.PossiblyThreadSafe;
@@ -95,7 +95,7 @@ public class TridentEntity implements Entity {
     /**
      * The entity location
      */
-    protected volatile Coordinates loc;
+    protected volatile Position loc;
     /**
      * Whether or not the entity is touching the ground
      */
@@ -127,14 +127,14 @@ public class TridentEntity implements Entity {
      * @param uniqueId      the UUID of the entity
      * @param spawnLocation the location which the entity is to be spawned
      */
-    public TridentEntity(UUID uniqueId, Coordinates spawnLocation) {
+    public TridentEntity(UUID uniqueId, Position spawnLocation) {
         this.uniqueId = uniqueId;
         this.id = counter.incrementAndGet();
         this.velocity = new Vector(0.0D, 0.0D, 0.0D);
         this.loc = spawnLocation;
 
         for (double y = this.loc.y(); y > 0.0; y--) {
-            Coordinates l = Coordinates.create(this.loc.world(), this.loc.x(), y, this.loc.z());
+            Position l = Position.create(this.loc.world(), this.loc.x(), y, this.loc.z());
 
             if (l.tile().substance() != Substance.AIR) {
                 this.fallDistance.set((long) (this.loc.y() - y));
@@ -163,7 +163,7 @@ public class TridentEntity implements Entity {
 
     @Override
     public void teleport(double x, double y, double z) {
-        this.teleport(Coordinates.create(this.world(), x, y, z));
+        this.teleport(Position.create(this.world(), x, y, z));
     }
 
     @Override
@@ -172,11 +172,11 @@ public class TridentEntity implements Entity {
     }
 
     @Override
-    public void teleport(Coordinates location) {
+    public void teleport(Position location) {
         this.loc = location;
 
         for (double y = this.loc.y(); y > 0.0; y--) {
-            Coordinates l = Coordinates.create(this.loc.world(), this.loc.x(), y, this.loc.z());
+            Position l = Position.create(this.loc.world(), this.loc.x(), y, this.loc.z());
 
             if (l.world().tileAt(l).substance() != Substance.AIR) {
                 this.fallDistance.set((long) (this.loc.y() - y));
@@ -197,11 +197,11 @@ public class TridentEntity implements Entity {
     }
 
     @Override
-    public Coordinates location() {
+    public Position location() {
         return this.loc;
     }
 
-    public void setLocation(Coordinates loc) {
+    public void setLocation(Position loc) {
         this.loc = loc;
     }
 
@@ -313,7 +313,7 @@ public class TridentEntity implements Entity {
      *
      * @param newCoords the new location for the entity
      */
-    public void doMove(Coordinates newCoords) {
+    public void doMove(Position newCoords) {
         HANDLER.trackMovement(this, location(), newCoords);
         this.setLocation(newCoords);
     }
@@ -362,7 +362,7 @@ public class TridentEntity implements Entity {
         this.id = counter.incrementAndGet();
 
         // TODO this is temporary for testing
-        loc = Coordinates.create(TridentServer.WORLD, 0, 0, 0);
+        loc = Position.create(TridentServer.WORLD, 0, 0, 0);
         velocity = new Vector(0, 0, 0);
 
         this.uniqueId = new UUID(uuidMost.value(), uuidLeast.value());

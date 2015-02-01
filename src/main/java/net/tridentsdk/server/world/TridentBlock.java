@@ -17,14 +17,14 @@
 
 package net.tridentsdk.server.world;
 
-import net.tridentsdk.Coordinates;
+import net.tridentsdk.Position;
 import net.tridentsdk.base.Block;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.util.Vector;
 
 public class TridentBlock implements Block {
-    private final Coordinates location;
+    private final Position location;
     /**
      * The type for this block
      */
@@ -40,7 +40,7 @@ public class TridentBlock implements Block {
      * @param location Location of the Block
      */
     @InternalUseOnly
-    public TridentBlock(Coordinates location) {
+    public TridentBlock(Position location) {
         this.location = location;
 
         // Note: Avoid recursion by not creating a new instance from World#tileAt(Location)
@@ -48,7 +48,7 @@ public class TridentBlock implements Block {
         this.material = worldBlock.substance();
     }
 
-    public TridentBlock(Coordinates location, Substance substance, byte meta) {
+    public TridentBlock(Position location, Substance substance, byte meta) {
         this.location = location;
         this.material = substance;
         this.data = meta;
@@ -65,7 +65,7 @@ public class TridentBlock implements Block {
     }
 
     @Override
-    public Coordinates location() {
+    public Position location() {
         return this.location;
     }
 
