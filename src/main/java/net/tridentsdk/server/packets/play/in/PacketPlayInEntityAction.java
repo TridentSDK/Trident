@@ -18,10 +18,14 @@
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.Trident;
+import net.tridentsdk.event.entity.PlayerToggleSprintEvent;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
+import net.tridentsdk.server.player.PlayerConnection;
+import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.util.TridentLogger;
 
 /**
@@ -61,7 +65,29 @@ public class PacketPlayInEntityAction extends InPacket {
 
     @Override
     public void handleReceived(ClientConnection connection) {
-        // TODO: Act accordingly
+        TridentPlayer player = ((PlayerConnection) connection).player();
+
+        switch(type) {
+            case START_SPRINTING:
+            case STOP_SPRINTING:
+                PlayerToggleSprintEvent event = new PlayerToggleSprintEvent(player, type ==
+                        ActionType.START_SPRINTING);
+
+                Trident.eventHandler().fire(event);
+
+                if(!event.isIgnored()) {
+                    player.setSprinting(event.sprintOn());
+                }
+                break;
+
+            case CROUCH:
+                player.setCrouching(true);
+                break;
+
+            case UN_CROUCH:
+                player.setCrouching(false);
+                break;
+        }
     }
 
     public enum ActionType {

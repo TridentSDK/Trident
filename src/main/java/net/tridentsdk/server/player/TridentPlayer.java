@@ -52,6 +52,9 @@ public class TridentPlayer extends OfflinePlayer {
     private final Queue<PacketPlayOutMapChunkBulk> chunkQueue =
             Queues.newConcurrentLinkedQueue();
     private volatile boolean loggingIn = true;
+    private volatile boolean sprinting;
+    private volatile boolean crouching;
+    private volatile boolean flying;
     private volatile Locale locale;
 
     public TridentPlayer(CompoundTag tag, TridentWorld world, ClientConnection connection) {
@@ -61,12 +64,12 @@ public class TridentPlayer extends OfflinePlayer {
     }
 
     public static void sendAll(Packet packet) {
-        for (Player p : getPlayers()) {
+        for (Player p : players()) {
             ((TridentPlayer) p).connection.sendPacket(packet);
         }
     }
 
-    public static Player spawnPlayer(ClientConnection connection, UUID id) {
+    public static TridentPlayer spawnPlayer(ClientConnection connection, UUID id) {
         CompoundTag offlinePlayer = (OfflinePlayer.getOfflinePlayer(
                 id) == null) ? null : OfflinePlayer.getOfflinePlayer(id).asNbt();
 
@@ -91,6 +94,10 @@ public class TridentPlayer extends OfflinePlayer {
                         .set("maxPlayers", (short) 10)
                         .set("levelType", LevelType.DEFAULT));
 
+                p.gameMode = GameMode.CREATIVE;
+                p.abilities.instantBreak = 1;
+                p.abilities.flySpeed = 1;
+
                 p.connection.sendPacket(PacketPlayOutPluginMessage.VANILLA_CHANNEL);
                 p.connection.sendPacket(new PacketPlayOutServerDifficulty().set("difficulty", p.world().difficulty()));
                 p.connection.sendPacket(new PacketPlayOutSpawnPosition().set("location", p.spawnLocation()));
@@ -104,7 +111,7 @@ public class TridentPlayer extends OfflinePlayer {
     }
 
     public static Player getPlayer(UUID id) {
-        for (Player player : getPlayers()) {
+        for (Player player : players()) {
             if (player.uniqueId().equals(id)) {
                 return player;
             }
@@ -113,7 +120,7 @@ public class TridentPlayer extends OfflinePlayer {
         return null;
     }
 
-    public static Collection<Player> getPlayers() {
+    public static Collection<Player> players() {
         return Factories.threads().players();
     }
 
@@ -143,7 +150,8 @@ public class TridentPlayer extends OfflinePlayer {
         loggingIn = false;
         connection.sendPacket(new PacketPlayOutEntityVelocity()
                 .set("entityId", entityId())
-                .set("velocity", new Vector(0, -0.1, 0)));
+                .set("velocity", new Vector(0, -0.07, 0)));
+        connection.sendPacket(new PacketPlayOutGameStateChange().set("reason", 3).set("value", (float) gameMode.asByte()));
     }
 
     @Override
@@ -154,7 +162,7 @@ public class TridentPlayer extends OfflinePlayer {
                 TridentPlayer.super.tick();
 
                 if(!isLoggingIn())
-                    sendChunks(7);
+                    sendChunks(TridentServer.instance().viewDistance());
 
                 if(!chunkQueue.isEmpty())
                     connection.sendPacket(chunkQueue.poll());
@@ -178,7 +186,7 @@ public class TridentPlayer extends OfflinePlayer {
         });
     }
 
-    public PlayerConnection getConnection() {
+    public PlayerConnection connection() {
         return this.connection;
     }
 
@@ -193,6 +201,34 @@ public class TridentPlayer extends OfflinePlayer {
                 TridentPlayer.super.selectedSlot = slot;
             }
         });
+    }
+
+    public void setSprinting(boolean sprinting) {
+        this.sprinting = sprinting;
+    }
+
+    public void setFlying(boolean flying) {
+        this.flying = flying;
+
+        abilities.flying = (flying) ? (byte) 1 : (byte) 0;
+        connection.sendPacket(abilities.asPacket());
+    }
+
+    public boolean isFlying() {
+        return flying;
+    }
+
+    public boolean isSprinting() {
+        return sprinting;
+    }
+
+    public boolean isCrouching() {
+        return crouching;
+    }
+
+    @InternalUseOnly
+    public void setCrouching(boolean crouching) {
+        this.crouching = crouching;
     }
 
     @Override

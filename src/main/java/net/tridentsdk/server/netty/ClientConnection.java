@@ -266,7 +266,7 @@ public class ClientConnection {
      *
      * @return the netty channel wrapped by the handler
      */
-    public Channel getChannel() {
+    public Channel channel() {
         return this.channel;
     }
 
@@ -275,7 +275,7 @@ public class ClientConnection {
      *
      * @return the handled IP address
      */
-    public InetSocketAddress getAddress() {
+    public InetSocketAddress address() {
         return this.address;
     }
 
@@ -284,7 +284,7 @@ public class ClientConnection {
      *
      * @return the current state of the protocol for the client
      */
-    public Protocol.ClientStage getStage() {
+    public Protocol.ClientStage stage() {
         return this.stage;
     }
 
@@ -302,7 +302,7 @@ public class ClientConnection {
      *
      * @return the token of which to verify the client
      */
-    public byte[] getVerificationToken() {
+    public byte[] verificationToken() {
         return this.verificationToken;
     }
 
@@ -324,7 +324,7 @@ public class ClientConnection {
      *
      * @return the {@link java.security.KeyPair} for the client
      */
-    public KeyPair getLoginKeyPair() {
+    public KeyPair loginKeyPair() {
         return this.loginKeyPair;
     }
 
@@ -342,7 +342,7 @@ public class ClientConnection {
      *
      * @return the {@link javax.crypto.SecretKey} shared between the server and client
      */
-    public SecretKey getSharedSecret() {
+    public SecretKey sharedSecret() {
         return this.sharedSecret;
     }
 

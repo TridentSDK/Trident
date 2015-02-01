@@ -117,22 +117,22 @@ public class PacketLoginInEncryptionResponse extends InPacket {
         byte[] token = null;
 
         try {
-            sharedSecret = RSA.decrypt(this.encryptedSecret, connection.getLoginKeyPair().getPrivate());
-            token = RSA.decrypt(this.encryptedToken, connection.getLoginKeyPair().getPrivate());
+            sharedSecret = RSA.decrypt(this.encryptedSecret, connection.loginKeyPair().getPrivate());
+            token = RSA.decrypt(this.encryptedToken, connection.loginKeyPair().getPrivate());
         } catch (Exception e) {
             TridentLogger.error(e);
         }
 
         // Check that we got the same verification token;
-        if (!Arrays.equals(connection.getVerificationToken(), token)) {
-            TridentLogger.log("Client with IP " + connection.getAddress().getHostName() +
+        if (!Arrays.equals(connection.verificationToken(), token)) {
+            TridentLogger.log("Client with IP " + connection.address().getHostName() +
                     " has sent an invalid token!");
 
             connection.logout();
             return;
         }
 
-        String name = LoginHandler.getInstance().name(connection.getAddress());
+        String name = LoginHandler.getInstance().name(connection.address());
         StringBuilder sb = new StringBuilder();
 
         try {
@@ -179,16 +179,16 @@ public class PacketLoginInEncryptionResponse extends InPacket {
         packet.set("username", response.name);
 
         // Send the client PacketLoginOutSuccess and set the new stage to PLAY
-        connection.sendPacket(packet);
         connection.enableCompression();
+        connection.sendPacket(packet);
         connection.setStage(Protocol.ClientStage.PLAY);
 
         // Store the UUID to be used when spawning the player
         UUID id = UUID.fromString(packet.uniqueId());
 
         // Remove stored information in LoginManager and spawn the player
-        LoginHandler.getInstance().finish(connection.getAddress());
-        TridentPlayer.spawnPlayer(connection, id);
+        LoginHandler.getInstance().finish(connection.address());
+        TridentPlayer.spawnPlayer(connection, id).resumeLogin();
     }
 
     protected static final class HashGenerator {
@@ -204,7 +204,7 @@ public class PacketLoginInEncryptionResponse extends InPacket {
          * @return Generated Hash
          */
         static byte[] getHash(ClientConnection connection, byte... secret) throws Exception {
-            byte[][] b = { secret, connection.getLoginKeyPair().getPublic().getEncoded() };
+            byte[][] b = { secret, connection.loginKeyPair().getPublic().getEncoded() };
             MessageDigest digest = MessageDigest.getInstance("SHA-1");
 
             for (byte[] bytes : b) {

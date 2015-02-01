@@ -51,7 +51,7 @@ public class PacketStatusInRequest extends InPacket {
         // Set MOTD and max players based on the config TODO events
         response.description.text = TridentServer.instance().config().getString("motd", Defaults.MOTD);
         response.players.max = TridentServer.instance().config().getInt("max-players", Defaults.MAX_PLAYERS);
-        response.players.online = TridentPlayer.getPlayers().size();
+        response.players.online = TridentPlayer.players().size();
 
         packet.response = response;
 

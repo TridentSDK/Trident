@@ -121,7 +121,7 @@ public class TridentWindow implements Window {
         setSlot.set("windowId", windowId()).set("slot", (short) index).set("item", new Slot(value));
 
         for (Player player : users) {
-            ((TridentPlayer) player).getConnection().sendPacket(setSlot);
+            ((TridentPlayer) player).connection().sendPacket(setSlot);
         }
     }
 
@@ -150,12 +150,12 @@ public class TridentWindow implements Window {
                 .set("windowTitle", name())
                 .set("slots", length())
                 .set("entityId", -1);
-        player.getConnection().sendPacket(window);
+        player.connection().sendPacket(window);
 
         for (int i = 0; i < length(); i++) {
             PacketPlayOutSetSlot setSlot = new PacketPlayOutSetSlot();
             setSlot.set("windowId", windowId()).set("slot", (short) i).set("item", new Slot(items()[i]));
-            player.getConnection().sendPacket(window);
+            player.connection().sendPacket(window);
         }
 
         addClosedListener(player);
@@ -166,8 +166,8 @@ public class TridentWindow implements Window {
             reason = "Extremely unsafe and causes unspecified behavior without proper handling",
             fix = "Do not use reflection on this method")
     private void addClosedListener(Player player) {
-        final PlayerConnection connection = ((TridentPlayer) player).getConnection();
-        connection.getChannel().pipeline().addLast(new ChannelHandlerAdapter() {
+        final PlayerConnection connection = ((TridentPlayer) player).connection();
+        connection.channel().pipeline().addLast(new ChannelHandlerAdapter() {
             @Override
             // Occurs after the message should be decoded
             public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -175,7 +175,7 @@ public class TridentWindow implements Window {
                     PacketPlayInPlayerCloseWindow windowClose = (PacketPlayInPlayerCloseWindow) msg;
                     if (windowClose.getWindowId() == windowId())
                         for (Player player1 : users) {
-                            if (connection.getChannel().equals(ctx.channel())) {
+                            if (connection.channel().equals(ctx.channel())) {
                                 users.remove(player1);
                                 ctx.pipeline().remove(this);
                             }

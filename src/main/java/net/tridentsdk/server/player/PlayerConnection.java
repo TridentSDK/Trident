@@ -50,18 +50,18 @@ public class PlayerConnection extends ClientConnection {
 
     private PlayerConnection(ClientConnection connection, TridentPlayer player) {
         // remove old connection, and replace it with this one
-        ClientConnection.clientData.remove(connection.getAddress());
-        ClientConnection.clientData.retrieve(connection.getAddress(), new Callable<ClientConnection>() {
+        ClientConnection.clientData.remove(connection.address());
+        ClientConnection.clientData.retrieve(connection.address(), new Callable<ClientConnection>() {
             @Override
             public ClientConnection call() throws Exception {
                 return PlayerConnection.this;
             }
         });
 
-        super.address = connection.getAddress();
-        super.channel = connection.getChannel();
-        super.loginKeyPair = connection.getLoginKeyPair();
-        super.sharedSecret = connection.getSharedSecret();
+        super.address = connection.address();
+        super.channel = connection.channel();
+        super.loginKeyPair = connection.loginKeyPair();
+        super.sharedSecret = connection.sharedSecret();
         super.stage = Protocol.ClientStage.PLAY; // stage must be PLAY to actually create PlayerConnection
         super.encryptionEnabled = connection.isEncryptionEnabled();
         super.compressionEnabled = connection.isCompressionEnabled();
