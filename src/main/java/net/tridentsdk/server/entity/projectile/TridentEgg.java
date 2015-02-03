@@ -14,9 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.entity.projectile;
 
-import net.tridentsdk.Coordinates;
+import net.tridentsdk.Position;
 import net.tridentsdk.entity.EntityProperties;
 import net.tridentsdk.entity.living.ProjectileLauncher;
 import net.tridentsdk.entity.projectile.Egg;
@@ -35,7 +36,7 @@ public class TridentEgg extends TridentProjectile implements Egg {
     /**
      * Inherits constructor from {@link net.tridentsdk.server.entity.TridentProjectile}
      */
-    public TridentEgg(UUID uniqueId, Coordinates spawnLocation, ProjectileLauncher source) {
+    public TridentEgg(UUID uniqueId, Position spawnLocation, ProjectileLauncher source) {
         super(uniqueId, spawnLocation, source);
     }
 
@@ -50,10 +51,10 @@ public class TridentEgg extends TridentProjectile implements Egg {
         if (chance <= 8) {
             if (chance == 1) {
                 for (int i = 0; i < 4; i++) {
-                    TRACKER.track(new TridentChicken(UUID.randomUUID(), this.getLocation()));
+                    HANDLER.register(new TridentChicken(UUID.randomUUID(), this.location()));
                 }
             } else {
-                TRACKER.track(new TridentChicken(UUID.randomUUID(), this.getLocation()));
+                HANDLER.register(new TridentChicken(UUID.randomUUID(), this.location()));
             }
         }
     }

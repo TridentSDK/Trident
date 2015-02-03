@@ -14,16 +14,73 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.world;
 
-import net.tridentsdk.Coordinates;
+import net.tridentsdk.Position;
+import net.tridentsdk.base.Block;
 import net.tridentsdk.base.Substance;
-import net.tridentsdk.base.Tile;
+import net.tridentsdk.docs.InternalUseOnly;
+import net.tridentsdk.util.Vector;
 
-public class TridentBlock extends Tile {
-    public TridentBlock(Coordinates location, Substance material1, byte data) {
-        super(location, true);
-        super.material = material1;
-        super.data = data;
+public class TridentBlock implements Block {
+    private final Position location;
+    /**
+     * The type for this block
+     */
+    protected volatile Substance material;
+    /**
+     * The block metadata
+     */
+    protected byte data;
+
+    /**
+     * Constructs the wrapper representing the block
+     *
+     * @param location Location of the Block
+     */
+    @InternalUseOnly
+    public TridentBlock(Position location) {
+        this.location = location;
+
+        // Note: Avoid recursion by not creating a new instance from World#tileAt(Location)
+        Block worldBlock = location.world().tileAt(location);
+        this.material = worldBlock.substance();
+    }
+
+    public TridentBlock(Position location, Substance substance, byte meta) {
+        this.location = location;
+        this.material = substance;
+        this.data = meta;
+    }
+
+    @Override
+    public Substance substance() {
+        return this.material;
+    }
+
+    @Override
+    public void setSubstance(Substance material) {
+        this.material = material;
+    }
+
+    @Override
+    public Position location() {
+        return this.location;
+    }
+
+    @Override
+    public byte meta() {
+        return this.data;
+    }
+
+    @Override
+    public void setMeta(byte data) {
+        this.data = data;
+    }
+
+    @Override
+    public Block relativeBlock(Vector vector) {
+        return new TridentBlock(this.location.relative(vector));
     }
 }

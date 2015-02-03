@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.encryption;
 
 import javax.crypto.Cipher;
@@ -24,6 +25,8 @@ import java.security.NoSuchAlgorithmException;
 
 /**
  * Produces RSA encryption digests
+ *
+ * <p>Used to create encrypted packets that the server sends to clients</p>
  *
  * @author The TridentSDK Team
  */
@@ -72,7 +75,7 @@ public final class RSA {
         Cipher cipher = Cipher.getInstance("RSA");
         cipher.init(Cipher.ENCRYPT_MODE, key);
 
-        return cipher.doFinal(new byte[]{data});
+        return cipher.doFinal(new byte[] { data });
     }
 
     /**
@@ -102,6 +105,6 @@ public final class RSA {
         Cipher cipher = Cipher.getInstance("RSA");
         cipher.init(Cipher.DECRYPT_MODE, key);
 
-        return cipher.doFinal(new byte[]{data});
+        return cipher.doFinal(new byte[] { data });
     }
 }

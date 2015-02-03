@@ -14,10 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Coordinates;
+import net.tridentsdk.Position;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
@@ -31,33 +32,35 @@ public class PacketPlayOutSpawnPlayer extends OutPacket {
     // TODO: entity metadata
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x0C;
     }
 
-    public int getEntityId() {
+    public int entityId() {
         return this.entityId;
     }
 
-    public Player getPlayer() {
+    public Player player() {
         return this.player;
     }
 
     @Override
     public void encode(ByteBuf buf) {
-        Coordinates loc = this.player.getLocation();
-        UUID id = this.player.getUniqueId();
+        Position loc = this.player.location();
+        UUID id = this.player.uniqueId();
 
         Codec.writeVarInt32(buf, this.entityId);
 
         buf.writeLong(id.getMostSignificantBits());
         buf.writeLong(id.getLeastSignificantBits());
 
-        buf.writeInt((int) loc.getX() * 32);
-        buf.writeInt((int) loc.getY() * 32);
-        buf.writeInt((int) loc.getZ() * 32);
+        buf.writeInt((int) loc.x() * 32);
+        buf.writeInt((int) loc.y() * 32);
+        buf.writeInt((int) loc.z() * 32);
 
-        buf.writeByte((int) (byte) loc.getYaw());
-        buf.writeByte((int) (byte) loc.getPitch());
+        buf.writeByte((int) (byte) loc.yaw());
+        buf.writeByte((int) (byte) loc.pitch());
+
+        buf.writeShort(player.heldItem().id());
     }
 }

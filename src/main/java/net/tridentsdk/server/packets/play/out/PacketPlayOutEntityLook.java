@@ -14,32 +14,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Coordinates;
+import net.tridentsdk.Position;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutEntityLook extends OutPacket {
     protected int entityId;
-    protected Coordinates location;
+    protected Position location;
     protected boolean onGround;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x16;
     }
 
-    public int getEntityId() {
+    public int entityId() {
         return this.entityId;
     }
 
-    public Coordinates getLocation() {
+    public Position location() {
         return this.location;
     }
 
-    public boolean isOnGround() {
+    public boolean onGround() {
         return this.onGround;
     }
 
@@ -47,8 +48,8 @@ public class PacketPlayOutEntityLook extends OutPacket {
     public void encode(ByteBuf buf) {
         Codec.writeVarInt32(buf, this.entityId);
 
-        buf.writeByte((int) this.location.getYaw());
-        buf.writeByte((int) this.location.getPitch());
+        buf.writeByte((int) this.location.yaw());
+        buf.writeByte((int) this.location.pitch());
 
         buf.writeBoolean(this.onGround);
     }

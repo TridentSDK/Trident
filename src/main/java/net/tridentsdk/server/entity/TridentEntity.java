@@ -14,27 +14,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.entity;
 
-import net.tridentsdk.Coordinates;
-import net.tridentsdk.Trident;
+import com.google.common.collect.Sets;
+import com.google.common.util.concurrent.AtomicDouble;
+import net.tridentsdk.Position;
 import net.tridentsdk.base.Substance;
-import net.tridentsdk.concurrent.TaskExecutor;
 import net.tridentsdk.docs.InternalUseOnly;
+import net.tridentsdk.docs.PossiblyThreadSafe;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.EntityProperties;
 import net.tridentsdk.entity.EntityType;
-import net.tridentsdk.factory.Factories;
+import net.tridentsdk.factory.ExecutorFactory;
 import net.tridentsdk.meta.nbt.*;
 import net.tridentsdk.server.TridentServer;
+import net.tridentsdk.server.packets.play.out.PacketPlayOutDestroyEntities;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutEntityTeleport;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutEntityVelocity;
 import net.tridentsdk.server.player.TridentPlayer;
-import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.util.Vector;
+import net.tridentsdk.util.WeakEntity;
 import net.tridentsdk.world.World;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -44,13 +48,34 @@ import java.util.concurrent.atomic.AtomicLong;
  *
  * @author The TridentSDK Team
  */
+@PossiblyThreadSafe
 public class TridentEntity implements Entity {
     @InternalUseOnly
     protected static final AtomicInteger counter = new AtomicInteger(-1);
     /**
      * Internal entity tracker, used to spawn the entity and track movement, etc.
      */
-    protected static final EntityTracker TRACKER = new EntityTracker();
+    protected static final EntityHandler HANDLER = EntityHandler.create();
+    /**
+     * The distance the entity has fallen
+     */
+    protected final AtomicDouble fallDistance = new AtomicDouble(0L);
+    /**
+     * The ticks that have passed since the entity was spawned, and alive
+     */
+    protected final AtomicLong ticksExisted = new AtomicLong(0L);
+    /**
+     * How long the entity has been on fire
+     */
+    protected final AtomicInteger fireTicks = new AtomicInteger(0);
+    /**
+     * How many ticks of air the entity has left
+     */
+    protected final AtomicLong airTicks = new AtomicLong();
+    /**
+     * Length of time the entity must wait to enter a portal. Unknown unit. TODO
+     */
+    protected final AtomicInteger portalCooldown = new AtomicInteger(900);
     /**
      * The entity ID for the entity
      */
@@ -60,33 +85,17 @@ public class TridentEntity implements Entity {
      */
     protected UUID uniqueId;
     /**
-     * The distance the entity has fallen
-     */
-    protected final AtomicLong fallDistance = new AtomicLong(0L);
-    /**
-     * The ticks that have passed since the entity was spawned, and alive
-     */
-    protected final AtomicLong ticksExisted = new AtomicLong(0L);
-    /**
      * Entity task executor
      */
-    protected final TaskExecutor executor = Factories.threads().entityThread(this);
+    protected volatile ExecutorFactory<Entity> executor;
     /**
      * The movement vector for the entity
      */
     protected volatile Vector velocity;
     /**
-     * Whether or not the movement vector has changed
-     */
-    protected volatile boolean velocityChanged;
-    /**
      * The entity location
      */
-    protected volatile Coordinates loc;
-    /**
-     * Whether or not the entity has changed position
-     */
-    protected volatile boolean locationChanged;
+    protected volatile Position loc;
     /**
      * Whether or not the entity is touching the ground
      */
@@ -94,33 +103,23 @@ public class TridentEntity implements Entity {
     /**
      * The entity's passenger, if there are any
      */
-    protected Entity passenger;
+    protected volatile Entity passenger;
     /**
      * The name of the entity appearing above the head
      */
-    protected String displayName;
+    protected volatile String displayName;
     /**
      * Whether or not the name of the entity is visible
      */
-    protected boolean nameVisible;
+    protected volatile boolean nameVisible;
     /**
      * TODO
      */
-    protected boolean silent;
+    protected volatile boolean silent;
     /**
-     *
+     * {@code true} to indicate the entity cannot be damaged
      */
-    protected final AtomicInteger fireTicks = new AtomicInteger(0);
-    /**
-     *
-     */
-    protected final AtomicInteger airTicks = new AtomicInteger(0);
-    /**
-     *
-     */
-    protected boolean godMode;
-
-    protected final AtomicInteger portalCooldown = new AtomicInteger(900);
+    protected volatile boolean godMode;
 
     /**
      * Creates a new entity
@@ -128,61 +127,59 @@ public class TridentEntity implements Entity {
      * @param uniqueId      the UUID of the entity
      * @param spawnLocation the location which the entity is to be spawned
      */
-    public TridentEntity(UUID uniqueId, Coordinates spawnLocation) {
+    public TridentEntity(UUID uniqueId, Position spawnLocation) {
         this.uniqueId = uniqueId;
         this.id = counter.incrementAndGet();
-
         this.velocity = new Vector(0.0D, 0.0D, 0.0D);
-        this.velocityChanged = false;
-
         this.loc = spawnLocation;
-        this.locationChanged = false;
 
-        for (double y = this.loc.getY(); y > 0.0; y--) {
-            Coordinates l = new Coordinates(this.loc.getWorld(), this.loc.getX(),
-                    y, this.loc.getZ());
+        for (double y = this.loc.y(); y > 0.0; y--) {
+            Position l = Position.create(this.loc.world(), this.loc.x(), y, this.loc.z());
 
-            if (l.getTile().getSubstance() != Substance.AIR) {
-                this.fallDistance.set((long) (this.loc.getY() - y));
+            if (l.tile().substance() != Substance.AIR) {
+                this.fallDistance.set((long) (this.loc.y() - y));
                 this.onGround = this.fallDistance.get() == 0.0D;
 
                 break;
             }
         }
-
-        this.passenger = null;
-
-        TridentServer.getInstance().getEntityManager().registerEntity(this);
-        TRACKER.track(this);
-        // TODO Perhaps we should spawn it in a different method?
     }
 
     @Deprecated
     protected TridentEntity() {
-        // contructor for deserializing
+        // constructor for deserializing
+    }
+
+    /**
+     * Begin entity management
+     *
+     * @return the current entity
+     */
+    public TridentEntity spawn() {
+        HANDLER.register(this);
+        executor.assign(this);
+        return this;
     }
 
     @Override
     public void teleport(double x, double y, double z) {
-        this.teleport(new Coordinates(this.getWorld(), x, y, z));
+        this.teleport(Position.create(this.world(), x, y, z));
     }
 
     @Override
     public void teleport(Entity entity) {
-        this.teleport(entity.getLocation());
+        this.teleport(entity.location());
     }
 
     @Override
-    public void teleport(Coordinates location) {
+    public void teleport(Position location) {
         this.loc = location;
-        this.locationChanged = true;
 
-        for (double y = this.loc.getY(); y > 0.0; y--) {
-            Coordinates l = new Coordinates(this.loc.getWorld(), this.loc.getX(),
-                    y, this.loc.getZ());
+        for (double y = this.loc.y(); y > 0.0; y--) {
+            Position l = Position.create(this.loc.world(), this.loc.x(), y, this.loc.z());
 
-            if (l.getWorld().getTileAt(l).getSubstance() != Substance.AIR) {
-                this.fallDistance.set((long) (this.loc.getY() - y));
+            if (l.world().tileAt(l).substance() != Substance.AIR) {
+                this.fallDistance.set((long) (this.loc.y() - y));
                 this.onGround = this.fallDistance.get() == 0.0D;
 
                 break;
@@ -195,35 +192,33 @@ public class TridentEntity implements Entity {
     }
 
     @Override
-    public World getWorld() {
-        return this.loc.getWorld();
+    public World world() {
+        return this.loc.world();
     }
 
     @Override
-    public Coordinates getLocation() {
+    public Position location() {
         return this.loc;
     }
 
-    public void setLocation(Coordinates loc) {
+    public void setLocation(Position loc) {
         this.loc = loc;
     }
 
     @Override
-    public Vector getVelocity() {
+    public Vector velocity() {
         return this.velocity;
     }
 
     @Override
     public void setVelocity(Vector vector) {
         this.velocity = vector;
-        this.velocityChanged = true;
 
-        TridentPlayer.sendAll(new PacketPlayOutEntityVelocity().set("entityId", this.id)
-                .set("velocity", vector));
+        TridentPlayer.sendAll(new PacketPlayOutEntityVelocity().set("entityId", this.id).set("velocity", vector));
     }
 
     @Override
-    public String getDisplayName() {
+    public String displayName() {
         return this.displayName;
     }
 
@@ -238,44 +233,52 @@ public class TridentEntity implements Entity {
     }
 
     @Override
-    public UUID getUniqueId() {
+    public UUID uniqueId() {
         return this.uniqueId;
     }
 
-    @Override
     public void tick() {
         this.ticksExisted.incrementAndGet();
     }
 
     @Override
-    public boolean isOnGround() {
+    public boolean onGround() {
         return this.onGround;
     }
 
-    /**
-     * TODO
-     *
-     * @param radius the spherical radius to look for entities around
-     */
     @Override
-    public List<Entity> getNearbyEntities(double radius) {
-        return null;
+    public Set<Entity> withinRange(double radius) {
+        double squared = radius * radius;
+        Set<Entity> entities = location().world().entities();
+        Set<Entity> near = Sets.newHashSet();
+        for (Entity entity : entities) {
+            if (entity.location().distanceSquared(location()) <= squared)
+                near.add(entity);
+        }
+
+        return near;
     }
 
     @Override
-    public int getId() {
+    public int entityId() {
         return this.id;
     }
 
-    /**
-     * TODO
-     */
     @Override
     public void remove() {
+        PacketPlayOutDestroyEntities packet = new PacketPlayOutDestroyEntities();
+        packet.set("destroyedEntities", new int[] { entityId() });
+        TridentPlayer.sendAll(packet);
+        HANDLER.removeEntity(this);
+        try {
+            WeakEntity.clearReferencesTo(this);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
-    public Entity getPassenger() {
+    public Entity passenger() {
         return this.passenger;
     }
 
@@ -288,11 +291,11 @@ public class TridentEntity implements Entity {
 
     @Override
     public void eject() {
-        //
+        // TODO
     }
 
     @Override
-    public EntityType getType() {
+    public EntityType type() {
         return null;
     }
 
@@ -305,22 +308,30 @@ public class TridentEntity implements Entity {
     public void applyProperties(EntityProperties properties) {
     }
 
-    public void doMove(Coordinates newCoords) {
-        TRACKER.trackMovement(this, getLocation(), newCoords);
-        this.locationChanged = true;
+    /**
+     * Moves the entity to the new coordinates. Not for teleportation.
+     *
+     * @param newCoords the new location for the entity
+     */
+    public void doMove(Position newCoords) {
+        HANDLER.trackMovement(this, location(), newCoords);
         this.setLocation(newCoords);
     }
 
     public void load(CompoundTag tag) {
         /* IDs */
-        String id = ((StringTag) tag.getTag("id")).getValue(); // EntityType, in form of a string
+        if(!(tag.getTag("id") instanceof NullTag)) {
+            // players will not have this value
+            String type = ((StringTag) tag.getTag("id")).value(); // EntityType, in form of a string
+        }
         LongTag uuidMost = tag.getTagAs("UUIDMost"); // most signifigant bits of UUID
         LongTag uuidLeast = tag.getTagAs("UUIDLeast"); // least signifigant bits of UUID
 
         /* Location and Velocity */
         List<NBTTag> pos = ((ListTag) tag.getTagAs("Pos")).listTags(); // 3 double tags describing x, y, z
         List<NBTTag> motion = ((ListTag) tag.getTagAs("Motion")).listTags(); // 3 double tags describing velocity
-        List<NBTTag> rotation = ((ListTag) tag.getTagAs("Rotation")).listTags(); // 2 float tags describing yaw and pitch
+        List<NBTTag> rotation = ((ListTag) tag.getTagAs(
+                "Rotation")).listTags(); // 2 float tags describing yaw and pitch
 
         FloatTag fallDistance = tag.getTagAs("FallDistance"); // distance from the entity to the ground
         ShortTag fireTicks = tag.getTagAs("Fire"); // number of ticks until fire goes out
@@ -331,16 +342,18 @@ public class TridentEntity implements Entity {
 
         /* Dimensions */
         IntTag dimension = tag.getTagAs("Dimension"); // no found usage; -1 for nether, 0 for overworld, 1 for end
-        IntTag portalCooldown = tag.getTagAs("PortalCooldown"); // amount of ticks until entity can use a portal, starts at 900
+        IntTag portalCooldown = tag.getTagAs(
+                "PortalCooldown"); // amount of ticks until entity can use a portal, starts at 900
 
         /* Display Name */
-        StringTag displayName = (tag.containsTag("CustomName")) ? (StringTag) tag.getTag("CustomName") :
-                new StringTag("CustomName").setValue(""); // Custom name for the entity, other known as display name.
-        ByteTag dnVisible = (tag.containsTag("CustomNameVisible")) ? (ByteTag) tag.getTag("CustomNameVisible") :
-                new ByteTag("CustomNameVisible").setValue((byte) 0); // 0 = false, 1 = true - If true, it will always appear above them
+        StringTag displayName = (tag.containsTag("CustomName")) ? (StringTag) tag.getTag("CustomName") : new StringTag(
+                "CustomName").setValue(""); // Custom name for the entity, other known as display name.
+        ByteTag dnVisible = (tag.containsTag("CustomNameVisible")) ? (ByteTag) tag.getTag(
+                "CustomNameVisible") : new ByteTag("CustomNameVisible").setValue(
+                (byte) 0); // 0 = false, 1 = true - If true, it will always appear above them
 
-        ByteTag silent = (tag.containsTag("Silent")) ? (ByteTag) tag.getTag("Silent") :
-                new ByteTag("Silent").setValue((byte) 0); // 0 = false, 1 = true - If true, the entity will not make a sound
+        ByteTag silent = (tag.containsTag("Silent")) ? (ByteTag) tag.getTag("Silent") : new ByteTag("Silent").setValue(
+                (byte) 0); // 0 = false, 1 = true - If true, the entity will not make a sound
 
         NBTTag riding = tag.getTagAs("Riding"); // CompoundTag of the entity being ridden, contents are recursive
         NBTTag commandStats = tag.getTagAs("CommandStats"); // Information to modify relative to the last command run
@@ -348,20 +361,21 @@ public class TridentEntity implements Entity {
         /* Set data */
         this.id = counter.incrementAndGet();
 
-        loc = new Coordinates(Trident.getWorlds().iterator().next(), 0, 0, 0);
+        // TODO this is temporary for testing
+        loc = Position.create(TridentServer.WORLD, 0, 0, 0);
         velocity = new Vector(0, 0, 0);
 
-        this.uniqueId = new UUID(uuidMost.getValue(), uuidLeast.getValue());
+        this.uniqueId = new UUID(uuidMost.value(), uuidLeast.value());
 
         double[] location = new double[3];
 
         for (int i = 0; i < 3; i += 1) {
             NBTTag t = pos.get(i);
 
-            if(t instanceof DoubleTag) {
-                location[i] = ((DoubleTag) t).getValue();
+            if (t instanceof DoubleTag) {
+                location[i] = ((DoubleTag) t).value();
             } else {
-                location[i] = ((IntTag) t).getValue();
+                location[i] = ((IntTag) t).value();
             }
         }
 
@@ -375,10 +389,10 @@ public class TridentEntity implements Entity {
         for (int i = 0; i < 3; i += 1) {
             NBTTag t = motion.get(i);
 
-            if(t instanceof DoubleTag) {
-                velocity[i] = ((DoubleTag) t).getValue();
+            if (t instanceof DoubleTag) {
+                velocity[i] = ((DoubleTag) t).value();
             } else {
-                velocity[i] = ((IntTag) t).getValue();
+                velocity[i] = ((IntTag) t).value();
             }
         }
 
@@ -388,28 +402,29 @@ public class TridentEntity implements Entity {
         this.velocity.setZ(velocity[2]);
 
         // set yaw and pitch from NBTTag
-        if(rotation.get(0) instanceof IntTag) {
-            loc.setYaw(((IntTag) rotation.get(0)).getValue());
+        if (rotation.get(0) instanceof IntTag) {
+            loc.setYaw(((IntTag) rotation.get(0)).value());
         } else {
-            loc.setYaw(((FloatTag) rotation.get(0)).getValue());
+            loc.setYaw(((FloatTag) rotation.get(0)).value());
         }
 
-        if(rotation.get(1) instanceof IntTag) {
-            loc.setPitch(((IntTag) rotation.get(1)).getValue());
+        if (rotation.get(1) instanceof IntTag) {
+            loc.setPitch(((IntTag) rotation.get(1)).value());
         } else {
-            loc.setPitch(((FloatTag) rotation.get(1)).getValue());
+            loc.setPitch(((FloatTag) rotation.get(1)).value());
         }
 
-        this.fallDistance.set((long) fallDistance.getValue()); // FIXME: may lose precision, consider changing AtomicLong
-        this.fireTicks.set(fireTicks.getValue());
-        this.airTicks.set(airTicks.getValue());
-        this.portalCooldown.set(portalCooldown.getValue());
+        this.fallDistance.set(
+                (long) fallDistance.value()); // FIXME: may lose precision, consider changing AtomicLong
+        this.fireTicks.set(fireTicks.value());
+        this.airTicks.set(airTicks.value());
+        this.portalCooldown.set(portalCooldown.value());
 
-        this.onGround = onGround.getValue() == 1;
-        this.godMode = invulnerable.getValue() == 1;
+        this.onGround = onGround.value() == 1;
+        this.godMode = invulnerable.value() == 1;
 
-        this.nameVisible = dnVisible.getValue() == 1;
-        this.silent = silent.getValue() == 1;
-        this.displayName = displayName.getValue();
+        this.nameVisible = dnVisible.value() == 1;
+        this.silent = silent.value() == 1;
+        this.displayName = displayName.value();
     }
 }

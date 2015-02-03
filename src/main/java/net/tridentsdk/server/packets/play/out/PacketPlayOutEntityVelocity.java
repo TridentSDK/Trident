@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
@@ -27,15 +28,15 @@ public class PacketPlayOutEntityVelocity extends OutPacket {
     protected Vector velocity;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x12;
     }
 
-    public int getEntityId() {
+    public int entityId() {
         return this.entityId;
     }
 
-    public Vector getVelocity() {
+    public Vector velocity() {
         return this.velocity;
     }
 
@@ -43,8 +44,8 @@ public class PacketPlayOutEntityVelocity extends OutPacket {
     public void encode(ByteBuf buf) {
         Codec.writeVarInt32(buf, this.entityId);
 
-        buf.writeShort((int) this.velocity.getX());
-        buf.writeShort((int) this.velocity.getY());
-        buf.writeShort((int) this.velocity.getZ());
+        buf.writeShort((int) this.velocity.x());
+        buf.writeShort((int) this.velocity.y());
+        buf.writeShort((int) this.velocity.z());
     }
 }

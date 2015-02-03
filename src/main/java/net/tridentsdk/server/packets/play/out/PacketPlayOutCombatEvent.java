@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
@@ -31,27 +32,27 @@ public class PacketPlayOutCombatEvent extends OutPacket {
     protected String message;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x42;
     }
 
-    public short getEvent() {
+    public short event() {
         return this.event;
     }
 
-    public int getEntityId() {
+    public int entityId() {
         return this.entityId;
     }
 
-    public short getDuration() {
+    public short duration() {
         return this.duration;
     }
 
-    public int getPlayerId() {
+    public int playerId() {
         return this.playerId;
     }
 
-    public String getMessage() {
+    public String message() {
         return this.message;
     }
 

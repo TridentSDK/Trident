@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.entity.decorate;
 
 import net.tridentsdk.entity.LivingEntity;
@@ -31,7 +32,7 @@ public class DecoratedEquippable extends LivingDecorationAdapter implements Equi
     }
 
     @Override
-    public Item[] getEquipment() {
+    public Item[] equipment() {
         return equipment;
     }
 
@@ -44,11 +45,9 @@ public class DecoratedEquippable extends LivingDecorationAdapter implements Equi
         for (int i = 0; i < equipment.length; i++) {
             Item stack = equipment[i];
             PacketPlayOutEntityEquipment entityEquipment = new PacketPlayOutEntityEquipment();
-            entityEquipment
-                    .set("entityId", original().getId())
+            entityEquipment.set("entityId", original().entityId())
                     .set("slot", (short) i + 5)
-                    .set(String.valueOf(i + 5),
-                            Long.decode(Integer.toHexString(stack.getId()) + "010000ffff").longValue());
+                    .set(String.valueOf(i + 5), Long.decode(Integer.toHexString(stack.id()) + "010000ffff"));
             TridentPlayer.sendAll(entityEquipment);
         }
     }

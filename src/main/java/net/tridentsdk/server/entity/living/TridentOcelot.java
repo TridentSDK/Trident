@@ -14,27 +14,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.entity.living;
 
-import net.tridentsdk.Coordinates;
+import net.tridentsdk.Position;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.EntityProperties;
 import net.tridentsdk.entity.OcelotType;
+import net.tridentsdk.entity.Projectile;
 import net.tridentsdk.entity.living.Ocelot;
 import net.tridentsdk.entity.living.Player;
-import net.tridentsdk.entity.projectile.Projectile;
 import net.tridentsdk.event.entity.EntityDamageEvent;
 import net.tridentsdk.server.entity.TridentLivingEntity;
 
 import java.util.UUID;
 
 public class TridentOcelot extends TridentLivingEntity implements Ocelot {
-    public TridentOcelot(UUID id, Coordinates spawnLocation) {
+    public TridentOcelot(UUID id, Position spawnLocation) {
         super(id, spawnLocation);
     }
 
     @Override
-    public OcelotType getBreed() {
+    public OcelotType breed() {
         return null;
     }
 
@@ -44,7 +45,7 @@ public class TridentOcelot extends TridentLivingEntity implements Ocelot {
     }
 
     @Override
-    public UUID getOwner() {
+    public UUID owner() {
         return null;
     }
 
@@ -54,7 +55,7 @@ public class TridentOcelot extends TridentLivingEntity implements Ocelot {
     }
 
     @Override
-    public int getAge() {
+    public int age() {
         return 0;
     }
 
@@ -84,12 +85,12 @@ public class TridentOcelot extends TridentLivingEntity implements Ocelot {
     }
 
     @Override
-    public EntityDamageEvent getLastDamageCause() {
+    public EntityDamageEvent lastDamageEvent() {
         return null;
     }
 
     @Override
-    public Player hurtByPlayer() {
+    public Player lastPlayerDamager() {
         return null;
     }
 

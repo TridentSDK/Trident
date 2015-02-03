@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
@@ -35,11 +36,11 @@ public class PacketPlayInPlayerSpectate extends InPacket {
     protected UUID uuid;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x18;
     }
 
-    public UUID getUniqueId() {
+    public UUID uniqueId() {
         return this.uuid;
     }
 

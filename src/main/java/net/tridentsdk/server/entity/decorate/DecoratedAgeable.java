@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.entity.decorate;
 
 import net.tridentsdk.entity.Entity;
@@ -40,7 +41,7 @@ public abstract class DecoratedAgeable extends LivingDecorationAdapter {
      *
      * @return the age of this entity
      */
-    public int getAge() {
+    public int age() {
         return age;
     }
 
@@ -54,7 +55,8 @@ public abstract class DecoratedAgeable extends LivingDecorationAdapter {
     }
 
     /**
-     * Whether or not this entity can breed or not, where the ability to breed represents whether or not this entity can
+     * Whether or not this entity can breed or not, where the ability to breed represents whether or not this entity
+     * can
      * become "in love"
      *
      * @return whether or not this entity can be bred
@@ -74,11 +76,12 @@ public abstract class DecoratedAgeable extends LivingDecorationAdapter {
     }
 
     public void applyLove(Entity other) {
-        if (!isInLove()) return;
+        if (!isInLove())
+            return;
         PacketPlayOutParticle particle = new PacketPlayOutParticle();
         particle.set("particleId", 34)
                 .set("distance", false)
-                .set("loc", original().getEyeLocation().add(new Vector(0, 1, 0)))
+                .set("loc", original().headLocation().add(new Vector(0, 1, 0)))
                 .set("offset", new Vector(0, 1, 0))
                 .set("particleData", 0.0F)
                 .set("data", new int[0]);

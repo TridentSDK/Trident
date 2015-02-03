@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
@@ -34,31 +35,31 @@ public class PacketPlayOutJoinGame extends OutPacket {
     protected LevelType levelType;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x01;
     }
 
-    public int getEntityId() {
+    public int entityId() {
         return this.entityId;
     }
 
-    public GameMode getGamemode() {
+    public GameMode gameMode() {
         return this.gamemode;
     }
 
-    public Dimension getDimension() {
+    public Dimension dimension() {
         return this.dimension;
     }
 
-    public Difficulty getDifficulty() {
+    public Difficulty difficulty() {
         return this.difficulty;
     }
 
-    public short getMaxPlayers() {
+    public short maxPlayers() {
         return this.maxPlayers;
     }
 
-    public LevelType getLevelType() {
+    public LevelType levelType() {
         return this.levelType;
     }
 
@@ -66,9 +67,9 @@ public class PacketPlayOutJoinGame extends OutPacket {
     public void encode(ByteBuf buf) {
         buf.writeInt(this.entityId);
 
-        buf.writeByte((int) this.gamemode.toByte());
-        buf.writeByte((int) this.dimension.toByte());
-        buf.writeByte((int) this.difficulty.toByte());
+        buf.writeByte((int) this.gamemode.asByte());
+        buf.writeByte((int) this.dimension.asByte());
+        buf.writeByte((int) this.difficulty.asByte());
         buf.writeByte((int) this.maxPlayers);
 
         Codec.writeString(buf, this.levelType.toString());

@@ -14,58 +14,47 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Coordinates;
+import net.tridentsdk.Position;
 import net.tridentsdk.server.data.RecordBuilder;
 import net.tridentsdk.server.netty.packet.OutPacket;
 import net.tridentsdk.util.Vector;
 
 public class PacketPlayOutExplosion extends OutPacket {
-    protected Coordinates loc;
+    protected Position loc;
     protected int recordCount;
     protected RecordBuilder[] records;
     protected Vector velocity;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x27;
     }
 
-    public Coordinates getLoc() {
+    public Position location() {
         return this.loc;
     }
 
-    public int getRecordCount() {
+    public int recordCount() {
         return this.recordCount;
     }
 
-    public RecordBuilder[] getRecords() {
+    public RecordBuilder[] records() {
         return this.records;
     }
 
-    public Vector getVelocity() {
+    public Vector velocity() {
         return this.velocity;
-    }
-
-    public void cleanup() {
-        RecordBuilder[] newRecords = {};
-
-        for (RecordBuilder builder : this.records) {
-            if (builder != null) {
-                newRecords[newRecords.length] = builder;
-            }
-        }
-
-        this.records = newRecords;
     }
 
     @Override
     public void encode(ByteBuf buf) {
-        buf.writeFloat((float) this.loc.getX());
-        buf.writeFloat((float) this.loc.getY());
-        buf.writeFloat((float) this.loc.getZ());
+        buf.writeFloat((float) this.loc.x());
+        buf.writeFloat((float) this.loc.y());
+        buf.writeFloat((float) this.loc.z());
         buf.writeFloat(0.0F); // unused by client
 
         buf.writeInt(this.recordCount);
@@ -74,8 +63,8 @@ public class PacketPlayOutExplosion extends OutPacket {
             builder.write(buf);
         }
 
-        buf.writeFloat((float) this.velocity.getX());
-        buf.writeFloat((float) this.velocity.getY());
-        buf.writeFloat((float) this.velocity.getZ());
+        buf.writeFloat((float) this.velocity.x());
+        buf.writeFloat((float) this.velocity.y());
+        buf.writeFloat((float) this.velocity.z());
     }
 }

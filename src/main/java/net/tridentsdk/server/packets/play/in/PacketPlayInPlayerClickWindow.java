@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
@@ -35,7 +36,7 @@ public class PacketPlayInPlayerClickWindow extends InPacket {
      */
     protected int windowId;
     /**
-     * The button used in the click, dependent on action number <p/> TODO reference to wiki
+     * The button used in the click, dependent on action number  TODO reference to wiki
      */
     protected int clickedButton;
 
@@ -57,31 +58,31 @@ public class PacketPlayInPlayerClickWindow extends InPacket {
     protected Slot clickedItem;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x0E;
     }
 
-    public int getWindowId() {
+    public int windowId() {
         return this.windowId;
     }
 
-    public int getClickedButton() {
+    public int clickedButton() {
         return this.clickedButton;
     }
 
-    public short getClickedSlot() {
+    public short clickedSlot() {
         return this.clickedSlot;
     }
 
-    public short getActionNumber() {
+    public short actionNumber() {
         return this.actionNumber;
     }
 
-    public short getMode() {
+    public short mode() {
         return this.mode;
     }
 
-    public Slot getClickedItem() {
+    public Slot clickedItem() {
         return this.clickedItem;
     }
 
@@ -100,10 +101,10 @@ public class PacketPlayInPlayerClickWindow extends InPacket {
 
     @Override
     public void handleReceived(ClientConnection connection) {
-        Window window = TridentServer.getInstance().getWindow(this.windowId);
+        Window window = TridentServer.instance().windowBy(this.windowId);
         PlayerClickItemEvent clickEvent = new PlayerClickItemEvent(window, this.clickedSlot, (int) this.actionNumber);
 
-        TridentServer.getInstance().getEventManager().call(clickEvent);
+        TridentServer.instance().eventHandler().fire(clickEvent);
 
         if (clickEvent.isIgnored()) {
         }

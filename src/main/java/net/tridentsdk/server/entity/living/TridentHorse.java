@@ -14,31 +14,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.entity.living;
 
-import net.tridentsdk.Coordinates;
-import net.tridentsdk.entity.Entity;
-import net.tridentsdk.entity.EntityProperties;
-import net.tridentsdk.entity.HorseType;
-import net.tridentsdk.entity.HorseVariant;
+import net.tridentsdk.Position;
+import net.tridentsdk.entity.*;
 import net.tridentsdk.entity.living.Horse;
 import net.tridentsdk.entity.living.Player;
-import net.tridentsdk.entity.projectile.Projectile;
 import net.tridentsdk.event.entity.EntityDamageEvent;
 import net.tridentsdk.server.entity.TridentLivingEntity;
 import net.tridentsdk.window.inventory.Inventory;
-import net.tridentsdk.window.inventory.Item;
 
 import java.util.UUID;
 
 public class TridentHorse extends TridentLivingEntity implements Horse {
-
-    public TridentHorse(UUID id, Coordinates spawnLocation) {
+    public TridentHorse(UUID id, Position spawnLocation) {
         super(id, spawnLocation);
     }
 
     @Override
-    public HorseType getBreed() {
+    public HorseType breed() {
         return null;
     }
 
@@ -48,7 +43,7 @@ public class TridentHorse extends TridentLivingEntity implements Horse {
     }
 
     @Override
-    public int getTemper() {
+    public int temper() {
         return 0;
     }
 
@@ -58,7 +53,7 @@ public class TridentHorse extends TridentLivingEntity implements Horse {
     }
 
     @Override
-    public HorseVariant getVariant() {
+    public HorseVariant variant() {
         return null;
     }
 
@@ -68,7 +63,7 @@ public class TridentHorse extends TridentLivingEntity implements Horse {
     }
 
     @Override
-    public int getAge() {
+    public int age() {
         return 0;
     }
 
@@ -88,12 +83,7 @@ public class TridentHorse extends TridentLivingEntity implements Horse {
     }
 
     @Override
-    public Inventory getInventory() {
-        return null;
-    }
-
-    @Override
-    public Item getContent(int slot) {
+    public Inventory inventory() {
         return null;
     }
 
@@ -113,7 +103,7 @@ public class TridentHorse extends TridentLivingEntity implements Horse {
     }
 
     @Override
-    public UUID getOwner() {
+    public UUID owner() {
         return null;
     }
 
@@ -128,12 +118,12 @@ public class TridentHorse extends TridentLivingEntity implements Horse {
     }
 
     @Override
-    public EntityDamageEvent getLastDamageCause() {
+    public EntityDamageEvent lastDamageEvent() {
         return null;
     }
 
     @Override
-    public Player hurtByPlayer() {
+    public Player lastPlayerDamager() {
         return null;
     }
 

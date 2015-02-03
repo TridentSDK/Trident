@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
@@ -26,15 +27,15 @@ public class PacketPlayOutConfirmTransaction extends OutPacket {
     protected boolean accepted;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x32;
     }
 
-    public int getWindowId() {
+    public int windowId() {
         return this.windowId;
     }
 
-    public short getActionNumber() {
+    public short actionNumber() {
         return this.actionNumber;
     }
 

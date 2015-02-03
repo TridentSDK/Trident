@@ -14,11 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Coordinates;
-import net.tridentsdk.base.TileOrientation;
+import net.tridentsdk.Position;
+import net.tridentsdk.base.BlockOrientation;
 import net.tridentsdk.event.Cancellable;
 import net.tridentsdk.event.Event;
 import net.tridentsdk.event.player.PlayerDigEvent;
@@ -33,23 +34,23 @@ import net.tridentsdk.util.TridentLogger;
 
 public class PacketPlayInPlayerDig extends InPacket {
     private short status;
-    private Coordinates location;
+    private Position location;
     private short blockFace;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x07;
     }
 
-    public short getStatus() {
+    public short status() {
         return this.status;
     }
 
-    public Coordinates getLocation() {
+    public Position location() {
         return this.location;
     }
 
-    public short getBlockFace() {
+    public short blockFace() {
         return this.blockFace;
     }
 
@@ -58,8 +59,8 @@ public class PacketPlayInPlayerDig extends InPacket {
         this.status = (short) buf.readByte();
         long encodedLocation = buf.readLong();
 
-        this.location = new Coordinates(null, (double) (encodedLocation >> 38), (double) (encodedLocation << 26 >> 52),
-                (double) (encodedLocation << 38 >> 38));
+        this.location = Position.create(null, (double) (encodedLocation >> 38),
+                (double) (encodedLocation << 26 >> 52), (double) (encodedLocation << 38 >> 38));
         this.blockFace = (short) buf.readByte();
 
         return this;
@@ -67,17 +68,17 @@ public class PacketPlayInPlayerDig extends InPacket {
 
     @Override
     public void handleReceived(ClientConnection connection) {
-        TridentPlayer player = ((PlayerConnection) connection).getPlayer();
+        TridentPlayer player = ((PlayerConnection) connection).player();
         DigStatus digStatus = DigStatus.getStatus(this.status);
-        TileOrientation face = null;
+        BlockOrientation face = null;
 
         switch (this.blockFace) {
             case 0:
-                face = TileOrientation.BOTTOM;
+                face = BlockOrientation.BOTTOM;
                 break;
 
             case 1:
-                face = TileOrientation.TOP;
+                face = BlockOrientation.TOP;
                 break;
 
             case 2:
@@ -122,12 +123,12 @@ public class PacketPlayInPlayerDig extends InPacket {
                 break;
         }
 
-        TridentServer.getInstance().getEventManager().call((Event) event);
+        TridentServer.instance().eventHandler().fire((Event) event);
 
         if (event == null || event.isIgnored())
             return;
 
-        this.location.setWorld(player.getWorld());
+        this.location.setWorld(player.world());
     }
 
     public enum DigStatus {

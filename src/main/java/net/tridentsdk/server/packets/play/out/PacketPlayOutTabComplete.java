@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
@@ -25,11 +26,11 @@ public class PacketPlayOutTabComplete extends OutPacket {
     protected String[] matches;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x3A;
     }
 
-    public String[] getMatches() {
+    public String[] matches() {
         return this.matches;
     }
 

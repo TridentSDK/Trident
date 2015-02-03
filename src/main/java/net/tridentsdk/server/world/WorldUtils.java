@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.world;
 
 import net.tridentsdk.world.ChunkLocation;
@@ -31,7 +32,7 @@ public final class WorldUtils {
      * @param y the y height specified
      * @return the section index
      */
-    public static int getSection(int y) {
+    public static int section(int y) {
         return y >> 4;
     }
 
@@ -42,8 +43,8 @@ public final class WorldUtils {
      * @param z the specified z
      * @return the chunk location
      */
-    public static ChunkLocation getChunkLocation(int x, int z) {
-        return new ChunkLocation(x >> 4, z >> 4);
+    public static ChunkLocation chunkLocation(int x, int z) {
+        return ChunkLocation.create(x >> 4, z >> 4);
     }
 
     /**
@@ -52,8 +53,8 @@ public final class WorldUtils {
      * @param location the location to get the region file for
      * @return the region file containing the location
      */
-    public static String getRegionFile(ChunkLocation location) {
-        return "r." + (location.getX() >> 5) + '.' + (location.getZ() >> 5) + ".mca";
+    public static String regionFile(ChunkLocation location) {
+        return "r." + (location.x() >> 5) + '.' + (location.z() >> 5) + ".mca";
     }
 
     /**
@@ -63,7 +64,7 @@ public final class WorldUtils {
      * @param z the specified z
      * @return the region file containing the x and y
      */
-    public static String getRegionFile(int x, int z) {
+    public static String regionFile(int x, int z) {
         return "r." + (x >> 9) + '.' + (z >> 9) + ".mca";
     }
 
@@ -75,8 +76,17 @@ public final class WorldUtils {
      * @param z the specified z
      * @return the index of the block array containing the coordinates given
      */
-    public static int getBlockArrayIndex(int x, int y, int z) {
-        return y << 8 + z << 4 + x;
+    public static int blockArrayIndex(int x, int y, int z) {
+
+        if (x < 0) {
+            x++;
+            x = -x;
+        }
+        if (z < 0) {
+            z++;
+            z = -z;
+        }
+        return (y << 8) + (z << 4) + x;
     }
 
     /**
@@ -86,7 +96,7 @@ public final class WorldUtils {
      * @param index       the nibble index
      * @return the index of the nibble byte
      */
-    public static byte getFromNibbleArray(byte[] nibbleArray, int index) {
+    public static byte fromNibbleArray(byte[] nibbleArray, int index) {
         boolean off = index % 2 == 1;
 
         if (off) {
@@ -95,5 +105,4 @@ public final class WorldUtils {
             return (byte) (nibbleArray[index / 2] & NIBBLE_MASK);
         }
     }
-
 }

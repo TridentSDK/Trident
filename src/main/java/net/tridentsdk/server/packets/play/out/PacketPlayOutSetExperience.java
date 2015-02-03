@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
@@ -27,19 +28,19 @@ public class PacketPlayOutSetExperience extends OutPacket {
     protected long totalExperience;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x0F;
     }
 
-    public float getExperienceBar() {
+    public float experienceBar() {
         return this.experienceBar;
     }
 
-    public int getLevel() {
+    public int level() {
         return this.level;
     }
 
-    public long getTotalExperience() {
+    public long totalExperience() {
         return this.totalExperience;
     }
 

@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
@@ -30,12 +31,12 @@ import net.tridentsdk.server.player.TridentPlayer;
 public class PacketPlayInChat extends InPacket {
 
     /**
-     * Message sent by the client, represented in JSON <p/> TODO: provide example
+     * Message sent by the client, represented in JSON  TODO: provide example
      */
     protected String message;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x01;
     }
 
@@ -46,18 +47,19 @@ public class PacketPlayInChat extends InPacket {
         return this;
     }
 
-    public String getMessage() {
+    public String message() {
         return this.message;
     }
 
     @Override
     public void handleReceived(ClientConnection connection) {
         PlayerConnection pc = (PlayerConnection) connection;
-        TridentPlayer player = pc.getPlayer();
+        TridentPlayer player = pc.player();
         OutPacket packet = new PacketPlayOutChatMessage();
 
-        packet.set("jsonMessage", new MessageBuilder(String
-                .format("<%s> %s", player.getDisplayName(), this.message)));
+        packet.set("jsonMessage",
+                new MessageBuilder(String.format("<%s> %s", player.displayName(), this.message)).asJson()); // FIXME
+        packet.set("position", PacketPlayOutChatMessage.ChatPosition.CHAT);
 
         TridentPlayer.sendAll(packet);
     }

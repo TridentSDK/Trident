@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.netty.packet;
 
 import io.netty.buffer.ByteBuf;
@@ -35,7 +36,9 @@ public class UnknownPacket implements Packet {
     }
 
     /**
-     * {@inheritDoc} <p/> <p>Cannot be encoded. Throws UnsupportedOperationException</p>
+     * {@inheritDoc}
+     *
+     * <p>Cannot be encoded. Throws UnsupportedOperationException</p>
      */
     @Override
     public void encode(ByteBuf buf) {
@@ -43,20 +46,24 @@ public class UnknownPacket implements Packet {
     }
 
     @Override
-    public int getId() {
+    public int id() {
         return -1;
     }
 
     /**
-     * {@inheritDoc} <p/> <p>Returns {@code null}, since we don't know where the packet came from</p>
+     * {@inheritDoc}
+     *
+     * <p>Returns {@code null}, since we don't know where the packet came from</p>
      */
     @Override
-    public PacketType getType() {
+    public PacketDirection direction() {
         return null;
     }
 
     /**
-     * {@inheritDoc} <p/> <p>Does not do anything</p>
+     * {@inheritDoc}
+     *
+     * <p>Does not do anything</p>
      */
     @Override
     public void handleReceived(ClientConnection connection) {

@@ -14,21 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.entity.living;
 
-import net.tridentsdk.Coordinates;
+import net.tridentsdk.Position;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.EntityProperties;
+import net.tridentsdk.entity.Projectile;
 import net.tridentsdk.entity.living.EnderDragon;
 import net.tridentsdk.entity.living.Player;
-import net.tridentsdk.entity.projectile.Projectile;
 import net.tridentsdk.event.entity.EntityDamageEvent;
 import net.tridentsdk.server.entity.TridentLivingEntity;
 
 import java.util.UUID;
 
 public class TridentEnderDragon extends TridentLivingEntity implements EnderDragon {
-    public TridentEnderDragon(UUID id, Coordinates spawnLocation) {
+    public TridentEnderDragon(UUID id, Position spawnLocation) {
         super(id, spawnLocation);
     }
 
@@ -43,12 +44,12 @@ public class TridentEnderDragon extends TridentLivingEntity implements EnderDrag
     }
 
     @Override
-    public EntityDamageEvent getLastDamageCause() {
+    public EntityDamageEvent lastDamageEvent() {
         return null;
     }
 
     @Override
-    public Player hurtByPlayer() {
+    public Player lastPlayerDamager() {
         return null;
     }
 

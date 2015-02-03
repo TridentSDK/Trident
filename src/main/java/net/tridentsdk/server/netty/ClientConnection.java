@@ -14,16 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.netty;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
+import net.tridentsdk.concurrent.ConcurrentCache;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.protocol.Protocol;
 import net.tridentsdk.server.packets.login.PacketLoginOutSetCompression;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutDisconnect;
-import net.tridentsdk.server.threads.ThreadsManager;
+import net.tridentsdk.server.player.PlayerConnection;
+import net.tridentsdk.server.player.TridentPlayer;
+import net.tridentsdk.server.threads.ThreadsHandler;
 import net.tridentsdk.util.TridentLogger;
 
 import javax.crypto.Cipher;
@@ -33,9 +37,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.net.InetSocketAddress;
 import java.security.KeyPair;
 import java.security.SecureRandom;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.Callable;
 
 /**
  * Handles the connection of a client upon joining
@@ -46,8 +48,7 @@ public class ClientConnection {
     /**
      * Map of client connections registered
      */
-    protected static final Map<InetSocketAddress, AtomicReference<ClientConnection>> clientData =
-            new ConcurrentHashMap<>();
+    protected static final ConcurrentCache<InetSocketAddress, ClientConnection> clientData = ConcurrentCache.create();
 
     /**
      * Random for generating the verification token
@@ -59,6 +60,15 @@ public class ClientConnection {
     protected static final Cipher cipher = getCipher();
 
     /* Network fields */
+    private static final Callable<ClientConnection> NULL_CALLABLE = new Callable<ClientConnection>() {
+        @Override
+        public ClientConnection call() throws Exception {
+            return null;
+        }
+    };
+    private final Object BARRIER;
+
+    /* Encryption and client data fields */
     /**
      * The client's connection address
      */
@@ -67,8 +77,6 @@ public class ClientConnection {
      * The data channel
      */
     protected Channel channel;
-
-    /* Encryption and client data fields */
     /**
      * The login key pair
      */
@@ -93,15 +101,13 @@ public class ClientConnection {
      * Whether or not encryption is enabled
      */
     protected volatile boolean compressionEnabled = false;
-    /**
-     * Encryption IV specification
-     */
     private IvParameterSpec ivSpec;
 
     /**
      * Creates a new connection handler for the joining channel stream
      */
     protected ClientConnection(Channel channel) {
+        BARRIER = new Object();
         this.address = (InetSocketAddress) channel.remoteAddress();
         this.channel = channel;
         this.encryptionEnabled = false;
@@ -109,6 +115,7 @@ public class ClientConnection {
     }
 
     protected ClientConnection() {
+        BARRIER = new Object();
     }
 
     private static Cipher getCipher() {
@@ -128,7 +135,7 @@ public class ClientConnection {
      * @return {@code true} if the IP is on the server, {@code false} if not
      */
     public static boolean isLoggedIn(InetSocketAddress address) {
-        return clientData.containsKey(address);
+        return clientData.keys().contains(address);
     }
 
     /**
@@ -138,16 +145,7 @@ public class ClientConnection {
      * @return the instance of the client handler associated with the IP, or {@code null} if not registered
      */
     public static ClientConnection getConnection(InetSocketAddress address) {
-        // Get the connection reference
-        AtomicReference<ClientConnection> reference = clientData.get(address);
-
-        // return null if connection is not found
-        if (reference == null) {
-            return null;
-        }
-
-        // return found connection
-        return reference.get();
+        return clientData.retrieve(address, NULL_CALLABLE);
     }
 
     /**
@@ -156,7 +154,7 @@ public class ClientConnection {
      * @param chx the context of which to find the client from
      * @return the client connection given the handler context, or {@code null} if not registered
      */
-    public static ClientConnection getConnection(ChannelHandlerContext chx) {
+    public static ClientConnection connection(ChannelHandlerContext chx) {
         return getConnection((InetSocketAddress) chx.channel().remoteAddress());
     }
 
@@ -166,13 +164,13 @@ public class ClientConnection {
      * @param channel the channel of which the player is connected by
      * @return the client connection that was registered
      */
-    public static ClientConnection registerConnection(Channel channel) {
-        // Make a new instance of ClientConnection
-        ClientConnection newConnection = new ClientConnection(channel);
-
-        // Register data and return the new instance
-        clientData.put(newConnection.getAddress(), new AtomicReference<>(newConnection));
-        return newConnection;
+    public static ClientConnection registerConnection(final Channel channel) {
+        return clientData.retrieve((InetSocketAddress) channel.remoteAddress(), new Callable<ClientConnection>() {
+            @Override
+            public ClientConnection call() throws Exception {
+                return new ClientConnection(channel);
+            }
+        });
     }
 
     /**
@@ -184,7 +182,9 @@ public class ClientConnection {
         // Create new ByteBuf
         ByteBuf buffer = this.channel.alloc().buffer();
 
-        Codec.writeVarInt32(buffer, packet.getId());
+        TridentLogger.log("Sent " + packet.getClass().getSimpleName());
+
+        Codec.writeVarInt32(buffer, packet.id());
         packet.encode(buffer);
 
         // Write the packet and flush it
@@ -245,12 +245,15 @@ public class ClientConnection {
         }
     }
 
+    /**
+     * Allows compression on the server and client
+     */
     public void enableCompression() {
-        if(compressionEnabled) {
+        if (compressionEnabled) {
             TridentLogger.error(new UnsupportedOperationException("Compression is already enabled!"));
         }
 
-        if(stage != Protocol.ClientStage.LOGIN)  {
+        if (stage != Protocol.ClientStage.LOGIN) {
             TridentLogger.error(new UnsupportedOperationException());
         }
 
@@ -263,7 +266,7 @@ public class ClientConnection {
      *
      * @return the netty channel wrapped by the handler
      */
-    public Channel getChannel() {
+    public Channel channel() {
         return this.channel;
     }
 
@@ -272,7 +275,7 @@ public class ClientConnection {
      *
      * @return the handled IP address
      */
-    public InetSocketAddress getAddress() {
+    public InetSocketAddress address() {
         return this.address;
     }
 
@@ -281,7 +284,7 @@ public class ClientConnection {
      *
      * @return the current state of the protocol for the client
      */
-    public Protocol.ClientStage getStage() {
+    public Protocol.ClientStage stage() {
         return this.stage;
     }
 
@@ -299,7 +302,7 @@ public class ClientConnection {
      *
      * @return the token of which to verify the client
      */
-    public byte[] getVerificationToken() {
+    public byte[] verificationToken() {
         return this.verificationToken;
     }
 
@@ -321,7 +324,7 @@ public class ClientConnection {
      *
      * @return the {@link java.security.KeyPair} for the client
      */
-    public KeyPair getLoginKeyPair() {
+    public KeyPair loginKeyPair() {
         return this.loginKeyPair;
     }
 
@@ -339,7 +342,7 @@ public class ClientConnection {
      *
      * @return the {@link javax.crypto.SecretKey} shared between the server and client
      */
-    public SecretKey getSharedSecret() {
+    public SecretKey sharedSecret() {
         return this.sharedSecret;
     }
 
@@ -347,8 +350,15 @@ public class ClientConnection {
      * Removes the client's server side client handler
      */
     public void logout() {
+
+        if (this instanceof PlayerConnection) {
+            TridentPlayer player = ((PlayerConnection) this).player();
+            ThreadsHandler.remove(player);
+            player.remove();
+        }
+
+
         clientData.remove(this.address);
-        ThreadsManager.remove(this);
         this.channel.close();
     }
 }

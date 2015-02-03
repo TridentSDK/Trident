@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.netty.packet;
 
 import io.netty.channel.ChannelHandlerContext;
@@ -23,6 +24,8 @@ import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.protocol.Protocol;
 import net.tridentsdk.server.packets.login.PacketLoginOutDisconnect;
+import net.tridentsdk.server.packets.play.in.PacketPlayInPlayerFall;
+import net.tridentsdk.server.packets.play.in.PacketPlayInPlayerMove;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutDisconnect;
 import net.tridentsdk.server.player.PlayerConnection;
 import net.tridentsdk.util.TridentLogger;
@@ -41,32 +44,37 @@ public class PacketHandler extends SimpleChannelInboundHandler<PacketData> {
     private ClientConnection connection;
 
     public PacketHandler() {
-        this.protocol = ((TridentServer) Trident.getServer()).getProtocol();
+        this.protocol = ((TridentServer) Trident.instance()).protocol();
     }
 
     @Override
     public void handlerAdded(ChannelHandlerContext context) {
-        this.connection = ClientConnection.getConnection(context);
+        this.connection = ClientConnection.connection(context);
     }
 
     /**
-     * Converts the PacketData to a Packet depending on the ConnectionStage of the Client <p/> {@inheritDoc}
+     * Converts the PacketData to a Packet depending on the ConnectionStage of the Client  {@inheritDoc}
      */
     @Override
-    protected void messageReceived(ChannelHandlerContext context, PacketData data)
-            throws Exception {
+    protected void messageReceived(ChannelHandlerContext context, PacketData data) throws Exception {
 
         if (this.connection.isEncryptionEnabled()) {
             data.decrypt(this.connection);
         }
 
-        Packet packet = this.protocol.getPacket(data.getId(), this.connection.getStage(), PacketType.IN);
+        Packet packet = this.protocol.getPacket(data.getId(), this.connection.stage(), PacketDirection.IN);
 
         //If packet is unknown disconnect the client, as said client seems to be modified
-        if (packet.getId() == -1) {
+        if (packet.id() == -1) {
             this.connection.logout();
 
-            // TODO Print client info. stating that has sent an invalid packet and has been disconnected
+            if(connection instanceof PlayerConnection) {
+                PlayerConnection con = (PlayerConnection) connection;
+
+                TridentLogger.log(con.player().displayName() + " has been disconnected from the server " +
+                        "for sending an invalid packet (" +
+                        con.address().getHostString() + "," + con.player().uniqueId().toString() + ")");
+            }
             return;
         }
 
@@ -74,11 +82,20 @@ public class PacketHandler extends SimpleChannelInboundHandler<PacketData> {
         packet.decode(data.getData());
 
         try {
+            // START DEBUG
+            if(!(packet instanceof PacketPlayInPlayerFall) && !(packet instanceof PacketPlayInPlayerMove))
+                TridentLogger.log("Received packet " + packet.getClass().getSimpleName());
+            // END DEBUG
+
             packet.handleReceived(this.connection);
+
+            if (connection instanceof PlayerConnection) {
+                ((PlayerConnection) connection).resetReadCounter();
+            }
         } catch (Exception ex) {
             TridentLogger.error(ex);
 
-            switch (this.connection.getStage()) {
+            switch (this.connection.stage()) {
                 case LOGIN:
                     PacketLoginOutDisconnect disconnect = new PacketLoginOutDisconnect();
 

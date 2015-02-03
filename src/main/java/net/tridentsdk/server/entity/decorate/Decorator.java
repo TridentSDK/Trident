@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.entity.decorate;
 
 import net.tridentsdk.entity.Entity;
@@ -45,21 +46,13 @@ public final class Decorator {
 
     public static DecoratedHostile asHostile(LivingEntity entity, boolean apply) {
         DecoratedHostile hostile = new DecoratedHostile(entity);
-        if (apply) hostile.applyHostilityUpdate();
+        if (apply)
+            hostile.applyHostilityUpdate();
         return hostile;
     }
 
-    public static DecoratedImpalable newImpalable(final boolean forEntity) {
-        return new DecoratedImpalable() {
-            @Override
-            public boolean isImpaledEntity() {
-                return forEntity;
-            }
-        };
-    }
-
     public static DecoratedInventoryHolder newInventoryHolder(Entity entity, String string, int size,
-                                                              InventoryType type) {
+            InventoryType type) {
         return new DecoratedInventoryHolder(entity, string, size, type);
     }
 
@@ -77,7 +70,8 @@ public final class Decorator {
 
     public static DecoratedPeaceful asPeaceful(LivingEntity entity, boolean apply) {
         DecoratedPeaceful peaceful = new DecoratedPeaceful(entity);
-        if (apply) peaceful.applyPeaceUpdate();
+        if (apply)
+            peaceful.applyPeaceUpdate();
         return peaceful;
     }
 
@@ -91,7 +85,8 @@ public final class Decorator {
 
     public static DecoratedTradable asTradable(VillagerCareer career) {
         DecoratedTradable tradable = new DecoratedTradable();
-        if (career != null) tradable.applyUpdateTrades(career);
+        if (career != null)
+            tradable.applyUpdateTrades(career);
         return tradable;
     }
 }

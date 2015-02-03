@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
@@ -26,14 +27,14 @@ public class PacketPlayOutChatMessage extends OutPacket {
     protected ChatPosition position;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x02;
     }
 
     @Override
     public void encode(ByteBuf buf) {
         Codec.writeString(buf, this.jsonMessage);
-        buf.writeByte((int) this.position.toByte());
+        buf.writeByte((int) this.position.asByte());
     }
 
     public enum ChatPosition {
@@ -47,7 +48,7 @@ public class PacketPlayOutChatMessage extends OutPacket {
             this.b = (byte) b;
         }
 
-        public byte toByte() {
+        public byte asByte() {
             return this.b;
         }
     }

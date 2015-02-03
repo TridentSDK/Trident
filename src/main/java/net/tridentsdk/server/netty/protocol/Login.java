@@ -14,13 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.netty.protocol;
 
 import net.tridentsdk.docs.AccessNoDoc;
 import net.tridentsdk.server.packets.login.*;
 
 @AccessNoDoc
-class Login extends PacketManager {
+class Login extends ProtocolHandler {
     Login() {
         this.inPackets.put(0x00, PacketLoginInStart.class);
         this.inPackets.put(0x01, PacketLoginInEncryptionResponse.class);

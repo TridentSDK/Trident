@@ -14,10 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Coordinates;
+import net.tridentsdk.Position;
 import net.tridentsdk.event.player.PlayerMoveEvent;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.netty.ClientConnection;
@@ -35,14 +36,14 @@ public class PacketPlayInPlayerMove extends InPacket {
     /**
      * Updated location, Y is the feet location
      */
-    protected Coordinates location;
+    protected Position location;
     /**
      * Wether the player is on the ground or not
      */
     protected boolean onGround;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x04;
     }
 
@@ -52,38 +53,36 @@ public class PacketPlayInPlayerMove extends InPacket {
         double y = buf.readDouble();
         double z = buf.readDouble();
 
-        this.location = new Coordinates(null, x, y, z); // TODO: Get the player's world
+        this.location = Position.create(null, x, y, z); // TODO: Get the player's world
 
         this.onGround = buf.readBoolean();
 
         return this;
     }
 
-    public Coordinates getLocation() {
+    public Position location() {
         return this.location;
     }
 
-    public boolean isOnGround() {
+    public boolean onGround() {
         return this.onGround;
     }
 
     @Override
     public void handleReceived(ClientConnection connection) {
-        TridentPlayer player = ((PlayerConnection) connection).getPlayer();
-        this.location.setWorld(player.getWorld());
-        Coordinates from = player.getLocation();
-        Coordinates to = this.location;
+        TridentPlayer player = ((PlayerConnection) connection).player();
+        this.location.setWorld(player.world());
+        Position from = player.location();
+        Position to = this.location;
 
         PlayerMoveEvent event = new PlayerMoveEvent(player, from, to);
 
-        TridentServer.getInstance().getEventManager().call(event);
+        TridentServer.instance().eventHandler().fire(event);
 
         if (event.isIgnored()) {
             PacketPlayOutEntityTeleport cancel = new PacketPlayOutEntityTeleport();
 
-            cancel.set("entityId", player.getId())
-                    .set("location", from)
-                    .set("onGround", player.isOnGround());
+            cancel.set("entityId", player.entityId()).set("location", from).set("onGround", player.onGround());
 
             TridentPlayer.sendAll(cancel);
             return;
@@ -95,6 +94,6 @@ public class PacketPlayInPlayerMove extends InPacket {
 
         // set fields
 
-        TridentPlayer.sendAll(move);
+        //TridentPlayer.sendAll(move);
     }
 }

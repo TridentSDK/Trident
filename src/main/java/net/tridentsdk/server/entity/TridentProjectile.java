@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.entity;
 
-import net.tridentsdk.Coordinates;
+import net.tridentsdk.Position;
 import net.tridentsdk.entity.EntityProperties;
-import net.tridentsdk.entity.decorate.Impalable;
+import net.tridentsdk.entity.Projectile;
 import net.tridentsdk.entity.living.ProjectileLauncher;
-import net.tridentsdk.entity.projectile.Projectile;
 
 import java.lang.ref.WeakReference;
 import java.util.UUID;
@@ -35,17 +35,13 @@ public abstract class TridentProjectile extends TridentEntity implements Project
      * The source that fires the projectile
      */
     protected volatile WeakReference<ProjectileLauncher> source;
-    /**
-     * The impalable that the projectile hit, if any
-     */
-    protected Impalable impaled;
 
     /**
      * Inherits UUID and spawnLocation from {@link TridentEntity}
      *
      * @param source the entity which fired the projectile
      */
-    public TridentProjectile(UUID uniqueId, Coordinates spawnLocation, ProjectileLauncher source) {
+    public TridentProjectile(UUID uniqueId, Position spawnLocation, ProjectileLauncher source) {
         super(uniqueId, spawnLocation);
         this.source = new WeakReference<>(source);
     }
@@ -60,9 +56,6 @@ public abstract class TridentProjectile extends TridentEntity implements Project
 
     @Override
     public void doHit() {
-        // TODO Perform impaling logic
-        Impalable impalable = null;
-        impalable.put(this);
         this.hit();
     }
 
@@ -72,22 +65,17 @@ public abstract class TridentProjectile extends TridentEntity implements Project
     protected abstract void hit();
 
     @Override
-    public Impalable getImpaled() {
-        return this.impaled;
+    public ProjectileLauncher launcher() {
+        return this.source.get();
     }
 
     @Override
     public void setLauncher(final ProjectileLauncher shooter) {
-        super.executor.addTask(new Runnable() {
+        super.executor.execute(new Runnable() {
             @Override
             public void run() {
                 TridentProjectile.this.source = new WeakReference<>(shooter);
             }
         });
-    }
-
-    @Override
-    public ProjectileLauncher getLauncher() {
-        return this.source.get();
     }
 }

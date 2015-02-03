@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
@@ -25,11 +26,11 @@ public class PacketPlayOutUpdateEntityNBT extends OutPacket {
     protected int entityId;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x49;
     }
 
-    public int getEntityId() {
+    public int entityId() {
         return this.entityId;
     }
 

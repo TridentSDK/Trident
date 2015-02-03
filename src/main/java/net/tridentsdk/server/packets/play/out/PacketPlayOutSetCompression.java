@@ -14,25 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
-/*
- * @NotJavaDoc
- * Leave this until later stages of TridentSDK
- */
 public class PacketPlayOutSetCompression extends OutPacket {
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x46;
     }
 
     @Override
     public void encode(ByteBuf buf) {
-        Codec.writeVarInt32(buf, Integer.MAX_VALUE);
+        Codec.writeVarInt32(buf, TridentServer.instance().compressionThreshold());
     }
 }

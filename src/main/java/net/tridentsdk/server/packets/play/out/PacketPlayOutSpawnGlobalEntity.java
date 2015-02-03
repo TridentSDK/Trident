@@ -14,10 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Coordinates;
+import net.tridentsdk.Position;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
@@ -27,18 +28,18 @@ import net.tridentsdk.server.netty.packet.OutPacket;
  */
 public class PacketPlayOutSpawnGlobalEntity extends OutPacket {
     protected int entityId;
-    protected Coordinates loc;
+    protected Position loc;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x2C;
     }
 
-    public int getEntityId() {
+    public int entityId() {
         return this.entityId;
     }
 
-    public Coordinates getLoc() {
+    public Position location() {
         return this.loc;
     }
 
@@ -47,8 +48,8 @@ public class PacketPlayOutSpawnGlobalEntity extends OutPacket {
         Codec.writeVarInt32(buf, this.entityId);
         buf.writeByte(1); // always thunderbolt
 
-        buf.writeInt((int) this.loc.getX() * 32);
-        buf.writeInt((int) this.loc.getY() * 32);
-        buf.writeInt((int) this.loc.getZ() * 32);
+        buf.writeInt((int) this.loc.x() * 32);
+        buf.writeInt((int) this.loc.y() * 32);
+        buf.writeInt((int) this.loc.z() * 32);
     }
 }

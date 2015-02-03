@@ -14,16 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.login;
 
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
-import net.tridentsdk.server.netty.packet.PacketType;
+import net.tridentsdk.server.netty.packet.PacketDirection;
 
 /**
- * TODO not an expert on this - AgentTroll
+ * Indicates a successful login
  *
  * @author The TridentSDK Team
  */
@@ -42,24 +43,24 @@ public class PacketLoginOutSuccess extends OutPacket {
     protected ClientConnection connection;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x02;
     }
 
     @Override
-    public PacketType getType() {
-        return PacketType.OUT;
+    public PacketDirection direction() {
+        return PacketDirection.OUT;
     }
 
-    public ClientConnection getConnection() {
+    public ClientConnection connection() {
         return this.connection;
     }
 
-    public String getUuid() {
+    public String uniqueId() {
         return this.uuid;
     }
 
-    public String getUsername() {
+    public String username() {
         return this.username;
     }
 

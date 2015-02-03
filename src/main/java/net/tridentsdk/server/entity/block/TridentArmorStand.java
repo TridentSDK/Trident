@@ -14,9 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.entity.block;
 
-import net.tridentsdk.Coordinates;
+import net.tridentsdk.Position;
 import net.tridentsdk.entity.EntityProperties;
 import net.tridentsdk.entity.block.ArmorStand;
 import net.tridentsdk.entity.block.SlotProperties;
@@ -27,12 +28,12 @@ import net.tridentsdk.window.inventory.Item;
 import java.util.UUID;
 
 public class TridentArmorStand extends TridentEntity implements ArmorStand {
-    public TridentArmorStand(UUID id, Coordinates spawnLocation) {
+    public TridentArmorStand(UUID id, Position spawnLocation) {
         super(id, spawnLocation);
     }
 
     @Override
-    public SlotProperties getSlotProperties() {
+    public SlotProperties slotProperties() {
         return null;
     }
 
@@ -57,7 +58,7 @@ public class TridentArmorStand extends TridentEntity implements ArmorStand {
     }
 
     @Override
-    public PartRotation[] getPose() {
+    public PartRotation[] pose() {
         return new PartRotation[0];
     }
 
@@ -67,7 +68,7 @@ public class TridentArmorStand extends TridentEntity implements ArmorStand {
     }
 
     @Override
-    public Item[] getEquipment() {
+    public Item[] equipment() {
         return new Item[0];
     }
 

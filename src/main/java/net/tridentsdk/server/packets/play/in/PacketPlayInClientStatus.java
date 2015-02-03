@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
@@ -24,7 +25,6 @@ import net.tridentsdk.server.packets.play.out.PacketPlayOutPlayerRespawn;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutStatistics;
 import net.tridentsdk.server.player.PlayerConnection;
 import net.tridentsdk.server.player.TridentPlayer;
-import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.World;
 
@@ -34,16 +34,16 @@ import net.tridentsdk.world.World;
 public class PacketPlayInClientStatus extends InPacket {
 
     /**
-     * Action ID values: <p/> 0 - Perform Respawn 1 - Request statistics 2 - Open inventory acheivement
+     * Action ID values:  0 - Perform Respawn 1 - Request statistics 2 - Open inventory acheivement
      */
     protected short actionId;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x15;
     }
 
-    public short getActionId() {
+    public short actionId() {
         return this.actionId;
     }
 
@@ -56,17 +56,17 @@ public class PacketPlayInClientStatus extends InPacket {
 
     @Override
     public void handleReceived(ClientConnection connection) {
-        TridentPlayer player = ((PlayerConnection) connection).getPlayer();
-        World world = player.getWorld();
+        TridentPlayer player = ((PlayerConnection) connection).player();
+        World world = player.world();
         StatusType type = StatusType.getStatus((int) this.actionId);
 
         switch (type) {
             case RESPAWN:
                 PacketPlayOutPlayerRespawn respawn = new PacketPlayOutPlayerRespawn();
 
-                respawn.set("dimesion", (int) ((TridentWorld) world).getDimesion().toByte())
-                        .set("difficulity", (int) world.getDifficulty().toByte())
-                        .set("gameMode", (int) world.getDefaultGamemode().toByte()
+                respawn.set("dimension", (int) world.dimension().asByte())
+                        .set("difficulity", (int) world.difficulty().asByte())
+                        .set("gameMode", (int) world.defaultGamemode().asByte()
                         /* todo make this specific to the player */);
 
                 connection.sendPacket(respawn);
@@ -87,7 +87,8 @@ public class PacketPlayInClientStatus extends InPacket {
                 break;
 
             default:
-                TridentLogger.error(new IllegalArgumentException("Client sent invalid status, maybe modified?")); // catched by
+                TridentLogger.error(
+                        new IllegalArgumentException("Client sent invalid status, maybe modified?")); // catched by
                 // PacketHandler
         }
     }

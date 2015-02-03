@@ -14,11 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.entity;
 
-import net.tridentsdk.Coordinates;
+import net.tridentsdk.Position;
 import net.tridentsdk.Trident;
+import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.entity.Entity;
+import net.tridentsdk.entity.EntityType;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.player.PlayerMoveEvent;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutEntityCompleteMove;
@@ -31,26 +34,28 @@ import net.tridentsdk.util.Vector;
  *
  * @author The TridentSDK Team
  */
+@InternalUseOnly
 public class EntityTracker {
     public void track(Entity entity, byte... meta) {
         if (entity instanceof TridentPlayer)
             return;
         PacketPlayOutSpawnMob packet = new PacketPlayOutSpawnMob();
-        packet.set("entityId", entity.getId())
-                .set("type", entity.getType())
+        packet.set("entityId", entity.entityId())
+                .set("type", EntityType.NOT_IMPL)
                 .set("entity", entity)
                 .set("metadata", meta == null ? new byte[] { (byte) ((1 << 5 | 1 & 0x1F) & 0xFF), (short) 10 } : meta);
         // TODO
         TridentPlayer.sendAll(packet);
+        entity.world().entities().add(entity);
     }
 
-    public void trackMovement(Entity entity, Coordinates from, Coordinates to) {
+    public void trackMovement(Entity entity, Position from, Position to) {
         // TODO right order?
-        Vector diff = from.toVector().subtract(to.toVector());
+        Vector diff = from.asVector().subtract(to.asVector());
 
         if (entity instanceof Player) {
             PlayerMoveEvent event = new PlayerMoveEvent((Player) entity, from, to);
-            Trident.getEventManager().call(event);
+            Trident.eventHandler().fire(event);
             if (!event.isIgnored())
                 sendMove(entity, to, diff);
 
@@ -60,13 +65,13 @@ public class EntityTracker {
         sendMove(entity, to, diff);
     }
 
-    private void sendMove(Entity entity, Coordinates to, Vector diff) {
+    private void sendMove(Entity entity, Position to, Vector diff) {
         PacketPlayOutEntityCompleteMove move = new PacketPlayOutEntityCompleteMove();
-        move.set("entityId", entity.getId())
+        move.set("entityId", entity.entityId())
                 .set("difference", diff)
-                .set("yaw", to.getYaw())
-                .set("pitch", to.getPitch())
-                .set("flags", null);
+                .set("yaw", to.yaw())
+                .set("pitch", to.pitch())
+                .set("flags", (byte) 0);
         TridentPlayer.sendAll(move);
     }
 }

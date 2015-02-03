@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
@@ -24,36 +25,23 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 public class PacketPlayOutEntityProperties extends OutPacket {
 
     protected int entityId;
-    protected PropertyBuilder[] properties = {};
+    protected PropertyBuilder[] properties;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x20;
     }
 
-    public int getEntityId() {
+    public int entityId() {
         return this.entityId;
     }
 
-    public PropertyBuilder[] getProperties() {
+    public PropertyBuilder[] properties() {
         return this.properties;
-    }
-
-    public void cleanup() {
-        PropertyBuilder[] newProperties = {};
-
-        for (PropertyBuilder value : this.properties) {
-            if (value != null) {
-                newProperties[newProperties.length] = value;
-            }
-        }
-
-        this.properties = newProperties;
     }
 
     @Override
     public void encode(ByteBuf buf) {
-        this.cleanup();
 
         Codec.writeVarInt32(buf, this.entityId);
         buf.writeInt(this.properties.length);

@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
@@ -28,15 +29,15 @@ public class PacketPlayOutEntityEquipment extends OutPacket {
     // TODO: mojang slot shit
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x04;
     }
 
-    public int getEntityId() {
+    public int entityId() {
         return this.entityId;
     }
 
-    public short getSlot() {
+    public short slot() {
         return this.slot;
     }
 

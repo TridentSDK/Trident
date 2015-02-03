@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
@@ -27,19 +28,19 @@ public class PacketPlayOutUpdateHealth extends OutPacket {
     protected float foodSaturation;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x06;
     }
 
-    public float getHealth() {
+    public float health() {
         return this.health;
     }
 
-    public int getFood() {
+    public int food() {
         return this.food;
     }
 
-    public float getFoodSaturation() {
+    public float foodSaturation() {
         return this.foodSaturation;
     }
 

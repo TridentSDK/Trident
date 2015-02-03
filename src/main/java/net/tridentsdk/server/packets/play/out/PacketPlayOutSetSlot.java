@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
@@ -27,19 +28,19 @@ public class PacketPlayOutSetSlot extends OutPacket {
     protected Slot item;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x2F;
     }
 
-    public int getWindowId() {
+    public int windowId() {
         return this.windowId;
     }
 
-    public short getSlot() {
+    public short slot() {
         return this.slot;
     }
 
-    public Slot getItem() {
+    public Slot item() {
         return this.item;
     }
 

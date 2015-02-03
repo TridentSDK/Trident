@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
@@ -32,27 +33,27 @@ public class PacketPlayOutOpenWindow extends OutPacket {
     protected int entityId; // only for horses, since people at Mojang are retards
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x2D;
     }
 
-    public int getWindowId() {
+    public int windowId() {
         return this.windowId;
     }
 
-    public InventoryType getInventoryType() {
+    public InventoryType inventoryType() {
         return this.inventoryType;
     }
 
-    public String getWindowTitle() {
+    public String windowTitle() {
         return this.windowTitle;
     }
 
-    public int getSlots() {
+    public int slots() {
         return this.slots;
     }
 
-    public int getEntityId() {
+    public int entityId() {
         return this.entityId;
     }
 
@@ -64,6 +65,6 @@ public class PacketPlayOutOpenWindow extends OutPacket {
         Codec.writeString(buf, this.windowTitle);
 
         buf.writeByte(this.slots);
-        buf.writeInt(this.entityId); // rip in varints
+        //buf.writeInt(this.entityId); // rip in varints
     }
 }

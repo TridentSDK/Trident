@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
@@ -24,16 +25,16 @@ public class PacketPlayOutServerDifficulty extends OutPacket {
     protected Difficulty difficulty;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x41;
     }
 
-    public Difficulty getDifficulty() {
+    public Difficulty difficulty() {
         return this.difficulty;
     }
 
     @Override
     public void encode(ByteBuf buf) {
-        buf.writeByte((int) this.difficulty.toByte());
+        buf.writeByte((int) this.difficulty.asByte());
     }
 }

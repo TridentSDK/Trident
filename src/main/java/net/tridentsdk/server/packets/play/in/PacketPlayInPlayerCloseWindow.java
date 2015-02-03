@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
@@ -34,7 +35,7 @@ public class PacketPlayInPlayerCloseWindow extends InPacket {
     protected int id;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x0D;
     }
 
@@ -51,9 +52,9 @@ public class PacketPlayInPlayerCloseWindow extends InPacket {
 
     @Override
     public void handleReceived(ClientConnection connection) {
-        PlayerCloseWindowEvent event = new PlayerCloseWindowEvent(TridentServer.getInstance().getWindow(this.id));
+        PlayerCloseWindowEvent event = new PlayerCloseWindowEvent(TridentServer.instance().windowBy(this.id));
 
-        TridentServer.getInstance().getEventManager().call(event);
+        TridentServer.instance().eventHandler().fire(event);
 
         if (event.isIgnored()) {
             // force the window to be open

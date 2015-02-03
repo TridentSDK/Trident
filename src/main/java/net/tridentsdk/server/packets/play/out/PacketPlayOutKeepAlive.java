@@ -14,31 +14,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 public class PacketPlayOutKeepAlive extends OutPacket {
 
-    protected static final AtomicInteger counter = new AtomicInteger(-1);
-
-    protected int keepAliveId = counter.addAndGet(1);
+    protected int keepAliveId = -1;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x00;
     }
 
-    public int getKeepAliveId() {
+    public int keepAliveId() {
         return this.keepAliveId;
     }
 
     @Override
     public void encode(ByteBuf buf) {
+        if (keepAliveId == -1) {
+            return; // id was not set
+        }
+
         Codec.writeVarInt32(buf, this.keepAliveId);
     }
 }

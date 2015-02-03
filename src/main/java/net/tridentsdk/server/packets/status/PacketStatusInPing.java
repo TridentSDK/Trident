@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.status;
 
 import io.netty.buffer.ByteBuf;
@@ -21,7 +22,7 @@ import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
-import net.tridentsdk.server.netty.packet.PacketType;
+import net.tridentsdk.server.netty.packet.PacketDirection;
 import net.tridentsdk.server.netty.protocol.Protocol;
 
 /**
@@ -36,7 +37,7 @@ public class PacketStatusInPing extends InPacket {
     protected long time;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x01;
     }
 
@@ -53,15 +54,12 @@ public class PacketStatusInPing extends InPacket {
         connection.setStage(Protocol.ClientStage.LOGIN);
     }
 
-    /**
-     * TODO not an expert on this lol - AgentTroll
-     */
-    public long getTime() {
+    public long time() {
         return this.time;
     }
 
     @Override
-    public PacketType getType() {
-        return PacketType.IN;
+    public PacketDirection direction() {
+        return PacketDirection.IN;
     }
 }

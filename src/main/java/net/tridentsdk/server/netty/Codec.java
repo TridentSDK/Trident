@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.netty;
 
 import com.google.common.base.Charsets;
@@ -21,6 +22,7 @@ import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 
 import javax.annotation.concurrent.ThreadSafe;
+import java.math.BigInteger;
 import java.nio.charset.Charset;
 
 /**
@@ -55,11 +57,24 @@ public final class Codec {
     }
 
     /**
+     * Gets the byte length of provided integer
+     *
+     * @param integer integer to get the byte length of
+     * @return byte length of the integer
+     */
+    public static int sizeOf(int integer) {
+        return BigInteger.valueOf(integer).toByteArray().length;
+    }
+
+    /**
      * Writes a string to the buffer
      *
      * @param buf the buffer to decode the string from
      */
     public static void writeString(ByteBuf buf, String string) {
+        if (string == null) {
+            return;
+        }
         //Writes the length of the string
         writeVarInt32(buf, string.length());
 
@@ -96,7 +111,8 @@ public final class Codec {
         }
 
         // 0x7f = 127
-        return result += (b & 0x7f) << indent;
+        result += (b & 0x7f) << indent;
+        return result;
     }
 
     /**
@@ -172,8 +188,8 @@ public final class Codec {
      * @param buf the buffer to get data from
      * @return bytes the array of bytes
      */
-    public static byte[] toArray(ByteBuf buf) {
-        return toArray(buf, buf.readableBytes());
+    public static byte[] asArray(ByteBuf buf) {
+        return asArray(buf, buf.readableBytes());
     }
 
     /**
@@ -183,7 +199,7 @@ public final class Codec {
      * @param length the length to toPacket
      * @return bytes the array of bytes
      */
-    public static byte[] toArray(ByteBuf buf, int length) {
+    public static byte[] asArray(ByteBuf buf, int length) {
         byte[] bytes = new byte[length];
         buf.readBytes(bytes);
         return bytes;

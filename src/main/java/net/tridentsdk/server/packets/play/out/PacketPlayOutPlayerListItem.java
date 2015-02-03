@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
@@ -28,15 +29,15 @@ public class PacketPlayOutPlayerListItem extends OutPacket {
     protected PlayerListDataBuilder[] playerListData;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x37;
     }
 
-    public int getAction() {
+    public int action() {
         return this.action;
     }
 
-    public PlayerListDataBuilder[] getPlayerListData() {
+    public PlayerListDataBuilder[] playerListData() {
         return this.playerListData;
     }
 
@@ -50,7 +51,7 @@ public class PacketPlayOutPlayerListItem extends OutPacket {
         }
     }
 
-    public class PlayerListDataBuilder {
+    public static class PlayerListDataBuilder {
         protected UUID id;
         protected Object[] values;
 

@@ -14,17 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.player;
 
-import io.netty.util.internal.ConcurrentSet;
-import net.tridentsdk.Coordinates;
+import net.tridentsdk.Position;
 import net.tridentsdk.GameMode;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.EntityProperties;
+import net.tridentsdk.entity.Projectile;
 import net.tridentsdk.entity.living.Player;
-import net.tridentsdk.entity.projectile.Projectile;
 import net.tridentsdk.event.entity.EntityDamageEvent;
-import net.tridentsdk.factory.TridentFactory;
+import net.tridentsdk.factory.Factories;
 import net.tridentsdk.meta.nbt.*;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.data.Slot;
@@ -36,19 +36,21 @@ import net.tridentsdk.window.inventory.Item;
 import net.tridentsdk.world.Dimension;
 import net.tridentsdk.world.World;
 
+import javax.annotation.concurrent.ThreadSafe;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 
+@ThreadSafe
 public class OfflinePlayer extends TridentInventoryHolder implements Player {
-    private static final Set<OfflinePlayer> players = new ConcurrentSet<>();
+    private static final Set<OfflinePlayer> players = Factories.collect().createSet();
 
     protected String name;
-    protected Dimension dimesion;
+    protected Dimension dimension;
     protected GameMode gameMode;
     protected int score;
     protected short selectedSlot;
-    protected Coordinates spawnLocation;
+    protected Position spawnLocation;
     protected short hunger;
     protected float exhaustion;
     protected float saturation;
@@ -57,35 +59,41 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     protected float xpPercent;
     protected int xpTotal;
     protected int xpSeed;
+    protected boolean invulnerable;
+    protected int portalCooldown;
+    protected boolean onGround;
+    protected boolean customNameVisible;
+    protected int fireTicks;
+
+
     protected Inventory enderChest;
     protected PlayerAbilities abilities = new PlayerAbilities();
 
     public OfflinePlayer(CompoundTag tag, TridentWorld world) {
-        super(null, world.getSpawnLocation());
+        super(null, world.spawnLocation());
 
         load(tag);
 
-        dimesion = Dimension.getDimension(((IntTag) tag.getTag("Dimension")).getValue());
-        gameMode = GameMode.getGameMode(((IntTag) tag.getTag("playerGameType")).getValue());
-        score = ((IntTag) tag.getTag("Score")).getValue();
-        selectedSlot = (short) ((IntTag) tag.getTag("SelectedItemSlot")).getValue();
+        dimension = Dimension.dimension(((IntTag) tag.getTag("Dimension")).value());
+        gameMode = GameMode.gamemodeOf(((IntTag) tag.getTag("playerGameType")).value());
+        score = ((IntTag) tag.getTag("Score")).value();
+        selectedSlot = (short) ((IntTag) tag.getTag("SelectedItemSlot")).value();
 
         if (tag.containsTag("SpawnX")) {
-            spawnLocation = new Coordinates(world, ((IntTag) tag.getTag("SpawnX")).getValue(),
-                    ((IntTag) tag.getTag("SpawnY")).getValue(),
-                    ((IntTag) tag.getTag("SpawnZ")).getValue());
+            spawnLocation = Position.create(world, ((IntTag) tag.getTag("SpawnX")).value(),
+                    ((IntTag) tag.getTag("SpawnY")).value(), ((IntTag) tag.getTag("SpawnZ")).value());
         } else {
-            spawnLocation = world.getSpawnLocation();
+            spawnLocation = world.spawnLocation();
         }
 
-        hunger = (short) ((IntTag) tag.getTag("foodLevel")).getValue();
-        exhaustion = ((FloatTag) tag.getTag("foodExhaustionLevel")).getValue();
-        saturation = ((FloatTag) tag.getTag("foodSaturationLevel")).getValue();
-        foodTickTimer = ((IntTag) tag.getTag("foodTickTimer")).getValue();
-        xpLevel = ((IntTag) tag.getTag("XpLevel")).getValue();
-        xpPercent = ((IntTag) tag.getTag("XpP")).getValue();
-        xpTotal = ((IntTag) tag.getTag("XpLevel")).getValue();
-        xpSeed = ((IntTag) tag.getTag("XpSeed")).getValue();
+        hunger = (short) ((IntTag) tag.getTag("foodLevel")).value();
+        exhaustion = ((FloatTag) tag.getTag("foodExhaustionLevel")).value();
+        saturation = ((FloatTag) tag.getTag("foodSaturationLevel")).value();
+        foodTickTimer = ((IntTag) tag.getTag("foodTickTimer")).value();
+        xpLevel = ((IntTag) tag.getTag("XpLevel")).value();
+        xpPercent = ((FloatTag) tag.getTag("XpP")).value();
+        xpTotal = ((IntTag) tag.getTag("XpLevel")).value();
+        xpSeed = ((IntTag) tag.getTag("XpSeed")).value();
 
         for (NBTTag t : ((ListTag) tag.getTag("Inventory")).listTags()) {
             Slot slot = NBTSerializer.deserialize(Slot.class, (CompoundTag) t);
@@ -105,7 +113,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
 
     public static OfflinePlayer getOfflinePlayer(UUID id) {
         for (OfflinePlayer player : players) {
-            if (player.getUniqueId().equals(id)) {
+            if (player.uniqueId().equals(id)) {
                 return player;
             }
         }
@@ -114,56 +122,58 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     }
 
     public static CompoundTag generatePlayer(UUID id) {
+        // TODO this is temporary for testing
         World defaultWorld = TridentServer.WORLD;
-        Coordinates spawnLocation = defaultWorld.getSpawnLocation();
-        CompoundTagBuilder<NBTBuilder> builder = TridentFactory.createNbtBuilder(id.toString());
+        Position spawnLocation = defaultWorld.spawnLocation();
+        CompoundTagBuilder<NBTBuilder> builder = NBTBuilder.newBase(id.toString());
 
         builder.stringTag("id", String.valueOf(counter.incrementAndGet()));
         builder.longTag("UUIDMost", id.getMostSignificantBits());
         builder.longTag("UUIDLeast", id.getLeastSignificantBits());
 
-        ListTagBuilder<CompoundTagBuilder<NBTBuilder>> pos = builder.beginListTag("Pos", TagType.INT);
+        ListTagBuilder<CompoundTagBuilder<NBTBuilder>> pos = builder.beginListTag("Pos", TagType.DOUBLE);
 
-        pos.tag((int) spawnLocation.getX());
-        pos.tag((int) spawnLocation.getY());
-        pos.tag((int) spawnLocation.getZ());
+        pos.tag(spawnLocation.x());
+        pos.tag(spawnLocation.y());
+        pos.tag(spawnLocation.z());
 
         builder = pos.endListTag();
 
-        ListTagBuilder<CompoundTagBuilder<NBTBuilder>> motion = builder.beginListTag("Motion", TagType.INT);
+        ListTagBuilder<CompoundTagBuilder<NBTBuilder>> motion = builder.beginListTag("Motion", TagType.DOUBLE);
 
-        motion.tag(0);
-        motion.tag(0);
-        motion.tag(0);
+        motion.tag(0d);
+        motion.tag(0d);
+        motion.tag(0d);
 
         builder = motion.endListTag();
 
-        ListTagBuilder<CompoundTagBuilder<NBTBuilder>> rotation = builder.beginListTag("Rotation", TagType.INT);
+        ListTagBuilder<CompoundTagBuilder<NBTBuilder>> rotation = builder.beginListTag("Rotation", TagType.FLOAT);
 
-        rotation.tag(0);
-        rotation.tag(0);
+        rotation.tag(0f);
+        rotation.tag(0f);
 
         builder = rotation.endListTag();
 
         builder.floatTag("FallDistance", 0);
-        builder.shortTag("Fire", (short) 0);
+        builder.shortTag("Fire", (short) -20);
         builder.shortTag("Air", (short) 0);
 
         builder.byteTag("OnGround", (byte) 1);
         builder.byteTag("Invulnerable", (byte) 0);
 
-        builder.intTag("Dimension", Dimension.OVERWORLD.toByte());
+        builder.intTag("Dimension", Dimension.OVERWORLD.asByte());
         builder.intTag("PortalCooldown", 900);
 
         builder.stringTag("CustomName", "");
-        builder.byteTag("CustomNameVisible", (byte) 0);
+        // does not apply to players
+        //builder.byteTag("CustomNameVisible", (byte) 0);
 
         builder.byteTag("Silent", (byte) 0);
 
         builder.compoundTag(new CompoundTag("Riding"));
 
-        builder.intTag("Dimension", Dimension.OVERWORLD.toByte());
-        builder.intTag("playerGameType", GameMode.SURVIVAL.toByte());
+        builder.intTag("Dimension", Dimension.OVERWORLD.asByte());
+        builder.intTag("playerGameType", GameMode.SURVIVAL.asByte());
         builder.intTag("Score", 0);
         builder.intTag("SelectedGameSlot", 0);
 
@@ -173,7 +183,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
         builder.intTag("foodTickTimer", 0);
 
         builder.intTag("XpLevel", 0);
-        builder.intTag("XpP", 0);
+        builder.floatTag("XpP", 0);
         builder.intTag("XpLevel", 0);
         builder.intTag("XpSeed", 0); // actually give a proper seed
 
@@ -187,12 +197,12 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
         return builder.endCompoundTag().build();
     }
 
-    public Coordinates getSpawnLocation() {
+    public Position spawnLocation() {
         return spawnLocation;
     }
 
     @Override
-    public float getFlyingSpeed() {
+    public float flyingSpeed() {
         return abilities.flySpeed;
     }
 
@@ -202,22 +212,22 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     }
 
     @Override
-    public Locale getLocale() {
+    public Locale locale() {
         return null;
     }
 
     @Override
-    public Item getHeldItem() {
-        return inventory.getItems()[selectedSlot + 36];
+    public Item heldItem() {
+        return inventory.items()[selectedSlot + 36];
     }
 
     @Override
-    public GameMode getGameMode() {
+    public GameMode gameMode() {
         return gameMode;
     }
 
     @Override
-    public float getMoveSpeed() {
+    public float moveSpeed() {
         return 0;
     }
 
@@ -227,7 +237,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     }
 
     @Override
-    public float getSneakSpeed() {
+    public float sneakSpeed() {
         return 0;
     }
 
@@ -237,13 +247,14 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     }
 
     @Override
-    public float getWalkSpeed() {
+    public float walkSpeed() {
         return abilities.walkingSpeed;
     }
 
     @Override
     public void setWalkSpeed(float speed) {
-        TridentLogger.error(new UnsupportedOperationException("You may not set the walking speed of an OfflinePlayer!"));
+        TridentLogger.error(
+                new UnsupportedOperationException("You may not set the walking speed of an OfflinePlayer!"));
     }
 
     @Override
@@ -257,7 +268,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     }
 
     @Override
-    public String getLastCommand() {
+    public String lastCommand() {
         return null;
     }
 
@@ -272,12 +283,12 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     }
 
     @Override
-    public EntityDamageEvent getLastDamageCause() {
+    public EntityDamageEvent lastDamageEvent() {
         return null;
     }
 
     @Override
-    public Player hurtByPlayer() {
+    public Player lastPlayerDamager() {
         return null;
     }
 
@@ -287,7 +298,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     }
 
     @Override
-    public String getLastMessage() {
+    public String lastMessage() {
         return null;
     }
 
@@ -297,32 +308,64 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
         return null;
     }
 
-    public CompoundTag toNbt() {
-        CompoundTag tag = new CompoundTag(getUniqueId().toString());
+    public CompoundTag asNbt() {
+        CompoundTag tag = new CompoundTag(uniqueId().toString());
 
-        tag.addTag(new IntTag("Dimension").setValue(dimesion.toByte()));
-        tag.addTag(new IntTag("playerGameType").setValue(gameMode.toByte()));
+        tag.addTag(new LongTag("UUIDMost").setValue(uniqueId.getMostSignificantBits()));
+        tag.addTag(new LongTag("UUIDLeast").setValue(uniqueId.getLeastSignificantBits()));
+
+        tag.addTag(new IntTag("Dimension").setValue(dimension.asByte()));
+        tag.addTag(new IntTag("playerGameType").setValue(gameMode.asByte()));
         tag.addTag(new IntTag("Score").setValue(score));
         tag.addTag(new IntTag("SelectedItemSlot").setValue(selectedSlot));
 
-        //tag.addTag(NBTSerializer.serialize(new Slot(getItemInHand())));
-        tag.addTag(new IntTag("SpawnX").setValue((int) spawnLocation.getX()));
-        tag.addTag(new IntTag("SpawnY").setValue((int) spawnLocation.getY()));
-        tag.addTag(new IntTag("SpawnZ").setValue((int) spawnLocation.getZ()));
+        //tag.addTag(NBTSerializer.serialize(new Slot(itemInHand())));
+        tag.addTag(new IntTag("SpawnX").setValue((int) spawnLocation.x()));
+        tag.addTag(new IntTag("SpawnY").setValue((int) spawnLocation.y()));
+        tag.addTag(new IntTag("SpawnZ").setValue((int) spawnLocation.z()));
 
-        tag.addTag(new ShortTag("foodLevel").setValue(hunger));
+        tag.addTag(new IntTag("foodLevel").setValue(hunger));
         tag.addTag(new FloatTag("foodExhaustionLevel").setValue(exhaustion));
         tag.addTag(new FloatTag("foodSaturationLevel").setValue(saturation));
-        tag.addTag(new IntTag("footTickTimer").setValue(foodTickTimer));
+        tag.addTag(new IntTag("foodTickTimer").setValue(foodTickTimer));
 
         tag.addTag(new IntTag("XpLevel").setValue(xpLevel));
         tag.addTag(new FloatTag("XpP").setValue(xpPercent));
         tag.addTag(new IntTag("XpTotal").setValue(xpTotal));
         tag.addTag(new IntTag("XpSeed").setValue(xpSeed));
 
+        tag.addTag(new ByteTag("Invulnerable").setValue(invulnerable));
+        tag.addTag(new IntTag("PortalCooldown").setValue(portalCooldown));
+        tag.addTag(new FloatTag("FallDistance").setValue(fallDistance.floatValue()));
+        tag.addTag(new ByteTag("OnGround").setValue(onGround));
+        tag.addTag(new ShortTag("Fire").setValue((short) fireTicks));
+        tag.addTag(new ShortTag("Air").setValue((short) airTicks.get()));
+        tag.addTag(new ByteTag("Silent").setValue(silent));
+        tag.addTag(new IntTag("SelectedItemSlot").setValue(selectedSlot));
+
+        ListTag position = new ListTag("Pos",TagType.DOUBLE);
+        position.addTag(new DoubleTag("").setValue(loc.x()));
+        position.addTag(new DoubleTag("").setValue(loc.y()));
+        position.addTag(new DoubleTag("").setValue(loc.z()));
+
+        tag.addTag(position);
+
+        ListTag motion = new ListTag("Motion",TagType.DOUBLE) ;
+        motion.addTag(new DoubleTag("").setValue(velocity.x()));
+        motion.addTag(new DoubleTag("").setValue(velocity.y()));
+        motion.addTag(new DoubleTag("").setValue(velocity.z()));
+
+        tag.addTag(motion);
+
+        ListTag rotation = new ListTag("Rotation", TagType.FLOAT);
+        rotation.addTag(new FloatTag("").setValue(loc.yaw()));
+        rotation.addTag(new FloatTag("").setValue(loc.pitch()));
+
+        tag.addTag(rotation);
+
         ListTag inventoryTag = new ListTag("Inventory", TagType.COMPOUND);
 
-        /*for (ItemStack is : inventory.getItems()) {
+        /*for (ItemStack is : inventory.items()) {
             inventoryTag.addTag(NBTSerializer.serialize(new Slot(is)));
         }*/
 
@@ -330,7 +373,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
 
         ListTag enderTag = new ListTag("EnderItems", TagType.COMPOUND);
 
-        /*for (ItemStack is : enderChest.getItems()) {
+        /*for (ItemStack is : enderChest.items()) {
             enderTag.addTag(NBTSerializer.serialize(new Slot(is)));
         }*/
 

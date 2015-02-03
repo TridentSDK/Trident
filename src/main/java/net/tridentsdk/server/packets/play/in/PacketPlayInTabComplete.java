@@ -14,10 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Coordinates;
+import net.tridentsdk.Position;
 import net.tridentsdk.event.player.PlayerTabCompleteEvent;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
@@ -39,12 +40,12 @@ public class PacketPlayInTabComplete extends InPacket {
      */
     protected boolean hasPosition;
     /**
-     * Position of the block the player is looking at, only sent if hasPosition is true
+     * PositionWritable of the block the player is looking at, only sent if hasPosition is true
      */
-    protected Coordinates lookedAtBlock;
+    protected Position lookedAtBlock;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x14;
     }
 
@@ -59,31 +60,31 @@ public class PacketPlayInTabComplete extends InPacket {
             double y = (double) (encoded << 26 >> 52);
             double z = (double) (encoded << 38 >> 38);
 
-            this.lookedAtBlock = new Coordinates(null, x, y, z);
+            this.lookedAtBlock = Position.create(null, x, y, z);
         }
 
         return this;
     }
 
-    public String getText() {
+    public String text() {
         return this.text;
     }
 
-    public boolean isHasPosition() {
+    public boolean hasPosition() {
         return this.hasPosition;
     }
 
-    public Coordinates getLookedAtBlock() {
+    public Position lookedAtBlock() {
         return this.lookedAtBlock;
     }
 
     @Override
     public void handleReceived(ClientConnection connection) {
-        PlayerTabCompleteEvent event = new PlayerTabCompleteEvent(
-                ((PlayerConnection) connection).getPlayer(), this.text);
+        PlayerTabCompleteEvent event = new PlayerTabCompleteEvent(((PlayerConnection) connection).player(),
+                this.text);
 
-        if (event.getSuggestions().length > 0) {
-            connection.sendPacket(new PacketPlayOutTabComplete().set("matches", event.getSuggestions()));
+        if (event.suggestions().length > 0) {
+            connection.sendPacket(new PacketPlayOutTabComplete().set("matches", event.suggestions()));
         }
     }
 }

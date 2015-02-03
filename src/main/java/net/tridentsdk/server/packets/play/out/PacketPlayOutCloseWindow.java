@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
@@ -24,11 +25,11 @@ public class PacketPlayOutCloseWindow extends OutPacket {
     protected int windowId;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x2E;
     }
 
-    public int getWindowId() {
+    public int windowId() {
         return this.windowId;
     }
 

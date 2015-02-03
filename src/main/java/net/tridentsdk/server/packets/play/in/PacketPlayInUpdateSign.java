@@ -14,10 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Coordinates;
+import net.tridentsdk.Position;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.InPacket;
@@ -34,10 +35,10 @@ public class PacketPlayInUpdateSign extends InPacket {
     /**
      * Location of the sign
      */
-    protected Coordinates signLocation;
+    protected Position signLocation;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x12;
     }
 
@@ -48,7 +49,7 @@ public class PacketPlayInUpdateSign extends InPacket {
         double y = (double) (encoded << 26 >> 52);
         double z = (double) (encoded << 38 >> 38);
 
-        this.signLocation = new Coordinates(null, x, y, z);
+        this.signLocation = Position.create(null, x, y, z);
 
         for (int i = 0; i <= 4; i++) {
             this.jsonContents[i] = Codec.readString(buf);
@@ -56,11 +57,11 @@ public class PacketPlayInUpdateSign extends InPacket {
         return this;
     }
 
-    public Coordinates getSignLocation() {
+    public Position signLocation() {
         return this.signLocation;
     }
 
-    public String[] getJsonContents() {
+    public String[] jsonContents() {
         return this.jsonContents;
     }
 

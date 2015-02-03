@@ -14,16 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.login;
 
 import com.google.gson.JsonArray;
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.encryption.RSA;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
-import net.tridentsdk.server.netty.packet.PacketType;
+import net.tridentsdk.server.netty.packet.PacketDirection;
 import net.tridentsdk.server.netty.protocol.Protocol;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.util.TridentLogger;
@@ -46,7 +48,7 @@ public class PacketLoginInStart extends InPacket {
     protected String name;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x00;
     }
 
@@ -58,8 +60,8 @@ public class PacketLoginInStart extends InPacket {
     }
 
     @Override
-    public PacketType getType() {
-        return PacketType.IN;
+    public PacketDirection direction() {
+        return PacketDirection.IN;
     }
 
     /**
@@ -67,7 +69,7 @@ public class PacketLoginInStart extends InPacket {
      *
      * @return the client name
      */
-    public String getName() {
+    public String name() {
         return this.name;
     }
 
@@ -76,7 +78,7 @@ public class PacketLoginInStart extends InPacket {
         /*
          * If the client is the local machine, skip the encryption process and proceed to the PLAY stage
          */
-        if(connection.getAddress().getHostString().equals("127.0.0.1")) {
+        if (connection.address().getHostString().equals("127.0.0.1")) {
             UUID id;
 
             try {
@@ -91,13 +93,13 @@ public class PacketLoginInStart extends InPacket {
                 c.setDoInput(true);
 
                 // write the payload
-                c.getOutputStream().write(String.format("[ \"%s\" ]", getName()).getBytes());
+                c.getOutputStream().write(String.format("[ \"%s\" ]", name()).getBytes());
                 c.getOutputStream().close();
 
                 int responseCode = c.getResponseCode();
 
                 // if the response isn't 200 OK, logout and inform the client of so
-                if(responseCode != 200) {
+                if (responseCode != 200) {
                     connection.sendPacket(new PacketLoginOutDisconnect().setJsonMessage("Unable retrieve UUID"));
 
                     connection.logout();
@@ -121,11 +123,18 @@ public class PacketLoginInStart extends InPacket {
                 // parse the response and set the ID
                 JsonArray array = PacketLoginInEncryptionResponse.GSON.fromJson(sb.toString(), JsonArray.class);
 
-                id = UUID.fromString(PacketLoginInEncryptionResponse.idDash
-                        .matcher(array.getAsJsonArray().get(0).getAsJsonObject().get("id").getAsString())
+                id = UUID.fromString(PacketLoginInEncryptionResponse.idDash.matcher(
+                        array.getAsJsonArray().get(0).getAsJsonObject().get("id").getAsString())
                         .replaceAll("$1-$2-$3-$4-$5"));
             } catch (Exception e) {
                 TridentLogger.error(e);
+                return;
+            }
+
+            if (TridentServer.WORLD == null) {
+                connection.sendPacket(new PacketLoginOutDisconnect()
+                        .setJsonMessage("{\"text\":\"Disconnected: no world on server\"}"));
+                TridentLogger.error("Rejected a client due to not having a map!");
                 return;
             }
 
@@ -133,7 +142,7 @@ public class PacketLoginInStart extends InPacket {
 
             // set values in the packet
             success.uuid = id.toString();
-            success.username = getName();
+            success.username = name();
             success.connection = connection;
 
             // send the success packet and spawn the player
@@ -145,12 +154,12 @@ public class PacketLoginInStart extends InPacket {
             return;
         }
 
-        LoginManager.getInstance().initLogin(connection.getAddress(), this.getName());
+        LoginHandler.getInstance().initLogin(connection.address(), this.name());
         PacketLoginOutEncryptionRequest p = new PacketLoginOutEncryptionRequest();
 
         // Generate the 4 byte token and update the packet
         connection.generateToken();
-        p.set("verifyToken", connection.getVerificationToken());
+        p.set("verifyToken", connection.verificationToken());
 
         try {
             /* Generate the 1024-bit encryption key specified for the client, only used during the LOGIN stage.

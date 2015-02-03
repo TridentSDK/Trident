@@ -14,13 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.login;
 
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.Packet;
-import net.tridentsdk.server.netty.packet.PacketType;
+import net.tridentsdk.server.netty.packet.PacketDirection;
 import net.tridentsdk.util.TridentLogger;
 
 /**
@@ -35,13 +36,13 @@ public class PacketLoginOutDisconnect implements Packet {
     protected String jsonMessage;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x00;
     }
 
     @Override
-    public PacketType getType() {
-        return PacketType.OUT;
+    public PacketDirection direction() {
+        return PacketDirection.OUT;
     }
 
     @Override
@@ -54,7 +55,7 @@ public class PacketLoginOutDisconnect implements Packet {
     }
 
     // Here too...
-    public String getJsonMessage() {
+    public String jsonMessage() {
         return this.jsonMessage;
     }
 
@@ -64,7 +65,9 @@ public class PacketLoginOutDisconnect implements Packet {
     }
 
     /**
-     * {@inheritDoc} <p/> <p>Cannot be decoded</p>
+     * {@inheritDoc}
+     *
+     * <p>Cannot be decoded</p>
      */
     @Override
     public Packet decode(ByteBuf buf) {

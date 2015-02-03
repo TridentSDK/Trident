@@ -14,9 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.entity.projectile;
 
-import net.tridentsdk.Coordinates;
+import net.tridentsdk.Position;
 import net.tridentsdk.entity.EntityProperties;
 import net.tridentsdk.entity.LivingEntity;
 import net.tridentsdk.entity.living.Blaze;
@@ -35,7 +36,7 @@ public class TridentSnowball extends TridentProjectile {
     /**
      * Inherits from {@link net.tridentsdk.server.entity.TridentProjectile}
      */
-    public TridentSnowball(UUID uniqueId, Coordinates spawnLocation, ProjectileLauncher source) {
+    public TridentSnowball(UUID uniqueId, Position spawnLocation, ProjectileLauncher source) {
         super(uniqueId, spawnLocation, source);
     }
 
@@ -45,20 +46,14 @@ public class TridentSnowball extends TridentProjectile {
 
     @Override
     protected void hit() {
-        if (this.impaled != null && this.impaled.isImpaledEntity()) {
-            if (this.impaled.impaledEntity() instanceof LivingEntity) {
-                LivingEntity ent = (LivingEntity) this.impaled.impaledEntity();
-
-                if (ent instanceof Blaze) {
-                    // Damage 3 hearts
-                } else if (ent instanceof EnderDragon) {
-                    // Damage 1 heart
-                } else {
-                    // Damage 0 hearts (knockback)
-                }
-            }
+        // TODO
+        LivingEntity ent = null;
+        if (ent instanceof Blaze) {
+            // Damage 3 hearts
+        } else if (ent instanceof EnderDragon) {
+            // Damage 1 heart
         } else {
-            this.remove();
+            // Damage 0 hearts (knockback)
         }
     }
 }

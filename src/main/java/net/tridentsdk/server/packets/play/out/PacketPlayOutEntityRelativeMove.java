@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
@@ -28,19 +29,19 @@ public class PacketPlayOutEntityRelativeMove extends OutPacket {
     protected boolean onGround;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x15;
     }
 
-    public int getEntityId() {
+    public int entityId() {
         return this.entityId;
     }
 
-    public Vector getDifference() {
+    public Vector difference() {
         return this.difference;
     }
 
-    public boolean isOnGround() {
+    public boolean onGround() {
         return this.onGround;
     }
 
@@ -48,9 +49,9 @@ public class PacketPlayOutEntityRelativeMove extends OutPacket {
     public void encode(ByteBuf buf) {
         Codec.writeVarInt32(buf, this.entityId);
 
-        buf.writeInt((int) this.difference.getX() * 32);
-        buf.writeInt((int) this.difference.getY() * 32);
-        buf.writeInt((int) this.difference.getZ() * 32);
+        buf.writeInt((int) this.difference.x() * 32);
+        buf.writeInt((int) this.difference.y() * 32);
+        buf.writeInt((int) this.difference.z() * 32);
 
         buf.writeBoolean(this.onGround);
     }

@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.status;
 
 import io.netty.buffer.ByteBuf;
@@ -22,7 +23,7 @@ import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
-import net.tridentsdk.server.netty.packet.PacketType;
+import net.tridentsdk.server.player.TridentPlayer;
 
 /**
  * Packet sent by the client to request PacketStatusOutResponse
@@ -32,33 +33,25 @@ import net.tridentsdk.server.netty.packet.PacketType;
  */
 public class PacketStatusInRequest extends InPacket {
     @Override
-    public int getId() {
+    public int id() {
         return 0x00;
     }
 
     @Override
     public Packet decode(ByteBuf buf) {
         // No fields are in this packet, therefor no need for any decoding
-
         return this;
-    }
-
-    @Override
-    public PacketType getType() {
-        return PacketType.IN;
     }
 
     @Override
     public void handleReceived(ClientConnection connection) {
         PacketStatusOutResponse packet = new PacketStatusOutResponse();
-        PacketStatusOutResponse.Response response = packet.getResponse();
+        PacketStatusOutResponse.Response response = packet.response();
 
-        // TODO: Make sure this is thread-safe
         // Set MOTD and max players based on the config TODO events
-        response.description.text = TridentServer.getInstance().getConfig()
-                .getString("motd", Defaults.MOTD);
-        response.players.max = TridentServer.getInstance().getConfig()
-                .getInt("max-players", Defaults.MAX_PLAYERS);
+        response.description.text = TridentServer.instance().config().getString("motd", Defaults.MOTD);
+        response.players.max = TridentServer.instance().config().getInt("max-players", Defaults.MAX_PLAYERS);
+        response.players.online = TridentPlayer.players().size();
 
         packet.response = response;
 

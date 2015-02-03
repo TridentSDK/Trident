@@ -14,14 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.window;
 
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
 import net.tridentsdk.docs.Volatile;
 import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.factory.Factories;
 import net.tridentsdk.server.data.Slot;
+import net.tridentsdk.server.entity.TridentEntity;
+import net.tridentsdk.server.entity.TridentEntityBuilder;
 import net.tridentsdk.server.packets.play.in.PacketPlayInPlayerCloseWindow;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutOpenWindow;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutSetSlot;
@@ -32,7 +35,6 @@ import net.tridentsdk.window.inventory.InventoryType;
 import net.tridentsdk.window.inventory.Item;
 
 import javax.annotation.concurrent.ThreadSafe;
-import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -51,11 +53,10 @@ public class TridentWindow implements Window {
     private final int id;
     private final String name;
     private final int length;
+    private final InventoryType type;
+    private final Set<Player> users = Factories.collect().createSet();
     @Volatile(policy = "Do not write individual elements", reason = "Thread safe array", fix = "See Line 110")
     private volatile Item[] contents;
-    private final InventoryType type;
-
-    private final Set<Player> users = Collections.newSetFromMap(new ConcurrentHashMapV8<Player, Boolean>());
 
     /**
      * Builds a new inventory window
@@ -81,71 +82,83 @@ public class TridentWindow implements Window {
     }
 
     @Override
-    public int getId() {
+    public int windowId() {
         return this.id;
     }
 
     @Override
-    public Item[] getItems() {
+    public Item[] items() {
         return this.contents;
     }
 
     @Override
-    public int getLength() {
+    public int length() {
         return this.length;
     }
 
-    @Override
-    public Item[] getContents() {
-        return contents;
-    }
-
     //@Override
-    public int getItemLength() {
+    public int itemLength() {
         int counter = 0;
-        for (Item item : getItems())
-            if (item != null) counter++;
+        for (Item item : items()) {
+            if (item != null)
+                counter++;
+        }
 
         return counter;
     }
 
     @Override
-    public String getName() {
+    public String name() {
         return this.name;
     }
 
     @Override
     public void setSlot(int index, Item value) {
-        Item[] contents = this.contents;
         contents[index] = value;
-        Item[] read = this.contents; // Flush caches, make entire array visible
+        this.contents = this.contents; // Flush caches, make entire array visible
 
         PacketPlayOutSetSlot setSlot = new PacketPlayOutSetSlot();
-        setSlot.set("windowId", getId())
-                .set("slot", (short) index)
-                .set("item", new Slot(value));
+        setSlot.set("windowId", windowId()).set("slot", (short) index).set("item", new Slot(value));
 
-        for (Player player : users)
-            ((TridentPlayer) player).getConnection().sendPacket(setSlot);
+        for (Player player : users) {
+            ((TridentPlayer) player).connection().sendPacket(setSlot);
+        }
+    }
+
+    @Override
+    public void putItem(Item item) {
+        for (int i = 0; i < contents.length; i++) {
+            if (contents[i] == null) {
+                setSlot(i, item);
+                return;
+            }
+        }
+
+        for (Player user : users) {
+            // TODO implement
+            TridentEntity dropped = TridentEntityBuilder.create()
+                    .spawn(user.location())
+                    .build(TridentEntity.class);
+            // TODO set dropped type
+        }
     }
 
     public void sendTo(TridentPlayer player) {
         PacketPlayOutOpenWindow window = new PacketPlayOutOpenWindow();
-        window.set("windowId", getId())
+        window.set("windowId", windowId())
                 .set("inventoryType", type)
-                .set("windowTitle", getName())
-                .set("slots", getLength())
+                .set("windowTitle", name())
+                .set("slots", length())
                 .set("entityId", -1);
-        player.getConnection().sendPacket(window);
+        player.connection().sendPacket(window);
 
-        for (int i = 0; i < getLength(); i++) {
+        for (int i = 0; i < length(); i++) {
             PacketPlayOutSetSlot setSlot = new PacketPlayOutSetSlot();
-            setSlot.set("windowId", getId())
-                    .set("slot", (short) i)
-                    .set("item", new Slot(getItems()[i]));
-            player.getConnection().sendPacket(window);
+            setSlot.set("windowId", windowId()).set("slot", (short) i).set("item", new Slot(items()[i]));
+            player.connection().sendPacket(window);
         }
 
+        addClosedListener(player);
         users.add(player);
     }
 
@@ -153,19 +166,20 @@ public class TridentWindow implements Window {
             reason = "Extremely unsafe and causes unspecified behavior without proper handling",
             fix = "Do not use reflection on this method")
     private void addClosedListener(Player player) {
-        final PlayerConnection connection = ((TridentPlayer) player).getConnection();
-        connection.getChannel().pipeline().addLast(new ChannelHandlerAdapter() {
+        final PlayerConnection connection = ((TridentPlayer) player).connection();
+        connection.channel().pipeline().addLast(new ChannelHandlerAdapter() {
             @Override
             // Occurs after the message should be decoded
             public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
                 if (msg instanceof PacketPlayInPlayerCloseWindow) {
                     PacketPlayInPlayerCloseWindow windowClose = (PacketPlayInPlayerCloseWindow) msg;
-                    if (windowClose.getWindowId() == getId())
-                        for (Player player1 : users)
-                            if (connection.getChannel().equals(ctx.channel())) {
+                    if (windowClose.getWindowId() == windowId())
+                        for (Player player1 : users) {
+                            if (connection.channel().equals(ctx.channel())) {
                                 users.remove(player1);
                                 ctx.pipeline().remove(this);
                             }
+                        }
                 }
 
                 // Pass to the next channel handler

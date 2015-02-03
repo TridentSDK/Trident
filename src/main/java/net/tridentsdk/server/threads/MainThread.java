@@ -14,12 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.threads;
 
-import net.tridentsdk.concurrent.TaskExecutor;
+import net.tridentsdk.Trident;
+import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.factory.Factories;
+import net.tridentsdk.server.TridentScheduler;
 import net.tridentsdk.server.player.TridentPlayer;
+import net.tridentsdk.server.util.ConcurrentCircularArray;
+import net.tridentsdk.server.world.TridentWorld;
+import net.tridentsdk.world.World;
 
 import javax.annotation.concurrent.ThreadSafe;
+import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -29,12 +37,17 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 @ThreadSafe
 public class MainThread extends Thread {
-    private static MainThread instance;
+
+    private static final int RECENT_TICKS_KEPT = 40;
+    private static final String NAME = "Trident - Tick Thread";
+
     private final AtomicInteger ticksElapsed = new AtomicInteger();
     private final AtomicInteger notLostTicksElapsed = new AtomicInteger();
     private final AtomicInteger ticksToWait = new AtomicInteger();
     private final int ticksPerSecond;
     private final int tickLength;
+
+    private final ConcurrentCircularArray<Integer> recentTickLength = new ConcurrentCircularArray<>(RECENT_TICKS_KEPT);
 
     /**
      * system.currenttimemillis() when the server's first tick happened, used to keep on schedule, subject to change
@@ -50,18 +63,10 @@ public class MainThread extends Thread {
      * @param ticksPerSecond the amount of heartbeats per second
      */
     public MainThread(int ticksPerSecond) {
+        super(NAME);
         this.zeroBase = System.currentTimeMillis();
-        instance = this;
         this.ticksPerSecond = ticksPerSecond;
         this.tickLength = 1000 / ticksPerSecond;
-        start();
-    }
-
-    /**
-     * Gets the main instance of the thread runner
-     */
-    public static MainThread getInstance() {
-        return instance;
     }
 
     public void doRun() {
@@ -83,36 +88,23 @@ public class MainThread extends Thread {
 
         this.notLostTicksElapsed.getAndIncrement();
 
-        // TODO: tick the worlds?
-        WorldThreads.notifyTick();
-
         /**
          * Tick the players
          */
-        for(final TridentPlayer player : TridentPlayer.getPlayers()) {
-            TaskExecutor executor = ThreadsManager.players.assign(player);
-
-            executor.addTask(new Runnable() {
-                @Override
-                public void run() {
-                    player.tick();
-                }
-            });
+        for (final Player player : TridentPlayer.players()) {
+            ((TridentPlayer) player).tick();
         }
 
-        // alternate redstone ticks between ticks
-        if (this.redstoneTick) {
-            WorldThreads.notifyRedstoneTick();
-            this.redstoneTick = false;
-        } else {
-            this.redstoneTick = true;
-        }
+        for (World world : Trident.worlds().values())
+            ((TridentWorld) world).tick();
 
         // TODO: check the worlds to make sure they're not suffering
 
-        //((TridentScheduler) Factories.tasks()).tick();
+        ((TridentScheduler) Factories.tasks()).tick();
 
-        this.calcAndWait((int) (System.currentTimeMillis() - startTime));
+        int timeInTick = (int) (System.currentTimeMillis() - startTime);
+        recentTickLength.add(timeInTick);
+        this.calcAndWait(timeInTick);
     }
 
     @Override
@@ -195,6 +187,24 @@ public class MainThread extends Thread {
     @Override
     public UncaughtExceptionHandler getUncaughtExceptionHandler() {
         return super.getUncaughtExceptionHandler();
+    }
+
+    /**
+     * Used to get the length of the average tick for the past 40 ticks
+     *
+     * <p>Does not count ticks that have been skipped via MainThread#pauseTicking()</p>
+     *
+     * @return the average length of a tick for the past 40 ticks
+     */
+    public double getAverageTickLength() {
+        Iterator<Integer> iter = recentTickLength.iterator();
+
+        double total = 0d;
+        while (iter.hasNext()) {
+            total += iter.next();
+        }
+
+        return total / RECENT_TICKS_KEPT;
     }
 
     /**

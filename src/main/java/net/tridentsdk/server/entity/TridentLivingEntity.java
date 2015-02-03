@@ -14,23 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.entity;
 
-import com.google.common.base.Function;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.AtomicDouble;
-import net.tridentsdk.Coordinates;
-import net.tridentsdk.base.Tile;
-import net.tridentsdk.entity.Entity;
+import net.tridentsdk.Position;
+import net.tridentsdk.Trident;
 import net.tridentsdk.entity.LivingEntity;
-import net.tridentsdk.entity.projectile.Projectile;
+import net.tridentsdk.entity.living.ai.AiModule;
+import net.tridentsdk.entity.living.ai.Path;
 import net.tridentsdk.util.Vector;
 
-import java.lang.ref.WeakReference;
-import java.util.Collections;
-import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * An entity that has health
@@ -39,49 +35,44 @@ import java.util.UUID;
  */
 public abstract class TridentLivingEntity extends TridentEntity implements LivingEntity {
     /**
-     * Whether the entity is dead
-     */
-    protected final boolean dead;
-    /**
-     * Whether the entity can pick up items
-     */
-    protected final boolean canPickup = true;
-    /**
      * The entity health
      */
     protected final AtomicDouble health = new AtomicDouble(0.0);
     /**
+     * The amount of time this entity should "rest" for, i.e. does not think, but simply follows a path
+     */
+    private final AtomicInteger restTicks = new AtomicInteger(0);
+    /**
+     * Whether the entity is dead
+     */
+    protected volatile boolean dead;
+    /**
+     * Whether the entity can pick up items
+     */
+    protected volatile boolean canPickup = true;
+    /**
      * The maximum available health
      */
-    protected double maxHealth;
+    protected volatile double maxHealth;
+    private volatile AiModule ai;
     /**
-     * Ticks since the entity was last set on fire and when the fire burned out
+     * The path that this entity should be following
      */
-    protected volatile AtomicDouble fireTicks = new AtomicDouble(0.0);
-    /**
-     * The amount of air the entity has, depleted when in water
-     */
-    protected final AtomicDouble airTicks = new AtomicDouble(0.0);
-
-    /**
-     * Describes projectile logic
-     */
-    public final List<WeakReference<Projectile>> hit = Collections.synchronizedList(
-            Lists.<WeakReference<Projectile>>newArrayList());
+    private volatile Path path;
 
     /**
      * Inherits from {@link TridentEntity}
-     * <p/>
+     *
      * <p>The entity is immediately set "non-dead" after {@code super} call</p>
      */
-    public TridentLivingEntity(UUID id, Coordinates spawnLocation) {
+    public TridentLivingEntity(UUID id, Position spawnLocation) {
         super(id, spawnLocation);
 
         this.dead = false;
     }
 
     @Override
-    public double getHealth() {
+    public double health() {
         return this.health.get();
     }
 
@@ -91,7 +82,7 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
     }
 
     @Override
-    public double getMaxHealth() {
+    public double maxHealth() {
         return this.maxHealth;
     }
 
@@ -101,22 +92,22 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
     }
 
     @Override
-    public Coordinates getEyeLocation() {
-        return this.getLocation().getRelative(new Vector(0.0d, 1.0d, 0.0d));
+    public Position headLocation() {
+        return this.location().relative(new Vector(0.0d, 1.0d, 0.0d));
     }
 
     @Override
-    public long getRemainingAir() {
-        return (long) this.airTicks.get();
+    public long remainingAir() {
+        return this.airTicks.get();
     }
 
     @Override
     public void setRemainingAir(long ticks) {
-        this.airTicks.set((double) ticks);
+        this.airTicks.set((int) ticks);
     }
 
     @Override
-    public boolean canPickupItems() {
+    public boolean canCollectItems() {
         return this.canPickup;
     }
 
@@ -126,52 +117,40 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
     }
 
     @Override
-    public boolean isImpaledEntity() {
-        return this.hit != null;
+    public void remove() {
+        dead = true;
+        super.remove();
     }
 
     @Override
-    public boolean isImpaledTile() {
-        return false;
+    public void setAiModule(AiModule module) {
+        this.ai = module;
     }
 
     @Override
-    public Entity impaledEntity() {
-        if (!this.isImpaledEntity())
-            return null;
-        return this;
+    public AiModule aiModule() {
+        if (ai == null) {
+            return Trident.instance().aiHandler().defaultAiFor(type());
+        } else {
+            return ai;
+        }
+    }
+
+    public void performAiUpdate() {
+        if (this.restTicks.get() == 0) {
+            this.restTicks.set(this.aiModule().think(this));
+        } else {
+            this.restTicks.getAndDecrement();
+            // TODO: follow path
+        }
     }
 
     @Override
-    public Tile impaledTile() {
-        return null;
+    public Path path() {
+        return path;
     }
 
-    @Override
-    public void put(Projectile projectile) {
-        this.hit.add(new WeakReference<>(projectile));
-    }
-
-    @Override
-    public boolean remove(Projectile projectile) {
-        return this.hit.remove(new WeakReference<>(projectile));
-    }
-
-    @Override
-    public void clear() {
-        // TODO remove the projectile entities
-        this.hit.clear();
-    }
-
-    @Override
-    public List<Projectile> projectiles() {
-        return new ImmutableList.Builder<Projectile>().addAll(Lists.transform(this.hit,
-                new Function<WeakReference<Projectile>,
-                        Projectile>() {
-                    @Override
-                    public Projectile apply(WeakReference<Projectile> projectileWeakReference) {
-                        return projectileWeakReference.get();
-                    }
-                })).build();
+    public void setPath(Path path) {
+        this.path = path;
     }
 }

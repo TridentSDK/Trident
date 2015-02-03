@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
@@ -30,27 +31,27 @@ public class PacketPlayOutEntityEffect extends OutPacket {
     protected boolean hideParticles;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x0D;
     }
 
-    public int getEntityId() {
+    public int entityId() {
         return this.entityId;
     }
 
-    public short getEffectId() {
+    public short effectId() {
         return this.effectId;
     }
 
-    public short getAmplifier() {
+    public short amplifier() {
         return this.amplifier;
     }
 
-    public long getDuration() {
+    public long duration() {
         return this.duration;
     }
 
-    public boolean isHideParticles() {
+    public boolean hideParticles() {
         return this.hideParticles;
     }
 

@@ -14,33 +14,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Coordinates;
-import net.tridentsdk.server.data.Position;
+import net.tridentsdk.Position;
+import net.tridentsdk.server.data.PositionWritable;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutBlockBreakAnimation extends OutPacket {
     protected int entityId;
-    protected Coordinates location;
+    protected Position location;
     protected short destroyStage;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x25;
     }
 
-    public int getEntityId() {
+    public int entityId() {
         return this.entityId;
     }
 
-    public Coordinates getLocation() {
+    public Position location() {
         return this.location;
     }
 
-    public short getDestroyStage() {
+    public short destroyStage() {
         return this.destroyStage;
     }
 
@@ -48,7 +49,7 @@ public class PacketPlayOutBlockBreakAnimation extends OutPacket {
     public void encode(ByteBuf buf) {
         Codec.writeVarInt32(buf, this.entityId);
 
-        new Position(this.location).write(buf);
+        new PositionWritable(this.location).write(buf);
 
         buf.writeByte((int) this.destroyStage);
     }

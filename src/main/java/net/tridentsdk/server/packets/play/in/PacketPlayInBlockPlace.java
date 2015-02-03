@@ -14,10 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Coordinates;
+import net.tridentsdk.Position;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
@@ -27,15 +28,15 @@ public class PacketPlayInBlockPlace extends InPacket {
     /**
      * Location of the block being placed
      */
-    protected Coordinates location;
+    protected Position location;
     protected byte direction; // wat
     /**
-     * Position of the cursor, incorrect use of a Vector xD
+     * PositionWritable of the cursor, incorrect use of a Vector
      */
     protected Vector cursorPosition;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x08;
     }
 
@@ -43,8 +44,8 @@ public class PacketPlayInBlockPlace extends InPacket {
     public Packet decode(ByteBuf buf) {
         long encodedLocation = buf.readLong();
 
-        this.location = new Coordinates(null, (double) (encodedLocation >> 38), (double) (encodedLocation << 26 >> 52),
-                (double) (encodedLocation << 38 >> 38));
+        this.location = Position.create(null, (double) (encodedLocation >> 38),
+                (double) (encodedLocation << 26 >> 52), (double) (encodedLocation << 38 >> 38));
         this.direction = buf.readByte();
 
         // ignore held item
@@ -60,15 +61,15 @@ public class PacketPlayInBlockPlace extends InPacket {
         return this;
     }
 
-    public Coordinates getLocation() {
+    public Position location() {
         return this.location;
     }
 
-    public byte getDirection() {
+    public byte blockDirection() {
         return this.direction;
     }
 
-    public Vector getCursorPosition() {
+    public Vector cursorPosition() {
         return this.cursorPosition;
     }
 

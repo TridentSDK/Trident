@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
@@ -24,7 +25,7 @@ import net.tridentsdk.server.netty.packet.Packet;
 
 /**
  * While the user is in the standard inventory (i.e., not a crafting bench) on a creative-mode server, then this packet
- * will be sent: <p/> If an item is dropped into the quick bar If an item is picked up from the quick bar (item id is
+ * will be sent:  If an item is dropped into the quick bar If an item is picked up from the quick bar (item id is
  * -1)
  */
 public class PacketPlayInPlayerCreativeAction extends InPacket {
@@ -39,11 +40,11 @@ public class PacketPlayInPlayerCreativeAction extends InPacket {
     protected Slot item;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x10;
     }
 
-    public Slot getItem() {
+    public Slot item() {
         return this.item;
     }
 
@@ -55,7 +56,7 @@ public class PacketPlayInPlayerCreativeAction extends InPacket {
         return this;
     }
 
-    public short getSlot() {
+    public short slot() {
         return this.slot;
     }
 

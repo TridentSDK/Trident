@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
@@ -23,39 +24,39 @@ import net.tridentsdk.world.ChunkLocation;
 
 public class PacketPlayOutChunkData extends OutPacket {
 
-    protected final byte[] data = {};
+    protected byte[] data = { };
     protected ChunkLocation chunkLocation;
     protected boolean continuous;
-    protected short primaryBitMap;
+    protected short bitmask;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x21;
     }
 
-    public ChunkLocation getChunkLocation() {
+    public ChunkLocation chunkLocation() {
         return this.chunkLocation;
     }
 
-    public boolean isContinuous() {
+    public boolean continuous() {
         return this.continuous;
     }
 
-    public short getPrimaryBitMap() {
-        return this.primaryBitMap;
+    public short bitmask() {
+        return this.bitmask;
     }
 
-    public byte[] getData() {
+    public byte[] data() {
         return this.data;
     }
 
     @Override
     public void encode(ByteBuf buf) {
-        buf.writeInt(this.chunkLocation.getX());
-        buf.writeInt(this.chunkLocation.getZ());
+        buf.writeInt(this.chunkLocation.x());
+        buf.writeInt(this.chunkLocation.z());
 
         buf.writeBoolean(this.continuous);
-        buf.writeByte((int) this.primaryBitMap);
+        buf.writeByte((int) this.bitmask);
 
         Codec.writeVarInt32(buf, this.data.length);
         buf.writeBytes(this.data);

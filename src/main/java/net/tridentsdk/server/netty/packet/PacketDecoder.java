@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.netty.packet;
 
 import io.netty.buffer.ByteBuf;
@@ -28,9 +29,14 @@ import java.util.List;
 import java.util.zip.Inflater;
 
 /**
- * Channel handler that decodes the packet data sent from the stream in the form of the byte buffer. This is needed to
- * interpret the data sent correctly, and make sure that the data maintains its transmission integrity. <p/> <p>Note
- * this is not shareable. It must be thread confined, or create a new instance for each channel.</p>
+ * Decoder that decompresses (if needed) and reads the length of the packet data sent from the stream in the form
+ * of the byte buffer.
+ *
+ * <p>This is needed to interpret the data sent correctly, and make sure that the data maintains its transmission
+ * integrity.
+ *
+ * <p>Note this is not thread safe. It should only be used on one thread, or create a new instance for each
+ * channel.</p>
  *
  * @author The TridentSDK Team
  */
@@ -42,16 +48,25 @@ public class PacketDecoder extends ReplayingDecoder<Void> {
 
     @Override
     public void handlerAdded(ChannelHandlerContext context) {
-        this.connection = ClientConnection.getConnection(context);
+        this.connection = ClientConnection.connection(context);
     }
 
     @Override
     protected void decode(ChannelHandlerContext context, ByteBuf buf, List<Object> objects) throws Exception {
         boolean compressed = connection.isCompressionEnabled();
+        int fullLength = -1;
+
+        if (compressed) {
+            fullLength = Codec.readVarInt32(buf);
+        }
+
         this.rawLength = Codec.readVarInt32(buf);
 
-        if(!(compressed) || rawLength < TridentServer.getInstance().getCompressionThreshold()) {
-            ByteBuf data = buf.readBytes(this.rawLength);
+        if (rawLength == 0)
+            compressed = false;
+
+        if (!(compressed) || rawLength < TridentServer.instance().compressionThreshold()) {
+            ByteBuf data = buf.readBytes((fullLength == -1) ? rawLength : (fullLength - Codec.sizeOf(0)));
 
             objects.add(new PacketData(data));
             return;

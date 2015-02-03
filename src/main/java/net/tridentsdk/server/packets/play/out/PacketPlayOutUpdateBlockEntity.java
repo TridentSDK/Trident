@@ -14,38 +14,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Coordinates;
-import net.tridentsdk.server.data.Position;
+import net.tridentsdk.Position;
+import net.tridentsdk.server.data.PositionWritable;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutUpdateBlockEntity extends OutPacket {
-    protected Coordinates loc;
+    protected Position loc;
     protected int action;
     protected byte[] nbtData;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x35;
     }
 
-    public Coordinates getLoc() {
+    public Position location() {
         return this.loc;
     }
 
-    public int getAction() {
+    public int action() {
         return this.action;
     }
 
-    public byte[] getNbtData() {
+    public byte[] nbtData() {
         return this.nbtData;
     }
 
     @Override
     public void encode(ByteBuf buf) {
-        new Position(this.loc).write(buf);
+        new PositionWritable(this.loc).write(buf);
         buf.writeByte(this.action);
         buf.writeBytes(this.nbtData);
     }

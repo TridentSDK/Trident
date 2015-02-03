@@ -14,10 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Coordinates;
+import net.tridentsdk.Position;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.EntityType;
 import net.tridentsdk.server.netty.Codec;
@@ -32,7 +33,7 @@ public class PacketPlayOutSpawnMob extends OutPacket {
     // TODO: entity metadata
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x0F;
     }
 
@@ -50,23 +51,23 @@ public class PacketPlayOutSpawnMob extends OutPacket {
 
     @Override
     public void encode(ByteBuf buf) {
-        Coordinates loc = this.entity.getLocation();
-        Vector velocity = this.entity.getVelocity();
+        Position loc = this.entity.location();
+        Vector velocity = this.entity.velocity();
 
         Codec.writeVarInt32(buf, this.entityId);
         buf.writeByte((int) (byte) this.type.ordinal()); // TODO: use the real type id
 
-        buf.writeInt((int) loc.getX() * 32);
-        buf.writeInt((int) loc.getY() * 32);
-        buf.writeInt((int) loc.getZ() * 42);
+        buf.writeInt((int) loc.x() * 32);
+        buf.writeInt((int) loc.y() * 32);
+        buf.writeInt((int) loc.z() * 42);
 
-        buf.writeByte((int) (byte) loc.getYaw());
-        buf.writeByte((int) (byte) loc.getPitch());
-        buf.writeByte((int) (byte) loc.getPitch()); // -shrugs-
+        buf.writeByte((int) (byte) loc.yaw());
+        buf.writeByte((int) (byte) loc.pitch());
+        buf.writeByte((int) (byte) loc.pitch()); // -shrugs-
 
-        buf.writeShort((int) velocity.getX());
-        buf.writeShort((int) velocity.getY());
-        buf.writeShort((int) velocity.getZ());
+        buf.writeShort((int) velocity.x());
+        buf.writeShort((int) velocity.y());
+        buf.writeShort((int) velocity.z());
 
         buf.writeBytes(metadata);
     }

@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
@@ -26,15 +27,15 @@ public class PacketPlayOutDisplayScoreboard extends OutPacket {
     protected String scoreName;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x3D;
     }
 
-    public BoardType getBoardType() {
+    public BoardType boardType() {
         return this.boardType;
     }
 
-    public String getScoreName() {
+    public String score() {
         return this.scoreName;
     }
 

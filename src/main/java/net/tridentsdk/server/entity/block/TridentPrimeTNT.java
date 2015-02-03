@@ -14,20 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.entity.block;
 
-import net.tridentsdk.Coordinates;
+import net.tridentsdk.Position;
 import net.tridentsdk.entity.block.PrimeTNT;
 
 import java.util.UUID;
 
 public class TridentPrimeTNT extends TridentFallingBlock implements PrimeTNT {
-    public TridentPrimeTNT(UUID id, Coordinates spawnLocation) {
+    public TridentPrimeTNT(UUID id, Position spawnLocation) {
         super(id, spawnLocation);
     }
 
     @Override
-    public int getFuse() {
+    public int fuse() {
         return 0;
     }
 

@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.login;
 
 import io.netty.buffer.ByteBuf;
@@ -24,12 +25,12 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 public class PacketLoginOutSetCompression extends OutPacket {
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x03;
     }
 
     @Override
     public void encode(ByteBuf buf) {
-        Codec.writeVarInt32(buf, TridentServer.getInstance().getCompressionThreshold());
+        Codec.writeVarInt32(buf, TridentServer.instance().compressionThreshold());
     }
 }

@@ -14,13 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.data;
 
+import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.docs.Volatile;
 import net.tridentsdk.server.netty.Codec;
+import net.tridentsdk.util.ArrayTool;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -38,7 +40,7 @@ public class PropertyBuilder implements Writable {
      * Creates a 0 length property array
      */
     public PropertyBuilder() {
-        this.modifiers = new String[]{};
+        this.modifiers = new String[] { };
     }
 
     /**
@@ -55,7 +57,7 @@ public class PropertyBuilder implements Writable {
      *
      * @return the property key
      */
-    public String getKey() {
+    public String key() {
         return this.key;
     }
 
@@ -76,7 +78,7 @@ public class PropertyBuilder implements Writable {
      *
      * @return the value of this property
      */
-    public double getValue() {
+    public double value() {
         return this.value;
     }
 
@@ -97,8 +99,8 @@ public class PropertyBuilder implements Writable {
      *
      * @return the property array
      */
-    public String[] getModifiers() {
-        return this.modifiers;
+    public String[] modifiers() {
+        return this.modifiers.clone();
     }
 
     /**
@@ -122,7 +124,7 @@ public class PropertyBuilder implements Writable {
      * @return the current instance
      */
     public PropertyBuilder cleanup() {
-        Collection<String> list = new ArrayList<>();
+        Collection<String> list = Lists.newArrayList();
 
         for (String value : this.modifiers) {
             if (value != null) {
@@ -130,7 +132,7 @@ public class PropertyBuilder implements Writable {
             }
         }
 
-        this.modifiers = (String[]) list.toArray(); // Not even sure if this will work...
+        this.modifiers = ArrayTool.using(list.toArray()).convertTo(String.class);
         return this;
     }
 
@@ -142,6 +144,7 @@ public class PropertyBuilder implements Writable {
         buf.writeDouble(this.value);
         Codec.writeVarInt32(buf, this.modifiers.length);
 
-        for (String s : this.modifiers) Codec.writeString(buf, s);
+        for (String s : this.modifiers)
+            Codec.writeString(buf, s);
     }
 }

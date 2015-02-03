@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.netty.packet;
 
 import io.netty.buffer.ByteBuf;
@@ -23,7 +24,9 @@ import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
 
 /**
- * Final step of the pipeline: encrypts all data and sends it to the client
+ * An encoder that encrypts the information contained in the raw packet
+ *
+ * <p>This is first stage in the outbound packet pipeline</p>
  *
  * @author The TridentSDK Team
  */
@@ -32,7 +35,7 @@ public class PacketEncrypter extends MessageToByteEncoder<ByteBuf> {
 
     @Override
     public void handlerAdded(ChannelHandlerContext context) {
-        this.connection = ClientConnection.getConnection(context);
+        this.connection = ClientConnection.connection(context);
     }
 
     /* (non-Javadoc)
@@ -40,10 +43,9 @@ public class PacketEncrypter extends MessageToByteEncoder<ByteBuf> {
      * java.lang.Object, io.netty.buffer.ByteBuf)
      */
     @Override
-    protected void encode(ChannelHandlerContext ctx, ByteBuf msg, ByteBuf out)
-            throws Exception {
+    protected void encode(ChannelHandlerContext ctx, ByteBuf msg, ByteBuf out) throws Exception {
         if (this.connection.isEncryptionEnabled()) {
-            out.writeBytes(this.connection.encrypt(Codec.toArray(msg)));
+            out.writeBytes(this.connection.encrypt(Codec.asArray(msg)));
         } else {
             out.writeBytes(msg);
         }

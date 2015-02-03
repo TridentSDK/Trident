@@ -14,12 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.login;
 
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
-import net.tridentsdk.server.netty.packet.PacketType;
+import net.tridentsdk.server.netty.packet.PacketDirection;
 
 /**
  * @author The TridentSDK Team
@@ -47,13 +48,13 @@ public class PacketLoginOutEncryptionRequest extends OutPacket {
     protected byte[] verifyToken;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x01;
     }
 
     @Override
-    public PacketType getType() {
-        return PacketType.OUT;
+    public PacketDirection direction() {
+        return PacketDirection.OUT;
     }
 
     @Override
@@ -76,7 +77,7 @@ public class PacketLoginOutEncryptionRequest extends OutPacket {
      *
      * @return the encrypted key length
      */
-    public short getKeyLength() {
+    public short keyLength() {
         return this.keyLength;
     }
 
@@ -85,7 +86,7 @@ public class PacketLoginOutEncryptionRequest extends OutPacket {
      *
      * @return the client token length
      */
-    public short getTokenLength() {
+    public short tokenLength() {
         return this.tokenLength;
     }
 
@@ -94,7 +95,7 @@ public class PacketLoginOutEncryptionRequest extends OutPacket {
      *
      * @return the encryption key
      */
-    public byte[] getPublicKey() {
+    public byte[] publicKey() {
         return this.publicKey;
     }
 
@@ -103,7 +104,7 @@ public class PacketLoginOutEncryptionRequest extends OutPacket {
      *
      * @return the verification token
      */
-    public byte[] getVerifyToken() {
+    public byte[] verifyToken() {
         return this.verifyToken;
     }
 }

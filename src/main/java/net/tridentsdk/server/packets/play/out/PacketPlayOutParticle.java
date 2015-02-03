@@ -14,10 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Coordinates;
+import net.tridentsdk.Position;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 import net.tridentsdk.util.Vector;
@@ -25,17 +26,17 @@ import net.tridentsdk.util.Vector;
 public class PacketPlayOutParticle extends OutPacket {
     protected int particleId;
     protected boolean distance;
-    protected Coordinates loc;
+    protected Position loc;
     protected Vector offset; // d - (d * Random#nextGaussian())
     protected float particleData;
     protected int[] data;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x2A;
     }
 
-    public int getParticleId() {
+    public int particleId() {
         return this.particleId;
     }
 
@@ -43,19 +44,19 @@ public class PacketPlayOutParticle extends OutPacket {
         return this.distance;
     }
 
-    public Coordinates getLoc() {
+    public Position location() {
         return this.loc;
     }
 
-    public Vector getOffset() {
+    public Vector offset() {
         return this.offset;
     }
 
-    public float getParticleData() {
+    public float particleData() {
         return this.particleData;
     }
 
-    public int[] getData() {
+    public int[] data() {
         return this.data;
     }
 
@@ -64,13 +65,13 @@ public class PacketPlayOutParticle extends OutPacket {
         buf.writeInt(this.particleId);
         buf.writeBoolean(this.distance);
 
-        buf.writeFloat((float) this.loc.getX());
-        buf.writeFloat((float) this.loc.getY());
-        buf.writeFloat((float) this.loc.getZ());
+        buf.writeFloat((float) this.loc.x());
+        buf.writeFloat((float) this.loc.y());
+        buf.writeFloat((float) this.loc.z());
 
-        buf.writeFloat((float) this.offset.getX());
-        buf.writeFloat((float) this.offset.getY());
-        buf.writeFloat((float) this.offset.getZ());
+        buf.writeFloat((float) this.offset.x());
+        buf.writeFloat((float) this.offset.y());
+        buf.writeFloat((float) this.offset.z());
 
         buf.writeFloat(this.particleData);
         buf.writeInt(this.data.length);

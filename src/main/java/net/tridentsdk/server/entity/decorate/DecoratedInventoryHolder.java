@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.entity.decorate;
 
 import net.tridentsdk.entity.Entity;
@@ -25,7 +26,6 @@ import net.tridentsdk.server.window.TridentWindow;
 import net.tridentsdk.window.Window;
 import net.tridentsdk.window.inventory.Inventory;
 import net.tridentsdk.window.inventory.InventoryType;
-import net.tridentsdk.window.inventory.Item;
 
 public class DecoratedInventoryHolder extends DecorationAdapter<Entity> implements InventoryHolder {
     private final Window inventory;
@@ -36,13 +36,8 @@ public class DecoratedInventoryHolder extends DecorationAdapter<Entity> implemen
     }
 
     @Override
-    public Inventory getInventory() {
+    public Inventory inventory() {
         return (Inventory) inventory;
-    }
-
-    @Override
-    public Item getContent(int slot) {
-        return inventory.getItems()[slot];
     }
 
     public void applyOpenWindow(Player player) {

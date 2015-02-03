@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.entity.decorate;
 
 import net.tridentsdk.entity.Entity;
@@ -41,8 +42,8 @@ public class DecoratedTameable extends LivingDecorationAdapter implements Tameab
     }
 
     @Override
-    public UUID getOwner() {
-        return tamer.getUniqueId();
+    public UUID owner() {
+        return tamer.uniqueId();
     }
 
     @Override
@@ -51,8 +52,8 @@ public class DecoratedTameable extends LivingDecorationAdapter implements Tameab
     }
 
     @Override
-    public int getAge() {
-        return functionalDelegate.getAge();
+    public int age() {
+        return functionalDelegate.age();
     }
 
     @Override

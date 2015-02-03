@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.netty;
 
 import io.netty.channel.ChannelHandlerContext;
@@ -22,7 +23,6 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.ChannelPromise;
 import io.netty.channel.socket.SocketChannel;
 import net.tridentsdk.server.netty.packet.*;
-import net.tridentsdk.util.TridentLogger;
 
 import javax.annotation.concurrent.ThreadSafe;
 

@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.player;
 
 import net.tridentsdk.meta.nbt.NBTField;
@@ -41,11 +42,11 @@ public class PlayerAbilities implements NBTSerializable {
     protected PlayerAbilities() {
     }
 
-    public float getWalkingSpeed() {
+    public float walkingSpeed() {
         return walkingSpeed;
     }
 
-    public float getFlySpeed() {
+    public float flyingSpeed() {
         return flySpeed;
     }
 
@@ -69,9 +70,10 @@ public class PlayerAbilities implements NBTSerializable {
         return instantBreak == 1;
     }
 
-    public OutPacket toPacket() {
+    public OutPacket asPacket() {
         OutPacket packet = new PacketPlayOutPlayerAbilities();
-        byte flags = (byte) ((isInvulnerable() ? 8 : 0) | (canFly() ? 4 : 0) | (canInstantBreak() ? 2 : 0));
+        byte flags = (byte) ((isInvulnerable() ? 8 : 0) | (canFly() ? 4 : 0) | (isFlying() ? 2 : 0) |
+                (canInstantBreak() ? 1 : 0));
 
         packet.set("flags", flags);
         packet.set("flyingSpeed", flySpeed / 2);

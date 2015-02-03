@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
@@ -29,27 +30,27 @@ public class PacketPlayOutEntityCompleteMove extends OutPacket {
     protected byte flags;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x08;
     }
 
-    public int getEntityId() {
+    public int entityId() {
         return this.entityId;
     }
 
-    public Vector getDifference() {
+    public Vector difference() {
         return this.difference;
     }
 
-    public float getYaw() {
+    public float yaw() {
         return this.yaw;
     }
 
-    public float getPitch() {
+    public float pitch() {
         return this.pitch;
     }
 
-    public byte getFlags() {
+    public byte flags() {
         return this.flags;
     }
 
@@ -57,9 +58,9 @@ public class PacketPlayOutEntityCompleteMove extends OutPacket {
     public void encode(ByteBuf buf) {
         Codec.writeVarInt32(buf, this.entityId);
 
-        buf.writeByte((int) this.difference.getX() * 32);
-        buf.writeByte((int) this.difference.getY() * 32);
-        buf.writeByte((int) this.difference.getZ() * 32);
+        buf.writeByte((int) this.difference.x() * 32);
+        buf.writeByte((int) this.difference.y() * 32);
+        buf.writeByte((int) this.difference.z() * 32);
 
         buf.writeByte((int) this.yaw);
         buf.writeByte((int) this.pitch);

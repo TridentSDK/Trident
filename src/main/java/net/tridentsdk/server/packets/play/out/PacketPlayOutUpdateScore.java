@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
@@ -28,30 +29,30 @@ public class PacketPlayOutUpdateScore extends OutPacket {
     protected int value;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x3C;
     }
 
-    public String getItemName() {
+    public String itemName() {
         return this.itemName;
     }
 
-    public UpdateType getUpdateType() {
+    public UpdateType updateType() {
         return this.type;
     }
 
-    public String getScoreName() {
+    public String score() {
         return this.scoreName;
     }
 
-    public int getValue() {
+    public int value() {
         return this.value;
     }
 
     @Override
     public void encode(ByteBuf buf) {
         Codec.writeString(buf, this.itemName);
-        buf.writeByte((int) this.type.toByte());
+        buf.writeByte((int) this.type.asByte());
 
         if (this.type.b == 1) {
             return;
@@ -72,7 +73,7 @@ public class PacketPlayOutUpdateScore extends OutPacket {
             this.b = (byte) i;
         }
 
-        public byte toByte() {
+        public byte asByte() {
             return this.b;
         }
     }

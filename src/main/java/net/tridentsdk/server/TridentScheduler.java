@@ -14,78 +14,108 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server;
 
 import net.tridentsdk.concurrent.ScheduledTask;
 import net.tridentsdk.concurrent.SchedulerType;
 import net.tridentsdk.concurrent.TaskExecutor;
 import net.tridentsdk.concurrent.TridentRunnable;
+import net.tridentsdk.factory.ExecutorFactory;
 import net.tridentsdk.factory.TaskFactory;
 import net.tridentsdk.plugin.TridentPlugin;
 import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
 
 import javax.annotation.concurrent.ThreadSafe;
+import java.util.Iterator;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * TridentScheduler is a scheduling utility that is used to reflect ScheduledTasks at a given offset of the current epoch of the
- * server
+ * TridentScheduler is a scheduling utility that is used to reflect ScheduledTasks at a given offset of the current
+ * epoch of the server
  *
- * <p>The scheduler is designed to stage-heavy/run-light philosophy: most overhead in the scheduler is to the run
- * staging, which adds the ScheduledTask to the queue, and constructs the wrapper which assigns the ScheduledTask executor and constructs
- * the logic runnables. In contrast, running the wrapper would perform the pre-constructed logic and mark the ScheduledTask then
- * move on. This ensures that the ScheduledTask will be delayed preferable when it is scheduled, instead of when it will be
- * planned to run.</p>
+ * <p>The scheduler is designed to stage-heavy/run-light philosophy: most overhead in the
+ * scheduler is to the run staging, which adds the ScheduledTask to the queue, and constructs the wrapper which assigns
+ * the ScheduledTask executor and constructs the logic runnables. In contrast, running the wrapper would perform the
+ * pre-constructed logic and mark the ScheduledTask then move on. This ensures that the ScheduledTask will be delayed
+ * preferable when it is scheduled, instead of when it will be planned to run.</p>
  *
  * <p>Logic of ScheduledTask types:
  * <ul>
- *     <li>Run    - Call as soon as ticked, then cancelled</li>
- *     <li>Later  - an AtomicLong is incremented each tick, when the long reaches the delay, the ScheduledTask is called and
- *     cancelled</li>
- *     <li>Repeat - an AtomicLong is incremented each tick, when the long reaches the interval, the ScheduledTask is called, then
- *     the long is set to 0 and continues.</li>
+ * <li>Run    - Call as soon as ticked, then cancelled</li>
+ * <li>Later  - an AtomicLong is incremented each tick when the long reaches the delay, the ScheduledTask is
+ * called and cancelled</li>
+ * <li>Repeat - an AtomicLong is incremented each tick, when the long reaches the interval, the ScheduledTask is
+ * called, then the long is set to 0 and continues.</li>
  * </ul>
  *
- * The difference between sync and async ScheduledTasks is sync runs on the plugin thread that is from the plugin scheduling
- * the ScheduledTask. This is why a plugin object is required for ScheduledTask scheduling. Async runs on one of the other 2 ScheduledTask
- * execution threads (because there are 3 threads in the scheduler).</p>
+ * The difference between sync and async ScheduledTasks is sync runs on the plugin thread
+ * that is from the plugin scheduling the ScheduledTask. This is why a plugin object is required for ScheduledTask
+ * scheduling. Async runs on one of the other 2 ScheduledTask execution threads (because there are 3 threads in the
+ * scheduler).</p>
  *
- * <p>The benchmarks and testing units for the TridentScheduler can be found at: http://git.io/nifjcg.</p>
+ * <p>The benchmarks and testing units for the TridentScheduler can be found at:
+ * http://git.io/nifjcg.</p>
  *
- * <p>Insertion logic places the ScheduledTask wrapped by the implementation of {@link net.tridentsdk.concurrent.ScheduledTask} to
- * perform the run logic and scheduling decisions plus automatic ScheduledTask cancellation. Then, the overriden runnable with
- * the ScheduledTask to be run is
- * {@link net.tridentsdk.concurrent.TridentRunnable#markSchedule(net.tridentsdk.concurrent.ScheduledTask)}ed to indicate
- * the ScheduledTask delegate is available.</p>
+ * <p>Insertion logic places the ScheduledTask wrapped by the implementation of {@link
+ * net.tridentsdk.concurrent.ScheduledTask} to perform the run logic and scheduling decisions plus automatic
+ * ScheduledTask cancellation. Then, the overriden runnable with the ScheduledTask to be run is {@link
+ * net.tridentsdk.concurrent.TridentRunnable#markSchedule(net.tridentsdk.concurrent.ScheduledTask)}ed to indicate the
+ * ScheduledTask delegate is available.</p>
+ *
+ * <p>Thread safety is ensured a single iteration thread, the tick thread. Tasks added first put in the task list,
+ * then the task is marked. The execution has a higher priority over the access to the task scheduling period. Also,
+ * most tasks will be allowed to complete before any change is needed. Task execution occurs in a single thread,
+ * the tick method adds to an executor which does not share the state of the task implementation.</p>
+ *
+ * <p>The scheduler is high performance due to lock-free execution. The internal task list is a
+ * {@link java.util.concurrent.ConcurrentLinkedQueue}, iterated in the tick method which schedules a runnable assigned
+ * to the task during construction. The most overhead occurs when the runnable is scheduled, and when the logic for
+ * the scheduling method is decided during the task wrapper's construction.</p>
  *
  * @author The TridentSDK Team
  */
 @ThreadSafe
 public class TridentScheduler implements TaskFactory {
-    private final Queue<ScheduledTaskImpl> ScheduledTaskList = new ConcurrentLinkedQueue<>();
-    private final ConcurrentTaskExecutor<ScheduledTaskImpl> taskExecutor = new ConcurrentTaskExecutor<>(3);
+    private final Queue<ScheduledTaskImpl> taskList = new ConcurrentLinkedQueue<>();
+    private final ExecutorFactory<?> taskExecutor = ConcurrentTaskExecutor.create(3, "Scheduler");
+
+    private TridentScheduler() {
+    }
+
+    /**
+     * Creates a new scheduler
+     *
+     * @return the new scheduler
+     */
+    public static TridentScheduler create() {
+        return new TridentScheduler();
+    }
 
     public void tick() {
-        for (ScheduledTaskImpl ScheduledTask : ScheduledTaskList) {
-            if (!ScheduledTask.getRan().compareAndSet(true, false))
-                ScheduledTask.run();
+        Iterator<ScheduledTaskImpl> iterator = taskList.iterator();
+        for (; iterator.hasNext(); ) {
+            iterator.next().run();
         }
     }
 
     private ScheduledTaskImpl doAdd(ScheduledTaskImpl wrap) {
         // Does not necessarily need to be atomic, as long as changes are visible
-        // ScheduledTaskList is thread-safe
+        // taskList is thread-safe
         // markSchedule sets an AtomicReference
-        ScheduledTaskList.add(wrap);
-        wrap.getRunnable().markSchedule(wrap);
-        return wrap;
+        while (true) {
+            boolean added = taskList.add(wrap);
+            if (added) {
+                wrap.runnable().markSchedule(wrap);
+                return wrap;
+            }
+        }
     }
 
-    public void stop() {
+    public void shutdown() {
         taskExecutor.shutdown();
+        taskList.clear();
     }
 
     @Override
@@ -109,7 +139,8 @@ public class TridentScheduler implements TaskFactory {
     }
 
     @Override
-    public ScheduledTask asyncRepeat(final TridentPlugin plugin, final TridentRunnable runnable, long delay, final long initialInterval) {
+    public ScheduledTask asyncRepeat(final TridentPlugin plugin, final TridentRunnable runnable, long delay,
+            final long initialInterval) {
         // Schedule repeating ScheduledTask later
         return this.asyncLater(plugin, new TridentRunnable() {
             @Override
@@ -120,7 +151,8 @@ public class TridentScheduler implements TaskFactory {
     }
 
     @Override
-    public ScheduledTask syncRepeat(final TridentPlugin plugin, final TridentRunnable runnable, long delay, final long initialInterval) {
+    public ScheduledTask syncRepeat(final TridentPlugin plugin, final TridentRunnable runnable, long delay,
+            final long initialInterval) {
         // Schedule repeating ScheduledTask later
         return this.syncLater(plugin, new TridentRunnable() {
             @Override
@@ -133,150 +165,138 @@ public class TridentScheduler implements TaskFactory {
     private class ScheduledTaskImpl implements ScheduledTask {
         private final TridentPlugin plugin;
         private final SchedulerType type;
-        private final AtomicLong interval = new AtomicLong(0);
-        private final AtomicLong run = new AtomicLong(0);
         private final TridentRunnable runnable;
 
-        private final Runnable runner;
-        private final AtomicBoolean ran = new AtomicBoolean();
-        // This field is volatile because the two ScheduledTask loops are executed by
-        // different threads in the ConcurrentScheduledTaskExecutor
-
         private final TaskExecutor executor;
+        private final Runnable runner;
+
+        private volatile long interval;
+        private long run = 0L;
 
         public ScheduledTaskImpl(TridentPlugin plugin, SchedulerType type, final TridentRunnable runnable, long step) {
             this.plugin = plugin;
             this.type = type;
             this.runnable = runnable;
-            this.interval.set(step);
+            this.interval = step;
 
-            switch (type) {
-                case ASYNC_RUN:
+            if (type.name().contains("ASYNC")) {
+                this.executor = taskExecutor.scaledThread();
+                if (!type.name().contains("REPEAT")) {
                     this.runner = new Runnable() {
                         @Override
                         public void run() {
+                            runnable.beforeRun();
                             runnable.run();
+                            runnable.afterAsyncRun();
                             cancel();
                         }
                     };
-                    this.executor = taskExecutor.assign(this);
-                    break;
-
-                case ASYNC_LATER:
+                } else {
                     this.runner = new Runnable() {
                         @Override
                         public void run() {
-                            if (run.get() == interval.get()) {
-                                runnable.run();
-                                cancel();
-                            }
-                            run.incrementAndGet();
-                        }
-                    };
-                    this.executor = taskExecutor.assign(this);
-                    break;
-
-                case ASYNC_REPEAT:
-                    this.runner = new Runnable() {
-                        @Override
-                        public void run() {
-                            if (run.compareAndSet(interval.get(), 0)) runnable.run();
-
-                            run.incrementAndGet();
-                        }
-                    };
-                    this.executor = taskExecutor.assign(this);
-                    break;
-
-                case SYNC_RUN:
-                    this.runner = new Runnable() {
-                        @Override
-                        public void run() {
+                            runnable.beforeRun();
                             runnable.run();
+                            runnable.afterAsyncRun();
+                        }
+                    };
+                }
+            } else {
+                this.executor = plugin.executor();
+                if (!type.name().contains("REPEAT")) {
+                    this.runner = new Runnable() {
+                        @Override
+                        public void run() {
+                            runnable.beforeRun();
+                            runnable.run();
+                            runnable.afterSyncRun();
                             cancel();
                         }
                     };
-                    this.executor = plugin.getExecutor();
-                    break;
-
-                case SYNC_LATER:
+                } else {
                     this.runner = new Runnable() {
                         @Override
                         public void run() {
-                            if (run.get() == interval.get()) {
-                                runnable.run();
-                                cancel();
-                            }
-                            run.incrementAndGet();
+                            runnable.beforeRun();
+                            runnable.run();
+                            runnable.afterSyncRun();
                         }
                     };
-                    this.executor = plugin.getExecutor();
-                    break;
-
-                case SYNC_REPEAT:
-                    this.runner = new Runnable() {
-                        @Override
-                        public void run() {
-                            if (run.compareAndSet(interval.get(), 0))
-                                runnable.run();
-                            run.incrementAndGet();
-                        }
-                    };
-                    this.executor = plugin.getExecutor();
-                    break;
-
-                default:
-                    this.runner = null;
-                    this.executor = null;
+                }
             }
         }
 
         @Override
-        public void setInterval(long interval) {
-            this.interval.set(interval);
-            this.run.set(0);
-        }
-
-        @Override 
-        public long getInterval() {
-            return this.interval.get();
+        public long interval() {
+            return this.interval;
         }
 
         @Override
-        public SchedulerType getType() {
+        public void setInterval(long interval) {
+            this.interval = interval;
+        }
+
+        @Override
+        public SchedulerType type() {
             return this.type;
         }
 
         @Override
-        public TridentRunnable getRunnable() {
+        public TridentRunnable runnable() {
             return this.runnable;
         }
 
         @Override
-        public AtomicBoolean getRan() {
-            return ran;
-        }
-
-        @Override
-        public TridentPlugin getPlugin() {
+        public TridentPlugin owner() {
             return this.plugin;
         }
 
         @Override
         public void cancel() {
-            ScheduledTaskList.remove(this);
+            taskList.remove(this);
         }
 
         @Override
         public void run() {
-            // Again, does not necessarily need to be atomic
-            // Can only be run by a single thread at once because ran guaranteed to be checked
-            this.ran.set(true); // Prevent the other thread from interfering
-            this.runnable.prerunSync();
-            this.executor.addTask(this.runner);
-            if (type.name().contains("ASYNC")) {
-                this.runnable.runAfterAsync();
-            } else this.runnable.runAfterSync();
+            switch (type) {
+                case ASYNC_RUN:
+                    this.executor.addTask(this.runner);
+                    break;
+
+                case ASYNC_LATER:
+                    // Maybe over if the interval set lower
+                    if (run >= interval)
+                        this.executor.addTask(this.runner);
+                    ++run;
+                    break;
+
+                case ASYNC_REPEAT:
+                    // Maybe over if the interval set lower
+                    if (run >= interval)
+                        this.executor.addTask(this.runner);
+                    ++run;
+                    break;
+
+                case SYNC_RUN:
+                    this.executor.addTask(this.runner);
+                    break;
+
+                case SYNC_LATER:
+                    // May be over if the interval set lower
+                    if (run >= interval)
+                        this.executor.addTask(this.runner);
+                    ++run;
+                    break;
+
+                case SYNC_REPEAT:
+                    // May be over if the interval set lower
+                    if (run >= interval)
+                        this.executor.addTask(this.runner);
+                    ++run;
+                    break;
+                default:
+                    throw new IllegalStateException("How did this happen?");
+            }
         }
     }
 }

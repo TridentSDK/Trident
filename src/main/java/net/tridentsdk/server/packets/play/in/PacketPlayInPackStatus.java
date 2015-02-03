@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
@@ -32,13 +33,13 @@ public class PacketPlayInPackStatus extends InPacket {
      */
     protected String hash;
     /**
-     * Result/Status <p/> 0 - Successfully loaded 1 - Declined 2 - Failed download 3 - Accepted <p/> TODO Change to
+     * Result/Status  0 - Successfully loaded 1 - Declined 2 - Failed download 3 - Accepted  TODO Change to
      * enum
      */
     protected int result;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x19;
     }
 
@@ -50,11 +51,11 @@ public class PacketPlayInPackStatus extends InPacket {
         return this;
     }
 
-    public String getHash() {
+    public String hash() {
         return this.hash;
     }
 
-    public int getResult() {
+    public int result() {
         return this.result;
     }
 

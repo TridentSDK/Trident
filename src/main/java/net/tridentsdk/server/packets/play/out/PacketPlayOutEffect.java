@@ -14,33 +14,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Coordinates;
-import net.tridentsdk.server.data.Position;
+import net.tridentsdk.Position;
+import net.tridentsdk.server.data.PositionWritable;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutEffect extends OutPacket {
     protected int effectId;
-    protected Coordinates loc;
+    protected Position loc;
     protected int data;
     protected boolean playSound;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x28;
     }
 
-    public int getEffectId() {
+    public int effectId() {
         return this.effectId;
     }
 
-    public Coordinates getLoc() {
+    public Position location() {
         return this.loc;
     }
 
-    public int getData() {
+    public int data() {
         return this.data;
     }
 
@@ -52,7 +53,7 @@ public class PacketPlayOutEffect extends OutPacket {
     public void encode(ByteBuf buf) {
         buf.writeInt(this.effectId);
 
-        new Position(this.loc).write(buf);
+        new PositionWritable(this.loc).write(buf);
 
         buf.writeInt(this.data);
         buf.writeBoolean(this.playSound);

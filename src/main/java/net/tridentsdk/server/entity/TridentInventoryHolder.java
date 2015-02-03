@@ -14,12 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.entity;
 
-import net.tridentsdk.Coordinates;
+import net.tridentsdk.Position;
+import net.tridentsdk.docs.Volatile;
 import net.tridentsdk.entity.decorate.InventoryHolder;
 import net.tridentsdk.window.inventory.Inventory;
-import net.tridentsdk.window.inventory.Item;
 
 import java.util.UUID;
 
@@ -29,25 +30,23 @@ import java.util.UUID;
  * @author The TridentSDK Team
  */
 public abstract class TridentInventoryHolder extends TridentLivingEntity implements InventoryHolder {
+    private final Object BARRIER;
     /**
      * The inventory held by the entity
      */
+    @Volatile(policy = "Do not set after construction", reason = "Barrier", fix = "Set in constructor, do not change")
     protected Inventory inventory;
 
     /**
      * Inherits constructor from {@link TridentLivingEntity}
      */
-    public TridentInventoryHolder(UUID id, Coordinates spawnLocation) {
+    public TridentInventoryHolder(UUID id, Position spawnLocation) {
         super(id, spawnLocation);
+        BARRIER = new Object();
     }
 
     @Override
-    public Inventory getInventory() {
+    public Inventory inventory() {
         return this.inventory;
-    }
-
-    @Override
-    public Item getContent(int slot) {
-        return this.inventory.getItems()[slot];
     }
 }

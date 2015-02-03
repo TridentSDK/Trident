@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
@@ -26,15 +27,15 @@ public class PacketPlayOutEntityHeadLook extends OutPacket {
     protected float headYaw;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x19;
     }
 
-    public int getEntityId() {
+    public int entityId() {
         return this.entityId;
     }
 
-    public float getHeadYaw() {
+    public float headYaw() {
         return this.headYaw;
     }
 

@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.status;
 
 import com.google.gson.GsonBuilder;
@@ -38,11 +39,11 @@ public class PacketStatusOutResponse extends OutPacket {
     }
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x00;
     }
 
-    public Response getResponse() {
+    public Response response() {
         return this.response;
     }
 
@@ -54,10 +55,6 @@ public class PacketStatusOutResponse extends OutPacket {
 
     public static class Response {
         /**
-         * Version information
-         */
-        Version version = new Version();
-        /**
          * Information regarding players
          */
         final Players players = new Players();
@@ -65,6 +62,10 @@ public class PacketStatusOutResponse extends OutPacket {
          * Description is the MOTD
          */
         final Description description = new Description();
+        /**
+         * Version information
+         */
+        Version version = new Version();
 
         public static class Version {
             /**

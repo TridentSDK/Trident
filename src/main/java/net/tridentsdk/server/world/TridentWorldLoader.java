@@ -14,93 +14,182 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.world;
 
+import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
+import net.tridentsdk.Trident;
+import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.meta.nbt.NBTException;
+import net.tridentsdk.server.world.gen.FlatWorldGen;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.Chunk;
 import net.tridentsdk.world.ChunkLocation;
 import net.tridentsdk.world.World;
 import net.tridentsdk.world.WorldLoader;
+import net.tridentsdk.world.gen.AbstractGenerator;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileSystems;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.zip.DataFormatException;
 
+/**
+ * The world loading class, creates, saves, handles worlds
+ *
+ * @author The TridentSDK Team
+ */
 public class TridentWorldLoader implements WorldLoader {
-    private final Map<String, TridentWorld> worlds = new ConcurrentHashMap<>();
+    private static final AbstractGenerator DEFAULT_GEN = new FlatWorldGen();
+    private static final Map<String, TridentWorld> worlds = new ConcurrentHashMapV8<>();
+    private final AbstractGenerator generator;
+
+    public TridentWorldLoader(Class<? extends AbstractGenerator> generator) {
+        AbstractGenerator gen;
+        try {
+            Constructor<? extends AbstractGenerator> g = generator.getDeclaredConstructor();
+            gen = g.newInstance();
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            TridentLogger.error("Error occurred while instantiating generator " + generator.getName());
+            TridentLogger.error("Switching to the default");
+            TridentLogger.error(e);
+            gen = DEFAULT_GEN;
+        } catch (NoSuchMethodException e) {
+            TridentLogger.error("Provided generator does not have a default constructor");
+            TridentLogger.error("Switching to the default");
+            TridentLogger.error(e);
+            gen = DEFAULT_GEN;
+        }
+
+        this.generator = gen;
+    }
 
     public TridentWorldLoader() {
-        for (File file : getWorldContainer().listFiles()) {
-            if (!(file.isDirectory()) || file.getName().contains(" ")) {
+        this(DEFAULT_GEN.getClass());
+    }
+
+    public Collection<TridentWorld> worlds() {
+        return worlds.values();
+    }
+
+    // Prevents this reference from escaping during construction
+    // besides, user created WorldLoaders should not re-create
+    // the world
+    @InternalUseOnly
+    public void loadAll() {
+        TridentLogger.log("Loading worlds...");
+        for (File file : Trident.fileContainer().toFile().listFiles()) {
+            if (!(file.isDirectory()) || file.getName().contains(" "))
                 continue;
-            }
 
             boolean isWorld = false;
 
             for (File f : file.listFiles()) {
                 if (f.getName().equals("level.dat")) {
                     isWorld = true;
+                    continue;
+                }
+
+                if (f.getName().equals("gensig")) {
+                    String className = null;
+
+                    try {
+                        byte[] sig = Files.readAllBytes(
+                                Trident.fileContainer().resolve(file.getName()).resolve("gensig"));
+                        className = new String(sig);
+                        if (!className.equals(this.getClass().getName())) {
+                            // Create a new loader with that class, don't load it with this one
+                            new TridentWorldLoader(Class.forName(className).asSubclass(AbstractGenerator.class))
+                                    .load(file.getName());
+                            isWorld = false;
+                        }
+                    } catch (IOException e) {
+                        TridentLogger.error(e);
+                        isWorld = true;
+                    } catch (ClassNotFoundException e) {
+                        TridentLogger.error("Could not find loader " + className + ", resorting to default");
+                        TridentLogger.error(e);
+
+                        // Nevermind, load with this one anyways
+                        isWorld = true;
+                    }
                 }
             }
 
-            if (!(isWorld)) {
+            if (!(isWorld))
                 continue;
-            }
 
+            Path gensig = Trident.fileContainer().resolve(file.getName()).resolve("gensig");
+            if (!Files.exists(gensig)) {
+                try {
+                    Files.createFile(gensig);
+                    Files.write(gensig, generator().getClass().getName().getBytes(Charset.defaultCharset()));
+                } catch (IOException e) {
+                    TridentLogger.error("Could not write gensig file");
+                    TridentLogger.error(e);
+                }
+            }
             load(file.getName());
         }
+        if (worlds.size() == 0) {
+            TridentLogger.error("No worlds found, there is no world loaded!");
+        }
+        TridentLogger.log("Finished loading worlds!");
     }
 
     @Override
     public World load(String world) {
         TridentWorld w = new TridentWorld(world, this);
-
         worlds.put(world, w);
+
         return w;
     }
 
     @Override
     public void save(World world) {
-        // TODO
+        TridentWorld w = (TridentWorld) world;
+        for (Chunk chunk : w.loadedChunks())
+            saveChunk(chunk);
     }
 
-    public Collection<TridentWorld> getWorlds() {
-        return worlds.values();
+    @Override
+    public World createWorld(String name) {
+        TridentWorld world = TridentWorld.createWorld(name, this);
+        worlds.put(name, world);
+
+        return world;
     }
 
     @Override
     public boolean worldExists(String world) {
-        return this.worlds.containsKey(world);
+        return worlds.containsKey(world);
     }
 
     @Override
     public boolean chunkExists(World world, int x, int z) {
-        return new File(world.getName() + "/region/", WorldUtils.getRegionFile(x, z)).exists();
+        return new File(world.name() + "/region/", WorldUtils.regionFile(x, z)).exists();
     }
 
     @Override
     public boolean chunkExists(World world, ChunkLocation location) {
-        return this.chunkExists(world, location.getX(), location.getZ());
+        return this.chunkExists(world, location.x(), location.z());
     }
 
     @Override
     public Chunk loadChunk(World world, int x, int z) {
-        return this.loadChunk(world, new ChunkLocation(x, z));
+        return this.loadChunk(world, ChunkLocation.create(x, z));
     }
 
     @Override
     public TridentChunk loadChunk(World world, ChunkLocation location) {
         try {
-            RegionFile file =
-                    new RegionFile(FileSystems.getDefault().getPath(
-                            world.getName() + "/region/", WorldUtils.getRegionFile(location)));
-
-            return file.loadChunkData((TridentWorld) world, location);
+            return RegionFile.fromPath(world.name(), location).loadChunkData((TridentWorld) world, location);
         } catch (IOException | DataFormatException | NBTException ex) {
             TridentLogger.error(ex);
         }
@@ -110,10 +199,16 @@ public class TridentWorldLoader implements WorldLoader {
 
     @Override
     public void saveChunk(Chunk chunk) {
-        // TODO
+        try {
+            RegionFile.fromPath(chunk.world().name(), chunk.location())
+                    .saveChunkData((TridentChunk) chunk);
+        } catch (IOException | NBTException ex) {
+            TridentLogger.error(ex);
+        }
     }
 
-    public File getWorldContainer() {
-        return new File(System.getProperty("user.dir"));
+    @Override
+    public AbstractGenerator generator() {
+        return generator;
     }
 }

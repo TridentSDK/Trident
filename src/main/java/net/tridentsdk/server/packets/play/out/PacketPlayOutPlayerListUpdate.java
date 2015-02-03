@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
@@ -26,15 +27,15 @@ public class PacketPlayOutPlayerListUpdate extends OutPacket {
     protected String footer;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x47;
     }
 
-    public String getHeader() {
+    public String header() {
         return this.header;
     }
 
-    public String getFooter() {
+    public String footer() {
         return this.footer;
     }
 

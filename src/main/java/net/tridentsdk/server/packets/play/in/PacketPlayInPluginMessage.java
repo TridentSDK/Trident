@@ -14,10 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.plugin.channel.ChannelManager;
+import net.tridentsdk.plugin.channel.ChannelHandler;
 import net.tridentsdk.plugin.channel.PluginChannel;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
@@ -39,15 +40,15 @@ public class PacketPlayInPluginMessage extends InPacket {
     protected byte[] data;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x17;
     }
 
-    public String getChannel() {
+    public String channel() {
         return this.channel;
     }
 
-    public byte[] getData() {
+    public byte[] data() {
         return this.data;
     }
 
@@ -63,7 +64,7 @@ public class PacketPlayInPluginMessage extends InPacket {
 
     @Override
     public void handleReceived(ClientConnection connection) {
-        PluginChannel channel = ChannelManager.getInstance().getPluginChannel(this.channel);
+        PluginChannel channel = ChannelHandler.instance().forChannel(this.channel);
 
         if (channel != null) {
             channel.process(this.data);

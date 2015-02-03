@@ -14,11 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.status;
 
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.netty.packet.OutPacket;
-import net.tridentsdk.server.netty.packet.PacketType;
+import net.tridentsdk.server.netty.packet.PacketDirection;
 
 /**
  * The response sent by the server for PacketStatusInPing
@@ -33,17 +34,12 @@ public class PacketStatusOutPing extends OutPacket {
     protected long clientTime;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x01;
     }
 
     @Override
     public void encode(ByteBuf buf) {
         buf.writeLong(this.clientTime);
-    }
-
-    @Override
-    public PacketType getType() {
-        return PacketType.OUT;
     }
 }

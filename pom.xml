@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.tridentsdk</groupId>
     <artifactId>trident</artifactId>
     <version>1.0-SNAPSHOT</version>
     <name>Trident</name>
     <url>http://www.tridentsdk.net/</url>
-    <packaging>pom</packaging>
+    <packaging>jar</packaging>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -42,16 +43,12 @@
             <name>SnakeYAML repository</name>
             <url>http://oss.sonatype.org/content/groups/public/</url>
         </repository>
-        
+
         <repository>
             <id>TridentSDK</id>
             <url>http://repo.tridentsdk.net/nexus/content/groups/public/</url>
         </repository>
     </repositories>
-
-    <modules>
-        <module>TridentSDK</module>
-    </modules>
 
     <dependencies>
         <dependency>
@@ -110,6 +107,11 @@
             <artifactId>junit</artifactId>
             <version>4.11</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.tempus-fugit</groupId>
+            <artifactId>tempus-fugit</artifactId>
+            <version>1.1</version>
         </dependency>
         <dependency>
             <groupId>org.hamcrest</groupId>
@@ -194,7 +196,7 @@
                         <id>make-assembly</id>
                         <phase>package</phase>
                         <goals>
-                            <goal>unpack</goal>
+                            <goal>single</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -215,6 +217,9 @@
                             <keywords>
                                 <keyword>license</keyword>
                             </keywords>
+                            <excludes>
+                                <exclude>src/main/java/net/tridentsdk/server/world/gen/PerlinNoise.java</exclude>
+                            </excludes>
                             <includes>
                                 <include>src/main/java/**</include>
                                 <include>src/test/java/**</include>
@@ -226,6 +231,18 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.9.1</version>
+                <configuration>
+                    <linksource>true</linksource>
+                    <reportOutputDirectory>${project.basedir}</reportOutputDirectory>
+                    <show>protected</show>
+                    <nohelp>true</nohelp>
+                    <destDir>gh-pages</destDir>
+                </configuration>
             </plugin>
         </plugins>
     </build>

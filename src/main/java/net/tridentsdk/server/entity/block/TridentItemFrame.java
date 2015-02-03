@@ -14,10 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.entity.block;
 
-import net.tridentsdk.Coordinates;
-import net.tridentsdk.base.Tile;
+import net.tridentsdk.Position;
+import net.tridentsdk.base.Block;
 import net.tridentsdk.entity.EntityProperties;
 import net.tridentsdk.entity.block.ItemFrame;
 import net.tridentsdk.server.entity.TridentEntity;
@@ -26,7 +27,7 @@ import net.tridentsdk.window.inventory.Item;
 import java.util.UUID;
 
 public class TridentItemFrame extends TridentEntity implements ItemFrame {
-    public TridentItemFrame(UUID id, Coordinates spawnLocation) {
+    public TridentItemFrame(UUID id, Position spawnLocation) {
         super(id, spawnLocation);
     }
 
@@ -41,17 +42,17 @@ public class TridentItemFrame extends TridentEntity implements ItemFrame {
     }
 
     @Override
-    public Item getItem() {
+    public Item item() {
         return null;
     }
 
     @Override
-    public byte getItemRotation() {
+    public byte itemRotation() {
         return 0;
     }
 
     @Override
-    public Tile getHangingBlock() {
+    public Block hangingBlock() {
         return null;
     }
 }

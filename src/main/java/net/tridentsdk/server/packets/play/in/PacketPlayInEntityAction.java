@@ -14,17 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.Trident;
+import net.tridentsdk.event.entity.PlayerToggleSprintEvent;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
+import net.tridentsdk.server.player.PlayerConnection;
+import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.util.TridentLogger;
 
 /**
- * Sent by the client when doing any of the action types below. <p/> Note: Client will send ActionType#START_SPRINTING
+ * Sent by the client when doing any of the action types below.  Note: Client will send ActionType#START_SPRINTING
  * when "Leave bed" is clicked
  *
  * @see ActionType
@@ -45,14 +50,14 @@ public class PacketPlayInEntityAction extends InPacket {
     protected int jumpBoost;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x0B;
     }
 
     @Override
     public Packet decode(ByteBuf buf) {
         Codec.readVarInt32(buf); // ignore entity id as its the player's
-        this.type = ActionType.getAction((int) buf.readUnsignedByte());
+        this.type = ActionType.action((int) buf.readUnsignedByte());
         this.jumpBoost = Codec.readVarInt32(buf);
 
         return this;
@@ -60,7 +65,29 @@ public class PacketPlayInEntityAction extends InPacket {
 
     @Override
     public void handleReceived(ClientConnection connection) {
-        // TODO: Act accordingly
+        TridentPlayer player = ((PlayerConnection) connection).player();
+
+        switch(type) {
+            case START_SPRINTING:
+            case STOP_SPRINTING:
+                PlayerToggleSprintEvent event = new PlayerToggleSprintEvent(player, type ==
+                        ActionType.START_SPRINTING);
+
+                Trident.eventHandler().fire(event);
+
+                if(!event.isIgnored()) {
+                    player.setSprinting(event.sprintOn());
+                }
+                break;
+
+            case CROUCH:
+                player.setCrouching(true);
+                break;
+
+            case UN_CROUCH:
+                player.setCrouching(false);
+                break;
+        }
     }
 
     public enum ActionType {
@@ -81,7 +108,7 @@ public class PacketPlayInEntityAction extends InPacket {
             this.id = id;
         }
 
-        public static ActionType getAction(int id) {
+        public static ActionType action(int id) {
             for (ActionType type : ActionType.values()) {
                 if (type.id == id)
                     return type;

@@ -14,9 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.GameMode;
+import net.tridentsdk.Trident;
+import net.tridentsdk.event.EventHandler;
+import net.tridentsdk.event.player.PlayerToggleFlyingEvent;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
@@ -31,8 +36,9 @@ import net.tridentsdk.util.TridentLogger;
 public class PacketPlayInPlayerAbilities extends InPacket {
 
     /**
-     * The flags are whether damage is disabled (god mode, 8, bit 3), whether the player can fly (4, bit 2), whether the
-     * player is flying (2, bit 1), and whether the player is in creative mode (1, bit 0). <p/> To get the values of
+     * The flags are whether damage is disabled (god mode, 8, bit 3), whether the player can fly (4, bit 2), whether
+     * the
+     * player is flying (2, bit 1), and whether the player is in creative mode (1, bit 0).  To get the values of
      * these booleans, simply AND (&) the byte with 1,2,4 and 8 respectively, to get the 0 or 1 bitwise value. To set
      * them OR (|) them with their repspective masks.
      */
@@ -48,7 +54,7 @@ public class PacketPlayInPlayerAbilities extends InPacket {
     protected float walkingSpeed;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x13;
     }
 
@@ -62,24 +68,35 @@ public class PacketPlayInPlayerAbilities extends InPacket {
         return this;
     }
 
-    public byte getFlags() {
+    public byte flags() {
         return this.flags;
     }
 
-    public float getFlyingSpeed() {
+    public float flyingSpeed() {
         return this.flyingSpeed;
     }
 
-    public float getWalkingSpeed() {
+    public float walkingSpeed() {
         return this.walkingSpeed;
     }
 
     @Override
     public void handleReceived(ClientConnection connection) {
-        TridentPlayer player = ((PlayerConnection) connection).getPlayer();
+        TridentPlayer player = ((PlayerConnection) connection).player();
 
-        if (player.getFlyingSpeed() * 250.0F != this.flyingSpeed) {
-            TridentLogger.error(new IllegalArgumentException("Client sent invalid flying speed, possibly hack installed"));
+        if (player.flyingSpeed() * 250.0F != this.flyingSpeed) {
+            TridentLogger.error(
+                    new IllegalArgumentException("Client sent invalid flying speed, possibly hack installed"));
+        }
+
+        boolean flying = (byte) (flags & 2) == 2;
+
+        if(player.gameMode() == GameMode.CREATIVE && player.isFlying() != flying) {
+            PlayerToggleFlyingEvent toggleFly = new PlayerToggleFlyingEvent(player, flying);
+
+            Trident.eventHandler().fire(toggleFly);
+
+            player.setFlying(flying);
         }
 
         // TODO: act accordingly

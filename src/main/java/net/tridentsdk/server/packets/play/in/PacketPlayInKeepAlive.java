@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
@@ -21,7 +22,6 @@ import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
-import net.tridentsdk.server.packets.play.out.PacketPlayOutKeepAlive;
 import net.tridentsdk.server.player.PlayerConnection;
 
 /**
@@ -35,7 +35,7 @@ public class PacketPlayInKeepAlive extends InPacket {
     protected int keepAliveId;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x00;
     }
 
@@ -50,10 +50,9 @@ public class PacketPlayInKeepAlive extends InPacket {
     public void handleReceived(ClientConnection connection) {
         PlayerConnection pc = (PlayerConnection) connection;
 
-        if(pc.getKeepAliveId() == keepAliveId) {
-            pc.setKeepAliveId(-1, 0L);
-        } else {
-            pc.sendPacket(new PacketPlayOutKeepAlive().set("keepAliveId", keepAliveId));
-        }
+        if (!pc.hasSentKeepAlive())
+            return;
+
+        pc.handleKeepAlive(this);
     }
 }

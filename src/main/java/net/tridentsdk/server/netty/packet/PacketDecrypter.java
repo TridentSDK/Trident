@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.netty.packet;
 
 import io.netty.buffer.ByteBuf;
@@ -34,7 +35,7 @@ public class PacketDecrypter extends ByteToMessageDecoder {
 
     @Override
     public void handlerAdded(ChannelHandlerContext context) {
-        this.connection = ClientConnection.getConnection(context);
+        this.connection = ClientConnection.connection(context);
     }
 
     /* (non-Javadoc)
@@ -42,12 +43,11 @@ public class PacketDecrypter extends ByteToMessageDecoder {
      * io.netty.buffer.ByteBuf, java.util.List)
      */
     @Override
-    protected void decode(ChannelHandlerContext ctx, ByteBuf in,
-                          List<Object> out) throws Exception {
+    protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
         ByteBuf bufOut = ctx.alloc().buffer(in.readableBytes());
 
         if (this.connection.isEncryptionEnabled()) {
-            bufOut.writeBytes(this.connection.decrypt(Codec.toArray(in)));
+            bufOut.writeBytes(this.connection.decrypt(Codec.asArray(in)));
         } else {
             bufOut.writeBytes(in);
         }

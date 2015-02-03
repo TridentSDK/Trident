@@ -14,10 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Coordinates;
+import net.tridentsdk.Position;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.InPacket;
@@ -38,10 +39,10 @@ public class PacketPlayInEntityInteract extends InPacket {
     /**
      * Location of the target, sent as 3 floats x, y, z
      */
-    protected Coordinates location;
+    protected Position location;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x02;
     }
 
@@ -54,19 +55,19 @@ public class PacketPlayInEntityInteract extends InPacket {
         double y = (double) buf.readFloat();
         double z = (double) buf.readFloat();
 
-        this.location = new Coordinates(null, x, y, z); // TODO: Get the clients world
+        this.location = Position.create(null, x, y, z); // TODO: Get the clients world
         return this;
     }
 
-    public int getTarget() {
+    public int target() {
         return this.target;
     }
 
-    public InteractType getInteractType() {
+    public InteractType interactType() {
         return this.type;
     }
 
-    public Coordinates getLocation() {
+    public Position location() {
         return this.location;
     }
 

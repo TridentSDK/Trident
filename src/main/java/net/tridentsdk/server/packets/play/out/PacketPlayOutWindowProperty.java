@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
@@ -26,19 +27,19 @@ public class PacketPlayOutWindowProperty extends OutPacket {
     protected short value;
 
     @Override
-    public int getId() {
+    public int id() {
         return 0x31;
     }
 
-    public int getWindowId() {
+    public int windowId() {
         return this.windowId;
     }
 
-    public short getProperty() {
+    public short property() {
         return this.property;
     }
 
-    public short getValue() {
+    public short value() {
         return this.value;
     }
 
