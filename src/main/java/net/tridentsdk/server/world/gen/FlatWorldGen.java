@@ -28,7 +28,7 @@ import net.tridentsdk.world.gen.ChunkTile;
 public class FlatWorldGen extends AbstractGenerator {
     @Override
     public int height(int x, int z) {
-        return 4;
+        return 3;
     }
 
     @Override

@@ -271,7 +271,7 @@ public class TridentPlayer extends OfflinePlayer {
                 bulk.addEntry(data);
                 length += (10 + data.data().length);
 
-                if (length >= 0x1DAE40) { // send the packet if the length is close to the protocol maximum
+                if (length >= 1845152) { // send the packet if the length is close to the protocol maximum
                     connection.sendPacket(bulk);
 
                     bulk = new PacketPlayOutMapChunkBulk();
