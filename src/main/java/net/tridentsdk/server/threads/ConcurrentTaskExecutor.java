@@ -73,7 +73,6 @@ public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implement
     private static final Set<ConcurrentTaskExecutor<?>> EXECUTORS = Sets.newHashSet();
 
     private static final int EMERGENCY_MARGIN = 4;
-    private static final boolean ARCH_64 = System.getProperty("os.arch").contains("64");
     private static final int TASK_LENGTH = calcTaskLen();
 
     private static final int STARTING = 0;
@@ -113,15 +112,8 @@ public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implement
     private static int calcTaskLen() {
         int maxSizePossible = 10_000;
 
-        // Determines the size of an object, depending on arch
-        // TODO base off of compressedOops?
-        // 4 bytes is basically an Object without fields
-        int objectSize = 4;
-        if (ARCH_64)
-            objectSize = 8;
-
         int len;
-        long max = (Runtime.getRuntime().freeMemory() / objectSize) / 15; // TODO adjust thread count       
+        long max = (Runtime.getRuntime().freeMemory() / 16) / 15; // TODO adjust thread count
         if (max > (long) maxSizePossible)
             len = maxSizePossible;
         else
