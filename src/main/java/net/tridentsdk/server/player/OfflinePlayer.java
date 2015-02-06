@@ -302,6 +302,10 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
         return null;
     }
 
+    public String name() {
+        return name;
+    }
+
     @Override
     public <T extends Projectile> T launchProjectile(EntityProperties properties) {
         TridentLogger.error(new UnsupportedOperationException("You cannot make an OfflinePlayer launch a projectile!"));

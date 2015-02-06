@@ -150,7 +150,7 @@ public class PacketLoginInStart extends InPacket {
             connection.sendPacket(success);
             connection.setStage(Protocol.ClientStage.PLAY);
 
-            TridentPlayer.spawnPlayer(connection, id);
+            TridentPlayer.spawnPlayer(connection, id, name());
             return;
         }
 

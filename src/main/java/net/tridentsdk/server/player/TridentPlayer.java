@@ -25,6 +25,7 @@ import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.ParameterValue;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.factory.Factories;
+import net.tridentsdk.meta.MessageBuilder;
 import net.tridentsdk.meta.nbt.CompoundTag;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.entity.TridentEntityBuilder;
@@ -69,7 +70,7 @@ public class TridentPlayer extends OfflinePlayer {
         }
     }
 
-    public static TridentPlayer spawnPlayer(ClientConnection connection, UUID id) {
+    public static TridentPlayer spawnPlayer(ClientConnection connection, UUID id, String name) {
         CompoundTag offlinePlayer = (OfflinePlayer.getOfflinePlayer(
                 id) == null) ? null : OfflinePlayer.getOfflinePlayer(id).asNbt();
 
@@ -83,6 +84,8 @@ public class TridentPlayer extends OfflinePlayer {
                         // TODO this is temporary for testing
                         ParameterValue.from(TridentWorld.class, TridentServer.WORLD),
                         ParameterValue.from(ClientConnection.class, connection));
+
+        p.name = name;
 
         p.executor.execute(new Runnable() {
             @Override
@@ -232,16 +235,22 @@ public class TridentPlayer extends OfflinePlayer {
     }
 
     @Override
+    public void sendMessage(String message) {
+        sendRaw(new MessageBuilder(message)
+                .build()
+                .asJson());
+    }
+
+    @Override
     public void sendRaw(final String... messages) {
-        // TODO: Verify proper implementation
         this.executor.execute(new Runnable() {
             @Override
             public void run() {
                 for (String message : messages) {
                     if (message != null) {
                         TridentPlayer.this.connection.sendPacket(
-                                new PacketPlayOutChatMessage().set("jsonMessage", message)
-                                        .set("position", PacketPlayOutChatMessage.ChatPosition.CHAT));
+                                new PacketPlayOutChat().set("jsonMessage", message)
+                                        .set("position", PacketPlayOutChat.ChatPosition.CHAT));
                     }
                 }
             }
