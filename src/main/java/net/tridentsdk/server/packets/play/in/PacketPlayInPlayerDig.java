@@ -19,9 +19,11 @@ package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.Position;
+import net.tridentsdk.base.Block;
 import net.tridentsdk.base.BlockOrientation;
 import net.tridentsdk.event.Cancellable;
 import net.tridentsdk.event.Event;
+import net.tridentsdk.event.block.BlockBreakEvent;
 import net.tridentsdk.event.player.PlayerDigEvent;
 import net.tridentsdk.event.player.PlayerDropItemEvent;
 import net.tridentsdk.server.TridentServer;
@@ -108,6 +110,15 @@ public class PacketPlayInPlayerDig extends InPacket {
             case DIG_CANCEL:
             case DIG_FINISH:
                 event = new PlayerDigEvent(player, face, this.status);
+
+                if(digStatus == DigStatus.DIG_FINISH) {
+                    Block block = player.world().tileAt(location());
+                    BlockBreakEvent blockBreak = new BlockBreakEvent(player, block, face, player.heldItem());
+
+                    if(blockBreak.isIgnored())
+                        return;
+                }
+
                 break;
 
             case DROP_ITEMSTACK:

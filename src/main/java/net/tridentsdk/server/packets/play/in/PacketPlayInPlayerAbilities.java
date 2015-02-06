@@ -91,7 +91,7 @@ public class PacketPlayInPlayerAbilities extends InPacket {
 
         boolean flying = (byte) (flags & 2) == 2;
 
-        if(player.gameMode() == GameMode.CREATIVE && player.isFlying() != flying) {
+        if(player.gameMode() == GameMode.CREATIVE || flying != player.isFlying()) {
             PlayerToggleFlyingEvent toggleFly = new PlayerToggleFlyingEvent(player, flying);
 
             Trident.eventHandler().fire(toggleFly);

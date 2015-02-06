@@ -38,10 +38,7 @@ import net.tridentsdk.world.gen.WorldGenHandler;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -161,27 +158,16 @@ public class TridentWorld implements World {
             for (File f : playerData.listFiles(new PlayerFilter())) {
                 CompoundTag opData;
 
-                InputStream input = null;
                 try {
-                    input = new FileInputStream(levelFile);
-
-                    byte[] compressedData = new byte[input.available()];
-                    input.read(compressedData);
+                    byte[] compressedData = Files.readAllBytes(Paths.get(f.toURI()));
 
                     opData = new NBTDecoder(new DataInputStream(new ByteArrayInputStream(ByteStreams.
-                            toByteArray(new GZIPInputStream(new ByteArrayInputStream(compressedData)))))).decode();
+                            toByteArray(new GZIPInputStream(new ByteArrayInputStream(compressedData))))))
+                            .decode();
                 } catch (IOException | NBTException ex) {
                     TridentLogger.log("Unable to load " + f.getName() + ". Printing stacktrace...");
                     TridentLogger.error(ex);
                     continue;
-                } finally {
-                    try {
-                        if (input != null) {
-                            input.close();
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
                 }
 
                 new OfflinePlayer(opData, this); // will automatically register itself
@@ -541,7 +527,7 @@ public class TridentWorld implements World {
     private static class PlayerFilter implements FilenameFilter {
         @Override
         public boolean accept(File file, String name) {
-            return name.endsWith(".dat") && (name.length() == 41); // 41 for UUID, dashes, and extension
+            return name.endsWith(".dat") && (name.length() == 40); // 40 for UUID, dashes, and extension
         }
     }
 }

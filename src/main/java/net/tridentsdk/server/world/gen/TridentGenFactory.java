@@ -8,6 +8,8 @@ import net.tridentsdk.util.NibbleArray;
 import net.tridentsdk.world.Chunk;
 import net.tridentsdk.world.gen.ChunkTile;
 
+import java.util.Arrays;
+
 /**
  * Implementation of generation factory, used to produce effects of world generation implementation side
  *
@@ -37,6 +39,8 @@ public class TridentGenFactory implements GenFactory {
             sect.types = new char[4096];
             sect.blockLight = new byte[2048];
             sect.skyLight = new byte[2048];
+
+            Arrays.fill(sect.skyLight, (byte) 15);
 
             sect.add = new byte[2048];
             sect.data = new byte[2048];
