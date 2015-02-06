@@ -74,7 +74,7 @@ public class PacketPlayInChat extends InPacket {
 
 
         packet.set("jsonMessage",
-                new MessageBuilder(String.format("%s > %s", player.name(), this.message))
+                new MessageBuilder(String.format("%s> %s", player.name(), this.message))
                         .build()
                         .asJson());
         packet.set("position", PacketPlayOutChat.ChatPosition.CHAT);

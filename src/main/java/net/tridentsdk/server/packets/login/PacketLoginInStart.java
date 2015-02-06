@@ -78,7 +78,7 @@ public class PacketLoginInStart extends InPacket {
         /*
          * If the client is the local machine, skip the encryption process and proceed to the PLAY stage
          */
-        if (connection.address().getHostString().equals("127.0.0.1")) {
+        if (true) {
             UUID id;
 
             try {

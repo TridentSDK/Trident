@@ -188,7 +188,7 @@ public class PacketLoginInEncryptionResponse extends InPacket {
 
         // Remove stored information in LoginManager and spawn the player
         LoginHandler.getInstance().finish(connection.address());
-        TridentPlayer.spawnPlayer(connection, id, name).resumeLogin();
+        TridentPlayer.spawnPlayer(connection, id, name);
     }
 
     protected static final class HashGenerator {

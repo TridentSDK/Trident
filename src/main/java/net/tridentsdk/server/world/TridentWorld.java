@@ -27,9 +27,7 @@ import net.tridentsdk.base.Block;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.factory.Factories;
 import net.tridentsdk.meta.nbt.*;
-import net.tridentsdk.server.packets.play.out.PacketPlayOutTimeUpdate;
 import net.tridentsdk.server.player.OfflinePlayer;
-import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.threads.ThreadsHandler;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.*;
@@ -256,7 +254,7 @@ public class TridentWorld implements World {
                 if (time >= 2400)
                     time = 0;
                 if (time % 40 == 0)
-                    TridentPlayer.sendAll(new PacketPlayOutTimeUpdate().set("worldAge", existed).set("time", time));
+                    //TridentPlayer.sendAll(new PacketPlayOutTimeUpdate().set("worldAge", existed).set("time", time));
 
                 rainTime--;
                 thunderTime--;
@@ -333,7 +331,7 @@ public class TridentWorld implements World {
 
         TridentLogger.log("Saved " + name + " successfully!");
 
-        // TODO save chunks
+
         for (TridentChunk chunk : loadedChunks()) {
             try {
                 RegionFile.fromPath(name, chunk.location()).saveChunkData(chunk);
