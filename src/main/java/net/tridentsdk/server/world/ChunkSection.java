@@ -35,7 +35,7 @@ public final class ChunkSection implements NBTSerializable {
     public byte[] data;
     @NBTField(name = "BlockLight", type = TagType.BYTE_ARRAY)
     public byte[] blockLight;
-    @NBTField(name = "BlockLight", type = TagType.BYTE_ARRAY)
+    @NBTField(name = "SkyLight", type = TagType.BYTE_ARRAY)
     public byte[] skyLight;
     @NBTField(name = "Y", type = TagType.BYTE)
     protected byte y;
@@ -53,13 +53,13 @@ public final class ChunkSection implements NBTSerializable {
 
     protected void loadBlocks() {
         if (add == null) {
-            add = new byte[LENGTH];
+            add = new byte[2048];
         }
 
         //NibbleArray add = new NibbleArray(this.add);
         //NibbleArray data = new NibbleArray(this.data);
 
-        Arrays.fill(skyLight, (byte) 15);
+        Arrays.fill(skyLight, (byte) 255);
 
         types = new char[rawTypes.length];
 

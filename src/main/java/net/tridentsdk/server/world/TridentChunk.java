@@ -179,14 +179,6 @@ public class TridentChunk implements Chunk {
     public PacketPlayOutChunkData asPacket() {
         PacketPlayOutChunkData packet = new PacketPlayOutChunkData();
 
-        if(sections == null) {
-            try {
-                RegionFile.fromPath(world.name(), location).loadChunkData(this);
-            } catch (Exception e) {
-                TridentLogger.error(e);
-            }
-        }
-
         int bitmask = (1 << sections.length) - 1;
         int count = sections.length;
         int size = 0;
@@ -256,7 +248,8 @@ public class TridentChunk implements Chunk {
 
         ListTag sections = tag.getTagAs("Sections");
         ListTag entities = tag.getTagAs("Entities");
-        ListTag tileEntities = tag.getTagAs("TileEntities");
+        ListTag tileEntities = (tag.containsTag("TileEntities")) ? (ListTag) tag.getTag("TileEntities") :
+                new ListTag("TileEntities", TagType.COMPOUND);
         ListTag tileTicks = (tag.containsTag("TileTicks")) ? (ListTag) tag.getTag("TileTicks") : new ListTag(
                 "TileTicks", TagType.COMPOUND);
         List<NBTTag> sectionsList = sections.listTags();
@@ -294,7 +287,7 @@ public class TridentChunk implements Chunk {
 
     public CompoundTag asNbt() {
         CompoundTag root = new CompoundTag("root");
-        CompoundTag level = new CompoundTag("level");
+        CompoundTag level = new CompoundTag("Level");
 
         level.addTag(new LongTag("LastUpdate").setValue(world.time()));
         level.addTag(new ByteTag("LightPopulated").setValue(lightPopulated));

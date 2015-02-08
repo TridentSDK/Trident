@@ -29,13 +29,13 @@ public class Slot implements Writable, NBTSerializable {
     private Substance mat;
 
     @NBTField(name = "Slot", type = TagType.BYTE)
-    private byte slot;
+    protected byte slot;
     @NBTField(name = "Count", type = TagType.BYTE)
-    private volatile byte quantity;
+    protected volatile byte quantity;
     @NBTField(name = "Damage", type = TagType.SHORT)
-    private volatile short damageValue;
+    protected volatile short damageValue;
     @NBTField(name = "tag", type = TagType.COMPOUND)
-    private volatile CompoundTag compoundTag;
+    protected volatile CompoundTag compoundTag;
 
     public Slot(ByteBuf buf) {
         this.id = (short) buf.readByte();

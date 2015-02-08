@@ -257,34 +257,35 @@ public class RegionFile {
 
         //If the length is smaller, we can free up a sector
         if (sectorLength < oldSectorLength) {
-            this.sectors.setDataSectors(chunk, sectorLength);
+            this.sectors.setDataSectors(chunk, sectors.rawOffset(chunk) | sectorLength);
             //Clears up all the now-free sectors
-            this.sectors.freeSectors(this.sectors.sectorOffest(chunk) + sectorLength - 1,
+            this.sectors.freeSectors(this.sectors.sectorOffset(chunk) + sectorLength - 1,
                     oldSectorLength - sectorLength);
         }
         //If the length is bigger, we need to find a new location!
         else if (sectorLength > oldSectorLength) {
-            this.sectors.setDataSectors(chunk, sectorLength);
+            this.sectors.setDataSectors(chunk, sectors.rawOffset(chunk) | sectorLength);
 
             //Clears up all the space previously used by this chunk (we need to find a new space!
-            this.sectors.freeSectors(this.sectors.sectorOffest(chunk), oldSectorLength);
+            this.sectors.freeSectors(this.sectors.sectorOffset(chunk), oldSectorLength);
 
             //Finds a new free location
             this.sectors.setSectorOffset(chunk, this.sectors.findFreeSectors(sectorLength));
         }
 
         //Update what sectors are being used
-        this.sectors.addSectors(this.sectors.sectorOffest(chunk), this.sectors.dataSectors(chunk));
+        this.sectors.addSectors(this.sectors.sectorOffset(chunk), this.sectors.dataSectors(chunk));
 
         synchronized (this.readWriteLock) {
             /* Write the actual chunk data */
             //Initialize access to the file
             RandomAccessFile access = new RandomAccessFile(this.path.toFile(), "rw");
-            access.seek((long) this.sectors.dataLoc(chunk));
-            access.write(actualLength);
+            long dataLoc = (long) this.sectors.dataLoc(chunk);
+            access.seek(dataLoc);
+            access.writeInt(actualLength);
 
-            //We only use compression type 1 (zlib)
-            access.write((int) (byte) 1);
+            //We only use compression type 2 (zlib)
+            access.write((int) (byte) 2);
             access.write(compressed);
 
             //Now we pad to the end of the sector... just in-case
@@ -296,7 +297,7 @@ public class RegionFile {
             }
 
             //Write the new offset data to the header
-            access.seek((long) (4 * this.sectors.offsetLoc(chunk)));
+            access.seek((long) (this.sectors.offsetLoc(chunk)));
             access.write(this.sectors.rawOffset(chunk));
 
             //Pack the file as in the specifications
@@ -406,7 +407,7 @@ public class RegionFile {
          * @return location in bytes
          */
         int dataLoc(Chunk c) {
-            return this.sectorOffest(c) * SECTOR_LENGTH;
+            return this.sectorOffset(c) * SECTOR_LENGTH;
         }
 
         /**
@@ -426,8 +427,8 @@ public class RegionFile {
          * @param toSet the amount to set
          */
         void setDataSectors(Chunk c, int toSet) {
-            int old = this.offsets[this.offsetLoc(c)];
-            this.offsets[this.offsetLoc(c)] = old & 0xFFFFFF00 | toSet;
+            //int old = this.offsets[this.offsetLoc(c)];
+            this.offsets[this.offsetLoc(c)] = toSet;
         }
 
         /**
@@ -436,8 +437,8 @@ public class RegionFile {
          * @param c chunk
          * @return amount the amount of sectors
          */
-        int sectorOffest(Chunk c) {
-            return this.offsets[this.offsetLoc(c)] >> 8;
+        int sectorOffset(Chunk c) {
+            return rawOffset(c) >> 8;
         }
 
         /**

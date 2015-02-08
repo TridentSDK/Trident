@@ -149,6 +149,19 @@ public class TridentWorld implements World {
 
         TridentLogger.success("Loaded region files successfully. Moving onto player data...");
 
+        TridentLogger.log("Loading spawn chunks...");
+
+        int centX = ((int) Math.floor(spawnLocation.x())) >> 4;
+        int centZ = ((int) Math.floor(spawnLocation.z())) >> 4;
+
+        for (int x = centX - 3; x <= centX + 3; x++) {
+            for (int z = centZ - 3; z <= centZ + 3; z++) {
+                chunkAt(x, z, true);
+            }
+        }
+
+        TridentLogger.success("Loaded spawn chunks. ");
+
         File playerData = new File(directory, "playerdata");
 
         if (!(playerData.exists()) || !(playerData.isDirectory())) {
@@ -174,19 +187,8 @@ public class TridentWorld implements World {
 
                 new OfflinePlayer(opData, this); // will automatically register itself
             }
+
             TridentLogger.success("Loaded all player data.");
-
-            TridentLogger.log("Loading spawn chunks...");
-            int centX = ((int) Math.floor(spawnLocation.x())) >> 4;
-            int centZ = ((int) Math.floor(spawnLocation.z())) >> 4;
-
-            for (int x = centX - 3; x <= centX + 3; x++) {
-                for (int z = centZ - 3; z <= centZ + 3; z++) {
-                    chunkAt(x, z, true);
-                }
-            }
-
-            TridentLogger.success("Loaded spawn chunks. ");
         }
     }
 
