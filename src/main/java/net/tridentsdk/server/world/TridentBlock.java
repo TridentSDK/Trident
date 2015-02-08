@@ -21,6 +21,8 @@ import net.tridentsdk.Position;
 import net.tridentsdk.base.Block;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.docs.InternalUseOnly;
+import net.tridentsdk.server.packets.play.out.PacketPlayOutBlockChange;
+import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.util.Vector;
 
 public class TridentBlock implements Block {
@@ -62,6 +64,17 @@ public class TridentBlock implements Block {
     @Override
     public void setSubstance(Substance material) {
         this.material = material;
+
+        TridentPlayer.sendAll(new PacketPlayOutBlockChange()
+                .set("blockId", substance().id())
+                .set("position", location));
+
+        ((TridentChunk) location().chunk()).setAt(
+                (int) location.x(), (int) location().y(), (int) location().z(),
+                material,
+                data,
+                (byte) 255,
+                (byte) 0);
     }
 
     @Override

@@ -92,7 +92,8 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
         xpLevel = ((IntTag) tag.getTag("XpLevel")).value();
         xpPercent = ((FloatTag) tag.getTag("XpP")).value();
         xpTotal = ((IntTag) tag.getTag("XpLevel")).value();
-        xpSeed = ((IntTag) tag.getTag("XpSeed")).value();
+        xpSeed = tag.containsTag("XpSeed") ? ((IntTag) tag.getTag("XpSeed")).value() :
+                new IntTag("XpSeed").setValue(0).value();
 
         for (NBTTag t : ((ListTag) tag.getTag("Inventory")).listTags()) {
             Slot slot = NBTSerializer.deserialize(Slot.class, (CompoundTag) t);

@@ -77,6 +77,21 @@ public final class ChunkSection implements NBTSerializable {
         }
     }
 
+    protected void updateRaw() {
+        updateRaw(types);
+    }
+
+    protected void updateRaw(char[] data) {
+        if(data.length != LENGTH)
+            throw new IllegalArgumentException("Data length must be 4096!");
+
+        for (int i = 0; i < LENGTH; i++) {
+            rawTypes[i] = (byte) ((data[i] >> 4) & 0xFF);
+            NibbleArray.set(this.data, i, (byte) (data[i] & 0xf));
+            NibbleArray.set(this.add, i, (byte) (data[i] >> 12));
+        }
+    }
+
     protected void setBlocks(char[] data) {
         this.types = data;
     }

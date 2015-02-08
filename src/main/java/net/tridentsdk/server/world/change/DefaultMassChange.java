@@ -21,6 +21,7 @@ import net.tridentsdk.base.Substance;
 import net.tridentsdk.server.data.RecordBuilder;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutMultiBlockChange;
 import net.tridentsdk.server.player.TridentPlayer;
+import net.tridentsdk.server.world.TridentChunk;
 import net.tridentsdk.server.world.WorldUtils;
 import net.tridentsdk.world.ChunkLocation;
 import net.tridentsdk.world.World;
@@ -136,6 +137,7 @@ public class DefaultMassChange implements MassChange {
             List<BlockChange> changes = entry.getValue();
             PacketPlayOutMultiBlockChange packet = new PacketPlayOutMultiBlockChange();
             RecordBuilder[] records = new RecordBuilder[changes.size()];
+            TridentChunk chunk = (TridentChunk) world.chunkAt(entry.getKey(), false);
 
             for (int i = 0; i < records.length; i++) {
                 BlockChange change = changes.get(i);
@@ -145,6 +147,8 @@ public class DefaultMassChange implements MassChange {
                         .setY((byte) change.y())
                         .setZ((byte) change.z())
                         .setData(change.data());
+                chunk.setAt(change.x(), change.y(), change.z(), Substance.fromId(change.id()),
+                        change.data(), (byte) 255, (byte) 15);
             }
 
             packet.set("records", records).set("chunkLocation", entry.getKey());
