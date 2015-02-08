@@ -43,8 +43,8 @@ public class TridentBlock implements Block {
     public TridentBlock(Position location) {
         this.location = location;
 
-        // Note: Avoid recursion by not creating a new instance from World#tileAt(Location)
-        Block worldBlock = location.world().tileAt(location);
+        // Note: Avoid recursion by not creating a new instance from World#blockAt(Location)
+        Block worldBlock = location.world().blockAt(location);
         this.material = worldBlock.substance();
     }
 

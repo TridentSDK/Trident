@@ -20,9 +20,9 @@ package net.tridentsdk.server.world;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteStreams;
 import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
-import net.tridentsdk.Position;
 import net.tridentsdk.Difficulty;
 import net.tridentsdk.GameMode;
+import net.tridentsdk.Position;
 import net.tridentsdk.base.Block;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.factory.Factories;
@@ -31,12 +31,15 @@ import net.tridentsdk.server.player.OfflinePlayer;
 import net.tridentsdk.server.threads.ThreadsHandler;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.*;
-import net.tridentsdk.world.gen.WorldGenHandler;
+import net.tridentsdk.world.gen.ChunkAxisAlignedBoundingBox;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -52,6 +55,7 @@ public class TridentWorld implements World {
     private final Random random;
     private final WorldLoader loader;
     private final Position spawnLocation;
+
     private volatile long time;
     private volatile long existed;
     private volatile int rainTime;
@@ -224,13 +228,22 @@ public class TridentWorld implements World {
             int centX = ((int) Math.floor(world.spawnLocation.x())) >> 4;
             int centZ = ((int) Math.floor(world.spawnLocation.z())) >> 4;
 
-            for (int x = (centX - 7); x <= (centX + 7); x++)
+            /*for (int x = (centX - 7); x <= (centX + 7); x++)
                 for (int z = (centZ - 7); z <= (centZ + 7); z++)
-                    world.chunkAt(x, z, true);
+                    world.chunkAt(x, z, true);*/
 
-            WorldGenHandler handler = WorldGenHandler.create(loader.generator());
-            handler.apply(world, ChunkLocation.create(centX - 7, centZ - 7),
-                    ChunkLocation.create(centX + 7, centZ + 7));
+            //WorldGenHandler handler = WorldGenHandler.create(loader.generator());
+            /*handler.apply(world, ChunkLocation.create(centX - 7, centZ - 7),
+                    ChunkLocation.create(centX + 7, centZ + 7));*/
+
+            for (ChunkLocation location :
+                    new ChunkAxisAlignedBoundingBox(ChunkLocation.create(centX - 7, centZ - 7),
+                    ChunkLocation.create(centX + 7, centZ + 7))) {
+                TridentChunk chunk = new TridentChunk(world,location);
+                world.addChunkAt(location, chunk);
+                chunk.generate();
+            }
+
             TridentLogger.success("Loaded spawn chunks.");
 
             world.spawnLocation.setX(0);
@@ -256,7 +269,7 @@ public class TridentWorld implements World {
                 if (time % 40 == 0)
                     //TridentPlayer.sendAll(new PacketPlayOutTimeUpdate().set("worldAge", existed).set("time", time));
 
-                rainTime--;
+                    rainTime--;
                 thunderTime--;
 
                 if (rainTime <= 0) {
@@ -275,7 +288,7 @@ public class TridentWorld implements World {
         });
     }
 
-    public void addChunkAt(ChunkLocation location, Chunk chunk) {
+    protected void addChunkAt(ChunkLocation location, Chunk chunk) {
         if (location == null) {
             TridentLogger.error(new NullPointerException("Location cannot be null"));
         }
@@ -413,7 +426,7 @@ public class TridentWorld implements World {
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof TridentWorld) {
-            if(((TridentWorld)obj).name().equals(this.name)) {
+            if (((TridentWorld) obj).name().equals(this.name)) {
                 return true;
             }
         }
@@ -421,7 +434,7 @@ public class TridentWorld implements World {
     }
 
     @Override
-    public Block tileAt(Position location) {
+    public Block blockAt(Position location) {
         if (!location.world().name().equals(this.name()))
             throw new IllegalArgumentException("Provided location does not have the same world!");
 
@@ -429,7 +442,7 @@ public class TridentWorld implements World {
         int y = (int) Math.round(location.y());
         int z = (int) Math.round(location.z());
 
-        return this.chunkAt(WorldUtils.chunkLocation(x, z), true).tileAt(x % 16, y, z % 16);
+        return this.chunkAt(WorldUtils.chunkLocation(x, z), true).blockAt(x % 16, y, z % 16);
     }
 
     @Override

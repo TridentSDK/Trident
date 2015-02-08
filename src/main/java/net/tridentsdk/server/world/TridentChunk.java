@@ -29,10 +29,11 @@ import net.tridentsdk.world.Chunk;
 import net.tridentsdk.world.ChunkLocation;
 import net.tridentsdk.world.ChunkSnapshot;
 import net.tridentsdk.world.Dimension;
-import net.tridentsdk.world.gen.WorldGenHandler;
+import net.tridentsdk.world.gen.AbstractGenerator;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 public class TridentChunk implements Chunk {
@@ -46,14 +47,18 @@ public class TridentChunk implements Chunk {
     private volatile byte terrainPopulated;
     public volatile ChunkSection[] sections;
 
-    public TridentChunk(TridentWorld world, int x, int z) {
+    protected TridentChunk(TridentWorld world, int x, int z) {
         this(world, ChunkLocation.create(x, z));
     }
 
-    public TridentChunk(TridentWorld world, ChunkLocation coord) {
+    protected TridentChunk(TridentWorld world, ChunkLocation coord) {
         this.world = world;
         this.location = coord;
         this.lastFileAccess = 0;
+        sections = new ChunkSection[16];
+        /*for (int i = 0; i < 16; i ++) {
+            sections[i] = new ChunkSection();
+        }*/
     }
 
     protected int lastFileAccess() {
@@ -66,8 +71,54 @@ public class TridentChunk implements Chunk {
 
     @Override
     public void generate() {
-        WorldGenHandler handler = WorldGenHandler.create(world.loader().generator());
-        handler.apply(this);
+        //WorldGenHandler handler = WorldGenHandler.create(world.loader().generator());
+        //handler.apply(this);
+        for (int i = 0; i < 16; i ++) {
+            if (sections[i] == null) {
+                sections[i] = new ChunkSection();
+            }
+        }
+        // TODO add flag to prevent double generation
+        AbstractGenerator generator = world.loader().generator();
+        int i = 0;
+        for (char[] blockData: generator.generateChunkBlocks(location)) {
+
+            sections[i].setBlocks(blockData);
+            i++;
+        }
+        i = 0;
+        for (byte[] dataValues: generator.generateBlockData(location)) {
+            sections[i].setData(dataValues);
+            i++;
+        }
+
+        for (ChunkSection section: sections) {
+            /*if (sections[j].rawTypes == null) {
+                sections[j].rawTypes = new byte[ChunkSection.LENGTH];
+            }
+            if (sections[j].data == null) {
+                sections[j].data = new byte[ChunkSection.LENGTH];
+            }*/
+            if (section.blockLight == null) {
+                section.blockLight = new byte[ChunkSection.LENGTH/2];
+            }
+            if (section.skyLight == null) {
+                section.skyLight = new byte[ChunkSection.LENGTH/2];
+            }
+            if (section.types == null) {
+                section.types = new char[ChunkSection.LENGTH];
+            }
+        }
+
+        for (i = 0; i < 16; i++) {
+            Arrays.fill(sections[i].skyLight, (byte) 255);
+        }
+        /*for (int j = 0; j < 256; j ++) {
+            int y = generator.height(j/15, j%15);
+            NibbleArray.set(sections[y/16].blockLight, WorldUtils.blockArrayIndex(j/15, j%15, y), (byte) 15);
+        }*/
+
+        //TODO lighting
     }
 
     @Override
@@ -91,7 +142,7 @@ public class TridentChunk implements Chunk {
     }
 
     @Override
-    public Block tileAt(int relX, int y, int relZ) {
+    public Block blockAt(int relX, int y, int relZ) {
         int index = WorldUtils.blockArrayIndex(relX, y % 16, relZ);
         ChunkSection section = sections[WorldUtils.section(y)];
         //NibbleArray add = new NibbleArray(section.add);
@@ -264,5 +315,9 @@ public class TridentChunk implements Chunk {
         root.addTag(level);
 
         return root;
+    }
+
+    protected void setAt(int x, int y, int z, Substance data, byte id, byte skyLight, byte blockLight) {
+
     }
 }

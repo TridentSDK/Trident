@@ -25,7 +25,7 @@ import net.tridentsdk.util.NibbleArray;
 import java.util.Arrays;
 
 public final class ChunkSection implements NBTSerializable {
-    static final int LENGTH = 4096; // 16^3 (width * height * depth)
+    public static final int LENGTH = 4096; // 16^3 (width * height * depth)
 
     @NBTField(name = "Blocks", type = TagType.BYTE_ARRAY)
     public byte[] rawTypes;
@@ -75,6 +75,14 @@ public final class ChunkSection implements NBTSerializable {
 
             types[i] = (char) (bAdd | ((b & 0xff) << 4) | bData);
         }
+    }
+
+    protected void setBlocks(char[] data) {
+        this.types = data;
+    }
+
+    protected void setData(byte[] data) {
+        this.data = data;
     }
 
     public char[] types() {

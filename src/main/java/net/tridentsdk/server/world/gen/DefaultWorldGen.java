@@ -18,8 +18,9 @@
 package net.tridentsdk.server.world.gen;
 
 import net.tridentsdk.base.Substance;
+import net.tridentsdk.world.ChunkLocation;
 import net.tridentsdk.world.gen.AbstractGenerator;
-import net.tridentsdk.world.gen.ChunkTile;
+import net.tridentsdk.world.gen.TempGenBlock;
 
 /**
  * Default world generator engine for Trident
@@ -35,7 +36,17 @@ public class DefaultWorldGen extends AbstractGenerator {
     }
 
     @Override
-    public ChunkTile atCoordinate(int x, int y, int z) {
-        return ChunkTile.create(x, y, z, Substance.GRASS);
+    public TempGenBlock atCoordinate(int x, int y, int z) {
+        return TempGenBlock.create(x, y, z, Substance.GRASS);
+    }
+
+    @Override
+    public byte[][] generateBlockData(ChunkLocation location) {
+        return new byte[0][];
+    }
+
+    @Override
+    public char[][] generateChunkBlocks(ChunkLocation location) {
+        return new char[0][];
     }
 }

@@ -112,7 +112,7 @@ public class PacketPlayInPlayerDig extends InPacket {
                 event = new PlayerDigEvent(player, face, this.status);
 
                 if(digStatus == DigStatus.DIG_FINISH) {
-                    Block block = player.world().tileAt(location());
+                    Block block = player.world().blockAt(location());
                     BlockBreakEvent blockBreak = new BlockBreakEvent(player, block, face, player.heldItem());
 
                     if(blockBreak.isIgnored())

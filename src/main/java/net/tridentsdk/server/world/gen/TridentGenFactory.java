@@ -22,7 +22,7 @@ import net.tridentsdk.server.world.TridentChunk;
 import net.tridentsdk.server.world.WorldUtils;
 import net.tridentsdk.util.NibbleArray;
 import net.tridentsdk.world.Chunk;
-import net.tridentsdk.world.gen.ChunkTile;
+import net.tridentsdk.world.gen.TempGenBlock;
 
 import java.util.Arrays;
 
@@ -33,13 +33,13 @@ import java.util.Arrays;
  */
 public class TridentGenFactory implements GenFactory {
     @Override
-    public void putBlock(ChunkTile tile, Chunk chunk) {
-        int tileX = (int) tile.coordinates().x();
-        int tileY = (int) tile.coordinates().y();
-        int tileZ = (int) tile.coordinates().z();
+    public void putBlock(TempGenBlock block, Chunk chunk) {
+        int blockX = (int) block.coordinates().x();
+        int blockY = (int) block.coordinates().y();
+        int blockZ = (int) block.coordinates().z();
 
-        int index = WorldUtils.blockArrayIndex(tileX % 16, tileY, tileZ % 16);
-        int sectionId = WorldUtils.section(tileY);
+        int index = WorldUtils.blockArrayIndex(blockX % 16, blockY, blockZ % 16);
+        int sectionId = WorldUtils.section(blockY);
 
         TridentChunk tChunk = (TridentChunk) chunk;
         if (tChunk.sections == null) tChunk.sections = new ChunkSection[16];
@@ -64,11 +64,11 @@ public class TridentGenFactory implements GenFactory {
 
         ChunkSection section = tChunk.sections[sectionId];
 
-        byte b = section.rawTypes[index] = (byte) tile.substance().id();
+        byte b = section.rawTypes[index] = (byte) block.substance().id();
         NibbleArray.set(section.add, index, (byte) 0);
-        NibbleArray.set(section.data, index, tile.meta());
+        NibbleArray.set(section.data, index, block.meta());
 
-        section.types[index] = (char) (((b & 0xff) << 4) | tile.meta());
+        section.types[index] = (char) (((b & 0xff) << 4) | block.meta());
         section.blockLight[index] = 16;
         section.skyLight[index] = 16;
     }

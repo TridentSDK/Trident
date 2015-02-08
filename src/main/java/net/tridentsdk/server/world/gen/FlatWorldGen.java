@@ -18,9 +18,13 @@
 package net.tridentsdk.server.world.gen;
 
 import net.tridentsdk.base.Substance;
+import net.tridentsdk.server.world.ChunkSection;
+import net.tridentsdk.server.world.WorldUtils;
 import net.tridentsdk.util.TridentLogger;
+import net.tridentsdk.world.Chunk;
+import net.tridentsdk.world.ChunkLocation;
 import net.tridentsdk.world.gen.AbstractGenerator;
-import net.tridentsdk.world.gen.ChunkTile;
+import net.tridentsdk.world.gen.TempGenBlock;
 
 /**
  * Generates a flat world using
@@ -32,19 +36,51 @@ public class FlatWorldGen extends AbstractGenerator {
     }
 
     @Override
-    public ChunkTile atCoordinate(int x, int y, int z) {
+    public TempGenBlock atCoordinate(int x, int y, int z) {
         switch (y) {
             case 0:
-                return ChunkTile.create(x, y, z, Substance.BEDROCK);
+                return TempGenBlock.create(x, y, z, Substance.BEDROCK);
             case 1:
             case 2:
-                return ChunkTile.create(x, y, z, Substance.DIRT);
+                return TempGenBlock.create(x, y, z, Substance.DIRT);
             case 3:
-                return ChunkTile.create(x, y, z, Substance.GRASS);
+                return TempGenBlock.create(x, y, z, Substance.GRASS);
             default:
                 TridentLogger.error(new IllegalArgumentException("Cannot parse over/under 4 block height for flats"));
         }
 
         return null;
+    }
+
+
+    @Override
+    public char [][] generateChunkBlocks(ChunkLocation location) {
+        char[][] data = new char[1][ChunkSection.LENGTH];
+        for (int x = 0; x < 16; x++) {
+            for (int z = 0; z < 16; z++) {
+                for (int y = 0; y < 4; y++ ) {
+                    switch (y) {
+                        case 0:
+                            data[0][WorldUtils.blockArrayIndex(x,y,z)] = Substance.BEDROCK.asExtended();
+                            break;
+                        case 1:
+                            // fall through
+                        case 2:
+                            data[0][WorldUtils.blockArrayIndex(x,y,z)] = Substance.DIRT.asExtended();
+                            break;
+                        case 3:
+                            data[0][WorldUtils.blockArrayIndex(x,y,z)] = Substance.GRASS.asExtended();
+                            break;
+                    }
+
+                }
+            }
+        }
+        return data;
+    }
+
+    @Override
+    public byte[][] generateBlockData(ChunkLocation location) {
+        return new byte[0][];
     }
 }

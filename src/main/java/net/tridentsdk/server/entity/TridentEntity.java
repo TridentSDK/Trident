@@ -178,7 +178,7 @@ public class TridentEntity implements Entity {
         for (double y = this.loc.y(); y > 0.0; y--) {
             Position l = Position.create(this.loc.world(), this.loc.x(), y, this.loc.z());
 
-            if (l.world().tileAt(l).substance() != Substance.AIR) {
+            if (l.world().blockAt(l).substance() != Substance.AIR) {
                 this.fallDistance.set((long) (this.loc.y() - y));
                 this.onGround = this.fallDistance.get() == 0.0D;
 
