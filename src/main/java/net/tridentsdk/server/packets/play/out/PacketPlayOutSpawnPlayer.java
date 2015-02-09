@@ -20,6 +20,7 @@ package net.tridentsdk.server.packets.play.out;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.Position;
 import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.server.data.ProtocolMetadata;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
@@ -28,8 +29,7 @@ import java.util.UUID;
 public class PacketPlayOutSpawnPlayer extends OutPacket {
     protected int entityId;
     protected Player player;
-    // TODO: Mojang slot stuff
-    // TODO: entity metadata
+    private ProtocolMetadata metadata;
 
     @Override
     public int id() {
@@ -42,6 +42,10 @@ public class PacketPlayOutSpawnPlayer extends OutPacket {
 
     public Player player() {
         return this.player;
+    }
+
+    public ProtocolMetadata metadata() {
+        return metadata;
     }
 
     @Override
@@ -62,5 +66,6 @@ public class PacketPlayOutSpawnPlayer extends OutPacket {
         buf.writeByte((int) (byte) loc.pitch());
 
         buf.writeShort(player.heldItem().id());
+        metadata.write(buf);
     }
 }

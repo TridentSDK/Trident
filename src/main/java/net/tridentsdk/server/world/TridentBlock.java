@@ -69,12 +69,7 @@ public class TridentBlock implements Block {
                 .set("blockId", substance().id())
                 .set("position", location));
 
-        ((TridentChunk) location().chunk()).setAt(
-                (int) location.x(), (int) location().y(), (int) location().z(),
-                material,
-                data,
-                (byte) 255,
-                (byte) 0);
+        ((TridentChunk) location().chunk()).setAt(location, material, data, (byte) 255, (byte) 0);
     }
 
     @Override

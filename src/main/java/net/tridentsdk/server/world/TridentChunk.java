@@ -299,6 +299,10 @@ public class TridentChunk implements Chunk {
         return root;
     }
 
+    public void setAt(Position p, Substance type, byte metaData, byte skyLight, byte blockLight) {
+        setAt((int) p.x(), (int) p.y(), (int) p.z(), type, metaData, skyLight, blockLight);
+    }
+
     public void setAt(int x, int y, int z, Substance type, byte metaData, byte skyLight, byte blockLight) {
         int index = WorldUtils.blockArrayIndex(x % 16, y % 16, z % 16);
         ChunkSection section = sections[WorldUtils.section(y)];
