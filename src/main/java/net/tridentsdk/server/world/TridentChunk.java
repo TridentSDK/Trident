@@ -71,8 +71,6 @@ public class TridentChunk implements Chunk {
 
     @Override
     public void generate() {
-        //WorldGenHandler handler = WorldGenHandler.create(world.loader().generator());
-        //handler.apply(this);
         for (int i = 0; i < 16; i ++) {
             if (sections[i] == null) {
                 sections[i] = new ChunkSection();
@@ -81,13 +79,13 @@ public class TridentChunk implements Chunk {
         // TODO add flag to prevent double generation
         AbstractGenerator generator = world.loader().generator();
         int i = 0;
-        for (char[] blockData: generator.generateChunkBlocks(location)) {
+        for (char[] blockData : generator.generateChunkBlocks(location)) {
 
             sections[i].setBlocks(blockData);
             i++;
         }
         i = 0;
-        for (byte[] dataValues: generator.generateBlockData(location)) {
+        for (byte[] dataValues : generator.generateBlockData(location)) {
             sections[i].setData(dataValues);
             i++;
         }

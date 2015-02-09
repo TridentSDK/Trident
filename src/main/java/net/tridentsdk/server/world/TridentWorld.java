@@ -19,7 +19,6 @@ package net.tridentsdk.server.world;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteStreams;
-import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
 import net.tridentsdk.Difficulty;
 import net.tridentsdk.GameMode;
 import net.tridentsdk.Position;
@@ -37,7 +36,6 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Collection;
-import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
@@ -49,7 +47,7 @@ public class TridentWorld implements World {
     private static final int MAX_HEIGHT = 255;
     private static final int MAX_CHUNKS = 49; // TODO changed temp for packet compatibility
 
-    private final Map<ChunkLocation, TridentChunk> loadedChunks = new ConcurrentHashMapV8<>();
+    private final ChunkCache loadedChunks = new ChunkCache(this);
     private final Set<Entity> entities = Factories.collect().createSet();
     private final String name;
     private final Random random;
@@ -230,14 +228,6 @@ public class TridentWorld implements World {
             int centX = ((int) Math.floor(world.spawnLocation.x())) >> 4;
             int centZ = ((int) Math.floor(world.spawnLocation.z())) >> 4;
 
-            /*for (int x = (centX - 7); x <= (centX + 7); x++)
-                for (int z = (centZ - 7); z <= (centZ + 7); z++)
-                    world.chunkAt(x, z, true);*/
-
-            //WorldGenHandler handler = WorldGenHandler.create(loader.generator());
-            /*handler.apply(world, ChunkLocation.create(centX - 7, centZ - 7),
-                    ChunkLocation.create(centX + 7, centZ + 7));*/
-
             for (ChunkLocation location :
                     new ChunkAxisAlignedBoundingBox(ChunkLocation.create(centX - 7, centZ - 7),
                     ChunkLocation.create(centX + 7, centZ + 7))) {
@@ -374,13 +364,7 @@ public class TridentWorld implements World {
             return null;
         }
 
-        TridentChunk chunk = this.loadedChunks.get(location);
-
-        if (chunk == null && generateIfNotFound) {
-            return this.generateChunk(location);
-        }
-
-        return chunk;
+        return this.loadedChunks.get(location, generateIfNotFound);
     }
 
     @Override
@@ -406,23 +390,26 @@ public class TridentWorld implements World {
             return null;
         }
 
-        if (this.chunkAt(location, false) == null) {
-            Chunk c = this.loader.loadChunk(this, x, z);
+        TridentChunk tChunk = this.chunkAt(location, false);
 
-            if (this.loader.chunkExists(this, x, z) && c != null) {
-                this.addChunkAt(location, c);
-                return (TridentChunk) c;
-            } else {
-                TridentChunk chunk = new TridentChunk(this, x, z);
-                this.addChunkAt(location, chunk);
-                chunk.generate();
-                TridentLogger.log("Generated chunk at (" + x + "," + z + ")");
-
-                return chunk;
+        if (tChunk == null) {
+            if (this.loader.chunkExists(this, x, z)) {
+                Chunk c = this.loader.loadChunk(this, x, z);
+                if (c != null) {
+                    this.addChunkAt(location, c);
+                    return (TridentChunk) c;
+                }
             }
+
+            TridentChunk chunk = new TridentChunk(this, x, z);
+            this.addChunkAt(location, chunk);
+            chunk.generate();
+            TridentLogger.log("Generated chunk at (" + x + "," + z + ")");
+
+            return chunk;
         }
 
-        return this.chunkAt(location, false);
+        return tChunk;
     }
 
     @Override

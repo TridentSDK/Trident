@@ -65,7 +65,6 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     protected boolean customNameVisible;
     protected int fireTicks;
 
-
     protected Inventory enderChest;
     protected PlayerAbilities abilities = new PlayerAbilities();
 

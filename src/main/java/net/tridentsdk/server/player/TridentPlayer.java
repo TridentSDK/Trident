@@ -50,8 +50,7 @@ import java.util.*;
 public class TridentPlayer extends OfflinePlayer {
     private final PlayerConnection connection;
     private final Set<ChunkLocation> knownChunks = Factories.collect().createSet();
-    private final Queue<PacketPlayOutMapChunkBulk> chunkQueue =
-            Queues.newConcurrentLinkedQueue();
+    private final Queue<PacketPlayOutMapChunkBulk> chunkQueue = Queues.newConcurrentLinkedQueue();
     private volatile boolean loggingIn = true;
     private volatile boolean sprinting;
     private volatile boolean crouching;
