@@ -4,32 +4,49 @@ import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.util.Vector;
 
+import javax.annotation.concurrent.GuardedBy;
+import javax.annotation.concurrent.ThreadSafe;
 import java.util.LinkedList;
 import java.util.List;
 
+@ThreadSafe
 public class ProtocolMetadata implements Writable {
-    private List<MetadataValue> metadata = new LinkedList<>();
+    @GuardedBy("metadata")
+    private final List<MetadataValue> metadata = new LinkedList<>();
 
     public int addMeta(MetadataType type, Object value) {
-        metadata.add(new MetadataValue(metadata.size(), value, type));
-        return metadata.size() - 1;
+        synchronized (metadata) {
+            metadata.add(new MetadataValue(metadata.size(), value, type));
+            return metadata.size() - 1;
+        }
     }
 
     public void setMeta(int index, MetadataValue value) {
-        metadata.add(index, value);
+        synchronized (metadata) {
+            metadata.add(index, value);
+        }
     }
 
     public MetadataValue get(int index) {
-        return metadata.get(index);
+        synchronized (metadata) {
+            return metadata.get(index);
+        }
     }
 
     public void remove(int index) {
-        metadata.remove(index);
+        synchronized (metadata) {
+            metadata.remove(index);
+        }
     }
 
     @Override
     public void write(ByteBuf buf) {
-        for(MetadataValue value : metadata) {
+        List<MetadataValue> localMeta;
+        synchronized (metadata) {
+            localMeta = metadata;
+        }
+
+        for(MetadataValue value : localMeta) {
             buf.writeByte((value.type().id() << 5 | value.index & 0x1F) & 0xFF);
 
             switch(value.type) {
@@ -80,10 +97,9 @@ public class ProtocolMetadata implements Writable {
     }
 
     public static class MetadataValue {
-
-        private int index;
-        private Object value;
-        private MetadataType type;
+        private final int index;
+        private final Object value;
+        private final MetadataType type;
 
         private MetadataValue(int index, Object value, MetadataType type) {
             this.index = index;

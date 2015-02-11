@@ -279,36 +279,28 @@ public class TridentChunk implements Chunk {
                 "TileTicks", TagType.COMPOUND);
         final List<NBTTag> sectionsList = sectionTags.listTags();
 
-        try {
-            this.sections = executor.submitTask(new Callable<ChunkSection[]>() {
-                @Override
-                public ChunkSection[] call() throws Exception {
-                    ChunkSection[] sections = new ChunkSection[sectionsList.size()];
+        final ChunkSection[] sections = new ChunkSection[sectionsList.size()];
 
-                    /* Load sections */
-                    for (int i = 0; i < sectionsList.size(); i += 1) {
-                        NBTTag t = sectionTags.getTag(i);
+                /* Load sections */
+        for (int i = 0; i < sectionsList.size(); i += 1) {
+            NBTTag t = sectionTags.getTag(i);
 
-                        if (t instanceof CompoundTag) {
-                            CompoundTag ct = (CompoundTag) t;
+            if (t instanceof CompoundTag) {
+                CompoundTag ct = (CompoundTag) t;
 
-                            ChunkSection section = NBTSerializer.deserialize(ChunkSection.class, ct);
+                ChunkSection section = NBTSerializer.deserialize(ChunkSection.class, ct);
 
-                            section.loadBlocks();
-                            sections[section.y()] = section;
-                        }
-                    }
-
-                    return sections;
-                }
-            }).get();
-        } catch (InterruptedException | ExecutionException e) {
-            // Made volatile in the case this happens
-            sections = new ChunkSection[sectionsList.size()];
-            sections = sections;
-
-            TridentLogger.error(e);
+                section.loadBlocks();
+                sections[section.y()] = section;
+            }
         }
+
+        executor.addTask(new Runnable() {
+            @Override
+            public void run() {
+                TridentChunk.this.sections = sections;
+            }
+        });
 
         for (NBTTag t : entities.listTags()) {
             //TridentEntity entity = EntityBuilder.create().build(TridentEntity.class);
@@ -338,15 +330,23 @@ public class TridentChunk implements Chunk {
 
         final ListTag sectionTags = new ListTag("Sections", TagType.COMPOUND);
 
-        executor.addTask(new Runnable() {
-            @Override
-            public void run() {
-                for (ChunkSection section : sections) {
-                    section.updateRaw();
-                    sectionTags.addTag(NBTSerializer.serialize(section));
+        ChunkSection[] sectionCopy = null;
+        try {
+            sectionCopy = executor.submitTask(new Callable<ChunkSection[]>() {
+                @Override
+                public ChunkSection[] call() throws Exception {
+                    return sections;
                 }
-            }
-        });
+            }).get();
+        } catch (InterruptedException | ExecutionException e) {
+            sectionCopy = sections;
+            e.printStackTrace();
+        }
+
+        for (ChunkSection section : sectionCopy) {
+            section.updateRaw();
+            sectionTags.addTag(NBTSerializer.serialize(section));
+        }
 
         level.addTag(sectionTags);
         level.addTag(new ListTag("Entities", TagType.COMPOUND)); // another placeholder TODO
