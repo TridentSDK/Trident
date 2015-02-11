@@ -23,12 +23,11 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 import net.tridentsdk.world.ChunkLocation;
 
 import java.util.Comparator;
+import java.util.PriorityQueue;
 import java.util.Queue;
-import java.util.concurrent.PriorityBlockingQueue;
 
 public class PacketPlayOutMapChunkBulk extends OutPacket {
-
-    protected final Queue<PacketPlayOutChunkData> entries = new PriorityBlockingQueue<>(1024,
+    protected final Queue<PacketPlayOutChunkData> entries = new PriorityQueue<>(1024,
             new Comparator<PacketPlayOutChunkData>() {
                 @Override
                 public int compare(PacketPlayOutChunkData o1, PacketPlayOutChunkData o2) {

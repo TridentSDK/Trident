@@ -20,10 +20,8 @@ package net.tridentsdk.server.world.gen;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.server.world.ChunkSection;
 import net.tridentsdk.server.world.WorldUtils;
-import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.ChunkLocation;
 import net.tridentsdk.world.gen.AbstractGenerator;
-import net.tridentsdk.world.gen.TempGenBlock;
 
 /**
  * Generates a flat world
@@ -31,29 +29,6 @@ import net.tridentsdk.world.gen.TempGenBlock;
  * @author The TridentSDK Team
  */
 public class FlatWorldGen extends AbstractGenerator {
-    @Override
-    public int height(int x, int z) {
-        return 3;
-    }
-
-    @Override
-    public TempGenBlock atCoordinate(int x, int y, int z) {
-        switch (y) {
-            case 0:
-                return TempGenBlock.create(x, y, z, Substance.BEDROCK);
-            case 1:
-            case 2:
-                return TempGenBlock.create(x, y, z, Substance.DIRT);
-            case 3:
-                return TempGenBlock.create(x, y, z, Substance.GRASS);
-            default:
-                TridentLogger.error(new IllegalArgumentException("Cannot parse over/under 4 block height for flats"));
-        }
-
-        return null;
-    }
-
-
     @Override
     public char[][] generateChunkBlocks(ChunkLocation location) {
         char[][] data = new char[1][ChunkSection.LENGTH];

@@ -36,7 +36,6 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Collection;
-import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.zip.GZIPInputStream;
@@ -45,12 +44,11 @@ import java.util.zip.GZIPOutputStream;
 public class TridentWorld implements World {
     private static final int SIZE = 1;
     private static final int MAX_HEIGHT = 255;
-    private static final int MAX_CHUNKS = 49; // TODO changed temp for packet compatibility
+    private static final int MAX_CHUNKS = 30_000_000;
 
     private final ChunkCache loadedChunks = new ChunkCache(this);
     private final Set<Entity> entities = Factories.collect().createSet();
     private final String name;
-    private final Random random;
     private final WorldLoader loader;
     private final Position spawnLocation;
 
@@ -69,15 +67,10 @@ public class TridentWorld implements World {
     private volatile boolean raining;
     private volatile boolean thundering;
 
-    private TridentWorld(String name, WorldLoader loader, Random random) {
+    TridentWorld(String name, WorldLoader loader) {
         this.name = name;
         this.loader = loader;
-        this.random = random;
-        this.spawnLocation = Position.create(this, 0d, 0d, 0d);
-    }
-
-    TridentWorld(String name, WorldLoader loader) {
-        this(name, loader, new Random());
+        this.spawnLocation = Position.create(this, 0, 0, 0);
 
         TridentLogger.log("Starting to load " + name + "...");
 
@@ -191,7 +184,7 @@ public class TridentWorld implements World {
     }
 
     static TridentWorld createWorld(String name, WorldLoader loader) {
-        TridentWorld world = new TridentWorld(name, loader, new Random());
+        TridentWorld world = new TridentWorld(name, loader);
 
         try {
             TridentLogger.log("Starting to load " + name + "...");
@@ -531,5 +524,3 @@ public class TridentWorld implements World {
         }
     }
 }
-
-

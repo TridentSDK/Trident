@@ -18,9 +18,10 @@
 package net.tridentsdk.server.world.gen;
 
 import net.tridentsdk.base.Substance;
+import net.tridentsdk.server.world.ChunkSection;
+import net.tridentsdk.server.world.WorldUtils;
 import net.tridentsdk.world.ChunkLocation;
 import net.tridentsdk.world.gen.AbstractGenerator;
-import net.tridentsdk.world.gen.TempGenBlock;
 
 /**
  * Default world generator engine for Trident
@@ -31,22 +32,21 @@ public class DefaultWorldGen extends AbstractGenerator {
     private final PerlinNoise noise = new PerlinNoise(16, 256);
 
     @Override
-    public int height(int x, int z) {
-        return (int) noise.noise(x, z);
-    }
-
-    @Override
-    public TempGenBlock atCoordinate(int x, int y, int z) {
-        return TempGenBlock.create(x, y, z, Substance.GRASS);
+    public char[][] generateChunkBlocks(ChunkLocation location) {
+        char[][] data = new char[1][ChunkSection.LENGTH];
+        for (int x = 0; x < 16; x++) {
+            for (int z = 0; z < 16; z++) {
+                for (int y = 0; y < noise.noise(x, z); y++ ) {
+                    System.out.println(y);
+                    data[0][WorldUtils.blockArrayIndex(x,y,z)] = Substance.DIRT.asExtended();
+                }
+            }
+        }
+        return data;
     }
 
     @Override
     public byte[][] generateBlockData(ChunkLocation location) {
         return new byte[0][];
-    }
-
-    @Override
-    public char[][] generateChunkBlocks(ChunkLocation location) {
-        return new char[0][];
     }
 }

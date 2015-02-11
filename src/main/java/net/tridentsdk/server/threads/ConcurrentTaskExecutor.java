@@ -226,6 +226,18 @@ public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implement
     }
 
     @Override
+    public <T> Future<T> submit(Callable<T> task) {
+        final RunnableFuture<T> future = new FutureTask<>(task);
+        execute(new Runnable() {
+            @Override
+            public void run() {
+                future.run();
+            }
+        });
+        return future;
+    }
+
+    @Override
     public void execute(Runnable runnable) {
         ThreadWorker exec = (ThreadWorker) scaledThread();
         if (!exec.tasks.offer(runnable)) {
@@ -320,6 +332,18 @@ public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implement
             }
 
             return true;
+        }
+
+        @Override
+        public <V> Future<V> submitTask(Callable<V> task) {
+            final RunnableFuture<V> future = new FutureTask<>(task);
+            addTask(new Runnable() { // Be VERY careful -- This is addTask, NOT execute
+                @Override
+                public void run() {
+                    future.run();
+                }
+            });
+            return future;
         }
 
         @Override

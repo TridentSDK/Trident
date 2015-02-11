@@ -36,7 +36,7 @@ import net.tridentsdk.server.threads.ThreadsHandler;
 import net.tridentsdk.server.window.TridentWindow;
 import net.tridentsdk.server.world.TridentChunk;
 import net.tridentsdk.server.world.TridentWorld;
-import net.tridentsdk.util.*;
+import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.util.Vector;
 import net.tridentsdk.window.inventory.InventoryType;
 import net.tridentsdk.window.inventory.Item;
@@ -261,7 +261,6 @@ public class TridentPlayer extends OfflinePlayer {
         int centZ = ((int) Math.floor(loc.z())) >> 4;
         PacketPlayOutMapChunkBulk bulk = new PacketPlayOutMapChunkBulk();
         int length = 0;
-        int chunks = 0;
 
         for (int x = (centX - viewDistance / 2); x <= (centX + viewDistance / 2); x += 1) {
             zl: for (int z = (centZ - viewDistance / 2); z <= (centZ + viewDistance / 2); z += 1) {
@@ -285,8 +284,6 @@ public class TridentPlayer extends OfflinePlayer {
                     bulk = new PacketPlayOutMapChunkBulk();
                     length = 0;
                 }
-
-                chunks++;
             }
         }
 
