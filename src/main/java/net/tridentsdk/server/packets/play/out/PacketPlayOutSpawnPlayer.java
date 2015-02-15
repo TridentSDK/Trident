@@ -29,7 +29,7 @@ import java.util.UUID;
 public class PacketPlayOutSpawnPlayer extends OutPacket {
     protected int entityId;
     protected Player player;
-    private ProtocolMetadata metadata;
+    protected ProtocolMetadata metadata;
 
     @Override
     public int id() {

@@ -28,6 +28,7 @@ import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutChat;
 import net.tridentsdk.server.player.PlayerConnection;
 import net.tridentsdk.server.player.TridentPlayer;
+import net.tridentsdk.service.TridentSpi;
 
 public class PacketPlayInChat extends InPacket {
 
@@ -72,11 +73,15 @@ public class PacketPlayInChat extends InPacket {
 
         PacketPlayOutChat packet = new PacketPlayOutChat();
 
+        String identifier = TridentSpi
+                .provideChat()
+                .format(player.name() + "> ", player)
+                .replaceAll("%p", "")
+                .replaceAll("%n", player.name())
+                .replaceAll("%s", "")
+                .replaceAll("%d", "> ");
 
-        packet.set("jsonMessage",
-                new MessageBuilder(String.format("%s> %s", player.name(), this.message))
-                        .build()
-                        .asJson());
+        packet.set("jsonMessage", new MessageBuilder(identifier + message).build().asJson());
         packet.set("position", PacketPlayOutChat.ChatPosition.CHAT);
 
         TridentPlayer.sendAll(packet);

@@ -19,6 +19,7 @@ package net.tridentsdk.server.player;
 
 import net.tridentsdk.Position;
 import net.tridentsdk.GameMode;
+import net.tridentsdk.base.Substance;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.EntityProperties;
 import net.tridentsdk.entity.Projectile;
@@ -218,7 +219,8 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
 
     @Override
     public Item heldItem() {
-        return inventory.items()[selectedSlot + 36];
+        // return inventory.items()[selectedSlot + 36]; TODO
+        return new Item(Substance.AIR);
     }
 
     @Override

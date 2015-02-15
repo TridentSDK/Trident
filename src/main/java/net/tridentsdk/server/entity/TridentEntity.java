@@ -138,7 +138,7 @@ public class TridentEntity implements Entity {
         this.velocity = new Vector(0.0D, 0.0D, 0.0D);
         this.loc = spawnLocation;
 
-        protocolMeta.addMeta(ProtocolMetadata.MetadataType.BYTE, (fireTicks.intValue() == 0) ? 1 : 0);
+        protocolMeta.addMeta(ProtocolMetadata.MetadataType.BYTE, (byte) ((fireTicks.intValue() == 0) ? 1 : 0));
         protocolMeta.addMeta(ProtocolMetadata.MetadataType.SHORT, airTicks.shortValue());
 
         for (double y = this.loc.y(); y > 0.0; y--) {
