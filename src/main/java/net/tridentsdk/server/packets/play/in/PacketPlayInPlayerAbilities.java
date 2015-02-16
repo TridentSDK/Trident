@@ -83,7 +83,7 @@ public class PacketPlayInPlayerAbilities extends InPacket {
     public void handleReceived(ClientConnection connection) {
         TridentPlayer player = ((PlayerConnection) connection).player();
 
-        if (player.flyingSpeed() * 250.0F != this.flyingSpeed) {
+        if (player.speedModifiers().flyingSpeed() * 250.0F != this.flyingSpeed) {
             TridentLogger.error(
                     new IllegalArgumentException("Client sent invalid flying speed, possibly hack installed"));
             // ((PlayerConnection) connection).player().kickPlayer(

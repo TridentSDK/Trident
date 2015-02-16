@@ -85,6 +85,7 @@ public class TridentWindow implements Window {
 
     @Override
     public Item[] items() {
+        Item[] contents = this.contents;
         return this.contents;
     }
 
@@ -107,6 +108,11 @@ public class TridentWindow implements Window {
     @Override
     public String name() {
         return this.name;
+    }
+
+    @Override
+    public Item itemAt(int slot) {
+        return items()[slot];
     }
 
     @Override

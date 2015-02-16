@@ -34,8 +34,6 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReferenceArray;
 
 /**
  * Thread list to allow task execution in a shared thread scaled with removal
@@ -72,17 +70,14 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
 public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implements ExecutorFactory<E> {
     private static final Set<ConcurrentTaskExecutor<?>> EXECUTORS = Sets.newHashSet();
 
-    private static final int EMERGENCY_MARGIN = 4;
-    private static final int TASK_LENGTH = calcTaskLen();
-
     private static final int STARTING = 0;
     private static final int RUNNING = 1;
     private static final int SHUTTING_DOWN = 2;
     private static final int STOPPED = 3;
-    private final AtomicReferenceArray<ThreadWorker> executors;
+
+    private final List<ThreadWorker> workers;
     private final int scale;
     private final String name;
-    private final AtomicInteger emergencyScale = new AtomicInteger(1);
     private final Callable<ThreadWorker> obtainWorker = new Callable<ThreadWorker>() {
         @Override
         public ThreadWorker call() throws Exception {
@@ -94,32 +89,20 @@ public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implement
     // It is better to have it slow now to cache correctly than time later to doubly receive
     private final ConcurrentCache<E, ThreadWorker> assigned = ConcurrentCache.create();
     private volatile int state = STARTING;
+
     @GuardedBy("this")
     private int counter = 0;
 
     private ConcurrentTaskExecutor(int scale, String name) {
         this.scale = scale;
         this.name = name;
-        executors = new AtomicReferenceArray<>(scale + EMERGENCY_MARGIN);
+        workers = new CopyOnWriteArrayList<>();
 
-        for (int i = 0; i < scale; i++) {
-            executors.set(i, new ThreadWorker(i, name).startWorker());
+        for (int i = 0, n = scale; i < n; i++) {
+            workers.add(new ThreadWorker(i, name).startWorker());
         }
 
         state = RUNNING;
-    }
-
-    private static int calcTaskLen() {
-        int maxSizePossible = 10_000;
-
-        int len;
-        long max = (Runtime.getRuntime().freeMemory() / 16) / 15; // TODO adjust thread count
-        if (max > (long) maxSizePossible)
-            len = maxSizePossible;
-        else
-            len = (int) max;
-
-        return len;
     }
 
     /**
@@ -135,9 +118,9 @@ public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implement
     }
 
     /**
-     * Obtains a set of all the executors ever made in the instance of the server
+     * Obtains a set of all the workers ever made in the instance of the server
      *
-     * @return the set of created task executors
+     * @return the set of created task workers
      */
     @InternalUseOnly
     public static Set<ConcurrentTaskExecutor<?>> executors() {
@@ -151,7 +134,7 @@ public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implement
                 counter = 0;
             }
 
-            return executors.get(counter++);
+            return workers.get(counter++);
         }
     }
 
@@ -183,22 +166,19 @@ public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implement
     @Override
     public List<TaskExecutor> threadList() {
         List<TaskExecutor> execs = Lists.newArrayList();
-        for (int i = 0, n = scale; i < n; i++)
-            execs.add(executors.get(i));
+        for (ThreadWorker worker : workers)
+            execs.add(worker);
         return execs;
     }
 
     @Override
     public void shutdown() {
         state = SHUTTING_DOWN;
-        for (int i = 0, n = scale; i < n; i++) {
-            ThreadWorker thread = executors.get(i);
-            if (thread == null)
-                continue; // We want every single thread, including the overflow
-            thread.interrupt();
-            executors.set(i, null);
+        for (ThreadWorker worker : workers) {
+            worker.interrupt();
         }
 
+        workers.clear();
         assigned.clear();
         state = STOPPED;
     }
@@ -239,68 +219,27 @@ public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implement
 
     @Override
     public void execute(Runnable runnable) {
-        ThreadWorker exec = (ThreadWorker) scaledThread();
-        if (!exec.tasks.offer(runnable)) {
-            // Overflow of tasks
-            int threadIndex;
-
-            // Check existing threads for space
-            for (int i = 0; i < executors.length(); i++) {
-                ThreadWorker worker = executors.get(i);
-                if (worker == null) // Emergency thread, not set yet
-                    continue;
-                if (worker.tasks.size() < TASK_LENGTH) {
-                    if (worker.tasks.offer(runnable))
-                        return;
-                    // Can't add to a worker, probably an overflow worker.
-                    // Continue looking
-                }
-            }
-
-            // If we reach here, no EXISTING thread has capacity to handle
-            // Create a new overflow worker with an emergency index
-            threadIndex = this.emergencyScale.incrementAndGet() + scale;
-            if (!(threadIndex >= executors.length())) { // Make sure we have enough space for the extra thread
-                handleShutdown(threadIndex, new ArrayBlockingQueue<>(TASK_LENGTH, false, Lists.newArrayList(runnable)));
-                return;
-            }
-
-            // Use the overflow if necessary
-            exec.addTask(runnable);
-        }
+        scaledThread().addTask(runnable);
     }
 
     public void handleShutdown(int index, Queue<Runnable> remaining) {
         if (state < SHUTTING_DOWN) {
-            if (index >= this.scale) {
-                executors.set(index, new OverflowWorker(index).startWorker(remaining));
-            } else
-                executors.set(index, new ThreadWorker(index, name).startWorker(remaining));
+            workers.set(index, new ThreadWorker(index, name).startWorker(remaining));
         } else
-            executors.set(index, null);
+            workers.set(index, null);
 
         remaining.clear();
     }
 
-    // This class is designed to use an ArrayBlockingQueue
-    // The normal Java executor uses a LinkedBlockingQueue
-    // which fluctuates at 600-700 nanos on the test machine
-    // using an ArrayBlockingQueue can speed up the insert
-    // so that the performance equates to that of the Java impl
-    // However, using an ArrayBlockingQueue incurs significant
-    // risk of task overloading and memory problems
-    // To counter this, two queues are implemented, where tasks
-    // are placed in the case the array queue is overloaded
     @AccessNoDoc
     private class ThreadWorker extends Thread implements TaskExecutor {
-        protected final BlockingQueue<Runnable> tasks = new ArrayBlockingQueue<>(TASK_LENGTH);
-        private final ConcurrentLinkedQueue<Runnable> overflow = new ConcurrentLinkedQueue<>();
+        private final BlockingDeque<Runnable> tasks = new LinkedBlockingDeque<>();
 
         private final int index;
 
         private ThreadWorker(int index, String name) {
             // This is only safe because it is constructed in the CTE factory, otherwise the size
-            // may change throughout the threads as the executors expand
+            // may change throughout the threads as the workers expand
             // tip - don't try this at home!
             super("Trident - CTE " + EXECUTORS.size() + " Thread " + index + " - " + name);
             this.index = index;
@@ -319,19 +258,12 @@ public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implement
         @Override
         public void interrupt() {
             tasks.clear();
-            overflow.clear();
             super.interrupt();
         }
 
-        // Remove overflow queue usage
         @Override
-        public boolean addTask(Runnable task) {
-            if (!tasks.offer(task)) {
-                overflow.add(task);
-                return false;
-            }
-
-            return true;
+        public void addTask(Runnable task) {
+            tasks.offer(task);
         }
 
         @Override
@@ -365,63 +297,12 @@ public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implement
         }
 
         private Runnable nextTask() throws InterruptedException {
-            Runnable task = overflow.poll();
-            if (task == null) {
-                if ((task = tasks.poll()) == null)
-                    return tasks.take();
-            }
-
-            return task;
+            return tasks.take();
         }
 
         @Override
         public Thread asThread() {
             return this;
-        }
-    }
-
-    private class OverflowWorker extends ThreadWorker {
-        private OverflowWorker(int index) {
-            super(index, name + " (Overflow)");
-        }
-
-        @Override
-        public boolean addTask(Runnable task) {
-            try {
-                tasks.add(task);
-            } catch (IllegalStateException e) {
-                return false;
-            }
-
-            return true;
-        }
-
-        @Override
-        public void run() {
-            while (!isInterrupted()) {
-                try {
-                    Runnable task = tasks.take();
-                    task.run();
-
-                    int cycles = 0;
-                    while (tasks.peek() == null) { // Wait for new tasks
-                        Thread.yield();
-                        if (cycles++ == 1024) {    // No overflow tasks after 1024 cycles, exit
-                            interrupt();
-                            break;
-                        }
-                    }
-                } catch (InterruptedException e) {
-                    return;
-                } catch (Exception e) {
-                    TridentLogger.error(e); // Move the tasks back onto a normal thread, usually clear by then
-                    handleShutdown(((ThreadWorker) scaledThread()).index, tasks);
-                    return;
-                }
-            }
-
-            // Exit the thread and clean up
-            emergencyScale.decrementAndGet();
         }
     }
 }

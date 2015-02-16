@@ -17,11 +17,11 @@
 
 package net.tridentsdk.server.player;
 
-import net.tridentsdk.Position;
 import net.tridentsdk.GameMode;
-import net.tridentsdk.base.Substance;
+import net.tridentsdk.Position;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.EntityProperties;
+import net.tridentsdk.entity.PlayerSpeed;
 import net.tridentsdk.entity.Projectile;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.entity.EntityDamageEvent;
@@ -33,7 +33,6 @@ import net.tridentsdk.server.entity.TridentInventoryHolder;
 import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.window.inventory.Inventory;
-import net.tridentsdk.window.inventory.Item;
 import net.tridentsdk.world.Dimension;
 import net.tridentsdk.world.World;
 
@@ -68,6 +67,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
 
     protected Inventory enderChest;
     protected PlayerAbilities abilities = new PlayerAbilities();
+    protected PlayerSpeed playerSpeed = new PlayerSpeedImpl();
 
     public OfflinePlayer(CompoundTag tag, TridentWorld world) {
         super(null, world.spawnLocation());
@@ -203,24 +203,8 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     }
 
     @Override
-    public float flyingSpeed() {
-        return abilities.flySpeed;
-    }
-
-    @Override
-    public void setFlyingSpeed(float flyingSpeed) {
-        TridentLogger.error(new UnsupportedOperationException("You may not set the flying speed of an OfflinePlayer!"));
-    }
-
-    @Override
     public Locale locale() {
         return null;
-    }
-
-    @Override
-    public Item heldItem() {
-        // return inventory.items()[selectedSlot + 36]; TODO
-        return new Item(Substance.AIR);
     }
 
     @Override
@@ -229,34 +213,8 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     }
 
     @Override
-    public float moveSpeed() {
-        return 0;
-    }
-
-    @Override
-    public void setMoveSpeed(float speed) {
-
-    }
-
-    @Override
-    public float sneakSpeed() {
-        return 0;
-    }
-
-    @Override
-    public void setSneakSpeed(float speed) {
-
-    }
-
-    @Override
-    public float walkSpeed() {
-        return abilities.walkingSpeed;
-    }
-
-    @Override
-    public void setWalkSpeed(float speed) {
-        TridentLogger.error(
-                new UnsupportedOperationException("You may not set the walking speed of an OfflinePlayer!"));
+    public PlayerSpeed speedModifiers() {
+        return playerSpeed;
     }
 
     @Override
@@ -304,6 +262,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
         return null;
     }
 
+    @Override
     public String name() {
         return name;
     }
@@ -387,5 +346,38 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
         tag.addTag(NBTSerializer.serialize(abilities, "abilities"));
 
         return tag;
+    }
+
+    class PlayerSpeedImpl implements PlayerSpeed {
+        @Override
+        public float flyingSpeed() {
+            return abilities.flySpeed;
+        }
+
+        @Override
+        public void setFlyingSpeed(float flyingSpeed) {
+            TridentLogger.error(new UnsupportedOperationException("You may not set the flying speed of an OfflinePlayer!"));
+        }
+
+        @Override
+        public float sneakSpeed() {
+            return 0;
+        }
+
+        @Override
+        public void setSneakSpeed(float speed) {
+
+        }
+
+        @Override
+        public float walkSpeed() {
+            return abilities.walkingSpeed;
+        }
+
+        @Override
+        public void setWalkSpeed(float speed) {
+            TridentLogger.error(
+                    new UnsupportedOperationException("You may not set the walking speed of an OfflinePlayer!"));
+        }
     }
 }
