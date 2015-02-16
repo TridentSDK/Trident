@@ -20,6 +20,7 @@ package net.tridentsdk.server.packets.play.in;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.Trident;
 import net.tridentsdk.event.player.PlayerChatEvent;
+import net.tridentsdk.factory.Factories;
 import net.tridentsdk.meta.MessageBuilder;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
@@ -28,7 +29,6 @@ import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutChat;
 import net.tridentsdk.server.player.PlayerConnection;
 import net.tridentsdk.server.player.TridentPlayer;
-import net.tridentsdk.service.TridentSpi;
 
 public class PacketPlayInChat extends InPacket {
 
@@ -73,8 +73,8 @@ public class PacketPlayInChat extends InPacket {
 
         PacketPlayOutChat packet = new PacketPlayOutChat();
 
-        String identifier = TridentSpi
-                .provideChat()
+        String identifier = Factories
+                .chat()
                 .format(player.name() + "> ", player)
                 .replaceAll("%p", "")
                 .replaceAll("%n", player.name())
