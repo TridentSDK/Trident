@@ -160,6 +160,11 @@ public class TridentWorldLoader implements WorldLoader {
 
     @Override
     public World createWorld(String name) {
+        if (worldExists(name)) {
+            TridentLogger.error(new IllegalArgumentException("Cannot create a duplicate world name"));
+            return null;
+        }
+
         TridentWorld world = TridentWorld.createWorld(name, this);
         worlds.put(name, world);
 

@@ -225,8 +225,7 @@ public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implement
     public void handleShutdown(int index, Queue<Runnable> remaining) {
         if (state < SHUTTING_DOWN) {
             workers.set(index, new ThreadWorker(index, name).startWorker(remaining));
-        } else
-            workers.set(index, null);
+        }
 
         remaining.clear();
     }

@@ -106,10 +106,10 @@ public final class TridentServer implements Server {
         server.worldLoader.loadAll();
         TridentServer.WORLD = (TridentWorld) server.worlds().get("world");
 
-        /* if (WORLD == null) {
+        if (WORLD == null) {
             World world = server.worldLoader.createWorld("world");
             WORLD = (TridentWorld) world;
-        } */
+        }
 
         return server;
         // We CANNOT let the "this" instance escape during creation, else we lose thread-safety

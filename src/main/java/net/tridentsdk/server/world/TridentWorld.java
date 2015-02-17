@@ -26,7 +26,6 @@ import net.tridentsdk.base.Block;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.factory.Factories;
 import net.tridentsdk.meta.nbt.*;
-import net.tridentsdk.server.player.OfflinePlayer;
 import net.tridentsdk.server.threads.ThreadsHandler;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.*;
@@ -158,36 +157,14 @@ public class TridentWorld implements World {
         if (!(playerData.exists()) || !(playerData.isDirectory())) {
             TridentLogger.warn("Player data folder does not exist. Creating folder...");
             playerData.mkdir();
-        } else {
-            TridentLogger.log("Scanning player data...");
-
-            for (File f : playerData.listFiles(new PlayerFilter())) {
-                CompoundTag opData;
-
-                try {
-                    byte[] compressedData = Files.readAllBytes(Paths.get(f.toURI()));
-
-                    opData = new NBTDecoder(new DataInputStream(new ByteArrayInputStream(ByteStreams.
-                            toByteArray(new GZIPInputStream(new ByteArrayInputStream(compressedData))))))
-                            .decode();
-                } catch (IOException | NBTException ex) {
-                    TridentLogger.log("Unable to load " + f.getName() + ". Printing stacktrace...");
-                    TridentLogger.error(ex);
-                    continue;
-                }
-
-                new OfflinePlayer(opData, this); // will automatically register itself
-            }
-
-            TridentLogger.success("Loaded all player data.");
         }
     }
 
     static TridentWorld createWorld(String name, WorldLoader loader) {
-        TridentWorld world = new TridentWorld(name, loader);
+        TridentWorld world = null;
 
         try {
-            TridentLogger.log("Starting to load " + name + "...");
+            TridentLogger.log("Starting to create " + name + "...");
 
             TridentLogger.log("Creating directories and setting values...");
             File directory = new File(name + File.separator);
@@ -199,6 +176,7 @@ public class TridentWorld implements World {
             region.mkdir();
             playerData.mkdir();
 
+            world = new TridentWorld(name, loader);
             world.dimension = Dimension.OVERWORLD;
             // difficulty = Difficulty.difficultyOf(((IntTag) level.getTag("Difficulty")).value());
             // from tests does not exist
