@@ -23,22 +23,33 @@ import net.tridentsdk.server.world.WorldUtils;
 import net.tridentsdk.world.ChunkLocation;
 import net.tridentsdk.world.gen.AbstractGenerator;
 
+import java.util.Random;
+
 /**
  * Default world generator engine for Trident
  *
  * @author The TridentSDK Team
  */
 public class DefaultWorldGen extends AbstractGenerator {
-    private final PerlinNoise noise = new PerlinNoise(16, 256);
+    //private final PerlinNoise noise = new PerlinNoise(16, 256);
+    private final SimplexOctaveGenerator generator = new SimplexOctaveGenerator(8, 0.5, new Random().nextInt());
 
     @Override
     public char[][] generateChunkBlocks(ChunkLocation location) {
-        char[][] data = new char[1][ChunkSection.LENGTH];
+        char[][] data = new char[15][ChunkSection.LENGTH];
         for (int x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++) {
-                for (int y = 0; y < noise.noise(x, z); y++ ) {
-                    System.out.println(y);
-                    data[0][WorldUtils.blockArrayIndex(x,y,z)] = Substance.DIRT.asExtended();
+                final int i = WorldUtils.intScale(0, 140, generator.noise(x + (location.x() << 4), z + (location.z() << 4)))-20;
+                for (int y = 0; y < i; y++ ) {
+                    //System.out.println(y);
+                    if(i < 40 && y == (i - 1)) {
+                        for (int rev = 40; rev > i; rev--) {
+                            data[rev/16][WorldUtils.blockArrayIndex(x,rev%16,z)] = Substance.WATER.asExtended();
+                        }
+                        data[i/16][WorldUtils.blockArrayIndex(x,i%16,z)] = Substance.CLAY.asExtended();
+                    }
+                    
+                    data[y/16][WorldUtils.blockArrayIndex(x,y%16,z)] = Substance.GRASS.asExtended();
                 }
             }
         }

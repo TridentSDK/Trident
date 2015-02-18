@@ -375,8 +375,10 @@ public class TridentWorld implements World {
             TridentChunk chunk = new TridentChunk(this, x, z);
             this.addChunkAt(location, chunk);
             chunk.generate();
+            // DEBUG =====
             TridentLogger.log("Generated chunk at (" + x + "," + z + ")");
-
+            // =====
+            
             return chunk;
         }
 

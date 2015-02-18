@@ -23,6 +23,8 @@ import net.tridentsdk.server.world.WorldUtils;
 import net.tridentsdk.world.ChunkLocation;
 import net.tridentsdk.world.gen.AbstractGenerator;
 
+import org.openjdk.jmh.infra.Blackhole;
+
 /**
  * Generates a flat world
  *

@@ -77,7 +77,7 @@ public class TridentPlayer extends OfflinePlayer {
             offlinePlayer = OfflinePlayer.generatePlayer(id);
         }
 
-        final TridentPlayer p = TridentEntityBuilder.create().uuid(id).spawn(TridentServer.WORLD.spawnLocation()) // TODO this is temporary for testing
+        final TridentPlayer p = TridentEntityBuilder.create().uuid(id).spawn(new Position(TridentServer.WORLD, 0, 255, 0))//TridentServer.WORLD.spawnLocation()) // TODO this is temporary for testing
                 .executor(ThreadsHandler.playerExecutor())
                 .build(TridentPlayer.class, ParameterValue.from(CompoundTag.class, offlinePlayer),
                         // TODO this is temporary for testing
@@ -99,13 +99,18 @@ public class TridentPlayer extends OfflinePlayer {
                 p.gameMode = GameMode.CREATIVE;
                 p.abilities.instantBreak = 1;
                 p.abilities.flySpeed = 1;
-
+                
+                // DEBUG =====
+                p.setLocation(new Position(p.world(),0,255,0));
+                p.spawnLocation = new Position(p.world(), 0,255,0);
+                // =====
+                
                 p.connection.sendPacket(PacketPlayOutPluginMessage.VANILLA_CHANNEL);
                 p.connection.sendPacket(new PacketPlayOutServerDifficulty().set("difficulty", p.world().difficulty()));
                 p.connection.sendPacket(new PacketPlayOutSpawnPosition().set("location", p.spawnLocation()));
                 p.connection.sendPacket(p.abilities.asPacket());
                 p.connection.sendPacket(new PacketPlayOutPlayerCompleteMove().set("location",
-                        p.spawnLocation().add(new Vector(0, 40, 0))).set("flags", (byte) 1));
+                        p.spawnLocation().add(new Vector(0, 255, 0))).set("flags", (byte) 1));
             }
         });
 

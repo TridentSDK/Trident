@@ -115,9 +115,11 @@ public class TridentChunk implements Chunk {
                     }
                 }
 
+                // DEBUG ===== Makes the entire chunk full brightness, not exactly ideal
                 for (i = 0; i < 16; i++) {
                     Arrays.fill(sections[i].skyLight, (byte) 255);
                 }
+                // =====
 
                 //TODO lighting
             }

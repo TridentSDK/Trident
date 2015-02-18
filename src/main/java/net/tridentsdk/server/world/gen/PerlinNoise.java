@@ -8,6 +8,7 @@ package net.tridentsdk.server.world.gen;
 
 import net.tridentsdk.util.FastRandom;
 
+// NOT WORKING
 public class PerlinNoise {
     // Width and Height of the map.
     public int width, height;
@@ -39,6 +40,10 @@ public class PerlinNoise {
         // at right and bottom edges of the image without it. Try removing it, you will see.
     }
 
+    public Vec2D[] vecArray() {
+        return values;
+    }
+    
     public float noise(float x, float y) {
         // Grid cell coordinates in integer values.
         int gx0 = (int) (Math.floor(x)); // Top-Left

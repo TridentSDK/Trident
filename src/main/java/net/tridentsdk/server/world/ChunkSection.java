@@ -53,13 +53,15 @@ public final class ChunkSection implements NBTSerializable {
 
     protected void loadBlocks() {
         if (add == null) {
-            add = new byte[2048];
+            add = new byte[LENGTH/2];
         }
 
         //NibbleArray add = new NibbleArray(this.add);
         //NibbleArray data = new NibbleArray(this.data);
-
+        
+        // DEBUG ===== makes the entire chunk completely lit, not ideal for production
         Arrays.fill(skyLight, (byte) 255);
+        // =====
 
         types = new char[rawTypes.length];
 
