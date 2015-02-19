@@ -25,7 +25,7 @@ import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
 import net.tridentsdk.concurrent.ConcurrentCache;
 import net.tridentsdk.factory.CollectFactory;
 import net.tridentsdk.factory.Factories;
-import net.tridentsdk.server.TridentScheduler;
+import net.tridentsdk.server.TridentTaskScheduler;
 import net.tridentsdk.server.threads.ThreadsHandler;
 import net.tridentsdk.util.TridentLogger;
 import org.junit.Rule;
@@ -43,7 +43,7 @@ public class CacheTest extends AbstractTest {
                 return new ConcurrentHashMapV8<>();
             }
         });
-        Factories.init(TridentScheduler.create());
+        Factories.init(TridentTaskScheduler.create());
         Factories.init(ThreadsHandler.create());
     }
 

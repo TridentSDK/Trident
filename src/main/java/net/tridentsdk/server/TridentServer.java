@@ -184,7 +184,7 @@ public final class TridentServer implements Server {
         }
 
         TridentLogger.log("Shutting down worker threads...");
-        ((TridentScheduler) Factories.tasks()).shutdown();
+        ((TridentTaskScheduler) Factories.tasks()).shutdown();
 
         TridentLogger.log("Shutting down server process...");
         ThreadsHandler.shutdownAll();

@@ -23,7 +23,7 @@ import net.tridentsdk.factory.CollectFactory;
 import net.tridentsdk.factory.Factories;
 import net.tridentsdk.plugin.TridentPlugin;
 import net.tridentsdk.plugin.annotation.PluginDescription;
-import net.tridentsdk.server.TridentScheduler;
+import net.tridentsdk.server.TridentTaskScheduler;
 import net.tridentsdk.server.threads.ThreadsHandler;
 import net.tridentsdk.util.TridentLogger;
 import org.openjdk.jmh.annotations.*;
@@ -142,11 +142,11 @@ public class SchedulerTest {
                 return new ConcurrentHashMapV8<>();
             }
         });
-        Factories.init(TridentScheduler.create());
+        Factories.init(TridentTaskScheduler.create());
         Factories.init(ThreadsHandler.create());
     }
 
-    private static final TridentScheduler scheduler = TridentScheduler.create();
+    private static final TridentTaskScheduler scheduler = TridentTaskScheduler.create();
 
     //@Param({ "1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024" })
     private int cpuTokens;
@@ -172,7 +172,7 @@ public class SchedulerTest {
     }
 
     public static void main1(String... args) {
-        TridentScheduler scheduler = TridentScheduler.create();
+        TridentTaskScheduler scheduler = TridentTaskScheduler.create();
         while (true) {
             scheduler.tick();
         }
@@ -193,7 +193,7 @@ public class SchedulerTest {
     }
 
     public static void main0(String... args) throws InterruptedException {
-        TridentScheduler scheduler = TridentScheduler.create();
+        TridentTaskScheduler scheduler = TridentTaskScheduler.create();
         for (int i = 0; i < 100; i++) {
             @PluginDescription(name = "LOLCODE")
             class PluginImpl extends TridentPlugin {
