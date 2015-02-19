@@ -232,7 +232,7 @@ public class RegionFile {
         ByteArrayOutputStream nbtStream = new ByteArrayOutputStream();
         new NBTEncoder(new DataOutputStream(nbtStream)).encode(chunk.asNbt());
         byte[] uncompressed = nbtStream.toByteArray();
-        
+
         /* Gonna only use Zlib compression by default */
         Deflater deflater = new Deflater();
         ByteArrayOutputStream os = new ByteArrayOutputStream();
