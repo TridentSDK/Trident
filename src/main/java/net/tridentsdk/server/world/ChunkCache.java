@@ -24,6 +24,7 @@ import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.ChunkLocation;
 
 import java.util.Collection;
+import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 
 @AccessNoDoc
@@ -72,6 +73,18 @@ class ChunkCache {
                 e.printStackTrace();
             }
         }
+    }
+
+    public void retain(Set<ChunkLocation> set) {
+        for (ChunkLocation l : keys()) {
+            if (!set.contains(l)) {
+                cachedChunks.remove(l);
+            }
+        }
+    }
+
+    public Set<ChunkLocation> keys() {
+        return cachedChunks.keySet();
     }
 
     public Collection<TridentChunk> values() {

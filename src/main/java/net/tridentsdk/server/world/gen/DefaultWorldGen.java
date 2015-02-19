@@ -31,8 +31,7 @@ import java.util.Random;
  * @author The TridentSDK Team
  */
 public class DefaultWorldGen extends AbstractGenerator {
-    //private final PerlinNoise noise = new PerlinNoise(16, 256);
-    private final SimplexOctaveGenerator generator = new SimplexOctaveGenerator(8, 0.5, new Random().nextInt());
+    private final SimplexOctaveGenerator generator = new SimplexOctaveGenerator(12, 0.5, new Random().nextInt());
 
     @Override
     public char[][] generateChunkBlocks(ChunkLocation location) {
@@ -49,7 +48,11 @@ public class DefaultWorldGen extends AbstractGenerator {
                         data[i/16][WorldUtils.blockArrayIndex(x,i%16,z)] = Substance.CLAY.asExtended();
                     }
                     
-                    data[y/16][WorldUtils.blockArrayIndex(x,y%16,z)] = Substance.GRASS.asExtended();
+                    if (y < i - 1) {
+                        data[y/16][WorldUtils.blockArrayIndex(x,y%16,z)] = Substance.DIRT.asExtended();
+                    } else {
+                        data[y/16][WorldUtils.blockArrayIndex(x,y%16,z)] = Substance.GRASS.asExtended();
+                    }
                 }
             }
         }

@@ -23,12 +23,14 @@ import net.tridentsdk.factory.CollectFactory;
 import net.tridentsdk.factory.Factories;
 import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
 import org.openjdk.jmh.annotations.*;
+import org.openjdk.jmh.infra.Blackhole;
 import org.openjdk.jmh.results.RunResult;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 import org.openjdk.jmh.runner.options.TimeValue;
+import org.openjdk.jmh.runner.options.VerboseMode;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -39,179 +41,62 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 /*
-# Run progress: 0.00% complete, ETA 00:00:01
-# Warmup: 20 iterations, 10 ms each
-# Measurement: 20 iterations, 10 ms each
-# Threads: 4 threads, will synchronize iterations
-# Benchmark mode: Average time, time/op
-# Benchmark: net.tridentsdk.server.bench.TaskExecTest.distributedExecute
-# VM invoker: C:\Program Files\Java\jdk1.8.0_31\jre\bin\java.exe
-# VM options: -Didea.launcher.port=7534 -Didea.launcher.bin.path=C:\Program Files (x86)\JetBrains\IntelliJ IDEA 14.0.3\bin -Dfile.encoding=UTF-8
-# Fork: 1 of 1
-# Warmup Iteration   1: 15323.824 ns/op
-# Warmup Iteration   2: 514.903 ns/op
-# Warmup Iteration   3: 784.067 ns/op
-# Warmup Iteration   4: 498.686 ns/op
-# Warmup Iteration   5: 491.977 ns/op
-# Warmup Iteration   6: 538.584 ns/op
-# Warmup Iteration   7: 556.378 ns/op
-# Warmup Iteration   8: 525.556 ns/op
-# Warmup Iteration   9: 588.892 ns/op
-# Warmup Iteration  10: 478.544 ns/op
-# Warmup Iteration  11: 475.141 ns/op
-# Warmup Iteration  12: 460.852 ns/op
-# Warmup Iteration  13: 527.672 ns/op
-# Warmup Iteration  14: 454.100 ns/op
-# Warmup Iteration  15: 572.393 ns/op
-# Warmup Iteration  16: 463.960 ns/op
-# Warmup Iteration  17: 501.673 ns/op
-# Warmup Iteration  18: 533.276 ns/op
-# Warmup Iteration  19: 469.473 ns/op
-# Warmup Iteration  20: 634.866 ns/op
-Iteration   1: 497.313 ns/op
-Iteration   2: 697.293 ns/op
-Iteration   3: 501.893 ns/op
-Iteration   4: 464.992 ns/op
-Iteration   5: 509.492 ns/op
-Iteration   6: 452.493 ns/op
-Iteration   7: 524.616 ns/op
-Iteration   8: 520.940 ns/op
-Iteration   9: 570.278 ns/op
-Iteration  10: 559.092 ns/op
-Iteration  11: 550.439 ns/op
-Iteration  12: 475.379 ns/op
-Iteration  13: 632.006 ns/op
-Iteration  14: 535.117 ns/op
-Iteration  15: 605.714 ns/op
-Iteration  16: 542.674 ns/op
-Iteration  17: 514.061 ns/op
-Iteration  18: 509.916 ns/op
-Iteration  19: 477.566 ns/op
-Iteration  20: 600.391 ns/op
+========= Starting tests: TRIDENT =========
 
-Result: 537.083 ±(99.9%) 52.769 ns/op [Average]
-  Statistics: (min, avg, max) = (452.493, 537.083, 697.293), stdev = 60.768
-  Confidence interval (99.9%): [484.315, 589.852]
+========= Warming up the system =========
+Warmup iteration 100: 4889.212 ns/op
+Warmup iteration 200: 33791.933 ns/op
+Warmup iteration 300: 81591.043 ns/op
+Warmup iteration 400: 85302.103 ns/op
+Warmup iteration 500: 125701.439 ns/op
+Warmup iteration 600: 141949.020 ns/op
+Warmup iteration 700: 199897.850 ns/op
+Warmup iteration 800: 267967.419 ns/op
+Warmup iteration 900: 337249.555 ns/op
+========= Warm up complete =========
 
+========= Starting tests =========
+Iteration 10000000: 138777.004 ns/op
+Iteration 20000000: 224413.591 ns/op
+Iteration 30000000: 283868.316 ns/op
+Iteration 40000000: 341304.927 ns/op
+Iteration 50000000: 408210.938 ns/op
+Iteration 60000000: 477185.787 ns/op
+Iteration 70000000: 559801.963 ns/op
+Iteration 80000000: 642992.347 ns/op
+Iteration 90000000: 725798.775 ns/op
+========= Ended test =========
+Complete. 801960.581 ns/op
 
-# Run progress: 33.33% complete, ETA 00:00:19
-# Warmup: 20 iterations, 10 ms each
-# Measurement: 20 iterations, 10 ms each
-# Threads: 4 threads, will synchronize iterations
-# Benchmark mode: Average time, time/op
-# Benchmark: net.tridentsdk.server.bench.TaskExecTest.singleExecute
-# VM invoker: C:\Program Files\Java\jdk1.8.0_31\jre\bin\java.exe
-# VM options: -Didea.launcher.port=7534 -Didea.launcher.bin.path=C:\Program Files (x86)\JetBrains\IntelliJ IDEA 14.0.3\bin -Dfile.encoding=UTF-8
-# Fork: 1 of 1
-# Warmup Iteration   1: 295.270 ns/op
-# Warmup Iteration   2: 441.193 ns/op
-# Warmup Iteration   3: 223.689 ns/op
-# Warmup Iteration   4: 301.200 ns/op
-# Warmup Iteration   5: 228.381 ns/op
-# Warmup Iteration   6: 255.743 ns/op
-# Warmup Iteration   7: 282.422 ns/op
-# Warmup Iteration   8: 218.367 ns/op
-# Warmup Iteration   9: 183.986 ns/op
-# Warmup Iteration  10: 271.572 ns/op
-# Warmup Iteration  11: 235.442 ns/op
-# Warmup Iteration  12: 237.506 ns/op
-# Warmup Iteration  13: 259.248 ns/op
-# Warmup Iteration  14: 285.803 ns/op
-# Warmup Iteration  15: 252.367 ns/op
-# Warmup Iteration  16: 343.397 ns/op
-# Warmup Iteration  17: 235.349 ns/op
-# Warmup Iteration  18: 199.153 ns/op
-# Warmup Iteration  19: 220.378 ns/op
-# Warmup Iteration  20: 219.086 ns/op
-Iteration   1: 236.842 ns/op
-Iteration   2: 255.921 ns/op
-Iteration   3: 236.880 ns/op
-Iteration   4: 234.840 ns/op
-Iteration   5: 237.947 ns/op
-Iteration   6: 231.316 ns/op
-Iteration   7: 237.682 ns/op
-Iteration   8: 243.027 ns/op
-Iteration   9: 269.142 ns/op
-Iteration  10: 256.697 ns/op
-Iteration  11: 275.731 ns/op
-Iteration  12: 242.439 ns/op
-Iteration  13: 272.348 ns/op
-Iteration  14: 312.567 ns/op
-Iteration  15: 247.488 ns/op
-Iteration  16: 203.017 ns/op
-Iteration  17: 209.046 ns/op
-Iteration  18: 235.217 ns/op
-Iteration  19: 241.222 ns/op
-Iteration  20: 215.487 ns/op
+========= Starting tests: JAVA =========
 
-Result: 244.743 ±(99.9%) 21.525 ns/op [Average]
-  Statistics: (min, avg, max) = (203.017, 244.743, 312.567), stdev = 24.788
-  Confidence interval (99.9%): [223.218, 266.268]
+========= Warming up the system =========
+Warmup iteration 100: 11450.120 ns/op
+Warmup iteration 200: 87682.872 ns/op
+Warmup iteration 300: 99953.454 ns/op
+Warmup iteration 400: 99953.454 ns/op
+Warmup iteration 500: 99953.454 ns/op
+Warmup iteration 600: 1254196.607 ns/op
+Warmup iteration 700: 1254196.607 ns/op
+Warmup iteration 800: 1254196.607 ns/op
+Warmup iteration 900: 1254196.607 ns/op
+========= Warm up complete =========
 
+========= Starting tests =========
+Iteration 10000000: 486585.494 ns/op
+Iteration 20000000: 1011151.414 ns/op
+Iteration 30000000: 1515163.430 ns/op
+Iteration 40000000: 2052993.060 ns/op
+Iteration 50000000: 2572005.314 ns/op
+Iteration 60000000: 3104995.588 ns/op
+Iteration 70000000: 3668143.197 ns/op
+Iteration 80000000: 4245930.511 ns/op
+Iteration 90000000: 4726552.187 ns/op
+========= Ended test =========
+Complete. 5229887.591 ns/op
 
-# Run progress: 66.67% complete, ETA 00:00:09
-# Warmup: 20 iterations, 10 ms each
-# Measurement: 20 iterations, 10 ms each
-# Threads: 4 threads, will synchronize iterations
-# Benchmark mode: Average time, time/op
-# Benchmark: net.tridentsdk.server.bench.TaskExecTest.zexecutorService
-# VM invoker: C:\Program Files\Java\jdk1.8.0_31\jre\bin\java.exe
-# VM options: -Didea.launcher.port=7534 -Didea.launcher.bin.path=C:\Program Files (x86)\JetBrains\IntelliJ IDEA 14.0.3\bin -Dfile.encoding=UTF-8
-# Fork: 1 of 1
-# Warmup Iteration   1: 683.244 ns/op
-# Warmup Iteration   2: 706.493 ns/op
-# Warmup Iteration   3: 585.342 ns/op
-# Warmup Iteration   4: 637.641 ns/op
-# Warmup Iteration   5: 546.499 ns/op
-# Warmup Iteration   6: 638.842 ns/op
-# Warmup Iteration   7: 805.836 ns/op
-# Warmup Iteration   8: 633.173 ns/op
-# Warmup Iteration   9: 602.662 ns/op
-# Warmup Iteration  10: 584.072 ns/op
-# Warmup Iteration  11: 663.739 ns/op
-# Warmup Iteration  12: 591.832 ns/op
-# Warmup Iteration  13: 645.415 ns/op
-# Warmup Iteration  14: 628.158 ns/op
-# Warmup Iteration  15: 657.441 ns/op
-# Warmup Iteration  16: 706.322 ns/op
-# Warmup Iteration  17: 685.334 ns/op
-# Warmup Iteration  18: 640.320 ns/op
-# Warmup Iteration  19: 548.210 ns/op
-# Warmup Iteration  20: 659.552 ns/op
-Iteration   1: 462.483 ns/op
-Iteration   2: 503.798 ns/op
-Iteration   3: 597.408 ns/op
-Iteration   4: 570.590 ns/op
-Iteration   5: 653.233 ns/op
-Iteration   6: 879.512 ns/op
-Iteration   7: 667.518 ns/op
-Iteration   8: 694.147 ns/op
-Iteration   9: 598.996 ns/op
-Iteration  10: 481.070 ns/op
-Iteration  11: 535.380 ns/op
-Iteration  12: 505.087 ns/op
-Iteration  13: 645.935 ns/op
-Iteration  14: 641.042 ns/op
-Iteration  15: 623.350 ns/op
-Iteration  16: 597.833 ns/op
-Iteration  17: 736.159 ns/op
-Iteration  18: 532.420 ns/op
-Iteration  19: 634.377 ns/op
-Iteration  20: 634.798 ns/op
-
-Result: 609.757 ±(99.9%) 84.211 ns/op [Average]
-  Statistics: (min, avg, max) = (462.483, 609.757, 879.512), stdev = 96.978
-  Confidence interval (99.9%): [525.546, 693.968]
-
-
-# Run complete. Total time: 00:00:27
-
-Benchmark                                   Mode   Samples        Score  Score error    Units
-n.t.s.b.TaskExecTest.distributedExecute     avgt        20      537.083       52.769    ns/op
-n.t.s.b.TaskExecTest.singleExecute          avgt        20      244.743       21.525    ns/op
-n.t.s.b.TaskExecTest.zexecutorService       avgt        20      609.757       84.211    ns/op
+http://bit.ly/1Fwu7W6
  */
-
 @State(Scope.Benchmark)
 public class TaskExecTest {
     static {
@@ -223,7 +108,7 @@ public class TaskExecTest {
         });
     }
 
-    private static ExecutorService JAVA = Executors.newFixedThreadPool(13);
+    private static ExecutorService JAVA = Executors.newFixedThreadPool(4);
     private static final Runnable RUNNABLE = new Runnable() {
         int anInt = 0;
 
@@ -232,10 +117,8 @@ public class TaskExecTest {
             anInt++;
         }
     };
-    private static ConcurrentTaskExecutor<String> TASK_EXECUTOR;
-    private static TaskExecutor EXECUTOR;
-    //@Param({ "1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024" })
-    private int cpuTokens;
+    private static ConcurrentTaskExecutor<String> TASK_EXECUTOR = ConcurrentTaskExecutor.create(4, "Test");
+    private static TaskExecutor EXECUTOR = TASK_EXECUTOR.scaledThread();
 
     public static void main2(String[] args) {
         while (true) {
@@ -247,7 +130,7 @@ public class TaskExecTest {
         }
     }
 
-    public static void main0(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws InterruptedException {
         // Latency tests
         System.out.println("========= Starting tests: TRIDENT =========");
 
@@ -378,8 +261,6 @@ public class TaskExecTest {
     }
 
     public static void main1(String[] args) {
-        new TaskExecTest().setup();
-
         for (int i = 0; i < 20000; i++) {
             final int finalI = i;
             JAVA.execute(new Runnable() {
@@ -396,13 +277,26 @@ public class TaskExecTest {
         }
     }
 
-    public static void main(String... args) throws RunnerException {
-        Options opt = new OptionsBuilder().include(".*" + TaskExecTest.class.getSimpleName() + ".*") // CLASS
-                .timeUnit(TimeUnit.NANOSECONDS).mode(Mode.AverageTime).warmupIterations(20).warmupTime(
-                        TimeValue.milliseconds(10))              // ALLOWED TIME
-                .measurementIterations(20).measurementTime(TimeValue.milliseconds(10))         // ALLOWED TIME
+    @Param({ "1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024" })
+    private int cpuTokens;
+
+    @TearDown
+    public void tearDown() {
+        JAVA.shutdownNow();
+        TASK_EXECUTOR.shutdownNow();
+    }
+
+    public static void main0(String... args) throws RunnerException {
+        Options opt = new OptionsBuilder()
+                .include(".*" + TaskExecTest.class.getSimpleName() + ".*") // CLASS
+                .timeUnit(TimeUnit.NANOSECONDS)
+                .mode(Mode.AverageTime)
+                .warmupIterations(20)
+                .warmupTime(TimeValue.nanoseconds(5000))             // ALLOWED TIME
+                .measurementIterations(5)
+                .measurementTime(TimeValue.nanoseconds(5000))       // ALLOWED TIME
                 .forks(1)                                           // FORKS
-                        //.verbosity(VerboseMode.SILENT)                      // GRAPH
+                .verbosity(VerboseMode.SILENT)                      // GRAPH
                 .threads(4)                                         // THREADS
                 .build();
 
@@ -410,42 +304,26 @@ public class TaskExecTest {
         Benchmarks.chart(Benchmarks.parse(results), "ConcurrentTaskExecutor vs ExecutorService");
     }
 
-    //@Benchmark
+    @Benchmark
     public void control() {
-        //Blackhole.consumeCPU(cpuTokens);
+        Blackhole.consumeCPU(cpuTokens);
     }
 
     @Benchmark
-    public void distributedExecute() {
-        //Blackhole.consumeCPU(cpuTokens);
+    public void tridentExecute() {
+        Blackhole.consumeCPU(cpuTokens);
         TASK_EXECUTOR.execute(RUNNABLE);
     }
 
     @Benchmark
-    public void zexecutorService() {
-        //Blackhole.consumeCPU(cpuTokens);
+    public void javaExecute() {
+        Blackhole.consumeCPU(cpuTokens);
         JAVA.execute(RUNNABLE);
     }
 
-    @Setup
-    public void setup0() {
-        TASK_EXECUTOR = ConcurrentTaskExecutor.create(13, "TaskExecTest");
-        EXECUTOR = TASK_EXECUTOR.scaledThread();
-    }
-
-    @Setup(Level.Iteration)
-    public void setup() {
-        JAVA = Executors.newFixedThreadPool(13);
-    }
-
-    @TearDown(Level.Iteration)
-    public void tearDown() {
-        JAVA.shutdownNow();
-    }
-
     @Benchmark
-    public void singleExecute() {
-        //Blackhole.consumeCPU(cpuTokens);
+    public void tridentThreadExecute() {
+        Blackhole.consumeCPU(cpuTokens);
         EXECUTOR.addTask(RUNNABLE);
     }
 }

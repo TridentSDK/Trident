@@ -19,6 +19,7 @@ package net.tridentsdk.server.player;
 
 import com.google.common.collect.Queues;
 import net.tridentsdk.GameMode;
+import net.tridentsdk.Position;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.entity.Entity;
@@ -159,6 +160,7 @@ public class TridentPlayer extends OfflinePlayer {
                 .set("entityId", entityId())
                 .set("velocity", new Vector(0, -0.07, 0)));
         connection.sendPacket(new PacketPlayOutGameStateChange().set("reason", 3).set("value", (float) gameMode.asByte()));
+        TridentServer.WORLD.addEntity(this); // TODO
     }
 
     @Override

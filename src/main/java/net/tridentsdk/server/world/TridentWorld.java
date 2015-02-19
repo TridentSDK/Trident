@@ -66,6 +66,12 @@ public class TridentWorld implements World {
     private volatile boolean raining;
     private volatile boolean thundering;
 
+    private TridentWorld(String name, WorldLoader loader, boolean throwaway) {
+        this.name = name;
+        this.loader = loader;
+        this.spawnLocation = Position.create(this, 0, 0, 0);
+    }
+
     TridentWorld(String name, WorldLoader loader) {
         this.name = name;
         this.loader = loader;
@@ -176,7 +182,7 @@ public class TridentWorld implements World {
             region.mkdir();
             playerData.mkdir();
 
-            world = new TridentWorld(name, loader);
+            world = new TridentWorld(name, loader, false);
             world.dimension = Dimension.OVERWORLD;
             // difficulty = Difficulty.difficultyOf(((IntTag) level.getTag("Difficulty")).value());
             // from tests does not exist
@@ -212,8 +218,6 @@ public class TridentWorld implements World {
             world.spawnLocation.setX(0);
             world.spawnLocation.setY(64);
             world.spawnLocation.setZ(0);
-
-            world.save();
         } catch (IOException e) {
             TridentLogger.error(e);
         }
@@ -247,6 +251,27 @@ public class TridentWorld implements World {
 
                 time++;
                 existed++;
+
+                /*
+                Set<ChunkLocation> set = Sets.newHashSet();
+                for (Entity entity : entities) {
+                    if (entity instanceof Player) {
+                        Position pos = entity.location();
+                        int x = (int) pos.x() % 16;
+                        int z = (int) pos.z() % 16;
+                        int viewDist = Trident.config().getInt("view-distance", 7);
+
+                        for (int i = x - viewDist; i < x + viewDist; i++) {
+                            for (int j = z - viewDist; j < z + viewDist; j++) {
+                                set.add(ChunkLocation.create(i, j));
+                            }
+                        }
+                    }
+                }
+
+                loadedChunks.retain(set);
+                set = null;
+                */
             }
         });
     }
@@ -495,6 +520,10 @@ public class TridentWorld implements World {
     @Override
     public Set<Entity> entities() {
         return ImmutableSet.copyOf(this.entities);
+    }
+
+    public void addEntity(Entity entity) {
+        this.entities.add(entity);
     }
 
     private static class PlayerFilter implements FilenameFilter {

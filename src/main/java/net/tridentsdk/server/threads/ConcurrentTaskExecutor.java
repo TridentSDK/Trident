@@ -29,9 +29,9 @@ import net.tridentsdk.util.TridentLogger;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
+import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.List;
-import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.*;
 
@@ -75,9 +75,9 @@ public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implement
     private static final int SHUTTING_DOWN = 2;
     private static final int STOPPED = 3;
 
-    private final List<ThreadWorker> workers;
+    private final ThreadWorker[] workers;
+
     private final int scale;
-    private final String name;
     private final Callable<ThreadWorker> obtainWorker = new Callable<ThreadWorker>() {
         @Override
         public ThreadWorker call() throws Exception {
@@ -95,11 +95,10 @@ public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implement
 
     private ConcurrentTaskExecutor(int scale, String name) {
         this.scale = scale;
-        this.name = name;
-        workers = new CopyOnWriteArrayList<>();
 
-        for (int i = 0, n = scale; i < n; i++) {
-            workers.add(new ThreadWorker(i, name).startWorker());
+        this.workers = (ThreadWorker[]) Array.newInstance(ThreadWorker.class, scale);
+        for (int i = 0; i < scale; i++) {
+            workers[i] = new ThreadWorker(i, name).startWorker();
         }
 
         state = RUNNING;
@@ -134,7 +133,7 @@ public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implement
                 counter = 0;
             }
 
-            return workers.get(counter++);
+            return workers[counter++];
         }
     }
 
@@ -178,7 +177,6 @@ public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implement
             worker.interrupt();
         }
 
-        workers.clear();
         assigned.clear();
         state = STOPPED;
     }
@@ -222,36 +220,20 @@ public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implement
         scaledThread().addTask(runnable);
     }
 
-    public void handleShutdown(int index, Queue<Runnable> remaining) {
-        if (state < SHUTTING_DOWN) {
-            workers.set(index, new ThreadWorker(index, name).startWorker(remaining));
-        }
-
-        remaining.clear();
-    }
-
     @AccessNoDoc
     private class ThreadWorker extends Thread implements TaskExecutor {
-        private final BlockingDeque<Runnable> tasks = new LinkedBlockingDeque<>();
-
-        private final int index;
+        private final BlockingQueue<Runnable> tasks = new LinkedBlockingDeque<>();
 
         private ThreadWorker(int index, String name) {
             // This is only safe because it is constructed in the CTE factory, otherwise the size
             // may change throughout the threads as the workers expand
             // tip - don't try this at home!
             super("Trident - CTE " + EXECUTORS.size() + " Thread " + index + " - " + name);
-            this.index = index;
         }
 
         public ThreadWorker startWorker() {
             super.start();
             return this;
-        }
-
-        public ThreadWorker startWorker(Queue<Runnable> tasks) {
-            this.tasks.addAll(tasks);
-            return startWorker();
         }
 
         @Override
@@ -285,18 +267,21 @@ public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implement
                 try {
                     nextTask().run();
                 } catch (InterruptedException e) {
-                    handleShutdown(index, tasks);
                     return;
                 } catch (Exception e) {
                     e.printStackTrace();
-                    handleShutdown(index, tasks);
-                    return;
                 }
             }
         }
 
+        // Must hold lock
         private Runnable nextTask() throws InterruptedException {
-            return tasks.take();
+            Runnable runnable = tasks.poll(60, TimeUnit.NANOSECONDS);
+            if (runnable == null) {
+                return tasks.take();
+            }
+
+            return runnable;
         }
 
         @Override
