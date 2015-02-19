@@ -26,9 +26,9 @@
             <url>http://repo.tridentsdk.net/nexus/content/repositories/releases/</url>
         </repository>
         <snapshotRepository>
-            <id>deployment-tridentsdk</id>
+            <id>tridentsdk-central</id>
             <name>Internal Snapshots</name>
-            <url>http://repo.tridentsdk.net/nexus/content/repositories/snapshots/</url>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
 
@@ -46,7 +46,7 @@
 
         <repository>
             <id>TridentSDK</id>
-            <url>http://repo.tridentsdk.net/nexus/content/groups/public/</url>
+            <url>https://oss.sonatype.org/content/repositories/public/</url>
         </repository>
     </repositories>
 
