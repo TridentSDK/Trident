@@ -130,7 +130,7 @@ public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implement
     public TaskExecutor scaledThread() {
         synchronized (this) {
             if (counter == scale) {
-                counter = 0;
+                counter = -1;
             }
 
             return workers[counter++];
