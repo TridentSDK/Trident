@@ -18,13 +18,14 @@
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.server.data.ProtocolMetadata;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutEntityMetadata extends OutPacket {
 
     protected int entityId;
-    // TODO: metadata
+    protected ProtocolMetadata metadata;
 
     @Override
     public int id() {
@@ -34,5 +35,6 @@ public class PacketPlayOutEntityMetadata extends OutPacket {
     @Override
     public void encode(ByteBuf buf) {
         Codec.writeVarInt32(buf, this.entityId);
+        metadata.write(buf);
     }
 }

@@ -22,28 +22,11 @@ import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 import net.tridentsdk.world.ChunkLocation;
 
-import java.util.Comparator;
 import java.util.Queue;
-import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class PacketPlayOutMapChunkBulk extends OutPacket {
-
-    protected final Queue<PacketPlayOutChunkData> entries = new PriorityBlockingQueue<>(1024,
-            new Comparator<PacketPlayOutChunkData>() {
-                @Override
-                public int compare(PacketPlayOutChunkData o1, PacketPlayOutChunkData o2) {
-                    ChunkLocation c = o1.chunkLocation();
-                    ChunkLocation c0 = o2.chunkLocation();
-
-                    int cx = c.x();
-                    int cz = c.z();
-
-                    int c0x = c0.x();
-                    int c0z = c0.z();
-
-                    return (Math.abs(cx) + Math.abs(cz)) - (Math.abs(c0x) + Math.abs(c0z));
-                }
-            });
+    protected final Queue<PacketPlayOutChunkData> entries = new ConcurrentLinkedQueue<>();
     protected boolean lightSent = true;
 
     @Override
@@ -52,7 +35,7 @@ public class PacketPlayOutMapChunkBulk extends OutPacket {
     }
 
     public void addEntry(PacketPlayOutChunkData entry) {
-        entries.add(entry);
+        entries.offer(entry);
     }
 
     public boolean hasEntries() {

@@ -18,6 +18,7 @@
 package net.tridentsdk.server.data;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.Position;
 
 /**
  * Represents a writable form of a {@link net.tridentsdk.Position}
@@ -25,7 +26,7 @@ import io.netty.buffer.ByteBuf;
  * @author The TridentSDK Team
  */
 public class PositionWritable implements Writable {
-    private net.tridentsdk.Position loc;
+    private Position loc;
 
     /**
      * Creates a new position based from an existing location

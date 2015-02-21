@@ -19,17 +19,23 @@ package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.Position;
+import net.tridentsdk.base.Block;
 import net.tridentsdk.base.BlockOrientation;
+import net.tridentsdk.base.Substance;
 import net.tridentsdk.event.Cancellable;
 import net.tridentsdk.event.Event;
+import net.tridentsdk.event.block.BlockBreakEvent;
 import net.tridentsdk.event.player.PlayerDigEvent;
 import net.tridentsdk.event.player.PlayerDropItemEvent;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
+import net.tridentsdk.server.packets.play.out.PacketPlayOutBlockChange;
 import net.tridentsdk.server.player.PlayerConnection;
 import net.tridentsdk.server.player.TridentPlayer;
+import net.tridentsdk.server.world.TridentChunk;
+import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.util.TridentLogger;
 
 public class PacketPlayInPlayerDig extends InPacket {
@@ -72,6 +78,8 @@ public class PacketPlayInPlayerDig extends InPacket {
         DigStatus digStatus = DigStatus.getStatus(this.status);
         BlockOrientation face = null;
 
+        this.location.setWorld(player.world());
+
         switch (this.blockFace) {
             case 0:
                 face = BlockOrientation.BOTTOM;
@@ -108,6 +116,15 @@ public class PacketPlayInPlayerDig extends InPacket {
             case DIG_CANCEL:
             case DIG_FINISH:
                 event = new PlayerDigEvent(player, face, this.status);
+
+                if(digStatus == DigStatus.DIG_FINISH) {
+                    Block block = player.world().blockAt(location());
+                    BlockBreakEvent blockBreak = new BlockBreakEvent(player, block, face, player.heldItem());
+
+                    if(blockBreak.isIgnored())
+                        return;
+                }
+
                 break;
 
             case DROP_ITEMSTACK:
@@ -128,7 +145,13 @@ public class PacketPlayInPlayerDig extends InPacket {
         if (event == null || event.isIgnored())
             return;
 
-        this.location.setWorld(player.world());
+        // TODO act accordingly
+
+        if(digStatus == DigStatus.DIG_FINISH) {
+            ((TridentChunk) location().chunk()).setAt(location, Substance.AIR, (byte) 0, (byte) 255, (byte) 15);
+            TridentPlayer.sendAll(new PacketPlayOutBlockChange()
+                    .set("location", location).set("blockId", Substance.AIR.id()));
+        }
     }
 
     public enum DigStatus {

@@ -82,10 +82,10 @@ public class PacketHandler extends SimpleChannelInboundHandler<PacketData> {
         packet.decode(data.getData());
 
         try {
-            // START DEBUG
+            // DEBUG =====
             if(!(packet instanceof PacketPlayInPlayerFall) && !(packet instanceof PacketPlayInPlayerMove))
                 TridentLogger.log("Received packet " + packet.getClass().getSimpleName());
-            // END DEBUG
+            // =====
 
             packet.handleReceived(this.connection);
 

@@ -105,4 +105,15 @@ public final class WorldUtils {
             return (byte) (nibbleArray[index / 2] & NIBBLE_MASK);
         }
     }
+
+    /**
+     * Scales a value, useful for world generation 
+     * @param min the minimum required output
+     * @param max the maximum required output
+     * @param value the value to scale between min and max, should be between -1 and 1
+     * @return a value scaled between min and max by the scaling value, rounded
+     */
+    public static int intScale(int min, int max, double value) {
+        return (int) (((double)(max - min)) * ((value + 1) / 2)) - min;
+    }
 }

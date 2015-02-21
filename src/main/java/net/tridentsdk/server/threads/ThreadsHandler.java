@@ -23,6 +23,7 @@ import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.factory.ExecutorFactory;
 import net.tridentsdk.factory.ThreadFactory;
 import net.tridentsdk.server.TridentServer;
+import net.tridentsdk.world.Chunk;
 import net.tridentsdk.world.World;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -37,7 +38,8 @@ import java.util.Collection;
 public final class ThreadsHandler implements ThreadFactory {
     private static final ExecutorFactory<Entity> entities = ConcurrentTaskExecutor.create(2, "Entities");
     private static final ExecutorFactory<Player> players = ConcurrentTaskExecutor.create(4, "Players");
-    private static final ExecutorFactory<World> worlds = ConcurrentTaskExecutor.create(4, "Worlds");
+    private static final ExecutorFactory<World> worlds = ConcurrentTaskExecutor.create(1, "Worlds");
+    private static final ExecutorFactory<Chunk> chunks = ConcurrentTaskExecutor.create(3, "Chunks");
 
     private ThreadsHandler() {
     }
@@ -93,6 +95,26 @@ public final class ThreadsHandler implements ThreadFactory {
     @InternalUseOnly
     public static void remove(World world) {
         worldExecutor().removeAssignment(world);
+    }
+
+    /**
+     * Decaches the chunk executor from the mappings
+     *
+     * @param chunk the chunk to decache
+     */
+    @InternalUseOnly
+    public static void remove(Chunk chunk) {
+        chunkExecutor().removeAssignment(chunk);
+    }
+
+    /**
+     * Gets the executor for the chunk thread pool
+     *
+     * @return the executor
+     */
+    @InternalUseOnly
+    public static ExecutorFactory<Chunk> chunkExecutor() {
+        return chunks;
     }
 
     /**

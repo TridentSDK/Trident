@@ -18,8 +18,12 @@
 package net.tridentsdk.server.world.gen;
 
 import net.tridentsdk.base.Substance;
+import net.tridentsdk.server.world.ChunkSection;
+import net.tridentsdk.server.world.WorldUtils;
+import net.tridentsdk.world.ChunkLocation;
 import net.tridentsdk.world.gen.AbstractGenerator;
-import net.tridentsdk.world.gen.ChunkTile;
+
+import java.util.Random;
 
 /**
  * Default world generator engine for Trident
@@ -27,15 +31,36 @@ import net.tridentsdk.world.gen.ChunkTile;
  * @author The TridentSDK Team
  */
 public class DefaultWorldGen extends AbstractGenerator {
-    private final PerlinNoise noise = new PerlinNoise(16, 256);
+    private final SimplexOctaveGenerator generator = new SimplexOctaveGenerator(12, 0.5, new Random().nextInt());
 
     @Override
-    public int height(int x, int z) {
-        return (int) noise.noise(x, z);
+    public char[][] generateChunkBlocks(ChunkLocation location) {
+        char[][] data = new char[15][ChunkSection.LENGTH];
+        for (int x = 0; x < 16; x++) {
+            for (int z = 0; z < 16; z++) {
+                final int i = WorldUtils.intScale(0, 140, generator.noise(x + (location.x() << 4), z + (location.z() << 4)))-20;
+                for (int y = 0; y < i; y++ ) {
+                    //System.out.println(y);
+                    if(i < 40 && y == (i - 1)) {
+                        for (int rev = 40; rev > i; rev--) {
+                            data[rev/16][WorldUtils.blockArrayIndex(x,rev%16,z)] = Substance.WATER.asExtended();
+                        }
+                        data[i/16][WorldUtils.blockArrayIndex(x,i%16,z)] = Substance.CLAY.asExtended();
+                    }
+                    
+                    if (y < i - 1) {
+                        data[y/16][WorldUtils.blockArrayIndex(x,y%16,z)] = Substance.DIRT.asExtended();
+                    } else {
+                        data[y/16][WorldUtils.blockArrayIndex(x,y%16,z)] = Substance.GRASS.asExtended();
+                    }
+                }
+            }
+        }
+        return data;
     }
 
     @Override
-    public ChunkTile atCoordinate(int x, int y, int z) {
-        return ChunkTile.create(x, y, z, Substance.GRASS);
+    public byte[][] generateBlockData(ChunkLocation location) {
+        return new byte[0][];
     }
 }

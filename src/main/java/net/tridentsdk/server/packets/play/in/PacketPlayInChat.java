@@ -18,13 +18,15 @@
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.Trident;
+import net.tridentsdk.event.player.PlayerChatEvent;
+import net.tridentsdk.factory.Factories;
 import net.tridentsdk.meta.MessageBuilder;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.InPacket;
-import net.tridentsdk.server.netty.packet.OutPacket;
 import net.tridentsdk.server.netty.packet.Packet;
-import net.tridentsdk.server.packets.play.out.PacketPlayOutChatMessage;
+import net.tridentsdk.server.packets.play.out.PacketPlayOutChat;
 import net.tridentsdk.server.player.PlayerConnection;
 import net.tridentsdk.server.player.TridentPlayer;
 
@@ -55,11 +57,32 @@ public class PacketPlayInChat extends InPacket {
     public void handleReceived(ClientConnection connection) {
         PlayerConnection pc = (PlayerConnection) connection;
         TridentPlayer player = pc.player();
-        OutPacket packet = new PacketPlayOutChatMessage();
 
-        packet.set("jsonMessage",
-                new MessageBuilder(String.format("<%s> %s", player.displayName(), this.message)).asJson()); // FIXME
-        packet.set("position", PacketPlayOutChatMessage.ChatPosition.CHAT);
+        if(message.startsWith("/")) {
+            Trident.commandHandler().handleCommand(message.substring(1), player);
+            return;
+        } else {
+            PlayerChatEvent event = new PlayerChatEvent(player, message);
+
+            Trident.eventHandler().fire(event);
+
+            if(event.isIgnored()) {
+                return;
+            }
+        }
+
+        PacketPlayOutChat packet = new PacketPlayOutChat();
+
+        String identifier = Factories
+                .chat()
+                .format(player.name() + "> ", player)
+                .replaceAll("%p", "")
+                .replaceAll("%n", player.name())
+                .replaceAll("%s", "")
+                .replaceAll("%d", "> ");
+
+        packet.set("jsonMessage", new MessageBuilder(identifier + message).build().asJson());
+        packet.set("position", PacketPlayOutChat.ChatPosition.CHAT);
 
         TridentPlayer.sendAll(packet);
     }

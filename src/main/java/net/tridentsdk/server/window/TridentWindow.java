@@ -17,18 +17,15 @@
 
 package net.tridentsdk.server.window;
 
-import io.netty.channel.ChannelHandlerAdapter;
-import io.netty.channel.ChannelHandlerContext;
 import net.tridentsdk.docs.Volatile;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.factory.Factories;
 import net.tridentsdk.server.data.Slot;
 import net.tridentsdk.server.entity.TridentEntity;
 import net.tridentsdk.server.entity.TridentEntityBuilder;
-import net.tridentsdk.server.packets.play.in.PacketPlayInPlayerCloseWindow;
+import net.tridentsdk.server.packets.play.out.PacketPlayOutCloseWindow;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutOpenWindow;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutSetSlot;
-import net.tridentsdk.server.player.PlayerConnection;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.window.Window;
 import net.tridentsdk.window.inventory.InventoryType;
@@ -88,6 +85,7 @@ public class TridentWindow implements Window {
 
     @Override
     public Item[] items() {
+        Item[] contents = this.contents;
         return this.contents;
     }
 
@@ -110,6 +108,11 @@ public class TridentWindow implements Window {
     @Override
     public String name() {
         return this.name;
+    }
+
+    @Override
+    public Item itemAt(int slot) {
+        return items()[slot];
     }
 
     @Override
@@ -157,34 +160,14 @@ public class TridentWindow implements Window {
             setSlot.set("windowId", windowId()).set("slot", (short) i).set("item", new Slot(items()[i]));
             player.connection().sendPacket(window);
         }
-
-        addClosedListener(player);
         users.add(player);
     }
 
-    @Volatile(policy = "DO NOT INVOKE OUTSIDE OF THIS CLASS",
-            reason = "Extremely unsafe and causes unspecified behavior without proper handling",
-            fix = "Do not use reflection on this method")
-    private void addClosedListener(Player player) {
-        final PlayerConnection connection = ((TridentPlayer) player).connection();
-        connection.channel().pipeline().addLast(new ChannelHandlerAdapter() {
-            @Override
-            // Occurs after the message should be decoded
-            public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-                if (msg instanceof PacketPlayInPlayerCloseWindow) {
-                    PacketPlayInPlayerCloseWindow windowClose = (PacketPlayInPlayerCloseWindow) msg;
-                    if (windowClose.getWindowId() == windowId())
-                        for (Player player1 : users) {
-                            if (connection.channel().equals(ctx.channel())) {
-                                users.remove(player1);
-                                ctx.pipeline().remove(this);
-                            }
-                        }
-                }
+    public void close(Player player, boolean force) {
+        if (force) {
+            ((TridentPlayer) player).connection().sendPacket(new PacketPlayOutCloseWindow().set("windowId", id));
+        }
 
-                // Pass to the next channel handler
-                super.channelRead(ctx, msg);
-            }
-        });
+        users.remove(player);
     }
 }

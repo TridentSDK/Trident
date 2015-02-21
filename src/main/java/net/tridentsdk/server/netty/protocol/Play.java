@@ -55,7 +55,7 @@ class Play extends ProtocolHandler {
 
         super.outPackets.put(0x00, PacketPlayOutKeepAlive.class);
         super.outPackets.put(0x01, PacketPlayOutJoinGame.class);
-        super.outPackets.put(0x02, PacketPlayOutChatMessage.class);
+        super.outPackets.put(0x02, PacketPlayOutChat.class);
         super.outPackets.put(0x03, PacketPlayOutTimeUpdate.class);
         super.outPackets.put(0x04, PacketPlayOutEntityEquipment.class);
         super.outPackets.put(0x05, PacketPlayOutSpawnPosition.class);

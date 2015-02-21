@@ -19,9 +19,13 @@ package net.tridentsdk.server.command;
 
 import net.tridentsdk.Defaults;
 import net.tridentsdk.Trident;
+import net.tridentsdk.meta.ChatColor;
 
 public class ServerCommandRegistrar {
     private static volatile boolean registered;
+    
+    public static final String SERVER_PREFIX = ChatColor.AQUA + "[Server} " + ChatColor.RESET;
+    public static final String ERROR_PREFIX = ChatColor.RED + ChatColor.BOLD.toString() + "Error: ";
 
     public static void registerAll() {
         if (registered)
@@ -32,5 +36,6 @@ public class ServerCommandRegistrar {
 
         Trident.commandHandler().addCommand(null, Defaults.DIRECT_EXECUTOR, new ShutdownCommand());
         Trident.commandHandler().addCommand(null, Defaults.DIRECT_EXECUTOR, new HelpCommand());
+        Trident.commandHandler().addCommand(null, Defaults.DIRECT_EXECUTOR, new TeleportCommand());
     }
 }

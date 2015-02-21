@@ -29,6 +29,7 @@ import net.tridentsdk.entity.EntityType;
 import net.tridentsdk.factory.ExecutorFactory;
 import net.tridentsdk.meta.nbt.*;
 import net.tridentsdk.server.TridentServer;
+import net.tridentsdk.server.data.ProtocolMetadata;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutDestroyEntities;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutEntityTeleport;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutEntityVelocity;
@@ -120,6 +121,10 @@ public class TridentEntity implements Entity {
      * {@code true} to indicate the entity cannot be damaged
      */
     protected volatile boolean godMode;
+    /**
+     * Internal metadata for the entity
+     */
+    protected final ProtocolMetadata protocolMeta = new ProtocolMetadata();
 
     /**
      * Creates a new entity
@@ -132,6 +137,9 @@ public class TridentEntity implements Entity {
         this.id = counter.incrementAndGet();
         this.velocity = new Vector(0.0D, 0.0D, 0.0D);
         this.loc = spawnLocation;
+
+        protocolMeta.addMeta(ProtocolMetadata.MetadataType.BYTE, (byte) ((fireTicks.intValue() == 0) ? 1 : 0));
+        protocolMeta.addMeta(ProtocolMetadata.MetadataType.SHORT, airTicks.shortValue());
 
         for (double y = this.loc.y(); y > 0.0; y--) {
             Position l = Position.create(this.loc.world(), this.loc.x(), y, this.loc.z());
@@ -178,7 +186,7 @@ public class TridentEntity implements Entity {
         for (double y = this.loc.y(); y > 0.0; y--) {
             Position l = Position.create(this.loc.world(), this.loc.x(), y, this.loc.z());
 
-            if (l.world().tileAt(l).substance() != Substance.AIR) {
+            if (l.world().blockAt(l).substance() != Substance.AIR) {
                 this.fallDistance.set((long) (this.loc.y() - y));
                 this.onGround = this.fallDistance.get() == 0.0D;
 
@@ -296,7 +304,7 @@ public class TridentEntity implements Entity {
 
     @Override
     public EntityType type() {
-        return null;
+        return EntityType.PIG;
     }
 
     @Override

@@ -32,7 +32,7 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
- * TridentScheduler is a scheduling utility that is used to reflect ScheduledTasks at a given offset of the current
+ * TridentTaskScheduler is a scheduling utility that is used to reflect ScheduledTasks at a given offset of the current
  * epoch of the server
  *
  * <p>The scheduler is designed to stage-heavy/run-light philosophy: most overhead in the
@@ -55,7 +55,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * scheduling. Async runs on one of the other 2 ScheduledTask execution threads (because there are 3 threads in the
  * scheduler).</p>
  *
- * <p>The benchmarks and testing units for the TridentScheduler can be found at:
+ * <p>The benchmarks and testing units for the TridentTaskScheduler can be found at:
  * http://git.io/nifjcg.</p>
  *
  * <p>Insertion logic places the ScheduledTask wrapped by the implementation of {@link
@@ -77,11 +77,11 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * @author The TridentSDK Team
  */
 @ThreadSafe
-public class TridentScheduler implements TaskFactory {
+public class TridentTaskScheduler implements TaskFactory {
     private final Queue<ScheduledTaskImpl> taskList = new ConcurrentLinkedQueue<>();
     private final ExecutorFactory<?> taskExecutor = ConcurrentTaskExecutor.create(3, "Scheduler");
 
-    private TridentScheduler() {
+    private TridentTaskScheduler() {
     }
 
     /**
@@ -89,8 +89,8 @@ public class TridentScheduler implements TaskFactory {
      *
      * @return the new scheduler
      */
-    public static TridentScheduler create() {
-        return new TridentScheduler();
+    public static TridentTaskScheduler create() {
+        return new TridentTaskScheduler();
     }
 
     public void tick() {

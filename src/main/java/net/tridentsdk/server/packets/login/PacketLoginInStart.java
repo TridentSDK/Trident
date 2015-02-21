@@ -78,7 +78,7 @@ public class PacketLoginInStart extends InPacket {
         /*
          * If the client is the local machine, skip the encryption process and proceed to the PLAY stage
          */
-        if (connection.address().getHostString().equals("127.0.0.1")) {
+        if (true) {
             UUID id;
 
             try {
@@ -150,7 +150,7 @@ public class PacketLoginInStart extends InPacket {
             connection.sendPacket(success);
             connection.setStage(Protocol.ClientStage.PLAY);
 
-            TridentPlayer.spawnPlayer(connection, id);
+            TridentPlayer.spawnPlayer(connection, id, name());
             return;
         }
 

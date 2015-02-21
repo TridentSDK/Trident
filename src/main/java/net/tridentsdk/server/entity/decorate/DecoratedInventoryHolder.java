@@ -26,6 +26,7 @@ import net.tridentsdk.server.window.TridentWindow;
 import net.tridentsdk.window.Window;
 import net.tridentsdk.window.inventory.Inventory;
 import net.tridentsdk.window.inventory.InventoryType;
+import net.tridentsdk.window.inventory.Item;
 
 public class DecoratedInventoryHolder extends DecorationAdapter<Entity> implements InventoryHolder {
     private final Window inventory;
@@ -38,6 +39,16 @@ public class DecoratedInventoryHolder extends DecorationAdapter<Entity> implemen
     @Override
     public Inventory inventory() {
         return (Inventory) inventory;
+    }
+
+    @Override
+    public Item heldItem() {
+        return inventory.itemAt(0);
+    }
+
+    @Override
+    public void setHeldItem(Item item) {
+        inventory.setSlot(0, item);
     }
 
     public void applyOpenWindow(Player player) {

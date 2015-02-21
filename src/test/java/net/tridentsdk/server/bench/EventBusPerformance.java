@@ -27,7 +27,7 @@ import net.tridentsdk.factory.CollectFactory;
 import net.tridentsdk.factory.ExecutorFactory;
 import net.tridentsdk.factory.Factories;
 import net.tridentsdk.plugin.TridentPlugin;
-import net.tridentsdk.server.TridentScheduler;
+import net.tridentsdk.server.TridentTaskScheduler;
 import net.tridentsdk.server.threads.ThreadsHandler;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
@@ -133,7 +133,7 @@ public class EventBusPerformance {
             }
         });
         Factories.init(ThreadsHandler.create());
-        Factories.init(TridentScheduler.create());
+        Factories.init(TridentTaskScheduler.create());
 
         final JsonConfig innerConfig = new JsonConfig(new File("toplel"));
     }

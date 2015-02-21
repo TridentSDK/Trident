@@ -106,10 +106,10 @@ public final class TridentServer implements Server {
         server.worldLoader.loadAll();
         TridentServer.WORLD = (TridentWorld) server.worlds().get("world");
 
-        /* if (WORLD == null) {
+        if (WORLD == null) {
             World world = server.worldLoader.createWorld("world");
             WORLD = (TridentWorld) world;
-        } */
+        }
 
         return server;
         // We CANNOT let the "this" instance escape during creation, else we lose thread-safety
@@ -179,8 +179,12 @@ public final class TridentServer implements Server {
         for (World world : worldLoader.worlds())
             ((TridentWorld) world).save();
 
+        for(Player player : TridentPlayer.players()) {
+            ((TridentPlayer) player).kickPlayer("Server shutting down");
+        }
+
         TridentLogger.log("Shutting down worker threads...");
-        ((TridentScheduler) Factories.tasks()).shutdown();
+        ((TridentTaskScheduler) Factories.tasks()).shutdown();
 
         TridentLogger.log("Shutting down server process...");
         ThreadsHandler.shutdownAll();

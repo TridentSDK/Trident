@@ -21,7 +21,7 @@ import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
-public class PacketPlayOutChatMessage extends OutPacket {
+public class PacketPlayOutChat extends OutPacket {
 
     protected String jsonMessage;
     protected ChatPosition position;
@@ -35,6 +35,14 @@ public class PacketPlayOutChatMessage extends OutPacket {
     public void encode(ByteBuf buf) {
         Codec.writeString(buf, this.jsonMessage);
         buf.writeByte((int) this.position.asByte());
+    }
+
+    public String message() {
+        return jsonMessage;
+    }
+
+    public ChatPosition position() {
+        return position;
     }
 
     public enum ChatPosition {
