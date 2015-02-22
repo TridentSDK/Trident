@@ -56,7 +56,7 @@ public class RegionFile {
         synchronized (this.readWriteLock) {
             RandomAccessFile access;
             //Checks whether or not the file exists
-            if (!Files.isRegularFile(path)) {
+            if (!Files.isRegularFile(path) || !path.toFile().exists()) {
                 //Delete if it is mistakenly a directory
                 Files.deleteIfExists(path);
                 //Creates a new empty file
