@@ -76,9 +76,15 @@ class ChunkCache {
     }
 
     public void retain(Set<ChunkLocation> set) {
+        if (set.isEmpty()) {
+            cachedChunks.clear();
+            return;
+        }
+
         for (ChunkLocation l : keys()) {
             if (!set.contains(l)) {
-                cachedChunks.remove(l);
+                HeldValueLatch<TridentChunk> latch = cachedChunks.remove(l);
+                latch.get().clear();
             }
         }
     }

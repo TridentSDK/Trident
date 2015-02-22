@@ -18,12 +18,15 @@
 package net.tridentsdk.server.world;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import com.google.common.io.ByteStreams;
 import net.tridentsdk.Difficulty;
 import net.tridentsdk.GameMode;
 import net.tridentsdk.Position;
+import net.tridentsdk.Trident;
 import net.tridentsdk.base.Block;
 import net.tridentsdk.entity.Entity;
+import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.factory.Factories;
 import net.tridentsdk.meta.nbt.*;
 import net.tridentsdk.server.threads.ThreadsHandler;
@@ -252,26 +255,26 @@ public class TridentWorld implements World {
                 time++;
                 existed++;
 
-                /*
-                Set<ChunkLocation> set = Sets.newHashSet();
-                for (Entity entity : entities) {
-                    if (entity instanceof Player) {
-                        Position pos = entity.location();
-                        int x = (int) pos.x() % 16;
-                        int z = (int) pos.z() % 16;
-                        int viewDist = Trident.config().getInt("view-distance", 7);
+                if (time % 600 == 0) {
+                    Set<ChunkLocation> set = Sets.newHashSet();
+                    for (Entity entity : entities) {
+                        if (entity instanceof Player) {
+                            Position pos = entity.location();
+                            int x = (int) pos.x() % 16;
+                            int z = (int) pos.z() % 16;
+                            int viewDist = Trident.config().getInt("view-distance", 7);
 
-                        for (int i = x - viewDist; i < x + viewDist; i++) {
-                            for (int j = z - viewDist; j < z + viewDist; j++) {
-                                set.add(ChunkLocation.create(i, j));
+                            for (int i = x - viewDist; i < x + viewDist; i++) {
+                                for (int j = z - viewDist; j < z + viewDist; j++) {
+                                    set.add(ChunkLocation.create(i, j));
+                                }
                             }
                         }
                     }
-                }
 
-                loadedChunks.retain(set);
-                set = null;
-                */
+                    loadedChunks.retain(set);
+                    set = null;
+                }
             }
         });
     }

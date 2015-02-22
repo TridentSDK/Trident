@@ -25,7 +25,6 @@ import net.tridentsdk.concurrent.TaskExecutor;
 import net.tridentsdk.docs.AccessNoDoc;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.factory.ExecutorFactory;
-import net.tridentsdk.util.TridentLogger;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
@@ -199,8 +198,15 @@ public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implement
 
     @Override
     public boolean awaitTermination(long l, TimeUnit timeUnit) throws InterruptedException {
-        TridentLogger.error(new UnsupportedOperationException());
-        return false;
+        shutdownNow();
+        long units = timeUnit.convert(System.nanoTime(), timeUnit);
+        while (state != STOPPED) {
+            if (timeUnit.convert(System.nanoTime(), timeUnit) - units > l) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     @Override

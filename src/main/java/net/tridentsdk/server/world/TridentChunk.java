@@ -42,7 +42,16 @@ import java.util.concurrent.ExecutionException;
 public class TridentChunk implements Chunk {
     private final TridentWorld world;
     private final ChunkLocation location;
-    private final ByteArrayOutputStream data = new ByteArrayOutputStream();
+    private final SpecialByteArray data = new SpecialByteArray();
+    private class SpecialByteArray extends ByteArrayOutputStream {
+        @Override
+        public void flush() throws IOException {
+            synchronized (this) {
+                buf = null;
+            }
+        }
+    }
+
     private volatile int lastFileAccess;
     private volatile long lastModified;
     private volatile long inhabitedTime;
@@ -375,5 +384,25 @@ public class TridentChunk implements Chunk {
                 section.blockLight[index] = blockLight;
             }
         });
+    }
+
+    void clear() {
+        for (ChunkSection section : sections) {
+            section.clear();
+        }
+
+        // We still care about thread safety!
+        executor.addTask(new Runnable() {
+            @Override
+            public void run() {
+                sections = null;
+            }
+        });
+
+        try {
+            data.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
