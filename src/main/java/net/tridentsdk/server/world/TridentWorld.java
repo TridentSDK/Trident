@@ -29,6 +29,8 @@ import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.factory.Factories;
 import net.tridentsdk.meta.nbt.*;
+import net.tridentsdk.server.packets.play.out.PacketPlayOutTimeUpdate;
+import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.threads.ThreadsHandler;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.*;
@@ -204,23 +206,23 @@ public class TridentWorld implements World {
 
             // TODO: load other values
 
+            world.spawnLocation.setX(0);
+            world.spawnLocation.setY(64);
+            world.spawnLocation.setZ(0);
+
             TridentLogger.log("Loading spawn chunks...");
             int centX = ((int) Math.floor(world.spawnLocation.x())) >> 4;
             int centZ = ((int) Math.floor(world.spawnLocation.z())) >> 4;
 
             for (ChunkLocation location :
                     new ChunkAxisAlignedBoundingBox(ChunkLocation.create(centX - 7, centZ - 7),
-                    ChunkLocation.create(centX + 7, centZ + 7))) {
+                            ChunkLocation.create(centX + 7, centZ + 7))) {
                 TridentChunk chunk = new TridentChunk(world,location);
                 world.addChunkAt(location, chunk);
                 chunk.generate();
             }
 
             TridentLogger.success("Loaded spawn chunks.");
-
-            world.spawnLocation.setX(0);
-            world.spawnLocation.setY(64);
-            world.spawnLocation.setZ(0);
         } catch (IOException e) {
             TridentLogger.error(e);
         }
@@ -237,9 +239,9 @@ public class TridentWorld implements World {
                 if (time >= 2400)
                     time = 0;
                 if (time % 40 == 0)
-                    //TridentPlayer.sendAll(new PacketPlayOutTimeUpdate().set("worldAge", existed).set("time", time));
+                    TridentPlayer.sendAll(new PacketPlayOutTimeUpdate().set("worldAge", existed).set("time", time));
 
-                    rainTime--;
+                rainTime--;
                 thunderTime--;
 
                 if (rainTime <= 0) {
