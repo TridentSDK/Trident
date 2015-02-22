@@ -28,7 +28,7 @@ package org.openjdk.jcstress.tests.trident;
 import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
 import net.tridentsdk.factory.CollectFactory;
 import net.tridentsdk.factory.Factories;
-import net.tridentsdk.server.TridentScheduler;
+import net.tridentsdk.server.TridentTaskScheduler;
 import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
 import net.tridentsdk.server.threads.ThreadsHandler;
 import org.openjdk.jcstress.annotations.*;
@@ -49,7 +49,7 @@ public class ExecutorTest {
             }
         });
         Factories.init(ThreadsHandler.create());
-        Factories.init(TridentScheduler.create());
+        Factories.init(TridentTaskScheduler.create());
     }
 
     private final ConcurrentTaskExecutor<?> factory = ConcurrentTaskExecutor.create(2, "test");

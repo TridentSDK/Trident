@@ -20,7 +20,7 @@ package net.tridentsdk.server.bench;
 import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
 import net.tridentsdk.factory.CollectFactory;
 import net.tridentsdk.factory.Factories;
-import net.tridentsdk.server.TridentScheduler;
+import net.tridentsdk.server.TridentTaskScheduler;
 import net.tridentsdk.server.threads.MainThread;
 import net.tridentsdk.server.threads.ThreadsHandler;
 import org.openjdk.jmh.annotations.*;
@@ -60,7 +60,7 @@ public class TickTest {
                 return new ConcurrentHashMapV8<>();
             }
         });
-        Factories.init(TridentScheduler.create());
+        Factories.init(TridentTaskScheduler.create());
         Factories.init(ThreadsHandler.create());
     }
 

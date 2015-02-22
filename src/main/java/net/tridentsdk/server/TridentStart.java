@@ -142,7 +142,7 @@ public final class TridentStart {
                 }
             });
             Factories.init(ThreadsHandler.create());
-            Factories.init(TridentScheduler.create());
+            Factories.init(TridentTaskScheduler.create());
             TridentLogger.success("Loaded API implementations.");
 
             TridentLogger.log("Creating server...");

@@ -304,7 +304,7 @@ public class TridentEntity implements Entity {
 
     @Override
     public EntityType type() {
-        return null;
+        return EntityType.PIG;
     }
 
     @Override

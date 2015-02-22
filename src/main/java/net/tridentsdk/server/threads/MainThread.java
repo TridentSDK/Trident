@@ -20,7 +20,7 @@ package net.tridentsdk.server.threads;
 import net.tridentsdk.Trident;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.factory.Factories;
-import net.tridentsdk.server.TridentScheduler;
+import net.tridentsdk.server.TridentTaskScheduler;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.util.ConcurrentCircularArray;
 import net.tridentsdk.server.world.TridentWorld;
@@ -100,7 +100,7 @@ public class MainThread extends Thread {
 
         // TODO: check the worlds to make sure they're not suffering
 
-        ((TridentScheduler) Factories.tasks()).tick();
+        ((TridentTaskScheduler) Factories.tasks()).tick();
 
         int timeInTick = (int) (System.currentTimeMillis() - startTime);
         recentTickLength.add(timeInTick);
