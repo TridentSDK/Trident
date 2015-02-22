@@ -37,8 +37,19 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class TridentChunk implements Chunk {
+    private static final ByteArrayOutputStream DATA = new ByteArrayOutputStream() {
+        @Override
+        public synchronized void reset() {
+            count = 0;
+            buf = new byte[32];
+        }
+    };
+    private static final Lock DATA_LOCK = new ReentrantLock();
+
     private final TridentWorld world;
     private final ChunkLocation location;
 
@@ -199,42 +210,50 @@ public class TridentChunk implements Chunk {
                 public PacketPlayOutChunkData call() throws Exception {
                     PacketPlayOutChunkData packet = new PacketPlayOutChunkData();
 
-                    int bitmask = (1 << sections.length) - 1;
-                    ByteArrayOutputStream data = new ByteArrayOutputStream();
+                    DATA_LOCK.lock();
 
-                    for (ChunkSection section : sections) {
-                        if (section == null)
-                            continue;
+                    try {
+                        int bitmask = (1 << sections.length) - 1;
+                        ByteArrayOutputStream data = DATA;
 
-                        for (char c : section.types()) {
-                            data.write(c & 0xff);
-                            data.write(c >> 8);
+                        for (ChunkSection section : sections) {
+                            if (section == null)
+                                continue;
+
+                            for (char c : section.types()) {
+                                data.write(c & 0xff);
+                                data.write(c >> 8);
+                            }
                         }
-                    }
 
-                    for (ChunkSection section : sections) {
-                        try {
-                            data.write(section.blockLight);
-                        } catch (IOException e) {
-                            TridentLogger.error(e);
+                        for (ChunkSection section : sections) {
+                            try {
+                                data.write(section.blockLight);
+                            } catch (IOException e) {
+                                TridentLogger.error(e);
+                            }
                         }
-                    }
 
-                    for (ChunkSection section : sections) {
-                        try {
-                            data.write(section.skyLight);
-                        } catch (IOException e) {
-                            TridentLogger.error(e);
+                        for (ChunkSection section : sections) {
+                            try {
+                                data.write(section.skyLight);
+                            } catch (IOException e) {
+                                TridentLogger.error(e);
+                            }
                         }
-                    }
 
-                    for (int i = 0; i < 256; i += 1) {
-                        data.write(0);
-                    }
+                        for (int i = 0; i < 256; i += 1) {
+                            data.write(0);
+                        }
 
-                    packet.set("chunkLocation", location);
-                    packet.set("bitmask", (short) bitmask);
-                    packet.set("data", data.toByteArray());
+                        packet.set("chunkLocation", location);
+                        packet.set("bitmask", (short) bitmask);
+                        packet.set("data", data.toByteArray());
+
+                        data.reset();
+                    } finally {
+                        DATA_LOCK.unlock();
+                    }
 
                     return packet;
                 }
