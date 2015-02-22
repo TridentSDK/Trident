@@ -236,8 +236,6 @@ public class TridentChunk implements Chunk {
                     packet.set("bitmask", (short) bitmask);
                     packet.set("data", data.toByteArray());
 
-                    data.reset();
-
                     return packet;
                 }
             }).get();
