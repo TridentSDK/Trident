@@ -363,6 +363,10 @@ public class TridentChunk implements Chunk {
 
     void clear() {
         for (ChunkSection section : sections) {
+            if (section == null) {
+                continue;
+            }
+
             section.clear();
         }
 
