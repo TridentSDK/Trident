@@ -6,7 +6,6 @@ import java.util.Random;
  * 
  */
 public class SimplexOctaveGenerator {
-
     private final SimplexNoiseGenerator[] generators;
     private final double[] amplitudes;
     private final double[] frequencies;
@@ -22,7 +21,6 @@ public class SimplexOctaveGenerator {
      * @param seed the seed to use for this generator, usually the world seed
      */
     public SimplexOctaveGenerator(int octaves, double persistence, int seed) {
-        
         Random rand = new Random(seed);
         
         generators = new SimplexNoiseGenerator[octaves];

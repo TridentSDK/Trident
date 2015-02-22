@@ -99,14 +99,14 @@ public class TridentChunk implements Chunk {
                 AbstractGenerator generator = world.loader().generator();
                 int i = 0;
 
-                for (char[] blockData: generator.generateChunkBlocks(location)) {
+                for (char[] blockData : generator.generateChunkBlocks(location)) {
                     sections[i].setBlocks(blockData);
                     i++;
                 }
 
                 i = 0;
 
-                for (byte[] dataValues: generator.generateBlockData(location)) {
+                for (byte[] dataValues : generator.generateBlockData(location)) {
                     sections[i].setData(dataValues);
                     i++;
                 }
@@ -211,7 +211,6 @@ public class TridentChunk implements Chunk {
                     PacketPlayOutChunkData packet = new PacketPlayOutChunkData();
 
                     DATA_LOCK.lock();
-
                     try {
                         int bitmask = (1 << sections.length) - 1;
                         ByteArrayOutputStream data = DATA;

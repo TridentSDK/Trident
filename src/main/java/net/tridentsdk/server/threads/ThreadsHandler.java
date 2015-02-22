@@ -25,6 +25,7 @@ import net.tridentsdk.factory.ThreadFactory;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.world.Chunk;
 import net.tridentsdk.world.World;
+import net.tridentsdk.world.gen.AbstractGenerator;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Collection;
@@ -38,8 +39,9 @@ import java.util.Collection;
 public final class ThreadsHandler implements ThreadFactory {
     private static final ExecutorFactory<Entity> entities = ConcurrentTaskExecutor.create(2, "Entities");
     private static final ExecutorFactory<Player> players = ConcurrentTaskExecutor.create(4, "Players");
-    private static final ExecutorFactory<World> worlds = ConcurrentTaskExecutor.create(1, "Worlds");
-    private static final ExecutorFactory<Chunk> chunks = ConcurrentTaskExecutor.create(3, "Chunks");
+    private static final ExecutorFactory<World> worlds = ConcurrentTaskExecutor.create(2, "Worlds");
+    private static final ExecutorFactory<Chunk> chunks = ConcurrentTaskExecutor.create(2, "Chunks");
+    private static final ExecutorFactory<AbstractGenerator> generator = ConcurrentTaskExecutor.create(2, "Generator");
 
     private ThreadsHandler() {
     }
@@ -64,7 +66,6 @@ public final class ThreadsHandler implements ThreadFactory {
         // TODO safely add hooks
         entityExecutor().shutdown();
         playerExecutor().shutdown();
-        worldExecutor().shutdown();
     }
 
     /**
@@ -88,16 +89,6 @@ public final class ThreadsHandler implements ThreadFactory {
     }
 
     /**
-     * Decaches the world handler from the mappings
-     *
-     * @param world the world to decache
-     */
-    @InternalUseOnly
-    public static void remove(World world) {
-        worldExecutor().removeAssignment(world);
-    }
-
-    /**
      * Decaches the chunk executor from the mappings
      *
      * @param chunk the chunk to decache
@@ -108,6 +99,16 @@ public final class ThreadsHandler implements ThreadFactory {
     }
 
     /**
+     * Gets the executor for the world thread pool
+     *
+     * @return the executor
+     */
+    @InternalUseOnly
+    public static ExecutorFactory<World> worldExecutor() {
+        return worlds;
+    }
+
+    /**
      * Gets the executor for the chunk thread pool
      *
      * @return the executor
@@ -115,6 +116,16 @@ public final class ThreadsHandler implements ThreadFactory {
     @InternalUseOnly
     public static ExecutorFactory<Chunk> chunkExecutor() {
         return chunks;
+    }
+
+    /**
+     * Gets the executor for the generator thread pool
+     *
+     * @return the executor
+     */
+    @InternalUseOnly
+    public static ExecutorFactory<AbstractGenerator> genExecutor() {
+        return generator;
     }
 
     /**
@@ -137,16 +148,6 @@ public final class ThreadsHandler implements ThreadFactory {
         return players;
     }
 
-    /**
-     * Gets the executor for the world thread pool
-     *
-     * @return the executor
-     */
-    @InternalUseOnly
-    public static ExecutorFactory<World> worldExecutor() {
-        return worlds;
-    }
-
     @Override
     public Collection<Entity> entities() {
         return entityExecutor().values();
@@ -155,11 +156,6 @@ public final class ThreadsHandler implements ThreadFactory {
     @Override
     public Collection<Player> players() {
         return playerExecutor().values();
-    }
-
-    @Override
-    public Collection<World> worlds() {
-        return worldExecutor().values();
     }
 
     @Override

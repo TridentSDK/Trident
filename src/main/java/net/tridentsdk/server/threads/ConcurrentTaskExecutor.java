@@ -280,7 +280,6 @@ public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implement
             }
         }
 
-        // Must hold lock
         private Runnable nextTask() throws InterruptedException {
             Runnable runnable = tasks.poll(60, TimeUnit.NANOSECONDS);
             if (runnable == null) {
