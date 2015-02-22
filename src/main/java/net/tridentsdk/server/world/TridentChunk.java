@@ -29,7 +29,6 @@ import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.Chunk;
 import net.tridentsdk.world.ChunkLocation;
 import net.tridentsdk.world.ChunkSnapshot;
-import net.tridentsdk.world.Dimension;
 import net.tridentsdk.world.gen.AbstractGenerator;
 
 import java.io.ByteArrayOutputStream;
@@ -42,15 +41,6 @@ import java.util.concurrent.ExecutionException;
 public class TridentChunk implements Chunk {
     private final TridentWorld world;
     private final ChunkLocation location;
-    private final SpecialByteArray data = new SpecialByteArray();
-    private class SpecialByteArray extends ByteArrayOutputStream {
-        @Override
-        public void flush() throws IOException {
-            synchronized (this) {
-                buf = null;
-            }
-        }
-    }
 
     private volatile int lastFileAccess;
     private volatile long lastModified;
@@ -210,17 +200,7 @@ public class TridentChunk implements Chunk {
                     PacketPlayOutChunkData packet = new PacketPlayOutChunkData();
 
                     int bitmask = (1 << sections.length) - 1;
-                    int count = sections.length;
-                    int size = 0;
-                    int sectionSize = ChunkSection.LENGTH * 5 / 2;
-
-                    if (world.dimension() == Dimension.OVERWORLD)
-                        sectionSize += ChunkSection.LENGTH / 2;
-
-                    size += count * sectionSize + 256;
-
-                    //byte[] data = new byte[size];
-                    //int pos = 0;
+                    ByteArrayOutputStream data = new ByteArrayOutputStream();
 
                     for (ChunkSection section : sections) {
                         if (section == null)
@@ -251,11 +231,6 @@ public class TridentChunk implements Chunk {
                     for (int i = 0; i < 256; i += 1) {
                         data.write(0);
                     }
-
-        /*if (pos != size) {
-            TridentLogger.error(new IllegalArgumentException("Pos: " + pos + " does not equal size: " + size));
-            return null;
-        } */
 
                     packet.set("chunkLocation", location);
                     packet.set("bitmask", (short) bitmask);
@@ -398,11 +373,5 @@ public class TridentChunk implements Chunk {
                 sections = null;
             }
         });
-
-        try {
-            data.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 }
