@@ -61,7 +61,7 @@ class ChunkCache {
                 if (value == null) {
                     value = latch;
                     value.countDown(world.generateChunk(location));
-                } else return null;
+                }
             }
 
             if (!value.hasValue() && !gen)

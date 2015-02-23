@@ -23,11 +23,26 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 import net.tridentsdk.world.ChunkLocation;
 
 public class PacketPlayOutChunkData extends OutPacket {
-
-    protected byte[] data = { };
+    protected byte[] data;
     protected ChunkLocation chunkLocation;
     protected boolean continuous;
     protected short bitmask;
+
+    // Do not read this
+    private final Object barrier;
+
+    public PacketPlayOutChunkData() {
+        barrier = this;
+    }
+
+    public PacketPlayOutChunkData(byte[] data, ChunkLocation chunkLocation, boolean continuous, short bitmask) {
+        this.data = data;
+        this.chunkLocation = chunkLocation;
+        this.continuous = continuous;
+        this.bitmask = bitmask;
+
+        barrier = this;
+    }
 
     @Override
     public int id() {

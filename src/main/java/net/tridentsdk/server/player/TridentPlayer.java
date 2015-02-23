@@ -280,6 +280,11 @@ public class TridentPlayer extends OfflinePlayer {
                 }
 
                 PacketPlayOutChunkData data = ((TridentChunk) world().chunkAt(x, z, true)).asPacket();
+                while (data == null) {
+                    // Unfortunately this is necessary
+                    // it's not consistent enough
+                    data = ((TridentChunk) world().chunkAt(x, z, true)).asPacket();
+                }
 
                 knownChunks.add(location);
                 bulk.addEntry(data);
