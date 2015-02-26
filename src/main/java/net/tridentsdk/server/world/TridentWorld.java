@@ -257,7 +257,7 @@ public class TridentWorld implements World {
                 time++;
                 existed++;
 
-                if (time % 600 == 0) {
+                if (time % 150 == 0) {
                     Set<ChunkLocation> set = Sets.newHashSet();
                     for (Entity entity : entities) {
                         if (entity instanceof Player) {
