@@ -212,6 +212,11 @@ public class TridentChunk implements Chunk {
 
                     for (ChunkSection section : sections) {
                         try {
+                            if (section == null) {
+                                data.write(0);
+                                continue;
+                            }
+
                             data.write(section.blockLight);
                         } catch (IOException e) {
                             TridentLogger.error(e);
@@ -220,6 +225,11 @@ public class TridentChunk implements Chunk {
 
                     for (ChunkSection section : sections) {
                         try {
+                            if (section == null) {
+                                data.write(0);
+                                continue;
+                            }
+
                             data.write(section.skyLight);
                         } catch (IOException e) {
                             TridentLogger.error(e);
@@ -308,7 +318,7 @@ public class TridentChunk implements Chunk {
 
         final ListTag sectionTags = new ListTag("Sections", TagType.COMPOUND);
 
-        ChunkSection[] sectionCopy = null;
+        ChunkSection[] sectionCopy;
         try {
             sectionCopy = executor.submitTask(new Callable<ChunkSection[]>() {
                 @Override
@@ -354,18 +364,18 @@ public class TridentChunk implements Chunk {
     }
 
     void clear() {
-        for (ChunkSection section : sections) {
-            if (section == null) {
-                continue;
-            }
-
-            section.clear();
-        }
-
         // We still care about thread safety!
         executor.addTask(new Runnable() {
             @Override
             public void run() {
+                for (ChunkSection section : sections) {
+                    if (section == null) {
+                        continue;
+                    }
+
+                    section.clear();
+                }
+
                 sections = null;
             }
         });
