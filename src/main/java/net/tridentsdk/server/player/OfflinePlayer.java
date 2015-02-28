@@ -45,29 +45,67 @@ import java.util.UUID;
 public class OfflinePlayer extends TridentInventoryHolder implements Player {
     private static final Set<OfflinePlayer> players = Factories.collect().createSet();
 
-    protected String name;
-    protected Dimension dimension;
-    protected GameMode gameMode;
-    protected int score;
-    protected short selectedSlot;
-    protected Position spawnLocation;
-    protected short hunger;
-    protected float exhaustion;
-    protected float saturation;
-    protected int foodTickTimer;
-    protected int xpLevel;
-    protected float xpPercent;
-    protected int xpTotal;
-    protected int xpSeed;
-    protected boolean invulnerable;
-    protected int portalCooldown;
-    protected boolean onGround;
-    protected boolean customNameVisible;
-    protected int fireTicks;
+    /**
+     * The name of the player
+     */
+    protected volatile String name;
+    /**
+     * The dimension of the player
+     */
+    protected volatile Dimension dimension;
+    /**
+     * The gamemode the player is currently in
+     */
+    protected volatile GameMode gameMode;
+    /**
+     * TODO
+     */
+    protected volatile int score;
+    /**
+     * The current slot selected by the player
+     */
+    protected volatile short selectedSlot;
+    /**
+     * The spawn location of the player
+     */
+    protected volatile Position spawnLocation;
+    /**
+     * The current hunger of the player
+     */
+    protected volatile short hunger;
+    /**
+     * The exaustion of the player
+     */
+    protected volatile float exhaustion;
+    /**
+     * The current food saturation of the player
+     */
+    protected volatile float saturation;
+    /**
+     * The next ticks that will be run before the player drops in hunger
+     */
+    protected volatile int foodTickTimer;
+    /**
+     * The player's experience level
+     */
+    protected volatile int xpLevel;
+    /**
+     * The percentage of experience currently in the level
+     */
+    protected volatile float xpPercent;
+    /**
+     * The total numerical experience the player has
+     */
+    protected volatile int xpTotal;
+    /**
+     * The experience seed of the player
+     */
+    protected volatile int xpSeed;
 
-    protected Inventory enderChest;
-    protected PlayerAbilities abilities = new PlayerAbilities();
-    protected PlayerSpeed playerSpeed = new PlayerSpeedImpl();
+    protected final Inventory enderChest = null;
+    protected final PlayerAbilities abilities = new PlayerAbilities();
+    protected final PlayerSpeed playerSpeed = new PlayerSpeedImpl();
+    protected final Set<String> permissions = Factories.collect().createSet();
 
     public OfflinePlayer(CompoundTag tag, TridentWorld world) {
         super(null, world.spawnLocation());
@@ -299,11 +337,11 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
         tag.addTag(new IntTag("XpTotal").setValue(xpTotal));
         tag.addTag(new IntTag("XpSeed").setValue(xpSeed));
 
-        tag.addTag(new ByteTag("Invulnerable").setValue(invulnerable));
-        tag.addTag(new IntTag("PortalCooldown").setValue(portalCooldown));
+        tag.addTag(new ByteTag("Invulnerable").setValue(godMode));
+        tag.addTag(new IntTag("PortalCooldown").setValue(portalCooldown.get()));
         tag.addTag(new FloatTag("FallDistance").setValue(fallDistance.floatValue()));
         tag.addTag(new ByteTag("OnGround").setValue(onGround));
-        tag.addTag(new ShortTag("Fire").setValue((short) fireTicks));
+        tag.addTag(new ShortTag("Fire").setValue(fireTicks.shortValue()));
         tag.addTag(new ShortTag("Air").setValue((short) airTicks.get()));
         tag.addTag(new ByteTag("Silent").setValue(silent));
         tag.addTag(new IntTag("SelectedItemSlot").setValue(selectedSlot));
@@ -346,6 +384,21 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
         tag.addTag(NBTSerializer.serialize(abilities, "abilities"));
 
         return tag;
+    }
+
+    @Override
+    public void grantPermission(String perm) {
+        permissions.add(perm);
+    }
+
+    @Override
+    public void revokePermission(String perm) {
+        permissions.remove(perm);
+    }
+
+    @Override
+    public boolean holdsPermission(String perm) {
+        return permissions.contains(perm);
     }
 
     class PlayerSpeedImpl implements PlayerSpeed {

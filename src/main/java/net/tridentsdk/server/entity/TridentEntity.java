@@ -53,6 +53,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class TridentEntity implements Entity {
     @InternalUseOnly
     protected static final AtomicInteger counter = new AtomicInteger(-1);
+
     /**
      * Internal entity tracker, used to spawn the entity and track movement, etc.
      */
@@ -80,11 +81,11 @@ public class TridentEntity implements Entity {
     /**
      * The entity ID for the entity
      */
-    protected int id;
+    protected volatile int id;
     /**
      * The identifier UUID for the entity
      */
-    protected UUID uniqueId;
+    protected volatile UUID uniqueId;
     /**
      * Entity task executor
      */
