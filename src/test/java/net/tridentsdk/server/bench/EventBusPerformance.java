@@ -67,7 +67,7 @@ public class EventBusPerformance {
                 @Override
                 public void run() {
                     // THIS IS INCORRECT - DO NOT DO IT!!!!
-                    performance.EVENT_MANAGER.registerListener(PLUGIN, EXEC.scaledThread(), LISTENER);
+                    performance.EVENT_MANAGER.registerListener(PLUGIN, LISTENER);
                 }
             });
         }
@@ -90,7 +90,7 @@ public class EventBusPerformance {
 
     public void main1(String[] args) {
         while (true) {
-            EVENT_MANAGER.registerListener(PLUGIN, EXECUTOR, LISTENER);
+            EVENT_MANAGER.registerListener(PLUGIN, LISTENER);
         }
     }
 
@@ -108,7 +108,7 @@ public class EventBusPerformance {
     @Benchmark
     public void eventManagerRegister() {
         Blackhole.consumeCPU(cpuTokens);
-        EVENT_MANAGER.registerListener(PLUGIN, EXECUTOR, LISTENER);
+        EVENT_MANAGER.registerListener(PLUGIN, LISTENER);
     }
 
     @Benchmark

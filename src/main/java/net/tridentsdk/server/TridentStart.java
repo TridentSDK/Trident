@@ -157,7 +157,7 @@ public final class TridentStart {
                     TridentPlayer.sendAll(new PacketPlayOutPluginMessage().set("channel", channel).set("data", data));
                 }
             });
-            bridge.sendSelf(new TridentWindowHandler());
+            bridge.sendImplemented(new TridentWindowHandler());
             TridentLogger.success("Loaded API implementations.");
 
             TridentLogger.log("Creating server...");

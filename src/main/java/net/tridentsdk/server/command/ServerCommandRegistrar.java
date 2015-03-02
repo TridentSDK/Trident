@@ -17,7 +17,6 @@
 
 package net.tridentsdk.server.command;
 
-import net.tridentsdk.Defaults;
 import net.tridentsdk.Handler;
 import net.tridentsdk.meta.ChatColor;
 
@@ -34,8 +33,8 @@ public class ServerCommandRegistrar {
         // Set it here in case some idiot tries to register twice
         registered = true;
 
-        Handler.forCommands().addCommand(null, Defaults.DIRECT_EXECUTOR, new ShutdownCommand());
-        Handler.forCommands().addCommand(null, Defaults.DIRECT_EXECUTOR, new HelpCommand());
-        Handler.forCommands().addCommand(null, Defaults.DIRECT_EXECUTOR, new TeleportCommand());
+        Handler.forCommands().addCommand(null, new ShutdownCommand());
+        Handler.forCommands().addCommand(null, new HelpCommand());
+        Handler.forCommands().addCommand(null, new TeleportCommand());
     }
 }

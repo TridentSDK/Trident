@@ -17,6 +17,7 @@
 
 package net.tridentsdk.server;
 
+import net.tridentsdk.Handler;
 import net.tridentsdk.concurrent.ScheduledTask;
 import net.tridentsdk.concurrent.SchedulerType;
 import net.tridentsdk.concurrent.TaskExecutor;
@@ -202,7 +203,7 @@ public class TridentTaskScheduler implements TaskFactory {
                     };
                 }
             } else {
-                this.executor = plugin.executor();
+                this.executor = Handler.forPlugins().executor();
                 if (!type.name().contains("REPEAT")) {
                     this.runner = new Runnable() {
                         @Override
