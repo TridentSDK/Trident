@@ -17,7 +17,7 @@
 
 package net.tridentsdk.server.command;
 
-import net.tridentsdk.Trident;
+import net.tridentsdk.Handler;
 import net.tridentsdk.plugin.cmd.ServerConsole;
 import net.tridentsdk.util.TridentLogger;
 
@@ -27,7 +27,7 @@ public class TridentConsole implements ServerConsole {
 
     @Override
     public void invokeCommand(String message) {
-        Trident.commandHandler().handleCommand(message, this);
+        Handler.forCommands().handleCommand(message, this);
         lastCommand = message;
     }
 

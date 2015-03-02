@@ -18,6 +18,7 @@
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.Handler;
 import net.tridentsdk.Position;
 import net.tridentsdk.base.Block;
 import net.tridentsdk.base.BlockOrientation;
@@ -27,7 +28,6 @@ import net.tridentsdk.event.Event;
 import net.tridentsdk.event.block.BlockBreakEvent;
 import net.tridentsdk.event.player.PlayerDigEvent;
 import net.tridentsdk.event.player.PlayerDropItemEvent;
-import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
@@ -35,7 +35,6 @@ import net.tridentsdk.server.packets.play.out.PacketPlayOutBlockChange;
 import net.tridentsdk.server.player.PlayerConnection;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.world.TridentChunk;
-import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.util.TridentLogger;
 
 public class PacketPlayInPlayerDig extends InPacket {
@@ -140,7 +139,7 @@ public class PacketPlayInPlayerDig extends InPacket {
                 break;
         }
 
-        TridentServer.instance().eventHandler().fire((Event) event);
+        Handler.forEvents().fire((Event) event);
 
         if (event == null || event.isIgnored())
             return;

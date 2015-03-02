@@ -18,7 +18,7 @@
 package net.tridentsdk.server.netty.protocol;
 
 import com.google.common.collect.Maps;
-import net.tridentsdk.perf.FastClass;
+import net.tridentsdk.reflect.FastClass;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.packet.PacketDirection;
 import net.tridentsdk.server.netty.packet.UnknownPacket;

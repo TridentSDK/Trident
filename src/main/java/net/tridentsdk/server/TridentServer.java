@@ -18,33 +18,24 @@
 package net.tridentsdk.server;
 
 import com.google.common.collect.Maps;
-import net.tridentsdk.Defaults;
-import net.tridentsdk.DisplayInfo;
-import net.tridentsdk.Server;
-import net.tridentsdk.Trident;
+import net.tridentsdk.*;
 import net.tridentsdk.config.JsonConfig;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.entity.living.ai.AiHandler;
-import net.tridentsdk.event.EventHandler;
 import net.tridentsdk.factory.Factories;
 import net.tridentsdk.plugin.TridentPlugin;
-import net.tridentsdk.plugin.TridentPluginHandler;
-import net.tridentsdk.plugin.cmd.CommandHandler;
 import net.tridentsdk.plugin.cmd.ServerConsole;
 import net.tridentsdk.server.command.TridentConsole;
 import net.tridentsdk.server.entity.living.ai.TridentAiHandler;
 import net.tridentsdk.server.netty.protocol.Protocol;
-import net.tridentsdk.server.packets.play.out.PacketPlayOutPluginMessage;
 import net.tridentsdk.server.player.OfflinePlayer;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
 import net.tridentsdk.server.threads.MainThread;
 import net.tridentsdk.server.threads.ThreadsHandler;
-import net.tridentsdk.server.window.WindowHandler;
 import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.server.world.TridentWorldLoader;
 import net.tridentsdk.util.TridentLogger;
-import net.tridentsdk.window.Window;
 import net.tridentsdk.world.World;
 import net.tridentsdk.world.WorldLoader;
 import net.tridentsdk.world.gen.AbstractGenerator;
@@ -71,22 +62,14 @@ public final class TridentServer implements Server {
     private final Protocol protocol;
     private final Logger logger;
 
-    private final WindowHandler windowHandler;
-    private final EventHandler eventHandler;
-    private final CommandHandler commandHandler;
     private final TridentConsole console;
 
-    private final TridentPluginHandler pluginHandler;
     private final TridentWorldLoader worldLoader;
     private final AiHandler aiHandler;
 
     private TridentServer(JsonConfig config) {
         this.config = config;
         this.protocol = new Protocol();
-        this.windowHandler = new WindowHandler();
-        this.eventHandler = EventHandler.create();
-        this.commandHandler = new CommandHandler();
-        this.pluginHandler = new TridentPluginHandler();
         this.logger = TridentLogger.logger();
         this.mainThread = new MainThread(20);
         this.worldLoader = new TridentWorldLoader();
@@ -172,8 +155,8 @@ public final class TridentServer implements Server {
     public void shutdown() {
         //TODO: Cleanup stuff...
         TridentLogger.log("Shutting down plugins...");
-        for (TridentPlugin plugin : pluginHandler().plugins())
-            pluginHandler().disable(plugin);
+        for (TridentPlugin plugin : Handler.forPlugins().plugins())
+            Handler.forPlugins().disable(plugin);
 
         TridentLogger.log("Saving worlds...");
         for (World world : worldLoader.worlds())
@@ -222,31 +205,6 @@ public final class TridentServer implements Server {
     public String version() {
         // TODO: Make this more eloquent
         return "1.0-SNAPSHOT";
-    }
-
-    @Override
-    public Window windowBy(int id) {
-        return this.windowHandler.window(id);
-    }
-
-    @Override
-    public EventHandler eventHandler() {
-        return this.eventHandler;
-    }
-
-    @Override
-    public void sendPluginMessage(String channel, byte... data) {
-        TridentPlayer.sendAll(new PacketPlayOutPluginMessage().set("channel", channel).set("data", data));
-    }
-
-    @Override
-    public TridentPluginHandler pluginHandler() {
-        return this.pluginHandler;
-    }
-
-    @Override
-    public CommandHandler commandHandler() {
-        return commandHandler;
     }
 
     @Override

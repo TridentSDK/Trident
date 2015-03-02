@@ -17,9 +17,13 @@
 
 package net.tridentsdk.server.window;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Collections2;
 import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
 import net.tridentsdk.window.Window;
+import net.tridentsdk.window.WindowHandler;
 
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Collection;
 import java.util.Map;
@@ -30,34 +34,26 @@ import java.util.Map;
  * @author The TridentSDK Team
  */
 @ThreadSafe
-public class WindowHandler {
+public class TridentWindowHandler implements WindowHandler {
     private static final Map<Integer, TridentWindow> windows = new ConcurrentHashMapV8<>();
 
-    /**
-     * Gets a window by its ID
-     *
-     * @param id the ID of a window
-     * @return the window with the ID, or {@code null} if it doesn't exist
-     */
-    public Window window(int id) {
+    @Override
+    public Window windowBy(int id) {
         return windows.get(id);
     }
 
-    /**
-     * Registers the window with the manager
-     *
-     * @param window the window to be registered
-     */
-    public void registerWindow(TridentWindow window) {
-        windows.put(window.windowId(), window);
+    @Override
+    public void registerWindow(Window window) {
+        windows.put(window.windowId(), (TridentWindow) window);
     }
 
-    /**
-     * Gets all registered windows with the manager
-     *
-     * @return the windows registered
-     */
-    public Collection<TridentWindow> windows() {
-        return windows.values();
+    @Override
+    public Collection<Window> windows() {
+        return Collections2.transform(windows.values(), new Function<TridentWindow, Window>() {
+            @Nullable @Override
+            public Window apply(TridentWindow tridentWindow) {
+                return tridentWindow;
+            }
+        });
     }
 }

@@ -17,6 +17,7 @@
 
 package net.tridentsdk.server.window;
 
+import net.tridentsdk.Handler;
 import net.tridentsdk.docs.Volatile;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.factory.Factories;
@@ -61,7 +62,7 @@ public class TridentWindow implements Window {
      * @param name   the title of the inventory
      * @param length the amount of slots in the inventory (should be multiple of 9)
      */
-    public TridentWindow(String name, int length, InventoryType type) {
+    private TridentWindow(String name, int length, InventoryType type) {
         this.name = name;
         this.length = length;
         this.id = counter.addAndGet(1);
@@ -76,6 +77,12 @@ public class TridentWindow implements Window {
      */
     public TridentWindow(int length) {
         this("", length, InventoryType.CHEST);
+    }
+
+    public static TridentWindow create(String name, int length, InventoryType type) {
+        TridentWindow window = new TridentWindow(name, length, type);
+        Handler.forWindows().registerWindow(window);
+        return window;
     }
 
     @Override

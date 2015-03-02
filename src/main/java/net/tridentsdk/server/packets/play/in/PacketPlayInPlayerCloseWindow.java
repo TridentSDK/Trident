@@ -18,9 +18,8 @@
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Trident;
+import net.tridentsdk.Handler;
 import net.tridentsdk.event.player.PlayerCloseWindowEvent;
-import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
@@ -55,15 +54,15 @@ public class PacketPlayInPlayerCloseWindow extends InPacket {
 
     @Override
     public void handleReceived(ClientConnection connection) {
-        PlayerCloseWindowEvent event = new PlayerCloseWindowEvent(TridentServer.instance().windowBy(this.id));
+        TridentWindow window = (TridentWindow) Handler.forWindows().windowBy(id);
+        PlayerCloseWindowEvent event = new PlayerCloseWindowEvent(window);
 
-        TridentServer.instance().eventHandler().fire(event);
+        Handler.forEvents().fire(event);
 
         if (event.isIgnored()) {
             return;
         }
 
-        TridentWindow window = (TridentWindow) Trident.windowBy(id);
         if (window != null) {
             window.close(((PlayerConnection) connection).player(), false);
         }

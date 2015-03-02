@@ -18,8 +18,8 @@
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.Handler;
 import net.tridentsdk.Position;
-import net.tridentsdk.Trident;
 import net.tridentsdk.event.Cancellable;
 import net.tridentsdk.event.Event;
 import net.tridentsdk.event.player.PlayerMoveEvent;
@@ -68,7 +68,7 @@ public class PacketPlayInPlayerCompleteMove extends PacketPlayInPlayerMove {
         super.location.setWorld(player.world());
 
         Event event = new PlayerMoveEvent(player, player.location(), super.location);
-        Trident.eventHandler().fire(event);
+        Handler.forEvents().fire(event);
 
         if (((Cancellable) event).isIgnored()) {
             PacketPlayOutEntityTeleport packet = new PacketPlayOutEntityTeleport();

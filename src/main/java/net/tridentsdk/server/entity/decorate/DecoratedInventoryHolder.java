@@ -33,7 +33,7 @@ public class DecoratedInventoryHolder extends DecorationAdapter<Entity> implemen
 
     protected DecoratedInventoryHolder(Entity entity, final String string, final int size, InventoryType type) {
         super(entity);
-        inventory = new TridentWindow(string, size, type);
+        inventory = TridentWindow.create(string, size, type);
     }
 
     @Override

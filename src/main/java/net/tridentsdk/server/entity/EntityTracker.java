@@ -17,11 +17,10 @@
 
 package net.tridentsdk.server.entity;
 
+import net.tridentsdk.Handler;
 import net.tridentsdk.Position;
-import net.tridentsdk.Trident;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.entity.Entity;
-import net.tridentsdk.entity.EntityType;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.player.PlayerMoveEvent;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutEntityCompleteMove;
@@ -56,7 +55,7 @@ public class EntityTracker {
 
         if (entity instanceof Player) {
             PlayerMoveEvent event = new PlayerMoveEvent((Player) entity, from, to);
-            Trident.eventHandler().fire(event);
+            Handler.forEvents().fire(event);
             if (!event.isIgnored())
                 sendMove(entity, to, diff);
 

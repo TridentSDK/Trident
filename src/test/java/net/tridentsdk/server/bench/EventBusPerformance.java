@@ -20,6 +20,7 @@ package net.tridentsdk.server.bench;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
+import net.tridentsdk.AccessBridge;
 import net.tridentsdk.concurrent.TaskExecutor;
 import net.tridentsdk.config.JsonConfig;
 import net.tridentsdk.event.Listener;
@@ -126,14 +127,14 @@ public class EventBusPerformance {
     }
 
     static {
-        Factories.init(new CollectFactory() {
+        AccessBridge.open().sendSelf(new CollectFactory() {
             @Override
             public <K, V> ConcurrentMap<K, V> createMap() {
                 return new ConcurrentHashMapV8<>();
             }
         });
-        Factories.init(ThreadsHandler.create());
-        Factories.init(TridentTaskScheduler.create());
+        AccessBridge.open().sendSuper(ThreadsHandler.create());
+        AccessBridge.open().sendSuper(TridentTaskScheduler.create());
 
         final JsonConfig innerConfig = new JsonConfig(new File("toplel"));
     }

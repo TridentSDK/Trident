@@ -18,9 +18,9 @@
 package net.tridentsdk.server.bench;
 
 import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
+import net.tridentsdk.AccessBridge;
 import net.tridentsdk.concurrent.TaskExecutor;
 import net.tridentsdk.factory.CollectFactory;
-import net.tridentsdk.factory.Factories;
 import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
@@ -100,7 +100,7 @@ http://bit.ly/1Fwu7W6
 @State(Scope.Benchmark)
 public class TaskExecTest {
     static {
-        Factories.init(new CollectFactory() {
+        AccessBridge.open().sendSelf(new CollectFactory() {
             @Override
             public <K, V> ConcurrentMap<K, V> createMap() {
                 return new ConcurrentHashMapV8<>();
