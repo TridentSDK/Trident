@@ -18,10 +18,10 @@
 package net.tridentsdk.server.bench;
 
 import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
+import net.tridentsdk.AccessBridge;
 import net.tridentsdk.concurrent.ConcurrentCache;
 import net.tridentsdk.factory.CollectFactory;
-import net.tridentsdk.factory.Factories;
-import net.tridentsdk.server.TridentScheduler;
+import net.tridentsdk.server.TridentTaskScheduler;
 import net.tridentsdk.server.threads.ThreadsHandler;
 import net.tridentsdk.util.TridentLogger;
 import org.openjdk.jmh.annotations.*;
@@ -44,14 +44,14 @@ Benchmark results: http://bit.ly/1A21o5O
 public class CacheTest {
     static {
         TridentLogger.init();
-        Factories.init(new CollectFactory() {
+        AccessBridge.open().sendSelf(new CollectFactory() {
             @Override
             public <K, V> ConcurrentMap<K, V> createMap() {
                 return new ConcurrentHashMapV8<>();
             }
         });
-        Factories.init(ThreadsHandler.create());
-        Factories.init(TridentScheduler.create());
+        AccessBridge.open().sendSuper(ThreadsHandler.create());
+        AccessBridge.open().sendSuper(TridentTaskScheduler.create());
     }
 
     private static final ConcurrentCache<Object, Object> CACHE = ConcurrentCache.create();

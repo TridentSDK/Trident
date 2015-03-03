@@ -17,11 +17,14 @@
 
 package net.tridentsdk.server.command;
 
-import net.tridentsdk.Defaults;
-import net.tridentsdk.Trident;
+import net.tridentsdk.Handler;
+import net.tridentsdk.meta.ChatColor;
 
 public class ServerCommandRegistrar {
     private static volatile boolean registered;
+    
+    public static final String SERVER_PREFIX = ChatColor.AQUA + "[Server} " + ChatColor.RESET;
+    public static final String ERROR_PREFIX = ChatColor.RED + ChatColor.BOLD.toString() + "Error: ";
 
     public static void registerAll() {
         if (registered)
@@ -30,7 +33,8 @@ public class ServerCommandRegistrar {
         // Set it here in case some idiot tries to register twice
         registered = true;
 
-        Trident.commandHandler().addCommand(null, Defaults.DIRECT_EXECUTOR, new ShutdownCommand());
-        Trident.commandHandler().addCommand(null, Defaults.DIRECT_EXECUTOR, new HelpCommand());
+        Handler.forCommands().addCommand(null, new ShutdownCommand());
+        Handler.forCommands().addCommand(null, new HelpCommand());
+        Handler.forCommands().addCommand(null, new TeleportCommand());
     }
 }

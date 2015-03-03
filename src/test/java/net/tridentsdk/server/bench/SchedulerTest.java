@@ -18,12 +18,12 @@
 package net.tridentsdk.server.bench;
 
 import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
+import net.tridentsdk.AccessBridge;
 import net.tridentsdk.concurrent.TridentRunnable;
 import net.tridentsdk.factory.CollectFactory;
-import net.tridentsdk.factory.Factories;
 import net.tridentsdk.plugin.TridentPlugin;
 import net.tridentsdk.plugin.annotation.PluginDescription;
-import net.tridentsdk.server.TridentScheduler;
+import net.tridentsdk.server.TridentTaskScheduler;
 import net.tridentsdk.server.threads.ThreadsHandler;
 import net.tridentsdk.util.TridentLogger;
 import org.openjdk.jmh.annotations.*;
@@ -136,17 +136,17 @@ Trident is 10x faster than Bukkit
 public class SchedulerTest {
     static {
         TridentLogger.init();
-        Factories.init(new CollectFactory() {
+        AccessBridge.open().sendSelf(new CollectFactory() {
             @Override
             public <K, V> ConcurrentMap<K, V> createMap() {
                 return new ConcurrentHashMapV8<>();
             }
         });
-        Factories.init(TridentScheduler.create());
-        Factories.init(ThreadsHandler.create());
+        AccessBridge.open().sendSuper(ThreadsHandler.create());
+        AccessBridge.open().sendSuper(TridentTaskScheduler.create());
     }
 
-    private static final TridentScheduler scheduler = TridentScheduler.create();
+    private static final TridentTaskScheduler scheduler = TridentTaskScheduler.create();
 
     //@Param({ "1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024" })
     private int cpuTokens;
@@ -172,7 +172,7 @@ public class SchedulerTest {
     }
 
     public static void main1(String... args) {
-        TridentScheduler scheduler = TridentScheduler.create();
+        TridentTaskScheduler scheduler = TridentTaskScheduler.create();
         while (true) {
             scheduler.tick();
         }
@@ -193,7 +193,7 @@ public class SchedulerTest {
     }
 
     public static void main0(String... args) throws InterruptedException {
-        TridentScheduler scheduler = TridentScheduler.create();
+        TridentTaskScheduler scheduler = TridentTaskScheduler.create();
         for (int i = 0; i < 100; i++) {
             @PluginDescription(name = "LOLCODE")
             class PluginImpl extends TridentPlugin {
@@ -217,7 +217,6 @@ public class SchedulerTest {
 
     @Setup
     public void setup() {
-        Factories.init(ThreadsHandler.create());
         for (int i = 0; i < 100000; i++) {
             @PluginDescription(name = "LOLCODE")
             class PluginImpl extends TridentPlugin {

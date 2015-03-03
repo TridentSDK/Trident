@@ -84,7 +84,7 @@ public class TridentChunkSnapshot implements ChunkSnapshot {
     }
 
     @Override
-    public Block tileAt(int relX, int y, int relZ) {
+    public Block blockAt(int relX, int y, int relZ) {
         return null;
     }
 

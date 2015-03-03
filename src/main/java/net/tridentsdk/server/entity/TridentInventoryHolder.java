@@ -18,9 +18,11 @@
 package net.tridentsdk.server.entity;
 
 import net.tridentsdk.Position;
+import net.tridentsdk.base.Substance;
 import net.tridentsdk.docs.Volatile;
 import net.tridentsdk.entity.decorate.InventoryHolder;
 import net.tridentsdk.window.inventory.Inventory;
+import net.tridentsdk.window.inventory.Item;
 
 import java.util.UUID;
 
@@ -48,5 +50,16 @@ public abstract class TridentInventoryHolder extends TridentLivingEntity impleme
     @Override
     public Inventory inventory() {
         return this.inventory;
+    }
+
+    @Override
+    public Item heldItem() {
+        // return inventory.items()[selectedSlot + 36]; TODO
+        return new Item(Substance.AIR);
+    }
+
+    @Override
+    public void setHeldItem(Item item) {
+        // TODO
     }
 }

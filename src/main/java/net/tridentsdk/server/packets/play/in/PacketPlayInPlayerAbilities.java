@@ -19,8 +19,7 @@ package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.GameMode;
-import net.tridentsdk.Trident;
-import net.tridentsdk.event.EventHandler;
+import net.tridentsdk.Handler;
 import net.tridentsdk.event.player.PlayerToggleFlyingEvent;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
@@ -84,17 +83,19 @@ public class PacketPlayInPlayerAbilities extends InPacket {
     public void handleReceived(ClientConnection connection) {
         TridentPlayer player = ((PlayerConnection) connection).player();
 
-        if (player.flyingSpeed() * 250.0F != this.flyingSpeed) {
+        if (player.speedModifiers().flyingSpeed() * 250.0F != this.flyingSpeed) {
             TridentLogger.error(
                     new IllegalArgumentException("Client sent invalid flying speed, possibly hack installed"));
+            // ((PlayerConnection) connection).player().kickPlayer(
+            //        new MessageBuilder("You flew too quickly").build().asJson());
         }
 
         boolean flying = (byte) (flags & 2) == 2;
 
-        if(player.gameMode() == GameMode.CREATIVE && player.isFlying() != flying) {
+        if(player.gameMode() == GameMode.CREATIVE || flying != player.isFlying()) {
             PlayerToggleFlyingEvent toggleFly = new PlayerToggleFlyingEvent(player, flying);
 
-            Trident.eventHandler().fire(toggleFly);
+            Handler.forEvents().fire(toggleFly);
 
             player.setFlying(flying);
         }

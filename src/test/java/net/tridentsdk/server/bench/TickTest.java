@@ -18,9 +18,9 @@
 package net.tridentsdk.server.bench;
 
 import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
+import net.tridentsdk.AccessBridge;
 import net.tridentsdk.factory.CollectFactory;
-import net.tridentsdk.factory.Factories;
-import net.tridentsdk.server.TridentScheduler;
+import net.tridentsdk.server.TridentTaskScheduler;
 import net.tridentsdk.server.threads.MainThread;
 import net.tridentsdk.server.threads.ThreadsHandler;
 import org.openjdk.jmh.annotations.*;
@@ -54,14 +54,14 @@ tick 5.0183914333333336E7
 @State(Scope.Benchmark)
 public class TickTest {
     static {
-        Factories.init(new CollectFactory() {
+        AccessBridge.open().sendSelf(new CollectFactory() {
             @Override
             public <K, V> ConcurrentMap<K, V> createMap() {
                 return new ConcurrentHashMapV8<>();
             }
         });
-        Factories.init(TridentScheduler.create());
-        Factories.init(ThreadsHandler.create());
+        AccessBridge.open().sendSuper(ThreadsHandler.create());
+        AccessBridge.open().sendSuper(TridentTaskScheduler.create());
     }
 
     private static final MainThread THREAD = new MainThread(20);

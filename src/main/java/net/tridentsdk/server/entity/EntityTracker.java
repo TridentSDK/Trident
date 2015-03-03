@@ -17,16 +17,16 @@
 
 package net.tridentsdk.server.entity;
 
+import net.tridentsdk.Handler;
 import net.tridentsdk.Position;
-import net.tridentsdk.Trident;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.entity.Entity;
-import net.tridentsdk.entity.EntityType;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.player.PlayerMoveEvent;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutEntityCompleteMove;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutSpawnMob;
 import net.tridentsdk.server.player.TridentPlayer;
+import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.util.Vector;
 
 /**
@@ -41,12 +41,12 @@ public class EntityTracker {
             return;
         PacketPlayOutSpawnMob packet = new PacketPlayOutSpawnMob();
         packet.set("entityId", entity.entityId())
-                .set("type", EntityType.NOT_IMPL)
+                .set("type", entity.type())
                 .set("entity", entity)
-                .set("metadata", meta == null ? new byte[] { (byte) ((1 << 5 | 1 & 0x1F) & 0xFF), (short) 10 } : meta);
+                .set("metadata", ((TridentEntity) entity).protocolMeta);
         // TODO
         TridentPlayer.sendAll(packet);
-        entity.world().entities().add(entity);
+        ((TridentWorld) entity.world()).addEntity(entity);
     }
 
     public void trackMovement(Entity entity, Position from, Position to) {
@@ -55,7 +55,7 @@ public class EntityTracker {
 
         if (entity instanceof Player) {
             PlayerMoveEvent event = new PlayerMoveEvent((Player) entity, from, to);
-            Trident.eventHandler().fire(event);
+            Handler.forEvents().fire(event);
             if (!event.isIgnored())
                 sendMove(entity, to, diff);
 

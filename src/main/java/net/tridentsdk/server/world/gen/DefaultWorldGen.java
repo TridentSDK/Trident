@@ -18,8 +18,16 @@
 package net.tridentsdk.server.world.gen;
 
 import net.tridentsdk.base.Substance;
+import net.tridentsdk.factory.ExecutorFactory;
+import net.tridentsdk.server.threads.ThreadsHandler;
+import net.tridentsdk.server.world.ChunkSection;
+import net.tridentsdk.server.world.WorldUtils;
+import net.tridentsdk.util.TridentLogger;
+import net.tridentsdk.world.ChunkLocation;
 import net.tridentsdk.world.gen.AbstractGenerator;
-import net.tridentsdk.world.gen.ChunkTile;
+
+import java.util.Random;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * Default world generator engine for Trident
@@ -27,15 +35,62 @@ import net.tridentsdk.world.gen.ChunkTile;
  * @author The TridentSDK Team
  */
 public class DefaultWorldGen extends AbstractGenerator {
-    private final PerlinNoise noise = new PerlinNoise(16, 256);
+    private final SimplexOctaveGenerator generator = new SimplexOctaveGenerator(12, 0.5, new Random().nextInt());
+    private final ExecutorFactory executor = ThreadsHandler.genExecutor();
 
     @Override
-    public int height(int x, int z) {
-        return (int) noise.noise(x, z);
+    public char[][] generateChunkBlocks(final ChunkLocation location) {
+        final char[][] data = new char[15][ChunkSection.LENGTH];
+        final CountDownLatch release = new CountDownLatch(256);
+
+        for (int x = 0; x < 16; x++) {
+            for (int z = 0; z < 16; z++) {
+                final int finalX = x;
+                final int finalZ = z;
+
+                executor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        final int i = WorldUtils.intScale(0, 140, generator.noise(finalX + (location.x() << 4), finalZ +
+                                (location.z() << 4))) - 20;
+                        for (int y = 0; y < i; y++) {
+                            //System.out.println(y);
+                            if (i < 40 && y == (i - 1)) {
+                                for (int rev = 40; rev > i; rev--) {
+                                    data[rev / 16][WorldUtils.blockArrayIndex(finalX, rev % 16, finalZ)] =
+                                            Substance.WATER.asExtended();
+                                }
+                                data[i / 16][WorldUtils.blockArrayIndex(finalX, i % 16, finalZ)] =
+                                        Substance.CLAY.asExtended();
+                            }
+
+                            if (y < i - 1) {
+                                data[y / 16][WorldUtils.blockArrayIndex(finalX, y % 16, finalZ)] =
+                                        Substance.DIRT.asExtended();
+                            } else {
+                                data[y / 16][WorldUtils.blockArrayIndex(finalX, y % 16, finalZ)] =
+                                        Substance.GRASS.asExtended();
+                            }
+                        }
+
+                        release.countDown();
+                    }
+                });
+            }
+        }
+
+        try {
+            release.await();
+        } catch (InterruptedException e) {
+            TridentLogger.error(e);
+            return null;
+        }
+
+        return data;
     }
 
     @Override
-    public ChunkTile atCoordinate(int x, int y, int z) {
-        return ChunkTile.create(x, y, z, Substance.GRASS);
+    public byte[][] generateBlockData(ChunkLocation location) {
+        return new byte[0][];
     }
 }

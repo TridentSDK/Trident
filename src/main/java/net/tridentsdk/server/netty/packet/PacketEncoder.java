@@ -24,6 +24,7 @@ import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
 
+import javax.annotation.concurrent.NotThreadSafe;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.zip.Deflater;
@@ -36,6 +37,7 @@ import java.util.zip.Deflater;
  *
  * @author The TridentSDK Team
  */
+@NotThreadSafe
 public class PacketEncoder extends MessageToByteEncoder<ByteBuf> {
     private final Deflater deflater = new Deflater(Deflater.BEST_SPEED);
     private final byte[] buffer = new byte[65536];
@@ -61,8 +63,6 @@ public class PacketEncoder extends MessageToByteEncoder<ByteBuf> {
             Codec.writeVarInt32(out, msg.readableBytes());
             out.writeBytes(msg);
         }
-
-        // DEBUG
     }
 
     /**

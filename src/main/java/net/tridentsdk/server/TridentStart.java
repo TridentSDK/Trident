@@ -27,17 +27,21 @@ import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
+import net.tridentsdk.AccessBridge;
 import net.tridentsdk.Defaults;
+import net.tridentsdk.Handler;
 import net.tridentsdk.Trident;
 import net.tridentsdk.config.JsonConfig;
 import net.tridentsdk.docs.Volatile;
 import net.tridentsdk.factory.CollectFactory;
-import net.tridentsdk.factory.Factories;
+import net.tridentsdk.plugin.channel.ChannelHandler;
 import net.tridentsdk.plugin.cmd.PlatformColor;
 import net.tridentsdk.server.command.ServerCommandRegistrar;
 import net.tridentsdk.server.netty.ClientChannelInitializer;
+import net.tridentsdk.server.packets.play.out.PacketPlayOutPluginMessage;
+import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.threads.ThreadsHandler;
-import net.tridentsdk.server.world.gen.TridentGenFactory;
+import net.tridentsdk.server.window.TridentWindowHandler;
 import net.tridentsdk.util.TridentLogger;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -136,15 +140,24 @@ public final class TridentStart {
     private static void init(final JsonConfig config) throws InterruptedException {
         try {
             TridentLogger.log("Initializing the API implementations");
-            Factories.init(new CollectFactory() {
+            AccessBridge bridge = AccessBridge.open();
+
+            bridge.sendSuper(new CollectFactory() {
                 @Override
                 public <K, V> ConcurrentMap<K, V> createMap() {
                     return new ConcurrentHashMapV8<>();
                 }
             });
-            Factories.init(ThreadsHandler.create());
-            Factories.init(TridentScheduler.create());
-            Factories.init(new TridentGenFactory());
+            bridge.sendImplemented(ThreadsHandler.create());
+            bridge.sendImplemented(TridentTaskScheduler.create());
+
+            bridge.sendSuper(new ChannelHandler() {
+                @Override
+                public void sendPluginMessage(String channel, byte... data) {
+                    TridentPlayer.sendAll(new PacketPlayOutPluginMessage().set("channel", channel).set("data", data));
+                }
+            });
+            bridge.sendImplemented(new TridentWindowHandler());
             TridentLogger.success("Loaded API implementations.");
 
             TridentLogger.log("Creating server...");
@@ -161,7 +174,7 @@ public final class TridentStart {
                 fi.mkdir();
 
             for (File file : new File(System.getProperty("user.dir") + File.separator + "plugins").listFiles())
-                Trident.pluginHandler().load(file);
+                Handler.forPlugins().load(file);
             TridentLogger.success("Loaded plugins.");
 
             ////////////////////////////////// NETTY SETUP //////////////////////////////////////////

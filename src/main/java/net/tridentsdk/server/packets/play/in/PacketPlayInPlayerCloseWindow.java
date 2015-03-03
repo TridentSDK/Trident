@@ -18,11 +18,13 @@
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.Handler;
 import net.tridentsdk.event.player.PlayerCloseWindowEvent;
-import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
+import net.tridentsdk.server.player.PlayerConnection;
+import net.tridentsdk.server.window.TridentWindow;
 
 /**
  * Packet sent by the client when closed a Window
@@ -52,15 +54,17 @@ public class PacketPlayInPlayerCloseWindow extends InPacket {
 
     @Override
     public void handleReceived(ClientConnection connection) {
-        PlayerCloseWindowEvent event = new PlayerCloseWindowEvent(TridentServer.instance().windowBy(this.id));
+        TridentWindow window = (TridentWindow) Handler.forWindows().windowBy(id);
+        PlayerCloseWindowEvent event = new PlayerCloseWindowEvent(window);
 
-        TridentServer.instance().eventHandler().fire(event);
+        Handler.forEvents().fire(event);
 
         if (event.isIgnored()) {
-            // force the window to be open
-
+            return;
         }
 
-        // process the closing of the window
+        if (window != null) {
+            window.close(((PlayerConnection) connection).player(), false);
+        }
     }
 }

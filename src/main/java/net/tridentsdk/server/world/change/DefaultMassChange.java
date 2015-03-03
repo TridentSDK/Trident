@@ -1,3 +1,19 @@
+/*
+ * Trident - A Multithreaded Server Alternative
+ * Copyright 2014 The TridentSDK Team
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package net.tridentsdk.server.world.change;
 
 import net.tridentsdk.Position;
@@ -5,6 +21,7 @@ import net.tridentsdk.base.Substance;
 import net.tridentsdk.server.data.RecordBuilder;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutMultiBlockChange;
 import net.tridentsdk.server.player.TridentPlayer;
+import net.tridentsdk.server.world.TridentChunk;
 import net.tridentsdk.server.world.WorldUtils;
 import net.tridentsdk.world.ChunkLocation;
 import net.tridentsdk.world.World;
@@ -120,6 +137,7 @@ public class DefaultMassChange implements MassChange {
             List<BlockChange> changes = entry.getValue();
             PacketPlayOutMultiBlockChange packet = new PacketPlayOutMultiBlockChange();
             RecordBuilder[] records = new RecordBuilder[changes.size()];
+            TridentChunk chunk = (TridentChunk) world.chunkAt(entry.getKey(), false);
 
             for (int i = 0; i < records.length; i++) {
                 BlockChange change = changes.get(i);
@@ -129,6 +147,8 @@ public class DefaultMassChange implements MassChange {
                         .setY((byte) change.y())
                         .setZ((byte) change.z())
                         .setData(change.data());
+                chunk.setAt(change.x(), change.y(), change.z(), Substance.fromId(change.id()),
+                        change.data(), (byte) 255, (byte) 15);
             }
 
             packet.set("records", records).set("chunkLocation", entry.getKey());

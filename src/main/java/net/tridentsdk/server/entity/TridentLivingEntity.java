@@ -34,14 +34,14 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author The TridentSDK Team
  */
 public abstract class TridentLivingEntity extends TridentEntity implements LivingEntity {
+    private volatile AiModule ai;
+    private volatile Path path;
+    private final AtomicInteger restTicks = new AtomicInteger(0);
+
     /**
      * The entity health
      */
     protected final AtomicDouble health = new AtomicDouble(0.0);
-    /**
-     * The amount of time this entity should "rest" for, i.e. does not think, but simply follows a path
-     */
-    private final AtomicInteger restTicks = new AtomicInteger(0);
     /**
      * Whether the entity is dead
      */
@@ -54,11 +54,6 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
      * The maximum available health
      */
     protected volatile double maxHealth;
-    private volatile AiModule ai;
-    /**
-     * The path that this entity should be following
-     */
-    private volatile Path path;
 
     /**
      * Inherits from {@link TridentEntity}
@@ -129,15 +124,16 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
 
     @Override
     public AiModule aiModule() {
-        if (ai == null) {
+        AiModule module = this.ai;
+        if (module == null) {
             return Trident.instance().aiHandler().defaultAiFor(type());
         } else {
-            return ai;
+            return module;
         }
     }
 
     public void performAiUpdate() {
-        if (this.restTicks.get() == 0) {
+        if (this.restTicks.get() <= 0) {
             this.restTicks.set(this.aiModule().think(this));
         } else {
             this.restTicks.getAndDecrement();

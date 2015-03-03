@@ -18,7 +18,7 @@
 package net.tridentsdk.server.netty.packet;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.perf.FastClass;
+import net.tridentsdk.reflect.FastClass;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.util.TridentLogger;
 
