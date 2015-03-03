@@ -51,13 +51,13 @@ public class LatchInitTest extends AbstractTest {
 
     @Before
     public void setup() {
-        AccessBridge.open().sendSelf(new CollectFactory() {
+        AccessBridge.open().sendSuper(new CollectFactory() {
             @Override
             public <K, V> ConcurrentMap<K, V> createMap() {
                 return new ConcurrentHashMapV8<>();
             }
         });
-        AccessBridge.open().sendSuper(ThreadsHandler.create());
-        AccessBridge.open().sendSuper(TridentTaskScheduler.create());
+        AccessBridge.open().sendImplemented(ThreadsHandler.create());
+        AccessBridge.open().sendImplemented(TridentTaskScheduler.create());
     }
 }
