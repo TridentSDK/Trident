@@ -20,13 +20,18 @@ package net.tridentsdk.server.entity;
 import com.google.common.util.concurrent.AtomicDouble;
 import net.tridentsdk.Position;
 import net.tridentsdk.Trident;
+import net.tridentsdk.entity.EntityProperties;
 import net.tridentsdk.entity.LivingEntity;
+import net.tridentsdk.entity.Projectile;
 import net.tridentsdk.entity.living.ai.AiModule;
 import net.tridentsdk.entity.living.ai.Path;
+import net.tridentsdk.meta.nbt.CompoundTag;
 import net.tridentsdk.util.Vector;
 
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static net.tridentsdk.server.data.ProtocolMetadata.*;
 
 /**
  * An entity that has health
@@ -64,6 +69,19 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
         super(id, spawnLocation);
 
         this.dead = false;
+    }
+
+    @Override
+    protected void updateProtocolMeta() {
+        super.updateProtocolMeta();
+
+        protocolMeta.setMeta(2, MetadataType.STRING, displayName);
+        protocolMeta.setMeta(3, MetadataType.BYTE, nameVisible ? (byte) 1 : (byte) 0);
+        protocolMeta.setMeta(6, MetadataType.FLOAT, health.floatValue());
+        protocolMeta.setMeta(7, MetadataType.INT, 0);
+        protocolMeta.setMeta(8, MetadataType.BYTE, (byte) 1); // TODO (potion effects)
+        protocolMeta.setMeta(9, MetadataType.BYTE, (byte) 0); // TODO (arrows in entity)
+        protocolMeta.setMeta(15, MetadataType.BYTE, (ai == null) ? (byte) 1 : (byte) 0);
     }
 
     @Override
@@ -130,6 +148,11 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
         } else {
             return module;
         }
+    }
+
+    @Override
+    public <T extends Projectile> T launchProjectile(EntityProperties properties) {
+        return null;
     }
 
     public void performAiUpdate() {

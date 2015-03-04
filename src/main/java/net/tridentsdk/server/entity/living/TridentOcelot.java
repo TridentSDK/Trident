@@ -25,43 +25,28 @@ import net.tridentsdk.entity.Projectile;
 import net.tridentsdk.entity.living.Ocelot;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.entity.EntityDamageEvent;
+import net.tridentsdk.server.data.ProtocolMetadata;
 import net.tridentsdk.server.entity.TridentLivingEntity;
+import net.tridentsdk.server.entity.TridentTameable;
 
 import java.util.UUID;
 
-public class TridentOcelot extends TridentLivingEntity implements Ocelot {
+public class TridentOcelot extends TridentTameable implements Ocelot {
+    private volatile OcelotType breed; // consider removing volatile, enums have free-synchronization
+
     public TridentOcelot(UUID id, Position spawnLocation) {
         super(id, spawnLocation);
+        this.breed = OcelotType.WILD;
+    }
+
+    @Override
+    protected void updateProtocolMeta() {
+        protocolMeta.setMeta(18, ProtocolMetadata.MetadataType.BYTE, (byte) breed.asInt());
     }
 
     @Override
     public OcelotType breed() {
-        return null;
-    }
-
-    @Override
-    public boolean isTamed() {
-        return false;
-    }
-
-    @Override
-    public UUID owner() {
-        return null;
-    }
-
-    @Override
-    public boolean isSitting() {
-        return false;
-    }
-
-    @Override
-    public int age() {
-        return 0;
-    }
-
-    @Override
-    public void setAge(int ticks) {
-
+        return breed;
     }
 
     @Override
@@ -76,12 +61,10 @@ public class TridentOcelot extends TridentLivingEntity implements Ocelot {
 
     @Override
     public void hide(Entity entity) {
-
     }
 
     @Override
     public void show(Entity entity) {
-
     }
 
     @Override
@@ -91,21 +74,6 @@ public class TridentOcelot extends TridentLivingEntity implements Ocelot {
 
     @Override
     public Player lastPlayerDamager() {
-        return null;
-    }
-
-    @Override
-    public boolean isNameVisible() {
-        return false;
-    }
-
-    @Override
-    public void applyProperties(EntityProperties properties) {
-
-    }
-
-    @Override
-    public <T extends Projectile> T launchProjectile(EntityProperties properties) {
         return null;
     }
 }

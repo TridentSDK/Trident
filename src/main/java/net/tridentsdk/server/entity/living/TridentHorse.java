@@ -22,20 +22,47 @@ import net.tridentsdk.entity.*;
 import net.tridentsdk.entity.living.Horse;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.entity.EntityDamageEvent;
+import net.tridentsdk.server.entity.TridentAgeable;
 import net.tridentsdk.server.entity.TridentLivingEntity;
+import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.window.inventory.Inventory;
 import net.tridentsdk.window.inventory.Item;
 
 import java.util.UUID;
 
-public class TridentHorse extends TridentLivingEntity implements Horse {
-    public TridentHorse(UUID id, Position spawnLocation) {
+import static net.tridentsdk.server.data.ProtocolMetadata.MetadataType;
+
+public class TridentHorse extends TridentAgeable implements Horse {
+    private volatile int data;
+    private final HorseType breed;
+    private volatile int colorData;
+    private volatile UUID owner;
+    private volatile int temper;
+    private volatile int armorType;
+
+    public TridentHorse(UUID id, Position spawnLocation, HorseType breed) {
         super(id, spawnLocation);
+
+        this.data = 0;
+        this.breed = breed;
+        this.colorData = 0;
+        this.temper = 0;
+        this.armorType = 0;
+    }
+
+    @Override
+    protected void updateProtocolMeta() {
+        protocolMeta.setMeta(16, MetadataType.INT, data);
+        protocolMeta.setMeta(19, MetadataType.BYTE, (byte) breed.id());
+        protocolMeta.setMeta(20, MetadataType.INT, colorData);
+        protocolMeta.setMeta(21, MetadataType.STRING,
+                (owner == null) ? "" : TridentPlayer.getPlayer(owner).name());
+        protocolMeta.setMeta(22, MetadataType.INT, armorType);
     }
 
     @Override
     public HorseType breed() {
-        return null;
+        return breed;
     }
 
     @Override
@@ -45,7 +72,7 @@ public class TridentHorse extends TridentLivingEntity implements Horse {
 
     @Override
     public int temper() {
-        return 0;
+        return temper;
     }
 
     @Override
@@ -61,16 +88,6 @@ public class TridentHorse extends TridentLivingEntity implements Horse {
     @Override
     public boolean isSitting() {
         return false;
-    }
-
-    @Override
-    public int age() {
-        return 0;
-    }
-
-    @Override
-    public void setAge(int ticks) {
-
     }
 
     @Override

@@ -24,23 +24,23 @@ import net.tridentsdk.entity.Projectile;
 import net.tridentsdk.entity.living.Pig;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.entity.EntityDamageEvent;
+import net.tridentsdk.server.data.ProtocolMetadata;
+import net.tridentsdk.server.entity.TridentAgeable;
 import net.tridentsdk.server.entity.TridentLivingEntity;
 
 import java.util.UUID;
 
-public class TridentPig extends TridentLivingEntity implements Pig {
+public class TridentPig extends TridentAgeable implements Pig {
+    protected volatile boolean hasSaddle;
+
     public TridentPig(UUID id, Position spawnLocation) {
         super(id, spawnLocation);
+        hasSaddle = false;
     }
 
     @Override
-    public int age() {
-        return 0;
-    }
-
-    @Override
-    public void setAge(int ticks) {
-
+    protected void updateProtocolMeta() {
+        protocolMeta.setMeta(16, ProtocolMetadata.MetadataType.BYTE, (hasSaddle) ? (byte) 1 : (byte) 0);
     }
 
     @Override
@@ -55,12 +55,17 @@ public class TridentPig extends TridentLivingEntity implements Pig {
 
     @Override
     public boolean isSaddled() {
-        return false;
+        return hasSaddle;
     }
 
     @Override
-    public void setSaddled(boolean saddled) {
-
+    public void setSaddled(final boolean saddled) {
+        this.executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                hasSaddle = saddled;
+            }
+        });
     }
 
     @Override
@@ -80,21 +85,6 @@ public class TridentPig extends TridentLivingEntity implements Pig {
 
     @Override
     public Player lastPlayerDamager() {
-        return null;
-    }
-
-    @Override
-    public boolean isNameVisible() {
-        return false;
-    }
-
-    @Override
-    public void applyProperties(EntityProperties properties) {
-
-    }
-
-    @Override
-    public <T extends Projectile> T launchProjectile(EntityProperties properties) {
         return null;
     }
 }

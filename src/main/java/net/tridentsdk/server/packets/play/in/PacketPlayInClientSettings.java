@@ -75,5 +75,6 @@ public class PacketPlayInClientSettings extends InPacket {
         TridentPlayer player = ((PlayerConnection) connection).player();
 
         player.setLocale(locale);
+        player.setSkinFlags(skinParts);
     }
 }

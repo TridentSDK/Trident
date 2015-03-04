@@ -47,6 +47,8 @@ import net.tridentsdk.world.LevelType;
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.*;
 
+import static net.tridentsdk.server.data.ProtocolMetadata.MetadataType;
+
 @ThreadSafe
 public class TridentPlayer extends OfflinePlayer {
     private final PlayerConnection connection;
@@ -56,6 +58,7 @@ public class TridentPlayer extends OfflinePlayer {
     private volatile boolean sprinting;
     private volatile boolean crouching;
     private volatile boolean flying;
+    private volatile byte skinFlags;
     private volatile Locale locale;
 
     public TridentPlayer(CompoundTag tag, TridentWorld world, ClientConnection connection) {
@@ -132,6 +135,14 @@ public class TridentPlayer extends OfflinePlayer {
         return Factories.threads().players();
     }
 
+    @Override
+    protected void updateProtocolMeta() {
+        protocolMeta.setMeta(10, MetadataType.BYTE, skinFlags);
+        protocolMeta.setMeta(16, MetadataType.BYTE, 0); // hide cape, might need changing
+        protocolMeta.setMeta(17, MetadataType.FLOAT, 0F); // absorption hearts TODO
+        protocolMeta.setMeta(18, MetadataType.INT, 0); // TODO scoreboard system (this value is the player's score)
+    }
+
     public boolean isLoggingIn() {
         return loggingIn;
     }
@@ -178,6 +189,15 @@ public class TridentPlayer extends OfflinePlayer {
 
                 connection.tick();
                 ticksExisted.incrementAndGet();
+            }
+        });
+    }
+
+    public void setSkinFlags(final byte flags) {
+        this.executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                skinFlags = flags;
             }
         });
     }

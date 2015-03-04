@@ -24,23 +24,34 @@ import net.tridentsdk.entity.Projectile;
 import net.tridentsdk.entity.living.Bat;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.entity.EntityDamageEvent;
+import net.tridentsdk.server.data.ProtocolMetadata;
 import net.tridentsdk.server.entity.TridentLivingEntity;
 
 import java.util.UUID;
 
 public class TridentBat extends TridentLivingEntity implements Bat {
+    private volatile boolean hanging;
+
     public TridentBat(UUID id, Position spawnLocation) {
         super(id, spawnLocation);
+
+        this.hanging = false;
+    }
+
+    @Override
+    protected void updateProtocolMeta() {
+        protocolMeta.setMeta(16, ProtocolMetadata.MetadataType.BYTE,
+                hanging ? (byte) 1 : (byte) 0);
     }
 
     @Override
     public boolean isHanging() {
-        return false;
+        return hanging;
     }
 
     @Override
     public boolean isFlying() {
-        return false;
+        return !isHanging();
     }
 
     @Override
@@ -50,12 +61,10 @@ public class TridentBat extends TridentLivingEntity implements Bat {
 
     @Override
     public void hide(Entity entity) {
-
     }
 
     @Override
     public void show(Entity entity) {
-
     }
 
     @Override
@@ -66,11 +75,6 @@ public class TridentBat extends TridentLivingEntity implements Bat {
     @Override
     public Player lastPlayerDamager() {
         return null;
-    }
-
-    @Override
-    public boolean isNameVisible() {
-        return false;
     }
 
     @Override

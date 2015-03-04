@@ -139,8 +139,7 @@ public class TridentEntity implements Entity {
         this.velocity = new Vector(0.0D, 0.0D, 0.0D);
         this.loc = spawnLocation;
 
-        protocolMeta.addMeta(ProtocolMetadata.MetadataType.BYTE, (byte) ((fireTicks.intValue() == 0) ? 1 : 0));
-        protocolMeta.addMeta(ProtocolMetadata.MetadataType.SHORT, airTicks.shortValue());
+        updateProtocolMeta();
 
         for (double y = this.loc.y(); y > 0.0; y--) {
             Position l = Position.create(this.loc.world(), this.loc.x(), y, this.loc.z());
@@ -168,6 +167,11 @@ public class TridentEntity implements Entity {
         HANDLER.register(this);
         executor.assign(this);
         return this;
+    }
+
+    protected void updateProtocolMeta() {
+        protocolMeta.setMeta(0, ProtocolMetadata.MetadataType.BYTE, (byte) ((fireTicks.intValue() == 0) ? 1 : 0));
+        protocolMeta.setMeta(1, ProtocolMetadata.MetadataType.SHORT, airTicks.shortValue());
     }
 
     @Override
@@ -305,7 +309,7 @@ public class TridentEntity implements Entity {
 
     @Override
     public EntityType type() {
-        return EntityType.PIG;
+        return null;
     }
 
     @Override
