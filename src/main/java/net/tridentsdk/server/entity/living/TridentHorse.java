@@ -22,6 +22,7 @@ import net.tridentsdk.entity.*;
 import net.tridentsdk.entity.living.Horse;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.entity.EntityDamageEvent;
+import net.tridentsdk.server.data.ProtocolMetadata;
 import net.tridentsdk.server.entity.TridentAgeable;
 import net.tridentsdk.server.entity.TridentLivingEntity;
 import net.tridentsdk.server.player.TridentPlayer;
@@ -51,7 +52,9 @@ public class TridentHorse extends TridentAgeable implements Horse {
     }
 
     @Override
-    protected void updateProtocolMeta() {
+    protected void encodeMetadata(ProtocolMetadata protocolMeta) {
+        super.encodeMetadata(protocolMeta);
+
         protocolMeta.setMeta(16, MetadataType.INT, data);
         protocolMeta.setMeta(19, MetadataType.BYTE, (byte) breed.id());
         protocolMeta.setMeta(20, MetadataType.INT, colorData);

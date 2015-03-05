@@ -29,6 +29,7 @@ import net.tridentsdk.factory.Factories;
 import net.tridentsdk.meta.MessageBuilder;
 import net.tridentsdk.meta.nbt.CompoundTag;
 import net.tridentsdk.server.TridentServer;
+import net.tridentsdk.server.data.ProtocolMetadata;
 import net.tridentsdk.server.entity.TridentEntityBuilder;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.Packet;
@@ -134,7 +135,9 @@ public class TridentPlayer extends OfflinePlayer {
     }
 
     @Override
-    protected void updateProtocolMeta() {
+    protected void encodeMetadata(ProtocolMetadata protocolMeta) {
+        super.encodeMetadata(protocolMeta);
+
         protocolMeta.setMeta(10, MetadataType.BYTE, skinFlags);
         protocolMeta.setMeta(16, MetadataType.BYTE, 0); // hide cape, might need changing
         protocolMeta.setMeta(17, MetadataType.FLOAT, 0F); // absorption hearts TODO

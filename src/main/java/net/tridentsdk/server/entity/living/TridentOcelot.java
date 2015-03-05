@@ -40,7 +40,9 @@ public class TridentOcelot extends TridentTameable implements Ocelot {
     }
 
     @Override
-    protected void updateProtocolMeta() {
+    protected void encodeMetadata(ProtocolMetadata protocolMeta) {
+        super.encodeMetadata(protocolMeta);
+
         protocolMeta.setMeta(18, ProtocolMetadata.MetadataType.BYTE, (byte) breed.asInt());
     }
 

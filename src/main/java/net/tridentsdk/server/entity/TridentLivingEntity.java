@@ -25,7 +25,7 @@ import net.tridentsdk.entity.LivingEntity;
 import net.tridentsdk.entity.Projectile;
 import net.tridentsdk.entity.living.ai.AiModule;
 import net.tridentsdk.entity.living.ai.Path;
-import net.tridentsdk.meta.nbt.CompoundTag;
+import net.tridentsdk.server.data.ProtocolMetadata;
 import net.tridentsdk.util.Vector;
 
 import java.util.UUID;
@@ -72,8 +72,8 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
     }
 
     @Override
-    protected void updateProtocolMeta() {
-        super.updateProtocolMeta();
+    protected void encodeMetadata(ProtocolMetadata protocolMeta) {
+        super.encodeMetadata(protocolMeta);
 
         protocolMeta.setMeta(2, MetadataType.STRING, displayName);
         protocolMeta.setMeta(3, MetadataType.BYTE, nameVisible ? (byte) 1 : (byte) 0);

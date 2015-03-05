@@ -39,7 +39,9 @@ public class TridentPig extends TridentAgeable implements Pig {
     }
 
     @Override
-    protected void updateProtocolMeta() {
+    protected void encodeMetadata(ProtocolMetadata protocolMeta) {
+        super.encodeMetadata(protocolMeta);
+
         protocolMeta.setMeta(16, ProtocolMetadata.MetadataType.BYTE, (hasSaddle) ? (byte) 1 : (byte) 0);
     }
 
