@@ -19,14 +19,12 @@ package net.tridentsdk.server.entity.living;
 
 import net.tridentsdk.Position;
 import net.tridentsdk.entity.Entity;
-import net.tridentsdk.entity.EntityProperties;
 import net.tridentsdk.entity.OcelotType;
-import net.tridentsdk.entity.Projectile;
 import net.tridentsdk.entity.living.Ocelot;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.entity.EntityDamageEvent;
+import net.tridentsdk.server.data.MetadataType;
 import net.tridentsdk.server.data.ProtocolMetadata;
-import net.tridentsdk.server.entity.TridentLivingEntity;
 import net.tridentsdk.server.entity.TridentTameable;
 
 import java.util.UUID;
@@ -43,7 +41,7 @@ public class TridentOcelot extends TridentTameable implements Ocelot {
     protected void encodeMetadata(ProtocolMetadata protocolMeta) {
         super.encodeMetadata(protocolMeta);
 
-        protocolMeta.setMeta(18, ProtocolMetadata.MetadataType.BYTE, (byte) breed.asInt());
+        protocolMeta.setMeta(18, MetadataType.BYTE, (byte) breed.asInt());
     }
 
     @Override

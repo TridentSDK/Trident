@@ -18,6 +18,7 @@ package net.tridentsdk.server.entity;
 
 import net.tridentsdk.Position;
 import net.tridentsdk.entity.decorate.Ageable;
+import net.tridentsdk.server.data.MetadataType;
 import net.tridentsdk.server.data.ProtocolMetadata;
 
 import java.util.UUID;
@@ -33,7 +34,7 @@ public abstract class TridentAgeable extends TridentLivingEntity implements Agea
     protected void encodeMetadata(ProtocolMetadata protocolMeta) {
         super.encodeMetadata(protocolMeta);
 
-        protocolMeta.setMeta(12, ProtocolMetadata.MetadataType.BYTE, age);
+        protocolMeta.setMeta(12, MetadataType.BYTE, age);
     }
 
     @Override

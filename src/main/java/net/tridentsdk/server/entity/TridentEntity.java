@@ -28,6 +28,7 @@ import net.tridentsdk.entity.EntityType;
 import net.tridentsdk.factory.ExecutorFactory;
 import net.tridentsdk.meta.nbt.*;
 import net.tridentsdk.server.TridentServer;
+import net.tridentsdk.server.data.MetadataType;
 import net.tridentsdk.server.data.ProtocolMetadata;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutDestroyEntities;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutEntityTeleport;
@@ -164,8 +165,8 @@ public class TridentEntity implements Entity {
     }
 
     protected void encodeMetadata(ProtocolMetadata protocolMeta) {
-        protocolMeta.setMeta(0, ProtocolMetadata.MetadataType.BYTE, (byte) ((fireTicks.intValue() == 0) ? 1 : 0));
-        protocolMeta.setMeta(1, ProtocolMetadata.MetadataType.SHORT, airTicks.shortValue());
+        protocolMeta.setMeta(0, MetadataType.BYTE, (byte) ((fireTicks.intValue() == 0) ? 1 : 0));
+        protocolMeta.setMeta(1, MetadataType.SHORT, airTicks.shortValue());
     }
 
     @Override

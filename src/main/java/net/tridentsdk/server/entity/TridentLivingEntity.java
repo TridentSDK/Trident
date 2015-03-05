@@ -25,13 +25,12 @@ import net.tridentsdk.entity.LivingEntity;
 import net.tridentsdk.entity.Projectile;
 import net.tridentsdk.entity.living.ai.AiModule;
 import net.tridentsdk.entity.living.ai.Path;
+import net.tridentsdk.server.data.MetadataType;
 import net.tridentsdk.server.data.ProtocolMetadata;
 import net.tridentsdk.util.Vector;
 
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static net.tridentsdk.server.data.ProtocolMetadata.*;
 
 /**
  * An entity that has health

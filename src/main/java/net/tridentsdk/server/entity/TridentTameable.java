@@ -18,6 +18,7 @@ package net.tridentsdk.server.entity;
 
 import net.tridentsdk.Position;
 import net.tridentsdk.entity.decorate.Tameable;
+import net.tridentsdk.server.data.MetadataType;
 import net.tridentsdk.server.data.ProtocolMetadata;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.util.TridentLogger;
@@ -36,11 +37,12 @@ public abstract class TridentTameable extends TridentAgeable implements Tameable
     }
 
     @Override
-    protected void encodeMetadata() {
-        protocolMeta.setMeta(16, ProtocolMetadata.MetadataType.BYTE, tameData);
-        protocolMeta.setMeta(17, ProtocolMetadata.MetadataType.STRING,
-                owner == null ? "" : TridentPlayer.getPlayer(owner).name());
+    protected void encodeMetadata(ProtocolMetadata protocolMeta) {
+        super.encodeMetadata(protocolMeta);
 
+        protocolMeta.setMeta(16, MetadataType.BYTE, tameData);
+        protocolMeta.setMeta(17, MetadataType.STRING,
+                owner == null ? "" : TridentPlayer.getPlayer(owner).name());
     }
 
     @Override

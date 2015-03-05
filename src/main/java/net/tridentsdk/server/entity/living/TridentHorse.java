@@ -22,16 +22,14 @@ import net.tridentsdk.entity.*;
 import net.tridentsdk.entity.living.Horse;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.entity.EntityDamageEvent;
+import net.tridentsdk.server.data.MetadataType;
 import net.tridentsdk.server.data.ProtocolMetadata;
 import net.tridentsdk.server.entity.TridentAgeable;
-import net.tridentsdk.server.entity.TridentLivingEntity;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.window.inventory.Inventory;
 import net.tridentsdk.window.inventory.Item;
 
 import java.util.UUID;
-
-import static net.tridentsdk.server.data.ProtocolMetadata.MetadataType;
 
 public class TridentHorse extends TridentAgeable implements Horse {
     private volatile int data;

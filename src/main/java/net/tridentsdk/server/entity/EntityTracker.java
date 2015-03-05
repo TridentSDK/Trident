@@ -23,6 +23,7 @@ import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.player.PlayerMoveEvent;
+import net.tridentsdk.server.data.ProtocolMetadata;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutEntityCompleteMove;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutSpawnMob;
 import net.tridentsdk.server.player.TridentPlayer;
@@ -41,11 +42,14 @@ public class EntityTracker {
             return;
 
         PacketPlayOutSpawnMob packet = new PacketPlayOutSpawnMob();
+        ProtocolMetadata metadata = new ProtocolMetadata();
+
+        ((TridentEntity) entity).encodeMetadata(metadata);
 
         packet.set("entityId", entity.entityId())
                 .set("type", entity.type())
                 .set("entity", entity)
-                .set("metadata", ((TridentEntity) entity).protocolMeta);
+                .set("metadata", metadata);
 
         TridentPlayer.sendAll(packet);
         ((TridentWorld) entity.world()).addEntity(entity);
