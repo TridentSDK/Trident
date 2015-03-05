@@ -36,16 +36,6 @@ public class TridentPainting extends TridentEntity implements Painting {
     }
 
     @Override
-    public boolean isNameVisible() {
-        return false;
-    }
-
-    @Override
-    public void applyProperties(EntityProperties properties) {
-
-    }
-
-    @Override
     public Block hangingBlock() {
         return null;
     }

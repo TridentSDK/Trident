@@ -155,8 +155,8 @@ public class TridentWorldLoader implements WorldLoader {
     @Override
     public void save(World world) {
         TridentWorld w = (TridentWorld) world;
-        for (Chunk chunk : w.loadedChunks())
-            saveChunk(chunk);
+
+        w.loadedChunks().forEach(this::saveChunk);
     }
 
     @Override

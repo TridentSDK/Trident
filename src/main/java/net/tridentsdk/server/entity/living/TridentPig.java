@@ -59,13 +59,8 @@ public class TridentPig extends TridentAgeable implements Pig {
     }
 
     @Override
-    public void setSaddled(final boolean saddled) {
-        this.executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                hasSaddle = saddled;
-            }
-        });
+    public void setSaddled(boolean saddled) {
+        this.executor.execute(() -> hasSaddle = saddled);
     }
 
     @Override

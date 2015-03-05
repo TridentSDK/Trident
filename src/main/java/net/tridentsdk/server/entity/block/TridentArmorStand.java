@@ -105,13 +105,7 @@ public class TridentArmorStand extends TridentLivingEntity implements ArmorStand
 
     @Override
     public void setEquipment(final Item[] stack) {
-        this.executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                System.arraycopy(stack, 0, armor, 0,
-                        (stack.length > 4) ? 4 : stack.length);
-            }
-        });
+        this.executor.execute(() -> System.arraycopy(stack, 0, armor, 0, (stack.length > 4) ? 4 : stack.length));
     }
 
     @Override

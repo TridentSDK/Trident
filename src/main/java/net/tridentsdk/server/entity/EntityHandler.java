@@ -17,10 +17,6 @@
 
 package net.tridentsdk.server.entity;
 
-import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
-import com.google.common.collect.Iterators;
-import com.google.common.collect.Lists;
 import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
 import net.tridentsdk.Position;
 import net.tridentsdk.Trident;
@@ -31,8 +27,10 @@ import net.tridentsdk.util.TridentLogger;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Manages server entities and provides registration procedures
@@ -108,14 +106,9 @@ public final class EntityHandler {
      * @param <T>  the entity type
      * @return the list of entities with the specified type
      */
-    public <T extends Entity> List<T> entities(final Class<T> type) {
-        Predicate<T> pred = new Predicate<T>() {
-            @Override
-            public boolean apply(Entity e) {
-                return Predicates.assignableFrom(type.getClass()).apply(e.getClass());
-            }
-        };
-
-        return Lists.newArrayList(Iterators.filter((Iterator<T>) this.entities.values().iterator(), pred));
+    public <T extends Entity> Iterator<Entity> entities(final Class<T> type) {
+        return entities.values().stream()
+                .filter((e) -> type.getClass().equals(e.getClass()))
+                .iterator();
     }
 }

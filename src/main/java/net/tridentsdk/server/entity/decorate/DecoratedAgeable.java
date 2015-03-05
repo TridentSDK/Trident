@@ -78,13 +78,16 @@ public abstract class DecoratedAgeable extends LivingDecorationAdapter {
     public void applyLove(Entity other) {
         if (!isInLove())
             return;
+
         PacketPlayOutParticle particle = new PacketPlayOutParticle();
+
         particle.set("particleId", 34)
                 .set("distance", false)
                 .set("loc", original().headLocation().add(new Vector(0, 1, 0)))
                 .set("offset", new Vector(0, 1, 0))
                 .set("particleData", 0.0F)
                 .set("data", new int[0]);
+
         TridentPlayer.sendAll(particle);
         // TODO love the other entity
     }

@@ -32,16 +32,6 @@ public class TridentItemFrame extends TridentEntity implements ItemFrame {
     }
 
     @Override
-    public boolean isNameVisible() {
-        return false;
-    }
-
-    @Override
-    public void applyProperties(EntityProperties properties) {
-
-    }
-
-    @Override
     public Item item() {
         return null;
     }

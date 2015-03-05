@@ -17,7 +17,6 @@
 
 package net.tridentsdk.server.entity;
 
-import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.AtomicDouble;
 import net.tridentsdk.Position;
 import net.tridentsdk.base.Substance;
@@ -43,6 +42,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 /**
  * Entity abstraction base
@@ -263,13 +263,10 @@ public class TridentEntity implements Entity {
     public Set<Entity> withinRange(double radius) {
         double squared = radius * radius;
         Set<Entity> entities = location().world().entities();
-        Set<Entity> near = Sets.newHashSet();
-        for (Entity entity : entities) {
-            if (entity.location().distanceSquared(location()) <= squared)
-                near.add(entity);
-        }
 
-        return near;
+        return entities.stream()
+                .filter((e) -> e.location().distanceSquared(location()) <= squared)
+                .collect(Collectors.toSet());
     }
 
     @Override

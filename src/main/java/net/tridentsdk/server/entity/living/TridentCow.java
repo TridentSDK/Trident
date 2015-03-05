@@ -24,23 +24,14 @@ import net.tridentsdk.entity.Projectile;
 import net.tridentsdk.entity.living.Cow;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.entity.EntityDamageEvent;
+import net.tridentsdk.server.entity.TridentAgeable;
 import net.tridentsdk.server.entity.TridentLivingEntity;
 
 import java.util.UUID;
 
-public class TridentCow extends TridentLivingEntity implements Cow {
+public class TridentCow extends TridentAgeable implements Cow {
     public TridentCow(UUID id, Position spawnLocation) {
         super(id, spawnLocation);
-    }
-
-    @Override
-    public int age() {
-        return 0;
-    }
-
-    @Override
-    public void setAge(int ticks) {
-
     }
 
     @Override
@@ -70,21 +61,6 @@ public class TridentCow extends TridentLivingEntity implements Cow {
 
     @Override
     public Player lastPlayerDamager() {
-        return null;
-    }
-
-    @Override
-    public boolean isNameVisible() {
-        return false;
-    }
-
-    @Override
-    public void applyProperties(EntityProperties properties) {
-
-    }
-
-    @Override
-    public <T extends Projectile> T launchProjectile(EntityProperties properties) {
         return null;
     }
 }

@@ -5,10 +5,9 @@ import net.tridentsdk.entity.decorate.Ageable;
 import net.tridentsdk.server.data.ProtocolMetadata;
 
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class TridentAgeable extends TridentLivingEntity implements Ageable {
-    protected final AtomicInteger age = new AtomicInteger(0);
+    protected volatile int age;
 
     public TridentAgeable(UUID id, Position spawnLocation) {
         super(id, spawnLocation);
@@ -16,21 +15,16 @@ public abstract class TridentAgeable extends TridentLivingEntity implements Agea
 
     @Override
     protected void updateProtocolMeta() {
-        protocolMeta.setMeta(12, ProtocolMetadata.MetadataType.BYTE, age.get());
+        protocolMeta.setMeta(12, ProtocolMetadata.MetadataType.BYTE, age);
     }
 
     @Override
-    public void setAge(final int ticks) {
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                age.set(ticks);
-            }
-        });
+    public void setAge(int ticks) {
+        this.age = ticks;
     }
 
     @Override
     public int age() {
-        return age.get();
+        return age;
     }
 }

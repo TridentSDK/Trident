@@ -24,7 +24,7 @@ import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.util.TridentLogger;
 
 /**
- * Wraps the raw Packet Data/Bytes receieved over the network (May serve more functions later)
+ * Wraps the raw Packet Data/Bytes received over the network (May serve more functions later)
  *
  * @author The TridentSDK Team
  */

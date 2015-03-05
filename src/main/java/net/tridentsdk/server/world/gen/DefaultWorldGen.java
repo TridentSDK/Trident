@@ -48,33 +48,29 @@ public class DefaultWorldGen extends AbstractGenerator {
                 final int finalX = x;
                 final int finalZ = z;
 
-                executor.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        final int i = WorldUtils.intScale(0, 140, generator.noise(finalX + (location.x() << 4), finalZ +
-                                (location.z() << 4))) - 20;
-                        for (int y = 0; y < i; y++) {
-                            //System.out.println(y);
-                            if (i < 40 && y == (i - 1)) {
-                                for (int rev = 40; rev > i; rev--) {
-                                    data[rev / 16][WorldUtils.blockArrayIndex(finalX, rev % 16, finalZ)] =
-                                            Substance.WATER.asExtended();
-                                }
-                                data[i / 16][WorldUtils.blockArrayIndex(finalX, i % 16, finalZ)] =
-                                        Substance.CLAY.asExtended();
+                executor.execute(() -> {
+                    final int i = WorldUtils.intScale(0, 140, generator.noise(finalX + (location.x() << 4), finalZ +
+                            (location.z() << 4))) - 20;
+                    for (int y = 0; y < i; y++) {
+                        if (i < 40 && y == (i - 1)) {
+                            for (int rev = 40; rev > i; rev--) {
+                                data[rev / 16][WorldUtils.blockArrayIndex(finalX, rev % 16, finalZ)] =
+                                        Substance.WATER.asExtended();
                             }
-
-                            if (y < i - 1) {
-                                data[y / 16][WorldUtils.blockArrayIndex(finalX, y % 16, finalZ)] =
-                                        Substance.DIRT.asExtended();
-                            } else {
-                                data[y / 16][WorldUtils.blockArrayIndex(finalX, y % 16, finalZ)] =
-                                        Substance.GRASS.asExtended();
-                            }
+                            data[i / 16][WorldUtils.blockArrayIndex(finalX, i % 16, finalZ)] =
+                                    Substance.CLAY.asExtended();
                         }
 
-                        release.countDown();
+                        if (y < i - 1) {
+                            data[y / 16][WorldUtils.blockArrayIndex(finalX, y % 16, finalZ)] =
+                                    Substance.DIRT.asExtended();
+                        } else {
+                            data[y / 16][WorldUtils.blockArrayIndex(finalX, y % 16, finalZ)] =
+                                    Substance.GRASS.asExtended();
+                        }
                     }
+
+                    release.countDown();
                 });
             }
         }

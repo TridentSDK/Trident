@@ -42,18 +42,15 @@ public abstract class TridentTameable extends TridentAgeable implements Tameable
         return (tameData & 4) == 4;
     }
 
-    public void setTame(final UUID owner) {
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                if(TridentPlayer.getPlayer(owner) == null) {
-                    TridentLogger.error(new IllegalArgumentException("No player found with provided UUID!"));
-                    return;
-                }
-
-                TridentTameable.this.owner = owner;
-                tameData |= 4;
+    public void tame(UUID owner) {
+        executor.execute(() -> {
+            if(TridentPlayer.getPlayer(owner) == null) {
+                TridentLogger.error(new IllegalArgumentException("No player found with provided UUID!"));
+                return;
             }
+
+            TridentTameable.this.owner = owner;
+            tameData |= 4;
         });
     }
 }

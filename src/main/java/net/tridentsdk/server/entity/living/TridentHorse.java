@@ -154,19 +154,4 @@ public class TridentHorse extends TridentAgeable implements Horse {
     public Player lastPlayerDamager() {
         return null;
     }
-
-    @Override
-    public boolean isNameVisible() {
-        return false;
-    }
-
-    @Override
-    public void applyProperties(EntityProperties properties) {
-
-    }
-
-    @Override
-    public <T extends Projectile> T launchProjectile(EntityProperties properties) {
-        return null;
-    }
 }

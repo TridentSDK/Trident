@@ -24,11 +24,12 @@ import net.tridentsdk.entity.Projectile;
 import net.tridentsdk.entity.living.Chicken;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.entity.EntityDamageEvent;
+import net.tridentsdk.server.entity.TridentAgeable;
 import net.tridentsdk.server.entity.TridentLivingEntity;
 
 import java.util.UUID;
 
-public class TridentChicken extends TridentLivingEntity implements Chicken {
+public class TridentChicken extends TridentAgeable implements Chicken {
     public TridentChicken(UUID id, Position spawnLocation) {
         super(id, spawnLocation);
     }
@@ -41,16 +42,6 @@ public class TridentChicken extends TridentLivingEntity implements Chicken {
     @Override
     public int nextLayInterval() {
         return 0;
-    }
-
-    @Override
-    public int age() {
-        return 0;
-    }
-
-    @Override
-    public void setAge(int ticks) {
-
     }
 
     @Override
@@ -80,21 +71,6 @@ public class TridentChicken extends TridentLivingEntity implements Chicken {
 
     @Override
     public Player lastPlayerDamager() {
-        return null;
-    }
-
-    @Override
-    public boolean isNameVisible() {
-        return false;
-    }
-
-    @Override
-    public void applyProperties(EntityProperties properties) {
-
-    }
-
-    @Override
-    public <T extends Projectile> T launchProjectile(EntityProperties properties) {
         return null;
     }
 }
