@@ -15,15 +15,17 @@
  * limitations under the License.
  */
 
-package net.tridentsdk.server.entity.ai.pathfinder;
+package net.tridentsdk.server.entity.living.ai.pathfind;
 
 import net.tridentsdk.util.Vector;
 
+import javax.annotation.concurrent.NotThreadSafe;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+@NotThreadSafe
 public class Path {
     private final List<Node> pathPoints;
     private int index;
@@ -31,10 +33,10 @@ public class Path {
 
     public Path(Node end) {
         LinkedList<Node> trace = new LinkedList<>();
+
         while(end != null) {
-//            trace.addFirst(end);
             trace.add(end);
-            end = end.getParent();
+            end = end.parent();
         }
 
         Collections.reverse(trace); // Reverse list so that it isn't backwards
@@ -55,23 +57,23 @@ public class Path {
         Vector movement = new Vector(0, 0, 0);
         Node current = pathPoints.get(index);
         Node next = pathPoints.get(index + 1);
-        double dx = next.getX() - current.getX();
-        double dz = next.getZ() - current.getZ();
+        double dx = next.x() - current.x();
+        double dz = next.z() - current.z();
 
         if(speed + step >= 1.0) {
             movement.add(1 - step, 0, 1 - step);
 
             // Find next node
             index += 1;
+
             if(!finished()) {
-//                Node next = pathPoints.get(index);
-                movement.setY(next.getY() - current.getY());
+                movement.setY(next.y() - current.y());
 
                 // Recalculate values
                 current = next;
                 next = pathPoints.get(index + 1);
-                dx = next.getX() - current.getX();
-                dz = next.getZ() - current.getZ();
+                dx = next.x() - current.x();
+                dz = next.z() - current.z();
                 this.step = 0.0;
             }
         }

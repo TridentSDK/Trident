@@ -15,10 +15,13 @@
  * limitations under the License.
  */
 
-package net.tridentsdk.server.entity.ai.pathfinder;
+package net.tridentsdk.server.entity.living.ai.pathfind;
 
-import net.tridentsdk.Coordinates;
+import net.tridentsdk.Position;
 
+import javax.annotation.concurrent.NotThreadSafe;
+
+@NotThreadSafe
 public class Node {
     private Node parent;
     private final int x;
@@ -29,8 +32,8 @@ public class Node {
     private double g = -1;
     private double f = -1;
 
-    public Node(Node parent, Coordinates position) {
-        this(parent, position.getX(), position.getY(), position.getZ());
+    public Node(Node parent, Position position) {
+        this(parent, position.x(), position.y(), position.z());
     }
 
     public Node(Node parent, double x, double y, double z) {
@@ -70,7 +73,7 @@ public class Node {
      *
      * @return X coord of node
      */
-    public int getX() {
+    public int x() {
         return x;
     }
 
@@ -79,7 +82,7 @@ public class Node {
      *
      * @return Y coord of node
      */
-    public int getY() {
+    public int y() {
         return y;
     }
 
@@ -88,7 +91,7 @@ public class Node {
      *
      * @return Z coord of node
      */
-    public int getZ() {
+    public int z() {
         return z;
     }
 
@@ -106,7 +109,7 @@ public class Node {
      *
      * @return Parent of node
      */
-    public Node getParent() {
+    public Node parent() {
         return parent;
     }
 
