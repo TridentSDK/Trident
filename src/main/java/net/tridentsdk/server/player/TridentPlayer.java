@@ -29,6 +29,7 @@ import net.tridentsdk.factory.Factories;
 import net.tridentsdk.meta.MessageBuilder;
 import net.tridentsdk.meta.nbt.CompoundTag;
 import net.tridentsdk.server.TridentServer;
+import net.tridentsdk.server.data.MetadataType;
 import net.tridentsdk.server.data.ProtocolMetadata;
 import net.tridentsdk.server.entity.TridentEntityBuilder;
 import net.tridentsdk.server.netty.ClientConnection;
@@ -48,8 +49,6 @@ import net.tridentsdk.world.LevelType;
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.*;
 import java.util.stream.Stream;
-
-import static net.tridentsdk.server.data.ProtocolMetadata.MetadataType;
 
 @ThreadSafe
 public class TridentPlayer extends OfflinePlayer {

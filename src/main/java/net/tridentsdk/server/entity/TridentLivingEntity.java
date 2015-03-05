@@ -37,8 +37,6 @@ import net.tridentsdk.util.Vector;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static net.tridentsdk.server.data.ProtocolMetadata.MetadataType;
-
 /**
  * An entity that has health
  *
@@ -199,9 +197,13 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
     @Override
     public void show(Entity entity) {
         PacketPlayOutSpawnMob packet = new PacketPlayOutSpawnMob();
+        ProtocolMetadata protocolMeta = new ProtocolMetadata();
+
+        ((TridentEntity) entity).encodeMetadata(protocolMeta);
+
         packet.set("entityId", entity.entityId())
                 .set("entity", entity)
-                .set("metadata", ((TridentEntity) entity).protocolMeta);
+                .set("metadata", protocolMeta);
 
         if (this instanceof Player) {
             ((TridentPlayer) this).connection().sendPacket(packet);

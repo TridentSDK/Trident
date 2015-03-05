@@ -32,8 +32,6 @@ import net.tridentsdk.window.inventory.Item;
 
 import java.util.UUID;
 
-import static net.tridentsdk.server.data.ProtocolMetadata.MetadataType;
-
 public class TridentArmorStand extends TridentLivingEntity implements ArmorStand {
     private final SlotProperties properties;
     /*
