@@ -47,7 +47,6 @@ public class EntityTracker {
         ((TridentEntity) entity).encodeMetadata(metadata);
 
         packet.set("entityId", entity.entityId())
-                .set("type", entity.type())
                 .set("entity", entity)
                 .set("metadata", metadata);
 

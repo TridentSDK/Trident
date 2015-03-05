@@ -246,7 +246,16 @@ public class TridentEntity implements Entity {
     }
 
     public void tick() {
-        this.ticksExisted.incrementAndGet();
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                ticksExisted.incrementAndGet();
+                doTick();
+            }
+        });
+    }
+
+    protected void doTick() {
     }
 
     @Override

@@ -20,6 +20,7 @@ package net.tridentsdk.server.entity.block;
 import net.tridentsdk.Position;
 import net.tridentsdk.base.BlockSnapshot;
 import net.tridentsdk.entity.EntityProperties;
+import net.tridentsdk.entity.EntityType;
 import net.tridentsdk.entity.block.FallingBlock;
 import net.tridentsdk.server.entity.TridentEntity;
 
@@ -48,5 +49,10 @@ public class TridentFallingBlock extends TridentEntity implements FallingBlock {
     @Override
     public void applyProperties(EntityProperties properties) {
 
+    }
+
+    @Override
+    public EntityType type() {
+        return EntityType.FALLING_BLOCK;
     }
 }

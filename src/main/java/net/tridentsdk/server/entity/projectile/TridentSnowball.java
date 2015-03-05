@@ -19,6 +19,7 @@ package net.tridentsdk.server.entity.projectile;
 
 import net.tridentsdk.Position;
 import net.tridentsdk.entity.EntityProperties;
+import net.tridentsdk.entity.EntityType;
 import net.tridentsdk.entity.LivingEntity;
 import net.tridentsdk.entity.living.Blaze;
 import net.tridentsdk.entity.living.EnderDragon;
@@ -55,5 +56,10 @@ public class TridentSnowball extends TridentProjectile {
         } else {
             // Damage 0 hearts (knockback)
         }
+    }
+
+    @Override
+    public EntityType type() {
+        return EntityType.SNOWBALL;
     }
 }

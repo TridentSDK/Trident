@@ -19,6 +19,7 @@ package net.tridentsdk.server.entity.living;
 
 import net.tridentsdk.Position;
 import net.tridentsdk.entity.Entity;
+import net.tridentsdk.entity.EntityType;
 import net.tridentsdk.entity.OcelotType;
 import net.tridentsdk.entity.living.Ocelot;
 import net.tridentsdk.entity.living.Player;
@@ -75,5 +76,10 @@ public class TridentOcelot extends TridentTameable implements Ocelot {
     @Override
     public Player lastPlayerDamager() {
         return null;
+    }
+
+    @Override
+    public EntityType type() {
+        return EntityType.OCELOT;
     }
 }

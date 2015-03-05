@@ -20,6 +20,7 @@ package net.tridentsdk.server.entity.living;
 import net.tridentsdk.Position;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.EntityProperties;
+import net.tridentsdk.entity.EntityType;
 import net.tridentsdk.entity.Projectile;
 import net.tridentsdk.entity.living.Cow;
 import net.tridentsdk.entity.living.Player;
@@ -62,5 +63,10 @@ public class TridentCow extends TridentAgeable implements Cow {
     @Override
     public Player lastPlayerDamager() {
         return null;
+    }
+
+    @Override
+    public EntityType type() {
+        return EntityType.COW;
     }
 }

@@ -19,15 +19,13 @@ package net.tridentsdk.server.entity.living;
 
 import net.tridentsdk.Position;
 import net.tridentsdk.entity.Entity;
-import net.tridentsdk.entity.EntityProperties;
-import net.tridentsdk.entity.Projectile;
+import net.tridentsdk.entity.EntityType;
 import net.tridentsdk.entity.living.Pig;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.entity.EntityDamageEvent;
 import net.tridentsdk.server.data.MetadataType;
 import net.tridentsdk.server.data.ProtocolMetadata;
 import net.tridentsdk.server.entity.TridentAgeable;
-import net.tridentsdk.server.entity.TridentLivingEntity;
 
 import java.util.UUID;
 
@@ -84,5 +82,10 @@ public class TridentPig extends TridentAgeable implements Pig {
     @Override
     public Player lastPlayerDamager() {
         return null;
+    }
+
+    @Override
+    public EntityType type() {
+        return EntityType.PIG;
     }
 }

@@ -155,4 +155,9 @@ public class TridentHorse extends TridentAgeable implements Horse {
     public Player lastPlayerDamager() {
         return null;
     }
+
+    @Override
+    public EntityType type() {
+        return EntityType.HORSE;
+    }
 }

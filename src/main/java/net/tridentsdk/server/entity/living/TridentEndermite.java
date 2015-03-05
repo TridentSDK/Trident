@@ -20,6 +20,7 @@ package net.tridentsdk.server.entity.living;
 import net.tridentsdk.Position;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.EntityProperties;
+import net.tridentsdk.entity.EntityType;
 import net.tridentsdk.entity.Projectile;
 import net.tridentsdk.entity.living.Endermite;
 import net.tridentsdk.entity.living.Player;
@@ -51,5 +52,25 @@ public class TridentEndermite extends TridentLivingEntity implements Endermite {
     @Override
     public Player lastPlayerDamager() {
         return null;
+    }
+
+    @Override
+    public boolean isNameVisible() {
+        return false;
+    }
+
+    @Override
+    public void applyProperties(EntityProperties properties) {
+
+    }
+
+    @Override
+    public <T extends Projectile> T launchProjectile(EntityProperties properties) {
+        return null;
+    }
+
+    @Override
+    public EntityType type() {
+        return EntityType.ENDERMITE;
     }
 }

@@ -176,19 +176,17 @@ public class TridentPlayer extends OfflinePlayer {
     }
 
     @Override
-    public void tick() {
-        this.executor.execute(() -> {
-            TridentPlayer.super.tick();
+    protected void doTick() {
+        TridentPlayer.super.tick();
 
-            if(!isLoggingIn())
-                sendChunks(TridentServer.instance().viewDistance());
+        if(!isLoggingIn())
+            sendChunks(TridentServer.instance().viewDistance());
 
-            if(!chunkQueue.isEmpty())
-                connection.sendPacket(chunkQueue.poll());
+        if(!chunkQueue.isEmpty())
+            connection.sendPacket(chunkQueue.poll());
 
-            connection.tick();
-            ticksExisted.incrementAndGet();
-        });
+        connection.tick();
+        ticksExisted.incrementAndGet();
     }
 
     public void setSkinFlags(byte flags) {

@@ -20,17 +20,24 @@ package net.tridentsdk.server.entity;
 import com.google.common.util.concurrent.AtomicDouble;
 import net.tridentsdk.Position;
 import net.tridentsdk.Trident;
+import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.EntityProperties;
 import net.tridentsdk.entity.LivingEntity;
 import net.tridentsdk.entity.Projectile;
+import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.entity.living.ai.AiModule;
 import net.tridentsdk.entity.living.ai.Path;
 import net.tridentsdk.server.data.MetadataType;
 import net.tridentsdk.server.data.ProtocolMetadata;
+import net.tridentsdk.server.packets.play.out.PacketPlayOutDestroyEntities;
+import net.tridentsdk.server.packets.play.out.PacketPlayOutSpawnMob;
+import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.util.Vector;
 
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static net.tridentsdk.server.data.ProtocolMetadata.MetadataType;
 
 /**
  * An entity that has health
@@ -81,6 +88,11 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
         protocolMeta.setMeta(8, MetadataType.BYTE, (byte) 1); // TODO (potion effects)
         protocolMeta.setMeta(9, MetadataType.BYTE, (byte) 0); // TODO (arrows in entity)
         protocolMeta.setMeta(15, MetadataType.BYTE, (ai == null) ? (byte) 1 : (byte) 0);
+    }
+
+    @Override
+    protected void doTick() {
+        performAiUpdate();
     }
 
     @Override
@@ -155,8 +167,10 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
     }
 
     public void performAiUpdate() {
+        AiModule module = this.aiModule();
+
         if (this.restTicks.get() <= 0) {
-            this.restTicks.set(this.aiModule().think(this));
+            this.restTicks.set(module.think(this));
         } else {
             this.restTicks.getAndDecrement();
             // TODO: follow path
@@ -170,5 +184,27 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
 
     public void setPath(Path path) {
         this.path = path;
+    }
+
+    @Override
+    public void hide(Entity entity) {
+        PacketPlayOutDestroyEntities packet = new PacketPlayOutDestroyEntities();
+        packet.set("destroyedEntities", new int[]{ entity.entityId() });
+
+        if (this instanceof Player) {
+            ((TridentPlayer) this).connection().sendPacket(packet);
+        }
+    }
+
+    @Override
+    public void show(Entity entity) {
+        PacketPlayOutSpawnMob packet = new PacketPlayOutSpawnMob();
+        packet.set("entityId", entity.entityId())
+                .set("entity", entity)
+                .set("metadata", ((TridentEntity) entity).protocolMeta);
+
+        if (this instanceof Player) {
+            ((TridentPlayer) this).connection().sendPacket(packet);
+        }
     }
 }

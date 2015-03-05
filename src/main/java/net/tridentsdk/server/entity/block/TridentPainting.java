@@ -20,6 +20,7 @@ package net.tridentsdk.server.entity.block;
 import net.tridentsdk.Position;
 import net.tridentsdk.base.Block;
 import net.tridentsdk.entity.EntityProperties;
+import net.tridentsdk.entity.EntityType;
 import net.tridentsdk.entity.block.Painting;
 import net.tridentsdk.server.entity.TridentEntity;
 
@@ -38,5 +39,10 @@ public class TridentPainting extends TridentEntity implements Painting {
     @Override
     public Block hangingBlock() {
         return null;
+    }
+
+    @Override
+    public EntityType type() {
+        return EntityType.PAINTING;
     }
 }

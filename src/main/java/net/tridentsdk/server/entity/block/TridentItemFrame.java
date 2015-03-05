@@ -20,6 +20,7 @@ package net.tridentsdk.server.entity.block;
 import net.tridentsdk.Position;
 import net.tridentsdk.base.Block;
 import net.tridentsdk.entity.EntityProperties;
+import net.tridentsdk.entity.EntityType;
 import net.tridentsdk.entity.block.ItemFrame;
 import net.tridentsdk.server.entity.TridentEntity;
 import net.tridentsdk.window.inventory.Item;
@@ -44,5 +45,10 @@ public class TridentItemFrame extends TridentEntity implements ItemFrame {
     @Override
     public Block hangingBlock() {
         return null;
+    }
+
+    @Override
+    public EntityType type() {
+        return EntityType.ITEM_FRAME;
     }
 }
