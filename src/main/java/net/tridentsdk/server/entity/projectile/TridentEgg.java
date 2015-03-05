@@ -19,6 +19,7 @@ package net.tridentsdk.server.entity.projectile;
 
 import net.tridentsdk.Position;
 import net.tridentsdk.entity.EntityProperties;
+import net.tridentsdk.entity.EntityType;
 import net.tridentsdk.entity.living.ProjectileLauncher;
 import net.tridentsdk.entity.projectile.Egg;
 import net.tridentsdk.server.entity.TridentProjectile;
@@ -57,5 +58,10 @@ public class TridentEgg extends TridentProjectile implements Egg {
                 HANDLER.register(new TridentChicken(UUID.randomUUID(), this.location()));
             }
         }
+    }
+
+    @Override
+    public EntityType type() {
+        return EntityType.EGG;
     }
 }

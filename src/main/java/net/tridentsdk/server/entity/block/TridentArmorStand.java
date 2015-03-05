@@ -19,6 +19,7 @@ package net.tridentsdk.server.entity.block;
 
 import net.tridentsdk.Position;
 import net.tridentsdk.entity.Entity;
+import net.tridentsdk.entity.EntityType;
 import net.tridentsdk.entity.block.ArmorStand;
 import net.tridentsdk.entity.block.SlotProperties;
 import net.tridentsdk.entity.living.Player;
@@ -105,13 +106,7 @@ public class TridentArmorStand extends TridentLivingEntity implements ArmorStand
 
     @Override
     public void setEquipment(final Item[] stack) {
-        this.executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                System.arraycopy(stack, 0, armor, 0,
-                        (stack.length > 4) ? 4 : stack.length);
-            }
-        });
+        System.arraycopy(stack, 0, armor, 0, (stack.length > 4) ? 4 : stack.length);
     }
 
     @Override
@@ -130,5 +125,10 @@ public class TridentArmorStand extends TridentLivingEntity implements ArmorStand
     @Override
     public Player lastPlayerDamager() {
         return null;
+    }
+
+    @Override
+    public EntityType type() {
+        return EntityType.ARMOR_STAND;
     }
 }

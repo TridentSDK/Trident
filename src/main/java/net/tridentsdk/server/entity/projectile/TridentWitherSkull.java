@@ -19,6 +19,7 @@ package net.tridentsdk.server.entity.projectile;
 
 import net.tridentsdk.Position;
 import net.tridentsdk.entity.EntityProperties;
+import net.tridentsdk.entity.EntityType;
 import net.tridentsdk.entity.living.ProjectileLauncher;
 import net.tridentsdk.entity.projectile.WitherSkull;
 import net.tridentsdk.server.entity.TridentProjectile;
@@ -36,5 +37,10 @@ public class TridentWitherSkull extends TridentProjectile implements WitherSkull
 
     @Override
     protected void hit() {
+    }
+
+    @Override
+    public EntityType type() {
+        return EntityType.WITHER_SKULL;
     }
 }

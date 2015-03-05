@@ -23,7 +23,6 @@ import net.tridentsdk.entity.living.Horse;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.entity.EntityDamageEvent;
 import net.tridentsdk.server.entity.TridentAgeable;
-import net.tridentsdk.server.entity.TridentLivingEntity;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.window.inventory.Inventory;
 import net.tridentsdk.window.inventory.Item;
@@ -168,5 +167,10 @@ public class TridentHorse extends TridentAgeable implements Horse {
     @Override
     public <T extends Projectile> T launchProjectile(EntityProperties properties) {
         return null;
+    }
+
+    @Override
+    public EntityType type() {
+        return EntityType.HORSE;
     }
 }

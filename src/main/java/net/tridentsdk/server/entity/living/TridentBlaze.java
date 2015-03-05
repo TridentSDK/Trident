@@ -20,6 +20,7 @@ package net.tridentsdk.server.entity.living;
 import net.tridentsdk.Position;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.EntityProperties;
+import net.tridentsdk.entity.EntityType;
 import net.tridentsdk.entity.Projectile;
 import net.tridentsdk.entity.living.Blaze;
 import net.tridentsdk.entity.living.Player;
@@ -66,5 +67,10 @@ public class TridentBlaze extends TridentLivingEntity implements Blaze {
     @Override
     public <T extends Projectile> T launchProjectile(EntityProperties properties) {
         return null;
+    }
+
+    @Override
+    public EntityType type() {
+        return EntityType.BLAZE;
     }
 }

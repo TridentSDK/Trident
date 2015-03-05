@@ -41,7 +41,6 @@ public class EntityTracker {
             return;
         PacketPlayOutSpawnMob packet = new PacketPlayOutSpawnMob();
         packet.set("entityId", entity.entityId())
-                .set("type", entity.type())
                 .set("entity", entity)
                 .set("metadata", ((TridentEntity) entity).protocolMeta);
         // TODO

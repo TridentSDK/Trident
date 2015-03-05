@@ -20,6 +20,7 @@ package net.tridentsdk.server.entity.living;
 import net.tridentsdk.Position;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.EntityProperties;
+import net.tridentsdk.entity.EntityType;
 import net.tridentsdk.entity.Projectile;
 import net.tridentsdk.entity.living.Cow;
 import net.tridentsdk.entity.living.Player;
@@ -86,5 +87,10 @@ public class TridentCow extends TridentLivingEntity implements Cow {
     @Override
     public <T extends Projectile> T launchProjectile(EntityProperties properties) {
         return null;
+    }
+
+    @Override
+    public EntityType type() {
+        return EntityType.COW;
     }
 }

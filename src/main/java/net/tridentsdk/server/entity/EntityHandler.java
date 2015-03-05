@@ -41,7 +41,7 @@ import java.util.Map;
  */
 @ThreadSafe
 public final class EntityHandler {
-    private final Map<Integer, Entity> entities = new ConcurrentHashMapV8<>();
+    private static final Map<Integer, Entity> entities = new ConcurrentHashMapV8<>();
     private final EntityTracker tracker = new EntityTracker();
 
     @InternalUseOnly
@@ -65,7 +65,7 @@ public final class EntityHandler {
      * @param entity the entity to manage
      */
     public void register(Entity entity) {
-        this.entities.put(entity.entityId(), entity);
+        entities.put(entity.entityId(), entity);
         if (entity instanceof TridentPlayer)
             return;
         // tracker.track(entity);
@@ -77,7 +77,7 @@ public final class EntityHandler {
      * @param entity the entity to remove
      */
     public void removeEntity(Entity entity) {
-        this.entities.remove(entity.entityId());
+        entities.remove(entity.entityId());
     }
 
     /**
@@ -98,7 +98,7 @@ public final class EntityHandler {
      * @return the entity with the ID specified
      */
     public Entity entityBy(int id) {
-        return this.entities.get(id);
+        return entities.get(id);
     }
 
     /**
@@ -116,6 +116,6 @@ public final class EntityHandler {
             }
         };
 
-        return Lists.newArrayList(Iterators.filter((Iterator<T>) this.entities.values().iterator(), pred));
+        return Lists.newArrayList(Iterators.filter((Iterator<T>) entities.values().iterator(), pred));
     }
 }
