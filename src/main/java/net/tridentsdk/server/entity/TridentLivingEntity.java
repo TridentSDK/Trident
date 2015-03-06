@@ -37,8 +37,6 @@ import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static net.tridentsdk.server.data.ProtocolMetadata.MetadataType;
-
 /**
  * An entity that has health
  *
@@ -47,7 +45,6 @@ import static net.tridentsdk.server.data.ProtocolMetadata.MetadataType;
 public abstract class TridentLivingEntity extends TridentEntity implements LivingEntity {
     private volatile AiModule ai;
     private volatile Path path;
-    private final AtomicInteger restTicks = new AtomicInteger(0);
 
     protected final List<EntityAttribute> attributes = new CopyOnWriteArrayList<>();
     protected final AtomicInteger invincibilityTicks = new AtomicInteger(0);
