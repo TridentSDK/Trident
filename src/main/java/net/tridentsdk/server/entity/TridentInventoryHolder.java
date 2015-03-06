@@ -21,6 +21,12 @@ import net.tridentsdk.Position;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.docs.Volatile;
 import net.tridentsdk.entity.decorate.InventoryHolder;
+import net.tridentsdk.meta.nbt.CompoundTag;
+import net.tridentsdk.meta.nbt.ListTag;
+import net.tridentsdk.meta.nbt.NBTSerializer;
+import net.tridentsdk.meta.nbt.NBTTag;
+import net.tridentsdk.server.data.Slot;
+import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.window.inventory.Inventory;
 import net.tridentsdk.window.inventory.Item;
 
@@ -61,5 +67,20 @@ public abstract class TridentInventoryHolder extends TridentLivingEntity impleme
     @Override
     public void setHeldItem(Item item) {
         // TODO
+    }
+
+    @Override
+    public void load(CompoundTag tag) {
+        if (this instanceof TridentPlayer) {
+            return;
+        }
+
+        ListTag equipment = tag.getTagAs("Equipment");
+        int index = 0;
+
+        for (NBTTag t : equipment.listTags()) {
+            inventory.setSlot(index, NBTSerializer.deserialize(Slot.class,
+                    t.asType(CompoundTag.class)).item());
+        }
     }
 }

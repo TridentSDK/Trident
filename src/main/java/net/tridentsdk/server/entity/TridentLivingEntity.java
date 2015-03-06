@@ -20,22 +20,24 @@ package net.tridentsdk.server.entity;
 import com.google.common.util.concurrent.AtomicDouble;
 import net.tridentsdk.Position;
 import net.tridentsdk.Trident;
-import net.tridentsdk.entity.Entity;
-import net.tridentsdk.entity.EntityProperties;
-import net.tridentsdk.entity.LivingEntity;
-import net.tridentsdk.entity.Projectile;
+import net.tridentsdk.entity.*;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.entity.living.ai.AiModule;
 import net.tridentsdk.entity.living.ai.Path;
 import net.tridentsdk.server.data.MetadataType;
 import net.tridentsdk.server.data.ProtocolMetadata;
+import net.tridentsdk.meta.nbt.*;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutDestroyEntities;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutSpawnMob;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.util.Vector;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static net.tridentsdk.server.data.ProtocolMetadata.MetadataType;
 
 /**
  * An entity that has health
@@ -47,6 +49,9 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
     private volatile Path path;
     private final AtomicInteger restTicks = new AtomicInteger(0);
 
+    protected final List<EntityAttribute> attributes = new CopyOnWriteArrayList<>();
+    protected final AtomicInteger invincibilityTicks = new AtomicInteger(0);
+    protected final AtomicInteger restTicks = new AtomicInteger(0);
     /**
      * The entity health
      */
@@ -203,10 +208,47 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
 
         packet.set("entityId", entity.entityId())
                 .set("entity", entity)
-                .set("metadata", protocolMeta);
+                .set("metadata", ((TridentEntity) entity).protocolMeta);
 
         if (this instanceof Player) {
             ((TridentPlayer) this).connection().sendPacket(packet);
+        }
+    }
+
+    @Override
+    public void load(CompoundTag tag) {
+        super.load(tag);
+
+        if (type() == EntityType.PLAYER) {
+            return; // players do not inherit the living entity or "mob" NBT structure
+        }
+
+        if (tag.containsTag("HealF")) {
+            health.set(((FloatTag) tag.getTag("HealF")).value());
+        } else {
+            health.set(((ShortTag) tag.getTag("Health")).value());
+        }
+
+        FloatTag extraHealth = tag.getTagAs("AbsorptionAmount"); // health added if the entity has the absorption effect
+
+        ShortTag invincibilityTicks = tag.getTagAs("AttackTime"); // time in ticks that the entity is invincible
+        ShortTag hurtTime = tag.getTagAs("HurtTime"); // time in ticks that the entity is shown as "red" for being hit
+        ShortTag timeDead = tag.getTagAs("DeathTime"); // time in ticks entity has been dead for
+
+        ListTag attributes = tag.getTagAs("Attributes");
+        ListTag potionEffects = tag.getTagAs("ActiveEffects");
+
+        ByteTag canPickupLoot = tag.getTagAs("CanPickupLoot");
+        ByteTag aiDisabled = tag.getTagAs("NoAI");
+        ByteTag canRespawn = tag.getTagAs("PersistenceRequired");
+        ByteTag leashed = tag.getTagAs("Leashed");
+
+        health.addAndGet(extraHealth.value());
+        this.invincibilityTicks.set(invincibilityTicks.value());
+
+        for (NBTTag attribute : attributes.listTags()) {
+            this.attributes.add(NBTSerializer.deserialize(EntityAttribute.class,
+                    attribute.asType(CompoundTag.class)));
         }
     }
 }
