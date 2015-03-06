@@ -208,7 +208,7 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
 
         packet.set("entityId", entity.entityId())
                 .set("entity", entity)
-                .set("metadata", ((TridentEntity) entity).protocolMeta);
+                .set("metadata", protocolMeta);
 
         if (this instanceof Player) {
             ((TridentPlayer) this).connection().sendPacket(packet);
