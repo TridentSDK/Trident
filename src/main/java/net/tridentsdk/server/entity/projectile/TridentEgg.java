@@ -18,8 +18,8 @@
 package net.tridentsdk.server.entity.projectile;
 
 import net.tridentsdk.Position;
-import net.tridentsdk.entity.EntityProperties;
-import net.tridentsdk.entity.EntityType;
+import net.tridentsdk.entity.traits.EntityProperties;
+import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.entity.living.ProjectileLauncher;
 import net.tridentsdk.entity.projectile.Egg;
 import net.tridentsdk.server.entity.TridentProjectile;

@@ -19,7 +19,7 @@ package net.tridentsdk.server.entity.block;
 
 import net.tridentsdk.Position;
 import net.tridentsdk.entity.Entity;
-import net.tridentsdk.entity.EntityType;
+import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.entity.block.ArmorStand;
 import net.tridentsdk.entity.block.SlotProperties;
 import net.tridentsdk.entity.living.Player;

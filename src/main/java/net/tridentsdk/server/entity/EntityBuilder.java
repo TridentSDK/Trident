@@ -20,8 +20,6 @@ package net.tridentsdk.server.entity;
 import net.tridentsdk.Position;
 import net.tridentsdk.Trident;
 import net.tridentsdk.entity.Entity;
-import net.tridentsdk.entity.EntityBuilder;
-import net.tridentsdk.entity.ParameterValue;
 import net.tridentsdk.factory.ExecutorFactory;
 import net.tridentsdk.meta.nbt.CompoundTag;
 import net.tridentsdk.server.netty.ClientConnection;
@@ -43,7 +41,7 @@ import java.util.concurrent.Callable;
  *
  * @author The TridentSDK Team
  */
-public final class TridentEntityBuilder extends EntityBuilder {
+public final class EntityBuilder {
     private UUID uuid = UUID.randomUUID();
     private Position spawn = Position.create(new Callable<World>() {
         @Override
@@ -61,44 +59,44 @@ public final class TridentEntityBuilder extends EntityBuilder {
     private String displayName;
     private boolean silent;
 
-    private TridentEntityBuilder() {
+    private EntityBuilder() {
     }
 
-    public static TridentEntityBuilder create() {
-        return new TridentEntityBuilder();
+    public static EntityBuilder create() {
+        return new EntityBuilder();
     }
 
-    public TridentEntityBuilder uuid(UUID uuid) {
+    public EntityBuilder uuid(UUID uuid) {
         this.uuid = uuid;
         return this;
     }
 
-    public TridentEntityBuilder spawn(Position spawn) {
+    public EntityBuilder spawn(Position spawn) {
         this.spawn = spawn;
         return this;
     }
 
-    public TridentEntityBuilder executor(ExecutorFactory<? extends Entity> executor) {
+    public EntityBuilder executor(ExecutorFactory<? extends Entity> executor) {
         this.executor = (ExecutorFactory<Entity>) executor;
         return this;
     }
 
-    public TridentEntityBuilder god(boolean god) {
+    public EntityBuilder god(boolean god) {
         this.god = god;
         return this;
     }
 
-    public TridentEntityBuilder passenger(Entity passenger) {
+    public EntityBuilder passenger(Entity passenger) {
         this.passenger = passenger;
         return this;
     }
 
-    public TridentEntityBuilder name(String displayName) {
+    public EntityBuilder name(String displayName) {
         this.displayName = displayName;
         return this;
     }
 
-    public TridentEntityBuilder silent(boolean silent) {
+    public EntityBuilder silent(boolean silent) {
         this.silent = silent;
         return this;
     }
@@ -166,5 +164,51 @@ public final class TridentEntityBuilder extends EntityBuilder {
         }
 
         return (T) entity;
+    }
+
+    /**
+     * Immutable parameter type and object value for dynamic constructor resolvation
+     *
+     * @param <T> the type for the parameter
+     * @author The TridentSDK Team
+     */
+    public static class ParameterValue<T> {
+        private final Class<T> c;
+        private final T value;
+
+        private ParameterValue(Class<T> c, T value) {
+            this.c = c;
+            this.value = value;
+        }
+
+        /**
+         * Creates a new parameter value
+         *
+         * @param c     the class type
+         * @param value the value of the parameter
+         * @param <T>   the type
+         * @return the new parameter value
+         */
+        public static <T> ParameterValue from(Class<T> c, T value) {
+            return new ParameterValue<>(c, value);
+        }
+
+        /**
+         * The class type for this parameter
+         *
+         * @return the parameter class type
+         */
+        public Class<T> clazz() {
+            return this.c;
+        }
+
+        /**
+         * The argument to be passed in for the parameter
+         *
+         * @return the value passed for the parameter
+         */
+        public T value() {
+            return this.value;
+        }
     }
 }

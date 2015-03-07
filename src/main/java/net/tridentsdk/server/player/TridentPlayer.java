@@ -23,13 +23,12 @@ import net.tridentsdk.Position;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.entity.Entity;
-import net.tridentsdk.entity.ParameterValue;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.factory.Factories;
 import net.tridentsdk.meta.MessageBuilder;
 import net.tridentsdk.meta.nbt.CompoundTag;
 import net.tridentsdk.server.TridentServer;
-import net.tridentsdk.server.entity.TridentEntityBuilder;
+import net.tridentsdk.server.entity.EntityBuilder;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.packets.play.out.*;
@@ -81,14 +80,14 @@ public class TridentPlayer extends OfflinePlayer {
             offlinePlayer = OfflinePlayer.generatePlayer(id);
         }
 
-        final TridentPlayer p = TridentEntityBuilder.create().uuid(id)
+        final TridentPlayer p = EntityBuilder.create().uuid(id)
                 .spawn(new Position(TridentServer.WORLD, 0, 255, 0))
                 //TridentServer.WORLD.spawnLocation()) // TODO this is temporary for testing
                 .executor(ThreadsHandler.playerExecutor())
-                .build(TridentPlayer.class, ParameterValue.from(CompoundTag.class, offlinePlayer),
+                .build(TridentPlayer.class, EntityBuilder.ParameterValue.from(CompoundTag.class, offlinePlayer),
                         // TODO this is temporary for testing
-                        ParameterValue.from(TridentWorld.class, TridentServer.WORLD),
-                        ParameterValue.from(ClientConnection.class, connection));
+                        EntityBuilder.ParameterValue.from(TridentWorld.class, TridentServer.WORLD),
+                        EntityBuilder.ParameterValue.from(ClientConnection.class, connection));
         OfflinePlayer.players.put(id, p);
 
         p.name = name;

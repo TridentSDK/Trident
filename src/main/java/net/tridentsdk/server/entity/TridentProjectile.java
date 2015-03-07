@@ -18,7 +18,7 @@
 package net.tridentsdk.server.entity;
 
 import net.tridentsdk.Position;
-import net.tridentsdk.entity.EntityProperties;
+import net.tridentsdk.entity.traits.EntityProperties;
 import net.tridentsdk.entity.Projectile;
 import net.tridentsdk.entity.living.ProjectileLauncher;
 

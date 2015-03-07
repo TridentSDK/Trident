@@ -19,8 +19,8 @@ package net.tridentsdk.server.entity.living;
 
 import net.tridentsdk.Position;
 import net.tridentsdk.entity.Entity;
-import net.tridentsdk.entity.EntityType;
-import net.tridentsdk.entity.OcelotType;
+import net.tridentsdk.entity.types.EntityType;
+import net.tridentsdk.entity.types.OcelotType;
 import net.tridentsdk.entity.living.Ocelot;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.entity.EntityDamageEvent;

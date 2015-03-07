@@ -20,7 +20,7 @@ package net.tridentsdk.server.entity;
 import net.tridentsdk.Position;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.docs.Volatile;
-import net.tridentsdk.entity.decorate.InventoryHolder;
+import net.tridentsdk.entity.traits.InventoryHolder;
 import net.tridentsdk.meta.nbt.CompoundTag;
 import net.tridentsdk.meta.nbt.ListTag;
 import net.tridentsdk.meta.nbt.NBTSerializer;
