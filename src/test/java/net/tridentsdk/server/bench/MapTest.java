@@ -17,10 +17,17 @@
 package net.tridentsdk.server.bench;
 
 import com.google.common.collect.Sets;
+import net.tridentsdk.Position;
 import net.tridentsdk.entity.Entity;
-import net.tridentsdk.entity.traits.DecorationAdapter;
+import net.tridentsdk.entity.traits.EntityProperties;
+import net.tridentsdk.entity.types.EntityType;
+import net.tridentsdk.util.Vector;
 import net.tridentsdk.util.WeakEntity;
-import org.openjdk.jmh.annotations.*;
+import net.tridentsdk.world.World;
+import org.openjdk.jmh.annotations.Benchmark;
+import org.openjdk.jmh.annotations.Mode;
+import org.openjdk.jmh.annotations.Scope;
+import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
@@ -28,10 +35,7 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 import org.openjdk.jmh.runner.options.TimeValue;
 
 import javax.annotation.concurrent.GuardedBy;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -159,7 +163,29 @@ public class MapTest {
     private static final Lock mapLock = new ReentrantLock();
 
     private static final Object key = new Object();
-    private static final RefList LIST = RefList.newNode(WeakEntity.of(new DecorationAdapter<Entity>(null) {}), null);
+    private static final RefList LIST = RefList.newNode(WeakEntity.of(new Entity() {
+        @Override public void teleport(double x, double y, double z) {}
+        @Override public void teleport(Entity entity) {}
+        @Override public void teleport(Position location) {}
+        @Override public World world() {return null;}
+        @Override public Position position() {return null;}
+        @Override public Vector velocity() {return null;}
+        @Override public void setVelocity(Vector vector) {}
+        @Override public boolean onGround() {return false;}
+        @Override public Set<Entity> withinRange(double radius) {return null;}
+        @Override public String displayName() {return null;}
+        @Override public void setDisplayName(String name) {}
+        @Override public boolean isNameVisible() {return false;}
+        @Override public boolean isSilent() {return false;}
+        @Override public int entityId() {return 0;}
+        @Override public UUID uniqueId() {return null;}
+        @Override public void remove() {}
+        @Override public Entity passenger() {return null;}
+        @Override public void setPassenger(Entity entity) {}
+        @Override public void eject() {}
+        @Override public EntityType type() {return null;}
+        @Override public void applyProperties(EntityProperties properties) {}
+    }), null);
 
     public static void main(String[] args) throws RunnerException {
         Options opt = new OptionsBuilder()
@@ -374,7 +400,29 @@ public class MapTest {
 
     // A set of references assigned to a particular entity
     private static class RefList implements Iterable<WeakEntity> {
-        private static final Entity NULL = new DecorationAdapter<Entity>(null) {
+        private static final Entity NULL = new Entity() {
+            @Override public void teleport(double x, double y, double z) {}
+            @Override public void teleport(Entity entity) {}
+            @Override public void teleport(Position location) {}
+            @Override public World world() {return null;}
+            @Override public Position position() {return null;}
+            @Override public Vector velocity() {return null;}
+            @Override public void setVelocity(Vector vector) {}
+            @Override public boolean onGround() {return false;}
+            @Override public Set<Entity> withinRange(double radius) {return null;}
+            @Override public String displayName() {return null;}
+            @Override public void setDisplayName(String name) {}
+            @Override public boolean isNameVisible() {return false;}
+            @Override public boolean isSilent() {return false;}
+            @Override public int entityId() {return 0;}
+            @Override public UUID uniqueId() {return null;}
+            @Override public void remove() {}
+            @Override public Entity passenger() {return null;}
+            @Override public void setPassenger(Entity entity) {}
+            @Override public void eject() {}
+            @Override public EntityType type() {return null;}
+            @Override public void applyProperties(EntityProperties properties) {}
+
             @Override
             public int hashCode() {
                 return 0;
