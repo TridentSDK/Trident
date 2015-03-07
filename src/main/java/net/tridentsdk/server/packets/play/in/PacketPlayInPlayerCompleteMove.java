@@ -67,14 +67,14 @@ public class PacketPlayInPlayerCompleteMove extends PacketPlayInPlayerMove {
         TridentPlayer player = ((PlayerConnection) connection).player();
         super.location.setWorld(player.world());
 
-        Event event = new PlayerMoveEvent(player, player.location(), super.location);
+        Event event = new PlayerMoveEvent(player, player.position(), super.location);
         Handler.forEvents().fire(event);
 
         if (((Cancellable) event).isIgnored()) {
             PacketPlayOutEntityTeleport packet = new PacketPlayOutEntityTeleport();
 
             packet.set("entityId", player.entityId());
-            packet.set("location", player.location());
+            packet.set("location", player.position());
             packet.set("onGround", player.onGround());
 
             connection.sendPacket(packet);

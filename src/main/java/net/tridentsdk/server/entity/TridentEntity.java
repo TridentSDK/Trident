@@ -23,8 +23,8 @@ import net.tridentsdk.base.Substance;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.docs.PossiblyThreadSafe;
 import net.tridentsdk.entity.Entity;
-import net.tridentsdk.entity.EntityProperties;
-import net.tridentsdk.entity.EntityType;
+import net.tridentsdk.entity.traits.EntityProperties;
+import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.factory.ExecutorFactory;
 import net.tridentsdk.meta.nbt.*;
 import net.tridentsdk.server.TridentServer;
@@ -139,7 +139,7 @@ public class TridentEntity implements Entity {
         for (double y = this.loc.y(); y > 0.0; y--) {
             Position l = Position.create(this.loc.world(), this.loc.x(), y, this.loc.z());
 
-            if (l.tile().substance() != Substance.AIR) {
+            if (l.block().substance() != Substance.AIR) {
                 this.fallDistance.set((long) (this.loc.y() - y));
                 this.onGround = this.fallDistance.get() == 0.0D;
 
@@ -176,7 +176,7 @@ public class TridentEntity implements Entity {
 
     @Override
     public void teleport(Entity entity) {
-        this.teleport(entity.location());
+        this.teleport(entity.position());
     }
 
     @Override
@@ -205,7 +205,7 @@ public class TridentEntity implements Entity {
     }
 
     @Override
-    public Position location() {
+    public Position position() {
         return this.loc;
     }
 
@@ -328,7 +328,7 @@ public class TridentEntity implements Entity {
      * @param newCoords the new location for the entity
      */
     public void doMove(Position newCoords) {
-        HANDLER.trackMovement(this, location(), newCoords);
+        HANDLER.trackMovement(this, position(), newCoords);
         this.setLocation(newCoords);
     }
 

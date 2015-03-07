@@ -18,8 +18,8 @@
 package net.tridentsdk.server.entity.projectile;
 
 import net.tridentsdk.Position;
-import net.tridentsdk.entity.EntityProperties;
-import net.tridentsdk.entity.EntityType;
+import net.tridentsdk.entity.traits.EntityProperties;
+import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.entity.living.ProjectileLauncher;
 import net.tridentsdk.entity.projectile.Egg;
 import net.tridentsdk.server.entity.TridentProjectile;
@@ -52,10 +52,10 @@ public class TridentEgg extends TridentProjectile implements Egg {
         if (chance <= 8) {
             if (chance == 1) {
                 for (int i = 0; i < 4; i++) {
-                    HANDLER.register(new TridentChicken(UUID.randomUUID(), this.location()));
+                    HANDLER.register(new TridentChicken(UUID.randomUUID(), this.position()));
                 }
             } else {
-                HANDLER.register(new TridentChicken(UUID.randomUUID(), this.location()));
+                HANDLER.register(new TridentChicken(UUID.randomUUID(), this.position()));
             }
         }
     }

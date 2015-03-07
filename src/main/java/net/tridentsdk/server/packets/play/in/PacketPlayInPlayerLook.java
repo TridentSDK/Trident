@@ -63,8 +63,8 @@ public class PacketPlayInPlayerLook extends InPacket {
     @Override
     public void handleReceived(ClientConnection connection) {
         TridentPlayer player = ((PlayerConnection) connection).player();
-        Position from = player.location();
-        Position to = player.location();
+        Position from = player.position();
+        Position to = player.position();
 
         to.setYaw(this.newYaw);
         to.setPitch(this.newPitch);

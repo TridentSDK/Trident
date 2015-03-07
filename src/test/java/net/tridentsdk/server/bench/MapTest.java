@@ -18,7 +18,7 @@ package net.tridentsdk.server.bench;
 
 import com.google.common.collect.Sets;
 import net.tridentsdk.entity.Entity;
-import net.tridentsdk.entity.decorate.DecorationAdapter;
+import net.tridentsdk.entity.traits.DecorationAdapter;
 import net.tridentsdk.util.WeakEntity;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.runner.Runner;

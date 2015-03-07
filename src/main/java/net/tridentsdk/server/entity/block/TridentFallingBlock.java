@@ -19,8 +19,8 @@ package net.tridentsdk.server.entity.block;
 
 import net.tridentsdk.Position;
 import net.tridentsdk.base.BlockSnapshot;
-import net.tridentsdk.entity.EntityProperties;
-import net.tridentsdk.entity.EntityType;
+import net.tridentsdk.entity.traits.EntityProperties;
+import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.entity.block.FallingBlock;
 import net.tridentsdk.server.entity.TridentEntity;
 

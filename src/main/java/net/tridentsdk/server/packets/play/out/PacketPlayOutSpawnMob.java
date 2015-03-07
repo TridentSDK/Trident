@@ -45,7 +45,7 @@ public class PacketPlayOutSpawnMob extends OutPacket {
 
     @Override
     public void encode(ByteBuf buf) {
-        Position loc = this.entity.location();
+        Position loc = this.entity.position();
         Vector velocity = this.entity.velocity();
 
         Codec.writeVarInt32(buf, this.entityId);

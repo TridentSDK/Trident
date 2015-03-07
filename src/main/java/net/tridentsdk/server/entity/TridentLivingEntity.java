@@ -26,6 +26,8 @@ import net.tridentsdk.entity.living.ai.AiModule;
 import net.tridentsdk.entity.living.ai.Path;
 import net.tridentsdk.server.data.MetadataType;
 import net.tridentsdk.server.data.ProtocolMetadata;
+import net.tridentsdk.entity.traits.EntityProperties;
+import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.meta.nbt.*;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutDestroyEntities;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutSpawnMob;
@@ -117,7 +119,7 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
 
     @Override
     public Position headLocation() {
-        return this.location().relative(new Vector(0.0d, 1.0d, 0.0d));
+        return this.position().relative(new Vector(0.0d, 1.0d, 0.0d));
     }
 
     @Override

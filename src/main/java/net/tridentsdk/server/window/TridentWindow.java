@@ -23,11 +23,12 @@ import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.factory.Factories;
 import net.tridentsdk.server.data.Slot;
 import net.tridentsdk.server.entity.TridentEntity;
-import net.tridentsdk.server.entity.TridentEntityBuilder;
+import net.tridentsdk.server.entity.EntityBuilder;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutCloseWindow;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutOpenWindow;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutSetSlot;
 import net.tridentsdk.server.player.TridentPlayer;
+import net.tridentsdk.util.WeakEntity;
 import net.tridentsdk.window.Window;
 import net.tridentsdk.window.inventory.InventoryType;
 import net.tridentsdk.window.inventory.Item;
@@ -52,7 +53,7 @@ public class TridentWindow implements Window {
     private final String name;
     private final int length;
     private final InventoryType type;
-    private final Set<Player> users = Factories.collect().createSet();
+    private final Set<WeakEntity<Player>> users = Factories.collect().createSet();
     @Volatile(policy = "Do not write individual elements", reason = "Thread safe array", fix = "See Line 110")
     private volatile Item[] contents;
 
@@ -130,8 +131,8 @@ public class TridentWindow implements Window {
         PacketPlayOutSetSlot setSlot = new PacketPlayOutSetSlot();
         setSlot.set("windowId", windowId()).set("slot", (short) index).set("item", new Slot(value));
 
-        for (Player player : users) {
-            ((TridentPlayer) player).connection().sendPacket(setSlot);
+        for (WeakEntity<Player> player : WeakEntity.iterate(users)) {
+            ((TridentPlayer) player.obtain()).connection().sendPacket(setSlot);
         }
     }
 
@@ -144,10 +145,10 @@ public class TridentWindow implements Window {
             }
         }
 
-        for (Player user : users) {
+        for (WeakEntity<Player> player : WeakEntity.iterate(users)) {
             // TODO implement
-            TridentEntity dropped = TridentEntityBuilder.create()
-                    .spawn(user.location())
+            TridentEntity dropped = EntityBuilder.create()
+                    .spawn(player.obtain().position())
                     .build(TridentEntity.class);
             // TODO set dropped type
         }
@@ -167,7 +168,7 @@ public class TridentWindow implements Window {
             setSlot.set("windowId", windowId()).set("slot", (short) i).set("item", new Slot(items()[i]));
             player.connection().sendPacket(window);
         }
-        users.add(player);
+        users.add(WeakEntity.<Player>of(player));
     }
 
     public void close(Player player, boolean force) {
@@ -175,6 +176,6 @@ public class TridentWindow implements Window {
             ((TridentPlayer) player).connection().sendPacket(new PacketPlayOutCloseWindow().set("windowId", id));
         }
 
-        users.remove(player);
+        users.remove(WeakEntity.finderOf(player));
     }
 }

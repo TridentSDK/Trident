@@ -17,7 +17,7 @@
 package net.tridentsdk.server.entity;
 
 import net.tridentsdk.Position;
-import net.tridentsdk.entity.decorate.Tameable;
+import net.tridentsdk.entity.traits.Tameable;
 import net.tridentsdk.server.data.MetadataType;
 import net.tridentsdk.server.data.ProtocolMetadata;
 import net.tridentsdk.server.player.TridentPlayer;
@@ -60,15 +60,13 @@ public abstract class TridentTameable extends TridentAgeable implements Tameable
         return (tameData & 4) == 4;
     }
 
-    public void tame(UUID owner) {
-        executor.execute(() -> {
-            if(TridentPlayer.getPlayer(owner) == null) {
-                TridentLogger.error(new IllegalArgumentException("No player found with provided UUID!"));
-                return;
-            }
+    public void setTame(final UUID owner) {
+        if(TridentPlayer.getPlayer(owner) == null) {
+            TridentLogger.error(new IllegalArgumentException("No player found with provided UUID!"));
+            return;
+        }
 
-            TridentTameable.this.owner = owner;
-            tameData |= 4;
-        });
+        TridentTameable.this.owner = owner;
+        tameData |= 4;
     }
 }

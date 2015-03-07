@@ -19,8 +19,8 @@ package net.tridentsdk.server.entity.living;
 
 import net.tridentsdk.Position;
 import net.tridentsdk.entity.Entity;
-import net.tridentsdk.entity.EntityType;
-import net.tridentsdk.entity.OcelotType;
+import net.tridentsdk.entity.types.EntityType;
+import net.tridentsdk.entity.types.OcelotType;
 import net.tridentsdk.entity.living.Ocelot;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.entity.EntityDamageEvent;
@@ -31,7 +31,7 @@ import net.tridentsdk.server.entity.TridentTameable;
 import java.util.UUID;
 
 public class TridentOcelot extends TridentTameable implements Ocelot {
-    private volatile OcelotType breed; // consider removing volatile, enums have free-synchronization
+    private final OcelotType breed;
 
     public TridentOcelot(UUID id, Position spawnLocation) {
         super(id, spawnLocation);

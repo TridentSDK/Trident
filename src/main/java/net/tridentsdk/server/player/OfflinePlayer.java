@@ -17,11 +17,12 @@
 
 package net.tridentsdk.server.player;
 
+import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
 import net.tridentsdk.GameMode;
 import net.tridentsdk.Position;
 import net.tridentsdk.entity.Entity;
-import net.tridentsdk.entity.EntityProperties;
-import net.tridentsdk.entity.PlayerSpeed;
+import net.tridentsdk.entity.traits.EntityProperties;
+import net.tridentsdk.entity.traits.PlayerSpeed;
 import net.tridentsdk.entity.Projectile;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.entity.EntityDamageEvent;
@@ -38,12 +39,13 @@ import net.tridentsdk.world.World;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
 @ThreadSafe
 public class OfflinePlayer extends TridentInventoryHolder implements Player {
-    private static final Set<OfflinePlayer> players = Factories.collect().createSet();
+    static final Map<UUID, OfflinePlayer> players = new ConcurrentHashMapV8<>();
 
     /**
      * The name of the player
@@ -107,7 +109,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     protected final PlayerSpeed playerSpeed = new PlayerSpeedImpl();
     protected final Set<String> permissions = Factories.collect().createSet();
 
-    public OfflinePlayer(CompoundTag tag, TridentWorld world) {
+    OfflinePlayer(CompoundTag tag, TridentWorld world) {
         super(null, world.spawnLocation());
 
         load(tag);
@@ -147,17 +149,10 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
         }
 
         NBTSerializer.deserialize(abilities, (CompoundTag) tag.getTag("abilities"));
-        players.add(this);
     }
 
     public static OfflinePlayer getOfflinePlayer(UUID id) {
-        for (OfflinePlayer player : players) {
-            if (player.uniqueId().equals(id)) {
-                return player;
-            }
-        }
-
-        return null;
+        return players.get(id);
     }
 
     public static CompoundTag generatePlayer(UUID id) {

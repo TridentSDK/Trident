@@ -18,7 +18,7 @@
 package net.tridentsdk.server.entity.living.ai;
 
 import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
-import net.tridentsdk.entity.EntityType;
+import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.entity.living.ai.AiHandler;
 import net.tridentsdk.entity.living.ai.AiModule;
 

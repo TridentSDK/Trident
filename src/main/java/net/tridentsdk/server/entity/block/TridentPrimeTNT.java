@@ -22,7 +22,7 @@ import net.tridentsdk.Position;
 import net.tridentsdk.base.Audio;
 import net.tridentsdk.base.Block;
 import net.tridentsdk.base.Substance;
-import net.tridentsdk.entity.EntityType;
+import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.entity.block.PrimeTNT;
 import net.tridentsdk.event.entity.EntityExplodeEvent;
 import net.tridentsdk.server.data.RecordBuilder;
@@ -54,7 +54,7 @@ public class TridentPrimeTNT extends TridentFallingBlock implements PrimeTNT {
                 return;
             }
 
-            Position p = location();
+            Position p = position();
             int radius = this.radius; // Prevent the value from changing within operation
 
             int minX = (int) (p.x() - radius);

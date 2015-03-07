@@ -18,7 +18,7 @@
 package net.tridentsdk.server.entity;
 
 import net.tridentsdk.Position;
-import net.tridentsdk.entity.EntityProperties;
+import net.tridentsdk.entity.traits.EntityProperties;
 import net.tridentsdk.entity.Projectile;
 import net.tridentsdk.entity.living.ProjectileLauncher;
 
@@ -71,6 +71,6 @@ public abstract class TridentProjectile extends TridentEntity implements Project
 
     @Override
     public void setLauncher(final ProjectileLauncher shooter) {
-        super.executor.execute(() -> TridentProjectile.this.source = new WeakReference<>(shooter));
+        TridentProjectile.this.source = new WeakReference<>(shooter);
     }
 }
