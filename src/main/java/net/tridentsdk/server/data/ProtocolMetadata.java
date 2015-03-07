@@ -16,19 +16,26 @@
  */
 package net.tridentsdk.server.data;
 
+import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.util.Vector;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
-import java.util.LinkedList;
+import java.util.Iterator;
 import java.util.List;
 
 @ThreadSafe
 public class ProtocolMetadata implements Writable {
     @GuardedBy("metadata")
-    private final List<MetadataValue> metadata = new LinkedList<>();
+    private final List<MetadataValue> metadata = Lists.newLinkedList(new Iterable<MetadataValue>() {
+        @Override
+        public Iterator<MetadataValue> iterator() {
+            return Iterators.forArray(new MetadataValue[22]);
+        }
+    });
 
     public int addMeta(MetadataType type, Object value) {
         synchronized (metadata) {
