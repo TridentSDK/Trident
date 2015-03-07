@@ -72,7 +72,7 @@ public class PacketPlayInPlayerMove extends InPacket {
     public void handleReceived(ClientConnection connection) {
         TridentPlayer player = ((PlayerConnection) connection).player();
         this.location.setWorld(player.world());
-        Position from = player.location();
+        Position from = player.position();
         Position to = this.location;
 
         PlayerMoveEvent event = new PlayerMoveEvent(player, from, to);

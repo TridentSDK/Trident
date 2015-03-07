@@ -54,7 +54,7 @@ public class TridentPrimeTNT extends TridentFallingBlock implements PrimeTNT {
                 return;
             }
 
-            Position p = location();
+            Position p = position();
             int radius = this.radius; // Prevent the value from changing within operation
 
             int minX = (int) (p.x() - radius);

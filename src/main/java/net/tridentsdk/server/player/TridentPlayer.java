@@ -81,12 +81,15 @@ public class TridentPlayer extends OfflinePlayer {
             offlinePlayer = OfflinePlayer.generatePlayer(id);
         }
 
-        final TridentPlayer p = TridentEntityBuilder.create().uuid(id).spawn(new Position(TridentServer.WORLD, 0, 255, 0))//TridentServer.WORLD.spawnLocation()) // TODO this is temporary for testing
+        final TridentPlayer p = TridentEntityBuilder.create().uuid(id)
+                .spawn(new Position(TridentServer.WORLD, 0, 255, 0))
+                //TridentServer.WORLD.spawnLocation()) // TODO this is temporary for testing
                 .executor(ThreadsHandler.playerExecutor())
                 .build(TridentPlayer.class, ParameterValue.from(CompoundTag.class, offlinePlayer),
                         // TODO this is temporary for testing
                         ParameterValue.from(TridentWorld.class, TridentServer.WORLD),
                         ParameterValue.from(ClientConnection.class, connection));
+        OfflinePlayer.players.put(id, p);
 
         p.name = name;
 
@@ -122,13 +125,10 @@ public class TridentPlayer extends OfflinePlayer {
     }
 
     public static Player getPlayer(UUID id) {
-        for (Player player : players()) {
-            if (player.uniqueId().equals(id)) {
-                return player;
-            }
-        }
-
-        return null;
+        Player player = OfflinePlayer.getOfflinePlayer(id);
+        if (player == null) return null;
+        if (!players().contains(player)) return null;
+        return player;
     }
 
     public static Collection<Player> players() {
@@ -155,7 +155,7 @@ public class TridentPlayer extends OfflinePlayer {
         connection.sendPacket(PacketPlayOutStatistics.DEFAULT_STATISTIC);
         sendChunks(TridentServer.instance().viewDistance());
         connection.sendPacket(new PacketPlayOutPlayerCompleteMove().set("location",
-                location()).set("flags", (byte) 1));
+                position()).set("flags", (byte) 1));
 
         TridentWindow window = TridentWindow.create("Inventory", 9, InventoryType.CHEST);
         window.setSlot(0, new Item(Substance.DIAMOND_PICKAXE));

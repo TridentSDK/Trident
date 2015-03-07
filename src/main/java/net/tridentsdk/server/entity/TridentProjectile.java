@@ -71,11 +71,6 @@ public abstract class TridentProjectile extends TridentEntity implements Project
 
     @Override
     public void setLauncher(final ProjectileLauncher shooter) {
-        super.executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                TridentProjectile.this.source = new WeakReference<>(shooter);
-            }
-        });
+        TridentProjectile.this.source = new WeakReference<>(shooter);
     }
 }

@@ -17,9 +17,9 @@
 
 package net.tridentsdk.server.entity.ai.pathfinder;
 
-import net.tridentsdk.Coordinates;
+import net.tridentsdk.Position;
+import net.tridentsdk.base.Block;
 import net.tridentsdk.base.Substance;
-import net.tridentsdk.base.Tile;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.util.Vector;
 
@@ -37,9 +37,9 @@ public class Pathfinder {
     private final HashSet<Node> closedList = new HashSet<>();
     private Path result;
 
-    public Pathfinder(Entity entity, Coordinates target, double range) {
+    public Pathfinder(Entity entity, Position target, double range) {
         this.entity = entity;
-        this.start = new Node(null, entity.getLocation());
+        this.start = new Node(null, entity.position());
         this.end = new Node(null, target);
         this.range = range;
     }
@@ -128,13 +128,13 @@ public class Pathfinder {
     }
 
     private boolean canWalkOn(Node node) {
-        Tile tile = entity.getWorld().tileAt(Coordinates.create(entity.getWorld(), node.getX(), node.getY(), node.getZ()));
-        return tile.substance().isSolid();
+        Block block = Position.create(entity.world(), node.getX(), node.getY(), node.getZ()).block();
+        return block.substance().isSolid();
     }
 
     private boolean canWalkThrough(Node node) {
-        Tile tile = entity.getWorld().tileAt(Coordinates.create(entity.getWorld(), node.getX(), node.getY(), node.getZ()));
-        return canWalkThrough(tile.substance()) && canWalkThrough(tile.relativeTile(new Vector(0, 1, 0)).substance());
+        Block block = Position.create(entity.world(), node.getX(), node.getY(), node.getZ()).block();
+        return canWalkThrough(block.substance()) && canWalkThrough(block.relativeBlock(new Vector(0, 1, 0)).substance());
     }
 
     private boolean canWalkThrough(Substance type) {

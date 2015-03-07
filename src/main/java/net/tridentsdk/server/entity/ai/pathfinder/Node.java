@@ -17,7 +17,7 @@
 
 package net.tridentsdk.server.entity.ai.pathfinder;
 
-import net.tridentsdk.Coordinates;
+import net.tridentsdk.Position;
 
 public class Node {
     private Node parent;
@@ -29,8 +29,8 @@ public class Node {
     private double g = -1;
     private double f = -1;
 
-    public Node(Node parent, Coordinates position) {
-        this(parent, position.getX(), position.getY(), position.getZ());
+    public Node(Node parent, Position position) {
+        this(parent, position.x(), position.y(), position.z());
     }
 
     public Node(Node parent, double x, double y, double z) {

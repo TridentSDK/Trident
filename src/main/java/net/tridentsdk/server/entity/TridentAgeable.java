@@ -21,12 +21,7 @@ public abstract class TridentAgeable extends TridentLivingEntity implements Agea
 
     @Override
     public void setAge(final int ticks) {
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                age.set(ticks);
-            }
-        });
+        age.set(ticks);
     }
 
     @Override

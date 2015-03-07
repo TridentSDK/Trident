@@ -117,7 +117,7 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
 
     @Override
     public Position headLocation() {
-        return this.location().relative(new Vector(0.0d, 1.0d, 0.0d));
+        return this.position().relative(new Vector(0.0d, 1.0d, 0.0d));
     }
 
     @Override

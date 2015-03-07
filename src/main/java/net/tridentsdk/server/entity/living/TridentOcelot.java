@@ -30,7 +30,7 @@ import net.tridentsdk.server.entity.TridentTameable;
 import java.util.UUID;
 
 public class TridentOcelot extends TridentTameable implements Ocelot {
-    private volatile OcelotType breed; // consider removing volatile, enums have free-synchronization
+    private final OcelotType breed;
 
     public TridentOcelot(UUID id, Position spawnLocation) {
         super(id, spawnLocation);
