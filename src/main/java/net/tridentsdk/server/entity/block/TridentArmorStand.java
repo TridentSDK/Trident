@@ -24,13 +24,13 @@ import net.tridentsdk.entity.block.ArmorStand;
 import net.tridentsdk.entity.block.SlotProperties;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.entity.EntityDamageEvent;
+import net.tridentsdk.server.data.MetadataType;
+import net.tridentsdk.server.data.ProtocolMetadata;
 import net.tridentsdk.server.entity.TridentLivingEntity;
 import net.tridentsdk.util.PartRotation;
 import net.tridentsdk.window.inventory.Item;
 
 import java.util.UUID;
-
-import static net.tridentsdk.server.data.ProtocolMetadata.MetadataType;
 
 public class TridentArmorStand extends TridentLivingEntity implements ArmorStand {
     private final SlotProperties properties;
@@ -56,7 +56,8 @@ public class TridentArmorStand extends TridentLivingEntity implements ArmorStand
     }
 
     @Override
-    protected void updateProtocolMeta() {
+    protected void encodeMetadata(ProtocolMetadata protocolMeta) {
+        super.encodeMetadata(protocolMeta);
         protocolMeta.setMeta(10, MetadataType.BYTE, data);
 
         for (int i = 1; i <= 6; i++) {

@@ -60,12 +60,7 @@ public class ClientConnection {
     protected static final Cipher cipher = getCipher();
 
     /* Network fields */
-    private static final Callable<ClientConnection> NULL_CALLABLE = new Callable<ClientConnection>() {
-        @Override
-        public ClientConnection call() throws Exception {
-            return null;
-        }
-    };
+    private static final Callable<ClientConnection> NULL_CALLABLE = () -> null;
     private final Object BARRIER;
 
     /* Encryption and client data fields */
@@ -165,12 +160,7 @@ public class ClientConnection {
      * @return the client connection that was registered
      */
     public static ClientConnection registerConnection(final Channel channel) {
-        return clientData.retrieve((InetSocketAddress) channel.remoteAddress(), new Callable<ClientConnection>() {
-            @Override
-            public ClientConnection call() throws Exception {
-                return new ClientConnection(channel);
-            }
-        });
+        return clientData.retrieve((InetSocketAddress) channel.remoteAddress(), () -> new ClientConnection(channel));
     }
 
     /**

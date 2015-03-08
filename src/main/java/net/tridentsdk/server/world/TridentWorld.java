@@ -231,52 +231,49 @@ public class TridentWorld implements World {
     }
 
     public void tick() {
-        ThreadsHandler.worldExecutor().execute(new Runnable() {
-            @Override
-            public void run() {
-                redstoneTick = !redstoneTick;
+        ThreadsHandler.worldExecutor().execute(() -> {
+            redstoneTick = !redstoneTick;
 
-                if (time >= 2400)
-                    time = 0;
-                if (time % 40 == 0)
-                    TridentPlayer.sendAll(new PacketPlayOutTimeUpdate().set("worldAge", existed).set("time", time));
+            if (time >= 2400)
+                time = 0;
+            if (time % 40 == 0)
+                TridentPlayer.sendAll(new PacketPlayOutTimeUpdate().set("worldAge", existed).set("time", time));
 
-                rainTime--;
-                thunderTime--;
+            rainTime--;
+            thunderTime--;
 
-                if (rainTime <= 0) {
-                    raining = !raining;
-                    rainTime = ThreadLocalRandom.current().nextInt();
-                }
+            if (rainTime <= 0) {
+                raining = !raining;
+                rainTime = ThreadLocalRandom.current().nextInt();
+            }
 
-                if (thunderTime <= 0) {
-                    thundering = !thundering;
-                    thunderTime = ThreadLocalRandom.current().nextInt();
-                }
+            if (thunderTime <= 0) {
+                thundering = !thundering;
+                thunderTime = ThreadLocalRandom.current().nextInt();
+            }
 
-                time++;
-                existed++;
+            time++;
+            existed++;
 
-                if (time % 150 == 0) {
-                    Set<ChunkLocation> set = Sets.newHashSet();
-                    for (Entity entity : entities) {
-                        if (entity instanceof Player) {
-                            Position pos = entity.position();
-                            int x = (int) pos.x() % 16;
-                            int z = (int) pos.z() % 16;
-                            int viewDist = Trident.config().getInt("view-distance", 7);
+            if (time % 150 == 0) {
+                Set<ChunkLocation> set = Sets.newHashSet();
+                for (Entity entity : entities) {
+                    if (entity instanceof Player) {
+                        Position pos = entity.position();
+                        int x = (int) pos.x() % 16;
+                        int z = (int) pos.z() % 16;
+                        int viewDist = Trident.config().getInt("view-distance", 7);
 
-                            for (int i = x - viewDist; i < x + viewDist; i++) {
-                                for (int j = z - viewDist; j < z + viewDist; j++) {
-                                    set.add(ChunkLocation.create(i, j));
-                                }
+                        for (int i = x - viewDist; i < x + viewDist; i++) {
+                            for (int j = z - viewDist; j < z + viewDist; j++) {
+                                set.add(ChunkLocation.create(i, j));
                             }
                         }
                     }
-
-                    loadedChunks.retain(set);
-                    set = null;
                 }
+
+                loadedChunks.retain(set);
+                set = null;
             }
         });
     }

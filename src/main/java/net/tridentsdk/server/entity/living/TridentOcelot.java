@@ -24,6 +24,7 @@ import net.tridentsdk.entity.types.OcelotType;
 import net.tridentsdk.entity.living.Ocelot;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.entity.EntityDamageEvent;
+import net.tridentsdk.server.data.MetadataType;
 import net.tridentsdk.server.data.ProtocolMetadata;
 import net.tridentsdk.server.entity.TridentTameable;
 
@@ -38,8 +39,10 @@ public class TridentOcelot extends TridentTameable implements Ocelot {
     }
 
     @Override
-    protected void updateProtocolMeta() {
-        protocolMeta.setMeta(18, ProtocolMetadata.MetadataType.BYTE, (byte) breed.asInt());
+    protected void encodeMetadata(ProtocolMetadata protocolMeta) {
+        super.encodeMetadata(protocolMeta);
+
+        protocolMeta.setMeta(18, MetadataType.BYTE, (byte) breed.asInt());
     }
 
     @Override

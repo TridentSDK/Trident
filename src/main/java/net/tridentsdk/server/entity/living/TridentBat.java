@@ -25,6 +25,7 @@ import net.tridentsdk.entity.Projectile;
 import net.tridentsdk.entity.living.Bat;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.entity.EntityDamageEvent;
+import net.tridentsdk.server.data.MetadataType;
 import net.tridentsdk.server.data.ProtocolMetadata;
 import net.tridentsdk.server.entity.TridentLivingEntity;
 
@@ -40,8 +41,10 @@ public class TridentBat extends TridentLivingEntity implements Bat {
     }
 
     @Override
-    protected void updateProtocolMeta() {
-        protocolMeta.setMeta(16, ProtocolMetadata.MetadataType.BYTE,
+    protected void encodeMetadata(ProtocolMetadata protocolMeta) {
+        super.encodeMetadata(protocolMeta);
+
+        protocolMeta.setMeta(16, MetadataType.BYTE,
                 hanging ? (byte) 1 : (byte) 0);
     }
 

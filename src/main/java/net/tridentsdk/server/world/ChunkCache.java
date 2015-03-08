@@ -81,12 +81,12 @@ class ChunkCache {
             return;
         }
 
-        for (ChunkLocation l : keys()) {
-            if (!set.contains(l)) {
-                HeldValueLatch<TridentChunk> latch = cachedChunks.remove(l);
-                latch.get().clear();
-            }
-        }
+        keys().stream()
+                .filter(set::contains)
+                .forEach((l) -> {
+                    HeldValueLatch<TridentChunk> latch = cachedChunks.remove(l);
+                    latch.get().clear();
+                });
     }
 
     public Set<ChunkLocation> keys() {
@@ -95,15 +95,16 @@ class ChunkCache {
 
     public Collection<TridentChunk> values() {
         Collection<TridentChunk> chunks = Lists.newArrayList();
-        for (HeldValueLatch<TridentChunk> chunk : cachedChunks.values()) {
-            if (chunk.hasValue()) {
-                try {
-                    chunks.add(chunk.await());
-                } catch (InterruptedException e) {
-                    TridentLogger.error(e);
-                }
-            }
-        }
+
+        cachedChunks.values().stream()
+                .filter(HeldValueLatch::hasValue)
+                .forEach((c) -> {
+                    try {
+                        chunks.add(c.await());
+                    } catch (InterruptedException e) {
+                        TridentLogger.error(e);
+                    }
+                });
 
         return chunks;
     }

@@ -77,12 +77,7 @@ public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implement
     private final ThreadWorker[] workers;
 
     private final int scale;
-    private final Callable<ThreadWorker> obtainWorker = new Callable<ThreadWorker>() {
-        @Override
-        public ThreadWorker call() throws Exception {
-            return (ThreadWorker) scaledThread();
-        }
-    };
+    private final Callable<ThreadWorker> obtainWorker = () -> (ThreadWorker) scaledThread();
     // We cache assignments, if it is retrieved again while loading into the map, there would be 2 requests for the same
     // thing concurrently, which is bad for performance in the long run
     // It is better to have it slow now to cache correctly than time later to doubly receive
@@ -94,8 +89,8 @@ public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implement
 
     private ConcurrentTaskExecutor(int scale, String name) {
         this.scale = scale;
-
         this.workers = (ThreadWorker[]) Array.newInstance(ThreadWorker.class, scale);
+
         for (int i = 0; i < scale; i++) {
             workers[i] = new ThreadWorker(i, name).startWorker();
         }
@@ -143,12 +138,7 @@ public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implement
 
     @Override
     public void set(final TaskExecutor executor, E assignment) {
-        assigned.retrieve(assignment, new Callable<ThreadWorker>() {
-            @Override
-            public ThreadWorker call() throws Exception {
-                return (ThreadWorker) executor;
-            }
-        });
+        assigned.retrieve(assignment, () -> (ThreadWorker) executor);
     }
 
     @Override
@@ -163,10 +153,7 @@ public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implement
 
     @Override
     public List<TaskExecutor> threadList() {
-        List<TaskExecutor> execs = Lists.newArrayList();
-        for (ThreadWorker worker : workers)
-            execs.add(worker);
-        return execs;
+        return Lists.newArrayList(workers);
     }
 
     @Override
@@ -200,6 +187,7 @@ public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implement
     public boolean awaitTermination(long l, TimeUnit timeUnit) throws InterruptedException {
         shutdownNow();
         long units = timeUnit.convert(System.nanoTime(), timeUnit);
+
         while (state != STOPPED) {
             if (timeUnit.convert(System.nanoTime(), timeUnit) - units > l) {
                 return false;
@@ -212,12 +200,8 @@ public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implement
     @Override
     public <T> Future<T> submit(Callable<T> task) {
         final RunnableFuture<T> future = new FutureTask<>(task);
-        execute(new Runnable() {
-            @Override
-            public void run() {
-                future.run();
-            }
-        });
+
+        execute(future::run);
         return future;
     }
 
@@ -256,12 +240,8 @@ public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implement
         @Override
         public <V> Future<V> submitTask(Callable<V> task) {
             final RunnableFuture<V> future = new FutureTask<>(task);
-            addTask(new Runnable() { // Be VERY careful -- This is addTask, NOT execute
-                @Override
-                public void run() {
-                    future.run();
-                }
-            });
+
+            addTask(future::run);
             return future;
         }
 

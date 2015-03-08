@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package net.tridentsdk.server.entity.ai.pathfinder;
+package net.tridentsdk.server.entity.living.ai.pathfind;
 
 import net.tridentsdk.Position;
 import net.tridentsdk.base.Block;
@@ -23,10 +23,12 @@ import net.tridentsdk.base.Substance;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.util.Vector;
 
+import javax.annotation.concurrent.NotThreadSafe;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
+@NotThreadSafe
 public class Pathfinder {
     private final Entity entity;
     private final Node start;
@@ -87,7 +89,7 @@ public class Pathfinder {
             }
         }
 
-        if(end.getParent() != null) {
+        if(end.parent() != null) {
             this.result = new Path(end);
         }
     }
@@ -128,12 +130,12 @@ public class Pathfinder {
     }
 
     private boolean canWalkOn(Node node) {
-        Block block = Position.create(entity.world(), node.getX(), node.getY(), node.getZ()).block();
+        Block block = entity.world().blockAt(Position.create(entity.world(), node.x(), node.y(), node.z()));
         return block.substance().isSolid();
     }
 
     private boolean canWalkThrough(Node node) {
-        Block block = Position.create(entity.world(), node.getX(), node.getY(), node.getZ()).block();
+        Block block = entity.world().blockAt(Position.create(entity.world(), node.x(), node.y(), node.z()));
         return canWalkThrough(block.substance()) && canWalkThrough(block.relativeBlock(new Vector(0, 1, 0)).substance());
     }
 

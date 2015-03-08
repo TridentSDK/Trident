@@ -24,6 +24,8 @@ import net.tridentsdk.entity.*;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.entity.living.ai.AiModule;
 import net.tridentsdk.entity.living.ai.Path;
+import net.tridentsdk.server.data.MetadataType;
+import net.tridentsdk.server.data.ProtocolMetadata;
 import net.tridentsdk.entity.traits.EntityProperties;
 import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.meta.nbt.*;
@@ -36,8 +38,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static net.tridentsdk.server.data.ProtocolMetadata.MetadataType;
 
 /**
  * An entity that has health
@@ -80,8 +80,8 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
     }
 
     @Override
-    protected void updateProtocolMeta() {
-        super.updateProtocolMeta();
+    protected void encodeMetadata(ProtocolMetadata protocolMeta) {
+        super.encodeMetadata(protocolMeta);
 
         protocolMeta.setMeta(2, MetadataType.STRING, displayName);
         protocolMeta.setMeta(3, MetadataType.BYTE, nameVisible ? (byte) 1 : (byte) 0);
@@ -201,9 +201,13 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
     @Override
     public void show(Entity entity) {
         PacketPlayOutSpawnMob packet = new PacketPlayOutSpawnMob();
+        ProtocolMetadata protocolMeta = new ProtocolMetadata();
+
+        ((TridentEntity) entity).encodeMetadata(protocolMeta);
+
         packet.set("entityId", entity.entityId())
                 .set("entity", entity)
-                .set("metadata", ((TridentEntity) entity).protocolMeta);
+                .set("metadata", protocolMeta);
 
         if (this instanceof Player) {
             ((TridentPlayer) this).connection().sendPacket(packet);

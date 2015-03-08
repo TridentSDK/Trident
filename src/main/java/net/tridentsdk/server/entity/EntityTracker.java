@@ -23,6 +23,7 @@ import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.player.PlayerMoveEvent;
+import net.tridentsdk.server.data.ProtocolMetadata;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutEntityCompleteMove;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutSpawnMob;
 import net.tridentsdk.server.player.TridentPlayer;
@@ -36,14 +37,19 @@ import net.tridentsdk.util.Vector;
  */
 @InternalUseOnly
 public class EntityTracker {
-    public void track(Entity entity, byte... meta) {
+    public void track(Entity entity) {
         if (entity instanceof TridentPlayer)
             return;
+
         PacketPlayOutSpawnMob packet = new PacketPlayOutSpawnMob();
+        ProtocolMetadata metadata = new ProtocolMetadata();
+
+        ((TridentEntity) entity).encodeMetadata(metadata);
+
         packet.set("entityId", entity.entityId())
                 .set("entity", entity)
-                .set("metadata", ((TridentEntity) entity).protocolMeta);
-        // TODO
+                .set("metadata", metadata);
+
         TridentPlayer.sendAll(packet);
         ((TridentWorld) entity.world()).addEntity(entity);
     }
@@ -66,11 +72,13 @@ public class EntityTracker {
 
     private void sendMove(Entity entity, Position to, Vector diff) {
         PacketPlayOutEntityCompleteMove move = new PacketPlayOutEntityCompleteMove();
+
         move.set("entityId", entity.entityId())
                 .set("difference", diff)
                 .set("yaw", to.yaw())
                 .set("pitch", to.pitch())
                 .set("flags", (byte) 0);
+
         TridentPlayer.sendAll(move);
     }
 }

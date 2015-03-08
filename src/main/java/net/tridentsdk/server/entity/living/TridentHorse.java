@@ -26,14 +26,14 @@ import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.entity.types.HorseType;
 import net.tridentsdk.entity.types.HorseVariant;
 import net.tridentsdk.event.entity.EntityDamageEvent;
+import net.tridentsdk.server.data.MetadataType;
+import net.tridentsdk.server.data.ProtocolMetadata;
 import net.tridentsdk.server.entity.TridentAgeable;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.window.inventory.Inventory;
 import net.tridentsdk.window.inventory.Item;
 
 import java.util.UUID;
-
-import static net.tridentsdk.server.data.ProtocolMetadata.MetadataType;
 
 public class TridentHorse extends TridentAgeable implements Horse {
     private volatile int data;
@@ -54,7 +54,9 @@ public class TridentHorse extends TridentAgeable implements Horse {
     }
 
     @Override
-    protected void updateProtocolMeta() {
+    protected void encodeMetadata(ProtocolMetadata protocolMeta) {
+        super.encodeMetadata(protocolMeta);
+
         protocolMeta.setMeta(16, MetadataType.INT, data);
         protocolMeta.setMeta(19, MetadataType.BYTE, (byte) breed.id());
         protocolMeta.setMeta(20, MetadataType.INT, colorData);
@@ -155,21 +157,6 @@ public class TridentHorse extends TridentAgeable implements Horse {
 
     @Override
     public Player lastPlayerDamager() {
-        return null;
-    }
-
-    @Override
-    public boolean isNameVisible() {
-        return false;
-    }
-
-    @Override
-    public void applyProperties(EntityProperties properties) {
-
-    }
-
-    @Override
-    public <T extends Projectile> T launchProjectile(EntityProperties properties) {
         return null;
     }
 

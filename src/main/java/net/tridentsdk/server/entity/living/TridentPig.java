@@ -23,6 +23,7 @@ import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.entity.living.Pig;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.entity.EntityDamageEvent;
+import net.tridentsdk.server.data.MetadataType;
 import net.tridentsdk.server.data.ProtocolMetadata;
 import net.tridentsdk.server.entity.TridentAgeable;
 
@@ -37,8 +38,10 @@ public class TridentPig extends TridentAgeable implements Pig {
     }
 
     @Override
-    protected void updateProtocolMeta() {
-        protocolMeta.setMeta(16, ProtocolMetadata.MetadataType.BYTE, (hasSaddle) ? (byte) 1 : (byte) 0);
+    protected void encodeMetadata(ProtocolMetadata protocolMeta) {
+        super.encodeMetadata(protocolMeta);
+
+        protocolMeta.setMeta(16, MetadataType.BYTE, (hasSaddle) ? (byte) 1 : (byte) 0);
     }
 
     @Override

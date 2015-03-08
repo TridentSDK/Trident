@@ -17,7 +17,6 @@
 
 package net.tridentsdk.server.entity;
 
-import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.AtomicDouble;
 import net.tridentsdk.Position;
 import net.tridentsdk.base.Substance;
@@ -29,6 +28,7 @@ import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.factory.ExecutorFactory;
 import net.tridentsdk.meta.nbt.*;
 import net.tridentsdk.server.TridentServer;
+import net.tridentsdk.server.data.MetadataType;
 import net.tridentsdk.server.data.ProtocolMetadata;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutDestroyEntities;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutEntityTeleport;
@@ -43,6 +43,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 /**
  * Entity abstraction base
@@ -122,10 +123,6 @@ public class TridentEntity implements Entity {
      * {@code true} to indicate the entity cannot be damaged
      */
     protected volatile boolean godMode;
-    /**
-     * Internal metadata for the entity
-     */
-    protected final ProtocolMetadata protocolMeta = new ProtocolMetadata();
 
     /**
      * Creates a new entity
@@ -138,8 +135,6 @@ public class TridentEntity implements Entity {
         this.id = counter.incrementAndGet();
         this.velocity = new Vector(0.0D, 0.0D, 0.0D);
         this.loc = spawnLocation;
-
-        updateProtocolMeta();
 
         for (double y = this.loc.y(); y > 0.0; y--) {
             Position l = Position.create(this.loc.world(), this.loc.x(), y, this.loc.z());
@@ -169,9 +164,9 @@ public class TridentEntity implements Entity {
         return this;
     }
 
-    protected void updateProtocolMeta() {
-        protocolMeta.setMeta(0, ProtocolMetadata.MetadataType.BYTE, (byte) ((fireTicks.intValue() == 0) ? 1 : 0));
-        protocolMeta.setMeta(1, ProtocolMetadata.MetadataType.SHORT, airTicks.shortValue());
+    protected void encodeMetadata(ProtocolMetadata protocolMeta) {
+        protocolMeta.setMeta(0, MetadataType.BYTE, (byte) ((fireTicks.intValue() == 0) ? 1 : 0));
+        protocolMeta.setMeta(1, MetadataType.SHORT, airTicks.shortValue());
     }
 
     @Override
@@ -251,12 +246,9 @@ public class TridentEntity implements Entity {
     }
 
     public void tick() {
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
+        executor.execute(() -> {
                 ticksExisted.incrementAndGet();
                 doTick();
-            }
         });
     }
 
@@ -272,13 +264,10 @@ public class TridentEntity implements Entity {
     public Set<Entity> withinRange(double radius) {
         double squared = radius * radius;
         Set<Entity> entities = position().world().entities();
-        Set<Entity> near = Sets.newHashSet();
-        for (Entity entity : entities) {
-            if (entity.position().distanceSquared(position()) <= squared)
-                near.add(entity);
-        }
 
-        return near;
+        return entities.stream()
+                .filter((e) -> e.position().distanceSquared(position()) <= squared)
+                .collect(Collectors.toSet());
     }
 
     @Override
