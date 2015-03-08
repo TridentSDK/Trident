@@ -135,8 +135,8 @@ public class Pathfinder {
     }
 
     private boolean canWalkThrough(Node node) {
-        Tile tile = entity.getWorld().tileAt(Coordinates.create(entity.getWorld(), node.getX(), node.getY(), node.getZ()));
-        return canWalkThrough(tile.substance()) && canWalkThrough(tile.relativeTile(new Vector(0, 1, 0)).substance());
+        Block block = entity.world().blockAt(Position.create(entity.world(), node.x(), node.y(), node.z()));
+        return canWalkThrough(block.substance()) && canWalkThrough(block.relativeBlock(new Vector(0, 1, 0)).substance());
     }
 
     private boolean canWalkThrough(Substance type) {

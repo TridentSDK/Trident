@@ -246,12 +246,9 @@ public class TridentEntity implements Entity {
     }
 
     public void tick() {
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
+        executor.execute(() -> {
                 ticksExisted.incrementAndGet();
                 doTick();
-            }
         });
     }
 
@@ -266,10 +263,10 @@ public class TridentEntity implements Entity {
     @Override
     public Set<Entity> withinRange(double radius) {
         double squared = radius * radius;
-        Set<Entity> entities = location().world().entities();
+        Set<Entity> entities = position().world().entities();
 
         return entities.stream()
-                .filter((e) -> e.location().distanceSquared(location()) <= squared)
+                .filter((e) -> e.position().distanceSquared(position()) <= squared)
                 .collect(Collectors.toSet());
     }
 

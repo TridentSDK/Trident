@@ -259,7 +259,7 @@ public class TridentWorld implements World {
                 Set<ChunkLocation> set = Sets.newHashSet();
                 for (Entity entity : entities) {
                     if (entity instanceof Player) {
-                        Position pos = entity.location();
+                        Position pos = entity.position();
                         int x = (int) pos.x() % 16;
                         int z = (int) pos.z() % 16;
                         int viewDist = Trident.config().getInt("view-distance", 7);
