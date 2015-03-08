@@ -30,7 +30,6 @@ import net.tridentsdk.meta.nbt.CompoundTag;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.data.MetadataType;
 import net.tridentsdk.server.data.ProtocolMetadata;
-import net.tridentsdk.server.entity.TridentEntityBuilder;
 import net.tridentsdk.server.entity.EntityBuilder;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.Packet;
