@@ -37,7 +37,7 @@ import java.util.concurrent.ConcurrentMap;
 public class CacheTest extends AbstractTest {
     static {
         TridentLogger.init();
-        AccessBridge.open().sendSelf(new CollectFactory() {
+        AccessBridge.open().sendSuper(new CollectFactory() {
             @Override
             public <K, V> ConcurrentMap<K, V> createMap() {
                 return new ConcurrentHashMapV8<>();
