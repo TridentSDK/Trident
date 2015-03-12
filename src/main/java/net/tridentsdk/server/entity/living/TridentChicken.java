@@ -25,44 +25,39 @@ import net.tridentsdk.entity.Projectile;
 import net.tridentsdk.entity.living.Chicken;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.entity.EntityDamageEvent;
+import net.tridentsdk.meta.nbt.ByteTag;
+import net.tridentsdk.meta.nbt.CompoundTag;
+import net.tridentsdk.meta.nbt.IntTag;
 import net.tridentsdk.server.entity.TridentAgeable;
+import net.tridentsdk.server.entity.TridentBreedable;
 import net.tridentsdk.server.entity.TridentLivingEntity;
 
 import java.util.UUID;
 
-public class TridentChicken extends TridentAgeable implements Chicken {
+public class TridentChicken extends TridentBreedable implements Chicken {
+    private volatile int layInterval;
+    private volatile boolean isJockey;
+
     public TridentChicken(UUID id, Position spawnLocation) {
         super(id, spawnLocation);
     }
 
     @Override
+    public void load(CompoundTag tag) {
+        super.load(tag);
+
+        this.layInterval = ((IntTag) tag.getTag("EggLayTime")).value();
+        this.isJockey = ((ByteTag) tag.getTag("IsChickenJockey")).value() == 1;
+    }
+
+    @Override
     public boolean isJockey() {
-        return false;
+        return isJockey;
     }
 
     @Override
     public int nextLayInterval() {
-        return 0;
-    }
-
-    @Override
-    public boolean canBreed() {
-        return false;
-    }
-
-    @Override
-    public boolean isInLove() {
-        return false;
-    }
-
-    @Override
-    public void hide(Entity entity) {
-
-    }
-
-    @Override
-    public void show(Entity entity) {
-
+        return layInterval;
     }
 
     @Override

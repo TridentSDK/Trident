@@ -79,7 +79,7 @@ public abstract class TridentInventoryHolder extends TridentLivingEntity impleme
         int index = 0;
 
         for (NBTTag t : equipment.listTags()) {
-            inventory.setSlot(index, NBTSerializer.deserialize(Slot.class,
+            inventory.setSlot(index++, NBTSerializer.deserialize(Slot.class,
                     t.asType(CompoundTag.class)).item());
         }
     }

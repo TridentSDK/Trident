@@ -25,33 +25,65 @@ import net.tridentsdk.entity.Projectile;
 import net.tridentsdk.entity.living.Creeper;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.entity.EntityDamageEvent;
+import net.tridentsdk.meta.nbt.ByteTag;
+import net.tridentsdk.meta.nbt.CompoundTag;
+import net.tridentsdk.meta.nbt.FloatTag;
+import net.tridentsdk.meta.nbt.ShortTag;
+import net.tridentsdk.server.data.MetadataType;
+import net.tridentsdk.server.data.ProtocolMetadata;
 import net.tridentsdk.server.entity.TridentLivingEntity;
 
 import java.util.UUID;
 
 public class TridentCreeper extends TridentLivingEntity implements Creeper {
+    private volatile boolean charged;
+    private volatile float explosionRadius;
+    private volatile short fuse;
+    private volatile boolean ignited;
+
     public TridentCreeper(UUID id, Position spawnLocation) {
         super(id, spawnLocation);
     }
 
     @Override
+    public void load(CompoundTag tag) {
+        super.load(tag);
+
+        if (tag.containsTag("powered")) {
+            this.charged = ((ByteTag) tag.getTag("powered")).value() == 1;
+        }
+
+        this.explosionRadius = ((FloatTag) tag.getTag("ExplosionRadius")).value();
+        this.fuse = ((ShortTag) tag.getTag("Fuse")).value();
+        this.ignited = ((ByteTag) tag.getTag("ignited")).value() == 1;
+    }
+
+    @Override
+    protected void encodeMetadata(ProtocolMetadata protocolMeta) {
+        super.encodeMetadata(protocolMeta);
+
+        protocolMeta.setMeta(16, MetadataType.BYTE, ignited ? 1 : -1);
+        protocolMeta.setMeta(17, MetadataType.BYTE, charged ? 1 : 0);
+    }
+
+    @Override
     public boolean isElectric() {
-        return false;
+        return charged;
     }
 
     @Override
     public void setElectric(boolean powered) {
-
+        this.charged = powered;
     }
 
     @Override
     public float explosionRadius() {
-        return 0.0F;
+        return explosionRadius;
     }
 
     @Override
     public void setExplosionRadius(float rad) {
-
+        this.explosionRadius = rad;
     }
 
     @Override
@@ -71,21 +103,6 @@ public class TridentCreeper extends TridentLivingEntity implements Creeper {
 
     @Override
     public Player lastPlayerDamager() {
-        return null;
-    }
-
-    @Override
-    public boolean isNameVisible() {
-        return false;
-    }
-
-    @Override
-    public void applyProperties(EntityProperties properties) {
-
-    }
-
-    @Override
-    public <T extends Projectile> T launchProjectile(EntityProperties properties) {
         return null;
     }
 

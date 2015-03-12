@@ -26,16 +26,18 @@ import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.entity.types.HorseType;
 import net.tridentsdk.entity.types.HorseVariant;
 import net.tridentsdk.event.entity.EntityDamageEvent;
+import net.tridentsdk.meta.nbt.CompoundTag;
 import net.tridentsdk.server.data.MetadataType;
 import net.tridentsdk.server.data.ProtocolMetadata;
 import net.tridentsdk.server.entity.TridentAgeable;
+import net.tridentsdk.server.entity.TridentBreedable;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.window.inventory.Inventory;
 import net.tridentsdk.window.inventory.Item;
 
 import java.util.UUID;
 
-public class TridentHorse extends TridentAgeable implements Horse {
+public class TridentHorse extends TridentBreedable implements Horse {
     private volatile int data;
     private final HorseType breed;
     private volatile int colorData;
@@ -96,16 +98,6 @@ public class TridentHorse extends TridentAgeable implements Horse {
     }
 
     @Override
-    public boolean canBreed() {
-        return false;
-    }
-
-    @Override
-    public boolean isInLove() {
-        return false;
-    }
-
-    @Override
     public Inventory inventory() {
         return null;
     }
@@ -138,16 +130,6 @@ public class TridentHorse extends TridentAgeable implements Horse {
     @Override
     public UUID owner() {
         return null;
-    }
-
-    @Override
-    public void hide(Entity entity) {
-
-    }
-
-    @Override
-    public void show(Entity entity) {
-
     }
 
     @Override

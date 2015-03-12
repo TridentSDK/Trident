@@ -19,25 +19,51 @@ package net.tridentsdk.server.entity.living;
 
 import net.tridentsdk.Position;
 import net.tridentsdk.base.BlockSnapshot;
-import net.tridentsdk.entity.Entity;
-import net.tridentsdk.entity.traits.EntityProperties;
+import net.tridentsdk.base.Substance;
 import net.tridentsdk.entity.types.EntityType;
-import net.tridentsdk.entity.Projectile;
 import net.tridentsdk.entity.living.Enderman;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.entity.EntityDamageEvent;
+import net.tridentsdk.meta.nbt.CompoundTag;
+import net.tridentsdk.meta.nbt.ShortTag;
+import net.tridentsdk.server.data.MetadataType;
+import net.tridentsdk.server.data.ProtocolMetadata;
 import net.tridentsdk.server.entity.TridentLivingEntity;
 
 import java.util.UUID;
 
 public class TridentEnderman extends TridentLivingEntity implements Enderman {
+    private volatile BlockSnapshot carryingBlock;
+    private volatile boolean hostile = false;
+
     public TridentEnderman(UUID id, Position spawnLocation) {
         super(id, spawnLocation);
     }
 
     @Override
+    public void load(CompoundTag tag) {
+        super.load(tag);
+
+        short carriedId = ((ShortTag) tag.getTag("carried")).value();
+
+        if(carriedId != 0) {
+            carryingBlock = BlockSnapshot.from(null, Substance.fromId((byte) carriedId),
+                    (byte) ((ShortTag) tag.getTag("carriedData")).value());
+        }
+    }
+
+    @Override
+    protected void encodeMetadata(ProtocolMetadata protocolMeta) {
+        super.encodeMetadata(protocolMeta);
+
+        protocolMeta.setMeta(16, MetadataType.SHORT, (short) carryingBlock.type().id());
+        protocolMeta.setMeta(17, MetadataType.BYTE, carryingBlock.data());
+        protocolMeta.setMeta(18, MetadataType.BYTE, hostile ? (byte) 1 : (byte) 0);
+    }
+
+    @Override
     public BlockSnapshot carryingBlock() {
-        return null;
+        return carryingBlock;
     }
 
     @Override
@@ -47,17 +73,7 @@ public class TridentEnderman extends TridentLivingEntity implements Enderman {
 
     @Override
     public boolean isHostile() {
-        return false;
-    }
-
-    @Override
-    public void hide(Entity entity) {
-
-    }
-
-    @Override
-    public void show(Entity entity) {
-
+        return hostile;
     }
 
     @Override
@@ -67,21 +83,6 @@ public class TridentEnderman extends TridentLivingEntity implements Enderman {
 
     @Override
     public Player lastPlayerDamager() {
-        return null;
-    }
-
-    @Override
-    public boolean isNameVisible() {
-        return false;
-    }
-
-    @Override
-    public void applyProperties(EntityProperties properties) {
-
-    }
-
-    @Override
-    public <T extends Projectile> T launchProjectile(EntityProperties properties) {
         return null;
     }
 

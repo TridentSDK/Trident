@@ -26,22 +26,13 @@ import net.tridentsdk.entity.living.Cow;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.entity.EntityDamageEvent;
 import net.tridentsdk.server.entity.TridentAgeable;
+import net.tridentsdk.server.entity.TridentTameable;
 
 import java.util.UUID;
 
-public class TridentCow extends TridentAgeable implements Cow {
+public class TridentCow extends TridentTameable implements Cow {
     public TridentCow(UUID id, Position spawnLocation) {
         super(id, spawnLocation);
-    }
-
-    @Override
-    public boolean canBreed() {
-        return false;
-    }
-
-    @Override
-    public boolean isInLove() {
-        return false;
     }
 
     @Override

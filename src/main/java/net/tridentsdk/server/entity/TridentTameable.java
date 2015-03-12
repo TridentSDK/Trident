@@ -25,7 +25,7 @@ import net.tridentsdk.util.TridentLogger;
 
 import java.util.UUID;
 
-public abstract class TridentTameable extends TridentAgeable implements Tameable {
+public abstract class TridentTameable extends TridentBreedable implements Tameable {
 
     protected volatile byte tameData;
     protected volatile UUID owner;

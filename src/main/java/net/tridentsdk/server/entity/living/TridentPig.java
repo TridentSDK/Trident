@@ -26,10 +26,11 @@ import net.tridentsdk.event.entity.EntityDamageEvent;
 import net.tridentsdk.server.data.MetadataType;
 import net.tridentsdk.server.data.ProtocolMetadata;
 import net.tridentsdk.server.entity.TridentAgeable;
+import net.tridentsdk.server.entity.TridentBreedable;
 
 import java.util.UUID;
 
-public class TridentPig extends TridentAgeable implements Pig {
+public class TridentPig extends TridentBreedable implements Pig {
     protected volatile boolean hasSaddle;
 
     public TridentPig(UUID id, Position spawnLocation) {
@@ -42,16 +43,6 @@ public class TridentPig extends TridentAgeable implements Pig {
         super.encodeMetadata(protocolMeta);
 
         protocolMeta.setMeta(16, MetadataType.BYTE, (hasSaddle) ? (byte) 1 : (byte) 0);
-    }
-
-    @Override
-    public boolean canBreed() {
-        return false;
-    }
-
-    @Override
-    public boolean isInLove() {
-        return false;
     }
 
     @Override

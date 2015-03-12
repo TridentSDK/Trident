@@ -25,6 +25,8 @@ import net.tridentsdk.entity.Projectile;
 import net.tridentsdk.entity.living.Bat;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.entity.EntityDamageEvent;
+import net.tridentsdk.meta.nbt.ByteTag;
+import net.tridentsdk.meta.nbt.CompoundTag;
 import net.tridentsdk.server.data.MetadataType;
 import net.tridentsdk.server.data.ProtocolMetadata;
 import net.tridentsdk.server.entity.TridentLivingEntity;
@@ -46,6 +48,13 @@ public class TridentBat extends TridentLivingEntity implements Bat {
 
         protocolMeta.setMeta(16, MetadataType.BYTE,
                 hanging ? (byte) 1 : (byte) 0);
+    }
+
+    @Override
+    public void load(CompoundTag tag) {
+        super.load(tag);
+
+        this.hanging = ((ByteTag) tag.getTag("BatFlags")).value() == 1;
     }
 
     @Override

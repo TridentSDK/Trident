@@ -51,16 +51,6 @@ public class TridentOcelot extends TridentTameable implements Ocelot {
     }
 
     @Override
-    public boolean canBreed() {
-        return false;
-    }
-
-    @Override
-    public boolean isInLove() {
-        return false;
-    }
-
-    @Override
     public void hide(Entity entity) {
     }
 
