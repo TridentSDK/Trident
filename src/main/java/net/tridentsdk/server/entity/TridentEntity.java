@@ -34,6 +34,7 @@ import net.tridentsdk.server.packets.play.out.PacketPlayOutDestroyEntities;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutEntityTeleport;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutEntityVelocity;
 import net.tridentsdk.server.player.TridentPlayer;
+import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.util.Vector;
 import net.tridentsdk.util.WeakEntity;
 import net.tridentsdk.world.World;
@@ -281,6 +282,8 @@ public class TridentEntity implements Entity {
         packet.set("destroyedEntities", new int[] { entityId() });
         TridentPlayer.sendAll(packet);
         HANDLER.removeEntity(this);
+        ((TridentWorld) world()).removeEntity(this);
+
         try {
             WeakEntity.clearReferencesTo(this);
         } catch (IllegalAccessException e) {

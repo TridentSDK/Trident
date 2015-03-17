@@ -528,6 +528,10 @@ public class TridentWorld implements World {
         this.entities.add(entity);
     }
 
+    public void removeEntity(Entity entity) {
+        this.entities.remove(entity);
+    }
+
     private static class PlayerFilter implements FilenameFilter {
         @Override
         public boolean accept(File file, String name) {

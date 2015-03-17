@@ -346,7 +346,6 @@ public class ClientConnection {
             player.remove();
         }
 
-
         clientData.remove(this.address);
         this.channel.close();
     }
