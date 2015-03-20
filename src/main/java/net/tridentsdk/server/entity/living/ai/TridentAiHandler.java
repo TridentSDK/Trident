@@ -17,13 +17,14 @@
 
 package net.tridentsdk.server.entity.living.ai;
 
-import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
-import net.tridentsdk.entity.types.EntityType;
+
 import net.tridentsdk.entity.living.ai.AiHandler;
 import net.tridentsdk.entity.living.ai.AiModule;
+import net.tridentsdk.entity.types.EntityType;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Implementation of interface
@@ -31,7 +32,7 @@ import java.util.Map;
  * @author The TridentSDK Team
  */
 public class TridentAiHandler implements AiHandler {
-    private final Map<EntityType, AiModule> modules = new ConcurrentHashMapV8<>();
+    private final Map<EntityType, AiModule> modules = new ConcurrentHashMap<>();
     private final Map<EntityType, AiModule> nativeModules = new HashMap<>();
 
     public TridentAiHandler() {

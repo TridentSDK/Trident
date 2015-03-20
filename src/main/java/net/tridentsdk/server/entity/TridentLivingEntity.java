@@ -144,8 +144,8 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
 
     @Override
     public void remove() {
-        dead = true;
         super.remove();
+        dead = true;
     }
 
     @Override

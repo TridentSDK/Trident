@@ -47,10 +47,13 @@ import net.tridentsdk.world.LevelType;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 @ThreadSafe
 public class TridentPlayer extends OfflinePlayer {
+    private static final Map<UUID, Player> ONLINE_PLAYERS = new ConcurrentHashMap<>();
+
     private final PlayerConnection connection;
     private final Set<ChunkLocation> knownChunks = Factories.collect().createSet();
     private final Queue<PacketPlayOutMapChunkBulk> chunkQueue = Queues.newConcurrentLinkedQueue();
@@ -88,7 +91,9 @@ public class TridentPlayer extends OfflinePlayer {
                         // TODO this is temporary for testing
                         EntityBuilder.ParameterValue.from(TridentWorld.class, TridentServer.WORLD),
                         EntityBuilder.ParameterValue.from(ClientConnection.class, connection));
-        OfflinePlayer.players.put(id, p);
+
+        OfflinePlayer.OFFLINE_PLAYERS.put(id, p);
+        ONLINE_PLAYERS.put(id, p);
 
         p.name = name;
 
@@ -121,14 +126,11 @@ public class TridentPlayer extends OfflinePlayer {
     }
 
     public static Player getPlayer(UUID id) {
-        Player player = OfflinePlayer.getOfflinePlayer(id);
-        if (player == null) return null;
-        if (!players().contains(player)) return null;
-        return player;
+        return ONLINE_PLAYERS.get(id);
     }
 
     public static Collection<Player> players() {
-        return Factories.threads().players();
+        return ONLINE_PLAYERS.values();
     }
 
     @Override
@@ -182,6 +184,11 @@ public class TridentPlayer extends OfflinePlayer {
 
         connection.tick();
         ticksExisted.incrementAndGet();
+    }
+
+    @Override
+    protected void doRemove() {
+        ONLINE_PLAYERS.remove(this.uniqueId());
     }
 
     public void setSkinFlags(byte flags) {

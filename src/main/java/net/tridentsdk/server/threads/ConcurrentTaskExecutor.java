@@ -18,177 +18,169 @@
 package net.tridentsdk.server.threads;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import net.tridentsdk.Defaults;
-import net.tridentsdk.concurrent.ConcurrentCache;
 import net.tridentsdk.concurrent.TaskExecutor;
-import net.tridentsdk.docs.AccessNoDoc;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.factory.ExecutorFactory;
+import net.tridentsdk.factory.Factories;
+import net.tridentsdk.util.TridentLogger;
 
-import javax.annotation.concurrent.GuardedBy;
+import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
-import java.lang.reflect.Array;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.LockSupport;
+import java.util.concurrent.locks.StampedLock;
 
 /**
  * Thread list to allow task execution in a shared thread scaled with removal
  *
  * <p>Allows assignment of a worker to the user.</p>
  *
- * <p>This is a concurrency baseline used in Trident. Anywhere there needs to be threads, the ConcurrentTaskExecutor
- * is the go-to class for thread pooling and task execution. This class serves the purpose to provide a fixed thread
- * pool whose function is optimized task execution concurrently, as the name suggests. The motivation behind extensive
- * testing and optimization of this class is to improve the existing executor framework to execute tasks with lower
- * submission latency, and the fact that the entire concurrency design falls upon this single class to keep up with the
- * demands of the server.</p>
- *
- * <p>Task metrics are performed in each worker in order to balance task execution between the threads in the pool.
- * Thread confinement and consistency can be achieved by acquiring a single internal worker thread, which provides the
- * necessary methods and external handling within the pool to allow the request to keep executing tasks on the worker
- * while still having the same balancing scalability provided by the distributed {@link #execute(Runnable)} method.</p>
- *
- * <p>A different approach is used to task execution by the workers. Instead of using a linked concurrent collection,
- * which increases the latency between submission and execution phases of the task, the worker stores tasks queued to
- * execute using an {@link java.util.concurrent.ArrayBlockingQueue}. This suppresses GC overhead and latency by direct
- * array store instead of node linking. Albeit fast, linked collections do not out perform an array based queue under
- * realistic server load. However, because array based queues cannot resize, they are fixed at a default 20000000
- * tasks.
- * The resulting drawback is limited task size. In response, a second linked collection which is used for overflow
- * tasks
- * and checked every other iteration of the task executor. However, due to the improved latency of task execution, the
- * likelihood of a task ever reaching this collection is very small under normal server load.</p>
- *
- * @param <E> the assignment type, if used
  * @author The TridentSDK Team
  */
 @ThreadSafe
-public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implements ExecutorFactory<E> {
-    private static final Set<ConcurrentTaskExecutor<?>> EXECUTORS = Sets.newHashSet();
+public class ConcurrentTaskExecutor extends AbstractExecutorService implements ExecutorFactory {
+    private static final Set<ConcurrentTaskExecutor> EXECUTORS = Factories.collect().createSet();
+    private static final int INITIALIZING = 0;
+    private static final int STARTING = 1;
+    private static final int RUNNING = 2;
+    private static final int STOPPING = 3;
+    private static final int TERMINATED = 4;
 
-    private static final int STARTING = 0;
-    private static final int RUNNING = 1;
-    private static final int SHUTTING_DOWN = 2;
-    private static final int STOPPED = 3;
+    static {
+        TridentLogger.init();
+        Thread thread = new Thread(() -> {
+            while (true) {
+                for (ConcurrentTaskExecutor ex : executors()) {
+                    for (TaskExecutor e : ex.workerSet) {
+                        Worker w = (Worker) e;
+                        // TODO
+                    }
+                }
 
-    private final ThreadWorker[] workers;
+                try {
+                    Thread.sleep(5 * 60 * 1000);
+                } catch (InterruptedException e) {
+                    break;
+                }
+            }
+        });
 
-    private final int scale;
-    private final Callable<ThreadWorker> obtainWorker = () -> (ThreadWorker) scaledThread();
-    // We cache assignments, if it is retrieved again while loading into the map, there would be 2 requests for the same
-    // thing concurrently, which is bad for performance in the long run
-    // It is better to have it slow now to cache correctly than time later to doubly receive
-    private final ConcurrentCache<E, ThreadWorker> assigned = ConcurrentCache.create();
-    private volatile int state = STARTING;
+        thread.setDaemon(true);
+        thread.start();
+    }
 
-    @GuardedBy("this")
-    private int counter = 0;
+    private final String name;
 
-    private ConcurrentTaskExecutor(int scale, String name) {
-        this.scale = scale;
-        this.workers = (ThreadWorker[]) Array.newInstance(ThreadWorker.class, scale);
+    private final List<TaskExecutor> workerSet = Lists.newCopyOnWriteArrayList();
+    private final AtomicInteger count = new AtomicInteger();
+    private final StampedLock lock = new StampedLock();
+    private int scaleIdx = 0;
 
-        for (int i = 0; i < scale; i++) {
-            workers[i] = new ThreadWorker(i, name).startWorker();
+    private volatile int state = INITIALIZING;
+
+    public ConcurrentTaskExecutor(int startingThreadCount, String name) {
+        this.name = name;
+
+        state = STARTING;
+        for (int i = 0; i < startingThreadCount; i++) {
+            addWorker(false);
         }
-
         state = RUNNING;
     }
 
-    /**
-     * Create a new executor using the number of threads to scale
-     *
-     * @param scale the threads to use
-     * @return a new concurrent task executor pool
-     */
-    public static <E> ConcurrentTaskExecutor<E> create(int scale, String name) {
-        ConcurrentTaskExecutor<E> executor = new ConcurrentTaskExecutor<>(scale, name);
-        EXECUTORS.add(executor);
-        return executor;
+    public static ConcurrentTaskExecutor create(int startingThreadCount, String name) {
+        return new ConcurrentTaskExecutor(startingThreadCount, name);
     }
 
-    /**
-     * Obtains a set of all the workers ever made in the instance of the server
-     *
-     * @return the set of created task workers
-     */
     @InternalUseOnly
-    public static Set<ConcurrentTaskExecutor<?>> executors() {
+    public static Collection<ConcurrentTaskExecutor> executors() {
         return EXECUTORS;
+    }
+
+    private Worker addWorker(boolean expire) {
+        Worker worker;
+        if (expire) {
+            worker = new ExpiringWorker(count.getAndIncrement());
+        } else {
+            worker = new Worker(count.getAndIncrement());
+        }
+
+        workerSet.add(worker);
+        worker.start();
+
+        return worker;
     }
 
     @Override
     public TaskExecutor scaledThread() {
-        synchronized (this) {
-            if (counter == scale) {
-                counter = 0;
+        long stamp = lock.readLock();
+        int count;
+        try {
+            count = this.scaleIdx;
+        } finally {
+            lock.unlockRead(stamp);
+        }
+
+        if (count >= this.count.get()) {
+            long stamp0 = lock.writeLock();
+            try {
+                this.scaleIdx = 0;
+            } finally {
+                lock.unlockWrite(stamp0);
             }
 
-            return workers[counter++];
+            return workerSet.get(0);
+        } else {
+            long stamp0 = lock.writeLock();
+            try {
+                this.scaleIdx++;
+            } finally {
+                lock.unlockWrite(stamp0);
+            }
+            return workerSet.get(count);
         }
-    }
-
-    @Override
-    public TaskExecutor assign(E assignment) {
-        return assigned.retrieve(assignment, obtainWorker);
-    }
-
-    @Override
-    public void set(final TaskExecutor executor, E assignment) {
-        assigned.retrieve(assignment, () -> (ThreadWorker) executor);
-    }
-
-    @Override
-    public void removeAssignment(E assignment) {
-        this.assigned.remove(assignment);
-    }
-
-    @Override
-    public Collection<E> values() {
-        return this.assigned.keys();
     }
 
     @Override
     public List<TaskExecutor> threadList() {
-        return Lists.newArrayList(workers);
+        return workerSet;
     }
 
     @Override
     public void shutdown() {
-        state = SHUTTING_DOWN;
-        for (ThreadWorker worker : workers) {
-            worker.interrupt();
-        }
-
-        assigned.clear();
-        state = STOPPED;
+        state = STOPPING;
+        workerSet.forEach(TaskExecutor::interrupt);
+        workerSet.clear();
+        EXECUTORS.remove(this);
+        state = TERMINATED;
     }
+
+    // Executor implementations
 
     @Override
     public List<Runnable> shutdownNow() {
         shutdown();
-        return Lists.newArrayList();
+        return Collections.EMPTY_LIST;
     }
 
     @Override
     public boolean isShutdown() {
-        return state == SHUTTING_DOWN;
+        return state > STOPPING;
     }
 
     @Override
     public boolean isTerminated() {
-        return state == STOPPED;
+        return state == TERMINATED;
     }
 
     @Override
     public boolean awaitTermination(long l, TimeUnit timeUnit) throws InterruptedException {
-        shutdownNow();
         long units = timeUnit.convert(System.nanoTime(), timeUnit);
+        new Thread(this::shutdownNow).start();
 
-        while (state != STOPPED) {
+        while (state != TERMINATED) {
             if (timeUnit.convert(System.nanoTime(), timeUnit) - units > l) {
                 return false;
             }
@@ -206,35 +198,81 @@ public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implement
     }
 
     @Override
-    public void execute(Runnable runnable) {
-        scaledThread().addTask(runnable);
-    }
-
-    @AccessNoDoc
-    private class ThreadWorker extends Thread implements TaskExecutor {
-        private final BlockingQueue<Runnable> tasks = new LinkedBlockingDeque<>();
-
-        private ThreadWorker(int index, String name) {
-            // This is only safe because it is constructed in the CTE factory, otherwise the size
-            // may change throughout the threads as the workers expand
-            // tip - don't try this at home!
-            super("Trident - CTE " + EXECUTORS.size() + " Thread " + index + " - " + name);
+    public void execute(@Nonnull Runnable runnable) {
+        for (TaskExecutor ex : workerSet) {
+            Worker w = (Worker) ex;
+            if (w.tryAdd(runnable)) {
+                return;
+            }
         }
 
-        public ThreadWorker startWorker() {
-            super.start();
-            return this;
+        Worker w = addWorker(true);
+        w.addTask(runnable);
+    }
+
+    private class Worker extends Thread implements TaskExecutor {
+        final ArrayDeque<Runnable> tasks = new ArrayDeque<>();
+        final StampedLock lock = new StampedLock();
+
+        public Worker(int index) {
+            super("Pool " + name + " #" + index);
         }
 
         @Override
-        public void interrupt() {
-            tasks.clear();
-            super.interrupt();
+        public void run() {
+            while (true) {
+                try {
+                    nextTask().run();
+                } catch (InterruptedException e) {
+                    break;
+                } catch (Exception e) {
+                    TridentLogger.error(e);
+                }
+            }
+        }
+
+        private Runnable nextTask() throws InterruptedException {
+            long stamp = lock.writeLockInterruptibly();
+            try {
+                Runnable runnable = tasks.poll();
+                if (runnable == null) {
+                    lock.tryUnlockWrite();
+                    LockSupport.park();
+                    return nextTask();
+                } else {
+                    return runnable;
+                }
+            } finally {
+                if (stamp != 0L) {
+                    lock.tryUnlockWrite();
+                }
+            }
+        }
+
+        boolean tryAdd(Runnable task) {
+            long stamp = lock.tryWriteLock();
+            if (stamp == 0L) {
+                return false;
+            } else {
+                try {
+                    tasks.offer(task);
+                    LockSupport.unpark(this);
+                    return true;
+                } finally {
+                    lock.tryUnlockWrite();
+                }
+            }
         }
 
         @Override
         public void addTask(Runnable task) {
-            tasks.offer(task);
+            long stamp = lock.writeLock();
+            try {
+                tasks.offer(task);
+                LockSupport.unpark(this);
+            } finally {
+                lock.unlockWrite(stamp);
+            }
         }
 
         @Override
@@ -246,32 +284,52 @@ public class ConcurrentTaskExecutor<E> extends AbstractExecutorService implement
         }
 
         @Override
-        public void run() {
-            Thread.setDefaultUncaughtExceptionHandler(Defaults.EXCEPTION_HANDLER);
-
-            while (!isInterrupted()) {
-                try {
-                    nextTask().run();
-                } catch (InterruptedException e) {
-                    return;
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        private Runnable nextTask() throws InterruptedException {
-            Runnable runnable = tasks.poll(60, TimeUnit.NANOSECONDS);
-            if (runnable == null) {
-                return tasks.take();
-            }
-
-            return runnable;
+        public void interrupt() {
+            super.interrupt();
         }
 
         @Override
         public Thread asThread() {
             return this;
+        }
+    }
+
+    private class ExpiringWorker extends net.tridentsdk.server.threads.ConcurrentTaskExecutor.Worker {
+        public ExpiringWorker(int index) {
+            super(index);
+        }
+
+        @Override
+        public void addTask(Runnable task) {
+            super.addTask(task);
+            super.addTask(hintExit());
+        }
+
+        @Override
+        boolean tryAdd(Runnable task) {
+            boolean b = super.tryAdd(task);
+            if (b) {
+                super.addTask(hintExit());
+            }
+
+            return b;
+        }
+
+        private boolean isEmpty() {
+            long stamp = lock.readLock();
+            try {
+                return tasks.isEmpty();
+            } finally {
+                lock.unlockRead(stamp);
+            }
+        }
+
+        private Runnable hintExit() {
+            return () -> {
+                if (isEmpty()) {
+                    super.interrupt();
+                }
+            };
         }
     }
 }

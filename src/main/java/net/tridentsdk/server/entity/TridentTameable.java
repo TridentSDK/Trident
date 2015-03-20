@@ -37,9 +37,7 @@ public abstract class TridentTameable extends TridentBreedable implements Tameab
     }
 
     @Override
-    protected void encodeMetadata(ProtocolMetadata protocolMeta) {
-        super.encodeMetadata(protocolMeta);
-
+    protected void doEncodeMeta(ProtocolMetadata protocolMeta) {
         protocolMeta.setMeta(16, MetadataType.BYTE, tameData);
         protocolMeta.setMeta(17, MetadataType.STRING,
                 owner == null ? "" : TridentPlayer.getPlayer(owner).name());

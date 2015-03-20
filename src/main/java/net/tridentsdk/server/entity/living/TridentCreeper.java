@@ -19,11 +19,9 @@ package net.tridentsdk.server.entity.living;
 
 import net.tridentsdk.Position;
 import net.tridentsdk.entity.Entity;
-import net.tridentsdk.entity.traits.EntityProperties;
-import net.tridentsdk.entity.types.EntityType;
-import net.tridentsdk.entity.Projectile;
 import net.tridentsdk.entity.living.Creeper;
 import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.event.entity.EntityDamageEvent;
 import net.tridentsdk.meta.nbt.ByteTag;
 import net.tridentsdk.meta.nbt.CompoundTag;
@@ -46,9 +44,7 @@ public class TridentCreeper extends TridentLivingEntity implements Creeper {
     }
 
     @Override
-    public void load(CompoundTag tag) {
-        super.load(tag);
-
+    public void doLoad(CompoundTag tag) {
         if (tag.containsTag("powered")) {
             this.charged = ((ByteTag) tag.getTag("powered")).value() == 1;
         }
@@ -59,9 +55,7 @@ public class TridentCreeper extends TridentLivingEntity implements Creeper {
     }
 
     @Override
-    protected void encodeMetadata(ProtocolMetadata protocolMeta) {
-        super.encodeMetadata(protocolMeta);
-
+    protected void doEncodeMeta(ProtocolMetadata protocolMeta) {
         protocolMeta.setMeta(16, MetadataType.BYTE, ignited ? 1 : -1);
         protocolMeta.setMeta(17, MetadataType.BYTE, charged ? 1 : 0);
     }

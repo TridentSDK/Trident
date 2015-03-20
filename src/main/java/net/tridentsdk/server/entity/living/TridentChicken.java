@@ -18,19 +18,14 @@
 package net.tridentsdk.server.entity.living;
 
 import net.tridentsdk.Position;
-import net.tridentsdk.entity.Entity;
-import net.tridentsdk.entity.traits.EntityProperties;
-import net.tridentsdk.entity.types.EntityType;
-import net.tridentsdk.entity.Projectile;
 import net.tridentsdk.entity.living.Chicken;
 import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.event.entity.EntityDamageEvent;
 import net.tridentsdk.meta.nbt.ByteTag;
 import net.tridentsdk.meta.nbt.CompoundTag;
 import net.tridentsdk.meta.nbt.IntTag;
-import net.tridentsdk.server.entity.TridentAgeable;
 import net.tridentsdk.server.entity.TridentBreedable;
-import net.tridentsdk.server.entity.TridentLivingEntity;
 
 import java.util.UUID;
 
@@ -43,9 +38,7 @@ public class TridentChicken extends TridentBreedable implements Chicken {
     }
 
     @Override
-    public void load(CompoundTag tag) {
-        super.load(tag);
-
+    public void doLoad(CompoundTag tag) {
         this.layInterval = ((IntTag) tag.getTag("EggLayTime")).value();
         this.isJockey = ((ByteTag) tag.getTag("IsChickenJockey")).value() == 1;
     }

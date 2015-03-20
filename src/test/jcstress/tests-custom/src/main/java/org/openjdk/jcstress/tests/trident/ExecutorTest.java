@@ -25,7 +25,7 @@
 
 package org.openjdk.jcstress.tests.trident;
 
-import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
+
 import net.tridentsdk.factory.CollectFactory;
 import net.tridentsdk.factory.Factories;
 import net.tridentsdk.server.TridentTaskScheduler;
@@ -45,7 +45,7 @@ public class ExecutorTest {
         Factories.init(new CollectFactory() {
             @Override
             public <K, V> ConcurrentMap<K, V> createMap() {
-                return new ConcurrentHashMapV8<>();
+                return new ConcurrentHashMap<>();
             }
         });
         Factories.init(ThreadsHandler.create());

@@ -17,7 +17,7 @@
 
 package net.tridentsdk.server.bench;
 
-import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
+
 import net.tridentsdk.AccessBridge;
 import net.tridentsdk.factory.CollectFactory;
 import net.tridentsdk.server.TridentTaskScheduler;
@@ -32,6 +32,7 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 import org.openjdk.jmh.runner.options.TimeValue;
 import org.openjdk.jmh.runner.options.VerboseMode;
 
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 
@@ -57,7 +58,7 @@ public class TickTest {
         AccessBridge.open().sendSelf(new CollectFactory() {
             @Override
             public <K, V> ConcurrentMap<K, V> createMap() {
-                return new ConcurrentHashMapV8<>();
+                return new ConcurrentHashMap<>();
             }
         });
         AccessBridge.open().sendSuper(ThreadsHandler.create());

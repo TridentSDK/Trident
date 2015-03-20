@@ -27,7 +27,6 @@ import net.tridentsdk.server.packets.login.PacketLoginOutSetCompression;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutDisconnect;
 import net.tridentsdk.server.player.PlayerConnection;
 import net.tridentsdk.server.player.TridentPlayer;
-import net.tridentsdk.server.threads.ThreadsHandler;
 import net.tridentsdk.util.TridentLogger;
 
 import javax.crypto.Cipher;
@@ -342,7 +341,6 @@ public class ClientConnection {
     public void logout() {
         if (this instanceof PlayerConnection) {
             TridentPlayer player = ((PlayerConnection) this).player();
-            ThreadsHandler.remove(player);
             player.remove();
         }
 

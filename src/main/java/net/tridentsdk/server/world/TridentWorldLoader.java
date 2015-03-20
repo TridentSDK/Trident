@@ -17,12 +17,11 @@
 
 package net.tridentsdk.server.world;
 
-import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
+
 import net.tridentsdk.Trident;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.meta.nbt.NBTException;
 import net.tridentsdk.server.world.gen.DefaultWorldGen;
-import net.tridentsdk.server.world.gen.FlatWorldGen;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.Chunk;
 import net.tridentsdk.world.ChunkLocation;
@@ -39,6 +38,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.zip.DataFormatException;
 
 /**
@@ -48,7 +48,7 @@ import java.util.zip.DataFormatException;
  */
 public class TridentWorldLoader implements WorldLoader {
     private static final AbstractGenerator DEFAULT_GEN = new DefaultWorldGen();
-    private static final Map<String, TridentWorld> worlds = new ConcurrentHashMapV8<>();
+    private static final Map<String, TridentWorld> worlds = new ConcurrentHashMap<>();
     private final AbstractGenerator generator;
 
     public TridentWorldLoader(Class<? extends AbstractGenerator> generator) {

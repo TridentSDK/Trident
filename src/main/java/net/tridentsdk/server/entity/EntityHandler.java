@@ -17,7 +17,6 @@
 
 package net.tridentsdk.server.entity;
 
-import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
 import net.tridentsdk.Position;
 import net.tridentsdk.Trident;
 import net.tridentsdk.docs.InternalUseOnly;
@@ -27,10 +26,8 @@ import net.tridentsdk.util.TridentLogger;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Manages server entities and provides registration procedures
@@ -39,7 +36,7 @@ import java.util.stream.Collectors;
  */
 @ThreadSafe
 public final class EntityHandler {
-    private static final Map<Integer, Entity> entities = new ConcurrentHashMapV8<>();
+    private static final Map<Integer, Entity> entities = new ConcurrentHashMap<>();
     private final EntityTracker tracker = new EntityTracker();
 
     @InternalUseOnly

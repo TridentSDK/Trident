@@ -26,9 +26,7 @@ public abstract class TridentBreedable extends TridentAgeable {
     }
 
     @Override
-    public void load(CompoundTag tag) {
-        super.load(tag);
-
+    public void doLoad(CompoundTag tag) {
         this.loveTimeout = ((IntTag) tag.getTag("InLove")).value();
         this.inLove = false;
     }

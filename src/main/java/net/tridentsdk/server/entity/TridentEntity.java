@@ -91,7 +91,7 @@ public class TridentEntity implements Entity {
     /**
      * Entity task executor
      */
-    protected volatile ExecutorFactory<Entity> executor;
+    protected volatile ExecutorFactory executor;
     /**
      * The movement vector for the entity
      */
@@ -154,6 +154,18 @@ public class TridentEntity implements Entity {
         // constructor for deserializing
     }
 
+    protected void doTick() {
+    }
+
+    protected void doRemove() {
+    }
+
+    protected void doEncodeMeta(ProtocolMetadata protocolMeta) {
+    }
+
+    protected void doLoad(CompoundTag tag) {
+    }
+
     /**
      * Begin entity management
      *
@@ -161,13 +173,13 @@ public class TridentEntity implements Entity {
      */
     public TridentEntity spawn() {
         HANDLER.register(this);
-        executor.assign(this);
         return this;
     }
 
     protected void encodeMetadata(ProtocolMetadata protocolMeta) {
         protocolMeta.setMeta(0, MetadataType.BYTE, (byte) ((fireTicks.intValue() == 0) ? 1 : 0));
         protocolMeta.setMeta(1, MetadataType.SHORT, airTicks.shortValue());
+        doEncodeMeta(protocolMeta);
     }
 
     @Override
@@ -253,9 +265,6 @@ public class TridentEntity implements Entity {
         });
     }
 
-    protected void doTick() {
-    }
-
     @Override
     public boolean onGround() {
         return this.onGround;
@@ -289,6 +298,8 @@ public class TridentEntity implements Entity {
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
+
+        doRemove();
     }
 
     @Override
@@ -440,5 +451,7 @@ public class TridentEntity implements Entity {
         this.nameVisible = dnVisible.value() == 1;
         this.silent = silent.value() == 1;
         this.displayName = displayName.value();
+
+        doLoad(tag);
     }
 }

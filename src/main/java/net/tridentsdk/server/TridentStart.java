@@ -22,7 +22,6 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
 import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
@@ -51,6 +50,7 @@ import java.net.InetSocketAddress;
 import java.nio.file.Files;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -145,7 +145,7 @@ public final class TridentStart {
             bridge.sendSuper(new CollectFactory() {
                 @Override
                 public <K, V> ConcurrentMap<K, V> createMap() {
-                    return new ConcurrentHashMapV8<>();
+                    return new ConcurrentHashMap<>();
                 }
             });
             bridge.sendImplemented(ThreadsHandler.create());

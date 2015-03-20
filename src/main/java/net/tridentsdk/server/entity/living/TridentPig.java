@@ -19,13 +19,12 @@ package net.tridentsdk.server.entity.living;
 
 import net.tridentsdk.Position;
 import net.tridentsdk.entity.Entity;
-import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.entity.living.Pig;
 import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.event.entity.EntityDamageEvent;
 import net.tridentsdk.server.data.MetadataType;
 import net.tridentsdk.server.data.ProtocolMetadata;
-import net.tridentsdk.server.entity.TridentAgeable;
 import net.tridentsdk.server.entity.TridentBreedable;
 
 import java.util.UUID;
@@ -39,9 +38,7 @@ public class TridentPig extends TridentBreedable implements Pig {
     }
 
     @Override
-    protected void encodeMetadata(ProtocolMetadata protocolMeta) {
-        super.encodeMetadata(protocolMeta);
-
+    protected void doEncodeMeta(ProtocolMetadata protocolMeta) {
         protocolMeta.setMeta(16, MetadataType.BYTE, (hasSaddle) ? (byte) 1 : (byte) 0);
     }
 

@@ -21,7 +21,6 @@ import com.google.code.tempusfugit.concurrency.ConcurrentRule;
 import com.google.code.tempusfugit.concurrency.RepeatingRule;
 import com.google.code.tempusfugit.concurrency.annotations.Concurrent;
 import com.google.code.tempusfugit.concurrency.annotations.Repeating;
-import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
 import net.tridentsdk.AccessBridge;
 import net.tridentsdk.concurrent.ConcurrentCache;
 import net.tridentsdk.factory.CollectFactory;
@@ -32,6 +31,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 public class CacheTest extends AbstractTest {
@@ -40,7 +40,7 @@ public class CacheTest extends AbstractTest {
         AccessBridge.open().sendSuper(new CollectFactory() {
             @Override
             public <K, V> ConcurrentMap<K, V> createMap() {
-                return new ConcurrentHashMapV8<>();
+                return new ConcurrentHashMap<>();
             }
         });
         AccessBridge.open().sendSuper(ThreadsHandler.create());

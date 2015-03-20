@@ -80,7 +80,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 @ThreadSafe
 public class TridentTaskScheduler implements TaskFactory {
     private final Queue<ScheduledTaskImpl> taskList = new ConcurrentLinkedQueue<>();
-    private final ExecutorFactory<?> taskExecutor = ConcurrentTaskExecutor.create(3, "Scheduler");
+    private final ExecutorFactory taskExecutor = ConcurrentTaskExecutor.create(3, "Scheduler");
 
     private TridentTaskScheduler() {
     }

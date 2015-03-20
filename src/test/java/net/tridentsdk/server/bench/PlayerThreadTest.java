@@ -18,7 +18,6 @@
 package net.tridentsdk.server.bench;
 
 import net.tridentsdk.entity.living.Player;
-import net.tridentsdk.factory.Factories;
 import net.tridentsdk.server.threads.ThreadsHandler;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.runner.Runner;
@@ -40,8 +39,6 @@ public class PlayerThreadTest {
             //       ClientConnection.registerConnection(new CTXProper().channel()), UUID.randomUUID(), ""));
             // PlayerThreadTest.QUEUE.add(new CTXProper());
         }
-
-        player = (Player) Factories.threads().players().toArray()[0];
     }
 
     //@Benchmark public void aRetrieval(Blackhole blackhole) {

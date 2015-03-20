@@ -43,17 +43,13 @@ public class TridentBat extends TridentLivingEntity implements Bat {
     }
 
     @Override
-    protected void encodeMetadata(ProtocolMetadata protocolMeta) {
-        super.encodeMetadata(protocolMeta);
-
+    protected void doEncodeMeta(ProtocolMetadata protocolMeta) {
         protocolMeta.setMeta(16, MetadataType.BYTE,
                 hanging ? (byte) 1 : (byte) 0);
     }
 
     @Override
     public void load(CompoundTag tag) {
-        super.load(tag);
-
         this.hanging = ((ByteTag) tag.getTag("BatFlags")).value() == 1;
     }
 

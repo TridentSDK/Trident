@@ -17,10 +17,8 @@
 
 package net.tridentsdk.server.bench;
 
-import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
-import net.tridentsdk.AccessBridge;
+
 import net.tridentsdk.concurrent.TaskExecutor;
-import net.tridentsdk.factory.CollectFactory;
 import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
@@ -30,12 +28,10 @@ import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 import org.openjdk.jmh.runner.options.TimeValue;
-import org.openjdk.jmh.runner.options.VerboseMode;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Collection;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -99,15 +95,6 @@ http://bit.ly/1Fwu7W6
  */
 @State(Scope.Benchmark)
 public class TaskExecTest {
-    static {
-        AccessBridge.open().sendSelf(new CollectFactory() {
-            @Override
-            public <K, V> ConcurrentMap<K, V> createMap() {
-                return new ConcurrentHashMapV8<>();
-            }
-        });
-    }
-
     private static ExecutorService JAVA = Executors.newFixedThreadPool(4);
     private static final Runnable RUNNABLE = new Runnable() {
         int anInt = 0;
@@ -117,15 +104,12 @@ public class TaskExecTest {
             anInt++;
         }
     };
-    private static ConcurrentTaskExecutor<String> TASK_EXECUTOR = ConcurrentTaskExecutor.create(4, "Test");
+    private static ConcurrentTaskExecutor TASK_EXECUTOR = ConcurrentTaskExecutor.create(4, "Test");
     private static TaskExecutor EXECUTOR = TASK_EXECUTOR.scaledThread();
 
     public static void main2(String[] args) {
         while (true) {
-            TASK_EXECUTOR.execute(new Runnable() {
-                @Override
-                public void run() {
-                }
+            TASK_EXECUTOR.execute(() -> {
             });
         }
     }
@@ -140,12 +124,9 @@ public class TaskExecTest {
         final BigDecimal[] decimal = { new BigDecimal(0) };
         for (int i = 0; i < 1_000; i++) {
             final long begin = System.nanoTime();
-            TASK_EXECUTOR.execute(new Runnable() {
-                @Override
-                public void run() {
-                    long stop = System.nanoTime();
-                    decimal[0] = decimal[0].add(new BigDecimal(stop - begin));
-                }
+            TASK_EXECUTOR.execute(() -> {
+                long stop = System.nanoTime();
+                decimal[0] = decimal[0].add(new BigDecimal(stop - begin));
             });
 
             if (i % 100 == 0 && i != 0) {
@@ -162,12 +143,9 @@ public class TaskExecTest {
         final BigDecimal[] big = { new BigDecimal(0) };
         for (int i = 0; i < 100_000_000; i++) {
             final long begin = System.nanoTime();
-            TASK_EXECUTOR.execute(new Runnable() {
-                @Override
-                public void run() {
-                    long stop = System.nanoTime();
-                    big[0] = big[0].add(new BigDecimal(stop - begin));
-                }
+            TASK_EXECUTOR.execute(() -> {
+                long stop = System.nanoTime();
+                big[0] = big[0].add(new BigDecimal(stop - begin));
             });
 
             if (i % 100_000 == 0)
@@ -210,12 +188,9 @@ public class TaskExecTest {
         final BigDecimal[] decimal = { new BigDecimal(0) };
         for (int i = 0; i < 1_000; i++) {
             final long begin = System.nanoTime();
-            JAVA.execute(new Runnable() {
-                @Override
-                public void run() {
-                    long stop = System.nanoTime();
-                    decimal[0] = decimal[0].add(new BigDecimal(stop - begin));
-                }
+            JAVA.execute(() -> {
+                long stop = System.nanoTime();
+                decimal[0] = decimal[0].add(new BigDecimal(stop - begin));
             });
 
             if (i % 100 == 0 && i != 0) {
@@ -232,12 +207,9 @@ public class TaskExecTest {
         final BigDecimal[] big = { new BigDecimal(0) };
         for (int i = 0; i < 100_000_000; i++) {
             final long begin = System.nanoTime();
-            JAVA.execute(new Runnable() {
-                @Override
-                public void run() {
-                    long stop = System.nanoTime();
-                    big[0] = big[0].add(new BigDecimal(stop - begin));
-                }
+            JAVA.execute(() -> {
+                long stop = System.nanoTime();
+                big[0] = big[0].add(new BigDecimal(stop - begin));
             });
 
             if (i % 100_000 == 0)
@@ -263,17 +235,7 @@ public class TaskExecTest {
     public static void main1(String[] args) {
         for (int i = 0; i < 20000; i++) {
             final int finalI = i;
-            JAVA.execute(new Runnable() {
-                @Override
-                public void run() {
-                    TASK_EXECUTOR.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            System.out.println(finalI);
-                        }
-                    });
-                }
-            });
+            JAVA.execute(() -> TASK_EXECUTOR.execute(() -> System.out.println(finalI)));
         }
     }
 
@@ -296,7 +258,7 @@ public class TaskExecTest {
                 .measurementIterations(5)
                 .measurementTime(TimeValue.nanoseconds(5000))       // ALLOWED TIME
                 .forks(1)                                           // FORKS
-                .verbosity(VerboseMode.SILENT)                      // GRAPH
+                //.verbosity(VerboseMode.SILENT)                      // GRAPH
                 .threads(4)                                         // THREADS
                 .build();
 

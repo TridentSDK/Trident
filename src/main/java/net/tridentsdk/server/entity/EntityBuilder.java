@@ -53,7 +53,7 @@ public final class EntityBuilder {
             return null;
         }
     }.call(), 0, 0, 0);
-    private ExecutorFactory<Entity> executor;
+    private ExecutorFactory executor;
     private boolean god;
     private Entity passenger;
     private String displayName;
@@ -76,8 +76,8 @@ public final class EntityBuilder {
         return this;
     }
 
-    public EntityBuilder executor(ExecutorFactory<? extends Entity> executor) {
-        this.executor = (ExecutorFactory<Entity>) executor;
+    public EntityBuilder executor(ExecutorFactory executor) {
+        this.executor = (ExecutorFactory) executor;
         return this;
     }
 

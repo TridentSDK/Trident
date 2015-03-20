@@ -35,7 +35,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Stream;
 
@@ -50,7 +49,7 @@ public class TridentChunk implements Chunk {
     private volatile byte terrainPopulated;
     public volatile ChunkSection[] sections;
 
-    private final TaskExecutor executor = ThreadsHandler.chunkExecutor().assign(this);
+    private final TaskExecutor executor = ThreadsHandler.chunkExecutor().scaledThread();
 
     protected TridentChunk(TridentWorld world, int x, int z) {
         this(world, ChunkLocation.create(x, z));

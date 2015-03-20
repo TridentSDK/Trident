@@ -56,8 +56,7 @@ public class TridentArmorStand extends TridentLivingEntity implements ArmorStand
     }
 
     @Override
-    protected void encodeMetadata(ProtocolMetadata protocolMeta) {
-        super.encodeMetadata(protocolMeta);
+    protected void doEncodeMeta(ProtocolMetadata protocolMeta) {
         protocolMeta.setMeta(10, MetadataType.BYTE, data);
 
         for (int i = 1; i <= 6; i++) {

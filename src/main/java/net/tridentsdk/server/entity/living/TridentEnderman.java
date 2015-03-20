@@ -41,9 +41,7 @@ public class TridentEnderman extends TridentLivingEntity implements Enderman {
     }
 
     @Override
-    public void load(CompoundTag tag) {
-        super.load(tag);
-
+    public void doLoad(CompoundTag tag) {
         short carriedId = ((ShortTag) tag.getTag("carried")).value();
 
         if(carriedId != 0) {
@@ -53,9 +51,7 @@ public class TridentEnderman extends TridentLivingEntity implements Enderman {
     }
 
     @Override
-    protected void encodeMetadata(ProtocolMetadata protocolMeta) {
-        super.encodeMetadata(protocolMeta);
-
+    protected void doEncodeMeta(ProtocolMetadata protocolMeta) {
         protocolMeta.setMeta(16, MetadataType.SHORT, (short) carryingBlock.type().id());
         protocolMeta.setMeta(17, MetadataType.BYTE, carryingBlock.data());
         protocolMeta.setMeta(18, MetadataType.BYTE, hostile ? (byte) 1 : (byte) 0);

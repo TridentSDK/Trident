@@ -31,9 +31,7 @@ public abstract class TridentAgeable extends TridentLivingEntity implements Agea
     }
 
     @Override
-    protected void encodeMetadata(ProtocolMetadata protocolMeta) {
-        super.encodeMetadata(protocolMeta);
-
+    protected void doEncodeMeta(ProtocolMetadata protocolMeta) {
         protocolMeta.setMeta(12, MetadataType.BYTE, age);
     }
 

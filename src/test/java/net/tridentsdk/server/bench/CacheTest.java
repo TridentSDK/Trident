@@ -17,7 +17,7 @@
 
 package net.tridentsdk.server.bench;
 
-import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
+
 import net.tridentsdk.AccessBridge;
 import net.tridentsdk.concurrent.ConcurrentCache;
 import net.tridentsdk.factory.CollectFactory;
@@ -47,7 +47,7 @@ public class CacheTest {
         AccessBridge.open().sendSelf(new CollectFactory() {
             @Override
             public <K, V> ConcurrentMap<K, V> createMap() {
-                return new ConcurrentHashMapV8<>();
+                return new ConcurrentHashMap<>();
             }
         });
         AccessBridge.open().sendSuper(ThreadsHandler.create());

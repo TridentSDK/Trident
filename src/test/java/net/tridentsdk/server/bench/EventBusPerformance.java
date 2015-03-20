@@ -19,7 +19,6 @@ package net.tridentsdk.server.bench;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
-import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
 import net.tridentsdk.AccessBridge;
 import net.tridentsdk.concurrent.TaskExecutor;
 import net.tridentsdk.config.JsonConfig;
@@ -40,6 +39,7 @@ import org.openjdk.jmh.runner.options.TimeValue;
 import org.openjdk.jmh.runner.options.VerboseMode;
 
 import java.io.File;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 
@@ -52,7 +52,7 @@ public class EventBusPerformance {
     private static final EventHandler HANDLER = new EventHandler();
     private static final Listener LISTENER = new EventListener();
     private static final net.tridentsdk.event.Event EVENT = new Event();
-    private static final ExecutorFactory<?> EXEC = Factories.threads().executor(2, "EventBusPerformnace");
+    private static final ExecutorFactory EXEC = Factories.threads().executor(2, "EventBusPerformnace");
     private static final TaskExecutor EXECUTOR = EXEC.scaledThread();
     private static final TridentPlugin PLUGIN = new Plugin();
     // Cannot be initialized first, else whole class cannot be loaded completely
@@ -130,7 +130,7 @@ public class EventBusPerformance {
         AccessBridge.open().sendSelf(new CollectFactory() {
             @Override
             public <K, V> ConcurrentMap<K, V> createMap() {
-                return new ConcurrentHashMapV8<>();
+                return new ConcurrentHashMap<>();
             }
         });
         AccessBridge.open().sendSuper(ThreadsHandler.create());

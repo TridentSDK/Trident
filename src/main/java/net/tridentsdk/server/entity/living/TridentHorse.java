@@ -18,18 +18,14 @@
 package net.tridentsdk.server.entity.living;
 
 import net.tridentsdk.Position;
-import net.tridentsdk.entity.*;
 import net.tridentsdk.entity.living.Horse;
 import net.tridentsdk.entity.living.Player;
-import net.tridentsdk.entity.traits.EntityProperties;
 import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.entity.types.HorseType;
 import net.tridentsdk.entity.types.HorseVariant;
 import net.tridentsdk.event.entity.EntityDamageEvent;
-import net.tridentsdk.meta.nbt.CompoundTag;
 import net.tridentsdk.server.data.MetadataType;
 import net.tridentsdk.server.data.ProtocolMetadata;
-import net.tridentsdk.server.entity.TridentAgeable;
 import net.tridentsdk.server.entity.TridentBreedable;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.window.inventory.Inventory;
@@ -56,9 +52,7 @@ public class TridentHorse extends TridentBreedable implements Horse {
     }
 
     @Override
-    protected void encodeMetadata(ProtocolMetadata protocolMeta) {
-        super.encodeMetadata(protocolMeta);
-
+    protected void doEncodeMeta(ProtocolMetadata protocolMeta) {
         protocolMeta.setMeta(16, MetadataType.INT, data);
         protocolMeta.setMeta(19, MetadataType.BYTE, (byte) breed.id());
         protocolMeta.setMeta(20, MetadataType.INT, colorData);
