@@ -113,7 +113,7 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
 
         return worker;
     }
-    
+
     public TaskExecutor nextWorker() {
         long stamp = lock.readLock();
         int count;
@@ -154,7 +154,7 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
 
     @Override
     public TaskExecutor scaledThread() {
-        for (TaskExecutor ex : workers) {
+        for (TaskExecutor ex : workerSet) {
             Worker w = (Worker) ex;
             if (!w.isHeld()) {
                 return w;
