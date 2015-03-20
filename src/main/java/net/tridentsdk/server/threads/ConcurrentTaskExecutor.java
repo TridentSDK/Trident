@@ -48,8 +48,7 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
     private static final int STOPPING = 3;
     private static final int TERMINATED = 4;
 
-    static {
-        TridentLogger.init();
+    static {       
         Thread thread = new Thread(() -> {
             while (true) {
                 for (ConcurrentTaskExecutor ex : executors()) {
@@ -80,7 +79,7 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
 
     private volatile int state = INITIALIZING;
 
-    public ConcurrentTaskExecutor(int startingThreadCount, String name) {
+    private ConcurrentTaskExecutor(int startingThreadCount, String name) {
         this.name = name;
 
         state = STARTING;
@@ -91,7 +90,9 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
     }
 
     public static ConcurrentTaskExecutor create(int startingThreadCount, String name) {
-        return new ConcurrentTaskExecutor(startingThreadCount, name);
+        ConcurrentTaskExecutor ex = new ConcurrentTaskExecutor(startingThreadCount, name);
+        EXECUTORS.add(ex);
+        return ex;
     }
 
     @InternalUseOnly
@@ -209,6 +210,8 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
         Worker w = addWorker(true);
         w.addTask(runnable);
     }
+
+    // Workers
 
     private class Worker extends Thread implements TaskExecutor {
         final ArrayDeque<Runnable> tasks = new ArrayDeque<>();
