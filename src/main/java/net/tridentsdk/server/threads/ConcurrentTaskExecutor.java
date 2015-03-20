@@ -113,9 +113,8 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
 
         return worker;
     }
-
-    @Override
-    public TaskExecutor scaledThread() {
+    
+    public TaskExecutor nextWorker() {
         long stamp = lock.readLock();
         int count;
         try {
@@ -125,7 +124,11 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
         }
 
         if (count >= this.count.get()) {
-            long stamp0 = lock.writeLock();
+            long stamp0 = lock.tryConvertToWriteLock(stamp);
+            if (stamp0 == 0L) {
+                stamp0 = lock.writeLock();
+            }
+          
             try {
                 this.scaleIdx = 0;
             } finally {
@@ -134,14 +137,31 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
 
             return workerSet.get(0);
         } else {
-            long stamp0 = lock.writeLock();
+            long stamp0 = lock.tryConvertToWriteLock(stamp);
+            if (stamp0 == 0L) {
+                stamp0 = lock.writeLock();
+            }
+          
             try {
-                this.scaleIdx++;
+                this.scaleIdx = 0;
             } finally {
                 lock.unlockWrite(stamp0);
             }
+
             return workerSet.get(count);
         }
+    }
+
+    @Override
+    public TaskExecutor scaledThread() {
+        for (TaskExecutor ex : workers) {
+            Worker w = (Worker) ex;
+            if (!w.isHeld()) {
+                return w;
+            }
+        }
+
+        return addWorker(true);
     }
 
     @Override
@@ -250,6 +270,10 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
                     lock.tryUnlockWrite();
                 }
             }
+        }
+
+        boolean isHeld() {
+             return lock.isWriteLocked();
         }
 
         boolean tryAdd(Runnable task) {
