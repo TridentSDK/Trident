@@ -37,7 +37,34 @@ import java.util.concurrent.locks.StampedLock;
  * Thread pool which allows tasks and result-bearing tasks to be executed concurrently
  *
  * <p>Internally, this class manages a List of the workers, which are simply TaskExecutors, and a global Set of other
- * executors. This allows all workers and executors in the server to be found easily. The worker List is an expandable </p>
+ * executors. This allows all workers and executors in the server to be found easily. The worker List is an expandable 
+ * collection of internal thread workers. The decision to use a copy-on-write List instead of a Set was made based on
+ * the need for index based access, as well as the majority of operations upon the collection iterations from thread
+ * searching. Unfortunately, there are still many writes, as scaling requires the tracking of new workers, and the
+ * removal of the workers that are no longer needed.</p>
+ * 
+ * <p>This thread pool always maintains the starting threads. Scaling is done once the current workers are occupied at
+ * the time of observation. Workers are deemed as occupied if threads are in the process of attempting insertion into
+ * the worker's internal queue. Workers are managed by native park and unparking, rather than using conditions. This
+ * provides numerous advantages, which include reduced overhead, as it is native, and is not bound to a particular lock.
+ * Additionally, native thread scheduling provides for more control over basic thread stopping, rather than using the
+ * thread queue of a condition, or default guarding intrinsics.</p>
+ * 
+ * <p>There are two basic locking areas: first on the thread advancement counter, and in the worker itself. They are
+ * both StampedLocks, which provide increased throughput (in fact, is the primary motivator for creating this class).
+ * In place of this class can be instead, a ThreadPoolExecutor. However, many new concurrent updates in Java 8
+ * rationalize an effort to create a new class which fully utilizes those features, and subsequently providing this
+ * class which is optimized to execute the heterogeneous tasks provided by the server. The first lock protects the
+ * index which to pull workers from the worker Set, and a separate lock, per-worker, protects the internal Deque. A
+ * Deque was selected as it can be inserted from both ends, sizable, and is array-based. Tests confirm that array
+ * based collections do outperform their node-based counter parts, as there is reduced instantiation overhead. The
+ * explicitly declared lock allows to check occupation of the worker, which increases scalability.</p>
+ * 
+ * <p>No thread pool would be complete without tuning. This class provides 3 basic tuning properties, which modify
+ * <em>expiring threads</em>. Expiring threads are new threads are those created to scale the executor. They are
+ * created when the current threads in the pool (including previously started expiring threads) are all occupied.
+ * One may modify the time which the worker expires, whether the task queue must be empty, and the maximum amount
+ * of threads in the pool.</p>
  *
  * @author The TridentSDK Team
  */
@@ -334,15 +361,25 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
 
         @Override
         Runnable nextTask() throws InterruptedException {
-            long stamp = lock.readLockInterruptibly();
-            Runnable runnable = tasks.peek();
+            long stamp = lock.writeLockInterruptibly();
+            Runnable runnable = tasks.pollLast();
             if (runnable == null) {
                 // Non-reentrant, must release the lock
-                lock.unlockRead(stamp);
+                lock.unlockWrite(stamp);
+                
+                // Expiration mechanics, in the case of spurious wakeups
+                long time = System.currentTimeMillis();
+                if ((time - this.last) == expireIntervalMillis) {
+                    // Always empty, we just polled
+                    this.interrupt();
+                } else {
+                    this.last = time;
+                }
+                
                 LockSupport.park();
                 return nextTask();
             } else {
-                lock.unlockRead(stamp);
+                lock.unlockWrite(stamp);
 
                 // Expiration mechanics
                 long time = System.currentTimeMillis();
