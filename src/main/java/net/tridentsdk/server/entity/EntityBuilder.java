@@ -21,11 +21,7 @@ import net.tridentsdk.Position;
 import net.tridentsdk.Trident;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.factory.ExecutorFactory;
-import net.tridentsdk.meta.nbt.CompoundTag;
-import net.tridentsdk.server.netty.ClientConnection;
-import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.threads.ThreadsHandler;
-import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.World;
 
@@ -134,22 +130,10 @@ public final class EntityBuilder {
         }
 
         TridentEntity entity = null;
-        if(entityType == TridentPlayer.class) {
-            entity = new TridentPlayer((CompoundTag)parameterValues[0].value(),
-                    (TridentWorld)parameterValues[1].value(),
-                    (ClientConnection)parameterValues[2].value());
-            entity.executor = executor != null ? executor : ThreadsHandler.entityExecutor();
-            entity.godMode = god;
-            entity.passenger = passenger;
-            entity.displayName = displayName;
-            entity.nameVisible = displayName != null;
-            entity.silent = silent;
-            entity.spawn();
-            return (T) entity;
-        }
         try {
             Constructor<? extends TridentEntity> constructor = (Constructor<? extends TridentEntity>)
-                    entityType.getConstructor(params);
+                    entityType.getDeclaredConstructor(params);
+            constructor.setAccessible(true);
             entity = constructor.newInstance(args);
             entity.executor = executor != null ? executor : ThreadsHandler.entityExecutor();
             entity.godMode = god;

@@ -28,6 +28,7 @@ import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 import org.openjdk.jmh.runner.options.TimeValue;
+import org.openjdk.jmh.runner.options.VerboseMode;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -41,55 +42,55 @@ import java.util.concurrent.TimeUnit;
 ========= Starting tests: TRIDENT =========
 
 ========= Warming up the system =========
-Warmup iteration 100: 104880.986 ns/op
-Warmup iteration 200: 110094.981 ns/op
-Warmup iteration 300: 107070.060 ns/op
-Warmup iteration 400: 117896.509 ns/op
-Warmup iteration 500: 160579.276 ns/op
-Warmup iteration 600: 242080.127 ns/op
-Warmup iteration 700: 310637.597 ns/op
-Warmup iteration 800: 355278.822 ns/op
-Warmup iteration 900: 379616.754 ns/op
+Warmup iteration 100: 0.000 ns/op
+Warmup iteration 200: 0.000 ns/op
+Warmup iteration 300: 0.000 ns/op
+Warmup iteration 400: 0.000 ns/op
+Warmup iteration 500: 0.000 ns/op
+Warmup iteration 600: 0.000 ns/op
+Warmup iteration 700: 0.000 ns/op
+Warmup iteration 800: 0.000 ns/op
+Warmup iteration 900: 0.000 ns/op
 ========= Warm up complete =========
 
 ========= Starting tests =========
-Iteration 10000000: 231.339 ns/op
-Iteration 20000000: 455.253 ns/op
-Iteration 30000000: 675.527 ns/op
-Iteration 40000000: 894.878 ns/op
-Iteration 50000000: 1121.887 ns/op
-Iteration 60000000: 1341.498 ns/op
-Iteration 70000000: 1560.445 ns/op
-Iteration 80000000: 1784.188 ns/op
-Iteration 90000000: 2009.559 ns/op
+Iteration 10000000: 224.729 ns/op
+Iteration 20000000: 448.046 ns/op
+Iteration 30000000: 670.792 ns/op
+Iteration 40000000: 894.519 ns/op
+Iteration 50000000: 1118.812 ns/op
+Iteration 60000000: 1345.623 ns/op
+Iteration 70000000: 1569.468 ns/op
+Iteration 80000000: 1792.467 ns/op
+Iteration 90000000: 2015.692 ns/op
 ========= Ended test =========
-Complete. 2236.833 ns/op
+Complete. 2238.319 ns/op
 ========= Starting tests: TRIDENT =========
 
 ========= Warming up the system =========
-Warmup iteration 100: 24088.294 ns/op
-Warmup iteration 200: 90527.924 ns/op
-Warmup iteration 300: 157467.730 ns/op
-Warmup iteration 400: 186139.146 ns/op
-Warmup iteration 500: 223752.503 ns/op
-Warmup iteration 600: 255329.002 ns/op
-Warmup iteration 700: 261051.025 ns/op
-Warmup iteration 800: 296470.781 ns/op
-Warmup iteration 900: 327810.313 ns/op
+Warmup iteration 100: 15148.154 ns/op
+Warmup iteration 200: 43028.691 ns/op
+Warmup iteration 300: 68108.891 ns/op
+Warmup iteration 400: 98972.100 ns/op
+Warmup iteration 500: 140382.841 ns/op
+Warmup iteration 600: 168575.806 ns/op
+Warmup iteration 700: 198700.359 ns/op
+Warmup iteration 800: 266667.991 ns/op
+Warmup iteration 900: 274031.823 ns/op
 ========= Warm up complete =========
 
 ========= Starting tests =========
-Iteration 10000000: 246.506 ns/op
-Iteration 20000000: 493.351 ns/op
-Iteration 30000000: 744.163 ns/op
-Iteration 40000000: 997.812 ns/op
-Iteration 50000000: 1249.793 ns/op
-Iteration 60000000: 1503.038 ns/op
-Iteration 70000000: 1752.930 ns/op
-Iteration 80000000: 2004.659 ns/op
-Iteration 90000000: 2270.577 ns/op
+Iteration 10000000: 274.851 ns/op
+Iteration 20000000: 534.036 ns/op
+Iteration 30000000: 783.020 ns/op
+Iteration 40000000: 1035.913 ns/op
+Iteration 50000000: 1290.808 ns/op
+Iteration 60000000: 1541.705 ns/op
+Iteration 70000000: 1786.883 ns/op
+Iteration 80000000: 2031.753 ns/op
+Iteration 90000000: 2284.194 ns/op
 ========= Ended test =========
-Complete. 2523.961 ns/op
+Complete. 2542.293 ns/op
 
 http://bit.ly/1xI4GcC
  */
@@ -114,7 +115,7 @@ public class TaskExecTest {
         }
     }
 
-    public static void main0(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws InterruptedException {
         // Latency tests
         System.out.println("========= Starting tests: TRIDENT =========");
 
@@ -252,7 +253,7 @@ public class TaskExecTest {
         TASK_EXECUTOR.shutdownNow();
     }
 
-    public static void main(String... args) throws RunnerException {
+    public static void main0(String... args) throws RunnerException {
         Options opt = new OptionsBuilder()
                 .include(".*" + TaskExecTest.class.getSimpleName() + ".*") // CLASS
                 .timeUnit(TimeUnit.NANOSECONDS)
@@ -262,7 +263,7 @@ public class TaskExecTest {
                 .measurementIterations(5)
                 .measurementTime(TimeValue.nanoseconds(5000))       // ALLOWED TIME
                 .forks(1)                                           // FORKS
-                //.verbosity(VerboseMode.SILENT)                      // GRAPH
+                .verbosity(VerboseMode.SILENT)                      // GRAPH
                 .threads(4)                                         // THREADS
                 .build();
 

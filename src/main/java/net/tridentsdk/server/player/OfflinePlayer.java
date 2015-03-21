@@ -110,8 +110,8 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     protected final PlayerSpeed playerSpeed = new PlayerSpeedImpl();
     protected final Set<String> permissions = Factories.collect().createSet();
 
-    OfflinePlayer(CompoundTag tag, TridentWorld world) {
-        super(null, world.spawnLocation());
+    OfflinePlayer(UUID uuid, CompoundTag tag, TridentWorld world) {
+        super(uuid, world.spawnLocation());
 
         load(tag);
 

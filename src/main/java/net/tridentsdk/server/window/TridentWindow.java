@@ -18,12 +18,11 @@
 package net.tridentsdk.server.window;
 
 import net.tridentsdk.Handler;
-import net.tridentsdk.docs.Volatile;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.factory.Factories;
 import net.tridentsdk.server.data.Slot;
-import net.tridentsdk.server.entity.TridentEntity;
 import net.tridentsdk.server.entity.EntityBuilder;
+import net.tridentsdk.server.entity.TridentEntity;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutCloseWindow;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutOpenWindow;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutSetSlot;
@@ -36,6 +35,7 @@ import net.tridentsdk.window.inventory.Item;
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReferenceArray;
 
 /**
  * An inventory window, wherever and whatever is holding it or having it open
@@ -54,8 +54,7 @@ public class TridentWindow implements Window {
     private final int length;
     private final InventoryType type;
     private final Set<WeakEntity<Player>> users = Factories.collect().createSet();
-    @Volatile(policy = "Do not write individual elements", reason = "Thread safe array", fix = "See Line 110")
-    private volatile Item[] contents;
+    private final AtomicReferenceArray<Item> contents;
 
     /**
      * Builds a new inventory window
@@ -67,7 +66,7 @@ public class TridentWindow implements Window {
         this.name = name;
         this.length = length;
         this.id = counter.addAndGet(1);
-        this.contents = new Item[length];
+        this.contents = new AtomicReferenceArray<>(length);
         this.type = type;
     }
 
@@ -93,8 +92,12 @@ public class TridentWindow implements Window {
 
     @Override
     public Item[] items() {
-        Item[] contents = this.contents;
-        return this.contents;
+        Item[] array = new Item[contents.length()];
+        for (int i = 0; i < contents.length(); i++) {
+            array[i] = contents.get(i);
+        }
+
+        return array;
     }
 
     @Override
@@ -125,8 +128,7 @@ public class TridentWindow implements Window {
 
     @Override
     public void setSlot(int index, Item value) {
-        contents[index] = value;
-        this.contents = this.contents; // Flush caches, make entire array visible
+        contents.set(index, value);
 
         PacketPlayOutSetSlot setSlot = new PacketPlayOutSetSlot();
         setSlot.set("windowId", windowId()).set("slot", (short) index).set("item", new Slot(value));
@@ -138,9 +140,8 @@ public class TridentWindow implements Window {
 
     @Override
     public void putItem(Item item) {
-        for (int i = 0; i < contents.length; i++) {
-            if (contents[i] == null) {
-                setSlot(i, item);
+        for (int i = 0; i < contents.length(); i++) {
+            if (contents.compareAndSet(i, null, item)) {
                 return;
             }
         }

@@ -33,6 +33,7 @@ import net.tridentsdk.world.gen.AbstractGenerator;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.lang.ref.SoftReference;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -47,7 +48,7 @@ public class TridentChunk implements Chunk {
     private volatile long inhabitedTime;
     private volatile byte lightPopulated;
     private volatile byte terrainPopulated;
-    public volatile ChunkSection[] sections;
+    public volatile SoftReference<ChunkSection[]> sections;
 
     private final TaskExecutor executor = ThreadsHandler.chunkExecutor().scaledThread();
 
@@ -59,7 +60,7 @@ public class TridentChunk implements Chunk {
         this.world = world;
         this.location = coord;
         this.lastFileAccess = 0;
-        sections = new ChunkSection[16];
+        sections = new SoftReference<ChunkSection[]>(new ChunkSection[16]);
         /*for (int i = 0; i < 16; i ++) {
             sections[i] = new ChunkSection();
         }*/
@@ -76,6 +77,12 @@ public class TridentChunk implements Chunk {
     @Override
     public void generate() {
         executor.addTask(() -> {
+            ChunkSection[] sections = this.sections.get();
+            if (sections == null) {
+                sections = new ChunkSection[16];
+                this.sections = new SoftReference<ChunkSection[]>(sections);
+            }
+
             for (int i = 0; i < 16; i ++) {
                 if (sections[i] == null) {
                     sections[i] = new ChunkSection();
@@ -148,6 +155,12 @@ public class TridentChunk implements Chunk {
 
         try {
             return executor.submitTask(() -> {
+                ChunkSection[] sections = this.sections.get();
+                if (sections == null) {
+                    sections = new ChunkSection[16];
+                    this.sections = new SoftReference<>(sections);
+                }
+
                 ChunkSection section = sections[WorldUtils.section(y)];
 
                     /* Get block data; use extras accordingly */
@@ -173,16 +186,20 @@ public class TridentChunk implements Chunk {
     public ChunkSnapshot snapshot() {
         final List<CompoundTag> sections = Lists.newArrayList();
 
-        executor.addTask(new Runnable() {
-            @Override
-            public void run() {
-                for (ChunkSection section : TridentChunk.this.sections) {
-                    sections.add(NBTSerializer.serialize(section));
-                }
+        final ChunkSection[][] sections1 = new ChunkSection[1][1];
+        executor.addTask(() -> {
+            sections1[0] = TridentChunk.this.sections.get();
+            if (sections1[0] == null) {
+                sections1[0] = new ChunkSection[16];
+                TridentChunk.this.sections = new SoftReference<>(sections1[0]);
+            }
+
+            for (ChunkSection section : sections1[0]) {
+                sections.add(NBTSerializer.serialize(section));
             }
         });
 
-        executor.addTask(() -> Stream.of(this.sections).forEach((s) -> sections.add(NBTSerializer.serialize(s))));
+        executor.addTask(() -> Stream.of(sections1[0]).forEach((s) -> sections.add(NBTSerializer.serialize(s))));
 
         return new TridentChunkSnapshot(world, location, sections, lastFileAccess, lastModified, inhabitedTime,
                 lightPopulated, terrainPopulated);
@@ -191,6 +208,12 @@ public class TridentChunk implements Chunk {
     public PacketPlayOutChunkData asPacket() {
         try {
             return executor.submitTask(() -> {
+                ChunkSection[] sections = this.sections.get();
+                if (sections == null) {
+                    sections = new ChunkSection[16];
+                    this.sections = new SoftReference<>(sections);
+                }
+
                 int bitmask = (1 << sections.length) - 1;
                 ByteArrayOutputStream data = new ByteArrayOutputStream();
 
@@ -276,7 +299,7 @@ public class TridentChunk implements Chunk {
             }
         }
 
-        executor.addTask(() -> this.sections = sections);
+        executor.addTask(() -> this.sections = new SoftReference<>(sections));
 
         for (NBTTag t : entities.listTags()) {
             //TridentEntity entity = EntityBuilder.create().build(TridentEntity.class);
@@ -306,11 +329,18 @@ public class TridentChunk implements Chunk {
 
         final ListTag sectionTags = new ListTag("Sections", TagType.COMPOUND);
 
-        ChunkSection[] sectionCopy;
+        ChunkSection[] sectionCopy = new ChunkSection[0];
         try {
-            sectionCopy = executor.submitTask(() -> sections).get();
+            sectionCopy = executor.submitTask(() -> {
+                ChunkSection[] sections = this.sections.get();
+                if (sections == null) {
+                    sections = new ChunkSection[16];
+                    this.sections = new SoftReference<>(sections);
+                }
+
+                return sections;
+            }).get();
         } catch (InterruptedException | ExecutionException e) {
-            sectionCopy = sections;
             e.printStackTrace();
         }
 
@@ -335,6 +365,12 @@ public class TridentChunk implements Chunk {
                       final byte blockLight) {
         final int index = WorldUtils.blockArrayIndex(x % 16, y % 16, z % 16);
         executor.addTask(() -> {
+            ChunkSection[] sections = this.sections.get();
+            if (sections == null) {
+                sections = new ChunkSection[16];
+                this.sections = new SoftReference<>(sections);
+            }
+
             ChunkSection section = sections[WorldUtils.section(y)];
 
             section.types[index] = (char) ((type.asExtended() & 0xfff0) | metaData);
@@ -346,6 +382,11 @@ public class TridentChunk implements Chunk {
     void clear() {
         // We still care about thread safety!
         executor.addTask(() -> {
+            ChunkSection[] sections = this.sections.get();
+            if (sections == null) {
+                return;
+            }
+
             for (ChunkSection section : sections) {
                 if (section == null) {
                     continue;

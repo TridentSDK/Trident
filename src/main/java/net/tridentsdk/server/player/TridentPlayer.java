@@ -18,8 +18,11 @@
 package net.tridentsdk.server.player;
 
 import com.google.common.collect.Queues;
+import com.google.common.collect.Sets;
+import net.tridentsdk.Defaults;
 import net.tridentsdk.GameMode;
 import net.tridentsdk.Position;
+import net.tridentsdk.Trident;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.entity.Entity;
@@ -64,8 +67,8 @@ public class TridentPlayer extends OfflinePlayer {
     private volatile byte skinFlags;
     private volatile Locale locale;
 
-    public TridentPlayer(CompoundTag tag, TridentWorld world, ClientConnection connection) {
-        super(tag, world);
+    private TridentPlayer(UUID uuid, CompoundTag tag, TridentWorld world, ClientConnection connection) {
+        super(uuid, tag, world);
 
         this.connection = PlayerConnection.createPlayerConnection(connection, this);
     }
@@ -87,7 +90,8 @@ public class TridentPlayer extends OfflinePlayer {
         final TridentPlayer p = EntityBuilder.create().uuid(id)
                 .spawn(TridentServer.WORLD.spawnLocation())
                 .executor(ThreadsHandler.playerExecutor())
-                .build(TridentPlayer.class, EntityBuilder.ParameterValue.from(CompoundTag.class, offlinePlayer),
+                .build(TridentPlayer.class, EntityBuilder.ParameterValue.from(UUID.class, id),
+                        EntityBuilder.ParameterValue.from(CompoundTag.class, offlinePlayer),
                         // TODO this is temporary for testing
                         EntityBuilder.ParameterValue.from(TridentWorld.class, TridentServer.WORLD),
                         EntityBuilder.ParameterValue.from(ClientConnection.class, connection));
@@ -181,6 +185,19 @@ public class TridentPlayer extends OfflinePlayer {
 
         if (!chunkQueue.isEmpty())
             connection.sendPacket(chunkQueue.poll());
+
+        if (ticksExisted.get() % Defaults.CHUNK_CLEAN_TICK_INTERVAL == 0) {
+            Set<ChunkLocation> locations = Sets.newHashSet();
+            for (ChunkLocation location : knownChunks) {
+                int maxView = Trident.config().getInt("view-distance", 7);
+                if (Math.abs(location.x() - (position().x() / 16)) < maxView) {
+                    locations.add(location);
+                } else if (Math.abs(location.z() - (position().z() / 16)) < maxView) {
+                    locations.add(location);
+                }
+            }
+            knownChunks.removeAll(locations);
+        }
 
         connection.tick();
         ticksExisted.incrementAndGet();
@@ -277,12 +294,8 @@ public class TridentPlayer extends OfflinePlayer {
                     }
                 }
 
-                PacketPlayOutChunkData data = ((TridentChunk) world().chunkAt(x, z, true)).asPacket();
-                while (data == null) {
-                    // Unfortunately this is necessary
-                    // it's not consistent enough
-                    data = ((TridentChunk) world().chunkAt(x, z, true)).asPacket();
-                }
+                TridentChunk chunk = (TridentChunk) world().chunkAt(x, z, true);
+                PacketPlayOutChunkData data = chunk.asPacket();
 
                 knownChunks.add(location);
                 bulk.addEntry(data);
