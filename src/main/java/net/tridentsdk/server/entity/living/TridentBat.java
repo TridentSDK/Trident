@@ -29,6 +29,7 @@ import net.tridentsdk.meta.nbt.ByteTag;
 import net.tridentsdk.meta.nbt.CompoundTag;
 import net.tridentsdk.server.data.MetadataType;
 import net.tridentsdk.server.data.ProtocolMetadata;
+import net.tridentsdk.server.entity.TridentLivingEntity;
 
 import java.util.UUID;
 

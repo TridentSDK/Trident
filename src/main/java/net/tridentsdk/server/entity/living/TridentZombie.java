@@ -5,6 +5,7 @@ import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.entity.living.Zombie;
 import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.event.entity.EntityDamageEvent;
+import net.tridentsdk.server.entity.TridentLivingEntity;
 import net.tridentsdk.window.inventory.Item;
 
 import java.util.UUID;

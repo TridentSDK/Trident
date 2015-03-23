@@ -23,12 +23,10 @@ import net.tridentsdk.entity.Entity;
 import net.tridentsdk.factory.ExecutorFactory;
 import net.tridentsdk.server.threads.ThreadsHandler;
 import net.tridentsdk.util.TridentLogger;
-import net.tridentsdk.world.World;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.UUID;
-import java.util.concurrent.Callable;
 
 /**
  * Builds an entity from initializer components and auto-spawns safely
@@ -39,13 +37,7 @@ import java.util.concurrent.Callable;
  */
 public final class EntityBuilder {
     private UUID uuid = UUID.randomUUID();
-    private Position spawn = Position.create(((Callable<World>) () -> {
-        for (World world : Trident.worlds().values()) {
-            if (world.name().equals("world"))
-                return world;
-        }
-        return null;
-    }).call(), 0, 0, 0);
+    private Position spawn = Position.create(Trident.worlds().get("world"), 0, 0, 0);
     private ExecutorFactory executor;
     private boolean god;
     private Entity passenger;

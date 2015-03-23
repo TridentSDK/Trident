@@ -15,22 +15,22 @@
  * limitations under the License.
  */
 
-package net.tridentsdk.server.entity.living;
+package net.tridentsdk.server.entity;
 
 import com.google.common.util.concurrent.AtomicDouble;
 import net.tridentsdk.Position;
 import net.tridentsdk.Trident;
-import net.tridentsdk.entity.*;
+import net.tridentsdk.entity.Entity;
+import net.tridentsdk.entity.LivingEntity;
+import net.tridentsdk.entity.Projectile;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.entity.living.ai.AiModule;
 import net.tridentsdk.entity.living.ai.Path;
-import net.tridentsdk.server.data.MetadataType;
-import net.tridentsdk.server.data.ProtocolMetadata;
 import net.tridentsdk.entity.traits.EntityProperties;
 import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.meta.nbt.*;
-import net.tridentsdk.server.entity.EntityAttribute;
-import net.tridentsdk.server.entity.TridentEntity;
+import net.tridentsdk.server.data.MetadataType;
+import net.tridentsdk.server.data.ProtocolMetadata;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutDestroyEntities;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutSpawnMob;
 import net.tridentsdk.server.player.TridentPlayer;

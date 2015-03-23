@@ -7,6 +7,7 @@ import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.entity.types.VillagerCareer;
 import net.tridentsdk.entity.types.VillagerProfession;
 import net.tridentsdk.event.entity.EntityDamageEvent;
+import net.tridentsdk.server.entity.TridentLivingEntity;
 import net.tridentsdk.window.trade.Trade;
 
 import java.util.Collection;
