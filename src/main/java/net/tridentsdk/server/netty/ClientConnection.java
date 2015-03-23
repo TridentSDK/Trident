@@ -263,8 +263,7 @@ public class ClientConnection {
      * @param uuid the uuid of the connection
      */
     @InternalUseOnly
-    public void setUuid(UUID uuid) {
-        System.out.println("Set UUID to " + uuid);
+    public void setUuid(UUID uuid) {        
         this.uuid = uuid;
     }
 
