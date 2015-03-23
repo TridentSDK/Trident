@@ -26,6 +26,7 @@ import net.tridentsdk.meta.nbt.ListTag;
 import net.tridentsdk.meta.nbt.NBTSerializer;
 import net.tridentsdk.meta.nbt.NBTTag;
 import net.tridentsdk.server.data.Slot;
+import net.tridentsdk.server.entity.living.TridentLivingEntity;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.window.inventory.Inventory;
 import net.tridentsdk.window.inventory.Item;
@@ -46,7 +47,7 @@ public abstract class TridentInventoryHolder extends TridentLivingEntity impleme
     protected Inventory inventory;
 
     /**
-     * Inherits constructor from {@link TridentLivingEntity}
+     * Inherits constructor from {@link net.tridentsdk.server.entity.living.TridentLivingEntity}
      */
     public TridentInventoryHolder(UUID id, Position spawnLocation) {
         super(id, spawnLocation);

@@ -22,7 +22,6 @@ import net.tridentsdk.entity.traits.EntityProperties;
 import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.entity.living.ProjectileLauncher;
 import net.tridentsdk.entity.projectile.Egg;
-import net.tridentsdk.server.entity.TridentProjectile;
 import net.tridentsdk.server.entity.living.TridentChicken;
 
 import java.util.UUID;
@@ -35,7 +34,7 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class TridentEgg extends TridentProjectile implements Egg {
     /**
-     * Inherits constructor from {@link net.tridentsdk.server.entity.TridentProjectile}
+     * Inherits constructor from {@link TridentProjectile}
      */
     public TridentEgg(UUID uniqueId, Position spawnLocation, ProjectileLauncher source) {
         super(uniqueId, spawnLocation, source);

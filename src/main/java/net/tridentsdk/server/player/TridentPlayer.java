@@ -88,7 +88,7 @@ public class TridentPlayer extends OfflinePlayer {
         }
 
         final TridentPlayer p = EntityBuilder.create().uuid(id)
-                .spawn(TridentServer.WORLD.spawnLocation())
+                .spawn(TridentServer.WORLD.spawnPosition())
                 .executor(ThreadsHandler.playerExecutor())
                 .build(TridentPlayer.class, EntityBuilder.ParameterValue.from(UUID.class, id),
                         EntityBuilder.ParameterValue.from(CompoundTag.class, offlinePlayer),

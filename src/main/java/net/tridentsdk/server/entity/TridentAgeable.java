@@ -20,6 +20,7 @@ import net.tridentsdk.Position;
 import net.tridentsdk.entity.traits.Ageable;
 import net.tridentsdk.server.data.MetadataType;
 import net.tridentsdk.server.data.ProtocolMetadata;
+import net.tridentsdk.server.entity.living.TridentLivingEntity;
 
 import java.util.UUID;
 

@@ -25,7 +25,6 @@ import net.tridentsdk.entity.Projectile;
 import net.tridentsdk.entity.living.Blaze;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.entity.EntityDamageEvent;
-import net.tridentsdk.server.entity.TridentLivingEntity;
 
 import java.util.UUID;
 

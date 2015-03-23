@@ -29,7 +29,6 @@ import net.tridentsdk.meta.nbt.FloatTag;
 import net.tridentsdk.meta.nbt.ShortTag;
 import net.tridentsdk.server.data.MetadataType;
 import net.tridentsdk.server.data.ProtocolMetadata;
-import net.tridentsdk.server.entity.TridentLivingEntity;
 
 import java.util.UUID;
 

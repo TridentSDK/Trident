@@ -182,6 +182,16 @@ public class TridentEntity implements Entity {
         doEncodeMeta(protocolMeta);
     }
 
+    /**
+     * Moves the entity to the new coordinates. Not for teleportation.
+     *
+     * @param newCoords the new location for the entity
+     */
+    public void doMove(Position newCoords) {
+        HANDLER.trackMovement(this, position(), newCoords);
+        this.setLocation(newCoords);
+    }
+
     @Override
     public void teleport(double x, double y, double z) {
         this.teleport(Position.create(this.world(), x, y, z));
@@ -331,16 +341,6 @@ public class TridentEntity implements Entity {
 
     @Override
     public void applyProperties(EntityProperties properties) {
-    }
-
-    /**
-     * Moves the entity to the new coordinates. Not for teleportation.
-     *
-     * @param newCoords the new location for the entity
-     */
-    public void doMove(Position newCoords) {
-        HANDLER.trackMovement(this, position(), newCoords);
-        this.setLocation(newCoords);
     }
 
     public void load(CompoundTag tag) {
