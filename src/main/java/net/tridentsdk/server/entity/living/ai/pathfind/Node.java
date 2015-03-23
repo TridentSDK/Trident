@@ -174,16 +174,12 @@ public class Node {
 
     @Override
     public boolean equals(Object o) {
-        if(this == o) return true;
-        if(o == null || getClass() != o.getClass()) return false;
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
         Node node = (Node) o;
 
-        if(x != node.x) return false;
-        if(y != node.y) return false;
-        if(z != node.z) return false;
-
-        return true;
+        return x == node.x && y == node.y && z == node.z;
     }
 
     @Override

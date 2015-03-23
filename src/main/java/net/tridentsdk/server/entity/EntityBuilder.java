@@ -39,16 +39,13 @@ import java.util.concurrent.Callable;
  */
 public final class EntityBuilder {
     private UUID uuid = UUID.randomUUID();
-    private Position spawn = Position.create(new Callable<World>() {
-        @Override
-        public World call() {
-            for (World world : Trident.worlds().values()) {
-                if (world.name().equals("world"))
-                    return world;
-            }
-            return null;
+    private Position spawn = Position.create(((Callable<World>) () -> {
+        for (World world : Trident.worlds().values()) {
+            if (world.name().equals("world"))
+                return world;
         }
-    }.call(), 0, 0, 0);
+        return null;
+    }).call(), 0, 0, 0);
     private ExecutorFactory executor;
     private boolean god;
     private Entity passenger;
@@ -73,7 +70,7 @@ public final class EntityBuilder {
     }
 
     public EntityBuilder executor(ExecutorFactory executor) {
-        this.executor = (ExecutorFactory) executor;
+        this.executor = executor;
         return this;
     }
 

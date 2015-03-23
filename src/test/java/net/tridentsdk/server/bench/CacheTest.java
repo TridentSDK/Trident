@@ -58,12 +58,7 @@ public class CacheTest {
     private static final ConcurrentHashMap<Object, Object> CONCURRENT_HASH_MAP = new ConcurrentHashMap<>();
 
     private static final Object key = new Object();
-    private static final Callable<Object> CALLABLE = new Callable<Object>() {
-        @Override
-        public Object call() throws Exception {
-            return "LOL";
-        }
-    };
+    private static final Callable<Object> CALLABLE = () -> "LOL";
     //@Param({ "1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024" })
     private int cpuTokens;
 
@@ -87,12 +82,7 @@ public class CacheTest {
 
     @Setup
     public void setUp() {
-        CONCURRENT_HASH_MAP.put(key, new Callable<Object>() {
-            @Override
-            public Object call() throws Exception {
-                return new Object();
-            }
-        });
+        CONCURRENT_HASH_MAP.put(key, (Callable<Object>) () -> new Object());
     }
 
     //@Benchmark
@@ -103,12 +93,7 @@ public class CacheTest {
     @Benchmark
     public void retrieve(Blackhole bh) {
         //Blackhole.consumeCPU(cpuTokens);
-        bh.consume(CACHE.retrieve(key, new Callable<Object>() {
-            @Override
-            public Object call() throws Exception {
-                return new Object();
-            }
-        }));
+        bh.consume(CACHE.retrieve(key, () -> new Object()));
     }
 
     //@Benchmark

@@ -28,17 +28,14 @@ public class ShutdownTest {
     //@Test
     public void startStop() {
         try {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        Thread.sleep(3000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-
-                    Trident.shutdown();
+            new Thread(() -> {
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
+
+                Trident.shutdown();
             }).start();
             TridentStart.main();
         } catch (Exception e) {

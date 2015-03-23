@@ -472,10 +472,7 @@ public class MapTest {
         // Removes the references which are empty
         public void clean() throws InterruptedException {
             synchronized (lock) {
-                for (WeakEntity entity : weakEntities) {
-                    if (entity.isNull())
-                        weakEntities.remove(entity);
-                }
+                weakEntities.stream().filter(entity -> entity.isNull()).forEach(weakEntities::remove);
             }
         }
 

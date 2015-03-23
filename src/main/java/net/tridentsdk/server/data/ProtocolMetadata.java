@@ -30,12 +30,7 @@ import java.util.List;
 @ThreadSafe
 public class ProtocolMetadata implements Writable {
     @GuardedBy("metadata")
-    private final List<MetadataValue> metadata = Lists.newLinkedList(new Iterable<MetadataValue>() {
-        @Override
-        public Iterator<MetadataValue> iterator() {
-            return Iterators.forArray(new MetadataValue[22]);
-        }
-    });
+    private final List<MetadataValue> metadata = Lists.newLinkedList(() -> Iterators.forArray(new MetadataValue[22]));
 
     public int addMeta(MetadataType type, Object value) {
         synchronized (metadata) {

@@ -58,12 +58,7 @@ public class CacheTest extends AbstractTest {
     @Repeating(repetition = 500)
     public void insert() {
         final Object object = new Object();
-        cache.retrieve(object, new Callable<Object>() {
-            @Override
-            public Object call() throws Exception {
-                return object;
-            }
-        });
+        cache.retrieve(object, () -> object);
         assertEquals(cache.remove(object), object);
     }
 
@@ -72,12 +67,7 @@ public class CacheTest extends AbstractTest {
     @Repeating(repetition = 500)
     public void insertNullValue() {
         final Object object = new Object();
-        cache.retrieve(object, new Callable<Object>() {
-            @Override
-            public Object call() throws Exception {
-                return null;
-            }
-        });
+        cache.retrieve(object, () -> null);
         assertNull(cache.remove(object));
     }
 
@@ -85,12 +75,7 @@ public class CacheTest extends AbstractTest {
     @Concurrent(count = 16)
     @Repeating(repetition = 500)
     public void insertNullKey() {
-        cache.retrieve(null, new Callable<Object>() {
-            @Override
-            public Object call() throws Exception {
-                return null;
-            }
-        });
+        cache.retrieve(null, () -> null);
     }
 
     @Test
@@ -98,12 +83,7 @@ public class CacheTest extends AbstractTest {
     @Repeating(repetition = 500)
     public void insertRemove() {
         final Object object = new Object();
-        cache.retrieve(object, new Callable<Object>() {
-            @Override
-            public Object call() throws Exception {
-                return object;
-            }
-        });
+        cache.retrieve(object, () -> object);
 
         assertEquals(cache.remove(object), object);
         assertNull(cache.remove(object));

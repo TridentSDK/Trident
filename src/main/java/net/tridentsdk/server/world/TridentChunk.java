@@ -60,7 +60,7 @@ public class TridentChunk implements Chunk {
         this.world = world;
         this.location = coord;
         this.lastFileAccess = 0;
-        sections = new SoftReference<ChunkSection[]>(new ChunkSection[16]);
+        sections = new SoftReference<>(new ChunkSection[16]);
         /*for (int i = 0; i < 16; i ++) {
             sections[i] = new ChunkSection();
         }*/
@@ -80,7 +80,7 @@ public class TridentChunk implements Chunk {
             ChunkSection[] sections = this.sections.get();
             if (sections == null) {
                 sections = new ChunkSection[16];
-                this.sections = new SoftReference<ChunkSection[]>(sections);
+                this.sections = new SoftReference<>(sections);
             }
 
             for (int i = 0; i < 16; i ++) {

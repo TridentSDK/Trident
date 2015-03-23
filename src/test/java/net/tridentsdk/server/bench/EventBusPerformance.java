@@ -63,12 +63,9 @@ public class EventBusPerformance {
     public static void main0(String[] args) {
         final EventBusPerformance performance = new EventBusPerformance();
         for (int i = 0; i < 10; i++) {
-            EXEC.execute(new Runnable() {
-                @Override
-                public void run() {
-                    // THIS IS INCORRECT - DO NOT DO IT!!!!
-                    performance.EVENT_MANAGER.registerListener(PLUGIN, LISTENER);
-                }
+            EXEC.execute(() -> {
+                // THIS IS INCORRECT - DO NOT DO IT!!!!
+                performance.EVENT_MANAGER.registerListener(PLUGIN, LISTENER);
             });
         }
         performance.EVENT_MANAGER.fire(EVENT);

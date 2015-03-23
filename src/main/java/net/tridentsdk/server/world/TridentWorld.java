@@ -33,6 +33,7 @@ import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.*;
 import net.tridentsdk.world.gen.ChunkAxisAlignedBoundingBox;
 
+import javax.annotation.concurrent.ThreadSafe;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -42,6 +43,12 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+/**
+ * Represents a world on the server
+ *
+ * @author The TridentSDK Team
+ */
+@ThreadSafe
 public class TridentWorld implements World {
     private static final int SIZE = 1;
     private static final int MAX_HEIGHT = 255;
@@ -343,6 +350,14 @@ public class TridentWorld implements World {
         }
     }
 
+    public void addEntity(Entity entity) {
+        this.entities.add(entity);
+    }
+
+    public void removeEntity(Entity entity) {
+        this.entities.remove(entity);
+    }
+
     @Override
     public String name() {
         return this.name;
@@ -402,7 +417,7 @@ public class TridentWorld implements World {
             // DEBUG =====
             TridentLogger.log("Generated chunk at (" + x + "," + z + ")");
             // =====
-            
+
             return chunk;
         }
 
@@ -519,14 +534,6 @@ public class TridentWorld implements World {
     @Override
     public Set<Entity> entities() {
         return ImmutableSet.copyOf(this.entities);
-    }
-
-    public void addEntity(Entity entity) {
-        this.entities.add(entity);
-    }
-
-    public void removeEntity(Entity entity) {
-        this.entities.remove(entity);
     }
 
     private static class PlayerFilter implements FilenameFilter {
