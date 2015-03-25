@@ -138,11 +138,9 @@ public class TridentPlayer extends OfflinePlayer {
     }
 
     @Override
-    protected void encodeMetadata(ProtocolMetadata protocolMeta) {
-        super.encodeMetadata(protocolMeta);
-
+    protected void doEncodeMeta(ProtocolMetadata protocolMeta) {
         protocolMeta.setMeta(10, MetadataType.BYTE, skinFlags);
-        protocolMeta.setMeta(16, MetadataType.BYTE, 0); // hide cape, might need changing
+        protocolMeta.setMeta(16, MetadataType.BYTE, (byte) 0); // hide cape, might need changing
         protocolMeta.setMeta(17, MetadataType.FLOAT, 0F); // absorption hearts TODO
         protocolMeta.setMeta(18, MetadataType.INT, 0); // TODO scoreboard system (this value is the player's score)
     }

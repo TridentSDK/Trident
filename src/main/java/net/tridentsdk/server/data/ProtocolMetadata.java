@@ -24,7 +24,6 @@ import net.tridentsdk.util.Vector;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
-import java.util.Iterator;
 import java.util.List;
 
 @ThreadSafe
@@ -71,6 +70,10 @@ public class ProtocolMetadata implements Writable {
         }
 
         for(MetadataValue value : localMeta) {
+            if (value == null) {
+                continue;
+            }
+
             buf.writeByte((value.type().id() << 5 | value.index & 0x1F) & 0xFF);
 
             switch(value.type) {
@@ -115,9 +118,9 @@ public class ProtocolMetadata implements Writable {
 
                     break;
             }
-
-            buf.writeByte(0x7F); // terminate byte
         }
+
+        buf.writeByte(0x7F); // terminate array
     }
 
     public static class MetadataValue {
