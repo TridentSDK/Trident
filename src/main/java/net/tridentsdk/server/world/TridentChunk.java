@@ -66,6 +66,18 @@ public class TridentChunk implements Chunk {
         }*/
     }
 
+    // IMPORTANT: MUST BE CALLED FROM executor
+    private ChunkSection[] mapSections() {
+        ChunkSection[] sections = this.sections.get();
+        if (sections == null) {
+            sections = new ChunkSection[16];
+            this.sections = new SoftReference<>(sections);
+            generate();
+        }
+
+        return sections;
+    }
+
     protected int lastFileAccess() {
         return this.lastFileAccess;
     }
@@ -163,7 +175,7 @@ public class TridentChunk implements Chunk {
 
                 ChunkSection section = sections[WorldUtils.section(y)];
 
-                    /* Get block data; use extras accordingly */
+                /* Get block data; use extras accordingly */
                 byte b = (byte) (section.types[index] >> 4);
                 byte meta = (byte) (section.types[index] & 0xF);
 
@@ -188,11 +200,7 @@ public class TridentChunk implements Chunk {
 
         final ChunkSection[][] sections1 = new ChunkSection[1][1];
         executor.addTask(() -> {
-            sections1[0] = TridentChunk.this.sections.get();
-            if (sections1[0] == null) {
-                sections1[0] = new ChunkSection[16];
-                TridentChunk.this.sections = new SoftReference<>(sections1[0]);
-            }
+            sections1[0] = mapSections();
 
             for (ChunkSection section : sections1[0]) {
                 sections.add(NBTSerializer.serialize(section));
@@ -208,11 +216,7 @@ public class TridentChunk implements Chunk {
     public PacketPlayOutChunkData asPacket() {
         try {
             return executor.submitTask(() -> {
-                ChunkSection[] sections = this.sections.get();
-                if (sections == null) {
-                    sections = new ChunkSection[16];
-                    this.sections = new SoftReference<>(sections);
-                }
+                ChunkSection[] sections = mapSections();
 
                 int bitmask = (1 << sections.length) - 1;
                 ByteArrayOutputStream data = new ByteArrayOutputStream();
@@ -332,13 +336,7 @@ public class TridentChunk implements Chunk {
         ChunkSection[] sectionCopy = new ChunkSection[0];
         try {
             sectionCopy = executor.submitTask(() -> {
-                ChunkSection[] sections = this.sections.get();
-                if (sections == null) {
-                    sections = new ChunkSection[16];
-                    this.sections = new SoftReference<>(sections);
-                }
-
-                return sections;
+                return mapSections();
             }).get();
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
@@ -365,11 +363,7 @@ public class TridentChunk implements Chunk {
                       final byte blockLight) {
         final int index = WorldUtils.blockArrayIndex(x % 16, y % 16, z % 16);
         executor.addTask(() -> {
-            ChunkSection[] sections = this.sections.get();
-            if (sections == null) {
-                sections = new ChunkSection[16];
-                this.sections = new SoftReference<>(sections);
-            }
+            ChunkSection[] sections = mapSections();
 
             ChunkSection section = sections[WorldUtils.section(y)];
 
