@@ -29,7 +29,7 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.LongAdder;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.StampedLock;
 
@@ -80,7 +80,7 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
     private final String name;
 
     private final List<TaskExecutor> workerSet = Lists.newCopyOnWriteArrayList();
-    private final LongAdder count = new LongAdder();
+    private final AtomicInteger count = new AtomicInteger();
 
     @GuardedBy("lock")
     private int scaleIdx = 0;
@@ -90,7 +90,7 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
 
     private volatile long expireIntervalMillis = 60_000;
     private volatile boolean mustEmptyBeforeExpire = true;
-    private volatile int maxScale = Integer.MAX_VALUE;
+    private volatile int maxScale = 500;
 
     @Override
     public int maxScale() {
@@ -145,17 +145,14 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
 
     private Worker addWorker(boolean expire) {
         Worker worker;
-        int count = this.count.intValue();
-        if (count < maxScale()) {
-            count++;
+        if (count.get() < maxScale()) {
             if (expire) {
-                worker = new ExpiringWorker(count);
+                worker = new ExpiringWorker(count.getAndIncrement());
             } else {
-                worker = new Worker(count);
+                worker = new Worker(count.getAndIncrement());
             }
 
             workerSet.add(worker);
-            this.count.increment();
             worker.start();
         } else {
             worker = (Worker) nextWorker();
@@ -166,28 +163,27 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
 
     @Override
     public TaskExecutor nextWorker() {
-        int idx = 0;
-
         long stamp = lock.readLock();
+        int count;
         try {
-            idx = this.scaleIdx;
+            count = this.scaleIdx;
         } finally {
-            lock.tryUnlockRead();
+            lock.unlockRead(stamp);
         }
 
-        if (idx >= this.count.intValue()) {
+        if (count >= this.count.get()) {
             long stamp0 = lock.tryConvertToWriteLock(stamp);
             if (stamp0 == 0L) {
                 stamp0 = lock.writeLock();
             }
-
+          
             try {
                 this.scaleIdx = 0;
             } finally {
                 lock.unlockWrite(stamp0);
             }
 
-            idx = 0;
+            return workerSet.get(0);
         } else {
             long stamp0 = lock.tryConvertToWriteLock(stamp);
             if (stamp0 == 0L) {
@@ -195,13 +191,13 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
             }
           
             try {
-                this.scaleIdx++;
+                this.scaleIdx = 0;
             } finally {
                 lock.unlockWrite(stamp0);
             }
-        }
 
-        return workerSet.get(idx);
+            return workerSet.get(count);
+        }
     }
 
     @Override
@@ -272,48 +268,16 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
 
     @Override
     public void execute(@Nonnull Runnable runnable) {
-        Worker worker = null;
-        if (recordMetrics(false)) {
-            worker = addWorker(true);
-        }
-
-        if (worker == null) {
-            for (TaskExecutor executor : workerSet) {
-                Worker w = (Worker) executor;
-                if (!w.isHeld()) {
-                    worker = w;
-                    recordMetrics(true);
-                }
-            }
-
-            if (worker == null) {
-                worker = (Worker) nextWorker();
+        for (TaskExecutor ex : workerSet) {
+            Worker w = (Worker) ex;
+            if (!w.isHeld()) {
+                w.addTask(runnable);
+                return;
             }
         }
 
-        worker.addTask(runnable);
-    }
-
-    private final LongAdder failed = new LongAdder();
-    private final LongAdder total = new LongAdder();
-
-    private boolean recordMetrics(boolean success) {
-        if (!success) {
-            failed.increment();
-        }
-
-        total.increment();
-
-        if (failed.doubleValue() / total.doubleValue() >= 0.1D) {
-            return false;
-        } else {
-            if (total.sum() > 100000L) {
-                failed.reset();
-                total.reset();
-            }
-
-            return true;
-        }
+        Worker w = addWorker(true);
+        w.addTask(runnable);
     }
 
     // Workers
@@ -322,7 +286,6 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
         @GuardedBy("lock")
         final ArrayDeque<Runnable> tasks = new ArrayDeque<>(64);
         final StampedLock lock = new StampedLock();
-        volatile boolean free;
 
         public Worker(int index) {
             super("Pool " + name + " #" + index);
@@ -333,20 +296,19 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
             while (true) {
                 try {
                     nextTask().run();
-                    free = false;
+                } catch (InterruptedException e) {
+                    break;
                 } catch (Exception e) {
                     TridentLogger.error(e);
                 }
             }
         }
 
-        Runnable nextTask() {
-            long stamp = lock.writeLock();
-            Runnable runnable = tasks.poll();
+        Runnable nextTask() throws InterruptedException {
+            long stamp = lock.writeLockInterruptibly();
+            Runnable runnable = tasks.pollLast();
             if (runnable == null) {
                 lock.unlockWrite(stamp);
-
-                free = true;
                 LockSupport.park();
                 return nextTask();
             } else {
@@ -356,14 +318,14 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
         }
 
         boolean isHeld() {
-             return !free;
+             return lock.isWriteLocked();
         }
 
         @Override
         public void addTask(Runnable task) {
             long stamp = lock.writeLock();
             try {
-                tasks.offer(task);
+                tasks.offerFirst(task);
                 LockSupport.unpark(this);
             } finally {
                 lock.unlockWrite(stamp);
@@ -381,7 +343,6 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
         @Override
         public void interrupt() {
             super.interrupt();
-            tasks.clear();
         }
 
         @Override
@@ -398,57 +359,50 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
         }
 
         @Override
-        Runnable nextTask() {
-            long stamp = lock.writeLock();
-            Runnable runnable = tasks.poll();
+        Runnable nextTask() throws InterruptedException {
+            long stamp = lock.writeLockInterruptibly();
+            Runnable runnable = tasks.pollLast();
             if (runnable == null) {
                 // Non-reentrant, must release the lock
                 lock.unlockWrite(stamp);
                 
                 // Expiration mechanics, in the case of spurious wakeups
-                if (checkTime()) {
-                    interrupt();
-                    return null;
+                long time = System.currentTimeMillis();
+                if ((time - this.last) == expireIntervalMillis) {
+                    // Always empty, we just polled
+                    this.interrupt();
+                } else {
+                    this.last = time;
                 }
-
-                free = true;
-                while (free) {
-                    LockSupport.park();
-                }
+                
+                LockSupport.park();
                 return nextTask();
             } else {
                 lock.unlockWrite(stamp);
 
-                if (checkTime()) {
-                    return () -> {
-                        runnable.run();
-                        this.interrupt();
-                    };
-                }
-
-                return runnable;
-            }
-        }
-
-        private boolean checkTime() {
-            long time = System.currentTimeMillis();
-            if ((time - this.last) == expireIntervalMillis) {
-                if (mustEmptyBeforeExpire) {
-                    if (isEmpty()) {
-                        return true;
+                // Expiration mechanics
+                long time = System.currentTimeMillis();
+                if ((time - this.last) == expireIntervalMillis) {
+                    if (mustEmptyBeforeExpire) {
+                        if (isEmpty()) {
+                            return () -> {
+                                runnable.run();
+                                this.interrupt();
+                            };
+                        }
                     }
                 }
-            }
 
-            this.last = time;
-            return false;
+                this.last = time;
+                return runnable;
+            }
         }
 
         @Override
         public void interrupt() {
             super.interrupt();
             workerSet.remove(this);
-            count.decrement();
+            count.decrementAndGet();
         }
 
         private boolean isEmpty() {
