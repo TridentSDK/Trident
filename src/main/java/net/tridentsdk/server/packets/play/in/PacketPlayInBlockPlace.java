@@ -22,6 +22,8 @@ import net.tridentsdk.Position;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
+import net.tridentsdk.server.player.PlayerConnection;
+import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.util.Vector;
 
 public class PacketPlayInBlockPlace extends InPacket {
@@ -75,6 +77,10 @@ public class PacketPlayInBlockPlace extends InPacket {
 
     @Override
     public void handleReceived(ClientConnection connection) {
-        // TODO: Act accordingly
+        TridentPlayer player = ((PlayerConnection) connection).player();
+
+        location.setWorld(player.world());
+
+        location().block().setSubstance(player.heldItem().type());
     }
 }

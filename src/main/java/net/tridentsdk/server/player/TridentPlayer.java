@@ -51,7 +51,10 @@ import net.tridentsdk.world.LevelType;
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
+
+import static net.tridentsdk.server.packets.play.out.PacketPlayOutPlayerListItem.PlayerListDataBuilder;
 
 @ThreadSafe
 public class TridentPlayer extends OfflinePlayer {
@@ -74,9 +77,13 @@ public class TridentPlayer extends OfflinePlayer {
     }
 
     public static void sendAll(Packet packet) {
-        for (Player p : players()) {
-            ((TridentPlayer) p).connection.sendPacket(packet);
-        }
+        players().stream().forEach((p) -> ((TridentPlayer) p).connection.sendPacket(packet));
+    }
+
+    public static void sendFiltered(Packet packet, Predicate<Player> predicate) {
+        players().stream()
+                .filter(predicate)
+                .forEach((p) -> ((TridentPlayer) p).connection.sendPacket(packet));
     }
 
     public static TridentPlayer spawnPlayer(ClientConnection connection, UUID id, String name) {
@@ -124,6 +131,25 @@ public class TridentPlayer extends OfflinePlayer {
             p.connection.sendPacket(p.abilities.asPacket());
             p.connection.sendPacket(new PacketPlayOutPlayerCompleteMove().set("location",
                     p.spawnLocation().add(new Vector(0, 255, 0))).set("flags", (byte) 1));
+
+            PacketPlayOutPlayerListItem packet = new PacketPlayOutPlayerListItem();
+
+            packet.set("action", 0); // add a player
+            packet.set("playerListData", new PlayerListDataBuilder[] {p.listData()});
+
+            sendAll(new PacketPlayOutPlayerListItem()
+                    .set("action", 0)
+                    .set("playerListData", new PlayerListDataBuilder[] {p.listData()}));
+
+            List<PlayerListDataBuilder> builders = new ArrayList<>();
+
+            players().stream()
+                    .filter((player) -> !player.equals(p))
+                    .forEach((player) -> builders.add(((TridentPlayer) player).listData()));
+
+            p.connection.sendPacket(new PacketPlayOutPlayerListItem()
+                    .set("action", 0)
+                    .set("playerListData", builders.stream().toArray(PlayerListDataBuilder[]::new)));
         });
 
         return p;
@@ -216,6 +242,17 @@ public class TridentPlayer extends OfflinePlayer {
      */
     public void kickPlayer(String reason) {
         connection.sendPacket(new PacketPlayOutDisconnect().set("reason", reason));
+    }
+
+    public PlayerListDataBuilder listData() {
+        return new PacketPlayOutPlayerListItem.PlayerListDataBuilder()
+                .id(uniqueId)
+                .values(name,
+                        0, // properties, TODO
+                        (int) gameMode.asByte(),
+                        0,
+                        displayName != null,
+                        displayName);
     }
 
     public PlayerConnection connection() {

@@ -67,7 +67,7 @@ public class TridentBlock implements Block {
 
         TridentPlayer.sendAll(new PacketPlayOutBlockChange()
                 .set("blockId", substance().id())
-                .set("position", location));
+                .set("location", location));
 
         ((TridentChunk) location().chunk()).setAt(location, material, data, (byte) 255, (byte) 0);
     }
