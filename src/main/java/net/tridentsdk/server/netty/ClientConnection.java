@@ -371,6 +371,5 @@ public class ClientConnection {
         p.remove();
         clientData.remove(this.address);
         this.channel.close();
-        TridentLogger.log(p.name() + " has left the server");
     }
 }

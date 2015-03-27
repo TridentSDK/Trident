@@ -143,9 +143,10 @@ public class TridentPlayer extends OfflinePlayer {
 
             List<PlayerListDataBuilder> builders = new ArrayList<>();
 
-            players().stream()
-                    .filter((player) -> !player.equals(p))
+            players().stream().filter((player) -> !player.equals(p))
                     .forEach((player) -> builders.add(((TridentPlayer) player).listData()));
+            players().forEach((player) -> player.sendMessage(p.name + " has joined the server"));
+            TridentLogger.log(p.name + " has joined the server");
 
             p.connection.sendPacket(new PacketPlayOutPlayerListItem()
                     .set("action", 0)
@@ -230,6 +231,8 @@ public class TridentPlayer extends OfflinePlayer {
     @Override
     protected void doRemove() {
         ONLINE_PLAYERS.remove(this.uniqueId());
+        players().forEach((player) -> player.sendRaw(name + " has left the server"));
+        TridentLogger.log(name + " has left the server");
     }
 
     public void setSkinFlags(byte flags) {

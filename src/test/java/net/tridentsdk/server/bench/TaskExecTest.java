@@ -143,8 +143,8 @@ public class TaskExecTest {
         System.out.println("========= Starting tests =========");
         final BigDecimal[] big = { new BigDecimal(0) };
         int iterations = 100_000_000;
+        CountDownLatch latch = new CountDownLatch(iterations);
         for (int i = 0; i < iterations; i++) {
-            CountDownLatch latch = new CountDownLatch(1);
             final long begin = System.nanoTime();
             TASK_EXECUTOR.execute(() -> {
                 long stop = System.nanoTime();
@@ -152,14 +152,13 @@ public class TaskExecTest {
                 latch.countDown();
             });
 
-            latch.await();
-
             if (i % 10_000_000 == 0 && i != 0) {
                 System.out.println(
                         "Iteration " + i + ": " + big[0].divide(new BigDecimal(iterations), 3, RoundingMode.UP)
                                 .toString() + " ns/op");
             }
         }
+        latch.await();
 
         System.out.println("========= Ended test =========");
 
@@ -179,7 +178,9 @@ public class TaskExecTest {
     }
 
     static void doJavaTest() throws InterruptedException {
-        System.out.println("========= Starting tests: TRIDENT =========");
+        System.out.println();
+
+        System.out.println("========= Starting tests: JAVA =========");
 
         System.out.println();
 
@@ -205,8 +206,8 @@ public class TaskExecTest {
         System.out.println("========= Starting tests =========");
         final BigDecimal[] big = { new BigDecimal(0) };
         int iterations = 100_000_000;
+        CountDownLatch latch = new CountDownLatch(iterations);
         for (int i = 0; i < iterations; i++) {
-            CountDownLatch latch = new CountDownLatch(1);
             final long begin = System.nanoTime();
             JAVA.execute(() -> {
                 long stop = System.nanoTime();
@@ -214,21 +215,13 @@ public class TaskExecTest {
                 latch.countDown();
             });
 
-            latch.await();
-
-            if (i % 100_000 == 0)
-                try {
-                    Thread.sleep(50);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
             if (i % 10_000_000 == 0 && i != 0) {
                 System.out.println(
                         "Iteration " + i + ": " + big[0].divide(new BigDecimal(iterations), 3, RoundingMode.UP)
                                 .toString() + " ns/op");
             }
         }
+        latch.await();
 
         System.out.println("========= Ended test =========");
 
