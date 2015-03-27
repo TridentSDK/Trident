@@ -126,7 +126,6 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
         this.name = name;
 
         state = STARTING;
-        count.set(startingThreadCount);
         for (int i = 0; i < startingThreadCount; i++) {
             addWorker(false);
         }
