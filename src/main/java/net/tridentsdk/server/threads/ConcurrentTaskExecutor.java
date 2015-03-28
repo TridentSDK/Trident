@@ -92,6 +92,21 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
     private volatile boolean mustEmptyBeforeExpire = true;
     private volatile int maxScale = 500;
 
+    public static void main(String[] args) throws InterruptedException {
+        ConcurrentTaskExecutor executor = new ConcurrentTaskExecutor(100, "Test");
+        Thread.sleep(5000);
+
+        for (int i = 0; i < 1000000; i++) {
+            executor.scaledThread().addTask(() -> {
+                for (int j = 0; j < 10000; j++) {
+                    if (System.nanoTime() == new Object().hashCode()) {
+                        break;
+                    }
+                }
+            });
+        }
+    }
+
     @Override
     public int maxScale() {
         return maxScale;
@@ -191,7 +206,7 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
             }
           
             try {
-                this.scaleIdx = 0;
+                this.scaleIdx++;
             } finally {
                 lock.unlockWrite(stamp0);
             }
@@ -202,14 +217,15 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
 
     @Override
     public TaskExecutor scaledThread() {
-        for (TaskExecutor ex : workerSet) {
+        /* for (TaskExecutor ex : workerSet) {
             Worker w = (Worker) ex;
             if (!w.isHeld()) {
                 return w;
             }
         }
 
-        return addWorker(true);
+        return addWorker(true); */
+        return nextWorker();
     }
 
     @Override
@@ -268,7 +284,7 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
 
     @Override
     public void execute(@Nonnull Runnable runnable) {
-        for (TaskExecutor ex : workerSet) {
+        /* for (TaskExecutor ex : workerSet) {
             Worker w = (Worker) ex;
             if (!w.isHeld()) {
                 w.addTask(runnable);
@@ -277,7 +293,8 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
         }
 
         Worker w = addWorker(true);
-        w.addTask(runnable);
+        w.addTask(runnable); */
+        nextWorker().addTask(runnable);
     }
 
     // Workers
@@ -286,6 +303,8 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
         @GuardedBy("lock")
         final ArrayDeque<Runnable> tasks = new ArrayDeque<>(64);
         final StampedLock lock = new StampedLock();
+
+        volatile boolean held;
 
         public Worker(int index) {
             super("Pool " + name + " #" + index);
@@ -309,6 +328,7 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
             Runnable runnable = tasks.pollLast();
             if (runnable == null) {
                 lock.unlockWrite(stamp);
+                held = false;
                 LockSupport.park();
                 return nextTask();
             } else {
@@ -318,7 +338,7 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
         }
 
         boolean isHeld() {
-             return lock.isWriteLocked();
+             return lock.isWriteLocked() && held;
         }
 
         @Override
@@ -326,6 +346,7 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
             long stamp = lock.writeLock();
             try {
                 tasks.offerFirst(task);
+                held = true;
                 LockSupport.unpark(this);
             } finally {
                 lock.unlockWrite(stamp);
