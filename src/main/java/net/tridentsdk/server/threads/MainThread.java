@@ -18,10 +18,8 @@
 package net.tridentsdk.server.threads;
 
 import net.tridentsdk.Trident;
-import net.tridentsdk.entity.Entity;
 import net.tridentsdk.factory.Factories;
 import net.tridentsdk.server.TridentTaskScheduler;
-import net.tridentsdk.server.entity.TridentEntity;
 import net.tridentsdk.server.util.ConcurrentCircularArray;
 import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.world.World;
@@ -90,13 +88,8 @@ public class MainThread extends Thread {
 
         // Tick entities
         for (World world : Trident.worlds().values()) {
-            for (Entity entity : world.entities()) {
-                ((TridentEntity) entity).tick();
-            }
-        }
-
-        for (World world : Trident.worlds().values())
             ((TridentWorld) world).tick();
+        }
 
         // TODO: check the worlds to make sure they're not suffering
 

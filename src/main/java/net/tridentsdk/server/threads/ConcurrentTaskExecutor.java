@@ -183,7 +183,7 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
         try {
             count = this.scaleIdx;
         } finally {
-            lock.unlockRead(stamp);
+            lock.tryUnlockRead();
         }
 
         if (count >= this.count.get()) {

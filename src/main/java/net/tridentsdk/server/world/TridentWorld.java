@@ -273,6 +273,10 @@ public class TridentWorld implements World {
                 thunderTime = ThreadLocalRandom.current().nextInt();
             }
 
+            for (Entity entity : entities) {
+                ((TridentEntity) entity).tick();
+            }
+
             time++;
             existed++;
 

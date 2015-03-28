@@ -204,6 +204,11 @@ public class TridentPlayer extends OfflinePlayer {
     }
 
     @Override
+    public void tick() {
+        ThreadsHandler.playerExecutor().execute(this::doTick);
+    }
+
+    @Override
     protected void doTick() {
         if (!isLoggingIn())
             sendChunks(TridentServer.instance().viewDistance());
