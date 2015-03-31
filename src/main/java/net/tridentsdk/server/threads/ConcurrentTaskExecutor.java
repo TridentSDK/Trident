@@ -396,6 +396,7 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
                     this.last = time;
                 }
                 
+                held = false;
                 LockSupport.park();
                 return nextTask();
             } else {
