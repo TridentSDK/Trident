@@ -14,25 +14,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package net.tridentsdk.server.data;
 
-package net.tridentsdk.server.entity.decorate;
+public enum MetadataType {
+    BYTE(0),
+    SHORT(1),
+    INT(2),
+    FLOAT(3),
+    STRING(4),
+    SLOT(5),
+    XYZ(6), // expecting a vector to represent
+    /*
+     * Essentially representing pitch, yaw, and roll. Expecting a vector to represent
+     */
+    PYR(7);
 
-import com.google.common.collect.Lists;
-import net.tridentsdk.entity.VillagerCareer;
-import net.tridentsdk.entity.decorate.Tradeable;
-import net.tridentsdk.window.trade.Trade;
+    private int id;
 
-import java.util.Collection;
-
-public class DecoratedTradable implements Tradeable {
-    private final Collection<Trade> trades = Lists.newArrayList();
-
-    @Override
-    public Collection<Trade> trades() {
-        return trades;
+    MetadataType(int id) {
+        this.id = id;
     }
 
-    public void applyUpdateTrades(VillagerCareer career) {
-        // TODO logic
+    public int id() {
+        return id;
     }
 }

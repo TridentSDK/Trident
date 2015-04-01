@@ -19,7 +19,8 @@ package net.tridentsdk.server.entity.living;
 
 import net.tridentsdk.Position;
 import net.tridentsdk.entity.Entity;
-import net.tridentsdk.entity.EntityProperties;
+import net.tridentsdk.entity.traits.EntityProperties;
+import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.entity.Projectile;
 import net.tridentsdk.entity.living.MagmaCube;
 import net.tridentsdk.entity.living.Player;
@@ -71,5 +72,10 @@ public class TridentMagmaCube extends TridentLivingEntity implements MagmaCube {
     @Override
     public <T extends Projectile> T launchProjectile(EntityProperties properties) {
         return null;
+    }
+
+    @Override
+    public EntityType type() {
+        return EntityType.MAGMA_CUBE;
     }
 }

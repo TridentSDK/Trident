@@ -15,12 +15,13 @@
  * limitations under the License.
  */
 
-package net.tridentsdk.server.entity;
+package net.tridentsdk.server.entity.projectile;
 
 import net.tridentsdk.Position;
-import net.tridentsdk.entity.EntityProperties;
+import net.tridentsdk.entity.traits.EntityProperties;
 import net.tridentsdk.entity.Projectile;
 import net.tridentsdk.entity.living.ProjectileLauncher;
+import net.tridentsdk.server.entity.TridentEntity;
 
 import java.lang.ref.WeakReference;
 import java.util.UUID;
@@ -37,7 +38,7 @@ public abstract class TridentProjectile extends TridentEntity implements Project
     protected volatile WeakReference<ProjectileLauncher> source;
 
     /**
-     * Inherits UUID and spawnLocation from {@link TridentEntity}
+     * Inherits UUID and spawnPosition from {@link TridentEntity}
      *
      * @param source the entity which fired the projectile
      */
@@ -53,6 +54,11 @@ public abstract class TridentProjectile extends TridentEntity implements Project
 
     @Override
     public abstract void applyProperties(EntityProperties properties);
+
+    @Override
+    protected void doTick() {
+        // TODO
+    }
 
     @Override
     public void doHit() {
@@ -71,11 +77,6 @@ public abstract class TridentProjectile extends TridentEntity implements Project
 
     @Override
     public void setLauncher(final ProjectileLauncher shooter) {
-        super.executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                TridentProjectile.this.source = new WeakReference<>(shooter);
-            }
-        });
+        TridentProjectile.this.source = new WeakReference<>(shooter);
     }
 }

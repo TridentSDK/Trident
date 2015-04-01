@@ -16,19 +16,20 @@
  */
 package net.tridentsdk.server.data;
 
+import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.util.Vector;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
-import java.util.LinkedList;
 import java.util.List;
 
 @ThreadSafe
 public class ProtocolMetadata implements Writable {
     @GuardedBy("metadata")
-    private final List<MetadataValue> metadata = new LinkedList<>();
+    private final List<MetadataValue> metadata = Lists.newLinkedList(() -> Iterators.forArray(new MetadataValue[22]));
 
     public int addMeta(MetadataType type, Object value) {
         synchronized (metadata) {
@@ -40,6 +41,12 @@ public class ProtocolMetadata implements Writable {
     public void setMeta(int index, MetadataValue value) {
         synchronized (metadata) {
             metadata.add(index, value);
+        }
+    }
+
+    public void setMeta(int index, MetadataType type, Object value) {
+        synchronized (metadata) {
+            metadata.add(index, new MetadataValue(index, value, type));
         }
     }
 
@@ -63,6 +70,10 @@ public class ProtocolMetadata implements Writable {
         }
 
         for(MetadataValue value : localMeta) {
+            if (value == null) {
+                continue;
+            }
+
             buf.writeByte((value.type().id() << 5 | value.index & 0x1F) & 0xFF);
 
             switch(value.type) {
@@ -107,9 +118,9 @@ public class ProtocolMetadata implements Writable {
 
                     break;
             }
-
-            buf.writeByte(0x7F); // terminate byte
         }
+
+        buf.writeByte(0x7F); // terminate array
     }
 
     public static class MetadataValue {
@@ -117,7 +128,7 @@ public class ProtocolMetadata implements Writable {
         private final Object value;
         private final MetadataType type;
 
-        private MetadataValue(int index, Object value, MetadataType type) {
+        public MetadataValue(int index, Object value, MetadataType type) {
             this.index = index;
             this.value = value;
             this.type = type;
@@ -133,30 +144,6 @@ public class ProtocolMetadata implements Writable {
 
         public MetadataType type() {
             return type;
-        }
-    }
-
-    public static enum MetadataType {
-        BYTE(0),
-        SHORT(1),
-        INT(2),
-        FLOAT(3),
-        STRING(4),
-        SLOT(5),
-        XYZ(6), // expecting a vector to represent
-        /*
-         * Essentially representing pitch, yaw, and roll. Expecting a vector to represent
-         */
-        PYR(7);
-
-        private int id;
-
-        MetadataType(int id) {
-            this.id = id;
-        }
-
-        public int id() {
-            return id;
         }
     }
 }

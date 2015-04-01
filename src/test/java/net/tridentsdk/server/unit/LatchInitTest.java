@@ -21,7 +21,6 @@ import com.google.code.tempusfugit.concurrency.ConcurrentRule;
 import com.google.code.tempusfugit.concurrency.RepeatingRule;
 import com.google.code.tempusfugit.concurrency.annotations.Concurrent;
 import com.google.code.tempusfugit.concurrency.annotations.Repeating;
-import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
 import net.tridentsdk.AccessBridge;
 import net.tridentsdk.factory.CollectFactory;
 import net.tridentsdk.factory.Factories;
@@ -31,6 +30,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 public class LatchInitTest extends AbstractTest {
@@ -51,13 +51,13 @@ public class LatchInitTest extends AbstractTest {
 
     @Before
     public void setup() {
-        AccessBridge.open().sendSelf(new CollectFactory() {
+        AccessBridge.open().sendSuper(new CollectFactory() {
             @Override
             public <K, V> ConcurrentMap<K, V> createMap() {
-                return new ConcurrentHashMapV8<>();
+                return new ConcurrentHashMap<>();
             }
         });
-        AccessBridge.open().sendSuper(ThreadsHandler.create());
-        AccessBridge.open().sendSuper(TridentTaskScheduler.create());
+        AccessBridge.open().sendImplemented(ThreadsHandler.create());
+        AccessBridge.open().sendImplemented(TridentTaskScheduler.create());
     }
 }

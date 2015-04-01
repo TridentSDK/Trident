@@ -33,10 +33,11 @@ import net.tridentsdk.world.gen.AbstractGenerator;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.lang.ref.SoftReference;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Stream;
 
 public class TridentChunk implements Chunk {
     private final TridentWorld world;
@@ -47,9 +48,9 @@ public class TridentChunk implements Chunk {
     private volatile long inhabitedTime;
     private volatile byte lightPopulated;
     private volatile byte terrainPopulated;
-    public volatile ChunkSection[] sections;
+    public volatile SoftReference<ChunkSection[]> sections;
 
-    private final TaskExecutor executor = ThreadsHandler.chunkExecutor().assign(this);
+    private final TaskExecutor executor = ThreadsHandler.chunkExecutor().scaledThread();
 
     protected TridentChunk(TridentWorld world, int x, int z) {
         this(world, ChunkLocation.create(x, z));
@@ -59,10 +60,22 @@ public class TridentChunk implements Chunk {
         this.world = world;
         this.location = coord;
         this.lastFileAccess = 0;
-        sections = new ChunkSection[16];
+        sections = new SoftReference<>(new ChunkSection[16]);
         /*for (int i = 0; i < 16; i ++) {
             sections[i] = new ChunkSection();
         }*/
+    }
+
+    // IMPORTANT: MUST BE CALLED FROM executor
+    private ChunkSection[] mapSections() {
+        ChunkSection[] sections = this.sections.get();
+        if (sections == null) {
+            sections = new ChunkSection[16];
+            this.sections = new SoftReference<>(sections);
+            generate();
+        }
+
+        return sections;
     }
 
     protected int lastFileAccess() {
@@ -75,53 +88,56 @@ public class TridentChunk implements Chunk {
 
     @Override
     public void generate() {
-        executor.addTask(new Runnable() {
-            @Override
-            public void run() {
-                for (int i = 0; i < 16; i ++) {
-                    if (sections[i] == null) {
-                        sections[i] = new ChunkSection();
-                    }
-                }
-
-                // TODO add flag to prevent double generation
-                AbstractGenerator generator = world.loader().generator();
-                int i = 0;
-
-                for (char[] blockData : generator.generateChunkBlocks(location)) {
-                    sections[i].setBlocks(blockData);
-                    i++;
-                }
-
-                i = 0;
-
-                for (byte[] dataValues : generator.generateBlockData(location)) {
-                    sections[i].setData(dataValues);
-                    i++;
-                }
-
-                for (ChunkSection section: sections) {
-                    if (section.blockLight == null) {
-                        section.blockLight = new byte[ChunkSection.LENGTH/2];
-                    }
-
-                    if (section.skyLight == null) {
-                        section.skyLight = new byte[ChunkSection.LENGTH/2];
-                    }
-
-                    if (section.types == null) {
-                        section.types = new char[ChunkSection.LENGTH];
-                    }
-                }
-
-                // DEBUG ===== Makes the entire chunk full brightness, not exactly ideal
-                for (i = 0; i < 16; i++) {
-                    Arrays.fill(sections[i].skyLight, (byte) 255);
-                }
-                // =====
-
-                //TODO lighting
+        executor.addTask(() -> {
+            ChunkSection[] sections = this.sections.get();
+            if (sections == null) {
+                sections = new ChunkSection[16];
+                this.sections = new SoftReference<>(sections);
             }
+
+            for (int i = 0; i < 16; i ++) {
+                if (sections[i] == null) {
+                    sections[i] = new ChunkSection();
+                }
+            }
+
+            // TODO add flag to prevent double generation
+            AbstractGenerator generator = world.loader().generator();
+            int i = 0;
+
+            for (char[] blockData : generator.generateChunkBlocks(location)) {
+                sections[i].setBlocks(blockData);
+                i++;
+            }
+
+            i = 0;
+
+            for (byte[] dataValues : generator.generateBlockData(location)) {
+                sections[i].setData(dataValues);
+                i++;
+            }
+
+            for (ChunkSection section: sections) {
+                if (section.blockLight == null) {
+                    section.blockLight = new byte[ChunkSection.LENGTH/2];
+                }
+
+                if (section.skyLight == null) {
+                    section.skyLight = new byte[ChunkSection.LENGTH/2];
+                }
+
+                if (section.types == null) {
+                    section.types = new char[ChunkSection.LENGTH];
+                }
+            }
+
+            // DEBUG ===== Makes the entire chunk full brightness, not exactly ideal
+            for (i = 0; i < 16; i++) {
+                Arrays.fill(sections[i].skyLight, (byte) 255);
+            }
+            // =====
+
+            //TODO lighting
         });
     }
 
@@ -150,24 +166,27 @@ public class TridentChunk implements Chunk {
         final int index = WorldUtils.blockArrayIndex(relX, y % 16, relZ);
 
         try {
-            return executor.submitTask(new Callable<TridentBlock>() {
-                @Override
-                public TridentBlock call() throws Exception {
-                    ChunkSection section = sections[WorldUtils.section(y)];
-
-                    /* Get block data; use extras accordingly */
-                    byte b = (byte) (section.types[index] >> 4);
-                    byte meta = (byte) (section.types[index] & 0xF);
-
-                    Substance material = Substance.fromId(b);
-
-                    if (material == null) {
-                        material = Substance.AIR; // check if valid
-                    }
-
-                    return new TridentBlock(Position.create(world, relX + x() * 16, y, relZ + z() * 16),
-                            material, meta);
+            return executor.submitTask(() -> {
+                ChunkSection[] sections = this.sections.get();
+                if (sections == null) {
+                    sections = new ChunkSection[16];
+                    this.sections = new SoftReference<>(sections);
                 }
+
+                ChunkSection section = sections[WorldUtils.section(y)];
+
+                /* Get block data; use extras accordingly */
+                byte b = (byte) (section.types[index] >> 4);
+                byte meta = (byte) (section.types[index] & 0xF);
+
+                Substance material = Substance.fromId(b);
+
+                if (material == null) {
+                    material = Substance.AIR; // check if valid
+                }
+
+                return new TridentBlock(Position.create(world, relX + x() * 16, y, relZ + z() * 16),
+                        material, meta);
             }).get();
         } catch (InterruptedException | ExecutionException e) {
             TridentLogger.error(e);
@@ -179,14 +198,16 @@ public class TridentChunk implements Chunk {
     public ChunkSnapshot snapshot() {
         final List<CompoundTag> sections = Lists.newArrayList();
 
-        executor.addTask(new Runnable() {
-            @Override
-            public void run() {
-                for (ChunkSection section : TridentChunk.this.sections) {
-                    sections.add(NBTSerializer.serialize(section));
-                }
+        final ChunkSection[][] sections1 = new ChunkSection[1][1];
+        executor.addTask(() -> {
+            sections1[0] = mapSections();
+
+            for (ChunkSection section : sections1[0]) {
+                sections.add(NBTSerializer.serialize(section));
             }
         });
+
+        executor.addTask(() -> Stream.of(sections1[0]).forEach((s) -> sections.add(NBTSerializer.serialize(s))));
 
         return new TridentChunkSnapshot(world, location, sections, lastFileAccess, lastModified, inhabitedTime,
                 lightPopulated, terrainPopulated);
@@ -194,54 +215,53 @@ public class TridentChunk implements Chunk {
 
     public PacketPlayOutChunkData asPacket() {
         try {
-            return executor.submitTask(new Callable<PacketPlayOutChunkData>() {
-                @Override
-                public PacketPlayOutChunkData call() throws Exception {
-                    int bitmask = (1 << sections.length) - 1;
-                    ByteArrayOutputStream data = new ByteArrayOutputStream();
+            return executor.submitTask(() -> {
+                ChunkSection[] sections = mapSections();
 
-                    for (ChunkSection section : sections) {
-                        if (section == null)
-                            continue;
+                int bitmask = (1 << sections.length) - 1;
+                ByteArrayOutputStream data = new ByteArrayOutputStream();
 
-                        for (char c : section.types()) {
-                            data.write(c & 0xff);
-                            data.write(c >> 8);
-                        }
+                for (ChunkSection section : sections) {
+                    if (section == null)
+                        continue;
+
+                    for (char c : section.types()) {
+                        data.write(c & 0xff);
+                        data.write(c >> 8);
                     }
-
-                    for (ChunkSection section : sections) {
-                        try {
-                            if (section == null) {
-                                data.write(0);
-                                continue;
-                            }
-
-                            data.write(section.blockLight);
-                        } catch (IOException e) {
-                            TridentLogger.error(e);
-                        }
-                    }
-
-                    for (ChunkSection section : sections) {
-                        try {
-                            if (section == null) {
-                                data.write(0);
-                                continue;
-                            }
-
-                            data.write(section.skyLight);
-                        } catch (IOException e) {
-                            TridentLogger.error(e);
-                        }
-                    }
-
-                    for (int i = 0; i < 256; i += 1) {
-                        data.write(0);
-                    }
-
-                    return new PacketPlayOutChunkData(data.toByteArray(), location, false, (short) bitmask);
                 }
+
+                for (ChunkSection section : sections) {
+                    try {
+                        if (section == null) {
+                            data.write(0);
+                            continue;
+                        }
+
+                        data.write(section.blockLight);
+                    } catch (IOException e) {
+                        TridentLogger.error(e);
+                    }
+                }
+
+                for (ChunkSection section : sections) {
+                    try {
+                        if (section == null) {
+                            data.write(0);
+                            continue;
+                        }
+
+                        data.write(section.skyLight);
+                    } catch (IOException e) {
+                        TridentLogger.error(e);
+                    }
+                }
+
+                for (int i = 0; i < 256; i += 1) {
+                    data.write(0);
+                }
+
+                return new PacketPlayOutChunkData(data.toByteArray(), location, false, (short) bitmask);
             }).get();
         } catch (InterruptedException | ExecutionException e) {
             TridentLogger.error(e);
@@ -283,12 +303,7 @@ public class TridentChunk implements Chunk {
             }
         }
 
-        executor.addTask(new Runnable() {
-            @Override
-            public void run() {
-                TridentChunk.this.sections = sections;
-            }
-        });
+        executor.addTask(() -> this.sections = new SoftReference<>(sections));
 
         for (NBTTag t : entities.listTags()) {
             //TridentEntity entity = EntityBuilder.create().build(TridentEntity.class);
@@ -318,16 +333,12 @@ public class TridentChunk implements Chunk {
 
         final ListTag sectionTags = new ListTag("Sections", TagType.COMPOUND);
 
-        ChunkSection[] sectionCopy;
+        ChunkSection[] sectionCopy = new ChunkSection[0];
         try {
-            sectionCopy = executor.submitTask(new Callable<ChunkSection[]>() {
-                @Override
-                public ChunkSection[] call() throws Exception {
-                    return sections;
-                }
+            sectionCopy = executor.submitTask(() -> {
+                return mapSections();
             }).get();
         } catch (InterruptedException | ExecutionException e) {
-            sectionCopy = sections;
             e.printStackTrace();
         }
 
@@ -351,33 +362,34 @@ public class TridentChunk implements Chunk {
     public void setAt(int x, final int y, int z, final Substance type, final byte metaData, final byte skyLight,
                       final byte blockLight) {
         final int index = WorldUtils.blockArrayIndex(x % 16, y % 16, z % 16);
-        executor.addTask(new Runnable() {
-            @Override
-            public void run() {
-                ChunkSection section = sections[WorldUtils.section(y)];
+        executor.addTask(() -> {
+            ChunkSection[] sections = mapSections();
 
-                section.types[index] = (char) ((type.asExtended() & 0xfff0) | metaData);
-                section.skyLight[index] = skyLight;
-                section.blockLight[index] = blockLight;
-            }
+            ChunkSection section = sections[WorldUtils.section(y)];
+
+            section.types[index] = (char) ((type.asExtended() & 0xfff0) | metaData);
+            section.skyLight[index] = skyLight;
+            section.blockLight[index] = blockLight;
         });
     }
 
     void clear() {
         // We still care about thread safety!
-        executor.addTask(new Runnable() {
-            @Override
-            public void run() {
-                for (ChunkSection section : sections) {
-                    if (section == null) {
-                        continue;
-                    }
+        executor.addTask(() -> {
+            ChunkSection[] sections = this.sections.get();
+            if (sections == null) {
+                return;
+            }
 
-                    section.clear();
+            for (ChunkSection section : sections) {
+                if (section == null) {
+                    continue;
                 }
 
-                sections = null;
+                section.clear();
             }
+
+            sections = null;
         });
     }
 }

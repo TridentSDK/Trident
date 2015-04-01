@@ -17,7 +17,6 @@
 package net.tridentsdk.server.world;
 
 import com.google.common.collect.Lists;
-import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
 import net.tridentsdk.concurrent.HeldValueLatch;
 import net.tridentsdk.docs.AccessNoDoc;
 import net.tridentsdk.util.TridentLogger;
@@ -25,11 +24,12 @@ import net.tridentsdk.world.ChunkLocation;
 
 import java.util.Collection;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 @AccessNoDoc
 class ChunkCache {
-    private final ConcurrentMap<ChunkLocation, HeldValueLatch<TridentChunk>> cachedChunks = new ConcurrentHashMapV8<>();
+    private final ConcurrentMap<ChunkLocation, HeldValueLatch<TridentChunk>> cachedChunks = new ConcurrentHashMap<>();
     private final TridentWorld world;
 
     public ChunkCache(TridentWorld world) {
@@ -81,12 +81,12 @@ class ChunkCache {
             return;
         }
 
-        for (ChunkLocation l : keys()) {
-            if (!set.contains(l)) {
-                HeldValueLatch<TridentChunk> latch = cachedChunks.remove(l);
-                latch.get().clear();
-            }
-        }
+        keys().stream()
+                .filter(set::contains)
+                .forEach((l) -> {
+                    HeldValueLatch<TridentChunk> latch = cachedChunks.remove(l);
+                    latch.get().clear();
+                });
     }
 
     public Set<ChunkLocation> keys() {
@@ -95,15 +95,16 @@ class ChunkCache {
 
     public Collection<TridentChunk> values() {
         Collection<TridentChunk> chunks = Lists.newArrayList();
-        for (HeldValueLatch<TridentChunk> chunk : cachedChunks.values()) {
-            if (chunk.hasValue()) {
-                try {
-                    chunks.add(chunk.await());
-                } catch (InterruptedException e) {
-                    TridentLogger.error(e);
-                }
-            }
-        }
+
+        cachedChunks.values().stream()
+                .filter(HeldValueLatch::hasValue)
+                .forEach((c) -> {
+                    try {
+                        chunks.add(c.await());
+                    } catch (InterruptedException e) {
+                        TridentLogger.error(e);
+                    }
+                });
 
         return chunks;
     }

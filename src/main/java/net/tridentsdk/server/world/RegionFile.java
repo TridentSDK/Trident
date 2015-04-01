@@ -97,12 +97,7 @@ public class RegionFile {
     public static RegionFile fromPath(String name, ChunkLocation location) {
         final Path path = Paths.get(name + "/region/", WorldUtils.regionFile(location));
 
-        return FILE_CACHE.retrieve(path, new Callable<RegionFile>() {
-            @Override
-            public RegionFile call() throws Exception {
-                return new RegionFile(path);
-            }
-        });
+        return FILE_CACHE.retrieve(path, () -> new RegionFile(path));
     }
 
     /**

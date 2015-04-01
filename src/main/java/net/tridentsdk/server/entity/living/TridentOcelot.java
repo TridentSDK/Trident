@@ -19,69 +19,41 @@ package net.tridentsdk.server.entity.living;
 
 import net.tridentsdk.Position;
 import net.tridentsdk.entity.Entity;
-import net.tridentsdk.entity.EntityProperties;
-import net.tridentsdk.entity.OcelotType;
-import net.tridentsdk.entity.Projectile;
+import net.tridentsdk.entity.types.EntityType;
+import net.tridentsdk.entity.types.OcelotType;
 import net.tridentsdk.entity.living.Ocelot;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.entity.EntityDamageEvent;
-import net.tridentsdk.server.entity.TridentLivingEntity;
+import net.tridentsdk.server.data.MetadataType;
+import net.tridentsdk.server.data.ProtocolMetadata;
+import net.tridentsdk.server.entity.TridentTameable;
 
 import java.util.UUID;
 
-public class TridentOcelot extends TridentLivingEntity implements Ocelot {
+public class TridentOcelot extends TridentTameable implements Ocelot {
+    private final OcelotType breed;
+
     public TridentOcelot(UUID id, Position spawnLocation) {
         super(id, spawnLocation);
+        this.breed = OcelotType.WILD;
+    }
+
+    @Override
+    protected void doEncodeMeta(ProtocolMetadata protocolMeta) {
+        protocolMeta.setMeta(18, MetadataType.BYTE, (byte) breed.asInt());
     }
 
     @Override
     public OcelotType breed() {
-        return null;
-    }
-
-    @Override
-    public boolean isTamed() {
-        return false;
-    }
-
-    @Override
-    public UUID owner() {
-        return null;
-    }
-
-    @Override
-    public boolean isSitting() {
-        return false;
-    }
-
-    @Override
-    public int age() {
-        return 0;
-    }
-
-    @Override
-    public void setAge(int ticks) {
-
-    }
-
-    @Override
-    public boolean canBreed() {
-        return false;
-    }
-
-    @Override
-    public boolean isInLove() {
-        return false;
+        return breed;
     }
 
     @Override
     public void hide(Entity entity) {
-
     }
 
     @Override
     public void show(Entity entity) {
-
     }
 
     @Override
@@ -95,17 +67,7 @@ public class TridentOcelot extends TridentLivingEntity implements Ocelot {
     }
 
     @Override
-    public boolean isNameVisible() {
-        return false;
-    }
-
-    @Override
-    public void applyProperties(EntityProperties properties) {
-
-    }
-
-    @Override
-    public <T extends Projectile> T launchProjectile(EntityProperties properties) {
-        return null;
+    public EntityType type() {
+        return EntityType.OCELOT;
     }
 }

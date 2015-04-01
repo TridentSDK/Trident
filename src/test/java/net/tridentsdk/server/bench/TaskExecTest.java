@@ -17,10 +17,8 @@
 
 package net.tridentsdk.server.bench;
 
-import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
-import net.tridentsdk.AccessBridge;
+
 import net.tridentsdk.concurrent.TaskExecutor;
-import net.tridentsdk.factory.CollectFactory;
 import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
@@ -35,7 +33,7 @@ import org.openjdk.jmh.runner.options.VerboseMode;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Collection;
-import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -44,71 +42,61 @@ import java.util.concurrent.TimeUnit;
 ========= Starting tests: TRIDENT =========
 
 ========= Warming up the system =========
-Warmup iteration 100: 4889.212 ns/op
-Warmup iteration 200: 33791.933 ns/op
-Warmup iteration 300: 81591.043 ns/op
-Warmup iteration 400: 85302.103 ns/op
-Warmup iteration 500: 125701.439 ns/op
-Warmup iteration 600: 141949.020 ns/op
-Warmup iteration 700: 199897.850 ns/op
-Warmup iteration 800: 267967.419 ns/op
-Warmup iteration 900: 337249.555 ns/op
+Warmup iteration 100: 0.000 ns/op
+Warmup iteration 200: 0.000 ns/op
+Warmup iteration 300: 0.000 ns/op
+Warmup iteration 400: 0.000 ns/op
+Warmup iteration 500: 0.000 ns/op
+Warmup iteration 600: 0.000 ns/op
+Warmup iteration 700: 0.000 ns/op
+Warmup iteration 800: 0.000 ns/op
+Warmup iteration 900: 0.000 ns/op
 ========= Warm up complete =========
 
 ========= Starting tests =========
-Iteration 10000000: 138777.004 ns/op
-Iteration 20000000: 224413.591 ns/op
-Iteration 30000000: 283868.316 ns/op
-Iteration 40000000: 341304.927 ns/op
-Iteration 50000000: 408210.938 ns/op
-Iteration 60000000: 477185.787 ns/op
-Iteration 70000000: 559801.963 ns/op
-Iteration 80000000: 642992.347 ns/op
-Iteration 90000000: 725798.775 ns/op
+Iteration 10000000: 224.729 ns/op
+Iteration 20000000: 448.046 ns/op
+Iteration 30000000: 670.792 ns/op
+Iteration 40000000: 894.519 ns/op
+Iteration 50000000: 1118.812 ns/op
+Iteration 60000000: 1345.623 ns/op
+Iteration 70000000: 1569.468 ns/op
+Iteration 80000000: 1792.467 ns/op
+Iteration 90000000: 2015.692 ns/op
 ========= Ended test =========
-Complete. 801960.581 ns/op
-
-========= Starting tests: JAVA =========
+Complete. 2238.319 ns/op
+========= Starting tests: TRIDENT =========
 
 ========= Warming up the system =========
-Warmup iteration 100: 11450.120 ns/op
-Warmup iteration 200: 87682.872 ns/op
-Warmup iteration 300: 99953.454 ns/op
-Warmup iteration 400: 99953.454 ns/op
-Warmup iteration 500: 99953.454 ns/op
-Warmup iteration 600: 1254196.607 ns/op
-Warmup iteration 700: 1254196.607 ns/op
-Warmup iteration 800: 1254196.607 ns/op
-Warmup iteration 900: 1254196.607 ns/op
+Warmup iteration 100: 15148.154 ns/op
+Warmup iteration 200: 43028.691 ns/op
+Warmup iteration 300: 68108.891 ns/op
+Warmup iteration 400: 98972.100 ns/op
+Warmup iteration 500: 140382.841 ns/op
+Warmup iteration 600: 168575.806 ns/op
+Warmup iteration 700: 198700.359 ns/op
+Warmup iteration 800: 266667.991 ns/op
+Warmup iteration 900: 274031.823 ns/op
 ========= Warm up complete =========
 
 ========= Starting tests =========
-Iteration 10000000: 486585.494 ns/op
-Iteration 20000000: 1011151.414 ns/op
-Iteration 30000000: 1515163.430 ns/op
-Iteration 40000000: 2052993.060 ns/op
-Iteration 50000000: 2572005.314 ns/op
-Iteration 60000000: 3104995.588 ns/op
-Iteration 70000000: 3668143.197 ns/op
-Iteration 80000000: 4245930.511 ns/op
-Iteration 90000000: 4726552.187 ns/op
+Iteration 10000000: 274.851 ns/op
+Iteration 20000000: 534.036 ns/op
+Iteration 30000000: 783.020 ns/op
+Iteration 40000000: 1035.913 ns/op
+Iteration 50000000: 1290.808 ns/op
+Iteration 60000000: 1541.705 ns/op
+Iteration 70000000: 1786.883 ns/op
+Iteration 80000000: 2031.753 ns/op
+Iteration 90000000: 2284.194 ns/op
 ========= Ended test =========
-Complete. 5229887.591 ns/op
+Complete. 2542.293 ns/op
 
-http://bit.ly/1Fwu7W6
+http://bit.ly/1xI4GcC
  */
 @State(Scope.Benchmark)
 public class TaskExecTest {
-    static {
-        AccessBridge.open().sendSelf(new CollectFactory() {
-            @Override
-            public <K, V> ConcurrentMap<K, V> createMap() {
-                return new ConcurrentHashMapV8<>();
-            }
-        });
-    }
-
-    private static ExecutorService JAVA = Executors.newFixedThreadPool(4);
+    private static ExecutorService JAVA = Executors.newCachedThreadPool();
     private static final Runnable RUNNABLE = new Runnable() {
         int anInt = 0;
 
@@ -117,15 +105,12 @@ public class TaskExecTest {
             anInt++;
         }
     };
-    private static ConcurrentTaskExecutor<String> TASK_EXECUTOR = ConcurrentTaskExecutor.create(4, "Test");
+    private static ConcurrentTaskExecutor TASK_EXECUTOR = ConcurrentTaskExecutor.create(4, "Test");
     private static TaskExecutor EXECUTOR = TASK_EXECUTOR.scaledThread();
 
     public static void main2(String[] args) {
         while (true) {
-            TASK_EXECUTOR.execute(new Runnable() {
-                @Override
-                public void run() {
-                }
+            TASK_EXECUTOR.execute(() -> {
             });
         }
     }
@@ -140,17 +125,14 @@ public class TaskExecTest {
         final BigDecimal[] decimal = { new BigDecimal(0) };
         for (int i = 0; i < 1_000; i++) {
             final long begin = System.nanoTime();
-            TASK_EXECUTOR.execute(new Runnable() {
-                @Override
-                public void run() {
-                    long stop = System.nanoTime();
-                    decimal[0] = decimal[0].add(new BigDecimal(stop - begin));
-                }
+            TASK_EXECUTOR.execute(() -> {
+                long stop = System.nanoTime();
+                decimal[0] = decimal[0].add(new BigDecimal(stop - begin));
             });
 
             if (i % 100 == 0 && i != 0) {
                 System.out.println("Warmup iteration " + i + ": " + decimal[0].divide(new BigDecimal(1_000), 3,
-                        RoundingMode.UNNECESSARY).toString() + " ns/op");
+                        RoundingMode.UP).toString() + " ns/op");
             }
         }
 
@@ -160,37 +142,31 @@ public class TaskExecTest {
 
         System.out.println("========= Starting tests =========");
         final BigDecimal[] big = { new BigDecimal(0) };
-        for (int i = 0; i < 100_000_000; i++) {
+        int iterations = 100_000_000;
+        CountDownLatch latch = new CountDownLatch(iterations);
+        for (int i = 0; i < iterations; i++) {
             final long begin = System.nanoTime();
-            TASK_EXECUTOR.execute(new Runnable() {
-                @Override
-                public void run() {
-                    long stop = System.nanoTime();
-                    big[0] = big[0].add(new BigDecimal(stop - begin));
-                }
+            TASK_EXECUTOR.execute(() -> {
+                long stop = System.nanoTime();
+                big[0] = big[0].add(new BigDecimal(stop - begin));
+                latch.countDown();
             });
-
-            if (i % 100_000 == 0)
-                try {
-                    Thread.sleep(50);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
 
             if (i % 10_000_000 == 0 && i != 0) {
                 System.out.println(
-                        "Iteration " + i + ": " + big[0].divide(new BigDecimal(100_000_000), 3, RoundingMode.UP)
+                        "Iteration " + i + ": " + big[0].divide(new BigDecimal(iterations), 3, RoundingMode.UP)
                                 .toString() + " ns/op");
             }
         }
+        latch.await();
 
         System.out.println("========= Ended test =========");
 
         System.out.println(
-                "Complete. " + big[0].divide(new BigDecimal(100_000_000), 3, RoundingMode.UP).toString() + " ns/op");
+                "Complete. " + big[0].divide(new BigDecimal(iterations), 3, RoundingMode.UP).toString() + " ns/op");
 
+        TASK_EXECUTOR.shutdownNow();
         // Clear all the useless tasks
-        TASK_EXECUTOR.shutdown();
         for (int i = 0; i < 10; i++) {
             System.gc();
         }
@@ -201,7 +177,9 @@ public class TaskExecTest {
         doJavaTest();
     }
 
-    static void doJavaTest() {
+    static void doJavaTest() throws InterruptedException {
+        System.out.println();
+
         System.out.println("========= Starting tests: JAVA =========");
 
         System.out.println();
@@ -210,17 +188,14 @@ public class TaskExecTest {
         final BigDecimal[] decimal = { new BigDecimal(0) };
         for (int i = 0; i < 1_000; i++) {
             final long begin = System.nanoTime();
-            JAVA.execute(new Runnable() {
-                @Override
-                public void run() {
-                    long stop = System.nanoTime();
-                    decimal[0] = decimal[0].add(new BigDecimal(stop - begin));
-                }
+            JAVA.execute(() -> {
+                long stop = System.nanoTime();
+                decimal[0] = decimal[0].add(new BigDecimal(stop - begin));
             });
 
             if (i % 100 == 0 && i != 0) {
                 System.out.println("Warmup iteration " + i + ": " + decimal[0].divide(new BigDecimal(1_000), 3,
-                        RoundingMode.UNNECESSARY).toString() + " ns/op");
+                        RoundingMode.UP).toString() + " ns/op");
             }
         }
 
@@ -230,50 +205,35 @@ public class TaskExecTest {
 
         System.out.println("========= Starting tests =========");
         final BigDecimal[] big = { new BigDecimal(0) };
-        for (int i = 0; i < 100_000_000; i++) {
+        int iterations = 100_000_000;
+        CountDownLatch latch = new CountDownLatch(iterations);
+        for (int i = 0; i < iterations; i++) {
             final long begin = System.nanoTime();
-            JAVA.execute(new Runnable() {
-                @Override
-                public void run() {
-                    long stop = System.nanoTime();
-                    big[0] = big[0].add(new BigDecimal(stop - begin));
-                }
+            JAVA.execute(() -> {
+                long stop = System.nanoTime();
+                big[0] = big[0].add(new BigDecimal(stop - begin));
+                latch.countDown();
             });
-
-            if (i % 100_000 == 0)
-                try {
-                    Thread.sleep(50);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
 
             if (i % 10_000_000 == 0 && i != 0) {
                 System.out.println(
-                        "Iteration " + i + ": " + big[0].divide(new BigDecimal(100_000_000), 3, RoundingMode.UP)
+                        "Iteration " + i + ": " + big[0].divide(new BigDecimal(iterations), 3, RoundingMode.UP)
                                 .toString() + " ns/op");
             }
         }
+        latch.await();
 
         System.out.println("========= Ended test =========");
 
         System.out.println(
-                "Complete. " + big[0].divide(new BigDecimal(100_000_000), 3, RoundingMode.UP).toString() + " ns/op");
+                "Complete. " + big[0].divide(new BigDecimal(iterations), 3, RoundingMode.UP).toString() + " ns/op");
+        JAVA.shutdownNow();
     }
 
     public static void main1(String[] args) {
         for (int i = 0; i < 20000; i++) {
             final int finalI = i;
-            JAVA.execute(new Runnable() {
-                @Override
-                public void run() {
-                    TASK_EXECUTOR.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            System.out.println(finalI);
-                        }
-                    });
-                }
-            });
+            JAVA.execute(() -> TASK_EXECUTOR.execute(() -> System.out.println(finalI)));
         }
     }
 

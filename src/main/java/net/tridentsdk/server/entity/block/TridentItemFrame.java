@@ -19,7 +19,8 @@ package net.tridentsdk.server.entity.block;
 
 import net.tridentsdk.Position;
 import net.tridentsdk.base.Block;
-import net.tridentsdk.entity.EntityProperties;
+import net.tridentsdk.entity.traits.EntityProperties;
+import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.entity.block.ItemFrame;
 import net.tridentsdk.server.entity.TridentEntity;
 import net.tridentsdk.window.inventory.Item;
@@ -29,16 +30,6 @@ import java.util.UUID;
 public class TridentItemFrame extends TridentEntity implements ItemFrame {
     public TridentItemFrame(UUID id, Position spawnLocation) {
         super(id, spawnLocation);
-    }
-
-    @Override
-    public boolean isNameVisible() {
-        return false;
-    }
-
-    @Override
-    public void applyProperties(EntityProperties properties) {
-
     }
 
     @Override
@@ -54,5 +45,10 @@ public class TridentItemFrame extends TridentEntity implements ItemFrame {
     @Override
     public Block hangingBlock() {
         return null;
+    }
+
+    @Override
+    public EntityType type() {
+        return EntityType.ITEM_FRAME;
     }
 }
