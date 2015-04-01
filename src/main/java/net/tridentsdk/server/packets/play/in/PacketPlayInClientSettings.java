@@ -76,5 +76,6 @@ public class PacketPlayInClientSettings extends InPacket {
 
         player.setLocale(locale);
         player.setSkinFlags(skinParts);
+        player.setViewDistance(viewDistance);
     }
 }

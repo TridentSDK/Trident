@@ -69,6 +69,7 @@ public class TridentPlayer extends OfflinePlayer {
     private volatile boolean flying;
     private volatile byte skinFlags;
     private volatile Locale locale;
+    private volatile int viewDistance = 7;
 
     private TridentPlayer(UUID uuid, CompoundTag tag, TridentWorld world, ClientConnection connection) {
         super(uuid, tag, world);
@@ -182,7 +183,7 @@ public class TridentPlayer extends OfflinePlayer {
             return;
 
         connection.sendPacket(PacketPlayOutStatistics.DEFAULT_STATISTIC);
-        sendChunks(TridentServer.instance().viewDistance());
+        sendChunks(viewDistance());
         connection.sendPacket(new PacketPlayOutPlayerCompleteMove().set("location",
                 position()).set("flags", (byte) 1));
 
@@ -210,8 +211,9 @@ public class TridentPlayer extends OfflinePlayer {
 
     @Override
     protected void doTick() {
+        int distance = viewDistance();
         if (!isLoggingIn())
-            sendChunks(TridentServer.instance().viewDistance());
+            sendChunks(distance);
 
         if (!chunkQueue.isEmpty())
             connection.sendPacket(chunkQueue.poll());
@@ -219,10 +221,9 @@ public class TridentPlayer extends OfflinePlayer {
         if (ticksExisted.get() % Defaults.CHUNK_CLEAN_TICK_INTERVAL == 0) {
             Set<ChunkLocation> locations = Sets.newHashSet();
             for (ChunkLocation location : knownChunks) {
-                int maxView = Trident.config().getInt("view-distance", 7);
-                if (Math.abs(location.x() - (position().x() / 16)) < maxView) {
+                if (Math.abs(location.x() - (position().x() / 16)) < distance) {
                     locations.add(location);
-                } else if (Math.abs(location.z() - (position().z() / 16)) < maxView) {
+                } else if (Math.abs(location.z() - (position().z() / 16)) < distance) {
                     locations.add(location);
                 }
             }
@@ -238,10 +239,6 @@ public class TridentPlayer extends OfflinePlayer {
         ONLINE_PLAYERS.remove(this.uniqueId());
         players().forEach((player) -> player.sendRaw(name + " has left the server"));
         TridentLogger.log(name + " has left the server");
-    }
-
-    public void setSkinFlags(byte flags) {
-        skinFlags = flags;
     }
 
     /*
@@ -274,34 +271,6 @@ public class TridentPlayer extends OfflinePlayer {
         }
 
         TridentPlayer.super.selectedSlot = slot;
-    }
-
-    public void setSprinting(boolean sprinting) {
-        this.sprinting = sprinting;
-    }
-
-    public void setFlying(boolean flying) {
-        this.flying = flying;
-
-        abilities.flying = (flying) ? (byte) 1 : (byte) 0;
-        connection.sendPacket(abilities.asPacket());
-    }
-
-    public boolean isFlying() {
-        return flying;
-    }
-
-    public boolean isSprinting() {
-        return sprinting;
-    }
-
-    public boolean isCrouching() {
-        return crouching;
-    }
-
-    @InternalUseOnly
-    public void setCrouching(boolean crouching) {
-        this.crouching = crouching;
     }
 
     @Override
@@ -358,7 +327,48 @@ public class TridentPlayer extends OfflinePlayer {
         }
     }
 
+    public void setFlying(boolean flying) {
+        this.flying = flying;
+
+        abilities.flying = (flying) ? (byte) 1 : (byte) 0;
+        connection.sendPacket(abilities.asPacket());
+    }
+
+    public boolean isFlying() {
+        return flying;
+    }
+
+    public void setSprinting(boolean sprinting) {
+        this.sprinting = sprinting;
+    }
+
+    public boolean isSprinting() {
+        return sprinting;
+    }
+
+    @InternalUseOnly
+    public void setCrouching(boolean crouching) {
+        this.crouching = crouching;
+    }
+
+    public boolean isCrouching() {
+        return crouching;
+    }
+
     public void setLocale(Locale locale) {
         this.locale = locale;
+    }
+
+    public void setSkinFlags(byte flags) {
+        skinFlags = flags;
+    }
+
+    public void setViewDistance(int viewDistance) {
+        this.viewDistance = viewDistance;
+    }
+
+    private static final int MAX_VIEW = Trident.config().getInt("view-distance", 15);
+    public int viewDistance() {
+        return Math.min(viewDistance, MAX_VIEW);
     }
 }

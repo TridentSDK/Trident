@@ -287,7 +287,7 @@ public class TridentWorld implements World {
                         Position pos = entity.position();
                         int x = (int) pos.x() / 16;
                         int z = (int) pos.z() / 16;
-                        int viewDist = Trident.config().getInt("view-distance", 7);
+                        int viewDist = ((TridentPlayer) entity).viewDistance();
 
                         for (int i = x - viewDist; i < x + viewDist; i++) {
                             for (int j = z - viewDist; j < z + viewDist; j++) {
