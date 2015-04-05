@@ -115,7 +115,7 @@ public final class TridentServer implements Server {
     }
 
     public int compressionThreshold() {
-        return this.config.getInt("compression-threshold", Defaults.COMPRESSION_THRESHHOLD);
+        return this.config.getInt("compression-threshold", Defaults.COMPRESSION_THRESHOLD);
     }
 
     public int viewDistance() {
