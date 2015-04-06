@@ -176,7 +176,6 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
         int count;
         int max = this.count.get();
 
-        // please jit stripe this
         long stamp = lock.readLock();
         try {
             count = this.scaleIdx;
