@@ -22,7 +22,6 @@ import net.tridentsdk.concurrent.TaskExecutor;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.factory.ExecutorFactory;
 import net.tridentsdk.factory.Factories;
-import net.tridentsdk.util.TridentLogger;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
@@ -84,13 +83,13 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
 
     @GuardedBy("lock")
     private int scaleIdx = 0;
-    private final Object lock = new Object();
+    private final StampedLock lock = new StampedLock();
 
     private volatile int state = INITIALIZING;
 
     private volatile long expireIntervalMillis = 60_000;
     private volatile boolean mustEmptyBeforeExpire = true;
-    private volatile int maxScale = 500;
+    private volatile int maxScale = Integer.MAX_VALUE;
 
     public static void main(String[] args) throws InterruptedException {
         ConcurrentTaskExecutor executor = new ConcurrentTaskExecutor(100, "Test");
@@ -178,13 +177,28 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
         int max = this.count.get();
 
         // please jit stripe this
-        synchronized (lock) {
+        long stamp = lock.readLock();
+        try {
             count = this.scaleIdx;
-            if (count >= max) {
-                count = 0;
+        } finally {
+            lock.unlockRead(stamp);
+        }
+
+        if (count >= max) {
+            count = 0;
+
+            stamp = lock.writeLock();
+            try {
                 this.scaleIdx = 0;
-            } else {
+            } finally {
+                lock.unlockWrite(stamp);
+            }
+        } else {
+            stamp = lock.writeLock();
+            try {
                 scaleIdx++;
+            } finally {
+                lock.unlockWrite(stamp);
             }
         }
 
@@ -250,7 +264,7 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
         return true;
     }
 
-    @Override
+    @Nonnull @Override
     public <T> Future<T> submit(Callable<T> task) {
         final RunnableFuture<T> future = new FutureTask<>(task);
 
@@ -260,7 +274,7 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
 
     @Override
     public void execute(@Nonnull Runnable runnable) {
-        /* for (TaskExecutor ex : workerSet) {
+        for (TaskExecutor ex : workerSet) {
             ConcurrentWorker w = (ConcurrentWorker) ex;
             if (!w.isHeld()) {
                 w.addTask(runnable);
@@ -268,8 +282,9 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
             }
         }
 
-        ConcurrentWorker w = addWorker(true);
+        /* ConcurrentWorker w = addWorker(true);
         w.addTask(runnable); */
+
         nextWorker().addTask(runnable);
     }
 
@@ -277,7 +292,7 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
 
     private class ConcurrentWorker extends Thread implements TaskExecutor {
         @GuardedBy("lock")
-        final ArrayList<Runnable> tasks = new ArrayList<>();
+        final Deque<Runnable> tasks = new ArrayDeque<>(64);
         final StampedLock lock = new StampedLock();
 
         volatile boolean held;
@@ -292,18 +307,6 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
                 try {
                     Runnable runnable = nextTask();
                     if (runnable == null) {
-                        long stamp = lock.writeLock();
-                        try {
-                            // Recheck necessary for ensuring the size of the list
-                            // does not change before the lock is acquired
-                            if (currentIdx.get() == tasks.size() - 1) {
-                                tasks.clear();
-                                currentIdx.set(0);
-                            }
-                        } finally {
-                            lock.unlockWrite(stamp);
-                        }
-
                         held = false;
                         LockSupport.park();
                     } else {
@@ -312,22 +315,17 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
                 } catch (InterruptedException e) {
                     break;
                 } catch (Exception e) {
-                    TridentLogger.error(e);
+                    e.printStackTrace();
                 }
             }
         }
 
-        final AtomicInteger currentIdx = new AtomicInteger();
         Runnable nextTask() throws InterruptedException {
-            long stamp = lock.readLockInterruptibly();
+            long stamp = lock.writeLockInterruptibly();
             try {
-                if (tasks.size() <= currentIdx.get()) {
-                    return null;
-                } else {
-                    return tasks.get(currentIdx.getAndIncrement());
-                }
+                return tasks.pollLast();
             } finally {
-                lock.unlockRead(stamp);
+                lock.unlockWrite(stamp);
             }
         }
 
@@ -339,20 +337,13 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
         public void addTask(Runnable task) {
             long stamp = lock.writeLock();
             try {
-                tasks.add(task);
-
-                if (currentIdx.get() != 0) {
-                    currentIdx.decrementAndGet();
-                    tasks.remove(0);
-                }
+                tasks.addFirst(task);
             } finally {
                 lock.unlockWrite(stamp);
             }
 
-            if (!held) {
-                held = true;
-                LockSupport.unpark(this);
-            }
+            held = true;
+            LockSupport.unpark(this);
         }
 
         @Override
@@ -390,11 +381,10 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
 
         @Override
         Runnable nextTask() throws InterruptedException {
-            Runnable runnable;
-
             long stamp = lock.readLockInterruptibly();
+            Runnable runnable;
             try {
-                runnable = tasks.get(currentIdx.getAndIncrement());
+                runnable = tasks.pollLast();
             } finally {
                 lock.unlockRead(stamp);
             }
