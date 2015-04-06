@@ -329,14 +329,14 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
         }
 
         boolean isHeld() {
-             return lock.isWriteLocked() && held;
+             return held;
         }
 
         @Override
         public void addTask(Runnable task) {
             long stamp = lock.writeLock();
             try {
-                tasks.addFirst(task);
+                tasks.offerFirst(task);
             } finally {
                 lock.unlockWrite(stamp);
             }
