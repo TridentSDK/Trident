@@ -19,21 +19,18 @@ package net.tridentsdk.server.player;
 
 import com.google.common.collect.Queues;
 import com.google.common.collect.Sets;
-import net.tridentsdk.Defaults;
-import net.tridentsdk.GameMode;
-import net.tridentsdk.Position;
-import net.tridentsdk.Trident;
+import net.tridentsdk.*;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.event.player.PlayerJoinEvent;
 import net.tridentsdk.factory.Factories;
 import net.tridentsdk.meta.MessageBuilder;
 import net.tridentsdk.meta.nbt.CompoundTag;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.data.MetadataType;
 import net.tridentsdk.server.data.ProtocolMetadata;
-import net.tridentsdk.server.entity.EntityBuilder;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.packets.play.out.*;
@@ -95,14 +92,8 @@ public class TridentPlayer extends OfflinePlayer {
             offlinePlayer = OfflinePlayer.generatePlayer(id);
         }
 
-        final TridentPlayer p = EntityBuilder.create().uuid(id)
-                .spawn(TridentServer.WORLD.spawnPosition())
-                .executor(ThreadsHandler.playerExecutor())
-                .build(TridentPlayer.class, EntityBuilder.ParameterValue.from(UUID.class, id),
-                        EntityBuilder.ParameterValue.from(CompoundTag.class, offlinePlayer),
-                        // TODO this is temporary for testing
-                        EntityBuilder.ParameterValue.from(TridentWorld.class, TridentServer.WORLD),
-                        EntityBuilder.ParameterValue.from(ClientConnection.class, connection));
+        final TridentPlayer p = new TridentPlayer(id, offlinePlayer, TridentServer.WORLD, connection);
+        p.executor = ThreadsHandler.playerExecutor();
 
         OfflinePlayer.OFFLINE_PLAYERS.put(id, p);
         ONLINE_PLAYERS.put(id, p);
@@ -202,6 +193,7 @@ public class TridentPlayer extends OfflinePlayer {
                 .set("velocity", new Vector(0, -0.07, 0)));
         connection.sendPacket(new PacketPlayOutGameStateChange().set("reason", 3).set("value", (float) gameMode.asByte()));
         TridentServer.WORLD.addEntity(this); // TODO
+        Handler.forEvents().fire(new PlayerJoinEvent(this));
     }
 
     @Override

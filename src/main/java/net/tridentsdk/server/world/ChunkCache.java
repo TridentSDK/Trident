@@ -20,6 +20,7 @@ import com.google.common.collect.Lists;
 import net.tridentsdk.concurrent.HeldValueLatch;
 import net.tridentsdk.docs.AccessNoDoc;
 import net.tridentsdk.util.TridentLogger;
+import net.tridentsdk.world.Chunk;
 import net.tridentsdk.world.ChunkLocation;
 
 import java.util.Collection;
@@ -37,21 +38,20 @@ class ChunkCache {
     }
 
     public void put(ChunkLocation location, TridentChunk chunk) {
-        HeldValueLatch<TridentChunk> latch = cachedChunks.get(location);
-        if (latch == null)
-            latch = HeldValueLatch.create();
-        if (!latch.hasValue())
-            latch.countDown(chunk);
-        else {
-            latch = HeldValueLatch.create();
-            latch.countDown(chunk);
+        HeldValueLatch<TridentChunk> value = cachedChunks.get(location);
+        if (value == null) {
+            HeldValueLatch<TridentChunk> latch = HeldValueLatch.create();
+            value = cachedChunks.putIfAbsent(location, latch);
+            if (value == null) {
+                value = latch;
+                value.countDown(chunk);
+            }
         }
-
-        cachedChunks.put(location, latch);
     }
 
     public TridentChunk get(ChunkLocation location, boolean gen) {
-        while (true) {
+        Chunk chunk = null;
+        while (chunk == null) {
             HeldValueLatch<TridentChunk> value = cachedChunks.get(location);
             if (value == null) {
                 if (!gen) return null;
@@ -68,11 +68,13 @@ class ChunkCache {
                 return null;
 
             try {
-                return value.await();
+                chunk = value.await();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
+
+        return (TridentChunk) chunk;
     }
 
     public void retain(Set<ChunkLocation> set) {
