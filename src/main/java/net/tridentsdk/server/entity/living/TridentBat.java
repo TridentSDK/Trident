@@ -19,28 +19,48 @@ package net.tridentsdk.server.entity.living;
 
 import net.tridentsdk.Position;
 import net.tridentsdk.entity.Entity;
-import net.tridentsdk.entity.EntityProperties;
+import net.tridentsdk.entity.traits.EntityProperties;
+import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.entity.Projectile;
 import net.tridentsdk.entity.living.Bat;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.entity.EntityDamageEvent;
+import net.tridentsdk.meta.nbt.ByteTag;
+import net.tridentsdk.meta.nbt.CompoundTag;
+import net.tridentsdk.server.data.MetadataType;
+import net.tridentsdk.server.data.ProtocolMetadata;
 import net.tridentsdk.server.entity.TridentLivingEntity;
 
 import java.util.UUID;
 
 public class TridentBat extends TridentLivingEntity implements Bat {
+    private volatile boolean hanging;
+
     public TridentBat(UUID id, Position spawnLocation) {
         super(id, spawnLocation);
+
+        this.hanging = false;
+    }
+
+    @Override
+    protected void doEncodeMeta(ProtocolMetadata protocolMeta) {
+        protocolMeta.setMeta(16, MetadataType.BYTE,
+                hanging ? (byte) 1 : (byte) 0);
+    }
+
+    @Override
+    public void load(CompoundTag tag) {
+        this.hanging = ((ByteTag) tag.getTag("BatFlags")).value() == 1;
     }
 
     @Override
     public boolean isHanging() {
-        return false;
+        return hanging;
     }
 
     @Override
     public boolean isFlying() {
-        return false;
+        return !isHanging();
     }
 
     @Override
@@ -50,12 +70,10 @@ public class TridentBat extends TridentLivingEntity implements Bat {
 
     @Override
     public void hide(Entity entity) {
-
     }
 
     @Override
     public void show(Entity entity) {
-
     }
 
     @Override
@@ -69,11 +87,6 @@ public class TridentBat extends TridentLivingEntity implements Bat {
     }
 
     @Override
-    public boolean isNameVisible() {
-        return false;
-    }
-
-    @Override
     public void applyProperties(EntityProperties properties) {
 
     }
@@ -81,5 +94,10 @@ public class TridentBat extends TridentLivingEntity implements Bat {
     @Override
     public <T extends Projectile> T launchProjectile(EntityProperties properties) {
         return null;
+    }
+
+    @Override
+    public EntityType type() {
+        return EntityType.BAT;
     }
 }

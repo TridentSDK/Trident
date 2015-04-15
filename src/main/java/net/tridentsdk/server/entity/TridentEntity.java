@@ -17,23 +17,24 @@
 
 package net.tridentsdk.server.entity;
 
-import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.AtomicDouble;
 import net.tridentsdk.Position;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.docs.PossiblyThreadSafe;
 import net.tridentsdk.entity.Entity;
-import net.tridentsdk.entity.EntityProperties;
-import net.tridentsdk.entity.EntityType;
+import net.tridentsdk.entity.traits.EntityProperties;
+import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.factory.ExecutorFactory;
 import net.tridentsdk.meta.nbt.*;
 import net.tridentsdk.server.TridentServer;
+import net.tridentsdk.server.data.MetadataType;
 import net.tridentsdk.server.data.ProtocolMetadata;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutDestroyEntities;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutEntityTeleport;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutEntityVelocity;
 import net.tridentsdk.server.player.TridentPlayer;
+import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.util.Vector;
 import net.tridentsdk.util.WeakEntity;
 import net.tridentsdk.world.World;
@@ -43,6 +44,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 /**
  * Entity abstraction base
@@ -89,7 +91,7 @@ public class TridentEntity implements Entity {
     /**
      * Entity task executor
      */
-    protected volatile ExecutorFactory<Entity> executor;
+    protected volatile ExecutorFactory executor;
     /**
      * The movement vector for the entity
      */
@@ -122,10 +124,6 @@ public class TridentEntity implements Entity {
      * {@code true} to indicate the entity cannot be damaged
      */
     protected volatile boolean godMode;
-    /**
-     * Internal metadata for the entity
-     */
-    protected final ProtocolMetadata protocolMeta = new ProtocolMetadata();
 
     /**
      * Creates a new entity
@@ -139,13 +137,10 @@ public class TridentEntity implements Entity {
         this.velocity = new Vector(0.0D, 0.0D, 0.0D);
         this.loc = spawnLocation;
 
-        protocolMeta.addMeta(ProtocolMetadata.MetadataType.BYTE, (byte) ((fireTicks.intValue() == 0) ? 1 : 0));
-        protocolMeta.addMeta(ProtocolMetadata.MetadataType.SHORT, airTicks.shortValue());
-
         for (double y = this.loc.y(); y > 0.0; y--) {
             Position l = Position.create(this.loc.world(), this.loc.x(), y, this.loc.z());
 
-            if (l.tile().substance() != Substance.AIR) {
+            if (l.block().substance() != Substance.AIR) {
                 this.fallDistance.set((long) (this.loc.y() - y));
                 this.onGround = this.fallDistance.get() == 0.0D;
 
@@ -159,6 +154,18 @@ public class TridentEntity implements Entity {
         // constructor for deserializing
     }
 
+    protected void doTick() {
+    }
+
+    protected void doRemove() {
+    }
+
+    protected void doEncodeMeta(ProtocolMetadata protocolMeta) {
+    }
+
+    protected void doLoad(CompoundTag tag) {
+    }
+
     /**
      * Begin entity management
      *
@@ -166,8 +173,23 @@ public class TridentEntity implements Entity {
      */
     public TridentEntity spawn() {
         HANDLER.register(this);
-        executor.assign(this);
         return this;
+    }
+
+    protected void encodeMetadata(ProtocolMetadata protocolMeta) {
+        protocolMeta.setMeta(0, MetadataType.BYTE, (byte) ((fireTicks.intValue() == 0) ? 1 : 0));
+        protocolMeta.setMeta(1, MetadataType.SHORT, airTicks.shortValue());
+        doEncodeMeta(protocolMeta);
+    }
+
+    /**
+     * Moves the entity to the new coordinates. Not for teleportation.
+     *
+     * @param newCoords the new location for the entity
+     */
+    public void doMove(Position newCoords) {
+        HANDLER.trackMovement(this, position(), newCoords);
+        this.setLocation(newCoords);
     }
 
     @Override
@@ -177,7 +199,7 @@ public class TridentEntity implements Entity {
 
     @Override
     public void teleport(Entity entity) {
-        this.teleport(entity.location());
+        this.teleport(entity.position());
     }
 
     @Override
@@ -206,7 +228,7 @@ public class TridentEntity implements Entity {
     }
 
     @Override
-    public Position location() {
+    public Position position() {
         return this.loc;
     }
 
@@ -247,7 +269,10 @@ public class TridentEntity implements Entity {
     }
 
     public void tick() {
-        this.ticksExisted.incrementAndGet();
+        executor.execute(() -> {
+                ticksExisted.incrementAndGet();
+                doTick();
+        });
     }
 
     @Override
@@ -258,14 +283,11 @@ public class TridentEntity implements Entity {
     @Override
     public Set<Entity> withinRange(double radius) {
         double squared = radius * radius;
-        Set<Entity> entities = location().world().entities();
-        Set<Entity> near = Sets.newHashSet();
-        for (Entity entity : entities) {
-            if (entity.location().distanceSquared(location()) <= squared)
-                near.add(entity);
-        }
+        Set<Entity> entities = position().world().entities();
 
-        return near;
+        return entities.stream()
+                .filter((e) -> e.position().distanceSquared(position()) <= squared)
+                .collect(Collectors.toSet());
     }
 
     @Override
@@ -279,11 +301,15 @@ public class TridentEntity implements Entity {
         packet.set("destroyedEntities", new int[] { entityId() });
         TridentPlayer.sendAll(packet);
         HANDLER.removeEntity(this);
+        ((TridentWorld) world()).removeEntity(this);
+
         try {
             WeakEntity.clearReferencesTo(this);
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
+
+        doRemove();
     }
 
     @Override
@@ -305,7 +331,7 @@ public class TridentEntity implements Entity {
 
     @Override
     public EntityType type() {
-        return EntityType.PIG;
+        return null;
     }
 
     @Override
@@ -315,16 +341,6 @@ public class TridentEntity implements Entity {
 
     @Override
     public void applyProperties(EntityProperties properties) {
-    }
-
-    /**
-     * Moves the entity to the new coordinates. Not for teleportation.
-     *
-     * @param newCoords the new location for the entity
-     */
-    public void doMove(Position newCoords) {
-        HANDLER.trackMovement(this, location(), newCoords);
-        this.setLocation(newCoords);
     }
 
     public void load(CompoundTag tag) {
@@ -435,5 +451,7 @@ public class TridentEntity implements Entity {
         this.nameVisible = dnVisible.value() == 1;
         this.silent = silent.value() == 1;
         this.displayName = displayName.value();
+
+        doLoad(tag);
     }
 }

@@ -17,11 +17,6 @@
 
 package net.tridentsdk.server.entity;
 
-import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
-import com.google.common.collect.Iterators;
-import com.google.common.collect.Lists;
-import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
 import net.tridentsdk.Position;
 import net.tridentsdk.Trident;
 import net.tridentsdk.docs.InternalUseOnly;
@@ -31,8 +26,8 @@ import net.tridentsdk.util.TridentLogger;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Manages server entities and provides registration procedures
@@ -41,7 +36,7 @@ import java.util.Map;
  */
 @ThreadSafe
 public final class EntityHandler {
-    private final Map<Integer, Entity> entities = new ConcurrentHashMapV8<>();
+    private static final Map<Integer, Entity> entities = new ConcurrentHashMap<>();
     private final EntityTracker tracker = new EntityTracker();
 
     @InternalUseOnly
@@ -65,7 +60,7 @@ public final class EntityHandler {
      * @param entity the entity to manage
      */
     public void register(Entity entity) {
-        this.entities.put(entity.entityId(), entity);
+        entities.put(entity.entityId(), entity);
         if (entity instanceof TridentPlayer)
             return;
         // tracker.track(entity);
@@ -77,7 +72,7 @@ public final class EntityHandler {
      * @param entity the entity to remove
      */
     public void removeEntity(Entity entity) {
-        this.entities.remove(entity.entityId());
+        entities.remove(entity.entityId());
     }
 
     /**
@@ -98,7 +93,7 @@ public final class EntityHandler {
      * @return the entity with the ID specified
      */
     public Entity entityBy(int id) {
-        return this.entities.get(id);
+        return entities.get(id);
     }
 
     /**
@@ -108,14 +103,9 @@ public final class EntityHandler {
      * @param <T>  the entity type
      * @return the list of entities with the specified type
      */
-    public <T extends Entity> List<T> entities(final Class<T> type) {
-        Predicate<T> pred = new Predicate<T>() {
-            @Override
-            public boolean apply(Entity e) {
-                return Predicates.assignableFrom(type.getClass()).apply(e.getClass());
-            }
-        };
-
-        return Lists.newArrayList(Iterators.filter((Iterator<T>) this.entities.values().iterator(), pred));
+    public <T extends Entity> Iterator<Entity> entities(final Class<T> type) {
+        return entities.values().stream()
+                .filter((e) -> type.getClass().equals(e.getClass()))
+                .iterator();
     }
 }

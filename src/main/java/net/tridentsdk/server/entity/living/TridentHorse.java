@@ -18,24 +18,52 @@
 package net.tridentsdk.server.entity.living;
 
 import net.tridentsdk.Position;
-import net.tridentsdk.entity.*;
 import net.tridentsdk.entity.living.Horse;
 import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.entity.types.EntityType;
+import net.tridentsdk.entity.types.HorseType;
+import net.tridentsdk.entity.types.HorseVariant;
 import net.tridentsdk.event.entity.EntityDamageEvent;
-import net.tridentsdk.server.entity.TridentLivingEntity;
+import net.tridentsdk.server.data.MetadataType;
+import net.tridentsdk.server.data.ProtocolMetadata;
+import net.tridentsdk.server.entity.TridentBreedable;
+import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.window.inventory.Inventory;
 import net.tridentsdk.window.inventory.Item;
 
 import java.util.UUID;
 
-public class TridentHorse extends TridentLivingEntity implements Horse {
-    public TridentHorse(UUID id, Position spawnLocation) {
+public class TridentHorse extends TridentBreedable implements Horse {
+    private volatile int data;
+    private final HorseType breed;
+    private volatile int colorData;
+    private volatile UUID owner;
+    private volatile int temper;
+    private volatile int armorType;
+
+    public TridentHorse(UUID id, Position spawnLocation, HorseType breed) {
         super(id, spawnLocation);
+
+        this.data = 0;
+        this.breed = breed;
+        this.colorData = 0;
+        this.temper = 0;
+        this.armorType = 0;
+    }
+
+    @Override
+    protected void doEncodeMeta(ProtocolMetadata protocolMeta) {
+        protocolMeta.setMeta(16, MetadataType.INT, data);
+        protocolMeta.setMeta(19, MetadataType.BYTE, (byte) breed.id());
+        protocolMeta.setMeta(20, MetadataType.INT, colorData);
+        protocolMeta.setMeta(21, MetadataType.STRING,
+                (owner == null) ? "" : TridentPlayer.getPlayer(owner).name());
+        protocolMeta.setMeta(22, MetadataType.INT, armorType);
     }
 
     @Override
     public HorseType breed() {
-        return null;
+        return breed;
     }
 
     @Override
@@ -45,7 +73,7 @@ public class TridentHorse extends TridentLivingEntity implements Horse {
 
     @Override
     public int temper() {
-        return 0;
+        return temper;
     }
 
     @Override
@@ -60,26 +88,6 @@ public class TridentHorse extends TridentLivingEntity implements Horse {
 
     @Override
     public boolean isSitting() {
-        return false;
-    }
-
-    @Override
-    public int age() {
-        return 0;
-    }
-
-    @Override
-    public void setAge(int ticks) {
-
-    }
-
-    @Override
-    public boolean canBreed() {
-        return false;
-    }
-
-    @Override
-    public boolean isInLove() {
         return false;
     }
 
@@ -119,16 +127,6 @@ public class TridentHorse extends TridentLivingEntity implements Horse {
     }
 
     @Override
-    public void hide(Entity entity) {
-
-    }
-
-    @Override
-    public void show(Entity entity) {
-
-    }
-
-    @Override
     public EntityDamageEvent lastDamageEvent() {
         return null;
     }
@@ -139,17 +137,7 @@ public class TridentHorse extends TridentLivingEntity implements Horse {
     }
 
     @Override
-    public boolean isNameVisible() {
-        return false;
-    }
-
-    @Override
-    public void applyProperties(EntityProperties properties) {
-
-    }
-
-    @Override
-    public <T extends Projectile> T launchProjectile(EntityProperties properties) {
-        return null;
+    public EntityType type() {
+        return EntityType.HORSE;
     }
 }

@@ -14,32 +14,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package net.tridentsdk.server.entity;
 
-package net.tridentsdk.server.entity.decorate;
+import net.tridentsdk.Position;
+import net.tridentsdk.entity.traits.Ageable;
+import net.tridentsdk.server.data.MetadataType;
+import net.tridentsdk.server.data.ProtocolMetadata;
 
-import net.tridentsdk.entity.LivingEntity;
-import net.tridentsdk.entity.decorate.LivingDecorationAdapter;
-import net.tridentsdk.entity.decorate.Saddleable;
+import java.util.UUID;
 
-public class DecoratedSaddable extends LivingDecorationAdapter implements Saddleable {
-    private boolean saddled;
+public abstract class TridentAgeable extends TridentLivingEntity implements Ageable {
+    protected volatile int age;
 
-    protected DecoratedSaddable(LivingEntity entity) {
-        super(entity);
+    public TridentAgeable(UUID id, Position spawnLocation) {
+        super(id, spawnLocation);
     }
 
     @Override
-    public boolean isSaddled() {
-        return saddled;
+    protected void doEncodeMeta(ProtocolMetadata protocolMeta) {
+        protocolMeta.setMeta(12, MetadataType.BYTE, age);
     }
 
     @Override
-    public void setSaddled(boolean saddled) {
-        this.saddled = saddled;
+    public void setAge(int ticks) {
+        this.age = ticks;
     }
 
-    // rider can be null if only the saddle should be applied
-    public void applySaddle(LivingEntity rider) {
-        // TODO
+    @Override
+    public int age() {
+        return age;
     }
 }

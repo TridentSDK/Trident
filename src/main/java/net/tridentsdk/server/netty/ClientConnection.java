@@ -20,14 +20,17 @@ package net.tridentsdk.server.netty;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
+import net.tridentsdk.Handler;
 import net.tridentsdk.concurrent.ConcurrentCache;
+import net.tridentsdk.docs.InternalUseOnly;
+import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.event.player.PlayerDisconnectEvent;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.protocol.Protocol;
 import net.tridentsdk.server.packets.login.PacketLoginOutSetCompression;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutDisconnect;
 import net.tridentsdk.server.player.PlayerConnection;
 import net.tridentsdk.server.player.TridentPlayer;
-import net.tridentsdk.server.threads.ThreadsHandler;
 import net.tridentsdk.util.TridentLogger;
 
 import javax.crypto.Cipher;
@@ -37,6 +40,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.net.InetSocketAddress;
 import java.security.KeyPair;
 import java.security.SecureRandom;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 
 /**
@@ -60,12 +64,7 @@ public class ClientConnection {
     protected static final Cipher cipher = getCipher();
 
     /* Network fields */
-    private static final Callable<ClientConnection> NULL_CALLABLE = new Callable<ClientConnection>() {
-        @Override
-        public ClientConnection call() throws Exception {
-            return null;
-        }
-    };
+    private static final Callable<ClientConnection> NULL_CALLABLE = () -> null;
     private final Object BARRIER;
 
     /* Encryption and client data fields */
@@ -101,6 +100,7 @@ public class ClientConnection {
      * Whether or not encryption is enabled
      */
     protected volatile boolean compressionEnabled = false;
+    private volatile UUID uuid;
     private IvParameterSpec ivSpec;
 
     /**
@@ -112,6 +112,7 @@ public class ClientConnection {
         this.channel = channel;
         this.encryptionEnabled = false;
         this.stage = Protocol.ClientStage.HANDSHAKE;
+        channel.closeFuture().addListener(future -> logout());
     }
 
     protected ClientConnection() {
@@ -165,12 +166,7 @@ public class ClientConnection {
      * @return the client connection that was registered
      */
     public static ClientConnection registerConnection(final Channel channel) {
-        return clientData.retrieve((InetSocketAddress) channel.remoteAddress(), new Callable<ClientConnection>() {
-            @Override
-            public ClientConnection call() throws Exception {
-                return new ClientConnection(channel);
-            }
-        });
+        return clientData.retrieve((InetSocketAddress) channel.remoteAddress(), () -> new ClientConnection(channel));
     }
 
     /**
@@ -262,6 +258,16 @@ public class ClientConnection {
     }
 
     /**
+     * Sets the UUID of the connection
+     *
+     * @param uuid the uuid of the connection
+     */
+    @InternalUseOnly
+    public void setUuid(UUID uuid) {        
+        this.uuid = uuid;
+    }
+
+    /**
      * Gets the channel context for the connection stream
      *
      * @return the netty channel wrapped by the handler
@@ -350,13 +356,19 @@ public class ClientConnection {
      * Removes the client's server side client handler
      */
     public void logout() {
+        Player p = null;
         if (this instanceof PlayerConnection) {
-            TridentPlayer player = ((PlayerConnection) this).player();
-            ThreadsHandler.remove(player);
-            player.remove();
+            p = ((PlayerConnection) this).player();
+        } else if (uuid != null) {
+            p = TridentPlayer.getPlayer(uuid);
         }
 
+        if (p == null) {
+            return;
+        }
 
+        Handler.forEvents().fire(new PlayerDisconnectEvent(p));
+        p.remove();
         clientData.remove(this.address);
         this.channel.close();
     }

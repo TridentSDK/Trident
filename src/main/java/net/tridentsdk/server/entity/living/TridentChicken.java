@@ -18,59 +18,39 @@
 package net.tridentsdk.server.entity.living;
 
 import net.tridentsdk.Position;
-import net.tridentsdk.entity.Entity;
-import net.tridentsdk.entity.EntityProperties;
-import net.tridentsdk.entity.Projectile;
 import net.tridentsdk.entity.living.Chicken;
 import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.event.entity.EntityDamageEvent;
-import net.tridentsdk.server.entity.TridentLivingEntity;
+import net.tridentsdk.meta.nbt.ByteTag;
+import net.tridentsdk.meta.nbt.CompoundTag;
+import net.tridentsdk.meta.nbt.IntTag;
+import net.tridentsdk.server.entity.TridentBreedable;
 
 import java.util.UUID;
 
-public class TridentChicken extends TridentLivingEntity implements Chicken {
+public class TridentChicken extends TridentBreedable implements Chicken {
+    private volatile int layInterval;
+    private volatile boolean isJockey;
+
     public TridentChicken(UUID id, Position spawnLocation) {
         super(id, spawnLocation);
     }
 
     @Override
+    public void doLoad(CompoundTag tag) {
+        this.layInterval = ((IntTag) tag.getTag("EggLayTime")).value();
+        this.isJockey = ((ByteTag) tag.getTag("IsChickenJockey")).value() == 1;
+    }
+
+    @Override
     public boolean isJockey() {
-        return false;
+        return isJockey;
     }
 
     @Override
     public int nextLayInterval() {
-        return 0;
-    }
-
-    @Override
-    public int age() {
-        return 0;
-    }
-
-    @Override
-    public void setAge(int ticks) {
-
-    }
-
-    @Override
-    public boolean canBreed() {
-        return false;
-    }
-
-    @Override
-    public boolean isInLove() {
-        return false;
-    }
-
-    @Override
-    public void hide(Entity entity) {
-
-    }
-
-    @Override
-    public void show(Entity entity) {
-
+        return layInterval;
     }
 
     @Override
@@ -84,17 +64,7 @@ public class TridentChicken extends TridentLivingEntity implements Chicken {
     }
 
     @Override
-    public boolean isNameVisible() {
-        return false;
-    }
-
-    @Override
-    public void applyProperties(EntityProperties properties) {
-
-    }
-
-    @Override
-    public <T extends Projectile> T launchProjectile(EntityProperties properties) {
-        return null;
+    public EntityType type() {
+        return EntityType.CHICKEN;
     }
 }

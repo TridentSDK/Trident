@@ -19,48 +19,37 @@ package net.tridentsdk.server.entity.living;
 
 import net.tridentsdk.Position;
 import net.tridentsdk.entity.Entity;
-import net.tridentsdk.entity.EntityProperties;
-import net.tridentsdk.entity.Projectile;
 import net.tridentsdk.entity.living.Pig;
 import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.event.entity.EntityDamageEvent;
-import net.tridentsdk.server.entity.TridentLivingEntity;
+import net.tridentsdk.server.data.MetadataType;
+import net.tridentsdk.server.data.ProtocolMetadata;
+import net.tridentsdk.server.entity.TridentBreedable;
 
 import java.util.UUID;
 
-public class TridentPig extends TridentLivingEntity implements Pig {
+public class TridentPig extends TridentBreedable implements Pig {
+    protected volatile boolean hasSaddle;
+
     public TridentPig(UUID id, Position spawnLocation) {
         super(id, spawnLocation);
+        hasSaddle = false;
     }
 
     @Override
-    public int age() {
-        return 0;
-    }
-
-    @Override
-    public void setAge(int ticks) {
-
-    }
-
-    @Override
-    public boolean canBreed() {
-        return false;
-    }
-
-    @Override
-    public boolean isInLove() {
-        return false;
+    protected void doEncodeMeta(ProtocolMetadata protocolMeta) {
+        protocolMeta.setMeta(16, MetadataType.BYTE, (hasSaddle) ? (byte) 1 : (byte) 0);
     }
 
     @Override
     public boolean isSaddled() {
-        return false;
+        return hasSaddle;
     }
 
     @Override
     public void setSaddled(boolean saddled) {
-
+        hasSaddle = saddled;
     }
 
     @Override
@@ -84,17 +73,7 @@ public class TridentPig extends TridentLivingEntity implements Pig {
     }
 
     @Override
-    public boolean isNameVisible() {
-        return false;
-    }
-
-    @Override
-    public void applyProperties(EntityProperties properties) {
-
-    }
-
-    @Override
-    public <T extends Projectile> T launchProjectile(EntityProperties properties) {
-        return null;
+    public EntityType type() {
+        return EntityType.PIG;
     }
 }

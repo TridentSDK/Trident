@@ -51,12 +51,7 @@ public class PlayerConnection extends ClientConnection {
     private PlayerConnection(ClientConnection connection, TridentPlayer player) {
         // remove old connection, and replace it with this one
         ClientConnection.clientData.remove(connection.address());
-        ClientConnection.clientData.retrieve(connection.address(), new Callable<ClientConnection>() {
-            @Override
-            public ClientConnection call() throws Exception {
-                return PlayerConnection.this;
-            }
-        });
+        ClientConnection.clientData.retrieve(connection.address(), () -> PlayerConnection.this);
 
         super.address = connection.address();
         super.channel = connection.channel();

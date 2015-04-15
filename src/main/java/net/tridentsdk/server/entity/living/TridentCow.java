@@ -19,38 +19,20 @@ package net.tridentsdk.server.entity.living;
 
 import net.tridentsdk.Position;
 import net.tridentsdk.entity.Entity;
-import net.tridentsdk.entity.EntityProperties;
+import net.tridentsdk.entity.traits.EntityProperties;
+import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.entity.Projectile;
 import net.tridentsdk.entity.living.Cow;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.entity.EntityDamageEvent;
-import net.tridentsdk.server.entity.TridentLivingEntity;
+import net.tridentsdk.server.entity.TridentAgeable;
+import net.tridentsdk.server.entity.TridentTameable;
 
 import java.util.UUID;
 
-public class TridentCow extends TridentLivingEntity implements Cow {
+public class TridentCow extends TridentTameable implements Cow {
     public TridentCow(UUID id, Position spawnLocation) {
         super(id, spawnLocation);
-    }
-
-    @Override
-    public int age() {
-        return 0;
-    }
-
-    @Override
-    public void setAge(int ticks) {
-
-    }
-
-    @Override
-    public boolean canBreed() {
-        return false;
-    }
-
-    @Override
-    public boolean isInLove() {
-        return false;
     }
 
     @Override
@@ -74,17 +56,7 @@ public class TridentCow extends TridentLivingEntity implements Cow {
     }
 
     @Override
-    public boolean isNameVisible() {
-        return false;
-    }
-
-    @Override
-    public void applyProperties(EntityProperties properties) {
-
-    }
-
-    @Override
-    public <T extends Projectile> T launchProjectile(EntityProperties properties) {
-        return null;
+    public EntityType type() {
+        return EntityType.COW;
     }
 }

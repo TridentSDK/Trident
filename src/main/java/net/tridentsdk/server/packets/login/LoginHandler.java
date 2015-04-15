@@ -17,10 +17,10 @@
 
 package net.tridentsdk.server.packets.login;
 
-import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
 
 import java.net.InetSocketAddress;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Class used to store login usernames during the login stage
@@ -34,7 +34,7 @@ public final class LoginHandler {
     /**
      * Map used to store usernames with the address as the key
      */
-    protected final Map<InetSocketAddress, String> loginNames = new ConcurrentHashMapV8<>();
+    protected final Map<InetSocketAddress, String> loginNames = new ConcurrentHashMap<>();
 
     protected LoginHandler() {
     }

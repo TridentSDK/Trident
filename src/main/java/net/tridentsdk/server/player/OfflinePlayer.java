@@ -17,13 +17,14 @@
 
 package net.tridentsdk.server.player;
 
+
 import net.tridentsdk.GameMode;
 import net.tridentsdk.Position;
 import net.tridentsdk.entity.Entity;
-import net.tridentsdk.entity.EntityProperties;
-import net.tridentsdk.entity.PlayerSpeed;
 import net.tridentsdk.entity.Projectile;
 import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.entity.traits.EntityProperties;
+import net.tridentsdk.entity.traits.PlayerSpeed;
 import net.tridentsdk.event.entity.EntityDamageEvent;
 import net.tridentsdk.factory.Factories;
 import net.tridentsdk.meta.nbt.*;
@@ -38,12 +39,14 @@ import net.tridentsdk.world.World;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 @ThreadSafe
 public class OfflinePlayer extends TridentInventoryHolder implements Player {
-    private static final Set<OfflinePlayer> players = Factories.collect().createSet();
+    static final Map<UUID, OfflinePlayer> OFFLINE_PLAYERS = new ConcurrentHashMap<>();
 
     /**
      * The name of the player
@@ -107,8 +110,8 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     protected final PlayerSpeed playerSpeed = new PlayerSpeedImpl();
     protected final Set<String> permissions = Factories.collect().createSet();
 
-    public OfflinePlayer(CompoundTag tag, TridentWorld world) {
-        super(null, world.spawnLocation());
+    OfflinePlayer(UUID uuid, CompoundTag tag, TridentWorld world) {
+        super(uuid, world.spawnPosition());
 
         load(tag);
 
@@ -121,7 +124,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
             spawnLocation = Position.create(world, ((IntTag) tag.getTag("SpawnX")).value(),
                     ((IntTag) tag.getTag("SpawnY")).value(), ((IntTag) tag.getTag("SpawnZ")).value());
         } else {
-            spawnLocation = world.spawnLocation();
+            spawnLocation = world.spawnPosition();
         }
 
         hunger = (short) ((IntTag) tag.getTag("foodLevel")).value();
@@ -147,23 +150,16 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
         }
 
         NBTSerializer.deserialize(abilities, (CompoundTag) tag.getTag("abilities"));
-        players.add(this);
     }
 
     public static OfflinePlayer getOfflinePlayer(UUID id) {
-        for (OfflinePlayer player : players) {
-            if (player.uniqueId().equals(id)) {
-                return player;
-            }
-        }
-
-        return null;
+        return OFFLINE_PLAYERS.get(id);
     }
 
     public static CompoundTag generatePlayer(UUID id) {
         // TODO this is temporary for testing
         World defaultWorld = TridentServer.WORLD;
-        Position spawnLocation = defaultWorld.spawnLocation();
+        Position spawnLocation = defaultWorld.spawnPosition();
         CompoundTagBuilder<NBTBuilder> builder = NBTBuilder.newBase(id.toString());
 
         builder.stringTag("id", String.valueOf(counter.incrementAndGet()));
@@ -409,17 +405,18 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
 
         @Override
         public void setFlyingSpeed(float flyingSpeed) {
-            TridentLogger.error(new UnsupportedOperationException("You may not set the flying speed of an OfflinePlayer!"));
+            abilities.flySpeed = flyingSpeed;
         }
 
         @Override
         public float sneakSpeed() {
-            return 0;
+            TridentLogger.error(new UnsupportedOperationException("You may not get the sneak speed of an OfflinePlayer!"));
+            return -1;
         }
 
         @Override
         public void setSneakSpeed(float speed) {
-
+            TridentLogger.error(new UnsupportedOperationException("You may not set the sneak speed of an OfflinePlayer!"));
         }
 
         @Override
@@ -429,8 +426,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
 
         @Override
         public void setWalkSpeed(float speed) {
-            TridentLogger.error(
-                    new UnsupportedOperationException("You may not set the walking speed of an OfflinePlayer!"));
+            abilities.walkingSpeed = speed;
         }
     }
 }

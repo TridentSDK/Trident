@@ -18,23 +18,55 @@
 package net.tridentsdk.server.entity.block;
 
 import net.tridentsdk.Position;
-import net.tridentsdk.entity.EntityProperties;
+import net.tridentsdk.entity.Entity;
+import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.entity.block.ArmorStand;
 import net.tridentsdk.entity.block.SlotProperties;
-import net.tridentsdk.server.entity.TridentEntity;
+import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.event.entity.EntityDamageEvent;
+import net.tridentsdk.server.data.MetadataType;
+import net.tridentsdk.server.data.ProtocolMetadata;
+import net.tridentsdk.server.entity.TridentLivingEntity;
 import net.tridentsdk.util.PartRotation;
 import net.tridentsdk.window.inventory.Item;
 
 import java.util.UUID;
 
-public class TridentArmorStand extends TridentEntity implements ArmorStand {
-    public TridentArmorStand(UUID id, Position spawnLocation) {
+public class TridentArmorStand extends TridentLivingEntity implements ArmorStand {
+    private final SlotProperties properties;
+    /*
+     * Data as represented in protocol meta, encoded as such to save space in memory
+     *
+     * At BitMask 1, it determines if its a small armor stand or not.
+     * At BitMask 2, it states if gravity applies to this armor stand
+     * At BitMask 4, it states if the armor stand "has" arms
+     * At BitMask 8, it states if the armor stand "has" a baseplate
+     */
+    private volatile byte data;
+    private final Item[] armor;
+    private final PartRotation[] pose;
+
+    public TridentArmorStand(UUID id, Position spawnLocation, SlotProperties properties) {
         super(id, spawnLocation);
+
+        this.properties = properties;
+        this.data = (byte) 14;
+        this.armor = new Item[4];
+        this.pose = new PartRotation[6];
+    }
+
+    @Override
+    protected void doEncodeMeta(ProtocolMetadata protocolMeta) {
+        protocolMeta.setMeta(10, MetadataType.BYTE, data);
+
+        for (int i = 1; i <= 6; i++) {
+            protocolMeta.setMeta(10 + i, MetadataType.PYR, pose[i - 1].asVector());
+        }
     }
 
     @Override
     public SlotProperties slotProperties() {
-        return null;
+        return properties;
     }
 
     @Override
@@ -44,45 +76,59 @@ public class TridentArmorStand extends TridentEntity implements ArmorStand {
 
     @Override
     public boolean displayBaseplate() {
-        return false;
+        return (data & 8) == 8;
     }
 
     @Override
     public boolean displayArms() {
-        return false;
+        return (data & 4) == 4;
     }
 
     @Override
     public boolean useGravity() {
-        return false;
+        return (data & 2) == 2;
     }
 
     @Override
     public PartRotation[] pose() {
-        return new PartRotation[0];
+        return pose;
     }
 
     @Override
     public boolean isTiny() {
-        return false;
+        return (data & 1) == 1;
     }
 
     @Override
     public Item[] equipment() {
-        return new Item[0];
+        return armor;
     }
 
     @Override
-    public void setEquipment(Item[] stack) {
+    public void setEquipment(final Item[] stack) {
+        System.arraycopy(stack, 0, armor, 0, (stack.length > 4) ? 4 : stack.length);
     }
 
     @Override
-    public boolean isNameVisible() {
-        return false;
+    public void hide(Entity entity) {
     }
 
     @Override
-    public void applyProperties(EntityProperties properties) {
+    public void show(Entity entity) {
+    }
 
+    @Override
+    public EntityDamageEvent lastDamageEvent() {
+        return null;
+    }
+
+    @Override
+    public Player lastPlayerDamager() {
+        return null;
+    }
+
+    @Override
+    public EntityType type() {
+        return EntityType.ARMOR_STAND;
     }
 }

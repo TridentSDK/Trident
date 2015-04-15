@@ -18,17 +18,11 @@
 package net.tridentsdk.server.threads;
 
 import net.tridentsdk.docs.InternalUseOnly;
-import net.tridentsdk.entity.Entity;
-import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.factory.ExecutorFactory;
 import net.tridentsdk.factory.ThreadFactory;
 import net.tridentsdk.server.TridentServer;
-import net.tridentsdk.world.Chunk;
-import net.tridentsdk.world.World;
-import net.tridentsdk.world.gen.AbstractGenerator;
 
 import javax.annotation.concurrent.ThreadSafe;
-import java.util.Collection;
 
 /**
  * Handles the majority of the lifecycle for the threads
@@ -37,11 +31,11 @@ import java.util.Collection;
  */
 @ThreadSafe
 public final class ThreadsHandler implements ThreadFactory {
-    private static final ExecutorFactory<Entity> entities = ConcurrentTaskExecutor.create(2, "Entities");
-    private static final ExecutorFactory<Player> players = ConcurrentTaskExecutor.create(4, "Players");
-    private static final ExecutorFactory<World> worlds = ConcurrentTaskExecutor.create(2, "Worlds");
-    private static final ExecutorFactory<Chunk> chunks = ConcurrentTaskExecutor.create(2, "Chunks");
-    private static final ExecutorFactory<AbstractGenerator> generator = ConcurrentTaskExecutor.create(2, "Generator");
+    private static final ExecutorFactory entities = ConcurrentTaskExecutor.create(2, "Entities");
+    private static final ExecutorFactory players = ConcurrentTaskExecutor.create(4, "Players");
+    private static final ExecutorFactory worlds = ConcurrentTaskExecutor.create(2, "Worlds");
+    private static final ExecutorFactory chunks = ConcurrentTaskExecutor.create(2, "Chunks");
+    private static final ExecutorFactory generator = ConcurrentTaskExecutor.create(2, "Generator");
 
     private ThreadsHandler() {
     }
@@ -62,40 +56,6 @@ public final class ThreadsHandler implements ThreadFactory {
     @InternalUseOnly
     public static void shutdownAll() {
         TridentServer.instance().mainThread().interrupt();
-
-        // TODO safely add hooks
-        entityExecutor().shutdown();
-        playerExecutor().shutdown();
-    }
-
-    /**
-     * Decaches the entity handler from the mappings
-     *
-     * @param entity the entity to decache
-     */
-    @InternalUseOnly
-    public static void remove(Entity entity) {
-        entityExecutor().removeAssignment(entity);
-    }
-
-    /**
-     * Decaches the player connection handler from the mappings
-     *
-     * @param player the player to remove the wrapper cache
-     */
-    @InternalUseOnly
-    public static void remove(Player player) {
-        playerExecutor().removeAssignment(player);
-    }
-
-    /**
-     * Decaches the chunk executor from the mappings
-     *
-     * @param chunk the chunk to decache
-     */
-    @InternalUseOnly
-    public static void remove(Chunk chunk) {
-        chunkExecutor().removeAssignment(chunk);
     }
 
     /**
@@ -104,7 +64,7 @@ public final class ThreadsHandler implements ThreadFactory {
      * @return the executor
      */
     @InternalUseOnly
-    public static ExecutorFactory<World> worldExecutor() {
+    public static ExecutorFactory worldExecutor() {
         return worlds;
     }
 
@@ -114,7 +74,7 @@ public final class ThreadsHandler implements ThreadFactory {
      * @return the executor
      */
     @InternalUseOnly
-    public static ExecutorFactory<Chunk> chunkExecutor() {
+    public static ExecutorFactory chunkExecutor() {
         return chunks;
     }
 
@@ -124,7 +84,7 @@ public final class ThreadsHandler implements ThreadFactory {
      * @return the executor
      */
     @InternalUseOnly
-    public static ExecutorFactory<AbstractGenerator> genExecutor() {
+    public static ExecutorFactory genExecutor() {
         return generator;
     }
 
@@ -134,7 +94,7 @@ public final class ThreadsHandler implements ThreadFactory {
      * @return the executor
      */
     @InternalUseOnly
-    public static ExecutorFactory<Entity> entityExecutor() {
+    public static ExecutorFactory entityExecutor() {
         return entities;
     }
 
@@ -144,22 +104,12 @@ public final class ThreadsHandler implements ThreadFactory {
      * @return the executor
      */
     @InternalUseOnly
-    public static ExecutorFactory<Player> playerExecutor() {
+    public static ExecutorFactory playerExecutor() {
         return players;
     }
 
     @Override
-    public Collection<Entity> entities() {
-        return entityExecutor().values();
-    }
-
-    @Override
-    public Collection<Player> players() {
-        return playerExecutor().values();
-    }
-
-    @Override
-    public <T> ExecutorFactory<T> executor(int threads, String name) {
+    public ExecutorFactory executor(int threads, String name) {
         return ConcurrentTaskExecutor.create(threads, name);
     }
 }

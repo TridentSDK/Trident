@@ -28,7 +28,6 @@ import net.tridentsdk.plugin.cmd.ServerConsole;
 import net.tridentsdk.server.command.TridentConsole;
 import net.tridentsdk.server.entity.living.ai.TridentAiHandler;
 import net.tridentsdk.server.netty.protocol.Protocol;
-import net.tridentsdk.server.player.OfflinePlayer;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
 import net.tridentsdk.server.threads.MainThread;
@@ -53,7 +52,6 @@ import java.util.UUID;
  */
 @ThreadSafe
 public final class TridentServer implements Server {
-    private static final DisplayInfo INFO = new DisplayInfo();
     // TODO this is temporary for testing
     public static TridentWorld WORLD;
     private final MainThread mainThread;
@@ -117,7 +115,7 @@ public final class TridentServer implements Server {
     }
 
     public int compressionThreshold() {
-        return this.config.getInt("compression-threshold", Defaults.COMPRESSION_THRESHHOLD);
+        return this.config.getInt("compression-threshold", Defaults.COMPRESSION_THRESHOLD);
     }
 
     public int viewDistance() {
@@ -173,8 +171,7 @@ public final class TridentServer implements Server {
         ThreadsHandler.shutdownAll();
 
         TridentLogger.log("Shutting down thread pools...");
-        for (ConcurrentTaskExecutor<?> executor : ConcurrentTaskExecutor.executors())
-            executor.shutdown();
+        ConcurrentTaskExecutor.executors().forEach(ConcurrentTaskExecutor::shutdown);
 
         TridentLogger.log("Shutting down server connections...");
         TridentStart.close();
@@ -209,7 +206,12 @@ public final class TridentServer implements Server {
 
     @Override
     public DisplayInfo info() {
-        return INFO;
+        return new DisplayInfo() {
+            @Override
+            public int playerCount() {
+                return TridentPlayer.players().size();
+            }
+        };
     }
 
     @Override
@@ -219,8 +221,7 @@ public final class TridentServer implements Server {
 
     @Override
     public Player playerBy(UUID id) {
-        Player p = TridentPlayer.getPlayer(id);
-        return p != null ? p : OfflinePlayer.getOfflinePlayer(id);
+        return TridentPlayer.getPlayer(id);
     }
 
     @Override

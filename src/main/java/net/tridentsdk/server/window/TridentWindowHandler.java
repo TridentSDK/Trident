@@ -17,16 +17,14 @@
 
 package net.tridentsdk.server.window;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
-import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
 import net.tridentsdk.window.Window;
 import net.tridentsdk.window.WindowHandler;
 
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Collection;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Manages the inventory windows on the server, whether being viewed or not
@@ -35,7 +33,7 @@ import java.util.Map;
  */
 @ThreadSafe
 public class TridentWindowHandler implements WindowHandler {
-    private static final Map<Integer, TridentWindow> windows = new ConcurrentHashMapV8<>();
+    private static final Map<Integer, TridentWindow> windows = new ConcurrentHashMap<>();
 
     @Override
     public Window windowBy(int id) {
@@ -49,11 +47,6 @@ public class TridentWindowHandler implements WindowHandler {
 
     @Override
     public Collection<Window> windows() {
-        return Collections2.transform(windows.values(), new Function<TridentWindow, Window>() {
-            @Nullable @Override
-            public Window apply(TridentWindow tridentWindow) {
-                return tridentWindow;
-            }
-        });
+        return Collections2.transform(windows.values(), (w) -> w);
     }
 }

@@ -19,28 +19,16 @@ package net.tridentsdk.server.entity.living;
 
 import net.tridentsdk.Position;
 import net.tridentsdk.entity.Entity;
-import net.tridentsdk.entity.EntityProperties;
-import net.tridentsdk.entity.Projectile;
+import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.entity.living.Mooshroom;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.entity.EntityDamageEvent;
-import net.tridentsdk.server.entity.TridentLivingEntity;
 
 import java.util.UUID;
 
-public class TridentMooshroom extends TridentLivingEntity implements Mooshroom {
+public class TridentMooshroom extends TridentCow implements Mooshroom {
     public TridentMooshroom(UUID id, Position spawnLocation) {
         super(id, spawnLocation);
-    }
-
-    @Override
-    public int age() {
-        return 0;
-    }
-
-    @Override
-    public void setAge(int ticks) {
-
     }
 
     @Override
@@ -74,17 +62,7 @@ public class TridentMooshroom extends TridentLivingEntity implements Mooshroom {
     }
 
     @Override
-    public boolean isNameVisible() {
-        return false;
-    }
-
-    @Override
-    public void applyProperties(EntityProperties properties) {
-
-    }
-
-    @Override
-    public <T extends Projectile> T launchProjectile(EntityProperties properties) {
-        return null;
+    public EntityType type() {
+        return EntityType.MOOSHROOM;
     }
 }

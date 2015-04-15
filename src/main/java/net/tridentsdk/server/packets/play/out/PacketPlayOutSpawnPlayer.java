@@ -50,7 +50,7 @@ public class PacketPlayOutSpawnPlayer extends OutPacket {
 
     @Override
     public void encode(ByteBuf buf) {
-        Position loc = this.player.location();
+        Position loc = this.player.position();
         UUID id = this.player.uniqueId();
 
         Codec.writeVarInt32(buf, this.entityId);

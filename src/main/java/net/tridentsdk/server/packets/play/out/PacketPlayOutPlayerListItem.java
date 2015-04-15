@@ -20,6 +20,7 @@ package net.tridentsdk.server.packets.play.out;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
+import net.tridentsdk.util.TridentLogger;
 
 import java.util.UUID;
 
@@ -30,7 +31,7 @@ public class PacketPlayOutPlayerListItem extends OutPacket {
 
     @Override
     public int id() {
-        return 0x37;
+        return 0x38;
     }
 
     public int action() {
@@ -55,21 +56,21 @@ public class PacketPlayOutPlayerListItem extends OutPacket {
         protected UUID id;
         protected Object[] values;
 
-        public UUID getId() {
+        public UUID id() {
             return this.id;
         }
 
-        public PlayerListDataBuilder setId(UUID id) {
+        public PlayerListDataBuilder id(UUID id) {
             this.id = id;
 
             return this;
         }
 
-        public Object[] getValues() {
+        public Object[] values() {
             return this.values;
         }
 
-        public PlayerListDataBuilder setValues(Object... values) {
+        public PlayerListDataBuilder values(Object... values) {
             this.values = values;
 
             return this;
@@ -81,6 +82,11 @@ public class PacketPlayOutPlayerListItem extends OutPacket {
 
             // rip in organize
             for (Object o : this.values) {
+
+                if (o == null) {
+                    continue;
+                }
+
                 switch (o.getClass().getSimpleName()) {
                     case "String":
                         Codec.writeString(buf, (String) o);

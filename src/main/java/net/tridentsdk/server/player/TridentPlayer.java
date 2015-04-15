@@ -18,18 +18,19 @@
 package net.tridentsdk.server.player;
 
 import com.google.common.collect.Queues;
-import net.tridentsdk.GameMode;
-import net.tridentsdk.Position;
+import com.google.common.collect.Sets;
+import net.tridentsdk.*;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.entity.Entity;
-import net.tridentsdk.entity.ParameterValue;
 import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.event.player.PlayerJoinEvent;
 import net.tridentsdk.factory.Factories;
 import net.tridentsdk.meta.MessageBuilder;
 import net.tridentsdk.meta.nbt.CompoundTag;
 import net.tridentsdk.server.TridentServer;
-import net.tridentsdk.server.entity.TridentEntityBuilder;
+import net.tridentsdk.server.data.MetadataType;
+import net.tridentsdk.server.data.ProtocolMetadata;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.packets.play.out.*;
@@ -46,9 +47,16 @@ import net.tridentsdk.world.LevelType;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
+
+import static net.tridentsdk.server.packets.play.out.PacketPlayOutPlayerListItem.PlayerListDataBuilder;
 
 @ThreadSafe
 public class TridentPlayer extends OfflinePlayer {
+    private static final Map<UUID, Player> ONLINE_PLAYERS = new ConcurrentHashMap<>();
+
     private final PlayerConnection connection;
     private final Set<ChunkLocation> knownChunks = Factories.collect().createSet();
     private final Queue<PacketPlayOutMapChunkBulk> chunkQueue = Queues.newConcurrentLinkedQueue();
@@ -56,18 +64,24 @@ public class TridentPlayer extends OfflinePlayer {
     private volatile boolean sprinting;
     private volatile boolean crouching;
     private volatile boolean flying;
+    private volatile byte skinFlags;
     private volatile Locale locale;
+    private volatile int viewDistance = 7;
 
-    public TridentPlayer(CompoundTag tag, TridentWorld world, ClientConnection connection) {
-        super(tag, world);
+    private TridentPlayer(UUID uuid, CompoundTag tag, TridentWorld world, ClientConnection connection) {
+        super(uuid, tag, world);
 
         this.connection = PlayerConnection.createPlayerConnection(connection, this);
     }
 
     public static void sendAll(Packet packet) {
-        for (Player p : players()) {
-            ((TridentPlayer) p).connection.sendPacket(packet);
-        }
+        players().stream().forEach((p) -> ((TridentPlayer) p).connection.sendPacket(packet));
+    }
+
+    public static void sendFiltered(Packet packet, Predicate<Player> predicate) {
+        players().stream()
+                .filter(predicate)
+                .forEach((p) -> ((TridentPlayer) p).connection.sendPacket(packet));
     }
 
     public static TridentPlayer spawnPlayer(ClientConnection connection, UUID id, String name) {
@@ -78,58 +92,76 @@ public class TridentPlayer extends OfflinePlayer {
             offlinePlayer = OfflinePlayer.generatePlayer(id);
         }
 
-        final TridentPlayer p = TridentEntityBuilder.create().uuid(id).spawn(new Position(TridentServer.WORLD, 0, 255, 0))//TridentServer.WORLD.spawnLocation()) // TODO this is temporary for testing
-                .executor(ThreadsHandler.playerExecutor())
-                .build(TridentPlayer.class, ParameterValue.from(CompoundTag.class, offlinePlayer),
-                        // TODO this is temporary for testing
-                        ParameterValue.from(TridentWorld.class, TridentServer.WORLD),
-                        ParameterValue.from(ClientConnection.class, connection));
+        final TridentPlayer p = new TridentPlayer(id, offlinePlayer, TridentServer.WORLD, connection);
+        p.executor = ThreadsHandler.playerExecutor();
+
+        OfflinePlayer.OFFLINE_PLAYERS.put(id, p);
+        ONLINE_PLAYERS.put(id, p);
 
         p.name = name;
 
-        p.executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                p.connection.sendPacket(new PacketPlayOutJoinGame().set("entityId", p.entityId())
-                        .set("gamemode", GameMode.CREATIVE)
-                        .set("dimension", p.world().dimension())
-                        .set("difficulty", p.world().difficulty())
-                        .set("maxPlayers", (short) 10)
-                        .set("levelType", LevelType.DEFAULT));
+        p.executor.execute(() -> {
+            p.connection.sendPacket(new PacketPlayOutJoinGame().set("entityId", p.entityId())
+                    .set("gamemode", GameMode.CREATIVE)
+                    .set("dimension", p.world().dimension())
+                    .set("difficulty", p.world().difficulty())
+                    .set("maxPlayers", (short) 10)
+                    .set("levelType", LevelType.DEFAULT));
 
-                p.gameMode = GameMode.CREATIVE;
-                p.abilities.instantBreak = 1;
-                p.abilities.flySpeed = 1;
-                
-                // DEBUG =====
-                p.setLocation(new Position(p.world(),0,255,0));
-                p.spawnLocation = new Position(p.world(), 0,255,0);
-                // =====
-                
-                p.connection.sendPacket(PacketPlayOutPluginMessage.VANILLA_CHANNEL);
-                p.connection.sendPacket(new PacketPlayOutServerDifficulty().set("difficulty", p.world().difficulty()));
-                p.connection.sendPacket(new PacketPlayOutSpawnPosition().set("location", p.spawnLocation()));
-                p.connection.sendPacket(p.abilities.asPacket());
-                p.connection.sendPacket(new PacketPlayOutPlayerCompleteMove().set("location",
-                        p.spawnLocation().add(new Vector(0, 255, 0))).set("flags", (byte) 1));
-            }
+            p.gameMode = GameMode.CREATIVE;
+            p.abilities.instantBreak = 1;
+            p.abilities.flySpeed = 1;
+
+            // DEBUG =====
+            p.setLocation(new Position(p.world(), 0, 255, 0));
+            p.spawnLocation = new Position(p.world(), 0, 255, 0);
+            // =====
+
+            p.connection.sendPacket(PacketPlayOutPluginMessage.VANILLA_CHANNEL);
+            p.connection.sendPacket(new PacketPlayOutServerDifficulty().set("difficulty", p.world().difficulty()));
+            p.connection.sendPacket(new PacketPlayOutSpawnPosition().set("location", p.spawnLocation()));
+            p.connection.sendPacket(p.abilities.asPacket());
+            p.connection.sendPacket(new PacketPlayOutPlayerCompleteMove().set("location",
+                    p.spawnLocation().add(new Vector(0, 255, 0))).set("flags", (byte) 1));
+
+            PacketPlayOutPlayerListItem packet = new PacketPlayOutPlayerListItem();
+
+            packet.set("action", 0); // add a player
+            packet.set("playerListData", new PlayerListDataBuilder[] {p.listData()});
+
+            sendAll(new PacketPlayOutPlayerListItem()
+                    .set("action", 0)
+                    .set("playerListData", new PlayerListDataBuilder[] {p.listData()}));
+
+            List<PlayerListDataBuilder> builders = new ArrayList<>();
+
+            players().stream().filter((player) -> !player.equals(p))
+                    .forEach((player) -> builders.add(((TridentPlayer) player).listData()));
+            players().forEach((player) -> player.sendMessage(p.name + " has joined the server"));
+            TridentLogger.log(p.name + " has joined the server");
+
+            p.connection.sendPacket(new PacketPlayOutPlayerListItem()
+                    .set("action", 0)
+                    .set("playerListData", builders.stream().toArray(PlayerListDataBuilder[]::new)));
         });
 
         return p;
     }
 
     public static Player getPlayer(UUID id) {
-        for (Player player : players()) {
-            if (player.uniqueId().equals(id)) {
-                return player;
-            }
-        }
-
-        return null;
+        return ONLINE_PLAYERS.get(id);
     }
 
     public static Collection<Player> players() {
-        return Factories.threads().players();
+        return ONLINE_PLAYERS.values();
+    }
+
+    @Override
+    protected void doEncodeMeta(ProtocolMetadata protocolMeta) {
+        protocolMeta.setMeta(10, MetadataType.BYTE, skinFlags);
+        protocolMeta.setMeta(16, MetadataType.BYTE, (byte) 0); // hide cape, might need changing
+        protocolMeta.setMeta(17, MetadataType.FLOAT, 0F); // absorption hearts TODO
+        protocolMeta.setMeta(18, MetadataType.INT, 0); // TODO scoreboard system (this value is the player's score)
     }
 
     public boolean isLoggingIn() {
@@ -142,9 +174,9 @@ public class TridentPlayer extends OfflinePlayer {
             return;
 
         connection.sendPacket(PacketPlayOutStatistics.DEFAULT_STATISTIC);
-        sendChunks(TridentServer.instance().viewDistance());
+        sendChunks(viewDistance());
         connection.sendPacket(new PacketPlayOutPlayerCompleteMove().set("location",
-                location()).set("flags", (byte) 1));
+                position()).set("flags", (byte) 1));
 
         TridentWindow window = TridentWindow.create("Inventory", 9, InventoryType.CHEST);
         window.setSlot(0, new Item(Substance.DIAMOND_PICKAXE));
@@ -161,38 +193,63 @@ public class TridentPlayer extends OfflinePlayer {
                 .set("velocity", new Vector(0, -0.07, 0)));
         connection.sendPacket(new PacketPlayOutGameStateChange().set("reason", 3).set("value", (float) gameMode.asByte()));
         TridentServer.WORLD.addEntity(this); // TODO
+        Handler.forEvents().fire(new PlayerJoinEvent(this));
     }
 
     @Override
     public void tick() {
-        this.executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                TridentPlayer.super.tick();
+        ThreadsHandler.playerExecutor().execute(this::doTick);
+    }
 
-                if(!isLoggingIn())
-                    sendChunks(TridentServer.instance().viewDistance());
+    @Override
+    protected void doTick() {
+        int distance = viewDistance();
+        if (!isLoggingIn())
+            sendChunks(distance);
 
-                if(!chunkQueue.isEmpty())
-                    connection.sendPacket(chunkQueue.poll());
+        if (!chunkQueue.isEmpty())
+            connection.sendPacket(chunkQueue.poll());
 
-                connection.tick();
-                ticksExisted.incrementAndGet();
+        if (ticksExisted.get() % Defaults.CHUNK_CLEAN_TICK_INTERVAL == 0) {
+            Set<ChunkLocation> locations = Sets.newHashSet();
+            for (ChunkLocation location : knownChunks) {
+                if (Math.abs(location.x() - (position().x() / 16)) < distance) {
+                    locations.add(location);
+                } else if (Math.abs(location.z() - (position().z() / 16)) < distance) {
+                    locations.add(location);
+                }
             }
-        });
+            knownChunks.removeAll(locations);
+        }
+
+        connection.tick();
+        ticksExisted.incrementAndGet();
+    }
+
+    @Override
+    protected void doRemove() {
+        ONLINE_PLAYERS.remove(this.uniqueId());
+        players().forEach((player) -> player.sendRaw(name + " has left the server"));
+        TridentLogger.log(name + " has left the server");
     }
 
     /*
      * @NotJavaDoc
      * TODO: Create Message API and utilize it
      */
-    public void kickPlayer(final String reason) {
-        this.executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                TridentPlayer.this.connection.sendPacket(new PacketPlayOutDisconnect().set("reason", reason));
-            }
-        });
+    public void kickPlayer(String reason) {
+        connection.sendPacket(new PacketPlayOutDisconnect().set("reason", reason));
+    }
+
+    public PlayerListDataBuilder listData() {
+        return new PacketPlayOutPlayerListItem.PlayerListDataBuilder()
+                .id(uniqueId)
+                .values(name,
+                        0, // properties, TODO
+                        (int) gameMode.asByte(),
+                        0,
+                        displayName != null,
+                        displayName);
     }
 
     public PlayerConnection connection() {
@@ -200,44 +257,12 @@ public class TridentPlayer extends OfflinePlayer {
     }
 
     public void setSlot(final short slot) {
-        this.executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                if ((int) slot > 8 || (int) slot < 0) {
-                    TridentLogger.error(new IllegalArgumentException("Slot must be within the ranges of 0-8"));
-                }
+        if ((int) slot > 8 || (int) slot < 0) {
+            TridentLogger.error(new IllegalArgumentException("Slot must be within the ranges of 0-8"));
+            return;
+        }
 
-                TridentPlayer.super.selectedSlot = slot;
-            }
-        });
-    }
-
-    public void setSprinting(boolean sprinting) {
-        this.sprinting = sprinting;
-    }
-
-    public void setFlying(boolean flying) {
-        this.flying = flying;
-
-        abilities.flying = (flying) ? (byte) 1 : (byte) 0;
-        connection.sendPacket(abilities.asPacket());
-    }
-
-    public boolean isFlying() {
-        return flying;
-    }
-
-    public boolean isSprinting() {
-        return sprinting;
-    }
-
-    public boolean isCrouching() {
-        return crouching;
-    }
-
-    @InternalUseOnly
-    public void setCrouching(boolean crouching) {
-        this.crouching = crouching;
+        TridentPlayer.super.selectedSlot = slot;
     }
 
     @Override
@@ -249,18 +274,11 @@ public class TridentPlayer extends OfflinePlayer {
 
     @Override
     public void sendRaw(final String... messages) {
-        this.executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                for (String message : messages) {
-                    if (message != null) {
-                        TridentPlayer.this.connection.sendPacket(
-                                new PacketPlayOutChat().set("jsonMessage", message)
-                                        .set("position", PacketPlayOutChat.ChatPosition.CHAT));
-                    }
-                }
-            }
-        });
+        Stream.of(messages)
+                .filter((m) -> m != null)
+                .forEach((message) -> connection.sendPacket(new PacketPlayOutChat()
+                        .set("jsonMessage", message)
+                        .set("position", PacketPlayOutChat.ChatPosition.CHAT)));
     }
 
     public void sendChunks(int viewDistance) {
@@ -270,21 +288,18 @@ public class TridentPlayer extends OfflinePlayer {
         int length = 0;
 
         for (int x = (centX - viewDistance / 2); x <= (centX + viewDistance / 2); x += 1) {
-            zl: for (int z = (centZ - viewDistance / 2); z <= (centZ + viewDistance / 2); z += 1) {
+            zl:
+            for (int z = (centZ - viewDistance / 2); z <= (centZ + viewDistance / 2); z += 1) {
                 ChunkLocation location = ChunkLocation.create(x, z);
 
-                for(ChunkLocation loc : knownChunks) {
-                    if(loc.equals(location)) {
+                for (ChunkLocation loc : knownChunks) {
+                    if (loc.equals(location)) {
                         continue zl;
                     }
                 }
 
-                PacketPlayOutChunkData data = ((TridentChunk) world().chunkAt(x, z, true)).asPacket();
-                while (data == null) {
-                    // Unfortunately this is necessary
-                    // it's not consistent enough
-                    data = ((TridentChunk) world().chunkAt(x, z, true)).asPacket();
-                }
+                TridentChunk chunk = (TridentChunk) world().chunkAt(x, z, true);
+                PacketPlayOutChunkData data = chunk.asPacket();
 
                 knownChunks.add(location);
                 bulk.addEntry(data);
@@ -299,11 +314,53 @@ public class TridentPlayer extends OfflinePlayer {
             }
         }
 
-        if(bulk.hasEntries())
+        if (bulk.hasEntries()) {
             connection.sendPacket(bulk);
+        }
+    }
+
+    public void setFlying(boolean flying) {
+        this.flying = flying;
+
+        abilities.flying = (flying) ? (byte) 1 : (byte) 0;
+        connection.sendPacket(abilities.asPacket());
+    }
+
+    public boolean isFlying() {
+        return flying;
+    }
+
+    public void setSprinting(boolean sprinting) {
+        this.sprinting = sprinting;
+    }
+
+    public boolean isSprinting() {
+        return sprinting;
+    }
+
+    @InternalUseOnly
+    public void setCrouching(boolean crouching) {
+        this.crouching = crouching;
+    }
+
+    public boolean isCrouching() {
+        return crouching;
     }
 
     public void setLocale(Locale locale) {
         this.locale = locale;
+    }
+
+    public void setSkinFlags(byte flags) {
+        skinFlags = flags;
+    }
+
+    public void setViewDistance(int viewDistance) {
+        this.viewDistance = viewDistance;
+    }
+
+    private static final int MAX_VIEW = Trident.config().getInt("view-distance", 15);
+    public int viewDistance() {
+        return Math.min(viewDistance, MAX_VIEW);
     }
 }

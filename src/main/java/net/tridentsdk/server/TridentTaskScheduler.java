@@ -80,7 +80,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 @ThreadSafe
 public class TridentTaskScheduler implements TaskFactory {
     private final Queue<ScheduledTaskImpl> taskList = new ConcurrentLinkedQueue<>();
-    private final ExecutorFactory<?> taskExecutor = ConcurrentTaskExecutor.create(3, "Scheduler");
+    private final ExecutorFactory taskExecutor = ConcurrentTaskExecutor.create(3, "Scheduler");
 
     private TridentTaskScheduler() {
     }
@@ -183,45 +183,33 @@ public class TridentTaskScheduler implements TaskFactory {
             if (type.name().contains("ASYNC")) {
                 this.executor = taskExecutor.scaledThread();
                 if (!type.name().contains("REPEAT")) {
-                    this.runner = new Runnable() {
-                        @Override
-                        public void run() {
-                            runnable.beforeRun();
-                            runnable.run();
-                            runnable.afterAsyncRun();
-                            cancel();
-                        }
+                    this.runner = () -> {
+                        runnable.beforeRun();
+                        runnable.run();
+                        runnable.afterAsyncRun();
+                        cancel();
                     };
                 } else {
-                    this.runner = new Runnable() {
-                        @Override
-                        public void run() {
-                            runnable.beforeRun();
-                            runnable.run();
-                            runnable.afterAsyncRun();
-                        }
+                    this.runner = () -> {
+                        runnable.beforeRun();
+                        runnable.run();
+                        runnable.afterAsyncRun();
                     };
                 }
             } else {
                 this.executor = Handler.forPlugins().executor();
                 if (!type.name().contains("REPEAT")) {
-                    this.runner = new Runnable() {
-                        @Override
-                        public void run() {
-                            runnable.beforeRun();
-                            runnable.run();
-                            runnable.afterSyncRun();
-                            cancel();
-                        }
+                    this.runner = () -> {
+                        runnable.beforeRun();
+                        runnable.run();
+                        runnable.afterSyncRun();
+                        cancel();
                     };
                 } else {
-                    this.runner = new Runnable() {
-                        @Override
-                        public void run() {
-                            runnable.beforeRun();
-                            runnable.run();
-                            runnable.afterSyncRun();
-                        }
+                    this.runner = () -> {
+                        runnable.beforeRun();
+                        runnable.run();
+                        runnable.afterSyncRun();
                     };
                 }
             }
