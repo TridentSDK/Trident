@@ -45,16 +45,6 @@ public class PacketStatusInRequest extends InPacket {
 
     @Override
     public void handleReceived(ClientConnection connection) {
-        PacketStatusOutResponse packet = new PacketStatusOutResponse();
-        PacketStatusOutResponse.Response response = packet.response();
-
-        // Set MOTD and max players based on the config TODO events
-        response.description.text = TridentServer.instance().config().getString("motd", Defaults.MOTD);
-        response.players.max = TridentServer.instance().config().getInt("max-players", Defaults.MAX_PLAYERS);
-        response.players.online = TridentPlayer.players().size();
-
-        packet.response = response;
-
-        connection.sendPacket(packet);
+        connection.sendPacket(new PacketStatusOutResponse());
     }
 }

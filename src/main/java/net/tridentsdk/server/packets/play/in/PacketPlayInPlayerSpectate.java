@@ -30,7 +30,7 @@ import java.util.UUID;
 public class PacketPlayInPlayerSpectate extends InPacket {
 
     /**
-     * Target player, this might imply that the player is able to set other players to spectate mode? If so, we'll need
+     * Target player, this might imply that the player is able to set other onlinePlayers to spectate mode? If so, we'll need
      * to fix that
      */
     protected UUID uuid;

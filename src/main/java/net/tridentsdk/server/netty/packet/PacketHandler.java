@@ -34,7 +34,7 @@ import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * The channel handler that is placed into the netty connection bootstrap to process inbound messages from clients (not
- * just players)
+ * just onlinePlayers)
  *
  * @author The TridentSDK Team
  */

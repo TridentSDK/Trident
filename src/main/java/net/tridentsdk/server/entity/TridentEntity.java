@@ -346,7 +346,7 @@ public class TridentEntity implements Entity {
     public void load(CompoundTag tag) {
         /* IDs */
         if(!(tag.getTag("id") instanceof NullTag)) {
-            // players will not have this value
+            // onlinePlayers will not have this value
             String type = ((StringTag) tag.getTag("id")).value(); // EntityType, in form of a string
         }
         LongTag uuidMost = tag.getTagAs("UUIDMost"); // most signifigant bits of UUID

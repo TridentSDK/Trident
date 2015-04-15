@@ -200,7 +200,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
         builder.intTag("PortalCooldown", 900);
 
         builder.stringTag("CustomName", "");
-        // does not apply to players
+        // does not apply to onlinePlayers
         //builder.byteTag("CustomNameVisible", (byte) 0);
 
         builder.byteTag("Silent", (byte) 0);

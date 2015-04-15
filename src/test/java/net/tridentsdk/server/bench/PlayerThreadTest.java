@@ -66,7 +66,7 @@ public class PlayerThreadTest {
 
     @Benchmark
     public void benchEvery() {
-        //for (PlayerThreads.ThreadPlayerWrapper wrapper : PlayerThreads.players())
+        //for (PlayerThreads.ThreadPlayerWrapper wrapper : PlayerThreads.onlinePlayers())
         //wrapper.doAction();
     }
 }

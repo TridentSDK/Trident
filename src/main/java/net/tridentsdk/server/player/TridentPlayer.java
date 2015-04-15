@@ -239,6 +239,7 @@ public class TridentPlayer extends OfflinePlayer {
      */
     public void kickPlayer(String reason) {
         connection.sendPacket(new PacketPlayOutDisconnect().set("reason", reason));
+        TridentLogger.log(name + " was kicked for " + reason);
     }
 
     public PlayerListDataBuilder listData() {
