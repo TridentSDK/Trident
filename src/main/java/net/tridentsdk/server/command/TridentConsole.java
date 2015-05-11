@@ -37,6 +37,12 @@ public class TridentConsole implements ServerConsole {
     }
 
     @Override
+    public boolean isOperator() {
+        // console is always OP
+        return true;
+    }
+
+    @Override
     public void sendRaw(String... messages) {
         // TODO: convert MessageBuilder json to console output
 

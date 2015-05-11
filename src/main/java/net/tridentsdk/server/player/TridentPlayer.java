@@ -28,6 +28,7 @@ import net.tridentsdk.event.player.PlayerJoinEvent;
 import net.tridentsdk.factory.Factories;
 import net.tridentsdk.meta.MessageBuilder;
 import net.tridentsdk.meta.nbt.CompoundTag;
+import net.tridentsdk.meta.nbt.IntTag;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.data.MetadataType;
 import net.tridentsdk.server.data.ProtocolMetadata;
@@ -85,14 +86,16 @@ public class TridentPlayer extends OfflinePlayer {
     }
 
     public static TridentPlayer spawnPlayer(ClientConnection connection, UUID id, String name) {
-        CompoundTag offlinePlayer = (OfflinePlayer.getOfflinePlayer(
+        // determine if this player has logged in before
+        CompoundTag playerTag = (OfflinePlayer.getOfflinePlayer(
                 id) == null) ? null : OfflinePlayer.getOfflinePlayer(id).asNbt();
 
-        if (offlinePlayer == null) {
-            offlinePlayer = OfflinePlayer.generatePlayer(id);
+        // if this player is new
+        if (playerTag == null) {
+            playerTag = OfflinePlayer.generatePlayer(id);
         }
 
-        final TridentPlayer p = new TridentPlayer(id, offlinePlayer, TridentServer.WORLD, connection);
+        final TridentPlayer p = new TridentPlayer(id, playerTag, TridentServer.WORLD, connection);
         p.executor = ThreadsHandler.playerExecutor();
 
         OfflinePlayer.OFFLINE_PLAYERS.put(id, p);
@@ -100,16 +103,17 @@ public class TridentPlayer extends OfflinePlayer {
 
         p.name = name;
 
+        p.gameMode = GameMode.gamemodeOf(((IntTag)playerTag.getTag("playerGameType")).value());
+
         p.executor.execute(() -> {
             p.connection.sendPacket(new PacketPlayOutJoinGame().set("entityId", p.entityId())
-                    .set("gamemode", GameMode.CREATIVE)
+                    .set("gamemode", p.gameMode)
                     .set("dimension", p.world().dimension())
                     .set("difficulty", p.world().difficulty())
-                    .set("maxPlayers", (short) 10)
+                    .set("maxPlayers", (short) Trident.config().getInt("max-players"))
                     .set("levelType", LevelType.DEFAULT));
 
-            p.gameMode = GameMode.CREATIVE;
-            p.abilities.instantBreak = 1;
+            p.abilities.creative = 1;
             p.abilities.flySpeed = 1;
 
             // DEBUG =====
@@ -121,17 +125,21 @@ public class TridentPlayer extends OfflinePlayer {
             p.connection.sendPacket(new PacketPlayOutServerDifficulty().set("difficulty", p.world().difficulty()));
             p.connection.sendPacket(new PacketPlayOutSpawnPosition().set("location", p.spawnLocation()));
             p.connection.sendPacket(p.abilities.asPacket());
+            Trident.server().logger().info("Flags:\n canFly: " + Boolean.toString(p.abilities.canFly()) + '\n' +
+                    "godMode: " + Boolean.toString(p.abilities.isInvulnerable()) + '\n' +
+                    "flying: " + Boolean.toString(p.abilities.isFlying()) + '\n' +
+                    "creative: " + Boolean.toString(p.abilities.isCreative()));
             p.connection.sendPacket(new PacketPlayOutPlayerCompleteMove().set("location",
-                    p.spawnLocation().add(new Vector(0, 255, 0))).set("flags", (byte) 1));
+                    p.spawnLocation()).set("flags", (byte) 0));
 
             PacketPlayOutPlayerListItem packet = new PacketPlayOutPlayerListItem();
 
             packet.set("action", 0); // add a player
-            packet.set("playerListData", new PlayerListDataBuilder[] {p.listData()});
+            packet.set("playerListData", new PlayerListDataBuilder[]{p.listData()});
 
             sendAll(new PacketPlayOutPlayerListItem()
                     .set("action", 0)
-                    .set("playerListData", new PlayerListDataBuilder[] {p.listData()}));
+                    .set("playerListData", new PlayerListDataBuilder[]{p.listData()}));
 
             List<PlayerListDataBuilder> builders = new ArrayList<>();
 
@@ -320,15 +328,31 @@ public class TridentPlayer extends OfflinePlayer {
         }
     }
 
+    @Override
+    public void setGameMode(GameMode mode) {
+        super.setGameMode(mode);
+
+        this.connection.sendPacket(this.abilities.asPacket());
+    }
+
     public void setFlying(boolean flying) {
         this.flying = flying;
 
         abilities.flying = (flying) ? (byte) 1 : (byte) 0;
+
         connection.sendPacket(abilities.asPacket());
     }
 
     public boolean isFlying() {
         return flying;
+    }
+
+    public boolean isFlyMode() {
+        return abilities.canFly();
+    }
+
+    public void setFlyMode(boolean flying) {
+        abilities.canFly = (flying) ? (byte) 1: (byte) 0;
     }
 
     public void setSprinting(boolean sprinting) {

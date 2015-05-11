@@ -87,6 +87,8 @@ public class PacketHandler extends SimpleChannelInboundHandler<PacketData> {
                 TridentLogger.log("Received packet " + packet.getClass().getSimpleName());
             // =====
 
+            //TODO: add plugin registration for packet handling
+
             packet.handleReceived(this.connection);
 
             if (connection instanceof PlayerConnection) {

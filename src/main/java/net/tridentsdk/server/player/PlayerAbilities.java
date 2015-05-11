@@ -37,7 +37,7 @@ public class PlayerAbilities implements NBTSerializable {
     @NBTField(name = "canBuild", type = TagType.BYTE)
     protected byte canBuild = 1;
     @NBTField(name = "instantBuild", type = TagType.BYTE)
-    protected byte instantBreak = 0;
+    protected byte creative = 0;
 
     protected PlayerAbilities() {
     }
@@ -66,14 +66,14 @@ public class PlayerAbilities implements NBTSerializable {
         return canBuild == 1;
     }
 
-    public boolean canInstantBreak() {
-        return instantBreak == 1;
+    public boolean isCreative() {
+        return creative == 1;
     }
 
     public OutPacket asPacket() {
         OutPacket packet = new PacketPlayOutPlayerAbilities();
         byte flags = (byte) ((isInvulnerable() ? 8 : 0) | (canFly() ? 4 : 0) | (isFlying() ? 2 : 0) |
-                (canInstantBreak() ? 1 : 0));
+                (isCreative() ? 1 : 0));
 
         packet.set("flags", flags);
         packet.set("flyingSpeed", flySpeed / 2);
