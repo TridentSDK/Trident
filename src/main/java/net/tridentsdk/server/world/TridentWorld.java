@@ -366,12 +366,16 @@ public class TridentWorld implements World {
         for (TridentChunk chunk : loadedChunks()) {
             try {
                 RegionFile.fromPath(name, chunk.location()).saveChunkData(chunk);
+                System.out.println("saved " + chunk.x() + ":" + chunk.z());
             } catch (IOException | NBTException ex) {
                 TridentLogger.warn("Failed to save chunk at (" + chunk.x() +
                         "," + chunk.z() + "), printing stacktrace...");
                 TridentLogger.error(ex);
             }
         }
+
+        RegionFile.saveAll();
+        System.out.println("saved all");
     }
 
     private Entity internalSpawn(Entity entity) {
