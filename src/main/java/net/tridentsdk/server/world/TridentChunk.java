@@ -372,24 +372,4 @@ public class TridentChunk implements Chunk {
             section.blockLight[index] = blockLight;
         });
     }
-
-    void clear() {
-        // We still care about thread safety!
-        executor.addTask(() -> {
-            ChunkSection[] sections = this.sections.get();
-            if (sections == null) {
-                return;
-            }
-
-            for (ChunkSection section : sections) {
-                if (section == null) {
-                    continue;
-                }
-
-                section.clear();
-            }
-
-            sections = null;
-        });
-    }
 }

@@ -18,10 +18,8 @@
 package net.tridentsdk.server.player;
 
 import com.google.common.collect.Queues;
-import net.tridentsdk.GameMode;
-import net.tridentsdk.Handler;
-import net.tridentsdk.Position;
-import net.tridentsdk.Trident;
+import com.google.common.collect.Sets;
+import net.tridentsdk.*;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.entity.Entity;
@@ -220,20 +218,28 @@ public class TridentPlayer extends OfflinePlayer {
         if (!chunkQueue.isEmpty())
             connection.sendPacket(chunkQueue.poll());
 
+        if (ticksExisted.get() % 120 == 0) {
+            Set<ChunkLocation> set = Sets.newHashSet();
+            Position pos = position();
+            int x = (int) pos.x() / 16;
+            int z = (int) pos.z() / 16;
+            int viewDist = viewDistance();
+
+            for (ChunkLocation location : knownChunks) {
+                int cx = location.x();
+                int cz = location.z();
+
+                if (Math.abs(cx - x) > viewDist || Math.abs(cz - z) > viewDist) {
+                    set.add(location);
+                    knownChunks.remove(location);
+                }
+            }
+
+            ((TridentWorld) world()).removeChunks(set);
+        }
+
         connection.tick();
         ticksExisted.incrementAndGet();
-    }
-
-    public void cleanChunks(PacketPlayOutMapChunkBulk bulk) {
-        int distance = viewDistance();
-
-        for (ChunkLocation location : knownChunks) {
-            if (Math.abs(location.x() - (position().x() / 16)) < distance ||
-                    Math.abs(location.z() - (position().z() / 16)) < distance) {
-                knownChunks.remove(location);
-                bulk.addEntry(new PacketPlayOutChunkData(new byte[0], location, true, (short) 0));
-            }
-        }
     }
 
     @Override

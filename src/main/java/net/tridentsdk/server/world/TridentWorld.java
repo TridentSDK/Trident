@@ -18,9 +18,7 @@
 package net.tridentsdk.server.world;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 import com.google.common.io.ByteStreams;
-import net.tridentsdk.Defaults;
 import net.tridentsdk.Difficulty;
 import net.tridentsdk.GameMode;
 import net.tridentsdk.Position;
@@ -28,7 +26,6 @@ import net.tridentsdk.base.Block;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.Projectile;
 import net.tridentsdk.entity.block.SlotProperties;
-import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.entity.living.ProjectileLauncher;
 import net.tridentsdk.entity.traits.EntityProperties;
 import net.tridentsdk.entity.types.EntityType;
@@ -45,7 +42,6 @@ import net.tridentsdk.server.entity.block.*;
 import net.tridentsdk.server.entity.living.*;
 import net.tridentsdk.server.entity.projectile.*;
 import net.tridentsdk.server.entity.vehicle.*;
-import net.tridentsdk.server.packets.play.out.PacketPlayOutMapChunkBulk;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutTimeUpdate;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.threads.ThreadsHandler;
@@ -283,40 +279,11 @@ public class TridentWorld implements World {
 
             time++;
             existed++;
-
-            if (time % Defaults.CHUNK_CLEAN_TICK_INTERVAL == 0) {
-                PacketPlayOutMapChunkBulk chunkBulk = new PacketPlayOutMapChunkBulk();
-                int size = 0;
-                Set<ChunkLocation> set = Sets.newHashSet();
-                for (Entity entity : entities) {
-                    if (entity instanceof Player) {
-                        Position pos = entity.position();
-                        int x = (int) pos.x() / 16;
-                        int z = (int) pos.z() / 16;
-                        TridentPlayer tridentPlayer = (TridentPlayer) entity;
-                        int viewDist = tridentPlayer.viewDistance();
-
-                        for (int i = x - viewDist; i < x + viewDist; i++) {
-                            for (int j = z - viewDist; j < z + viewDist; j++) {
-                                set.add(ChunkLocation.create(i, j));
-                            }
-                        }
-
-                        tridentPlayer.cleanChunks(chunkBulk);
-                        size += 10;
-
-                        if (size >= 1845152) {
-                            TridentPlayer.sendAll(chunkBulk);
-                            size = 0;
-                            chunkBulk = new PacketPlayOutMapChunkBulk();
-                        }
-                    }
-                }
-
-                loadedChunks.retain(set);
-                set = null;
-            }
         });
+    }
+
+    public void removeChunks(Collection<ChunkLocation> locs) {
+        loadedChunks.removeAll(locs);
     }
 
     protected void addChunkAt(ChunkLocation location, Chunk chunk) {
