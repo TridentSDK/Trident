@@ -81,8 +81,14 @@ class ChunkCache {
 
     public void removeAll(Collection<ChunkLocation> locs) {
         for (ChunkLocation location : locs) {
-            cachedChunks.remove(location);
-            TridentPlayer.sendAll(new PacketPlayOutChunkData(new byte[1], location, true, (short) 0));
+            HeldValueLatch<TridentChunk> chunk = cachedChunks.remove(location);
+            if (chunk != null) {
+                TridentChunk latched = chunk.get();
+                if (latched != null) { // If any of these are null, another player has likely cleared it already
+                    byte[] data = latched.asPacket().data();
+                    TridentPlayer.sendAll(new PacketPlayOutChunkData(data, location, true, (short) 0));
+                }
+            }
         }
     }
 

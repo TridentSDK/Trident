@@ -204,7 +204,7 @@ public class TridentPlayer extends OfflinePlayer {
         Handler.forEvents().fire(new PlayerJoinEvent(this));
     }
 
-    @Override
+    @Override // Overridden to execute on the player handler instead
     public void tick() {
         ThreadsHandler.playerExecutor().execute(this::doTick);
     }
@@ -218,7 +218,7 @@ public class TridentPlayer extends OfflinePlayer {
         if (!chunkQueue.isEmpty())
             connection.sendPacket(chunkQueue.poll());
 
-        if (ticksExisted.get() % 120 == 0) {
+        if (ticksExisted.get() % Defaults.CHUNK_CLEAN_TICK_INTERVAL == 0) {
             Set<ChunkLocation> set = Sets.newHashSet();
             Position pos = position();
             int x = (int) pos.x() / 16;
