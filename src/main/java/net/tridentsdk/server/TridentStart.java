@@ -87,6 +87,16 @@ public final class TridentStart {
          create the server from the args/config values
          */
 
+        // DEBUG ===
+        /* Path path = Paths.get("world");
+        if (Files.exists(path)) {
+            for (File file : path.toFile().listFiles()) {
+                file.delete();
+            }
+            Files.delete(path);
+        } */
+        // ===
+
         TridentLogger.log("Open source software by TridentSDK - https://github.com/TridentSDK");
         TridentLogger.log("Starting Trident server");
 

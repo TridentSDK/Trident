@@ -186,7 +186,7 @@ public class TridentPlayer extends OfflinePlayer {
         connection.sendPacket(new PacketPlayOutPlayerCompleteMove().set("location",
                 position()).set("flags", (byte) 1));
 
-        TridentWindow window = TridentWindow.create("Inventory", 9, InventoryType.CHEST);
+        TridentWindow window = TridentWindow.create("Inventory", 18, InventoryType.CHEST);
         window.setSlot(0, new Item(Substance.DIAMOND_PICKAXE));
         window.sendTo(this);
 
@@ -218,7 +218,7 @@ public class TridentPlayer extends OfflinePlayer {
         if (!chunkQueue.isEmpty())
             connection.sendPacket(chunkQueue.poll());
 
-        if (ticksExisted.get() % Defaults.CHUNK_CLEAN_TICK_INTERVAL == 0) {
+        if (ticksExisted.get() % 20 == 0) {
             Set<ChunkLocation> set = Sets.newHashSet();
             Position pos = position();
             int x = (int) pos.x() / 16;
@@ -229,7 +229,9 @@ public class TridentPlayer extends OfflinePlayer {
                 int cx = location.x();
                 int cz = location.z();
 
-                if (Math.abs(cx - x) > viewDist || Math.abs(cz - z) > viewDist) {
+                int abs = Math.abs(cx - x);
+                int abs1 = Math.abs(cz - z);
+                if (abs > viewDist || abs1 > viewDist) {
                     set.add(location);
                     knownChunks.remove(location);
                 }

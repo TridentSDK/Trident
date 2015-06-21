@@ -66,6 +66,7 @@ public class TridentChunk implements Chunk {
         }*/
     }
 
+    // TODO decide necessity, also TBD disk storage
     // IMPORTANT: MUST BE CALLED FROM executor
     private ChunkSection[] mapSections() {
         ChunkSection[] sections = this.sections.get();

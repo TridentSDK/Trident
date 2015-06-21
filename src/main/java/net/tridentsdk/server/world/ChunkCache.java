@@ -85,8 +85,8 @@ class ChunkCache {
             if (chunk != null) {
                 TridentChunk latched = chunk.get();
                 if (latched != null) { // If any of these are null, another player has likely cleared it already
-                    byte[] data = latched.asPacket().data();
-                    TridentPlayer.sendAll(new PacketPlayOutChunkData(data, location, true, (short) 0));
+                    TridentPlayer.sendAll(new PacketPlayOutChunkData(new byte[0], location, true, (short) 0));
+                    // WARNING: New allocation of byte array is required!
                 }
             }
         }

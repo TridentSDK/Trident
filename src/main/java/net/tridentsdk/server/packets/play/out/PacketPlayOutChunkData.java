@@ -71,9 +71,9 @@ public class PacketPlayOutChunkData extends OutPacket {
         buf.writeInt(this.chunkLocation.z());
 
         buf.writeBoolean(this.continuous);
-        buf.writeByte((int) this.bitmask);
+        buf.writeShort(this.bitmask);
 
-        Codec.writeVarInt32(buf, this.data.length);
-        buf.writeBytes(this.data);
+        Codec.writeVarInt32(buf, data.length);
+        buf.writeBytes(data);
     }
 }
