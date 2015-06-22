@@ -21,7 +21,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import net.tridentsdk.Handler;
-import net.tridentsdk.concurrent.ConcurrentCache;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.player.PlayerDisconnectEvent;
@@ -41,7 +40,8 @@ import java.net.InetSocketAddress;
 import java.security.KeyPair;
 import java.security.SecureRandom;
 import java.util.UUID;
-import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Handles the connection of a client upon joining
@@ -52,7 +52,8 @@ public class ClientConnection {
     /**
      * Map of client connections registered
      */
-    protected static final ConcurrentCache<InetSocketAddress, ClientConnection> clientData = ConcurrentCache.create();
+    protected static final ConcurrentMap<InetSocketAddress, ClientConnection> clientData =
+            new ConcurrentHashMap<>();
 
     /**
      * Random for generating the verification token
@@ -64,7 +65,6 @@ public class ClientConnection {
     protected static final Cipher cipher = getCipher();
 
     /* Network fields */
-    private static final Callable<ClientConnection> NULL_CALLABLE = () -> null;
     private final Object BARRIER;
 
     /* Encryption and client data fields */
@@ -136,7 +136,7 @@ public class ClientConnection {
      * @return {@code true} if the IP is on the server, {@code false} if not
      */
     public static boolean isLoggedIn(InetSocketAddress address) {
-        return clientData.keys().contains(address);
+        return clientData.keySet().contains(address);
     }
 
     /**
@@ -146,7 +146,7 @@ public class ClientConnection {
      * @return the instance of the client handler associated with the IP, or {@code null} if not registered
      */
     public static ClientConnection getConnection(InetSocketAddress address) {
-        return clientData.retrieve(address, NULL_CALLABLE);
+        return clientData.get(address);
     }
 
     /**
@@ -166,7 +166,8 @@ public class ClientConnection {
      * @return the client connection that was registered
      */
     public static ClientConnection registerConnection(final Channel channel) {
-        return clientData.retrieve((InetSocketAddress) channel.remoteAddress(), () -> new ClientConnection(channel));
+        return clientData.computeIfAbsent((InetSocketAddress) channel.remoteAddress(),
+                (k) -> new ClientConnection(channel));
     }
 
     /**

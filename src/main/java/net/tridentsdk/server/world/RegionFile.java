@@ -18,7 +18,6 @@
 package net.tridentsdk.server.world;
 
 import com.google.common.math.IntMath;
-import net.tridentsdk.concurrent.ConcurrentCache;
 import net.tridentsdk.meta.nbt.CompoundTag;
 import net.tridentsdk.meta.nbt.NBTDecoder;
 import net.tridentsdk.meta.nbt.NBTEncoder;
@@ -32,16 +31,15 @@ import java.math.RoundingMode;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.BitSet;
-import java.util.concurrent.Callable;
-import java.util.stream.IntStream;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.zip.*;
 
 /**
  * Represents a Region File (in region/ directory) in memory
  */
 public class RegionFile {
-    private static final ConcurrentCache<Path, RegionFile> FILE_CACHE = ConcurrentCache.create();
+    private static final ConcurrentMap<Path, RegionFile> FILE_CACHE = new ConcurrentHashMap<>();
 
     //The path to the region file
     final Path path;
@@ -98,7 +96,15 @@ public class RegionFile {
     public static RegionFile fromPath(String name, ChunkLocation location) {
         final Path path = Paths.get(name + "/region/", WorldUtils.regionFile(location));
 
-        return FILE_CACHE.retrieve(path, () -> new RegionFile(path));
+        return FILE_CACHE.computeIfAbsent(path, (k) -> {
+            try {
+                return new RegionFile(path);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        });
     }
 
     public static void saveAll() {
