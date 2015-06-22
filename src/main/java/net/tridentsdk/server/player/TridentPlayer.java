@@ -18,8 +18,10 @@
 package net.tridentsdk.server.player;
 
 import com.google.common.collect.Queues;
-import com.google.common.collect.Sets;
-import net.tridentsdk.*;
+import net.tridentsdk.GameMode;
+import net.tridentsdk.Handler;
+import net.tridentsdk.Position;
+import net.tridentsdk.Trident;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.entity.Entity;
@@ -35,6 +37,7 @@ import net.tridentsdk.server.data.ProtocolMetadata;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.packets.play.out.*;
+import net.tridentsdk.server.threads.TaskGroup;
 import net.tridentsdk.server.threads.ThreadsHandler;
 import net.tridentsdk.server.window.TridentWindow;
 import net.tridentsdk.server.world.TridentChunk;
@@ -57,7 +60,7 @@ import static net.tridentsdk.server.packets.play.out.PacketPlayOutPlayerListItem
 @ThreadSafe
 public class TridentPlayer extends OfflinePlayer {
     private static final Map<UUID, Player> ONLINE_PLAYERS = new ConcurrentHashMap<>();
-
+    private static final int MAX_VIEW = Trident.config().getInt("view-distance", 15);
     private final PlayerConnection connection;
     private final Set<ChunkLocation> knownChunks = Factories.collect().createSet();
     private final Queue<PacketPlayOutMapChunkBulk> chunkQueue = Queues.newConcurrentLinkedQueue();
@@ -218,30 +221,35 @@ public class TridentPlayer extends OfflinePlayer {
         if (!chunkQueue.isEmpty())
             connection.sendPacket(chunkQueue.poll());
 
-        if (ticksExisted.get() % 20 == 0) {
-            Set<ChunkLocation> set = Sets.newHashSet();
+        cleanChunks();
+
+        connection.tick();
+        ticksExisted.incrementAndGet();
+    }
+
+    public Set<ChunkLocation> cleanChunks() {
+        if (knownChunks.size() > 441) {
             Position pos = position();
             int x = (int) pos.x() / 16;
             int z = (int) pos.z() / 16;
             int viewDist = viewDistance();
 
-            for (ChunkLocation location : knownChunks) {
+            TaskGroup.process(knownChunks).every(4).with(ThreadsHandler.chunkExecutor()).using((location) -> {
                 int cx = location.x();
                 int cz = location.z();
 
                 int abs = Math.abs(cx - x);
                 int abs1 = Math.abs(cz - z);
+
+                // TODO some possibility of deviating
                 if (abs > viewDist || abs1 > viewDist) {
-                    set.add(location);
+                    connection.sendPacket(new PacketPlayOutChunkData(new byte[0], location, true, (short) 0));
                     knownChunks.remove(location);
                 }
-            }
-
-            ((TridentWorld) world()).removeChunks(set);
+            });
         }
 
-        connection.tick();
-        ticksExisted.incrementAndGet();
+        return knownChunks;
     }
 
     @Override
@@ -345,16 +353,16 @@ public class TridentPlayer extends OfflinePlayer {
         this.connection.sendPacket(this.abilities.asPacket());
     }
 
+    public boolean isFlying() {
+        return flying;
+    }
+
     public void setFlying(boolean flying) {
         this.flying = flying;
 
         abilities.flying = (flying) ? (byte) 1 : (byte) 0;
 
         connection.sendPacket(abilities.asPacket());
-    }
-
-    public boolean isFlying() {
-        return flying;
     }
 
     public boolean isFlyMode() {
@@ -365,21 +373,21 @@ public class TridentPlayer extends OfflinePlayer {
         abilities.canFly = (flying) ? (byte) 1: (byte) 0;
     }
 
+    public boolean isSprinting() {
+        return sprinting;
+    }
+
     public void setSprinting(boolean sprinting) {
         this.sprinting = sprinting;
     }
 
-    public boolean isSprinting() {
-        return sprinting;
+    public boolean isCrouching() {
+        return crouching;
     }
 
     @InternalUseOnly
     public void setCrouching(boolean crouching) {
         this.crouching = crouching;
-    }
-
-    public boolean isCrouching() {
-        return crouching;
     }
 
     public void setLocale(Locale locale) {
@@ -394,7 +402,6 @@ public class TridentPlayer extends OfflinePlayer {
         this.viewDistance = viewDistance;
     }
 
-    private static final int MAX_VIEW = Trident.config().getInt("view-distance", 15);
     public int viewDistance() {
         return Math.min(viewDistance, MAX_VIEW);
     }

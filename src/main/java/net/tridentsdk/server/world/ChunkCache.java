@@ -19,8 +19,6 @@ package net.tridentsdk.server.world;
 import com.google.common.collect.Lists;
 import net.tridentsdk.concurrent.HeldValueLatch;
 import net.tridentsdk.docs.AccessNoDoc;
-import net.tridentsdk.server.packets.play.out.PacketPlayOutChunkData;
-import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.Chunk;
 import net.tridentsdk.world.ChunkLocation;
@@ -77,19 +75,6 @@ class ChunkCache {
         }
 
         return (TridentChunk) chunk;
-    }
-
-    public void removeAll(Collection<ChunkLocation> locs) {
-        for (ChunkLocation location : locs) {
-            HeldValueLatch<TridentChunk> chunk = cachedChunks.remove(location);
-            if (chunk != null) {
-                TridentChunk latched = chunk.get();
-                if (latched != null) { // If any of these are null, another player has likely cleared it already
-                    TridentPlayer.sendAll(new PacketPlayOutChunkData(new byte[0], location, true, (short) 0));
-                    // WARNING: New allocation of byte array is required!
-                }
-            }
-        }
     }
 
     public Set<ChunkLocation> keys() {

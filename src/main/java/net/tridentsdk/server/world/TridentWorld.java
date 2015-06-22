@@ -18,7 +18,9 @@
 package net.tridentsdk.server.world;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import com.google.common.io.ByteStreams;
+import net.tridentsdk.Defaults;
 import net.tridentsdk.Difficulty;
 import net.tridentsdk.GameMode;
 import net.tridentsdk.Position;
@@ -26,6 +28,7 @@ import net.tridentsdk.base.Block;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.Projectile;
 import net.tridentsdk.entity.block.SlotProperties;
+import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.entity.living.ProjectileLauncher;
 import net.tridentsdk.entity.traits.EntityProperties;
 import net.tridentsdk.entity.types.EntityType;
@@ -71,7 +74,7 @@ public class TridentWorld implements World {
     private static final int MAX_HEIGHT = 255;
     private static final int MAX_CHUNKS = 30_000_000;
 
-    private final ChunkCache loadedChunks = new ChunkCache(this);
+    public final ChunkCache loadedChunks = new ChunkCache(this);
     private final Set<Entity> entities = Factories.collect().createSet();
     private final String name;
     private final WorldLoader loader;
@@ -273,17 +276,25 @@ public class TridentWorld implements World {
                 thunderTime = ThreadLocalRandom.current().nextInt();
             }
 
-            for (Entity entity : entities) {
-                ((TridentEntity) entity).tick();
+            // Complex idiom saves a bit of time on large iterations #nanobenchmarking
+            if (time % Defaults.CHUNK_CLEAN_TICK_INTERVAL == 0) {
+                Set<ChunkLocation> retain = Sets.newHashSet();
+                for (Entity entity : entities) {
+                    ((TridentEntity) entity).tick();
+
+                    if (entity instanceof Player) {
+                        retain.addAll(((TridentPlayer) entity).cleanChunks());
+                    }
+                }
+            } else {
+                for (Entity entity : entities) {
+                    ((TridentEntity) entity).tick();
+                }
             }
 
             time++;
             existed++;
         });
-    }
-
-    public void removeChunks(Collection<ChunkLocation> locs) {
-        loadedChunks.removeAll(locs);
     }
 
     protected void addChunkAt(ChunkLocation location, Chunk chunk) {
