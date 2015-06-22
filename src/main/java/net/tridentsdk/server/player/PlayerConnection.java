@@ -29,7 +29,6 @@ import net.tridentsdk.server.packets.play.out.PacketPlayOutKeepAlive;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 import java.net.InetSocketAddress;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -50,8 +49,7 @@ public class PlayerConnection extends ClientConnection {
 
     private PlayerConnection(ClientConnection connection, TridentPlayer player) {
         // remove old connection, and replace it with this one
-        ClientConnection.clientData.remove(connection.address());
-        ClientConnection.clientData.retrieve(connection.address(), () -> PlayerConnection.this);
+        ClientConnection.clientData.put(connection.address(), connection);
 
         super.address = connection.address();
         super.channel = connection.channel();
