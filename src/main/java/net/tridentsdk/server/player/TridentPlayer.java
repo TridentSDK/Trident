@@ -154,11 +154,6 @@ public class TridentPlayer extends OfflinePlayer {
             ProtocolMetadata metadata = new ProtocolMetadata();
 
             p.encodeMetadata(metadata);
-
-            sendFiltered(new PacketPlayOutSpawnPlayer()
-                    .set("entityId", p.id)
-                    .set("player", p)
-                    .set("metadata", metadata), (player) -> !player.equals(p));
         });
 
         return p;
@@ -264,10 +259,22 @@ public class TridentPlayer extends OfflinePlayer {
         TridentLogger.log(name + " has left the server");
     }
 
+    @Override
+    public void setLocation(Position loc) {
+        super.setLocation(loc);
+        ProtocolMetadata metadata = new ProtocolMetadata();
+        encodeMetadata(metadata);
+
+        sendFiltered(new PacketPlayOutSpawnPlayer()
+                .set("entityId", id)
+                .set("player", this)
+                .set("metadata", metadata), (player) -> !player.equals(this));
+    }
+
     /*
-     * @NotJavaDoc
-     * TODO: Create Message API and utilize it
-     */
+         * @NotJavaDoc
+         * TODO: Create Message API and utilize it
+         */
     public void kickPlayer(String reason) {
         connection.sendPacket(new PacketPlayOutDisconnect().set("reason", reason));
         TridentLogger.log(name + " was kicked for " + reason);

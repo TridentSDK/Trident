@@ -48,6 +48,8 @@ import java.io.File;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.concurrent.ConcurrentHashMap;
@@ -65,12 +67,12 @@ import static com.google.common.collect.Lists.newArrayList;
  */
 @ThreadSafe
 public final class TridentStart {
+    private static final EventLoopGroup bossGroup = new NioEventLoopGroup(4, Defaults.ERROR_HANDLED);
+    private static final EventLoopGroup workerGroup = new NioEventLoopGroup(4, Defaults.ERROR_HANDLED);
+
     static {
         TridentLogger.init();
     }
-
-    private static final EventLoopGroup bossGroup = new NioEventLoopGroup(4, Defaults.ERROR_HANDLED);
-    private static final EventLoopGroup workerGroup = new NioEventLoopGroup(4, Defaults.ERROR_HANDLED);
 
     private TridentStart() {
     } // Do not initialize
@@ -88,13 +90,13 @@ public final class TridentStart {
          */
 
         // DEBUG ===
-        /* Path path = Paths.get("world");
+        Path path = Paths.get("world");
         if (Files.exists(path)) {
             for (File file : path.toFile().listFiles()) {
                 file.delete();
             }
             Files.delete(path);
-        } */
+        }
         // ===
 
         TridentLogger.log("Open source software by TridentSDK - https://github.com/TridentSDK");
