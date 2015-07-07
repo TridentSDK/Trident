@@ -128,10 +128,6 @@ public class TridentPlayer extends OfflinePlayer {
             p.connection.sendPacket(new PacketPlayOutServerDifficulty().set("difficulty", p.world().difficulty()));
             p.connection.sendPacket(new PacketPlayOutSpawnPosition().set("location", p.spawnLocation()));
             p.connection.sendPacket(p.abilities.asPacket());
-            Trident.server().logger().info("Flags:\n canFly: " + Boolean.toString(p.abilities.canFly()) + '\n' +
-                    "godMode: " + Boolean.toString(p.abilities.isInvulnerable()) + '\n' +
-                    "flying: " + Boolean.toString(p.abilities.isFlying()) + '\n' +
-                    "creative: " + Boolean.toString(p.abilities.isCreative()));
             p.connection.sendPacket(new PacketPlayOutPlayerCompleteMove().set("location",
                     p.spawnLocation()).set("flags", (byte) 0));
 
@@ -154,6 +150,15 @@ public class TridentPlayer extends OfflinePlayer {
             p.connection.sendPacket(new PacketPlayOutPlayerListItem()
                     .set("action", 0)
                     .set("playerListData", builders.stream().toArray(PlayerListDataBuilder[]::new)));
+
+            ProtocolMetadata metadata = new ProtocolMetadata();
+
+            p.encodeMetadata(metadata);
+
+            sendFiltered(new PacketPlayOutSpawnPlayer()
+                    .set("entityId", p.id)
+                    .set("player", p)
+                    .set("metadata", metadata), (player) -> !player.equals(p));
         });
 
         return p;

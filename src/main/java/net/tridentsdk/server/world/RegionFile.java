@@ -296,7 +296,6 @@ public class RegionFile {
 
             //Finds a new free location
             int newLocation = sectors.findFreeSectors(sectorLength);
-            int hashCode = hashCode();
             int offsetLoc = sectors.offsetLoc(chunk);
 
             // update offset to new location
