@@ -106,7 +106,7 @@ public class TridentPlayer extends OfflinePlayer {
 
         p.name = name;
 
-        p.gameMode = GameMode.gamemodeOf(((IntTag)playerTag.getTag("playerGameType")).value());
+        p.gameMode = GameMode.gamemodeOf(((IntTag) playerTag.getTag("playerGameType")).value());
 
         p.executor.execute(() -> {
             p.connection.sendPacket(new PacketPlayOutJoinGame().set("entityId", p.entityId())
@@ -284,26 +284,13 @@ public class TridentPlayer extends OfflinePlayer {
         ProtocolMetadata metadata = new ProtocolMetadata();
         encodeMetadata(metadata);
 
-        PacketPlayOutEntityCompleteMove move = new PacketPlayOutEntityCompleteMove();
-        move.set("entityId", entityId())
-                .set("pitch", loc.pitch()).set("yaw", loc.yaw()).set("flags", (byte) 0x00);
-
         players().stream()
                 .filter((p) -> !p.equals(this))
                 .forEach((p) -> {
-                    Vector difference = p.position().asVector().subtract(loc.asVector());
-                    move.set("difference", difference);
-
-                    if (Math.abs(difference.x()) > 4 || Math.abs(difference.y()) > 4
-                            || Math.abs(difference.z()) > 4) {
-                        ((TridentPlayer) p).connection.sendPacket(new PacketPlayOutEntityTeleport()
-                                .set("entityId", entityId())
-                                .set("position", loc)
-                                .set("onGround", onGround));
-                        return;
-                    }
-
-                    ((TridentPlayer) p).connection.sendPacket(move);
+                    ((TridentPlayer) p).connection.sendPacket(new PacketPlayOutEntityTeleport()
+                            .set("entityId", entityId())
+                            .set("location", loc)
+                            .set("onGround", onGround));
                 });
 
         super.setLocation(loc);
@@ -420,7 +407,7 @@ public class TridentPlayer extends OfflinePlayer {
     }
 
     public void setFlyMode(boolean flying) {
-        abilities.canFly = (flying) ? (byte) 1: (byte) 0;
+        abilities.canFly = (flying) ? (byte) 1 : (byte) 0;
     }
 
     public boolean isSprinting() {

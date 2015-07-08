@@ -52,8 +52,8 @@ public class PacketPlayOutEntityTeleport extends OutPacket {
         buf.writeInt((int) this.location.y() * 32);
         buf.writeInt((int) this.location.z() * 32);
 
-        buf.writeByte((int) this.location.yaw());
-        buf.writeByte((int) this.location.pitch());
+        buf.writeByte((int) this.location.yaw() * 256/360);
+        buf.writeByte((int) this.location.pitch()* 256/360);
 
         buf.writeBoolean(this.onGround);
     }
