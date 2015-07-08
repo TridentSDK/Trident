@@ -285,9 +285,26 @@ public class TridentPlayer extends OfflinePlayer {
         encodeMetadata(metadata);
 
         PacketPlayOutEntityCompleteMove move = new PacketPlayOutEntityCompleteMove();
-        move.set("entityId", entityId()).set("difference", position().asVector().subtract(loc.asVector()))
+        move.set("entityId", entityId())
                 .set("pitch", loc.pitch()).set("yaw", loc.yaw()).set("flags", (byte) 0x00);
-        sendFiltered(move, (p) -> !p.equals(this));
+
+        players().stream()
+                .filter((p) -> !p.equals(this))
+                .forEach((p) -> {
+                    Vector difference = p.position().asVector().subtract(loc.asVector());
+                    move.set("difference", difference);
+
+                    if (Math.abs(difference.x()) > 4 || Math.abs(difference.y()) > 4
+                            || Math.abs(difference.z()) > 4) {
+                        ((TridentPlayer) p).connection.sendPacket(new PacketPlayOutEntityTeleport()
+                                .set("entityId", entityId())
+                                .set("position", loc)
+                                .set("onGround", onGround));
+                        return;
+                    }
+
+                    ((TridentPlayer) p).connection.sendPacket(move);
+                });
 
         super.setLocation(loc);
     }
