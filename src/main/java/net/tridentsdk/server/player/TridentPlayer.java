@@ -144,7 +144,7 @@ public class TridentPlayer extends OfflinePlayer {
 
             players().stream().filter((player) -> !player.equals(p))
                     .forEach((player) -> builders.add(((TridentPlayer) player).listData()));
-            players().forEach((player) -> player.sendMessage(p.name + " has joined the server"));
+            //players().forEach((player) -> player.sendMessage(p.name + " has joined the server"));
             TridentLogger.log(p.name + " has joined the server");
 
             p.connection.sendPacket(new PacketPlayOutPlayerListItem()
@@ -205,6 +205,26 @@ public class TridentPlayer extends OfflinePlayer {
         connection.sendPacket(new PacketPlayOutGameStateChange().set("reason", 3).set("value", (float) gameMode.asByte()));
         TridentServer.WORLD.addEntity(this); // TODO
         Handler.forEvents().fire(new PlayerJoinEvent(this));
+
+        for (Player player : players()) {
+            TridentPlayer p = (TridentPlayer) player;
+            if (!p.equals(this)) {
+                ProtocolMetadata metadata = new ProtocolMetadata();
+                encodeMetadata(metadata);
+
+                p.connection.sendPacket(new PacketPlayOutSpawnPlayer()
+                        .set("entityId", id)
+                        .set("player", this)
+                        .set("metadata", metadata));
+
+                metadata = new ProtocolMetadata();
+                p.encodeMetadata(metadata);
+                connection.sendPacket(new PacketPlayOutSpawnPlayer()
+                        .set("entityId", p.id)
+                        .set("player", p)
+                        .set("metadata", metadata));
+            }
+        }
     }
 
     @Override // Overridden to execute on the player handler instead
@@ -261,14 +281,15 @@ public class TridentPlayer extends OfflinePlayer {
 
     @Override
     public void setLocation(Position loc) {
-        super.setLocation(loc);
         ProtocolMetadata metadata = new ProtocolMetadata();
         encodeMetadata(metadata);
 
-        sendFiltered(new PacketPlayOutSpawnPlayer()
-                .set("entityId", id)
-                .set("player", this)
-                .set("metadata", metadata), (player) -> !player.equals(this));
+        PacketPlayOutEntityCompleteMove move = new PacketPlayOutEntityCompleteMove();
+        move.set("entityId", entityId()).set("difference", position().asVector().subtract(loc.asVector()))
+                .set("pitch", loc.pitch()).set("yaw", loc.yaw()).set("flags", (byte) 0x00);
+        sendFiltered(move, (p) -> !p.equals(this));
+
+        super.setLocation(loc);
     }
 
     /*
