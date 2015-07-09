@@ -22,7 +22,6 @@ import net.tridentsdk.GameMode;
 import net.tridentsdk.Handler;
 import net.tridentsdk.Position;
 import net.tridentsdk.Trident;
-import net.tridentsdk.base.Substance;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.living.Player;
@@ -39,13 +38,10 @@ import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.packets.play.out.*;
 import net.tridentsdk.server.threads.TaskGroup;
 import net.tridentsdk.server.threads.ThreadsHandler;
-import net.tridentsdk.server.window.TridentWindow;
 import net.tridentsdk.server.world.TridentChunk;
 import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.util.Vector;
-import net.tridentsdk.window.inventory.InventoryType;
-import net.tridentsdk.window.inventory.Item;
 import net.tridentsdk.world.ChunkLocation;
 import net.tridentsdk.world.LevelType;
 
@@ -189,9 +185,9 @@ public class TridentPlayer extends OfflinePlayer {
         connection.sendPacket(new PacketPlayOutPlayerCompleteMove().set("location",
                 position()).set("flags", (byte) 1));
 
-        TridentWindow window = TridentWindow.create("Inventory", 18, InventoryType.CHEST);
-        window.setSlot(0, new Item(Substance.DIAMOND_PICKAXE));
-        window.sendTo(this);
+        //TridentWindow window = TridentWindow.create("Inventory", 18, InventoryType.CHEST);
+        //window.setSlot(0, new Item(Substance.DIAMOND_PICKAXE));
+        //window.sendTo(this);
 
         // Wait for response
         for (Entity entity : world().entities()) {
@@ -202,7 +198,7 @@ public class TridentPlayer extends OfflinePlayer {
         connection.sendPacket(new PacketPlayOutEntityVelocity()
                 .set("entityId", entityId())
                 .set("velocity", new Vector(0, -0.07, 0)));
-        connection.sendPacket(new PacketPlayOutGameStateChange().set("reason", 3).set("value", (float) gameMode.asByte()));
+        connection.sendPacket(new PacketPlayOutGameStateChange().set("reason", 3).set("value", (float) GameMode.CREATIVE.asByte()));
         TridentServer.WORLD.addEntity(this); // TODO
         Handler.forEvents().fire(new PlayerJoinEvent(this));
 
@@ -263,7 +259,7 @@ public class TridentPlayer extends OfflinePlayer {
 
                 // TODO some possibility of deviating
                 if (abs > viewDist || abs1 > viewDist) {
-                    connection.sendPacket(new PacketPlayOutChunkData(new byte[0], location, true, (short) 0));
+                    connection.sendPacket(new PacketPlayOutChunkData(new byte[256], location, true, (short) 0));
                     knownChunks.remove(location);
                 }
             });

@@ -19,6 +19,8 @@ package net.tridentsdk.server.world;
 import com.google.common.collect.Lists;
 import net.tridentsdk.concurrent.HeldValueLatch;
 import net.tridentsdk.docs.AccessNoDoc;
+import net.tridentsdk.server.threads.TaskGroup;
+import net.tridentsdk.server.threads.ThreadsHandler;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.Chunk;
 import net.tridentsdk.world.ChunkLocation;
@@ -75,6 +77,14 @@ class ChunkCache {
         }
 
         return (TridentChunk) chunk;
+    }
+
+    public void retain(Set<ChunkLocation> locations) {
+        TaskGroup.process(keys()).every(100).with(ThreadsHandler.chunkExecutor()).using((loc) -> {
+            if (locations.contains(loc)) {
+                cachedChunks.remove(loc);
+            }
+        });
     }
 
     public Set<ChunkLocation> keys() {

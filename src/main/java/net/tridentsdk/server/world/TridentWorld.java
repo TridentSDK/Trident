@@ -18,7 +18,6 @@
 package net.tridentsdk.server.world;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 import com.google.common.io.ByteStreams;
 import net.tridentsdk.Defaults;
 import net.tridentsdk.Difficulty;
@@ -278,7 +277,7 @@ public class TridentWorld implements World {
 
             // Complex idiom saves a bit of time on large iterations #nanobenchmarking
             if (time % Defaults.CHUNK_CLEAN_TICK_INTERVAL == 0) {
-                Set<ChunkLocation> retain = Sets.newHashSet();
+                Set<ChunkLocation> retain = Factories.collect().createSet();
                 for (Entity entity : entities) {
                     ((TridentEntity) entity).tick();
 
@@ -286,6 +285,7 @@ public class TridentWorld implements World {
                         retain.addAll(((TridentPlayer) entity).cleanChunks());
                     }
                 }
+                loadedChunks.retain(retain);
             } else {
                 for (Entity entity : entities) {
                     ((TridentEntity) entity).tick();

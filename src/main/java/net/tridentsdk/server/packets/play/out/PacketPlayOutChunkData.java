@@ -72,7 +72,7 @@ public class PacketPlayOutChunkData extends OutPacket {
         buf.writeBoolean(this.continuous);
         buf.writeShort(this.bitmask);
 
-        Codec.writeVarInt32(buf, data.length == 512 && continuous && bitmask == 0 ? 0 : data.length);
+        Codec.writeVarInt32(buf, data.length);
         buf.writeBytes(data);
     }
 }
