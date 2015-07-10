@@ -20,7 +20,6 @@ package net.tridentsdk.server.world;
 
 import net.tridentsdk.Trident;
 import net.tridentsdk.docs.InternalUseOnly;
-import net.tridentsdk.meta.nbt.NBTException;
 import net.tridentsdk.server.world.gen.DefaultWorldGen;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.Chunk;
@@ -39,7 +38,6 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.zip.DataFormatException;
 
 /**
  * The world loading class, creates, saves, handles worlds
@@ -196,23 +194,13 @@ public class TridentWorldLoader implements WorldLoader {
 
     @Override
     public TridentChunk loadChunk(World world, ChunkLocation location) {
-        try {
-            return RegionFile.fromPath(world.name(), location).loadChunkData((TridentWorld) world, location);
-        } catch (IOException | DataFormatException | NBTException ex) {
-            TridentLogger.error(ex);
-        }
-
-        return null;
+        return RegionFile.fromPath(world.name(), location).loadChunkData((TridentWorld) world, location);
     }
 
     @Override
     public void saveChunk(Chunk chunk) {
-        try {
-            RegionFile.fromPath(chunk.world().name(), chunk.location())
-                    .saveChunkData((TridentChunk) chunk);
-        } catch (IOException | NBTException ex) {
-            TridentLogger.error(ex);
-        }
+        RegionFile.fromPath(chunk.world().name(), chunk.location())
+                .saveChunkData((TridentChunk) chunk);
     }
 
     @Override

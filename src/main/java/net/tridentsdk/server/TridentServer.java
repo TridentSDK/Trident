@@ -165,7 +165,7 @@ public final class TridentServer implements Server {
 
         TridentLogger.log("Kicking players...");
 
-        for(Player player : TridentPlayer.players()) {
+        for (Player player : TridentPlayer.players()) {
             ((TridentPlayer) player).kickPlayer("Server shutting down");
         }
 
