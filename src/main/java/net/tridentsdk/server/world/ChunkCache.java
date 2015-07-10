@@ -80,8 +80,23 @@ class ChunkCache {
     }
 
     public void retain(Set<ChunkLocation> locations) {
-        TaskGroup.process(keys()).every(100).with(ThreadsHandler.chunkExecutor()).using((loc) -> {
-            if (locations.contains(loc)) {
+        // Generate is much more appropriate thread pool
+        // not only because it is used only for loading bytes
+        // but because using the chunk executor interferes
+        // with other tasks and might cause livelocks for no
+        // reason
+        TaskGroup.process(keys()).every(100).with(ThreadsHandler.saver()).using((loc) -> {
+            HeldValueLatch<TridentChunk> chunk = cachedChunks.get(loc);
+            TridentChunk rem;
+            if (chunk != null && chunk.hasValue()) {
+                rem = chunk.get();
+            } else {
+                // Remove the chunk once it is available
+                return;
+            }
+
+            if (!locations.contains(loc) && chunk.hasValue()) {
+                world.loader().saveChunk(rem);
                 cachedChunks.remove(loc);
             }
         });

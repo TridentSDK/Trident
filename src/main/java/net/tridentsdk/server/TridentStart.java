@@ -48,8 +48,6 @@ import java.io.File;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.concurrent.ConcurrentHashMap;
@@ -90,13 +88,13 @@ public final class TridentStart {
          */
 
         // DEBUG ===
-        Path path = Paths.get("world");
+        /* Path path = Paths.get("world");
         if (Files.exists(path)) {
             for (File file : path.toFile().listFiles()) {
                 file.delete();
             }
             Files.delete(path);
-        }
+        } */
         // ===
 
         TridentLogger.log("Open source software by TridentSDK - https://github.com/TridentSDK");

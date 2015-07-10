@@ -34,8 +34,11 @@ public final class ThreadsHandler implements ThreadFactory {
     private static final ExecutorFactory entities = ConcurrentTaskExecutor.create(2, "Entities");
     private static final ExecutorFactory players = ConcurrentTaskExecutor.create(4, "Players");
     private static final ExecutorFactory worlds = ConcurrentTaskExecutor.create(2, "Worlds");
+
+    // These 3 were originally placed together but livelock concerns have partitioned them
     private static final ExecutorFactory chunks = ConcurrentTaskExecutor.create(2, "Chunks");
     private static final ExecutorFactory generator = ConcurrentTaskExecutor.create(2, "Generator");
+    private static final ExecutorFactory saver = ConcurrentTaskExecutor.create(2, "Chunk save");
 
     private ThreadsHandler() {
     }
@@ -106,6 +109,16 @@ public final class ThreadsHandler implements ThreadFactory {
     @InternalUseOnly
     public static ExecutorFactory playerExecutor() {
         return players;
+    }
+
+    /**
+     * Gets the executor for the saving thread pool
+     *
+     * @return the saving thread pool
+     */
+    @InternalUseOnly
+    public static ExecutorFactory saver() {
+        return saver;
     }
 
     @Override

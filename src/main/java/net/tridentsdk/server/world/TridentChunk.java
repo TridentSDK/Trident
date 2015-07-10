@@ -83,7 +83,7 @@ public class TridentChunk implements Chunk {
             // Don't call mapSections, as this generates them
             ChunkSection[] sections = this.sections;
 
-            for (int i = 0; i < 16; i ++) {
+            for (int i = 0; i < 16; i++) {
                 if (sections[i] == null) {
                     sections[i] = new ChunkSection();
                 }
@@ -105,13 +105,13 @@ public class TridentChunk implements Chunk {
                 i++;
             }
 
-            for (ChunkSection section: sections) {
+            for (ChunkSection section : sections) {
                 if (section.blockLight == null) {
-                    section.blockLight = new byte[ChunkSection.LENGTH/2];
+                    section.blockLight = new byte[ChunkSection.LENGTH / 2];
                 }
 
                 if (section.skyLight == null) {
-                    section.skyLight = new byte[ChunkSection.LENGTH/2];
+                    section.skyLight = new byte[ChunkSection.LENGTH / 2];
                 }
 
                 if (section.types == null) {
@@ -319,9 +319,7 @@ public class TridentChunk implements Chunk {
 
         ChunkSection[] sectionCopy = new ChunkSection[0];
         try {
-            sectionCopy = executor.submitTask(() -> {
-                return mapSections();
-            }).get();
+            sectionCopy = executor.submitTask(this::mapSections).get();
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
