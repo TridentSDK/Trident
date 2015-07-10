@@ -43,54 +43,55 @@ import java.util.concurrent.TimeUnit;
 
 ========= Warming up the system =========
 Warmup iteration 100: 0.000 ns/op
-Warmup iteration 200: 0.000 ns/op
-Warmup iteration 300: 0.000 ns/op
-Warmup iteration 400: 0.000 ns/op
-Warmup iteration 500: 0.000 ns/op
-Warmup iteration 600: 0.000 ns/op
-Warmup iteration 700: 0.000 ns/op
-Warmup iteration 800: 0.000 ns/op
-Warmup iteration 900: 0.000 ns/op
+Warmup iteration 200: 103717.305 ns/op
+Warmup iteration 300: 294320.694 ns/op
+Warmup iteration 400: 339208.573 ns/op
+Warmup iteration 500: 339208.573 ns/op
+Warmup iteration 600: 599198.814 ns/op
+Warmup iteration 700: 599198.814 ns/op
+Warmup iteration 800: 599198.814 ns/op
+Warmup iteration 900: 599198.814 ns/op
 ========= Warm up complete =========
 
 ========= Starting tests =========
-Iteration 10000000: 224.729 ns/op
-Iteration 20000000: 448.046 ns/op
-Iteration 30000000: 670.792 ns/op
-Iteration 40000000: 894.519 ns/op
-Iteration 50000000: 1118.812 ns/op
-Iteration 60000000: 1345.623 ns/op
-Iteration 70000000: 1569.468 ns/op
-Iteration 80000000: 1792.467 ns/op
-Iteration 90000000: 2015.692 ns/op
+Iteration 10000000: 25528.165 ns/op
+Iteration 20000000: 26968.149 ns/op
+Iteration 30000000: 27278.767 ns/op
+Iteration 40000000: 27512.523 ns/op
+Iteration 50000000: 27720.204 ns/op
+Iteration 60000000: 27957.150 ns/op
+Iteration 70000000: 28344.386 ns/op
+Iteration 80000000: 28609.102 ns/op
+Iteration 90000000: 28894.367 ns/op
 ========= Ended test =========
-Complete. 2238.319 ns/op
-========= Starting tests: TRIDENT =========
+Complete. 29172.143 ns/op
+
+========= Starting tests: JAVA =========
 
 ========= Warming up the system =========
-Warmup iteration 100: 15148.154 ns/op
-Warmup iteration 200: 43028.691 ns/op
-Warmup iteration 300: 68108.891 ns/op
-Warmup iteration 400: 98972.100 ns/op
-Warmup iteration 500: 140382.841 ns/op
-Warmup iteration 600: 168575.806 ns/op
-Warmup iteration 700: 198700.359 ns/op
-Warmup iteration 800: 266667.991 ns/op
-Warmup iteration 900: 274031.823 ns/op
+Warmup iteration 100: 19886.610 ns/op
+Warmup iteration 200: 54039.265 ns/op
+Warmup iteration 300: 98061.718 ns/op
+Warmup iteration 400: 116969.406 ns/op
+Warmup iteration 500: 143913.421 ns/op
+Warmup iteration 600: 180630.039 ns/op
+Warmup iteration 700: 203655.650 ns/op
+Warmup iteration 800: 217234.967 ns/op
+Warmup iteration 900: 222483.645 ns/op
 ========= Warm up complete =========
 
 ========= Starting tests =========
-Iteration 10000000: 274.851 ns/op
-Iteration 20000000: 534.036 ns/op
-Iteration 30000000: 783.020 ns/op
-Iteration 40000000: 1035.913 ns/op
-Iteration 50000000: 1290.808 ns/op
-Iteration 60000000: 1541.705 ns/op
-Iteration 70000000: 1786.883 ns/op
-Iteration 80000000: 2031.753 ns/op
-Iteration 90000000: 2284.194 ns/op
+Iteration 10000000: 4628.598 ns/op
+Iteration 20000000: 9274.451 ns/op
+Iteration 30000000: 13210.221 ns/op
+Iteration 40000000: 16514.152 ns/op
+Iteration 50000000: 21006.449 ns/op
+Iteration 60000000: 24361.641 ns/op
+Iteration 70000000: 28390.795 ns/op
+Iteration 80000000: 33168.349 ns/op
+Iteration 90000000: 38249.874 ns/op
 ========= Ended test =========
-Complete. 2542.293 ns/op
+Complete. 42901.430 ns/op
 
 http://bit.ly/1xI4GcC
  */

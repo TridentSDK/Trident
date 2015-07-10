@@ -101,13 +101,4 @@ public final class ChunkSection implements NBTSerializable {
     public char[] types() {
         return types;
     }
-
-    void clear() {
-        rawTypes = null;
-        add = null;
-        data = null;
-        blockLight = null;
-        skyLight = null;
-        types = null;
-    }
 }

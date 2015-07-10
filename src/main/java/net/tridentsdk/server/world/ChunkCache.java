@@ -19,7 +19,10 @@ package net.tridentsdk.server.world;
 import com.google.common.collect.Lists;
 import net.tridentsdk.concurrent.HeldValueLatch;
 import net.tridentsdk.docs.AccessNoDoc;
+import net.tridentsdk.server.threads.TaskGroup;
+import net.tridentsdk.server.threads.ThreadsHandler;
 import net.tridentsdk.util.TridentLogger;
+import net.tridentsdk.world.Chunk;
 import net.tridentsdk.world.ChunkLocation;
 
 import java.util.Collection;
@@ -37,21 +40,20 @@ class ChunkCache {
     }
 
     public void put(ChunkLocation location, TridentChunk chunk) {
-        HeldValueLatch<TridentChunk> latch = cachedChunks.get(location);
-        if (latch == null)
-            latch = HeldValueLatch.create();
-        if (!latch.hasValue())
-            latch.countDown(chunk);
-        else {
-            latch = HeldValueLatch.create();
-            latch.countDown(chunk);
+        HeldValueLatch<TridentChunk> value = cachedChunks.get(location);
+        if (value == null) {
+            HeldValueLatch<TridentChunk> latch = HeldValueLatch.create();
+            value = cachedChunks.putIfAbsent(location, latch);
+            if (value == null) {
+                value = latch;
+                value.countDown(chunk);
+            }
         }
-
-        cachedChunks.put(location, latch);
     }
 
     public TridentChunk get(ChunkLocation location, boolean gen) {
-        while (true) {
+        Chunk chunk = null;
+        while (chunk == null) {
             HeldValueLatch<TridentChunk> value = cachedChunks.get(location);
             if (value == null) {
                 if (!gen) return null;
@@ -68,25 +70,36 @@ class ChunkCache {
                 return null;
 
             try {
-                return value.await();
+                chunk = value.await();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
+
+        return (TridentChunk) chunk;
     }
 
-    public void retain(Set<ChunkLocation> set) {
-        if (set.isEmpty()) {
-            cachedChunks.clear();
-            return;
-        }
+    public void retain(Set<ChunkLocation> locations) {
+        // Generate is much more appropriate thread pool
+        // not only because it is used only for loading bytes
+        // but because using the chunk executor interferes
+        // with other tasks and might cause livelocks for no
+        // reason
+        TaskGroup.process(keys()).every(100).with(ThreadsHandler.saver()).using((loc) -> {
+            HeldValueLatch<TridentChunk> chunk = cachedChunks.get(loc);
+            TridentChunk rem;
+            if (chunk != null && chunk.hasValue()) {
+                rem = chunk.get();
+            } else {
+                // Remove the chunk once it is available
+                return;
+            }
 
-        keys().stream()
-                .filter(set::contains)
-                .forEach((l) -> {
-                    HeldValueLatch<TridentChunk> latch = cachedChunks.remove(l);
-                    latch.get().clear();
-                });
+            if (!locations.contains(loc) && chunk.hasValue()) {
+                world.loader().saveChunk(rem);
+                cachedChunks.remove(loc);
+            }
+        });
     }
 
     public Set<ChunkLocation> keys() {

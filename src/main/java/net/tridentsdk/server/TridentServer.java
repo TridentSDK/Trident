@@ -42,6 +42,7 @@ import org.slf4j.Logger;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.net.InetAddress;
+import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
 
@@ -64,6 +65,7 @@ public final class TridentServer implements Server {
 
     private final TridentWorldLoader worldLoader;
     private final AiHandler aiHandler;
+    private volatile DisplayInfo displayInfo;
 
     private TridentServer(JsonConfig config) {
         this.config = config;
@@ -73,6 +75,7 @@ public final class TridentServer implements Server {
         this.worldLoader = new TridentWorldLoader();
         this.console = new TridentConsole();
         this.aiHandler = new TridentAiHandler();
+        this.displayInfo = new DisplayInfo();
     }
 
     /**
@@ -115,7 +118,7 @@ public final class TridentServer implements Server {
     }
 
     public int compressionThreshold() {
-        return this.config.getInt("compression-threshold", Defaults.COMPRESSION_THRESHHOLD);
+        return this.config.getInt("compression-threshold", Defaults.COMPRESSION_THRESHOLD);
     }
 
     public int viewDistance() {
@@ -159,6 +162,8 @@ public final class TridentServer implements Server {
         TridentLogger.log("Saving worlds...");
         for (World world : worldLoader.worlds())
             ((TridentWorld) world).save();
+
+        TridentLogger.log("Kicking players...");
 
         for(Player player : TridentPlayer.players()) {
             ((TridentPlayer) player).kickPlayer("Server shutting down");
@@ -206,12 +211,11 @@ public final class TridentServer implements Server {
 
     @Override
     public DisplayInfo info() {
-        return new DisplayInfo() {
-            @Override
-            public int playerCount() {
-                return TridentPlayer.players().size();
-            }
-        };
+        return displayInfo;
+    }
+
+    public void setDisplayInfo(DisplayInfo displayInfo) {
+        this.displayInfo = displayInfo;
     }
 
     @Override
@@ -222,6 +226,11 @@ public final class TridentServer implements Server {
     @Override
     public Player playerBy(UUID id) {
         return TridentPlayer.getPlayer(id);
+    }
+
+    @Override
+    public Collection<Player> onlinePlayers() {
+        return TridentPlayer.players();
     }
 
     @Override

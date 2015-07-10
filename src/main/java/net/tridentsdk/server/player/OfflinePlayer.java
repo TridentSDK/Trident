@@ -20,6 +20,7 @@ package net.tridentsdk.server.player;
 
 import net.tridentsdk.GameMode;
 import net.tridentsdk.Position;
+import net.tridentsdk.Trident;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.Projectile;
 import net.tridentsdk.entity.living.Player;
@@ -157,8 +158,9 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     }
 
     public static CompoundTag generatePlayer(UUID id) {
-        // TODO this is temporary for testing
+        // DEBUG =====
         World defaultWorld = TridentServer.WORLD;
+        // =====
         Position spawnLocation = defaultWorld.spawnPosition();
         CompoundTagBuilder<NBTBuilder> builder = NBTBuilder.newBase(id.toString());
 
@@ -200,7 +202,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
         builder.intTag("PortalCooldown", 900);
 
         builder.stringTag("CustomName", "");
-        // does not apply to players
+        // does not apply to onlinePlayers
         //builder.byteTag("CustomNameVisible", (byte) 0);
 
         builder.byteTag("Silent", (byte) 0);
@@ -208,7 +210,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
         builder.compoundTag(new CompoundTag("Riding"));
 
         builder.intTag("Dimension", Dimension.OVERWORLD.asByte());
-        builder.intTag("playerGameType", GameMode.SURVIVAL.asByte());
+        builder.intTag("playerGameType", Trident.config().getByte("default-gamemode"));
         builder.intTag("Score", 0);
         builder.intTag("SelectedGameSlot", 0);
 
@@ -247,6 +249,13 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     }
 
     @Override
+    public void setGameMode(GameMode mode) {
+        this.gameMode = mode;
+        this.abilities.creative = (byte) ((mode == GameMode.CREATIVE) ? 1 : 0);
+        this.abilities.canFly =  (byte) ((mode == GameMode.CREATIVE) ? 1 : 0);
+    }
+
+    @Override
     public PlayerSpeed speedModifiers() {
         return playerSpeed;
     }
@@ -264,6 +273,13 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     @Override
     public String lastCommand() {
         return null;
+    }
+
+    @Override
+    public boolean isOperator() {
+        // DEBUG ===== Everyone is OP'd!
+        return true;
+        // =====
     }
 
     @Override

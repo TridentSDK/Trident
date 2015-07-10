@@ -37,7 +37,6 @@ import java.util.concurrent.ConcurrentHashMap;
 @ThreadSafe
 public final class EntityHandler {
     private static final Map<Integer, Entity> entities = new ConcurrentHashMap<>();
-    private final EntityTracker tracker = new EntityTracker();
 
     @InternalUseOnly
     private EntityHandler() {
@@ -83,7 +82,6 @@ public final class EntityHandler {
      * @param to     the new location
      */
     public void trackMovement(Entity entity, Position from, Position to) {
-        tracker.trackMovement(entity, from, to);
     }
 
     /**

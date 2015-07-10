@@ -18,9 +18,11 @@
 package net.tridentsdk.server.world;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 import com.google.common.io.ByteStreams;
-import net.tridentsdk.*;
+import net.tridentsdk.Defaults;
+import net.tridentsdk.Difficulty;
+import net.tridentsdk.GameMode;
+import net.tridentsdk.Position;
 import net.tridentsdk.base.Block;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.Projectile;
@@ -71,7 +73,7 @@ public class TridentWorld implements World {
     private static final int MAX_HEIGHT = 255;
     private static final int MAX_CHUNKS = 30_000_000;
 
-    private final ChunkCache loadedChunks = new ChunkCache(this);
+    public final ChunkCache loadedChunks = new ChunkCache(this);
     private final Set<Entity> entities = Factories.collect().createSet();
     private final String name;
     private final WorldLoader loader;
@@ -273,33 +275,25 @@ public class TridentWorld implements World {
                 thunderTime = ThreadLocalRandom.current().nextInt();
             }
 
-            for (Entity entity : entities) {
-                ((TridentEntity) entity).tick();
+            // Complex idiom saves a bit of time on large iterations #nanobenchmarking
+            if (time % Defaults.CHUNK_CLEAN_TICK_INTERVAL == 0) {
+                Set<ChunkLocation> retain = Factories.collect().createSet();
+                for (Entity entity : entities) {
+                    ((TridentEntity) entity).tick();
+
+                    if (entity instanceof Player) {
+                        retain.addAll(((TridentPlayer) entity).cleanChunks());
+                    }
+                }
+                loadedChunks.retain(retain);
+            } else {
+                for (Entity entity : entities) {
+                    ((TridentEntity) entity).tick();
+                }
             }
 
             time++;
             existed++;
-
-            if (time % Defaults.CHUNK_CLEAN_TICK_INTERVAL == 0) {
-                Set<ChunkLocation> set = Sets.newHashSet();
-                for (Entity entity : entities) {
-                    if (entity instanceof Player) {
-                        Position pos = entity.position();
-                        int x = (int) pos.x() / 16;
-                        int z = (int) pos.z() / 16;
-                        int viewDist = ((TridentPlayer) entity).viewDistance();
-
-                        for (int i = x - viewDist; i < x + viewDist; i++) {
-                            for (int j = z - viewDist; j < z + viewDist; j++) {
-                                set.add(ChunkLocation.create(i, j));
-                            }
-                        }
-                    }
-                }
-
-                loadedChunks.retain(set);
-                set = null;
-            }
         });
     }
 
@@ -363,12 +357,16 @@ public class TridentWorld implements World {
         for (TridentChunk chunk : loadedChunks()) {
             try {
                 RegionFile.fromPath(name, chunk.location()).saveChunkData(chunk);
+                System.out.println("saved " + chunk.x() + ":" + chunk.z());
             } catch (IOException | NBTException ex) {
                 TridentLogger.warn("Failed to save chunk at (" + chunk.x() +
                         "," + chunk.z() + "), printing stacktrace...");
                 TridentLogger.error(ex);
             }
         }
+
+        RegionFile.saveAll();
+        System.out.println("saved all");
     }
 
     private Entity internalSpawn(Entity entity) {
@@ -442,7 +440,7 @@ public class TridentWorld implements World {
             this.addChunkAt(location, chunk);
             chunk.generate();
             // DEBUG =====
-            TridentLogger.log("Generated chunk at (" + x + "," + z + ")");
+            //TridentLogger.log("Generated chunk at (" + x + "," + z + ")");
             // =====
 
             return chunk;

@@ -157,6 +157,8 @@ public class TridentWorldLoader implements WorldLoader {
         TridentWorld w = (TridentWorld) world;
 
         w.loadedChunks().forEach(this::saveChunk);
+        // TODO save player and entity data
+        // consider saving the STATE instead
     }
 
     @Override

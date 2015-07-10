@@ -17,8 +17,11 @@
 
 package net.tridentsdk.server.packets.status;
 
-import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.DisplayInfo;
+import net.tridentsdk.Trident;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
@@ -32,10 +35,10 @@ public class PacketStatusOutResponse extends OutPacket {
     /**
      * The actual response, represented in JSON in the protocol
      */
-    Response response;
+    DisplayInfo info;
 
     public PacketStatusOutResponse() {
-        this.response = new Response();
+        this.info = Trident.server().info();
     }
 
     @Override
@@ -43,57 +46,31 @@ public class PacketStatusOutResponse extends OutPacket {
         return 0x00;
     }
 
-    public Response response() {
-        return this.response;
+    public DisplayInfo info() {
+        return info;
     }
 
     @Override
     public void encode(ByteBuf buf) {
-        String json = new GsonBuilder().create().toJson(this.response);
-        Codec.writeString(buf, json);
-    }
+        // TODO event
 
-    public static class Response {
-        /**
-         * Information regarding players
-         */
-        final Players players = new Players();
-        /**
-         * Description is the MOTD
-         */
-        final Description description = new Description();
-        /**
-         * Version information
-         */
-        Version version = new Version();
+        JsonObject object = new JsonObject();
+        JsonObject players = new JsonObject();
+        JsonObject version = new JsonObject();
+        JsonObject motd = new JsonObject();
 
-        public static class Version {
-            /**
-             * Name of the version TODO make configurable
-             */
-            String name = "1.8";
-            /**
-             * Protocol version, 47 for 1.8
-             */
-            int protocol = 47;
-        }
+        players.add("max", new JsonPrimitive(info.maxPlayers()));
+        players.add("online", new JsonPrimitive(info.playerCount()));
 
-        public static class Players {
-            /**
-             * The slots of the server
-             */
-            int max = 10;
-            /**
-             * Amount of players online
-             */
-            int online = 5;
-        }
+        version.add("name", new JsonPrimitive(info.version()));
+        version.add("protocol", new JsonPrimitive(47));
 
-        public static class Description {
-            /**
-             * MOTD
-             */
-            String text = "default blah blah this is never going to show";
-        }
+        motd.add("text", new JsonPrimitive(info.motd()));
+
+        object.add("players", players);
+        object.add("version", version);
+        object.add("description", motd);
+
+        Codec.writeString(buf, object.toString());
     }
 }

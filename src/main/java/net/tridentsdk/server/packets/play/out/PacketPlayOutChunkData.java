@@ -23,13 +23,12 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 import net.tridentsdk.world.ChunkLocation;
 
 public class PacketPlayOutChunkData extends OutPacket {
+    // Do not read this
+    private final Object barrier;
     protected byte[] data;
     protected ChunkLocation chunkLocation;
     protected boolean continuous;
     protected short bitmask;
-
-    // Do not read this
-    private final Object barrier;
 
     public PacketPlayOutChunkData() {
         barrier = this;
@@ -71,9 +70,9 @@ public class PacketPlayOutChunkData extends OutPacket {
         buf.writeInt(this.chunkLocation.z());
 
         buf.writeBoolean(this.continuous);
-        buf.writeByte((int) this.bitmask);
+        buf.writeShort(this.bitmask);
 
-        Codec.writeVarInt32(buf, this.data.length);
-        buf.writeBytes(this.data);
+        Codec.writeVarInt32(buf, data.length);
+        buf.writeBytes(data);
     }
 }

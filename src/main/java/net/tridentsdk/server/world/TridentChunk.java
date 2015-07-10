@@ -33,7 +33,6 @@ import net.tridentsdk.world.gen.AbstractGenerator;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.lang.ref.SoftReference;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -42,15 +41,13 @@ import java.util.stream.Stream;
 public class TridentChunk implements Chunk {
     private final TridentWorld world;
     private final ChunkLocation location;
-
+    private final TaskExecutor executor = ThreadsHandler.chunkExecutor().scaledThread();
+    public volatile ChunkSection[] sections;
     private volatile int lastFileAccess;
     private volatile long lastModified;
     private volatile long inhabitedTime;
     private volatile byte lightPopulated;
     private volatile byte terrainPopulated;
-    public volatile SoftReference<ChunkSection[]> sections;
-
-    private final TaskExecutor executor = ThreadsHandler.chunkExecutor().scaledThread();
 
     protected TridentChunk(TridentWorld world, int x, int z) {
         this(world, ChunkLocation.create(x, z));
@@ -60,21 +57,15 @@ public class TridentChunk implements Chunk {
         this.world = world;
         this.location = coord;
         this.lastFileAccess = 0;
-        sections = new SoftReference<>(new ChunkSection[16]);
+        sections = new ChunkSection[16];
         /*for (int i = 0; i < 16; i ++) {
             sections[i] = new ChunkSection();
         }*/
     }
 
+    // TODO decide necessity, also TBD disk storage
     // IMPORTANT: MUST BE CALLED FROM executor
     private ChunkSection[] mapSections() {
-        ChunkSection[] sections = this.sections.get();
-        if (sections == null) {
-            sections = new ChunkSection[16];
-            this.sections = new SoftReference<>(sections);
-            generate();
-        }
-
         return sections;
     }
 
@@ -89,13 +80,10 @@ public class TridentChunk implements Chunk {
     @Override
     public void generate() {
         executor.addTask(() -> {
-            ChunkSection[] sections = this.sections.get();
-            if (sections == null) {
-                sections = new ChunkSection[16];
-                this.sections = new SoftReference<>(sections);
-            }
+            // Don't call mapSections, as this generates them
+            ChunkSection[] sections = this.sections;
 
-            for (int i = 0; i < 16; i ++) {
+            for (int i = 0; i < 16; i++) {
                 if (sections[i] == null) {
                     sections[i] = new ChunkSection();
                 }
@@ -117,13 +105,13 @@ public class TridentChunk implements Chunk {
                 i++;
             }
 
-            for (ChunkSection section: sections) {
+            for (ChunkSection section : sections) {
                 if (section.blockLight == null) {
-                    section.blockLight = new byte[ChunkSection.LENGTH/2];
+                    section.blockLight = new byte[ChunkSection.LENGTH / 2];
                 }
 
                 if (section.skyLight == null) {
-                    section.skyLight = new byte[ChunkSection.LENGTH/2];
+                    section.skyLight = new byte[ChunkSection.LENGTH / 2];
                 }
 
                 if (section.types == null) {
@@ -167,11 +155,7 @@ public class TridentChunk implements Chunk {
 
         try {
             return executor.submitTask(() -> {
-                ChunkSection[] sections = this.sections.get();
-                if (sections == null) {
-                    sections = new ChunkSection[16];
-                    this.sections = new SoftReference<>(sections);
-                }
+                ChunkSection[] sections = mapSections();
 
                 ChunkSection section = sections[WorldUtils.section(y)];
 
@@ -303,7 +287,7 @@ public class TridentChunk implements Chunk {
             }
         }
 
-        executor.addTask(() -> this.sections = new SoftReference<>(sections));
+        executor.addTask(() -> this.sections = sections);
 
         for (NBTTag t : entities.listTags()) {
             //TridentEntity entity = EntityBuilder.create().build(TridentEntity.class);
@@ -335,9 +319,7 @@ public class TridentChunk implements Chunk {
 
         ChunkSection[] sectionCopy = new ChunkSection[0];
         try {
-            sectionCopy = executor.submitTask(() -> {
-                return mapSections();
-            }).get();
+            sectionCopy = executor.submitTask(this::mapSections).get();
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
@@ -370,26 +352,6 @@ public class TridentChunk implements Chunk {
             section.types[index] = (char) ((type.asExtended() & 0xfff0) | metaData);
             section.skyLight[index] = skyLight;
             section.blockLight[index] = blockLight;
-        });
-    }
-
-    void clear() {
-        // We still care about thread safety!
-        executor.addTask(() -> {
-            ChunkSection[] sections = this.sections.get();
-            if (sections == null) {
-                return;
-            }
-
-            for (ChunkSection section : sections) {
-                if (section == null) {
-                    continue;
-                }
-
-                section.clear();
-            }
-
-            sections = null;
         });
     }
 }

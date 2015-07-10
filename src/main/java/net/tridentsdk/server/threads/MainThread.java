@@ -86,7 +86,7 @@ public class MainThread extends Thread {
 
         this.notLostTicksElapsed.getAndIncrement();
 
-        // Tick entities
+        // Entities are ticked by the world
         for (World world : Trident.worlds().values()) {
             ((TridentWorld) world).tick();
         }

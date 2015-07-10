@@ -150,7 +150,6 @@ public class PacketLoginInStart extends InPacket {
             connection.sendPacket(success);
             connection.setStage(Protocol.ClientStage.PLAY);
 
-            System.out.println("UUID: " + id);
             connection.setUuid(id);
             TridentPlayer.spawnPlayer(connection, id, name());
             return;

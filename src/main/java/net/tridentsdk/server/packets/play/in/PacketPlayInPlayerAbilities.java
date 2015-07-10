@@ -26,7 +26,6 @@ import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.player.PlayerConnection;
 import net.tridentsdk.server.player.TridentPlayer;
-import net.tridentsdk.util.TridentLogger;
 
 /**
  * Packet is sent when the player starts/stops flying with the second parameter changed accordingly. All other
@@ -86,11 +85,16 @@ public class PacketPlayInPlayerAbilities extends InPacket {
         boolean flying = (byte) (flags & 2) == 2;
 
         if(player.gameMode() == GameMode.CREATIVE || flying != player.isFlying()) {
-            PlayerToggleFlyingEvent toggleFly = new PlayerToggleFlyingEvent(player, flying);
+            PlayerToggleFlyingEvent toggleFly = new PlayerToggleFlyingEvent(player, flying, player.isFlyMode());
+
+            // if the player doesn't have fly mode and is attempting to fly, make the event default to cancelled
+            if (!player.isFlyMode() && flying) {
+                toggleFly.cancel(true);
+            }
 
             Handler.forEvents().fire(toggleFly);
 
-            player.setFlying(flying);
+            player.setFlying(!toggleFly.isIgnored());
         }
 
         // TODO: act accordingly

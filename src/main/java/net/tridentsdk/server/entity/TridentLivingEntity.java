@@ -221,7 +221,7 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
         super.load(tag);
 
         if (type() == EntityType.PLAYER) {
-            return; // players do not inherit the living entity or "mob" NBT structure
+            return; // onlinePlayers do not inherit the living entity or "mob" NBT structure
         }
 
         if (tag.containsTag("HealF")) {

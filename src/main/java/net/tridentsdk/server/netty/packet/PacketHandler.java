@@ -34,7 +34,7 @@ import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * The channel handler that is placed into the netty connection bootstrap to process inbound messages from clients (not
- * just players)
+ * just onlinePlayers)
  *
  * @author The TridentSDK Team
  */
@@ -86,6 +86,8 @@ public class PacketHandler extends SimpleChannelInboundHandler<PacketData> {
             if(!(packet instanceof PacketPlayInPlayerFall) && !(packet instanceof PacketPlayInPlayerMove))
                 TridentLogger.log("Received packet " + packet.getClass().getSimpleName());
             // =====
+
+            //TODO: add plugin registration for packet handling
 
             packet.handleReceived(this.connection);
 

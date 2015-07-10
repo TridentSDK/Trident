@@ -18,7 +18,6 @@
 package net.tridentsdk.server.world;
 
 import com.google.common.math.IntMath;
-import net.tridentsdk.concurrent.ConcurrentCache;
 import net.tridentsdk.meta.nbt.CompoundTag;
 import net.tridentsdk.meta.nbt.NBTDecoder;
 import net.tridentsdk.meta.nbt.NBTEncoder;
@@ -32,15 +31,15 @@ import java.math.RoundingMode;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.BitSet;
-import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.zip.*;
 
 /**
  * Represents a Region File (in region/ directory) in memory
  */
 public class RegionFile {
-    private static final ConcurrentCache<Path, RegionFile> FILE_CACHE = ConcurrentCache.create();
+    private static final ConcurrentMap<Path, RegionFile> FILE_CACHE = new ConcurrentHashMap<>();
 
     //The path to the region file
     final Path path;
@@ -97,7 +96,26 @@ public class RegionFile {
     public static RegionFile fromPath(String name, ChunkLocation location) {
         final Path path = Paths.get(name + "/region/", WorldUtils.regionFile(location));
 
-        return FILE_CACHE.retrieve(path, () -> new RegionFile(path));
+        return FILE_CACHE.computeIfAbsent(path, (k) -> {
+            try {
+                return new RegionFile(path);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        });
+    }
+
+    public static void saveAll() {
+        FILE_CACHE.values().forEach((regionFile) -> {
+            try {
+                regionFile.saveSectorData();
+            } catch (IOException ex) {
+                TridentLogger.warn("Unable to save sector data! Printing stacktrace...");
+                TridentLogger.error(ex);
+            }
+        });
     }
 
     /**
@@ -219,13 +237,27 @@ public class RegionFile {
         return chunk;
     }
 
+    public void saveSectorData() throws IOException {
+        synchronized (readWriteLock) {
+            RandomAccessFile access = new RandomAccessFile(this.path.toFile(), "rw");
+
+            access.seek(0);
+
+            for (int offset : sectors.offsets)
+                access.writeInt(offset);
+
+            access.close();
+        }
+    }
+
     /**
      * Pass in a chunk to save its data to the file
      */
     public void saveChunkData(TridentChunk chunk) throws IOException, NBTException {
         /* Gets the Chunk in a byte array form */
+        CompoundTag tag = chunk.asNbt();
         ByteArrayOutputStream nbtStream = new ByteArrayOutputStream();
-        new NBTEncoder(new DataOutputStream(nbtStream)).encode(chunk.asNbt());
+        new NBTEncoder(new DataOutputStream(nbtStream)).encode(tag);
         byte[] uncompressed = nbtStream.toByteArray();
 
         /* Gonna only use Zlib compression by default */
@@ -256,20 +288,20 @@ public class RegionFile {
             //Clears up all the now-free sectors
             this.sectors.freeSectors(this.sectors.sectorOffset(chunk) + sectorLength - 1,
                     oldSectorLength - sectorLength);
-        }
-        //If the length is bigger, we need to find a new location!
-        else if (sectorLength > oldSectorLength) {
+        }  else if (sectorLength > oldSectorLength) {
             this.sectors.setDataSectors(chunk, sectors.rawOffset(chunk) | sectorLength);
 
-            //Clears up all the space previously used by this chunk (we need to find a new space!
+            //Clears up all the space previously used by this chunk (we need to find a new space!)
             this.sectors.freeSectors(this.sectors.sectorOffset(chunk), oldSectorLength);
 
             //Finds a new free location
-            this.sectors.setSectorOffset(chunk, this.sectors.findFreeSectors(sectorLength));
-        }
+            int newLocation = sectors.findFreeSectors(sectorLength);
+            int offsetLoc = sectors.offsetLoc(chunk);
 
-        //Update what sectors are being used
-        this.sectors.addSectors(this.sectors.sectorOffset(chunk), this.sectors.dataSectors(chunk));
+            // update offset to new location
+            sectors.offsets[offsetLoc] = (newLocation << 8);
+            sectors.addSectors(newLocation, sectorLength);
+        }
 
         synchronized (this.readWriteLock) {
             /* Write the actual chunk data */
@@ -298,6 +330,10 @@ public class RegionFile {
             //Pack the file as in the specifications
             this.packFile(access);
 
+            access.seek((long) sectors.timeStampLoc(chunk));
+
+            access.writeInt((int) (System.currentTimeMillis() / 1000L));
+
             //Finished writing the chunk
             access.close();
         }
@@ -310,8 +346,8 @@ public class RegionFile {
         //The length of a Sector in bytes
         private static final int SECTOR_LENGTH = 4096;
 
-        //The mapping of which sectors are free/not free (true is occupied)
-        private final BitSet sectorMapping;
+        //The mapping of which sectors are free/not free (1 is occupied)
+        private final byte[] sectorMapping;
         //A cache of the locationOffsets
         private final int[] offsets;
 
@@ -319,10 +355,10 @@ public class RegionFile {
             this.offsets = offsets;
 
             //Random starting capacity for now
-            this.sectorMapping = new BitSet(1024);
+            this.sectorMapping = new byte[1024];
             //The first two sectors are reserved for the header
-            this.sectorMapping.set(0);
-            this.sectorMapping.set(1);
+            sectorMapping[0] = 1;
+            sectorMapping[1] = 1;
             //Set what sectors are initially taken up
 
             for (int offset : offsets) {
@@ -330,7 +366,7 @@ public class RegionFile {
                 int length = offset & 0xFF;
 
                 for (int j = loc; j < loc + length; j++) {
-                    this.sectorMapping.set(j);
+                    sectorMapping[j] = 1;
                 }
             }
         }
@@ -346,16 +382,18 @@ public class RegionFile {
             int counter = 2;
             int consecutive = 0;
 
-            while (true) {
-                if (!this.sectorMapping.get(counter)) {
+            while (consecutive < length) {
+                if (sectorMapping[counter] != 1) {
                     consecutive++;
 
-                    if (consecutive >= length) {
+                    if (consecutive == length) {
                         break;
                     }
                 } else {
                     consecutive = 0;
                 }
+
+                counter++;
             }
 
             return counter;
@@ -369,7 +407,7 @@ public class RegionFile {
          */
         void freeSectors(int start, int length) {
             for (int i = start; i < start + length; i++) {
-                this.sectorMapping.set(i, false);
+                sectorMapping[i] = 0;
             }
         }
 
@@ -381,7 +419,7 @@ public class RegionFile {
          */
         void addSectors(int start, int length) {
             for (int i = start; i < start + length; i++) {
-                this.sectorMapping.set(i, true);
+                sectorMapping[i] = 1;
             }
         }
 
