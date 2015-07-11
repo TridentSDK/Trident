@@ -37,21 +37,60 @@ import java.util.zip.InflaterInputStream;
  * Represents a Region File (in region/ directory) in memory
  */
 public class RegionFile {
-    static final int CHUNK_HEADER_SIZE = 5;
     private static final ConcurrentMap<Path, RegionFile> FILE_CACHE = new ConcurrentHashMap<>();
+
     private static final int VERSION_GZIP = 1;
     private static final int VERSION_DEFLATE = 2;
+
     private static final int SECTOR_BYTES = 4096;
     private static final int SECTOR_INTS = SECTOR_BYTES / 4;
+
+    static final int CHUNK_HEADER_SIZE = 5;
     private static final byte emptySector[] = new byte[4096];
 
     private final File fileName;
+    private RandomAccessFile file;
     private final int offsets[];
     private final int chunkTimestamps[];
-    private RandomAccessFile file;
     private ArrayList<Boolean> sectorFree;
     private int sizeDelta;
     private long lastModified = 0;
+
+    public static RegionFile fromPath(String name, ChunkLocation location) {
+        final Path path = Paths.get(name + "/region/", WorldUtils.regionFile(location));
+        return FILE_CACHE.computeIfAbsent(path, (k) -> new RegionFile(k.toFile()));
+    }
+
+    public TridentChunk loadChunkData(TridentWorld world, ChunkLocation location) {
+        DataInputStream dis = getChunkDataInputStream(location.x() & 31, location.z() & 31);
+        if (dis == null) return null;
+
+        try {
+            CompoundTag chunkRoot = new NBTDecoder(dis).decode();
+            TridentChunk chunk = new TridentChunk(world, location);
+            chunk.load(chunkRoot);
+
+            return chunk;
+        } catch (NBTException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public void saveChunkData(TridentChunk chunk) {
+        ChunkLocation loc = chunk.location();
+        CompoundTag chunkRoot = chunk.asNbt();
+        DataOutputStream dos = getChunkDataOutputStream(loc.x() & 31, loc.z() & 31);
+        NBTEncoder encoder = new NBTEncoder(dos);
+        try {
+            encoder.encode(chunkRoot);
+        } catch (NBTException e) {
+            e.printStackTrace();
+        }
+    }
+
+    ////////////////////////////// ACTUAL FILE /////////////////////////////
 
     public RegionFile(File path) {
         offsets = new int[SECTOR_INTS];
@@ -91,7 +130,7 @@ public class RegionFile {
 
             /* set up the available sector map */
             int nSectors = (int) file.length() / SECTOR_BYTES;
-            sectorFree = new ArrayList<>(nSectors);
+            sectorFree = new ArrayList<Boolean>(nSectors);
 
             for (int i = 0; i < nSectors; ++i) {
                 sectorFree.add(true);
@@ -119,53 +158,6 @@ public class RegionFile {
         }
     }
 
-    public static RegionFile fromPath(String name, ChunkLocation location) {
-        final Path path = Paths.get(name + "/region/", WorldUtils.regionFile(location));
-        return FILE_CACHE.computeIfAbsent(path, (k) -> new RegionFile(k.toFile()));
-    }
-
-    public TridentChunk loadChunkData(TridentWorld world, ChunkLocation location) {
-        DataInputStream dis = getChunkDataInputStream(location.x(), location.z());
-        if (dis == null) return null;
-
-        try {
-            CompoundTag chunkRoot = new NBTDecoder(dis).decode();
-            TridentChunk chunk = new TridentChunk(world, location);
-            chunk.load(chunkRoot);
-
-            return chunk;
-        } catch (NBTException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        return null;
-    }
-
-    ////////////////////////////// ACTUAL FILE /////////////////////////////
-
-    public void saveChunkData(TridentChunk chunk) {
-        ChunkLocation loc = chunk.location();
-        CompoundTag chunkRoot = chunk.asNbt();
-        NBTEncoder encoder = new NBTEncoder(getChunkDataOutputStream(loc.x(), loc.z()));
-        try {
-            encoder.encode(chunkRoot);
-        } catch (NBTException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
     /* the modification date of the region file when it was first opened */
     public long lastModified() {
         return lastModified;
@@ -180,7 +172,7 @@ public class RegionFile {
 
     // various small debug printing helpers
     private void debug(String in) {
-        System.out.print(in);
+        throw new IllegalStateException(in);
     }
 
     private void debugln(String in) {
@@ -204,6 +196,11 @@ public class RegionFile {
      * the chunk is not found or an error occurs
      */
     public synchronized DataInputStream getChunkDataInputStream(int x, int z) {
+        if (outOfBounds(x, z)) {
+            debugln("READ", x, z, "out of bounds");
+            return null;
+        }
+
         try {
             int offset = getOffset(x, z);
             if (offset == 0) {
@@ -232,7 +229,7 @@ public class RegionFile {
                 byte[] data = new byte[length - 1];
                 file.read(data);
                 DataInputStream ret = new DataInputStream(new GZIPInputStream(new ByteArrayInputStream(data)));
-                // debug("READ", x, z, " = found");
+                debug("READ", x, z, " = found");
                 return ret;
             } else if (version == VERSION_DEFLATE) {
                 byte[] data = new byte[length - 1];
@@ -251,7 +248,27 @@ public class RegionFile {
     }
 
     public DataOutputStream getChunkDataOutputStream(int x, int z) {
+        if (outOfBounds(x, z)) return null;
+
         return new DataOutputStream(new DeflaterOutputStream(new ChunkBuffer(x, z)));
+    }
+
+    /*
+     * lets chunk writing be multithreaded by not locking the whole file as a
+     * chunk is serializing -- only writes when serialization is over
+     */
+    class ChunkBuffer extends ByteArrayOutputStream {
+        private int x, z;
+
+        public ChunkBuffer(int x, int z) {
+            super(8096); // initialize to 8KB
+            this.x = x;
+            this.z = z;
+        }
+
+        public void close() {
+            RegionFile.this.write(x, z, buf, count);
+        }
     }
 
     /* write a chunk at (x,z) with length bytes of data to disk */
@@ -339,12 +356,13 @@ public class RegionFile {
         file.write(data, 0, length); // chunk data
     }
 
-    private int offset(int x, int z) {
-        return (x & 31) + (z & 31) * 32;
+    /* is this an invalid chunk coordinate? */
+    private boolean outOfBounds(int x, int z) {
+        return x < 0 || x >= 32 || z < 0 || z >= 32;
     }
 
     private int getOffset(int x, int z) {
-        return offsets[offset(x, z)];
+        return offsets[x + z * 32];
     }
 
     public boolean hasChunk(int x, int z) {
@@ -352,36 +370,18 @@ public class RegionFile {
     }
 
     private void setOffset(int x, int z, int offset) throws IOException {
-        offsets[offset(x, z)] = offset;
-        file.seek(offset(x, z) * 4);
+        offsets[x + z * 32] = offset;
+        file.seek((x + z * 32) * 4);
         file.writeInt(offset);
     }
 
     private void setTimestamp(int x, int z, int value) throws IOException {
-        chunkTimestamps[offset(x, z)] = value;
-        file.seek(SECTOR_BYTES + offset(x, z) * 4);
+        chunkTimestamps[x + z * 32] = value;
+        file.seek(SECTOR_BYTES + (x + z * 32) * 4);
         file.writeInt(value);
     }
 
     public void close() throws IOException {
         file.close();
-    }
-
-    /*
-     * lets chunk writing be multithreaded by not locking the whole file as a
-     * chunk is serializing -- only writes when serialization is over
-     */
-    class ChunkBuffer extends ByteArrayOutputStream {
-        private int x, z;
-
-        public ChunkBuffer(int x, int z) {
-            super(8096); // initialize to 8KB
-            this.x = x;
-            this.z = z;
-        }
-
-        public void close() {
-            RegionFile.this.write(x, z, buf, count);
-        }
     }
 }
