@@ -82,11 +82,15 @@ public class PacketPlayInBlockPlace extends InPacket {
 
         location.setWorld(player.world());
 
+        System.out.printf("Is he at (%s, %s, %s)\n", player.position().x(), player.position().y(), player.position().z());
+        if (location.y() >= 4095) {
+            // Illegal block position
+            return;
+        }
+
         Substance substance = player.heldItem().type();
         if (substance != Substance.AIR) {
             location().block().setSubstance(substance);
         }
-
-        System.out.printf("Is he at (%s, %s, %s)\n", player.position().x(), player.position().y(), player.position().z());
     }
 }

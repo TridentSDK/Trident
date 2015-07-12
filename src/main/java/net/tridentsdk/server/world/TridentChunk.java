@@ -158,7 +158,8 @@ public class TridentChunk implements Chunk {
             return executor.submitTask(() -> {
                 ChunkSection[] sections = mapSections();
 
-                ChunkSection section = sections[WorldUtils.section(y)];
+                int sectionIndex = WorldUtils.section(y);
+                ChunkSection section = sections[sectionIndex];
 
                 /* Get block data; use extras accordingly */
                 byte b = (byte) (section.types[index] >> 4);
