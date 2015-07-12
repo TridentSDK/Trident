@@ -52,6 +52,7 @@ public class PacketPlayInBlockPlace extends InPacket {
         this.direction = buf.readByte();
 
         // ignore held item
+        // TODO possible NBT
         for (int i = 0; i < buf.readableBytes() - 3; i++) {
             buf.readByte();
         }
@@ -80,17 +81,49 @@ public class PacketPlayInBlockPlace extends InPacket {
     public void handleReceived(ClientConnection connection) {
         TridentPlayer player = ((PlayerConnection) connection).player();
 
-        location.setWorld(player.world());
-
-        System.out.printf("Is he at (%s, %s, %s)\n", player.position().x(), player.position().y(), player.position().z());
         if (location.y() >= 4095) {
             // Illegal block position
             return;
         }
 
+        // TODO Check if it is a held item, in that case, perform an interaction
+        // or eat food or pull bow or release/obtain water in a bucket, etc
+
         Substance substance = player.heldItem().type();
+        if (!substance.isBlock()) {
+            // TODO
+        }
+
         if (substance != Substance.AIR) {
-            location().block().setSubstance(substance);
+            int x = (int) location.x();
+            int y = (int) location.y();
+            int z = (int) location.z();
+
+            switch (blockDirection()) {
+                case 0:
+                    y--;
+                    break;
+                case 1:
+                    y++;
+                    break;
+                case 2:
+                    z--;
+                    break;
+                case 3:
+                    z++;
+                    break;
+                case 4:
+                    x--;
+                    break;
+                case 5:
+                    x++;
+                    break;
+                default:
+                    throw new IllegalArgumentException("Offset not within range");
+            }
+
+            Position position = Position.create(player.world(), x, y, z);
+            position.block().setSubstance(substance);
         }
     }
 }
