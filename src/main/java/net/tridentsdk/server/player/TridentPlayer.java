@@ -27,6 +27,7 @@ import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.player.PlayerJoinEvent;
 import net.tridentsdk.factory.Factories;
+import net.tridentsdk.meta.ChatColor;
 import net.tridentsdk.meta.MessageBuilder;
 import net.tridentsdk.meta.nbt.CompoundTag;
 import net.tridentsdk.server.TridentServer;
@@ -204,6 +205,8 @@ public class TridentPlayer extends OfflinePlayer {
 
         for (Player player : players()) {
             TridentPlayer p = (TridentPlayer) player;
+            new MessageBuilder(name + " has joined the server").color(ChatColor.YELLOW).build().sendTo(player);
+
             if (!p.equals(this)) {
                 ProtocolMetadata metadata = new ProtocolMetadata();
                 encodeMetadata(metadata);
@@ -271,7 +274,7 @@ public class TridentPlayer extends OfflinePlayer {
     @Override
     protected void doRemove() {
         ONLINE_PLAYERS.remove(this.uniqueId());
-        players().forEach((player) -> player.sendRaw(name + " has left the server"));
+        players().forEach((player) -> player.sendMessage(ChatColor.YELLOW + name + " has left the server"));
         TridentLogger.log(name + " has left the server");
     }
 
@@ -297,7 +300,7 @@ public class TridentPlayer extends OfflinePlayer {
          * TODO: Create Message API and utilize it
          */
     public void kickPlayer(String reason) {
-        connection.sendPacket(new PacketPlayOutDisconnect().set("reason", reason));
+        connection.sendPacket(new PacketPlayOutDisconnect().set("reason", new MessageBuilder(reason).asJson()));
         TridentLogger.log(name + " was kicked for " + reason);
     }
 
@@ -332,9 +335,9 @@ public class TridentPlayer extends OfflinePlayer {
 
     @Override
     public void sendMessage(String message) {
-        sendRaw(new MessageBuilder(message)
+        new MessageBuilder(message)
                 .build()
-                .asJson());
+                .sendTo(this);
     }
 
     @Override

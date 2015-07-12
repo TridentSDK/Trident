@@ -371,6 +371,7 @@ public class ClientConnection {
         Handler.forEvents().fire(new PlayerDisconnectEvent(p));
         p.remove();
         clientData.remove(this.address);
+
         this.channel.close();
     }
 }
