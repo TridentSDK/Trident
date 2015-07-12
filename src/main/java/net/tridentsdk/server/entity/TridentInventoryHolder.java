@@ -53,12 +53,16 @@ public abstract class TridentInventoryHolder extends TridentLivingEntity impleme
 
     @Override
     public Item heldItem() {
-        return inventory.itemAt(selectedSlot + 36);
+        return inventory.itemAt(TridentPlayer.SLOT_OFFSET + selectedSlot);
     }
 
     @Override
     public void setHeldItem(Item item) {
         inventory.setSlot(TridentPlayer.SLOT_OFFSET + selectedSlot, item);
+    }
+
+    public void setSelectedSlot(int selectedSlot) {
+        this.selectedSlot = selectedSlot;
     }
 
     @Override

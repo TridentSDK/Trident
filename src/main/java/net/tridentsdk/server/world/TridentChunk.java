@@ -158,7 +158,7 @@ public class TridentChunk implements Chunk {
             return executor.submitTask(() -> {
                 ChunkSection[] sections = mapSections();
 
-                ChunkSection section = sections[WorldUtils.section(y % 16)];
+                ChunkSection section = sections[WorldUtils.section(y)];
 
                 /* Get block data; use extras accordingly */
                 byte b = (byte) (section.types[index] >> 4);
@@ -344,11 +344,12 @@ public class TridentChunk implements Chunk {
 
     public void setAt(int x, final int y, int z, final Substance type, final byte metaData, final byte skyLight,
                       final byte blockLight) {
+        System.out.printf("Player placed at (%s, %s, %s) with %s?\n", x, y, z, type.name());
         final int index = WorldUtils.blockArrayIndex(x % 16, y % 16, z % 16);
         executor.addTask(() -> {
             ChunkSection[] sections = mapSections();
 
-            ChunkSection section = sections[WorldUtils.section(y % 16)];
+            ChunkSection section = sections[WorldUtils.section(y)];
 
             section.types[index] = (char) ((type.asExtended() & 0xfff0) | metaData);
             NibbleArray.set(section.skyLight, index, skyLight);

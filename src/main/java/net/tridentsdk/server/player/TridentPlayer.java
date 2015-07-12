@@ -274,7 +274,8 @@ public class TridentPlayer extends OfflinePlayer {
     @Override
     protected void doRemove() {
         ONLINE_PLAYERS.remove(this.uniqueId());
-        players().forEach((player) -> player.sendMessage(ChatColor.YELLOW + name + " has left the server"));
+        players().forEach(p ->
+                new MessageBuilder(name + " has left the server").color(ChatColor.YELLOW).build().sendTo(p));
         TridentLogger.log(name + " has left the server");
     }
 
@@ -329,8 +330,8 @@ public class TridentPlayer extends OfflinePlayer {
 
         TridentPlayer.super.selectedSlot = slot;
 
-        // The default slot IDs set the hotbar at 36 = 0 and 44 = 8
-        setHeldItem(inventory.itemAt(SLOT_OFFSET + slot));
+        setSelectedSlot(slot);
+        setHeldItem(heldItem()); // Updates inventory
     }
 
     @Override

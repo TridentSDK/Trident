@@ -86,5 +86,7 @@ public class PacketPlayInBlockPlace extends InPacket {
         if (substance != Substance.AIR) {
             location().block().setSubstance(substance);
         }
+
+        System.out.printf("Is he at (%s, %s, %s)\n", player.position().x(), player.position().y(), player.position().z());
     }
 }
