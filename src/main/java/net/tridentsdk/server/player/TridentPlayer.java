@@ -29,7 +29,6 @@ import net.tridentsdk.event.player.PlayerJoinEvent;
 import net.tridentsdk.factory.Factories;
 import net.tridentsdk.meta.MessageBuilder;
 import net.tridentsdk.meta.nbt.CompoundTag;
-import net.tridentsdk.meta.nbt.IntTag;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.data.MetadataType;
 import net.tridentsdk.server.data.ProtocolMetadata;
@@ -72,6 +71,7 @@ public class TridentPlayer extends OfflinePlayer {
         super(uuid, tag, world);
 
         this.connection = PlayerConnection.createPlayerConnection(connection, this);
+        this.gameMode = GameMode.CREATIVE;
     }
 
     public static void sendAll(Packet packet) {
@@ -102,7 +102,7 @@ public class TridentPlayer extends OfflinePlayer {
 
         p.name = name;
 
-        p.gameMode = GameMode.gamemodeOf(((IntTag) playerTag.getTag("playerGameType")).value());
+        //p.gameMode = GameMode.gamemodeOf(((IntTag) playerTag.getTag("playerGameType")).value());
 
         p.executor.execute(() -> {
             p.connection.sendPacket(new PacketPlayOutJoinGame().set("entityId", p.entityId())
@@ -198,7 +198,7 @@ public class TridentPlayer extends OfflinePlayer {
         connection.sendPacket(new PacketPlayOutEntityVelocity()
                 .set("entityId", entityId())
                 .set("velocity", new Vector(0, -0.07, 0)));
-        connection.sendPacket(new PacketPlayOutGameStateChange().set("reason", 3).set("value", (float) GameMode.CREATIVE.asByte()));
+        connection.sendPacket(new PacketPlayOutGameStateChange().set("reason", 3).set("value", (float) gameMode().asByte()));
         TridentServer.WORLD.addEntity(this); // TODO
         Handler.forEvents().fire(new PlayerJoinEvent(this));
 
@@ -316,6 +316,8 @@ public class TridentPlayer extends OfflinePlayer {
         return this.connection;
     }
 
+    public static final int SLOT_OFFSET = 35;
+
     public void setSlot(final short slot) {
         if ((int) slot > 8 || (int) slot < 0) {
             TridentLogger.error(new IllegalArgumentException("Slot must be within the ranges of 0-8"));
@@ -323,6 +325,9 @@ public class TridentPlayer extends OfflinePlayer {
         }
 
         TridentPlayer.super.selectedSlot = slot;
+
+        // The default slot IDs set the hotbar at 36 = 0 and 44 = 8
+        setHeldItem(inventory.itemAt(SLOT_OFFSET + slot));
     }
 
     @Override

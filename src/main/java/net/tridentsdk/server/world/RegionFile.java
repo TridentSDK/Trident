@@ -21,6 +21,7 @@ import net.tridentsdk.meta.nbt.CompoundTag;
 import net.tridentsdk.meta.nbt.NBTDecoder;
 import net.tridentsdk.meta.nbt.NBTEncoder;
 import net.tridentsdk.meta.nbt.NBTException;
+import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.ChunkLocation;
 
 import java.io.*;
@@ -172,7 +173,7 @@ public class RegionFile {
 
     // various small debug printing helpers
     private void debug(String in) {
-        throw new IllegalStateException(in);
+        TridentLogger.warn(in);
     }
 
     private void debugln(String in) {

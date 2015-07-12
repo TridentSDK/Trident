@@ -83,6 +83,7 @@ public class PlayerConnection extends ClientConnection {
      * @return the player that is wrapped
      */
     public TridentPlayer player() {
+        while (player == null) ; // IO thread can afford to busy wait
         return this.player;
     }
 

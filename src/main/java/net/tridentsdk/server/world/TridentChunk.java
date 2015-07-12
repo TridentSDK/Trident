@@ -25,6 +25,7 @@ import net.tridentsdk.concurrent.TaskExecutor;
 import net.tridentsdk.meta.nbt.*;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutChunkData;
 import net.tridentsdk.server.threads.ThreadsHandler;
+import net.tridentsdk.util.NibbleArray;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.Chunk;
 import net.tridentsdk.world.ChunkLocation;
@@ -157,7 +158,7 @@ public class TridentChunk implements Chunk {
             return executor.submitTask(() -> {
                 ChunkSection[] sections = mapSections();
 
-                ChunkSection section = sections[WorldUtils.section(y)];
+                ChunkSection section = sections[WorldUtils.section(y % 16)];
 
                 /* Get block data; use extras accordingly */
                 byte b = (byte) (section.types[index] >> 4);
@@ -347,11 +348,11 @@ public class TridentChunk implements Chunk {
         executor.addTask(() -> {
             ChunkSection[] sections = mapSections();
 
-            ChunkSection section = sections[WorldUtils.section(y)];
+            ChunkSection section = sections[WorldUtils.section(y % 16)];
 
             section.types[index] = (char) ((type.asExtended() & 0xfff0) | metaData);
-            section.skyLight[index] = skyLight;
-            section.blockLight[index] = blockLight;
+            NibbleArray.set(section.skyLight, index, skyLight);
+            NibbleArray.set(section.blockLight, index, blockLight);
         });
     }
 }

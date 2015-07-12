@@ -18,6 +18,7 @@
 package net.tridentsdk.server.window;
 
 import net.tridentsdk.Handler;
+import net.tridentsdk.base.Substance;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.factory.Factories;
 import net.tridentsdk.server.data.Slot;
@@ -29,6 +30,7 @@ import net.tridentsdk.server.packets.play.out.PacketPlayOutSetSlot;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.util.WeakEntity;
 import net.tridentsdk.window.Window;
+import net.tridentsdk.window.inventory.Inventory;
 import net.tridentsdk.window.inventory.InventoryType;
 import net.tridentsdk.window.inventory.Item;
 
@@ -43,7 +45,7 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
  * @author The TridentSDK Team
  */
 @ThreadSafe
-public class TridentWindow implements Window {
+public class TridentWindow implements Window, Inventory {
     /**
      * Counter for window ids, initial value is 2 to avoid confusion with a window and a player inventory
      */
@@ -67,6 +69,10 @@ public class TridentWindow implements Window {
         this.length = length;
         this.id = counter.addAndGet(1);
         this.contents = new AtomicReferenceArray<>(length);
+        for (int i = 0; i < contents.length(); i++) {
+            contents.set(i, new Item(Substance.AIR));
+        }
+
         this.type = type;
     }
 

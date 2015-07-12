@@ -40,9 +40,11 @@ import java.util.function.Consumer;
  */
 @NotThreadSafe
 public class TaskGroup<T> {
+    private static final ExecutorFactory FACTORY = ConcurrentTaskExecutor.create(2, "Task Group Def");
+
     private final Collection<T> items;
-    private int per;
-    private ExecutorFactory factory;
+    private int per = 4;
+    private ExecutorFactory factory = FACTORY;
 
     private TaskGroup(Collection<T> items) {
         this.items = items;
@@ -88,10 +90,7 @@ public class TaskGroup<T> {
      */
     public void using(Consumer<T> consumer) {
         Iterator<T> iterator = items.iterator();
-
-        // Figure out how many we need, and add one if there are remainders
-        int partitions = (items.size() / per) + (((items.size() % per) != 0) ? 1 : 0);
-        Iterator<List<T>> parted = Iterators.partition(iterator, partitions);
+        Iterator<List<T>> parted = Iterators.partition(iterator, per);
 
         while (parted.hasNext()) {
             List<T> list = parted.next();

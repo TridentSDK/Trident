@@ -18,6 +18,7 @@
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.GameMode;
 import net.tridentsdk.Handler;
 import net.tridentsdk.Position;
 import net.tridentsdk.base.Block;
@@ -76,6 +77,10 @@ public class PacketPlayInPlayerDig extends InPacket {
         TridentPlayer player = ((PlayerConnection) connection).player();
         DigStatus digStatus = DigStatus.getStatus(this.status);
         BlockOrientation face = null;
+
+        if (digStatus == DigStatus.DIG_START && player.gameMode() == GameMode.CREATIVE) {
+            digStatus = DigStatus.DIG_FINISH;
+        }
 
         this.location.setWorld(player.world());
 

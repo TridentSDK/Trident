@@ -25,11 +25,11 @@ import net.tridentsdk.window.inventory.Item;
 
 public class Slot implements Writable, NBTSerializable {
     @NBTField(name = "id", type = TagType.SHORT)
-    protected short id;
-    protected Substance mat;
+    protected volatile short id;
+    protected volatile Substance mat;
 
     @NBTField(name = "Slot", type = TagType.BYTE)
-    protected byte slot;
+    protected volatile byte slot;
     @NBTField(name = "Count", type = TagType.BYTE)
     protected volatile byte quantity;
     @NBTField(name = "Damage", type = TagType.SHORT)
@@ -38,7 +38,7 @@ public class Slot implements Writable, NBTSerializable {
     protected volatile CompoundTag compoundTag;
 
     public Slot(ByteBuf buf) {
-        this.id = (short) buf.readByte();
+        this.id = buf.readShort();
         this.mat = Substance.fromId((byte) this.id);
 
         if (this.id == -1) {
@@ -141,7 +141,7 @@ public class Slot implements Writable, NBTSerializable {
     }
 
     public Item item() {
-        Item is = new Item(Substance.fromStringId(String.valueOf(id)));
+        Item is = new Item(mat);
 
         is.setQuantity(quantity);
         is.setDamageValue(damageValue);
