@@ -141,7 +141,6 @@ public class TridentPlayer extends OfflinePlayer {
 
             players().stream().filter((player) -> !player.equals(p))
                     .forEach((player) -> builders.add(((TridentPlayer) player).listData()));
-            //players().forEach((player) -> player.sendMessage(p.name + " has joined the server"));
             TridentLogger.log(p.name + " has joined the server");
 
             p.connection.sendPacket(new PacketPlayOutPlayerListItem()

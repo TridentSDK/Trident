@@ -20,7 +20,7 @@ package net.tridentsdk.server.world;
 
 import net.tridentsdk.Trident;
 import net.tridentsdk.docs.InternalUseOnly;
-import net.tridentsdk.server.world.gen.DefaultWorldGen;
+import net.tridentsdk.server.world.gen.FlatWorldGen;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.Chunk;
 import net.tridentsdk.world.ChunkLocation;
@@ -45,7 +45,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author The TridentSDK Team
  */
 public class TridentWorldLoader implements WorldLoader {
-    private static final AbstractGenerator DEFAULT_GEN = new DefaultWorldGen();
+    private static final AbstractGenerator DEFAULT_GEN = new FlatWorldGen();
     private static final Map<String, TridentWorld> worlds = new ConcurrentHashMap<>();
     private final AbstractGenerator generator;
 

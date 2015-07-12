@@ -80,24 +80,23 @@ public class PacketPlayInBlockPlace extends InPacket {
     @Override
     public void handleReceived(ClientConnection connection) {
         TridentPlayer player = ((PlayerConnection) connection).player();
+        location.setWorld(player.world());
 
         if (location.y() >= 4095) {
             // Illegal block position
             return;
         }
 
-        // TODO Check if it is a held item, in that case, perform an interaction
-        // or eat food or pull bow or release/obtain water in a bucket, etc
-
         Substance substance = player.heldItem().type();
         if (!substance.isBlock()) {
             // TODO
+            // eat food or pull bow or release/obtain water in a bucket, etc
         }
 
         if (substance != Substance.AIR) {
-            int x = (int) location.x();
-            int y = (int) location.y();
-            int z = (int) location.z();
+            int x = 0;
+            int y = 0;
+            int z = 0;
 
             switch (blockDirection()) {
                 case 0:
@@ -122,7 +121,7 @@ public class PacketPlayInBlockPlace extends InPacket {
                     throw new IllegalArgumentException("Offset not within range");
             }
 
-            Position position = Position.create(player.world(), x, y, z);
+            Position position = location.relative(new Vector(x, y, z));
             position.block().setSubstance(substance);
         }
     }

@@ -460,7 +460,7 @@ public class TridentWorld implements World {
         int y = (int) Math.round(location.y());
         int z = (int) Math.round(location.z());
 
-        return this.chunkAt(WorldUtils.chunkLocation(x, z), true).blockAt(x % 16, y, z % 16);
+        return this.chunkAt(WorldUtils.chunkLocation(x, z), true).blockAt(x & 15, y, z & 15);
     }
 
     @Override
