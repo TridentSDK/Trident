@@ -152,7 +152,7 @@ public class TridentChunk implements Chunk {
 
     @Override
     public Block blockAt(final int relX, final int y, final int relZ) {
-        final int index = WorldUtils.blockArrayIndex(relX, y % 16, relZ);
+        final int index = WorldUtils.blockArrayIndex(relX, y & 15, relZ);
 
         try {
             return executor.submitTask(() -> {
@@ -345,7 +345,7 @@ public class TridentChunk implements Chunk {
 
     public void setAt(int x, final int y, int z, final Substance type, final byte metaData, final byte skyLight,
                       final byte blockLight) {
-        final int index = WorldUtils.blockArrayIndex(x % 16, y % 16, z % 16);
+        final int index = WorldUtils.blockArrayIndex(x & 15, y & 15, z & 15);
         executor.addTask(() -> {
             ChunkSection[] sections = mapSections();
 
