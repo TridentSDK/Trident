@@ -21,6 +21,8 @@ import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
+import net.tridentsdk.server.player.PlayerConnection;
+import net.tridentsdk.server.player.TridentPlayer;
 
 /**
  * This packet is used to indicate whether the player is on ground (walking/swimming), or airborne (jumping/falling).
@@ -49,5 +51,10 @@ public class PacketPlayInPlayerFall extends InPacket {
 
     @Override
     public void handleReceived(ClientConnection connection) {
+        TridentPlayer player = ((PlayerConnection) connection).player();
+        player.setOnGround(onGround);
+        if (onGround && player.isFlying()) {
+            player.setFlying(false);
+        }
     }
 }

@@ -71,7 +71,6 @@ public class TridentPlayer extends OfflinePlayer {
         super(uuid, tag, world);
 
         this.connection = PlayerConnection.createPlayerConnection(connection, this);
-        this.gameMode = GameMode.CREATIVE;
     }
 
     public static void sendAll(Packet packet) {
@@ -102,7 +101,7 @@ public class TridentPlayer extends OfflinePlayer {
 
         p.name = name;
 
-        //p.gameMode = GameMode.gamemodeOf(((IntTag) playerTag.getTag("playerGameType")).value());
+        p.gameMode = GameMode.CREATIVE;//GameMode.gamemodeOf(((IntTag) playerTag.getTag("playerGameType")).value());
 
         p.executor.execute(() -> {
             p.connection.sendPacket(new PacketPlayOutJoinGame().set("entityId", p.entityId())
@@ -113,7 +112,8 @@ public class TridentPlayer extends OfflinePlayer {
                     .set("levelType", LevelType.DEFAULT));
 
             p.abilities.creative = 1;
-            p.abilities.flySpeed = 1;
+            p.abilities.flySpeed = 0.2F;
+            p.abilities.canFly = 1;
 
             // DEBUG =====
             p.setLocation(new Position(p.world(), 0, 255, 0));

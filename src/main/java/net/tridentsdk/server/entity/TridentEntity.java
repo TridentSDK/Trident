@@ -281,6 +281,10 @@ public class TridentEntity implements Entity {
         return this.onGround;
     }
 
+    public void setOnGround(boolean onGround) {
+        this.onGround = onGround;
+    }
+
     @Override
     public Set<Entity> withinRange(double radius) {
         double squared = radius * radius;
