@@ -24,6 +24,8 @@ import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 
+import javax.annotation.Nullable;
+
 public class PacketPlayInEntityInteract extends InPacket {
     /**
      * Entity id of the target interacted
@@ -39,6 +41,7 @@ public class PacketPlayInEntityInteract extends InPacket {
     /**
      * Location of the target, sent as 3 floats x, y, z
      */
+    @Nullable
     protected Position location;
 
     @Override
@@ -51,11 +54,13 @@ public class PacketPlayInEntityInteract extends InPacket {
         this.target = Codec.readVarInt32(buf);
         this.type = InteractType.fromId(Codec.readVarInt32(buf));
 
-        double x = (double) buf.readFloat();
-        double y = (double) buf.readFloat();
-        double z = (double) buf.readFloat();
+        if (type == InteractType.INTERACT_AT) {
+            double x = (double) buf.readFloat();
+            double y = (double) buf.readFloat();
+            double z = (double) buf.readFloat();
+            this.location = Position.create(null, x, y, z); // TODO: Get the clients world
+        }
 
-        this.location = Position.create(null, x, y, z); // TODO: Get the clients world
         return this;
     }
 
