@@ -55,7 +55,7 @@ public class PacketPlayInPlayerFall extends InPacket {
     public void handleReceived(ClientConnection connection) {
         TridentPlayer player = ((PlayerConnection) connection).player();
         player.setOnGround(onGround);
-        if (player.position().add(new Vector(0, -1, 0)).block().substance() != Substance.AIR
+        if (player.position().add(new Vector(0, -0.1, 0)).block().substance() != Substance.AIR
                 && player.isFlying()) {
             player.setFlying(false);
         }
