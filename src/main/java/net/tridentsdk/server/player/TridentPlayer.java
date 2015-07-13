@@ -261,7 +261,7 @@ public class TridentPlayer extends OfflinePlayer {
 
                 // TODO some possibility of deviating
                 if (abs > viewDist || abs1 > viewDist) {
-                    connection.sendPacket(new PacketPlayOutChunkData(new byte[256], location, true, (short) 0));
+                    connection.sendPacket(new PacketPlayOutChunkData(new byte[512], location, true, (short) 0));
                     knownChunks.remove(location);
                 }
             });

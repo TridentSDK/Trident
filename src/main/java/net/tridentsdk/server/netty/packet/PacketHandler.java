@@ -20,6 +20,7 @@ package net.tridentsdk.server.netty.packet;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import net.tridentsdk.Trident;
+import net.tridentsdk.meta.MessageBuilder;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.protocol.Protocol;
@@ -109,8 +110,8 @@ public class PacketHandler extends SimpleChannelInboundHandler<PacketData> {
                 case PLAY:
                     PacketPlayOutDisconnect quit = new PacketPlayOutDisconnect();
 
-                    quit.set("reason", "\"Internal Error: " + ex.getClass().getName() +
-                            ((ex.getMessage() != null) ? ": " + ex.getMessage() : "") + "\"");
+                    quit.set("reason", new MessageBuilder("\"Internal Error: " + ex.getClass().getName() +
+                            ((ex.getMessage() != null) ? ": " + ex.getMessage() : "") + "\"").build().asJson());
 
                     this.connection.sendPacket(quit);
                     this.connection.logout();
