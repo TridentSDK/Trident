@@ -41,6 +41,11 @@ public final class ChunkSection implements NBTSerializable {
     protected byte y;
     public char[] types;
 
+    public ChunkSection(byte i) {
+        this.y = i;
+    }
+
+    // Serialization constructor
     public ChunkSection() {
     }
 

@@ -86,7 +86,7 @@ public class TridentChunk implements Chunk {
 
             for (int i = 0; i < 16; i++) {
                 if (sections[i] == null) {
-                    sections[i] = new ChunkSection();
+                    sections[i] = new ChunkSection((byte) i);
                 }
             }
 
