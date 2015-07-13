@@ -352,6 +352,7 @@ public class TridentChunk implements Chunk {
             ChunkSection section = sections[WorldUtils.section(y)];
 
             section.types[index] = (char) ((type.asExtended() & 0xfff0) | metaData);
+            NibbleArray.set(section.data, index, metaData);
             NibbleArray.set(section.skyLight, index, skyLight);
             NibbleArray.set(section.blockLight, index, blockLight);
         });

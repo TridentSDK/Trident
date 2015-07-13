@@ -300,7 +300,7 @@ public class TridentPlayer extends OfflinePlayer {
          * TODO: Create Message API and utilize it
          */
     public void kickPlayer(String reason) {
-        connection.sendPacket(new PacketPlayOutDisconnect().set("reason", new MessageBuilder(reason).asJson()));
+        connection.sendPacket(new PacketPlayOutDisconnect().set("reason", new MessageBuilder(reason).build().asJson()));
         TridentLogger.log(name + " was kicked for " + reason);
     }
 
