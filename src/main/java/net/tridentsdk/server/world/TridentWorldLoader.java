@@ -102,7 +102,7 @@ public class TridentWorldLoader implements WorldLoader {
                         byte[] sig = Files.readAllBytes(
                                 Trident.fileContainer().resolve(file.getName()).resolve("gensig"));
                         className = new String(sig);
-                        if (!className.equals(this.getClass().getName())) {
+                        if (!className.equals(generator.getClass().getName())) {
                             // Create a new loader with that class, don't load it with this one
                             new TridentWorldLoader(Class.forName(className).asSubclass(AbstractGenerator.class))
                                     .load(file.getName());
