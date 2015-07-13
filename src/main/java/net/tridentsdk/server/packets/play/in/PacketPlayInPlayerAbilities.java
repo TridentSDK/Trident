@@ -92,6 +92,11 @@ public class PacketPlayInPlayerAbilities extends InPacket {
                 toggleFly.cancel(true);
             }
 
+            // If the player is flying and sends a flying=false flag, stop flying
+            if (player.isFlying() && !flying) {
+                toggleFly.cancel(true);
+            }
+
             Handler.forEvents().fire(toggleFly);
 
             player.setFlying(!toggleFly.isIgnored());
