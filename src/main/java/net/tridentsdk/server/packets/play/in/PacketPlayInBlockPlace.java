@@ -122,7 +122,9 @@ public class PacketPlayInBlockPlace extends InPacket {
             }
 
             Position position = location.relative(new Vector(x, y, z));
-            position.block().setSubstance(substance);
+            byte meta = (byte) player.heldItem().damageValue();
+            //TODO: Special Cases for stairs and whatnot
+            position.block().setSubstanceAndMeta(substance, meta);
         }
     }
 }
