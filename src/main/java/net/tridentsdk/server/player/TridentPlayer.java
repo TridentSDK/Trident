@@ -36,7 +36,6 @@ import net.tridentsdk.server.data.ProtocolMetadata;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.packets.play.out.*;
-import net.tridentsdk.server.threads.TaskGroup;
 import net.tridentsdk.server.threads.ThreadsHandler;
 import net.tridentsdk.server.world.TridentChunk;
 import net.tridentsdk.server.world.TridentWorld;
@@ -117,7 +116,7 @@ public class TridentPlayer extends OfflinePlayer {
             p.abilities.canFly = 1;
 
             // DEBUG =====
-            p.setLocation(new Position(p.world(), 0, 255, 0));
+            p.setPosition(new Position(p.world(), 0, 255, 0));
             p.spawnLocation = new Position(p.world(), 0, 255, 0);
             // =====
 
@@ -246,13 +245,15 @@ public class TridentPlayer extends OfflinePlayer {
     }
 
     public Set<ChunkLocation> cleanChunks() {
-        if (knownChunks.size() > 441) {
+        int toClean = 441 - knownChunks.size();
+        if (toClean > 0) {
             Position pos = position();
             int x = (int) pos.x() / 16;
             int z = (int) pos.z() / 16;
             int viewDist = viewDistance();
 
-            TaskGroup.process(knownChunks).every(4).with(ThreadsHandler.chunkExecutor()).using((location) -> {
+            int cleaned = 0;
+            for (ChunkLocation location : knownChunks) {
                 int cx = location.x();
                 int cz = location.z();
 
@@ -263,8 +264,11 @@ public class TridentPlayer extends OfflinePlayer {
                 if (abs > viewDist || abs1 > viewDist) {
                     connection.sendPacket(new PacketPlayOutChunkData(new byte[512], location, true, (short) 0));
                     knownChunks.remove(location);
+                    cleaned++;
                 }
-            });
+
+                if (cleaned >= toClean) return knownChunks;
+            }
         }
 
         return knownChunks;
@@ -279,10 +283,7 @@ public class TridentPlayer extends OfflinePlayer {
     }
 
     @Override
-    public void setLocation(Position loc) {
-        ProtocolMetadata metadata = new ProtocolMetadata();
-        encodeMetadata(metadata);
-
+    public void setPosition(Position loc) {
         players().stream()
                 .filter((p) -> !p.equals(this))
                 .forEach((p) -> {
@@ -292,7 +293,7 @@ public class TridentPlayer extends OfflinePlayer {
                             .set("onGround", onGround));
                 });
 
-        super.setLocation(loc);
+        super.setPosition(loc);
     }
 
     /*

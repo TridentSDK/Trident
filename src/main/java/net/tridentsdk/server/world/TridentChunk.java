@@ -22,6 +22,8 @@ import net.tridentsdk.Position;
 import net.tridentsdk.base.Block;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.concurrent.TaskExecutor;
+import net.tridentsdk.entity.Entity;
+import net.tridentsdk.factory.Factories;
 import net.tridentsdk.meta.nbt.*;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutChunkData;
 import net.tridentsdk.server.threads.ThreadsHandler;
@@ -36,6 +38,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Stream;
 
@@ -43,6 +46,7 @@ public class TridentChunk implements Chunk {
     private final TridentWorld world;
     private final ChunkLocation location;
     private final TaskExecutor executor = ThreadsHandler.chunkExecutor().scaledThread();
+    private final Set<Entity> entities = Factories.collect().createSet();
     public volatile ChunkSection[] sections;
     private volatile int lastFileAccess;
     private volatile long lastModified;
@@ -76,6 +80,11 @@ public class TridentChunk implements Chunk {
 
     protected void setLastFileAccess(int last) {
         this.lastFileAccess = last;
+    }
+
+    @Override
+    public Set<Entity> entities() {
+        return entities;
     }
 
     @Override
@@ -304,6 +313,12 @@ public class TridentChunk implements Chunk {
         // trees, etc.), if 1 regenerate
         this.lastModified = lastModifed.value(); // Tick when the chunk was last saved
         this.inhabitedTime = inhabitedTime.value(); // Cumulative number of ticks player have been in the chunk
+    }
+
+    @Override
+    public void unload() {
+        world.loader().saveChunk(this);
+        world.loadedChunks.remove(location);
     }
 
     public CompoundTag asNbt() {
