@@ -120,9 +120,16 @@ public class PacketLoginInStart extends InPacket {
 
                 // parse the response and set the ID
                 JsonArray array = PacketLoginInEncryptionResponse.GSON.fromJson(sb.toString(), JsonArray.class);
+                JsonArray jsonArray = array.getAsJsonArray();
+                if (jsonArray.size() == 0) {
+                    // TODO more checks, session validity
+                    connection.sendPacket(
+                            new PacketLoginOutDisconnect().setJsonMessage("This server is in online-mode"));
+                    return;
+                }
 
                 id = UUID.fromString(PacketLoginInEncryptionResponse.idDash.matcher(
-                        array.getAsJsonArray().get(0).getAsJsonObject().get("id").getAsString())
+                        jsonArray.get(0).getAsJsonObject().get("id").getAsString())
                         .replaceAll("$1-$2-$3-$4-$5"));
 
                 if (TridentPlayer.getPlayer(id) != null) {

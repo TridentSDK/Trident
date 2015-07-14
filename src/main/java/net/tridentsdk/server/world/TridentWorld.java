@@ -19,7 +19,6 @@ package net.tridentsdk.server.world;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteStreams;
-import net.tridentsdk.Defaults;
 import net.tridentsdk.Difficulty;
 import net.tridentsdk.GameMode;
 import net.tridentsdk.Position;
@@ -27,7 +26,6 @@ import net.tridentsdk.base.Block;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.Projectile;
 import net.tridentsdk.entity.block.SlotProperties;
-import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.entity.living.ProjectileLauncher;
 import net.tridentsdk.entity.traits.EntityProperties;
 import net.tridentsdk.entity.types.EntityType;
@@ -257,7 +255,7 @@ public class TridentWorld implements World {
         ThreadsHandler.worldExecutor().execute(() -> {
             redstoneTick = !redstoneTick;
 
-            if (time >= 2400)
+            if (time >= 24000)
                 time = 0;
             if (time % 40 == 0)
                 TridentPlayer.sendAll(new PacketPlayOutTimeUpdate().set("worldAge", existed).set("time", time));
@@ -275,21 +273,9 @@ public class TridentWorld implements World {
                 thunderTime = ThreadLocalRandom.current().nextInt();
             }
 
-            // Complex idiom saves a bit of time on large iterations #nanobenchmarking
-            if (time % Defaults.CHUNK_CLEAN_TICK_INTERVAL == 0) {
-                Set<ChunkLocation> retain = Factories.collect().createSet();
-                for (Entity entity : entities) {
-                    ((TridentEntity) entity).tick();
 
-                    if (entity instanceof Player) {
-                        retain.addAll(((TridentPlayer) entity).cleanChunks());
-                    }
-                }
-                loadedChunks.retain(retain);
-            } else {
-                for (Entity entity : entities) {
-                    ((TridentEntity) entity).tick();
-                }
+            for (Entity entity : entities) {
+                ((TridentEntity) entity).tick();
             }
 
             time++;
@@ -373,6 +359,15 @@ public class TridentWorld implements World {
 
     public void removeEntity(Entity entity) {
         this.entities.remove(entity);
+
+        TridentChunk c = (TridentChunk) entity.position().chunk();
+        if (!c.entitiesInternal().remove(entity)) {
+            for (Chunk chunk : loadedChunks.values()) {
+                // If we don't do this a simple concurrency miss
+                // can lead to a memory leak
+                if (((TridentChunk) chunk).entitiesInternal().remove(entity)) return;
+            }
+        }
     }
 
     @Override

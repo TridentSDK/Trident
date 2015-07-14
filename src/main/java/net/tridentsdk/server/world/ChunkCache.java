@@ -19,7 +19,7 @@ package net.tridentsdk.server.world;
 import com.google.common.collect.Lists;
 import net.tridentsdk.concurrent.HeldValueLatch;
 import net.tridentsdk.docs.AccessNoDoc;
-import net.tridentsdk.server.threads.TaskGroup;
+import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.server.threads.ThreadsHandler;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.Chunk;
@@ -29,9 +29,10 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutionException;
 
 @AccessNoDoc
-class ChunkCache {
+public class ChunkCache {
     private final ConcurrentMap<ChunkLocation, HeldValueLatch<TridentChunk>> cachedChunks = new ConcurrentHashMap<>();
     private final TridentWorld world;
 
@@ -79,27 +80,38 @@ class ChunkCache {
         return (TridentChunk) chunk;
     }
 
-    public void retain(Set<ChunkLocation> locations) {
-        // Generate is much more appropriate thread pool
-        // not only because it is used only for loading bytes
-        // but because using the chunk executor interferes
-        // with other tasks and might cause livelocks for no
-        // reason
-        TaskGroup.process(keys()).every(100).with(ThreadsHandler.saver()).using((loc) -> {
-            HeldValueLatch<TridentChunk> chunk = cachedChunks.get(loc);
-            TridentChunk rem;
-            if (chunk != null && chunk.hasValue()) {
-                rem = chunk.get();
-            } else {
-                // Remove the chunk once it is available
-                return;
-            }
+    public boolean tryRemove(ChunkLocation location) {
+        try {
+            return ThreadsHandler.genExecutor().submit(() -> {
+                HeldValueLatch<TridentChunk> chunk = cachedChunks.get(location);
+                if (chunk == null) {
+                    return false;
+                }
 
-            if (!locations.contains(loc) && chunk.hasValue()) {
-                world.loader().saveChunk(rem);
-                cachedChunks.remove(loc);
-            }
-        });
+                if (chunk.hasValue()) {      // No value = needs to generate
+                    Chunk c = chunk.get();
+                    if (c.entities()         // Ensure there are no players
+                            .stream()
+                            .filter(e -> e.type().equals(EntityType.PLAYER))
+                            .count() == 0) {
+                        remove(location);
+                        c.unload();
+
+                        return true;
+                    }
+                }
+
+                return false;
+            }).get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+    public void remove(ChunkLocation location) {
+        cachedChunks.remove(location);
     }
 
     public Set<ChunkLocation> keys() {

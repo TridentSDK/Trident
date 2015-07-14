@@ -25,6 +25,7 @@ import net.tridentsdk.Trident;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.event.player.PlayerJoinEvent;
 import net.tridentsdk.factory.Factories;
 import net.tridentsdk.meta.ChatColor;
@@ -36,7 +37,6 @@ import net.tridentsdk.server.data.ProtocolMetadata;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.packets.play.out.*;
-import net.tridentsdk.server.threads.TaskGroup;
 import net.tridentsdk.server.threads.ThreadsHandler;
 import net.tridentsdk.server.world.TridentChunk;
 import net.tridentsdk.server.world.TridentWorld;
@@ -117,7 +117,7 @@ public class TridentPlayer extends OfflinePlayer {
             p.abilities.canFly = 1;
 
             // DEBUG =====
-            p.setLocation(new Position(p.world(), 0, 255, 0));
+            p.setPosition(new Position(p.world(), 0, 255, 0));
             p.spawnLocation = new Position(p.world(), 0, 255, 0);
             // =====
 
@@ -152,6 +152,7 @@ public class TridentPlayer extends OfflinePlayer {
             p.encodeMetadata(metadata);
         });
 
+        p.spawn();
         return p;
     }
 
@@ -225,11 +226,6 @@ public class TridentPlayer extends OfflinePlayer {
         }
     }
 
-    @Override // Overridden to execute on the player handler instead
-    public void tick() {
-        ThreadsHandler.playerExecutor().execute(this::doTick);
-    }
-
     @Override
     protected void doTick() {
         int distance = viewDistance();
@@ -245,29 +241,34 @@ public class TridentPlayer extends OfflinePlayer {
         ticksExisted.incrementAndGet();
     }
 
-    public Set<ChunkLocation> cleanChunks() {
-        if (knownChunks.size() > 441) {
+    public void cleanChunks() {
+        int toClean = knownChunks.size() - 441;
+        if (toClean > 0) {
             Position pos = position();
             int x = (int) pos.x() / 16;
             int z = (int) pos.z() / 16;
             int viewDist = viewDistance();
 
-            TaskGroup.process(knownChunks).every(4).with(ThreadsHandler.chunkExecutor()).using((location) -> {
+            int cleaned = 0;
+            for (ChunkLocation location : knownChunks) {
                 int cx = location.x();
                 int cz = location.z();
 
                 int abs = Math.abs(cx - x);
                 int abs1 = Math.abs(cz - z);
 
-                // TODO some possibility of deviating
                 if (abs > viewDist || abs1 > viewDist) {
-                    connection.sendPacket(new PacketPlayOutChunkData(new byte[512], location, true, (short) 0));
-                    knownChunks.remove(location);
+                    boolean tried = ((TridentWorld) world()).loadedChunks.tryRemove(location);
+                    if (tried) {
+                        connection.sendPacket(new PacketPlayOutChunkData(new byte[0], location, true, (short) 0));
+                        knownChunks.remove(location);
+                        cleaned++;
+                    }
                 }
-            });
-        }
 
-        return knownChunks;
+                if (cleaned >= toClean) return;
+            }
+        }
     }
 
     @Override
@@ -279,10 +280,7 @@ public class TridentPlayer extends OfflinePlayer {
     }
 
     @Override
-    public void setLocation(Position loc) {
-        ProtocolMetadata metadata = new ProtocolMetadata();
-        encodeMetadata(metadata);
-
+    public void setPosition(Position loc) {
         players().stream()
                 .filter((p) -> !p.equals(this))
                 .forEach((p) -> {
@@ -292,7 +290,7 @@ public class TridentPlayer extends OfflinePlayer {
                             .set("onGround", onGround));
                 });
 
-        super.setLocation(loc);
+        super.setPosition(loc);
     }
 
     /*
@@ -445,5 +443,10 @@ public class TridentPlayer extends OfflinePlayer {
 
     public int viewDistance() {
         return Math.min(viewDistance, MAX_VIEW);
+    }
+
+    @Override
+    public EntityType type() {
+        return EntityType.PLAYER;
     }
 }

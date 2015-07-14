@@ -18,6 +18,7 @@
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.server.data.Slot;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
@@ -25,8 +26,7 @@ public class PacketPlayOutEntityEquipment extends OutPacket {
 
     protected int entityId;
     protected short slot;
-    protected long item;
-    // TODO: mojang slot shit
+    protected Slot item;
 
     @Override
     public int id() {
@@ -41,10 +41,14 @@ public class PacketPlayOutEntityEquipment extends OutPacket {
         return this.slot;
     }
 
+    public Slot item() {
+        return this.item;
+    }
+
     @Override
     public void encode(ByteBuf buf) {
         Codec.writeVarInt32(buf, this.entityId);
         buf.writeShort((int) this.slot);
-        buf.writeLong(item); // TODO this is the way?
+        item.write(buf);
     }
 }

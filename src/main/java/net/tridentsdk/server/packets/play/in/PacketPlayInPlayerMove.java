@@ -87,6 +87,6 @@ public class PacketPlayInPlayerMove extends InPacket {
             return;
         }
 
-        player.setLocation(to);
+        player.setPosition(to);
     }
 }

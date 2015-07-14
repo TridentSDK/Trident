@@ -35,6 +35,7 @@ import net.tridentsdk.server.packets.play.out.PacketPlayOutEntityTeleport;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutEntityVelocity;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.threads.ThreadsHandler;
+import net.tridentsdk.server.world.TridentChunk;
 import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.util.Vector;
 import net.tridentsdk.util.WeakEntity;
@@ -183,16 +184,6 @@ public class TridentEntity implements Entity {
         doEncodeMeta(protocolMeta);
     }
 
-    /**
-     * Moves the entity to the new coordinates. Not for teleportation.
-     *
-     * @param newCoords the new location for the entity
-     */
-    public void doMove(Position newCoords) {
-        HANDLER.trackMovement(this, position(), newCoords);
-        this.setLocation(newCoords);
-    }
-
     @Override
     public void teleport(double x, double y, double z) {
         this.teleport(Position.create(this.world(), x, y, z));
@@ -233,7 +224,14 @@ public class TridentEntity implements Entity {
         return this.loc;
     }
 
-    public void setLocation(Position loc) {
+    public void setPosition(Position loc) {
+        TridentChunk from = (TridentChunk) position().chunk();
+        TridentChunk chunk = (TridentChunk) loc.chunk();
+        if (!from.equals(chunk)) {
+            from.entitiesInternal().remove(this);
+            chunk.entitiesInternal().add(this);
+        }
+
         this.loc = loc;
     }
 
