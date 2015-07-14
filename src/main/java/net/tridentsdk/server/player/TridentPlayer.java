@@ -235,7 +235,7 @@ public class TridentPlayer extends OfflinePlayer {
         if (!chunkQueue.isEmpty())
             connection.sendPacket(chunkQueue.poll());
 
-        cleanChunks();
+        //cleanChunks();
 
         connection.tick();
         ticksExisted.incrementAndGet();
