@@ -27,8 +27,10 @@ import net.tridentsdk.base.Substance;
 import net.tridentsdk.event.Cancellable;
 import net.tridentsdk.event.Event;
 import net.tridentsdk.event.block.BlockBreakEvent;
+import net.tridentsdk.event.player.PlayerConsumeEvent;
 import net.tridentsdk.event.player.PlayerDigEvent;
 import net.tridentsdk.event.player.PlayerDropItemEvent;
+import net.tridentsdk.event.player.PlayerShootBowEvent;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
@@ -37,6 +39,7 @@ import net.tridentsdk.server.player.PlayerConnection;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.world.TridentChunk;
 import net.tridentsdk.util.TridentLogger;
+import net.tridentsdk.window.inventory.Item;
 
 public class PacketPlayInPlayerDig extends InPacket {
     private short status;
@@ -140,6 +143,12 @@ public class PacketPlayInPlayerDig extends InPacket {
                 break;
 
             case SHOOT_ARROW:
+                Item item = player.heldItem();
+                if (item.type() == Substance.BOW) {
+                    event = new PlayerShootBowEvent(player, null);
+                } else if (item.type().isEdible()) {
+                    event = new PlayerConsumeEvent(player, item, 0.0);
+                }
                 // shoot bow, if player has a food item finish eating
                 break;
         }
