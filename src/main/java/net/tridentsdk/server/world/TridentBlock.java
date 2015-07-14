@@ -63,13 +63,7 @@ public class TridentBlock implements Block {
 
     @Override
     public void setSubstance(Substance material) {
-        this.material = material;
-
-        TridentPlayer.sendAll(new PacketPlayOutBlockChange()
-                .set("blockId", substance().id())
-                .set("location", location));
-
-        ((TridentChunk) location().chunk()).setAt(location, material, data, (byte) 255, (byte) 0);
+        setSubstanceAndMeta(material, (byte) 0);
     }
 
     @Override
@@ -84,11 +78,24 @@ public class TridentBlock implements Block {
 
     @Override
     public void setMeta(byte data) {
-        this.data = data;
+        setSubstanceAndMeta(this.material, data);
     }
 
     @Override
     public Block relativeBlock(Vector vector) {
         return new TridentBlock(this.location.relative(vector));
+    }
+
+    @Override
+    public void setSubstanceAndMeta(Substance material, byte data) {
+        this.material = material;
+        this.data = data;
+
+
+        TridentPlayer.sendAll(new PacketPlayOutBlockChange()
+                .set("blockId", substance().id() << 4 | data)
+                .set("location", location));
+
+        ((TridentChunk) location().chunk()).setAt(location, material, data, (byte) 255, (byte) 0);
     }
 }

@@ -48,10 +48,11 @@ public class PacketPlayInBlockPlace extends InPacket {
         long encodedLocation = buf.readLong();
 
         this.location = Position.create(null, (double) (encodedLocation >> 38),
-                (double) (encodedLocation << 26 >> 52), (double) (encodedLocation << 38 >> 38));
+                (double) ((encodedLocation >> 26) & 0xFFF), (double) (encodedLocation << 38 >> 38));
         this.direction = buf.readByte();
 
         // ignore held item
+        // TODO possible NBT
         for (int i = 0; i < buf.readableBytes() - 3; i++) {
             buf.readByte();
         }
@@ -79,12 +80,51 @@ public class PacketPlayInBlockPlace extends InPacket {
     @Override
     public void handleReceived(ClientConnection connection) {
         TridentPlayer player = ((PlayerConnection) connection).player();
-
         location.setWorld(player.world());
 
+        if (location.y() >= 4095) {
+            // Illegal block position
+            return;
+        }
+
         Substance substance = player.heldItem().type();
+        if (!substance.isBlock()) {
+            // TODO
+            // eat food or pull bow or release/obtain water in a bucket, etc
+        }
+
         if (substance != Substance.AIR) {
-            location().block().setSubstance(substance);
+            int x = 0;
+            int y = 0;
+            int z = 0;
+
+            switch (blockDirection()) {
+                case 0:
+                    y--;
+                    break;
+                case 1:
+                    y++;
+                    break;
+                case 2:
+                    z--;
+                    break;
+                case 3:
+                    z++;
+                    break;
+                case 4:
+                    x--;
+                    break;
+                case 5:
+                    x++;
+                    break;
+                default:
+                    throw new IllegalArgumentException("Offset not within range");
+            }
+
+            Position position = location.relative(new Vector(x, y, z));
+            byte meta = (byte) player.heldItem().damageValue();
+            //TODO: Special Cases for stairs and whatnot
+            position.block().setSubstanceAndMeta(substance, meta);
         }
     }
 }

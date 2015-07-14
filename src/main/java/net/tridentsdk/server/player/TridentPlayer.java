@@ -27,9 +27,9 @@ import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.player.PlayerJoinEvent;
 import net.tridentsdk.factory.Factories;
+import net.tridentsdk.meta.ChatColor;
 import net.tridentsdk.meta.MessageBuilder;
 import net.tridentsdk.meta.nbt.CompoundTag;
-import net.tridentsdk.meta.nbt.IntTag;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.data.MetadataType;
 import net.tridentsdk.server.data.ProtocolMetadata;
@@ -102,7 +102,7 @@ public class TridentPlayer extends OfflinePlayer {
 
         p.name = name;
 
-        p.gameMode = GameMode.gamemodeOf(((IntTag) playerTag.getTag("playerGameType")).value());
+        p.gameMode = GameMode.CREATIVE;//GameMode.gamemodeOf(((IntTag) playerTag.getTag("playerGameType")).value());
 
         p.executor.execute(() -> {
             p.connection.sendPacket(new PacketPlayOutJoinGame().set("entityId", p.entityId())
@@ -113,7 +113,8 @@ public class TridentPlayer extends OfflinePlayer {
                     .set("levelType", LevelType.DEFAULT));
 
             p.abilities.creative = 1;
-            p.abilities.flySpeed = 1;
+            p.abilities.flySpeed = 0.2F;
+            p.abilities.canFly = 1;
 
             // DEBUG =====
             p.setLocation(new Position(p.world(), 0, 255, 0));
@@ -140,7 +141,6 @@ public class TridentPlayer extends OfflinePlayer {
 
             players().stream().filter((player) -> !player.equals(p))
                     .forEach((player) -> builders.add(((TridentPlayer) player).listData()));
-            //players().forEach((player) -> player.sendMessage(p.name + " has joined the server"));
             TridentLogger.log(p.name + " has joined the server");
 
             p.connection.sendPacket(new PacketPlayOutPlayerListItem()
@@ -198,12 +198,14 @@ public class TridentPlayer extends OfflinePlayer {
         connection.sendPacket(new PacketPlayOutEntityVelocity()
                 .set("entityId", entityId())
                 .set("velocity", new Vector(0, -0.07, 0)));
-        connection.sendPacket(new PacketPlayOutGameStateChange().set("reason", 3).set("value", (float) GameMode.CREATIVE.asByte()));
+        connection.sendPacket(new PacketPlayOutGameStateChange().set("reason", 3).set("value", (float) gameMode().asByte()));
         TridentServer.WORLD.addEntity(this); // TODO
         Handler.forEvents().fire(new PlayerJoinEvent(this));
 
         for (Player player : players()) {
             TridentPlayer p = (TridentPlayer) player;
+            new MessageBuilder(name + " has joined the server").color(ChatColor.YELLOW).build().sendTo(player);
+
             if (!p.equals(this)) {
                 ProtocolMetadata metadata = new ProtocolMetadata();
                 encodeMetadata(metadata);
@@ -259,7 +261,7 @@ public class TridentPlayer extends OfflinePlayer {
 
                 // TODO some possibility of deviating
                 if (abs > viewDist || abs1 > viewDist) {
-                    connection.sendPacket(new PacketPlayOutChunkData(new byte[256], location, true, (short) 0));
+                    connection.sendPacket(new PacketPlayOutChunkData(new byte[512], location, true, (short) 0));
                     knownChunks.remove(location);
                 }
             });
@@ -271,7 +273,8 @@ public class TridentPlayer extends OfflinePlayer {
     @Override
     protected void doRemove() {
         ONLINE_PLAYERS.remove(this.uniqueId());
-        players().forEach((player) -> player.sendRaw(name + " has left the server"));
+        players().forEach(p ->
+                new MessageBuilder(name + " has left the server").color(ChatColor.YELLOW).build().sendTo(p));
         TridentLogger.log(name + " has left the server");
     }
 
@@ -297,7 +300,7 @@ public class TridentPlayer extends OfflinePlayer {
          * TODO: Create Message API and utilize it
          */
     public void kickPlayer(String reason) {
-        connection.sendPacket(new PacketPlayOutDisconnect().set("reason", reason));
+        connection.sendPacket(new PacketPlayOutDisconnect().set("reason", new MessageBuilder(reason).build().asJson()));
         TridentLogger.log(name + " was kicked for " + reason);
     }
 
@@ -316,6 +319,8 @@ public class TridentPlayer extends OfflinePlayer {
         return this.connection;
     }
 
+    public static final int SLOT_OFFSET = 35;
+
     public void setSlot(final short slot) {
         if ((int) slot > 8 || (int) slot < 0) {
             TridentLogger.error(new IllegalArgumentException("Slot must be within the ranges of 0-8"));
@@ -323,13 +328,16 @@ public class TridentPlayer extends OfflinePlayer {
         }
 
         TridentPlayer.super.selectedSlot = slot;
+
+        setSelectedSlot(slot);
+        setHeldItem(heldItem()); // Updates inventory
     }
 
     @Override
     public void sendMessage(String message) {
-        sendRaw(new MessageBuilder(message)
+        new MessageBuilder(message)
                 .build()
-                .asJson());
+                .sendTo(this);
     }
 
     @Override

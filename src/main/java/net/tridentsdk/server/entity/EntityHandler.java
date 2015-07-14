@@ -27,6 +27,7 @@ import net.tridentsdk.util.TridentLogger;
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -36,7 +37,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @ThreadSafe
 public final class EntityHandler {
-    private static final Map<Integer, Entity> entities = new ConcurrentHashMap<>();
+    private static final Map<UUID, Entity> entities = new ConcurrentHashMap<>();
 
     @InternalUseOnly
     private EntityHandler() {
@@ -59,7 +60,7 @@ public final class EntityHandler {
      * @param entity the entity to manage
      */
     public void register(Entity entity) {
-        entities.put(entity.entityId(), entity);
+        entities.put(entity.uniqueId(), entity);
         if (entity instanceof TridentPlayer)
             return;
         // tracker.track(entity);
@@ -90,7 +91,7 @@ public final class EntityHandler {
      * @param id the ID to find the entity by
      * @return the entity with the ID specified
      */
-    public Entity entityBy(int id) {
+    public Entity entityBy(UUID id) {
         return entities.get(id);
     }
 

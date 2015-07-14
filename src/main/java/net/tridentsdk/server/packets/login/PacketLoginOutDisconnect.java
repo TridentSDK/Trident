@@ -18,6 +18,7 @@
 package net.tridentsdk.server.packets.login;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.meta.MessageBuilder;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.Packet;
@@ -60,7 +61,7 @@ public class PacketLoginOutDisconnect implements Packet {
     }
 
     public Packet setJsonMessage(String jsonMessage) {
-        this.jsonMessage = jsonMessage;
+        this.jsonMessage = new MessageBuilder(jsonMessage).build().asJson();
         return this;
     }
 

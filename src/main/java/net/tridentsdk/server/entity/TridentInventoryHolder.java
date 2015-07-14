@@ -18,8 +18,6 @@
 package net.tridentsdk.server.entity;
 
 import net.tridentsdk.Position;
-import net.tridentsdk.base.Substance;
-import net.tridentsdk.docs.Volatile;
 import net.tridentsdk.entity.traits.InventoryHolder;
 import net.tridentsdk.meta.nbt.CompoundTag;
 import net.tridentsdk.meta.nbt.ListTag;
@@ -38,19 +36,14 @@ import java.util.UUID;
  * @author The TridentSDK Team
  */
 public abstract class TridentInventoryHolder extends TridentLivingEntity implements InventoryHolder {
-    private final Object BARRIER;
-    /**
-     * The inventory held by the entity
-     */
-    @Volatile(policy = "Do not set after construction", reason = "Barrier", fix = "Set in constructor, do not change")
-    protected Inventory inventory;
+    protected volatile Inventory inventory;
+    private volatile int selectedSlot = 0;
 
     /**
      * Inherits constructor from {@link TridentLivingEntity}
      */
     public TridentInventoryHolder(UUID id, Position spawnLocation) {
         super(id, spawnLocation);
-        BARRIER = new Object();
     }
 
     @Override
@@ -60,13 +53,16 @@ public abstract class TridentInventoryHolder extends TridentLivingEntity impleme
 
     @Override
     public Item heldItem() {
-        // return inventory.items()[selectedSlot + 36]; TODO
-        return new Item(Substance.AIR);
+        return inventory.itemAt(TridentPlayer.SLOT_OFFSET + selectedSlot);
     }
 
     @Override
     public void setHeldItem(Item item) {
-        // TODO
+        inventory.setSlot(TridentPlayer.SLOT_OFFSET + selectedSlot, item);
+    }
+
+    public void setSelectedSlot(int selectedSlot) {
+        this.selectedSlot = selectedSlot;
     }
 
     @Override

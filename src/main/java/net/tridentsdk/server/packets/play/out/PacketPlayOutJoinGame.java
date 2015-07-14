@@ -73,6 +73,6 @@ public class PacketPlayOutJoinGame extends OutPacket {
         buf.writeByte((int) this.maxPlayers);
 
         Codec.writeString(buf, this.levelType.toString());
-        buf.writeBoolean(true);
+        buf.writeBoolean(false);
     }
 }

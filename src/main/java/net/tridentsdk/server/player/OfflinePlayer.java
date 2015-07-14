@@ -32,6 +32,7 @@ import net.tridentsdk.meta.nbt.*;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.data.Slot;
 import net.tridentsdk.server.entity.TridentInventoryHolder;
+import net.tridentsdk.server.window.TridentWindow;
 import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.window.inventory.Inventory;
@@ -138,6 +139,8 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
         xpSeed = tag.containsTag("XpSeed") ? ((IntTag) tag.getTag("XpSeed")).value() :
                 new IntTag("XpSeed").setValue(0).value();
 
+        // TODO come up with a valid implementation of this...?
+        inventory = new TridentWindow(44);
         for (NBTTag t : ((ListTag) tag.getTag("Inventory")).listTags()) {
             Slot slot = NBTSerializer.deserialize(Slot.class, (CompoundTag) t);
 

@@ -25,6 +25,7 @@ import net.tridentsdk.concurrent.TaskExecutor;
 import net.tridentsdk.meta.nbt.*;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutChunkData;
 import net.tridentsdk.server.threads.ThreadsHandler;
+import net.tridentsdk.util.NibbleArray;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.Chunk;
 import net.tridentsdk.world.ChunkLocation;
@@ -85,7 +86,7 @@ public class TridentChunk implements Chunk {
 
             for (int i = 0; i < 16; i++) {
                 if (sections[i] == null) {
-                    sections[i] = new ChunkSection();
+                    sections[i] = new ChunkSection((byte) i);
                 }
             }
 
@@ -151,13 +152,14 @@ public class TridentChunk implements Chunk {
 
     @Override
     public Block blockAt(final int relX, final int y, final int relZ) {
-        final int index = WorldUtils.blockArrayIndex(relX, y % 16, relZ);
+        final int index = WorldUtils.blockArrayIndex(relX, y & 15, relZ);
 
         try {
             return executor.submitTask(() -> {
                 ChunkSection[] sections = mapSections();
 
-                ChunkSection section = sections[WorldUtils.section(y)];
+                int sectionIndex = WorldUtils.section(y);
+                ChunkSection section = sections[sectionIndex];
 
                 /* Get block data; use extras accordingly */
                 byte b = (byte) (section.types[index] >> 4);
@@ -343,15 +345,16 @@ public class TridentChunk implements Chunk {
 
     public void setAt(int x, final int y, int z, final Substance type, final byte metaData, final byte skyLight,
                       final byte blockLight) {
-        final int index = WorldUtils.blockArrayIndex(x % 16, y % 16, z % 16);
+        final int index = WorldUtils.blockArrayIndex(x & 15, y & 15, z & 15);
         executor.addTask(() -> {
             ChunkSection[] sections = mapSections();
 
             ChunkSection section = sections[WorldUtils.section(y)];
 
             section.types[index] = (char) ((type.asExtended() & 0xfff0) | metaData);
-            section.skyLight[index] = skyLight;
-            section.blockLight[index] = blockLight;
+            NibbleArray.set(section.data, index, metaData);
+            NibbleArray.set(section.skyLight, index, skyLight);
+            NibbleArray.set(section.blockLight, index, blockLight);
         });
     }
 }

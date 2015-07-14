@@ -351,22 +351,14 @@ public class TridentWorld implements World {
             TridentLogger.error(ex);
         }
 
-        TridentLogger.log("Saved " + name + " successfully!");
-
-
         for (TridentChunk chunk : loadedChunks()) {
-            try {
-                RegionFile.fromPath(name, chunk.location()).saveChunkData(chunk);
-                System.out.println("saved " + chunk.x() + ":" + chunk.z());
-            } catch (IOException | NBTException ex) {
-                TridentLogger.warn("Failed to save chunk at (" + chunk.x() +
-                        "," + chunk.z() + "), printing stacktrace...");
-                TridentLogger.error(ex);
-            }
+            RegionFile.fromPath(name, chunk.location()).saveChunkData(chunk);
+            // System.out.println("saved " + chunk.x() + ":" + chunk.z());
         }
 
-        RegionFile.saveAll();
-        System.out.println("saved all");
+        TridentLogger.log("Saved " + name + " successfully!");
+
+        // TODO RegionFile.saveAll();
     }
 
     private Entity internalSpawn(Entity entity) {
@@ -468,7 +460,7 @@ public class TridentWorld implements World {
         int y = (int) Math.round(location.y());
         int z = (int) Math.round(location.z());
 
-        return this.chunkAt(WorldUtils.chunkLocation(x, z), true).blockAt(x % 16, y, z % 16);
+        return this.chunkAt(WorldUtils.chunkLocation(x, z), true).blockAt(x & 15, y, z & 15);
     }
 
     @Override

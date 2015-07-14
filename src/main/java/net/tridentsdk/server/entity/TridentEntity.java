@@ -34,6 +34,7 @@ import net.tridentsdk.server.packets.play.out.PacketPlayOutDestroyEntities;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutEntityTeleport;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutEntityVelocity;
 import net.tridentsdk.server.player.TridentPlayer;
+import net.tridentsdk.server.threads.ThreadsHandler;
 import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.util.Vector;
 import net.tridentsdk.util.WeakEntity;
@@ -91,7 +92,7 @@ public class TridentEntity implements Entity {
     /**
      * Entity task executor
      */
-    protected volatile ExecutorFactory executor;
+    protected volatile ExecutorFactory executor = ThreadsHandler.entityExecutor();
     /**
      * The movement vector for the entity
      */
@@ -278,6 +279,10 @@ public class TridentEntity implements Entity {
     @Override
     public boolean onGround() {
         return this.onGround;
+    }
+
+    public void setOnGround(boolean onGround) {
+        this.onGround = onGround;
     }
 
     @Override

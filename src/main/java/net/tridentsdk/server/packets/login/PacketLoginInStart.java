@@ -101,8 +101,6 @@ public class PacketLoginInStart extends InPacket {
                 // if the response isn't 200 OK, logout and inform the client of so
                 if (responseCode != 200) {
                     connection.sendPacket(new PacketLoginOutDisconnect().setJsonMessage("Unable retrieve UUID"));
-
-                    connection.logout();
                     return;
                 }
 
@@ -126,6 +124,12 @@ public class PacketLoginInStart extends InPacket {
                 id = UUID.fromString(PacketLoginInEncryptionResponse.idDash.matcher(
                         array.getAsJsonArray().get(0).getAsJsonObject().get("id").getAsString())
                         .replaceAll("$1-$2-$3-$4-$5"));
+
+                if (TridentPlayer.getPlayer(id) != null) {
+                    connection.sendPacket(new PacketLoginOutDisconnect().setJsonMessage(
+                            "Player has already logged in"));
+                    return;
+                }
             } catch (Exception e) {
                 TridentLogger.error(e);
                 return;

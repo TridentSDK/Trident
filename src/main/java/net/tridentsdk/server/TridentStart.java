@@ -65,12 +65,12 @@ import static com.google.common.collect.Lists.newArrayList;
  */
 @ThreadSafe
 public final class TridentStart {
-    private static final EventLoopGroup bossGroup = new NioEventLoopGroup(4, Defaults.ERROR_HANDLED);
-    private static final EventLoopGroup workerGroup = new NioEventLoopGroup(4, Defaults.ERROR_HANDLED);
-
     static {
         TridentLogger.init();
     }
+
+    private static final EventLoopGroup bossGroup = new NioEventLoopGroup(4, Defaults.ERROR_HANDLED);
+    private static final EventLoopGroup workerGroup = new NioEventLoopGroup(4, Defaults.ERROR_HANDLED);
 
     private TridentStart() {
     } // Do not initialize

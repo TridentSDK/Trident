@@ -179,7 +179,7 @@ public class ClientConnection {
         // Create new ByteBuf
         ByteBuf buffer = this.channel.alloc().buffer();
 
-        TridentLogger.log("Sent " + packet.getClass().getSimpleName());
+        // TridentLogger.log("Sent " + packet.getClass().getSimpleName());
 
         Codec.writeVarInt32(buffer, packet.id());
         packet.encode(buffer);
@@ -357,6 +357,9 @@ public class ClientConnection {
      * Removes the client's server side client handler
      */
     public void logout() {
+        ClientConnection connection = clientData.remove(this.address);
+        if (connection == null) return;
+
         Player p = null;
         if (this instanceof PlayerConnection) {
             p = ((PlayerConnection) this).player();
@@ -370,7 +373,7 @@ public class ClientConnection {
 
         Handler.forEvents().fire(new PlayerDisconnectEvent(p));
         p.remove();
-        clientData.remove(this.address);
+
         this.channel.close();
     }
 }

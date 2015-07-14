@@ -18,10 +18,14 @@
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.entity.DroppedItem;
+import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.server.data.Slot;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
+import net.tridentsdk.server.player.PlayerConnection;
+import net.tridentsdk.server.player.TridentPlayer;
 
 /**
  * While the user is in the standard inventory (i.e., not a crafting bench) on a creative-mode server, then this packet
@@ -62,6 +66,14 @@ public class PacketPlayInPlayerCreativeAction extends InPacket {
 
     @Override
     public void handleReceived(ClientConnection connection) {
-        // TODO: Act accordingly
+        TridentPlayer player = ((PlayerConnection) connection).player();
+
+        if (slot == -1) {
+            DroppedItem item = (DroppedItem) player.world().spawn(EntityType.ITEM, player.position());
+            // TODO set item type
+
+            return;
+        }
+        player.inventory().setSlot(slot - 1, item.item());
     }
 }

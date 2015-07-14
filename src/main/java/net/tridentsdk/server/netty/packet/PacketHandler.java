@@ -20,12 +20,11 @@ package net.tridentsdk.server.netty.packet;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import net.tridentsdk.Trident;
+import net.tridentsdk.meta.MessageBuilder;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.protocol.Protocol;
 import net.tridentsdk.server.packets.login.PacketLoginOutDisconnect;
-import net.tridentsdk.server.packets.play.in.PacketPlayInPlayerFall;
-import net.tridentsdk.server.packets.play.in.PacketPlayInPlayerMove;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutDisconnect;
 import net.tridentsdk.server.player.PlayerConnection;
 import net.tridentsdk.util.TridentLogger;
@@ -83,8 +82,8 @@ public class PacketHandler extends SimpleChannelInboundHandler<PacketData> {
 
         try {
             // DEBUG =====
-            if(!(packet instanceof PacketPlayInPlayerFall) && !(packet instanceof PacketPlayInPlayerMove))
-                TridentLogger.log("Received packet " + packet.getClass().getSimpleName());
+            // if(!(packet instanceof PacketPlayInPlayerFall) && !(packet instanceof PacketPlayInPlayerMove))
+            //    TridentLogger.log("Received packet " + packet.getClass().getSimpleName());
             // =====
 
             //TODO: add plugin registration for packet handling
@@ -111,8 +110,8 @@ public class PacketHandler extends SimpleChannelInboundHandler<PacketData> {
                 case PLAY:
                     PacketPlayOutDisconnect quit = new PacketPlayOutDisconnect();
 
-                    quit.set("reason", "\"Internal Error: " + ex.getClass().getName() +
-                            ((ex.getMessage() != null) ? ": " + ex.getMessage() : "") + "\"");
+                    quit.set("reason", new MessageBuilder("\"Internal Error: " + ex.getClass().getName() +
+                            ((ex.getMessage() != null) ? ": " + ex.getMessage() : "") + "\"").build().asJson());
 
                     this.connection.sendPacket(quit);
                     this.connection.logout();
