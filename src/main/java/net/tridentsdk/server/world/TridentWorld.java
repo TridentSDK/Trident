@@ -360,11 +360,12 @@ public class TridentWorld implements World {
     public void removeEntity(Entity entity) {
         this.entities.remove(entity);
 
-        if (!entity.position().chunk().entities().remove(entity)) {
+        TridentChunk c = (TridentChunk) entity.position().chunk();
+        if (!c.entitiesInternal().remove(entity)) {
             for (Chunk chunk : loadedChunks.values()) {
                 // If we don't do this a simple concurrency miss
                 // can lead to a memory leak
-                if (chunk.entities().remove(entity)) return;
+                if (((TridentChunk) chunk).entitiesInternal().remove(entity)) return;
             }
         }
     }

@@ -25,6 +25,7 @@ import net.tridentsdk.Trident;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.event.player.PlayerJoinEvent;
 import net.tridentsdk.factory.Factories;
 import net.tridentsdk.meta.ChatColor;
@@ -151,6 +152,7 @@ public class TridentPlayer extends OfflinePlayer {
             p.encodeMetadata(metadata);
         });
 
+        p.spawn();
         return p;
     }
 
@@ -224,14 +226,9 @@ public class TridentPlayer extends OfflinePlayer {
         }
     }
 
-    @Override // Overridden to execute on the player handler instead
-    public void tick() {
-        ThreadsHandler.playerExecutor().execute(this::doTick);
-    }
-
     @Override
     protected void doTick() {
-        int distance = viewDistance();
+        int distance = (int) (Math.sqrt(441 / Math.PI) * 2);
         if (!isLoggingIn())
             sendChunks(distance);
 
@@ -244,8 +241,8 @@ public class TridentPlayer extends OfflinePlayer {
         ticksExisted.incrementAndGet();
     }
 
-    public Set<ChunkLocation> cleanChunks() {
-        int toClean = 441 - knownChunks.size();
+    public void cleanChunks() {
+        int toClean = knownChunks.size() - 441;
         if (toClean > 0) {
             Position pos = position();
             int x = (int) pos.x() / 16;
@@ -260,18 +257,18 @@ public class TridentPlayer extends OfflinePlayer {
                 int abs = Math.abs(cx - x);
                 int abs1 = Math.abs(cz - z);
 
-                // TODO some possibility of deviating
                 if (abs > viewDist || abs1 > viewDist) {
-                    connection.sendPacket(new PacketPlayOutChunkData(new byte[512], location, true, (short) 0));
-                    knownChunks.remove(location);
-                    cleaned++;
+                    boolean tried = ((TridentWorld) world()).loadedChunks.tryRemove(location);
+                    if (tried) {
+                        connection.sendPacket(new PacketPlayOutChunkData(new byte[0], location, true, (short) 0));
+                        knownChunks.remove(location);
+                        cleaned++;
+                    }
                 }
 
-                if (cleaned >= toClean) return knownChunks;
+                if (cleaned >= toClean) return;
             }
         }
-
-        return knownChunks;
     }
 
     @Override
@@ -446,5 +443,10 @@ public class TridentPlayer extends OfflinePlayer {
 
     public int viewDistance() {
         return Math.min(viewDistance, MAX_VIEW);
+    }
+
+    @Override
+    public EntityType type() {
+        return EntityType.PLAYER;
     }
 }

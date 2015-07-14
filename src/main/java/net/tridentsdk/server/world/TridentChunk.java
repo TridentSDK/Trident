@@ -17,6 +17,7 @@
 
 package net.tridentsdk.server.world;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import net.tridentsdk.Position;
 import net.tridentsdk.base.Block;
@@ -84,6 +85,10 @@ public class TridentChunk implements Chunk {
 
     @Override
     public Set<Entity> entities() {
+        return ImmutableSet.copyOf(entities);
+    }
+
+    public Set<Entity> entitiesInternal() {
         return entities;
     }
 

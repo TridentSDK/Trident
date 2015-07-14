@@ -18,6 +18,7 @@
 package net.tridentsdk.server.world;
 
 import net.tridentsdk.base.Block;
+import net.tridentsdk.entity.Entity;
 import net.tridentsdk.meta.nbt.CompoundTag;
 import net.tridentsdk.world.Chunk;
 import net.tridentsdk.world.ChunkLocation;
@@ -25,6 +26,7 @@ import net.tridentsdk.world.ChunkSnapshot;
 import net.tridentsdk.world.World;
 
 import java.util.List;
+import java.util.Set;
 
 public class TridentChunkSnapshot implements ChunkSnapshot {
     private final TridentWorld world;
@@ -60,6 +62,12 @@ public class TridentChunkSnapshot implements ChunkSnapshot {
     }
 
     @Override
+    public Set<Entity> entities() {
+        // TODO
+        return null;
+    }
+
+    @Override
     public void generate() {
     }
 
@@ -91,5 +99,10 @@ public class TridentChunkSnapshot implements ChunkSnapshot {
     @Override
     public ChunkSnapshot snapshot() {
         return this;
+    }
+
+    @Override
+    public void unload() {
+        throw new UnsupportedOperationException("Cannot unload a snapshot");
     }
 }

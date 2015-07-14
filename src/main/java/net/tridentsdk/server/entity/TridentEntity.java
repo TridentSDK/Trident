@@ -35,10 +35,10 @@ import net.tridentsdk.server.packets.play.out.PacketPlayOutEntityTeleport;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutEntityVelocity;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.threads.ThreadsHandler;
+import net.tridentsdk.server.world.TridentChunk;
 import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.util.Vector;
 import net.tridentsdk.util.WeakEntity;
-import net.tridentsdk.world.Chunk;
 import net.tridentsdk.world.World;
 
 import java.util.List;
@@ -225,11 +225,11 @@ public class TridentEntity implements Entity {
     }
 
     public void setPosition(Position loc) {
-        Chunk from = position().chunk();
-        Chunk chunk = loc.chunk();
+        TridentChunk from = (TridentChunk) position().chunk();
+        TridentChunk chunk = (TridentChunk) loc.chunk();
         if (!from.equals(chunk)) {
-            from.entities().remove(this);
-            chunk.entities().add(this);
+            from.entitiesInternal().remove(this);
+            chunk.entitiesInternal().add(this);
         }
 
         this.loc = loc;
