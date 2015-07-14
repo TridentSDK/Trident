@@ -228,7 +228,7 @@ public class TridentPlayer extends OfflinePlayer {
 
     @Override
     protected void doTick() {
-        int distance = (int) (Math.sqrt(441 / Math.PI) * 2);
+        int distance = viewDistance();
         if (!isLoggingIn())
             sendChunks(distance);
 
