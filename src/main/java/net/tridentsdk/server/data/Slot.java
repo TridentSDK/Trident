@@ -61,8 +61,10 @@ public class Slot implements Writable, NBTSerializable {
     }
 
     public Slot(Item is) {
-        if (is == null)
+        if (is == null) {
+            this.id = -1;
             return;
+        }
         this.id = (short) is.id();
         this.mat = is.type();
 
@@ -126,10 +128,11 @@ public class Slot implements Writable, NBTSerializable {
 
     @Override
     public void write(ByteBuf buf) {
-        buf.writeByte(this.id);
-
-        if (this.id == -1) {
+        if(id <= 0) {
+            buf.writeShort(-1);
             return;
+        } else {
+            buf.writeShort(id);
         }
 
         buf.writeByte((int) this.quantity);
@@ -137,6 +140,8 @@ public class Slot implements Writable, NBTSerializable {
 
         if (this.compoundTag != null) {
             // TODO: toPacket compound tag
+        } else {
+            buf.writeByte(0); // No NBT
         }
     }
 

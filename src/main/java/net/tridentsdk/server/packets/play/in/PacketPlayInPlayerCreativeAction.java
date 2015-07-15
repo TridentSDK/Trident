@@ -75,6 +75,8 @@ public class PacketPlayInPlayerCreativeAction extends InPacket {
 
             return;
         }
+
+        // TODO: Handle when the item is set in the Player's hand
         player.inventory().setSlot(slot - 1, item.item());
     }
 }

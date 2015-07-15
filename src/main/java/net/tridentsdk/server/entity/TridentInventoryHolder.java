@@ -24,6 +24,7 @@ import net.tridentsdk.meta.nbt.ListTag;
 import net.tridentsdk.meta.nbt.NBTSerializer;
 import net.tridentsdk.meta.nbt.NBTTag;
 import net.tridentsdk.server.data.Slot;
+import net.tridentsdk.server.packets.play.out.PacketPlayOutEntityEquipment;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.window.inventory.Inventory;
 import net.tridentsdk.window.inventory.Item;
@@ -59,6 +60,12 @@ public abstract class TridentInventoryHolder extends TridentLivingEntity impleme
     @Override
     public void setHeldItem(Item item) {
         inventory.setSlot(TridentPlayer.SLOT_OFFSET + selectedSlot, item);
+        PacketPlayOutEntityEquipment packet = new PacketPlayOutEntityEquipment();
+        packet.set("entityId", entityId());
+        packet.set("item", new Slot(item));
+        packet.set("slot", (short) 0);
+
+        TridentPlayer.sendFiltered(packet, (p) -> !p.equals(TridentInventoryHolder.this));
     }
 
     public void setSelectedSlot(int selectedSlot) {
