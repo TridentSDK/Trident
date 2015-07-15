@@ -1,10 +1,21 @@
 {
+  // Don't change the address unless you know what you are doing
   "address": "0.0.0.0",
+  // The port the server will run on
   "port": 25565,
+  // Display options
   "motd": "Just another TridentSDK server",
   "max-players": 10,
+  // Bytes at which the server will compress packets
+  // Don't change unless you know what you are doing
   "compression-threshold": 256,
-  "generateflatlands": true,
+  // The diameter of the chunk view distance for a player
   "view-distance": 15,
-  "default-gamemode": 0
+  // Unused
+  "default-gamemode": 0,
+  // Performance optins
+  "performance": {
+    // The maximum amount of chunks to send to the player
+    "max-chunks-player": 441
+  }
 }

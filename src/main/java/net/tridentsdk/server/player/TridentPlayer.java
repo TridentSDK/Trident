@@ -57,6 +57,9 @@ import static net.tridentsdk.server.packets.play.out.PacketPlayOutPlayerListItem
 public class TridentPlayer extends OfflinePlayer {
     private static final Map<UUID, Player> ONLINE_PLAYERS = new ConcurrentHashMap<>();
     private static final int MAX_VIEW = Trident.config().getInt("view-distance", 15);
+    private static final int MAX_CHUNKS = (int) Trident.config().getConfigSection("performance")
+            .getInt("max-chunks-player", 441);
+
     private final PlayerConnection connection;
     private final Set<ChunkLocation> knownChunks = Factories.collect().createSet();
     private final Queue<PacketPlayOutMapChunkBulk> chunkQueue = Queues.newConcurrentLinkedQueue();
@@ -113,7 +116,7 @@ public class TridentPlayer extends OfflinePlayer {
                     .set("levelType", LevelType.DEFAULT));
 
             p.abilities.creative = 1;
-            p.abilities.flySpeed = 0.2F;
+            p.abilities.flySpeed = 0.135F;
             p.abilities.canFly = 1;
 
             // DEBUG =====
@@ -242,7 +245,7 @@ public class TridentPlayer extends OfflinePlayer {
     }
 
     public void cleanChunks() {
-        int toClean = knownChunks.size() - 441;
+        int toClean = knownChunks.size() - MAX_CHUNKS;
         if (toClean > 0) {
             Position pos = position();
             int x = (int) pos.x() / 16;
@@ -385,20 +388,12 @@ public class TridentPlayer extends OfflinePlayer {
         int length = 0;
 
         for (int x = (centX - viewDistance / 2); x <= (centX + viewDistance / 2); x += 1) {
-            zl:
             for (int z = (centZ - viewDistance / 2); z <= (centZ + viewDistance / 2); z += 1) {
                 ChunkLocation location = ChunkLocation.create(x, z);
-
-                for (ChunkLocation loc : knownChunks) {
-                    if (loc.equals(location)) {
-                        continue zl;
-                    }
-                }
+                if (!knownChunks.add(location)) continue;
 
                 TridentChunk chunk = (TridentChunk) world().chunkAt(x, z, true);
                 PacketPlayOutChunkData data = chunk.asPacket();
-
-                if (!knownChunks.add(location)) continue;
 
                 bulk.addEntry(data);
                 length += (10 + data.data().length);
