@@ -75,6 +75,12 @@ public class PacketLoginInStart extends InPacket {
 
     @Override
     public void handleReceived(ClientConnection connection) {
+        boolean allow = LoginHandler.getInstance().initLogin(connection.address(), this.name());
+        if (!allow) {
+            connection.sendPacket(new PacketLoginOutDisconnect().setJsonMessage("Server is full"));
+            return;
+        }
+
         /*
          * If the client is the local machine, skip the encryption process and proceed to the PLAY stage
          */
@@ -166,7 +172,6 @@ public class PacketLoginInStart extends InPacket {
             return;
         }
 
-        LoginHandler.getInstance().initLogin(connection.address(), this.name());
         PacketLoginOutEncryptionRequest p = new PacketLoginOutEncryptionRequest();
 
         // Generate the 4 byte token and update the packet
