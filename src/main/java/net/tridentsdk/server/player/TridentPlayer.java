@@ -274,6 +274,12 @@ public class TridentPlayer extends OfflinePlayer {
     @Override
     protected void doRemove() {
         ONLINE_PLAYERS.remove(this.uniqueId());
+
+        PacketPlayOutPlayerListItem item = new PacketPlayOutPlayerListItem();
+        item.set("action", 4).set("playerListData", new PlayerListDataBuilder[]{
+                new PacketPlayOutPlayerListItem.PlayerListDataBuilder().id(uniqueId).values(new Object[0])});
+        sendAll(item);
+
         players().forEach(p ->
                 new MessageBuilder(name + " has left the server").color(ChatColor.YELLOW).build().sendTo(p));
         TridentLogger.log(name + " has left the server");
@@ -289,6 +295,31 @@ public class TridentPlayer extends OfflinePlayer {
                             .set("location", loc)
                             .set("onGround", onGround));
                 });
+
+        /* double dX = loc.x() - position().x();
+        double dY = loc.y() - position().y();
+        double dZ = loc.z() - position().z();
+        if (dX == 0 && dY == 0 && dZ == 0) {
+            sendFiltered(new PacketPlayOutEntityLook().set("entityId", entityId())
+                            .set("location", loc).set("onGround", onGround), player -> !player.equals(this)
+                    );
+
+            return;
+        }
+
+        if (dX > 4 || dY > 4 || dZ > 4) {
+            sendFiltered(new PacketPlayOutEntityTeleport()
+                    .set("entityId", entityId())
+                    .set("location", loc)
+                    .set("onGround", onGround), player -> !player.equals(this));
+        } else {
+            sendFiltered(new PacketPlayOutEntityRelativeMove()
+                    .set("entityId", entityId())
+                    .set("difference", new Vector(dX, dY, dZ))
+                            //.set("yaw", loc.yaw())
+                            //.set("pitch", loc.pitch())
+                    .set("onGround", onGround), player -> !player.equals(this));
+        } */
 
         super.setPosition(loc);
     }

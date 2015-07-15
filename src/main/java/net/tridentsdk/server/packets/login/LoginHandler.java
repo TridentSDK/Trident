@@ -18,9 +18,11 @@
 package net.tridentsdk.server.packets.login;
 
 
+import com.google.common.collect.Maps;
+import net.tridentsdk.Trident;
+
 import java.net.InetSocketAddress;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Class used to store login usernames during the login stage
@@ -34,7 +36,7 @@ public final class LoginHandler {
     /**
      * Map used to store usernames with the address as the key
      */
-    protected final Map<InetSocketAddress, String> loginNames = new ConcurrentHashMap<>();
+    protected final Map<InetSocketAddress, String> loginNames = Maps.newHashMap();
 
     protected LoginHandler() {
     }
@@ -43,15 +45,26 @@ public final class LoginHandler {
         return instance;
     }
 
-    public void initLogin(InetSocketAddress address, String name) {
-        this.loginNames.put(address, name);
+    public boolean initLogin(InetSocketAddress address, String name) {
+        synchronized (this) {
+            if (loginNames.size() + Trident.onlinePlayers().size() == Trident.info().maxPlayers()) {
+                return false;
+            }
+
+            loginNames.put(address, name);
+            return true;
+        }
     }
 
     public String name(InetSocketAddress address) {
-        return this.loginNames.get(address);
+        synchronized (this) {
+            return this.loginNames.get(address);
+        }
     }
 
     public void finish(InetSocketAddress address) {
-        this.loginNames.remove(address);
+        synchronized (this) {
+            this.loginNames.remove(address);
+        }
     }
 }
