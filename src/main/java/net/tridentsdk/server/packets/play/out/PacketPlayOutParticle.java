@@ -29,6 +29,7 @@ public class PacketPlayOutParticle extends OutPacket {
     protected Position loc;
     protected Vector offset; // d - (d * Random#nextGaussian())
     protected float particleData;
+    protected int count;
     protected int[] data;
 
     @Override
@@ -56,6 +57,10 @@ public class PacketPlayOutParticle extends OutPacket {
         return this.particleData;
     }
 
+    public int count() {
+        return this.count;
+    }
+
     public int[] data() {
         return this.data;
     }
@@ -74,7 +79,7 @@ public class PacketPlayOutParticle extends OutPacket {
         buf.writeFloat((float) this.offset.z());
 
         buf.writeFloat(this.particleData);
-        buf.writeInt(this.data.length);
+        buf.writeInt(this.count);
 
         for (int i : this.data) {
             Codec.writeVarInt32(buf, i);

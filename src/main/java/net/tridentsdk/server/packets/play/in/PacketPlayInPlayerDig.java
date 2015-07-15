@@ -32,10 +32,12 @@ import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutBlockChange;
+import net.tridentsdk.server.packets.play.out.PacketPlayOutParticle;
 import net.tridentsdk.server.player.PlayerConnection;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.world.TridentChunk;
 import net.tridentsdk.util.TridentLogger;
+import net.tridentsdk.util.Vector;
 import net.tridentsdk.window.inventory.Item;
 
 public class PacketPlayInPlayerDig extends InPacket {
@@ -161,9 +163,14 @@ public class PacketPlayInPlayerDig extends InPacket {
         // TODO act accordingly
 
         if(digStatus == DigStatus.DIG_FINISH) {
+            int[] arr = {location.block().substance().id() + (location.block().meta() << 12)};
+
             ((TridentChunk) location().chunk()).setAt(location, Substance.AIR, (byte) 0, (byte) 255, (byte) 15);
             TridentPlayer.sendAll(new PacketPlayOutBlockChange()
                     .set("location", location).set("blockId", Substance.AIR.id()));
+            TridentPlayer.sendAll(new PacketPlayOutParticle()
+                    .set("particleId", 37 ).set("distance", false).set("loc", location).set("offset", new Vector(0, 0, 0))
+                    .set("count", 1).set("data", arr));
         }
     }
 
