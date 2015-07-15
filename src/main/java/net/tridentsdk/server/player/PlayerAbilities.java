@@ -59,7 +59,7 @@ public class PlayerAbilities implements NBTSerializable {
     }
 
     public boolean isInvulnerable() {
-        return flying == 1;
+        return invulnerable == 1;
     }
 
     public boolean canBuild() {
