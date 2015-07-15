@@ -47,7 +47,7 @@ public final class LoginHandler {
 
     public boolean initLogin(InetSocketAddress address, String name) {
         synchronized (this) {
-            if (loginNames.size() + Trident.onlinePlayers().size() == Trident.info().maxPlayers()) {
+            if (loginNames.size() + Trident.onlinePlayers().size() >= Trident.info().maxPlayers()) {
                 return false;
             }
 

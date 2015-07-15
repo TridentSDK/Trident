@@ -398,7 +398,8 @@ public class TridentPlayer extends OfflinePlayer {
                 TridentChunk chunk = (TridentChunk) world().chunkAt(x, z, true);
                 PacketPlayOutChunkData data = chunk.asPacket();
 
-                knownChunks.add(location);
+                if (!knownChunks.add(location)) continue;
+
                 bulk.addEntry(data);
                 length += (10 + data.data().length);
 
