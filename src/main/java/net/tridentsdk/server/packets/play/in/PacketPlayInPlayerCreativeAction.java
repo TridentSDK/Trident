@@ -68,9 +68,10 @@ public class PacketPlayInPlayerCreativeAction extends InPacket {
     public void handleReceived(ClientConnection connection) {
         TridentPlayer player = ((PlayerConnection) connection).player();
 
-        if (slot == -1) {
+        if (slot <= 0) {
             DroppedItem item = (DroppedItem) player.world().spawn(EntityType.ITEM, player.position());
             // TODO set item type
+            // TODO this can also clear the inventory
 
             return;
         }
