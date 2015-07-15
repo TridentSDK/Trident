@@ -34,7 +34,6 @@ import net.tridentsdk.config.JsonConfig;
 import net.tridentsdk.docs.Volatile;
 import net.tridentsdk.factory.CollectFactory;
 import net.tridentsdk.plugin.channel.ChannelHandler;
-import net.tridentsdk.plugin.cmd.PlatformColor;
 import net.tridentsdk.server.command.ServerCommandRegistrar;
 import net.tridentsdk.server.netty.ClientChannelInitializer;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutPluginMessage;
@@ -208,14 +207,13 @@ public final class TridentStart {
             Scanner scanner = new Scanner(System.in);
 
             while (true) {
-                System.out.print("$" + PlatformColor.forColor("cursoreol2"));
                 String command = scanner.next();
+                System.out.print("$ ");
 
                 Trident.console().invokeCommand(command);
 
                 switch (command) {
                     case "shutdown":
-                        return;
                     case "stop":
                         return;
                 }
@@ -234,7 +232,6 @@ public final class TridentStart {
     /**
      * Shuts down the backed event loops
      */
-
     public static void close() {
         // Correct way to close the socket and shut down the server
         workerGroup.shutdownGracefully().awaitUninterruptibly();
