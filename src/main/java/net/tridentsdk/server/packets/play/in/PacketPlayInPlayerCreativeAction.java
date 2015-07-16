@@ -72,11 +72,10 @@ public class PacketPlayInPlayerCreativeAction extends InPacket {
             DroppedItem item = (DroppedItem) player.getWorld().spawn(EntityType.ITEM, player.getPosition());
             // TODO set item type
             // TODO this can also clear the inventory
-
             return;
         }
 
         // TODO: Handle when the item is set in the Player's hand
-        player.getInventory().setItem(slot - 1, item.item());
+        player.getInventory().setItem(slot - 1, item.getItem());
     }
 }

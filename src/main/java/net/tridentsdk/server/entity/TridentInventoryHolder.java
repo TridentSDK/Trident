@@ -83,7 +83,7 @@ public abstract class TridentInventoryHolder extends TridentLivingEntity impleme
 
         for (NBTTag t : equipment.listTags()) {
             inventory.setItem(index++, NBTSerializer.deserialize(Slot.class,
-                    t.asType(CompoundTag.class)).item());
+                    t.asType(CompoundTag.class)).getItem());
         }
     }
 }
