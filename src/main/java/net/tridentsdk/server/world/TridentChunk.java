@@ -46,7 +46,7 @@ import java.util.stream.Stream;
 public class TridentChunk implements Chunk {
     private final TridentWorld world;
     private final ChunkLocation location;
-    private final TaskExecutor executor = ThreadsHandler.chunkExecutor().scaledThread();
+    final TaskExecutor executor = ThreadsHandler.chunkExecutor().scaledThread();
     private final Set<Entity> entities = Factories.collect().createSet();
     public volatile ChunkSection[] sections;
     private volatile int lastFileAccess;
@@ -340,10 +340,14 @@ public class TridentChunk implements Chunk {
         final ListTag sectionTags = new ListTag("Sections", TagType.COMPOUND);
 
         ChunkSection[] sectionCopy = new ChunkSection[0];
-        try {
-            sectionCopy = executor.submitTask(this::mapSections).get();
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
+        if (Thread.currentThread().equals(executor.asThread())) {
+            sectionCopy = mapSections();
+        } else {
+            try {
+                sectionCopy = executor.submitTask(this::mapSections).get();
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
         }
 
         for (ChunkSection section : sectionCopy) {

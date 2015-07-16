@@ -15,7 +15,8 @@
   "default-gamemode": 0,
   // Performance optins
   "performance": {
-    // The maximum amount of chunks to send to the player
+    // The maximum amount of chunks to attempt to keep on the player
+    // View distance always takes priority over this
     "max-chunks-player": 441
   }
 }

@@ -20,7 +20,6 @@ import com.google.common.collect.Lists;
 import net.tridentsdk.concurrent.HeldValueLatch;
 import net.tridentsdk.docs.AccessNoDoc;
 import net.tridentsdk.entity.types.EntityType;
-import net.tridentsdk.server.threads.ThreadsHandler;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.Chunk;
 import net.tridentsdk.world.ChunkLocation;
@@ -82,14 +81,14 @@ public class ChunkCache {
 
     public boolean tryRemove(ChunkLocation location) {
         try {
-            return ThreadsHandler.genExecutor().submit(() -> {
-                HeldValueLatch<TridentChunk> chunk = cachedChunks.get(location);
-                if (chunk == null) {
-                    return false;
-                }
+            HeldValueLatch<TridentChunk> chunk = cachedChunks.get(location);
+            if (chunk == null) {
+                return false;
+            }
 
-                if (chunk.hasValue()) {      // No value = needs to generate
-                    Chunk c = chunk.get();
+            if (chunk.hasValue()) {      // No value = needs to generate
+                TridentChunk c = chunk.get();
+                return c.executor.submitTask(() -> {
                     if (c.entities()         // Ensure there are no players
                             .stream()
                             .filter(e -> e.type().equals(EntityType.PLAYER))
@@ -99,10 +98,10 @@ public class ChunkCache {
 
                         return true;
                     }
-                }
 
-                return false;
-            }).get();
+                    return false;
+                }).get();
+            }
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }

@@ -252,7 +252,6 @@ public class TridentPlayer extends OfflinePlayer {
             int z = (int) pos.z() / 16;
             int viewDist = viewDistance();
 
-            int cleaned = 0;
             for (ChunkLocation location : knownChunks) {
                 int cx = location.x();
                 int cz = location.z();
@@ -261,15 +260,10 @@ public class TridentPlayer extends OfflinePlayer {
                 int abs1 = Math.abs(cz - z);
 
                 if (abs > viewDist || abs1 > viewDist) {
-                    boolean tried = ((TridentWorld) world()).loadedChunks.tryRemove(location);
-                    if (tried) {
-                        connection.sendPacket(new PacketPlayOutChunkData(new byte[0], location, true, (short) 0));
-                        knownChunks.remove(location);
-                        cleaned++;
-                    }
+                    ((TridentWorld) world()).loadedChunks.tryRemove(location);
+                    connection.sendPacket(new PacketPlayOutChunkData(new byte[0], location, true, (short) 0));
+                    knownChunks.remove(location);
                 }
-
-                if (cleaned >= toClean) return;
             }
         }
     }
