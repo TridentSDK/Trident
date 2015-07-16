@@ -252,7 +252,6 @@ public class TridentPlayer extends OfflinePlayer {
             int z = (int) pos.z() / 16;
             int viewDist = viewDistance();
 
-            int cleaned = 0;
             for (ChunkLocation location : knownChunks) {
                 int cx = location.x();
                 int cz = location.z();
@@ -261,15 +260,10 @@ public class TridentPlayer extends OfflinePlayer {
                 int abs1 = Math.abs(cz - z);
 
                 if (abs > viewDist || abs1 > viewDist) {
-                    boolean tried = ((TridentWorld) world()).loadedChunks.tryRemove(location);
-                    if (tried) {
-                        connection.sendPacket(new PacketPlayOutChunkData(new byte[0], location, true, (short) 0));
-                        knownChunks.remove(location);
-                        cleaned++;
-                    }
+                    ((TridentWorld) world()).loadedChunks.tryRemove(location);
+                    connection.sendPacket(new PacketPlayOutChunkData(new byte[0], location, true, (short) 0));
+                    knownChunks.remove(location);
                 }
-
-                if (cleaned >= toClean) return;
             }
         }
     }
@@ -453,6 +447,18 @@ public class TridentPlayer extends OfflinePlayer {
 
     @InternalUseOnly
     public void setCrouching(boolean crouching) {
+        /* ProtocolMetadata meta = new ProtocolMetadata();
+        encodeMetadata(meta);
+
+        int idx = 0;
+        int mask = 0x02;
+        meta.setMeta(idx, MetadataType.BYTE, (byte) (((byte) meta.get(0).value() & ~mask) | (crouching ? mask : 0)));
+        System.out.println(meta.get(0).value());
+        sendFiltered(new PacketPlayOutEntityMetadata().set("entityId", entityId()).set("metadata", meta),
+                p -> !p.equals(this)); */
+        PacketPlayOutEffect effect = new PacketPlayOutEffect();
+        effect.set("effectId", 104);
+
         this.crouching = crouching;
     }
 

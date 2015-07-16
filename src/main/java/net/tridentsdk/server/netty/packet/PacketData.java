@@ -64,7 +64,7 @@ public class PacketData {
         try {
             this.decrypted = Unpooled.buffer();
 
-            this.decrypted.writeBytes(con.encrypt(Codec.asArray(this.rawData)));
+            this.decrypted.writeBytes(con.decrypt(Codec.asArray(this.rawData)));
         } catch (Exception ex) {
             TridentLogger.error(ex);
         }

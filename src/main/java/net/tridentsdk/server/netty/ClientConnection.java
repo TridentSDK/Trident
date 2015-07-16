@@ -19,6 +19,7 @@ package net.tridentsdk.server.netty;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
 import net.tridentsdk.Handler;
 import net.tridentsdk.docs.InternalUseOnly;
@@ -26,6 +27,7 @@ import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.player.PlayerDisconnectEvent;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.protocol.Protocol;
+import net.tridentsdk.server.packets.login.PacketLoginOutDisconnect;
 import net.tridentsdk.server.packets.login.PacketLoginOutSetCompression;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutDisconnect;
 import net.tridentsdk.server.player.PlayerConnection;
@@ -37,6 +39,8 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.net.InetSocketAddress;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.SecureRandom;
 import java.util.UUID;
@@ -62,7 +66,8 @@ public class ClientConnection {
     /**
      * The RSA cipher used to encrypt client data
      */
-    protected static final Cipher cipher = getCipher();
+    protected final Cipher encryptCipher = getCipher();
+    protected final Cipher decryptCipher = getCipher();
 
     /* Network fields */
     private final Object BARRIER;
@@ -101,18 +106,30 @@ public class ClientConnection {
      */
     protected volatile boolean compressionEnabled = false;
     private volatile UUID uuid;
-    private IvParameterSpec ivSpec;
+    private volatile IvParameterSpec ivSpec;
 
     /**
      * Creates a new connection handler for the joining channel stream
      */
     protected ClientConnection(Channel channel) {
-        BARRIER = new Object();
         this.address = (InetSocketAddress) channel.remoteAddress();
         this.channel = channel;
+        BARRIER = new Object();
+
         this.encryptionEnabled = false;
         this.stage = Protocol.ClientStage.HANDSHAKE;
         channel.closeFuture().addListener(future -> logout());
+        channel.pipeline().addLast(new ChannelHandlerAdapter() {
+            @Override
+            public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+                if (cause.getMessage().toLowerCase().contains("connection reset")) {
+                    logout();
+                    return;
+                }
+
+                super.exceptionCaught(ctx, cause);
+            }
+        });
     }
 
     protected ClientConnection() {
@@ -183,12 +200,14 @@ public class ClientConnection {
 
         Codec.writeVarInt32(buffer, packet.id());
         packet.encode(buffer);
+        TridentLogger.log(packet.getClass().getSimpleName() + " sent");
 
         // Write the packet and flush it
         this.channel.write(buffer);
         this.channel.flush();
 
-        if (packet instanceof PacketPlayOutDisconnect) {
+        if (packet instanceof PacketPlayOutDisconnect
+                || packet instanceof PacketLoginOutDisconnect) {
             logout();
         }
     }
@@ -201,9 +220,7 @@ public class ClientConnection {
      * @throws Exception if something wrong occurs
      */
     public byte[] encrypt(byte... data) throws Exception {
-        cipher.init(Cipher.ENCRYPT_MODE, this.sharedSecret, this.ivSpec);
-
-        return cipher.doFinal(data);
+        return encryptCipher.doFinal(data);
     }
 
     /**
@@ -214,9 +231,7 @@ public class ClientConnection {
      * @throws Exception if something wrong occurs
      */
     public byte[] decrypt(byte... data) throws Exception {
-        cipher.init(Cipher.DECRYPT_MODE, this.sharedSecret, this.ivSpec);
-
-        return cipher.doFinal(data);
+        return decryptCipher.doFinal(data);
     }
 
     /**
@@ -239,6 +254,13 @@ public class ClientConnection {
             this.sharedSecret = new SecretKeySpec(secret, "AES");
             this.ivSpec = new IvParameterSpec(this.sharedSecret.getEncoded());
             this.encryptionEnabled = true;
+
+            try {
+                encryptCipher.init(Cipher.ENCRYPT_MODE, sharedSecret, ivSpec);
+                decryptCipher.init(Cipher.DECRYPT_MODE, sharedSecret, ivSpec);
+            } catch (InvalidKeyException | InvalidAlgorithmParameterException e) {
+                e.printStackTrace();
+            }
         }
     }
 

@@ -21,6 +21,9 @@ import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
+import net.tridentsdk.server.packets.play.out.PacketPlayOutAnimation;
+import net.tridentsdk.server.player.PlayerConnection;
+import net.tridentsdk.server.player.TridentPlayer;
 
 /**
  * What the fuck is this? Take me on my word when I say I have no idea for the use of this
@@ -39,6 +42,8 @@ public class PacketPlayInAnimation extends InPacket {
 
     @Override
     public void handleReceived(ClientConnection connection) {
-        // TODO: Act accordingly?
+        TridentPlayer player = ((PlayerConnection) connection).player();
+        TridentPlayer.sendFiltered(new PacketPlayOutAnimation()
+                .set("entityId", player.entityId()).set("animationId", 0), p -> !player.equals(p));
     }
 }
