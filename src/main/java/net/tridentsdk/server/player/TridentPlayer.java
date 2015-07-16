@@ -453,6 +453,18 @@ public class TridentPlayer extends OfflinePlayer {
 
     @InternalUseOnly
     public void setCrouching(boolean crouching) {
+        /* ProtocolMetadata meta = new ProtocolMetadata();
+        encodeMetadata(meta);
+
+        int idx = 0;
+        int mask = 0x02;
+        meta.setMeta(idx, MetadataType.BYTE, (byte) (((byte) meta.get(0).value() & ~mask) | (crouching ? mask : 0)));
+        System.out.println(meta.get(0).value());
+        sendFiltered(new PacketPlayOutEntityMetadata().set("entityId", entityId()).set("metadata", meta),
+                p -> !p.equals(this)); */
+        PacketPlayOutEffect effect = new PacketPlayOutEffect();
+        effect.set("effectId", 104);
+
         this.crouching = crouching;
     }
 
