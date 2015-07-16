@@ -25,6 +25,8 @@ import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.protocol.Protocol;
 import net.tridentsdk.server.packets.login.PacketLoginOutDisconnect;
+import net.tridentsdk.server.packets.play.in.PacketPlayInPlayerFall;
+import net.tridentsdk.server.packets.play.in.PacketPlayInPlayerMove;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutDisconnect;
 import net.tridentsdk.server.player.PlayerConnection;
 import net.tridentsdk.util.TridentLogger;
@@ -62,7 +64,9 @@ public class PacketHandler extends SimpleChannelInboundHandler<PacketData> {
         }
 
         Packet packet = this.protocol.getPacket(data.getId(), this.connection.stage(), PacketDirection.IN);
-        TridentLogger.log(packet.getClass().getSimpleName() + " received");
+        if (packet.getClass() != PacketPlayInPlayerFall.class && packet.getClass() != PacketPlayInPlayerMove.class) {
+            TridentLogger.log(packet.getClass().getSimpleName() + " received");
+        }
 
         //If packet is unknown disconnect the client, as said client seems to be modified
         if (packet.id() == -1) {

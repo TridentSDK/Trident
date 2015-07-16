@@ -28,7 +28,6 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ExecutionException;
 
 @AccessNoDoc
 public class ChunkCache {
@@ -80,30 +79,24 @@ public class ChunkCache {
     }
 
     public boolean tryRemove(ChunkLocation location) {
-        try {
-            HeldValueLatch<TridentChunk> chunk = cachedChunks.get(location);
-            if (chunk == null) {
-                return false;
+        HeldValueLatch<TridentChunk> chunk = cachedChunks.get(location);
+        if (chunk == null) {
+            return false;
+        }
+
+        if (chunk.hasValue()) {      // No value = needs to generate
+            TridentChunk c = chunk.get();
+            if (c.entities()         // Ensure there are no players
+                    .stream()
+                    .filter(e -> e.type().equals(EntityType.PLAYER))
+                    .count() == 0) {
+                c.executor.addTask(() -> {
+                    remove(location);
+                    c.unload();
+                });
+
+                return true;
             }
-
-            if (chunk.hasValue()) {      // No value = needs to generate
-                TridentChunk c = chunk.get();
-                return c.executor.submitTask(() -> {
-                    if (c.entities()         // Ensure there are no players
-                            .stream()
-                            .filter(e -> e.type().equals(EntityType.PLAYER))
-                            .count() == 0) {
-                        remove(location);
-                        c.unload();
-
-                        return true;
-                    }
-
-                    return false;
-                }).get();
-            }
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
         }
 
         return false;

@@ -58,6 +58,8 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -78,10 +80,10 @@ public class TridentWorld implements World {
     private final WorldLoader loader;
     private final Position spawnPosition;
 
-    private volatile long time;
-    private volatile long existed;
-    private volatile int rainTime;
-    private volatile int thunderTime;
+    private final AtomicLong time = new AtomicLong();
+    private final AtomicLong existed = new AtomicLong();
+    private final AtomicInteger rainTime = new AtomicInteger();
+    private final AtomicInteger thunderTime = new AtomicInteger();
     private volatile double borderSize;
     private volatile Dimension dimension;
     private volatile Difficulty difficulty;
@@ -151,12 +153,12 @@ public class TridentWorld implements World {
         borderSize = level.containsTag("BorderSize") ?
                 ((DoubleTag) level.getTag("BorderSize")).value() : 6000;
 
-        time = ((LongTag) level.getTag("DayTime")).value();
-        existed = ((LongTag) level.getTag("Time")).value();
+        time.set(((LongTag) level.getTag("DayTime")).value());
+        existed.set(((LongTag) level.getTag("Time")).value());
         raining = ((ByteTag) level.getTag("raining")).value() == 1;
-        rainTime = ((IntTag) level.getTag("rainTime")).value();
+        rainTime.set(((IntTag) level.getTag("rainTime")).value());
         thundering = ((ByteTag) level.getTag("thundering")).value() == 1;
-        thunderTime = ((IntTag) level.getTag("thunderTime")).value();
+        thunderTime.set(((IntTag) level.getTag("thunderTime")).value());
         difficultyLocked = level.containsTag("DifficultyLocked") &&
                 ((ByteTag) level.getTag("DifficultyLocked")).value() == 1;
         TridentLogger.success("Loaded level.dat successfully. Moving on to region files...");
@@ -217,12 +219,12 @@ public class TridentWorld implements World {
             world.defaultGamemode = GameMode.SURVIVAL;
             world.type = LevelType.DEFAULT;
             world.borderSize = 60000000;
-            world.time = 0;
-            world.existed = 0;
+            world.time.set(0);
+            world.existed.set(0);
             world.raining = false;
-            world.rainTime = 0;
+            world.rainTime.set(0);
             world.thundering = false;
-            world.thunderTime = 0;
+            world.thunderTime.set(0);
             world.difficultyLocked = false;
             TridentLogger.success("Created directories and set all values");
 
@@ -258,33 +260,34 @@ public class TridentWorld implements World {
         ThreadsHandler.worldExecutor().execute(() -> {
             redstoneTick = !redstoneTick;
 
-            if (time >= 24000)
-                time = 0;
+            if (time.get() >= 24000)
+                time.set(0);
 
-            rainTime--;
-            thunderTime--;
+            rainTime.getAndDecrement();
+            thunderTime.getAndDecrement();
 
-            if (rainTime <= 0) {
+            if (rainTime.get() <= 0) {
                 raining = !raining;
-                rainTime = ThreadLocalRandom.current().nextInt();
+                rainTime.set(ThreadLocalRandom.current().nextInt());
             }
 
-            if (thunderTime <= 0) {
+            if (thunderTime.get() <= 0) {
                 thundering = !thundering;
-                thunderTime = ThreadLocalRandom.current().nextInt();
+                thunderTime.set(ThreadLocalRandom.current().nextInt());
             }
 
+            boolean updateTime = time.get() % 40 == 0;
 
             for (Entity entity : entities) {
                 ((TridentEntity) entity).tick();
-                if (entity instanceof Player) {
+                if (entity instanceof Player && updateTime) {
                     ((TridentPlayer) entity).connection().sendPacket
-                            (new PacketPlayOutTimeUpdate().set("worldAge", existed).set("time", time));
+                            (new PacketPlayOutTimeUpdate().set("worldAge", existed.get()).set("time", time.get()));
                 }
             }
 
-            time++;
-            existed++;
+            time.getAndIncrement();
+            existed.getAndIncrement();
         });
     }
 
@@ -313,15 +316,15 @@ public class TridentWorld implements World {
 
         tag.addTag(new ByteTag("Difficulty").setValue(difficulty.asByte()));
         tag.addTag(new ByteTag("DifficultyLocked").setValue(difficultyLocked ? (byte) 1 : (byte) 0));
-        tag.addTag(new LongTag("DayTime").setValue(time));
-        tag.addTag(new LongTag("Time").setValue(existed));
+        tag.addTag(new LongTag("DayTime").setValue(time.get()));
+        tag.addTag(new LongTag("Time").setValue(existed.get()));
         tag.addTag(new ByteTag("raining").setValue(raining ? (byte) 1 : (byte) 0));
         tag.addTag(new IntTag("GameType").setValue(defaultGamemode.asByte()));
         tag.addTag(new StringTag("generatorName").setValue(type.toString()));
 
-        tag.addTag(new IntTag("rainTime").setValue(rainTime));
+        tag.addTag(new IntTag("rainTime").setValue(rainTime.get()));
         tag.addTag(new ByteTag("thundering").setValue(thundering ? (byte) 1 : (byte) 0));
-        tag.addTag(new IntTag("thunderTime").setValue(thunderTime));
+        tag.addTag(new IntTag("thunderTime").setValue(thunderTime.get()));
 
         // TODO add other level data
 
@@ -500,7 +503,7 @@ public class TridentWorld implements World {
 
     @Override
     public long time() {
-        return time;
+        return time.get();
     }
 
     @Override
@@ -510,7 +513,7 @@ public class TridentWorld implements World {
 
     @Override
     public int rainTime() {
-        return rainTime;
+        return rainTime.get();
     }
 
     @Override
@@ -520,7 +523,7 @@ public class TridentWorld implements World {
 
     @Override
     public int thunderTime() {
-        return thunderTime;
+        return thunderTime.get();
     }
 
     @Override
