@@ -62,6 +62,7 @@ public class PacketHandler extends SimpleChannelInboundHandler<PacketData> {
         }
 
         Packet packet = this.protocol.getPacket(data.getId(), this.connection.stage(), PacketDirection.IN);
+        TridentLogger.log(packet.getClass().getSimpleName() + " received");
 
         //If packet is unknown disconnect the client, as said client seems to be modified
         if (packet.id() == -1) {

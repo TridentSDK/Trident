@@ -31,13 +31,6 @@ public class ProtocolMetadata implements Writable {
     @GuardedBy("metadata")
     private final List<MetadataValue> metadata = Lists.newLinkedList(() -> Iterators.forArray(new MetadataValue[22]));
 
-    public int addMeta(MetadataType type, Object value) {
-        synchronized (metadata) {
-            metadata.add(new MetadataValue(metadata.size(), value, type));
-            return metadata.size() - 1;
-        }
-    }
-
     public void setMeta(int index, MetadataValue value) {
         synchronized (metadata) {
             metadata.add(index, value);

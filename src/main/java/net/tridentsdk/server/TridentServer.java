@@ -167,6 +167,7 @@ public final class TridentServer implements Server {
 
         for (Player player : TridentPlayer.players()) {
             ((TridentPlayer) player).kickPlayer("Server shutting down");
+            ((TridentPlayer) player).connection().logout();
         }
 
         TridentLogger.log("Shutting down worker threads...");

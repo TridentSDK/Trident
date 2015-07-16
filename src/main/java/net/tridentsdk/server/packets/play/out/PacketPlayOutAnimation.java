@@ -44,4 +44,5 @@ public class PacketPlayOutAnimation extends OutPacket {
         Codec.writeVarInt32(buf, this.entityId);
         buf.writeByte(this.animationId);
     }
+    
 }

@@ -43,39 +43,9 @@ public final class RSA {
      */
     public static KeyPair generate(int bits) throws NoSuchAlgorithmException {
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
-
         keyGen.initialize(bits);
+
         return keyGen.generateKeyPair();
-    }
-
-    /**
-     * Encrypts the data into the cipher with the given key
-     *
-     * @param data the data to be ciphered
-     * @param key  the key to use for initialization
-     * @return the encrypted bytes
-     * @throws Exception if something happens to occur
-     */
-    public static byte[] encrypt(byte[] data, Key key) throws Exception {
-        Cipher cipher = Cipher.getInstance("RSA");
-        cipher.init(Cipher.ENCRYPT_MODE, key);
-
-        return cipher.doFinal(data);
-    }
-
-    /**
-     * Encrypts the data into the cipher with the given key, which is copied to a single element byte array
-     *
-     * @param data the data to be ciphered
-     * @param key  the key to use for initialization
-     * @return the encrypted bytes
-     * @throws Exception if something happens to occur
-     */
-    public static byte[] encrypt(byte data, Key key) throws Exception {
-        Cipher cipher = Cipher.getInstance("RSA");
-        cipher.init(Cipher.ENCRYPT_MODE, key);
-
-        return cipher.doFinal(new byte[] { data });
     }
 
     /**
@@ -91,20 +61,5 @@ public final class RSA {
         cipher.init(Cipher.DECRYPT_MODE, key);
 
         return cipher.doFinal(data);
-    }
-
-    /**
-     * Decrypts the data into the cipher with the given key, copied into a single element byte array
-     *
-     * @param data the data to be ciphered
-     * @param key  the key to use for initialization
-     * @return the decrypted bytes
-     * @throws Exception if something happens to occur
-     */
-    public static byte[] decrypt(byte data, Key key) throws Exception {
-        Cipher cipher = Cipher.getInstance("RSA");
-        cipher.init(Cipher.DECRYPT_MODE, key);
-
-        return cipher.doFinal(new byte[] { data });
     }
 }
