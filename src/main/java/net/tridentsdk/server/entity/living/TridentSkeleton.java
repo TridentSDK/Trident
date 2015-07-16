@@ -42,7 +42,7 @@ public class TridentSkeleton extends TridentLivingEntity implements Skeleton {
     }
 
     @Override
-    public Item[] equipment() {
+    public Item[] getEquipment() {
         return new Item[0];
     }
 
@@ -52,17 +52,17 @@ public class TridentSkeleton extends TridentLivingEntity implements Skeleton {
     }
 
     @Override
-    public EntityDamageEvent lastDamageEvent() {
+    public EntityDamageEvent getLastDamageEvent() {
         return null;
     }
 
     @Override
-    public Player lastPlayerDamager() {
+    public Player getLastPlayerDamager() {
         return null;
     }
 
     @Override
-    public EntityType type() {
+    public EntityType getType() {
         return EntityType.SKELETON;
     }
 }

@@ -48,20 +48,20 @@ public abstract class TridentInventoryHolder extends TridentLivingEntity impleme
     }
 
     @Override
-    public Inventory inventory() {
+    public Inventory getInventory() {
         return this.inventory;
     }
 
     @Override
-    public Item heldItem() {
-        return inventory.itemAt(TridentPlayer.SLOT_OFFSET + selectedSlot);
+    public Item getHeldItem() {
+        return inventory.getItem(TridentPlayer.SLOT_OFFSET + selectedSlot);
     }
 
     @Override
     public void setHeldItem(Item item) {
-        inventory.setSlot(TridentPlayer.SLOT_OFFSET + selectedSlot, item);
+        inventory.setItem(TridentPlayer.SLOT_OFFSET + selectedSlot, item);
         PacketPlayOutEntityEquipment packet = new PacketPlayOutEntityEquipment();
-        packet.set("entityId", entityId());
+        packet.set("entityId", getEntityId());
         packet.set("item", new Slot(item));
         packet.set("slot", (short) 0);
 
@@ -82,8 +82,8 @@ public abstract class TridentInventoryHolder extends TridentLivingEntity impleme
         int index = 0;
 
         for (NBTTag t : equipment.listTags()) {
-            inventory.setSlot(index++, NBTSerializer.deserialize(Slot.class,
-                    t.asType(CompoundTag.class)).item());
+            inventory.setItem(index++, NBTSerializer.deserialize(Slot.class,
+                    t.asType(CompoundTag.class)).getItem());
         }
     }
 }

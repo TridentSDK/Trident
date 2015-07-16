@@ -80,14 +80,14 @@ public class PacketPlayInBlockPlace extends InPacket {
     @Override
     public void handleReceived(ClientConnection connection) {
         TridentPlayer player = ((PlayerConnection) connection).player();
-        location.setWorld(player.world());
+        location.setWorld(player.getWorld());
 
-        if (location.y() >= 4095) {
+        if (location.getY() >= 4095) {
             // Illegal block position
             return;
         }
 
-        Substance substance = player.heldItem().type();
+        Substance substance = player.getHeldItem().getSubstance();
         if (!substance.isBlock()) {
             // TODO
             // eat food or pull bow or release/obtain water in a bucket, etc
@@ -122,7 +122,7 @@ public class PacketPlayInBlockPlace extends InPacket {
             }
 
             Position position = location.relative(new Vector(x, y, z));
-            byte meta = (byte) player.heldItem().damageValue();
+            byte meta = (byte) player.getHeldItem().getDamageValue();
             //TODO: Special Cases for stairs and whatnot
             position.block().setSubstanceAndMeta(substance, meta);
         }

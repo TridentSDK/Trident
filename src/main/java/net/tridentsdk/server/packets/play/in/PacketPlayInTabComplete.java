@@ -17,6 +17,8 @@
 
 package net.tridentsdk.server.packets.play.in;
 
+import java.util.List;
+
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.Position;
 import net.tridentsdk.event.player.PlayerTabCompleteEvent;
@@ -83,8 +85,9 @@ public class PacketPlayInTabComplete extends InPacket {
         PlayerTabCompleteEvent event = new PlayerTabCompleteEvent(((PlayerConnection) connection).player(),
                 this.text);
 
-        if (event.suggestions().length > 0) {
-            connection.sendPacket(new PacketPlayOutTabComplete().set("matches", event.suggestions()));
+        List<String> suggestions = event.getSuggestions();
+        if (suggestions.size() > 0) {
+            connection.sendPacket(new PacketPlayOutTabComplete().set("matches", suggestions.toArray(new String[suggestions.size()])));
         }
     }
 }

@@ -41,7 +41,7 @@ public class Pathfinder {
 
     public Pathfinder(Entity entity, Position target, double range) {
         this.entity = entity;
-        this.start = new Node(null, entity.position());
+        this.start = new Node(null, entity.getPosition());
         this.end = new Node(null, target);
         this.range = range;
     }
@@ -130,13 +130,13 @@ public class Pathfinder {
     }
 
     private boolean canWalkOn(Node node) {
-        Block block = entity.world().blockAt(Position.create(entity.world(), node.x(), node.y(), node.z()));
-        return block.substance().isSolid();
+        Block block = entity.getWorld().getBlockAt(Position.create(entity.getWorld(), node.x(), node.y(), node.z()));
+        return block.getSubstance().isSolid();
     }
 
     private boolean canWalkThrough(Node node) {
-        Block block = entity.world().blockAt(Position.create(entity.world(), node.x(), node.y(), node.z()));
-        return canWalkThrough(block.substance()) && canWalkThrough(block.relativeBlock(new Vector(0, 1, 0)).substance());
+        Block block = entity.getWorld().getBlockAt(Position.create(entity.getWorld(), node.x(), node.y(), node.z()));
+        return canWalkThrough(block.getSubstance()) && canWalkThrough(block.getBlockRelative(new Vector(0, 1, 0)).getSubstance());
     }
 
     private boolean canWalkThrough(Substance type) {

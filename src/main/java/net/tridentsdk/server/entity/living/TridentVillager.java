@@ -16,6 +16,9 @@
  */
 package net.tridentsdk.server.entity.living;
 
+import java.util.List;
+import java.util.UUID;
+
 import net.tridentsdk.Position;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.entity.living.Villager;
@@ -25,9 +28,6 @@ import net.tridentsdk.entity.types.VillagerProfession;
 import net.tridentsdk.event.entity.EntityDamageEvent;
 import net.tridentsdk.server.entity.TridentLivingEntity;
 import net.tridentsdk.window.trade.Trade;
-
-import java.util.Collection;
-import java.util.UUID;
 
 /**
  * Represents a Villager
@@ -45,7 +45,7 @@ public class TridentVillager extends TridentLivingEntity implements Villager {
     }
 
     @Override
-    public VillagerProfession profession() {
+    public VillagerProfession getProfession() {
         return role;
     }
 
@@ -55,7 +55,7 @@ public class TridentVillager extends TridentLivingEntity implements Villager {
     }
 
     @Override
-    public VillagerCareer career() {
+    public VillagerCareer getCareer() {
         return career;
     }
 
@@ -65,12 +65,12 @@ public class TridentVillager extends TridentLivingEntity implements Villager {
     }
 
     @Override
-    public int careerLevel() {
+    public int getCareerLevel() {
         return 0;
     }
 
     @Override
-    public int age() {
+    public int getAge() {
         return 0;
     }
 
@@ -88,24 +88,29 @@ public class TridentVillager extends TridentLivingEntity implements Villager {
     public boolean isInLove() {
         return false;
     }
+    
+    @Override
+    public void setInLove(boolean love) {
+    	
+    }
 
     @Override
-    public EntityDamageEvent lastDamageEvent() {
+    public EntityDamageEvent getLastDamageEvent() {
         return null;
     }
 
     @Override
-    public Player lastPlayerDamager() {
+    public Player getLastPlayerDamager() {
         return null;
     }
 
     @Override
-    public Collection<Trade> trades() {
+    public List<Trade> getTrades() {
         return null;
     }
 
     @Override
-    public EntityType type() {
+    public EntityType getType() {
         return EntityType.VILLAGER;
     }
 }

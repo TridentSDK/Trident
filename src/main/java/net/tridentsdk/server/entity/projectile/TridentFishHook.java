@@ -45,7 +45,7 @@ public class TridentFishHook extends TridentProjectile implements FishHook {
     }
 
     @Override
-    public float biteChance() {
+    public float setBiteChance() {
         return 0;
     }
 
@@ -55,7 +55,7 @@ public class TridentFishHook extends TridentProjectile implements FishHook {
     }
 
     @Override
-    public EntityType type() {
+    public EntityType getType() {
         return EntityType.FISH_HOOK;
     }
 }

@@ -34,7 +34,7 @@ public class TridentBoat extends TridentEntity implements Boat {
     }
 
     @Override
-    public EntityType type() {
+    public EntityType getType() {
         return EntityType.BOAT;
     }
 }

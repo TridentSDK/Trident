@@ -45,7 +45,7 @@ public class TridentPotion extends TridentProjectile implements Potion {
     }
 
     @Override
-    public EntityType type() {
+    public EntityType getType() {
         return EntityType.POTION;
     }
 }

@@ -39,7 +39,7 @@ public class TridentChicken extends TridentBreedable implements Chicken {
 
     @Override
     public void doLoad(CompoundTag tag) {
-        this.layInterval = ((IntTag) tag.getTag("EggLayTime")).value();
+        this.layInterval = ((IntTag) tag.getTag("EggLayTime")).getValue();
         this.isJockey = ((ByteTag) tag.getTag("IsChickenJockey")).value() == 1;
     }
 
@@ -49,22 +49,22 @@ public class TridentChicken extends TridentBreedable implements Chicken {
     }
 
     @Override
-    public int nextLayInterval() {
+    public int getNextLayInterval() {
         return layInterval;
     }
 
     @Override
-    public EntityDamageEvent lastDamageEvent() {
+    public EntityDamageEvent getLastDamageEvent() {
         return null;
     }
 
     @Override
-    public Player lastPlayerDamager() {
+    public Player getLastPlayerDamager() {
         return null;
     }
 
     @Override
-    public EntityType type() {
+    public EntityType getType() {
         return EntityType.CHICKEN;
     }
 }

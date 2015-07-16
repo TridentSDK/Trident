@@ -77,12 +77,12 @@ public class TridentBat extends TridentLivingEntity implements Bat {
     }
 
     @Override
-    public EntityDamageEvent lastDamageEvent() {
+    public EntityDamageEvent getLastDamageEvent() {
         return null;
     }
 
     @Override
-    public Player lastPlayerDamager() {
+    public Player getLastPlayerDamager() {
         return null;
     }
 
@@ -97,7 +97,7 @@ public class TridentBat extends TridentLivingEntity implements Bat {
     }
 
     @Override
-    public EntityType type() {
+    public EntityType getType() {
         return EntityType.BAT;
     }
 }

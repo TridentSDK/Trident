@@ -210,7 +210,7 @@ public final class TridentStart {
                 String command = scanner.next();
                 System.out.print("$ ");
 
-                Trident.console().invokeCommand(command);
+                Trident.getServer().getConsole().runCommand(command);
 
                 switch (command) {
                     case "shutdown":
@@ -225,7 +225,7 @@ public final class TridentStart {
         } catch (Exception e) {
             TridentLogger.error("Server closed, error occurred");
             TridentLogger.error(e);
-            Trident.shutdown();
+            Trident.getServer().shutdown();
         }
     }
 

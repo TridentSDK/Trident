@@ -57,16 +57,16 @@ public class PacketPlayInClientStatus extends InPacket {
     @Override
     public void handleReceived(ClientConnection connection) {
         TridentPlayer player = ((PlayerConnection) connection).player();
-        World world = player.world();
+        World world = player.getWorld();
         StatusType type = StatusType.getStatus((int) this.actionId);
 
         switch (type) {
             case RESPAWN:
                 PacketPlayOutPlayerRespawn respawn = new PacketPlayOutPlayerRespawn();
 
-                respawn.set("dimension", (int) world.dimension().asByte())
-                        .set("difficulity", (int) world.difficulty().asByte())
-                        .set("gameMode", (int) world.defaultGamemode().asByte()
+                respawn.set("dimension", (int) world.getDimension().asByte())
+                        .set("difficulity", (int) world.getDifficulty().asByte())
+                        .set("gameMode", (int) world.getDefaultGamemode().asByte()
                         /* todo make this specific to the player */);
 
                 connection.sendPacket(respawn);

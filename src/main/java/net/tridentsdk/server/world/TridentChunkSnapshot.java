@@ -62,7 +62,7 @@ public class TridentChunkSnapshot implements ChunkSnapshot {
     }
 
     @Override
-    public Set<Entity> entities() {
+    public Set<Entity> getEntities() {
         // TODO
         return null;
     }
@@ -72,32 +72,32 @@ public class TridentChunkSnapshot implements ChunkSnapshot {
     }
 
     @Override
-    public ChunkLocation location() {
+    public ChunkLocation getLocation() {
         return location;
     }
 
     @Override
-    public int x() {
+    public int getX() {
         return location.x();
     }
 
     @Override
-    public int z() {
+    public int getZ() {
         return location.z();
     }
 
     @Override
-    public World world() {
+    public World getWorld() {
         return world;
     }
 
     @Override
-    public Block blockAt(int relX, int y, int relZ) {
+    public Block getBlockAt(int relX, int y, int relZ) {
         return null;
     }
 
     @Override
-    public ChunkSnapshot snapshot() {
+    public ChunkSnapshot getSnapshot() {
         return this;
     }
 

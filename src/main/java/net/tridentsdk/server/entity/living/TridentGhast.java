@@ -35,7 +35,7 @@ public class TridentGhast extends TridentLivingEntity implements Ghast {
     }
 
     @Override
-    public float fireballRadius() {
+    public float getFireballRadius() {
         return 0.0F;
     }
 
@@ -50,12 +50,12 @@ public class TridentGhast extends TridentLivingEntity implements Ghast {
     }
 
     @Override
-    public EntityDamageEvent lastDamageEvent() {
+    public EntityDamageEvent getLastDamageEvent() {
         return null;
     }
 
     @Override
-    public Player lastPlayerDamager() {
+    public Player getLastPlayerDamager() {
         return null;
     }
 
@@ -75,7 +75,7 @@ public class TridentGhast extends TridentLivingEntity implements Ghast {
     }
 
     @Override
-    public EntityType type() {
+    public EntityType getType() {
         return EntityType.GHAST;
     }
 }

@@ -139,11 +139,11 @@ public class TridentEntity implements Entity {
         this.velocity = new Vector(0.0D, 0.0D, 0.0D);
         this.loc = spawnLocation;
 
-        for (double y = this.loc.y(); y > 0.0; y--) {
-            Position l = Position.create(this.loc.world(), this.loc.x(), y, this.loc.z());
+        for (double y = this.loc.getY(); y > 0.0; y--) {
+            Position l = Position.create(this.loc.getWorld(), this.loc.getX(), y, this.loc.getZ());
 
-            if (l.block().substance() != Substance.AIR) {
-                this.fallDistance.set((long) (this.loc.y() - y));
+            if (l.block().getSubstance() != Substance.AIR) {
+                this.fallDistance.set((long) (this.loc.getY() - y));
                 this.onGround = this.fallDistance.get() == 0.0D;
 
                 break;
@@ -186,23 +186,23 @@ public class TridentEntity implements Entity {
 
     @Override
     public void teleport(double x, double y, double z) {
-        this.teleport(Position.create(this.world(), x, y, z));
+        this.teleport(Position.create(this.getWorld(), x, y, z));
     }
 
     @Override
     public void teleport(Entity entity) {
-        this.teleport(entity.position());
+        this.teleport(entity.getPosition());
     }
 
     @Override
     public void teleport(Position location) {
         this.loc = location;
 
-        for (double y = this.loc.y(); y > 0.0; y--) {
-            Position l = Position.create(this.loc.world(), this.loc.x(), y, this.loc.z());
+        for (double y = this.loc.getY(); y > 0.0; y--) {
+            Position l = Position.create(this.loc.getWorld(), this.loc.getX(), y, this.loc.getZ());
 
-            if (l.world().blockAt(l).substance() != Substance.AIR) {
-                this.fallDistance.set((long) (this.loc.y() - y));
+            if (l.getWorld().getBlockAt(l).getSubstance() != Substance.AIR) {
+                this.fallDistance.set((long) (this.loc.getY() - y));
                 this.onGround = this.fallDistance.get() == 0.0D;
 
                 break;
@@ -215,18 +215,18 @@ public class TridentEntity implements Entity {
     }
 
     @Override
-    public World world() {
-        return this.loc.world();
+    public World getWorld() {
+        return this.loc.getWorld();
     }
 
     @Override
-    public Position position() {
+    public Position getPosition() {
         return this.loc;
     }
 
     public void setPosition(Position loc) {
-        TridentChunk from = (TridentChunk) position().chunk();
-        TridentChunk chunk = (TridentChunk) loc.chunk();
+        TridentChunk from = (TridentChunk) getPosition().getChunk();
+        TridentChunk chunk = (TridentChunk) loc.getChunk();
         if (!from.equals(chunk)) {
             from.entitiesInternal().remove(this);
             chunk.entitiesInternal().add(this);
@@ -236,7 +236,7 @@ public class TridentEntity implements Entity {
     }
 
     @Override
-    public Vector velocity() {
+    public Vector getVelocity() {
         return this.velocity;
     }
 
@@ -248,7 +248,7 @@ public class TridentEntity implements Entity {
     }
 
     @Override
-    public String displayName() {
+    public String getDisplayName() {
         return this.displayName;
     }
 
@@ -263,7 +263,7 @@ public class TridentEntity implements Entity {
     }
 
     @Override
-    public UUID uniqueId() {
+    public UUID getUniqueId() {
         return this.uniqueId;
     }
 
@@ -275,7 +275,7 @@ public class TridentEntity implements Entity {
     }
 
     @Override
-    public boolean onGround() {
+    public boolean isOnGround() {
         return this.onGround;
     }
 
@@ -284,27 +284,27 @@ public class TridentEntity implements Entity {
     }
 
     @Override
-    public Set<Entity> withinRange(double radius) {
+    public Set<Entity> getNearbyEntities(double radius) {
         double squared = radius * radius;
-        Set<Entity> entities = position().world().entities();
+        Set<Entity> entities = getPosition().getWorld().getEntities();
 
         return entities.stream()
-                .filter((e) -> e.position().distanceSquared(position()) <= squared)
+                .filter((e) -> e.getPosition().getDistanceSquaredTo(getPosition()) <= squared)
                 .collect(Collectors.toSet());
     }
 
     @Override
-    public int entityId() {
+    public int getEntityId() {
         return this.id;
     }
 
     @Override
     public void remove() {
         PacketPlayOutDestroyEntities packet = new PacketPlayOutDestroyEntities();
-        packet.set("destroyedEntities", new int[] { entityId() });
+        packet.set("destroyedEntities", new int[] { getEntityId() });
         TridentPlayer.sendAll(packet);
         HANDLER.removeEntity(this);
-        ((TridentWorld) world()).removeEntity(this);
+        ((TridentWorld) getWorld()).removeEntity(this);
 
         try {
             WeakEntity.clearReferencesTo(this);
@@ -316,7 +316,7 @@ public class TridentEntity implements Entity {
     }
 
     @Override
-    public Entity passenger() {
+    public Entity getPassenger() {
         return this.passenger;
     }
 
@@ -333,7 +333,7 @@ public class TridentEntity implements Entity {
     }
 
     @Override
-    public EntityType type() {
+    public EntityType getType() {
         return null;
     }
 
@@ -350,7 +350,7 @@ public class TridentEntity implements Entity {
         /* IDs */
         if(!(tag.getTag("id") instanceof NullTag)) {
             // onlinePlayers will not have this value
-            String type = ((StringTag) tag.getTag("id")).value(); // EntityType, in form of a string
+            String type = ((StringTag) tag.getTag("id")).getValue(); // EntityType, in form of a string
         }
         LongTag uuidMost = tag.getTagAs("UUIDMost"); // most signifigant bits of UUID
         LongTag uuidLeast = tag.getTagAs("UUIDLeast"); // least signifigant bits of UUID
@@ -393,7 +393,7 @@ public class TridentEntity implements Entity {
         loc = Position.create(TridentServer.WORLD, 0, 0, 0);
         velocity = new Vector(0, 0, 0);
 
-        this.uniqueId = new UUID(uuidMost.value(), uuidLeast.value());
+        this.uniqueId = new UUID(uuidMost.getValue(), uuidLeast.getValue());
 
         double[] location = new double[3];
 
@@ -403,7 +403,7 @@ public class TridentEntity implements Entity {
             if (t instanceof DoubleTag) {
                 location[i] = ((DoubleTag) t).value();
             } else {
-                location[i] = ((IntTag) t).value();
+                location[i] = ((IntTag) t).getValue();
             }
         }
 
@@ -420,7 +420,7 @@ public class TridentEntity implements Entity {
             if (t instanceof DoubleTag) {
                 velocity[i] = ((DoubleTag) t).value();
             } else {
-                velocity[i] = ((IntTag) t).value();
+                velocity[i] = ((IntTag) t).getValue();
             }
         }
 
@@ -431,29 +431,29 @@ public class TridentEntity implements Entity {
 
         // set yaw and pitch from NBTTag
         if (rotation.get(0) instanceof IntTag) {
-            loc.setYaw(((IntTag) rotation.get(0)).value());
+            loc.setYaw(((IntTag) rotation.get(0)).getValue());
         } else {
-            loc.setYaw(((FloatTag) rotation.get(0)).value());
+            loc.setYaw(((FloatTag) rotation.get(0)).getValue());
         }
 
         if (rotation.get(1) instanceof IntTag) {
-            loc.setPitch(((IntTag) rotation.get(1)).value());
+            loc.setPitch(((IntTag) rotation.get(1)).getValue());
         } else {
-            loc.setPitch(((FloatTag) rotation.get(1)).value());
+            loc.setPitch(((FloatTag) rotation.get(1)).getValue());
         }
 
         this.fallDistance.set(
-                (long) fallDistance.value()); // FIXME: may lose precision, consider changing AtomicLong
-        this.fireTicks.set(fireTicks.value());
-        this.airTicks.set(airTicks.value());
-        this.portalCooldown.set(portalCooldown.value());
+                (long) fallDistance.getValue()); // FIXME: may lose precision, consider changing AtomicLong
+        this.fireTicks.set(fireTicks.getValue());
+        this.airTicks.set(airTicks.getValue());
+        this.portalCooldown.set(portalCooldown.getValue());
 
         this.onGround = onGround.value() == 1;
         this.godMode = invulnerable.value() == 1;
 
         this.nameVisible = dnVisible.value() == 1;
         this.silent = silent.value() == 1;
-        this.displayName = displayName.value();
+        this.displayName = displayName.getValue();
 
         doLoad(tag);
     }

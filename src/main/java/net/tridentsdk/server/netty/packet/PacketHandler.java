@@ -43,7 +43,7 @@ public class PacketHandler extends SimpleChannelInboundHandler<PacketData> {
     private ClientConnection connection;
 
     public PacketHandler() {
-        this.protocol = ((TridentServer) Trident.instance()).protocol();
+        this.protocol = ((TridentServer) Trident.getServer()).protocol();
     }
 
     @Override
@@ -71,9 +71,9 @@ public class PacketHandler extends SimpleChannelInboundHandler<PacketData> {
             if(connection instanceof PlayerConnection) {
                 PlayerConnection con = (PlayerConnection) connection;
 
-                TridentLogger.log(con.player().displayName() + " has been disconnected from the server " +
+                TridentLogger.log(con.player().getDisplayName() + " has been disconnected from the server " +
                         "for sending an invalid packet (" +
-                        con.address().getHostString() + "," + con.player().uniqueId().toString() + ")");
+                        con.address().getHostString() + "," + con.player().getUniqueId().toString() + ")");
             }
             return;
         }

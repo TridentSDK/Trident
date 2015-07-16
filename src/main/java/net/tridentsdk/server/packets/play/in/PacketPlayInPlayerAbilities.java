@@ -84,22 +84,22 @@ public class PacketPlayInPlayerAbilities extends InPacket {
 
         boolean flying = (byte) (flags & 2) == 2;
 
-        if(player.gameMode() == GameMode.CREATIVE || flying != player.isFlying()) {
+        if(player.getGameMode() == GameMode.CREATIVE || flying != player.isFlying()) {
             PlayerToggleFlyingEvent toggleFly = new PlayerToggleFlyingEvent(player, flying, player.isFlyMode());
 
             // if the player doesn't have fly mode and is attempting to fly, make the event default to cancelled
             if (!player.isFlyMode() && flying) {
-                toggleFly.cancel(true);
+                toggleFly.setCancelled(true);
             }
 
             // If the player is flying and sends a flying=false flag, stop flying
             if (player.isFlying() && !flying) {
-                toggleFly.cancel(true);
+                toggleFly.setCancelled(true);
             }
 
             Handler.forEvents().fire(toggleFly);
 
-            player.setFlying(!toggleFly.isIgnored());
+            player.setFlying(!toggleFly.isCancelled());
         }
 
         // TODO: act accordingly

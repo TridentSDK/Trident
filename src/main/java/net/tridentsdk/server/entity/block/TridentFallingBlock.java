@@ -27,19 +27,27 @@ import net.tridentsdk.server.entity.TridentEntity;
 import java.util.UUID;
 
 public class TridentFallingBlock extends TridentEntity implements FallingBlock {
+	
+	private boolean drop = true;
+	
     public TridentFallingBlock(UUID id, Position spawnLocation) {
         super(id, spawnLocation);
     }
 
     @Override
-    public BlockSnapshot blockSnapshot() {
+    public BlockSnapshot getSnapshot() {
         return null;
     }
 
     @Override
     public boolean shouldDrop() {
-        return false;
+        return drop;
     }
+
+	@Override
+	public void setShouldDrop(boolean drop) {
+		this.drop = drop;
+	}
 
     @Override
     public boolean isNameVisible() {
@@ -52,7 +60,8 @@ public class TridentFallingBlock extends TridentEntity implements FallingBlock {
     }
 
     @Override
-    public EntityType type() {
+    public EntityType getType() {
         return EntityType.FALLING_BLOCK;
     }
+    
 }

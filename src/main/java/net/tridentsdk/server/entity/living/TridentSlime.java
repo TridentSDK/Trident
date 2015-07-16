@@ -36,22 +36,22 @@ public class TridentSlime extends TridentLivingEntity implements Slime {
     }
 
     @Override
-    public int size() {
+    public int getSlimeSize() {
         return 0;
     }
 
     @Override
-    public EntityDamageEvent lastDamageEvent() {
+    public EntityDamageEvent getLastDamageEvent() {
         return null;
     }
 
     @Override
-    public Player lastPlayerDamager() {
+    public Player getLastPlayerDamager() {
         return null;
     }
 
     @Override
-    public EntityType type() {
+    public EntityType getType() {
         return EntityType.SLIME;
     }
 }

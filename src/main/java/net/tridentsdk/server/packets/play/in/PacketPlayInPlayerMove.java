@@ -70,18 +70,18 @@ public class PacketPlayInPlayerMove extends InPacket {
     @Override
     public void handleReceived(ClientConnection connection) {
         TridentPlayer player = ((PlayerConnection) connection).player();
-        this.location.setWorld(player.world());
-        Position from = player.position();
+        this.location.setWorld(player.getWorld());
+        Position from = player.getPosition();
         Position to = this.location;
 
         PlayerMoveEvent event = new PlayerMoveEvent(player, from, to);
 
         Handler.forEvents().fire(event);
 
-        if (event.isIgnored()) {
+        if (event.isCancelled()) {
             PacketPlayOutEntityTeleport cancel = new PacketPlayOutEntityTeleport();
 
-            cancel.set("entityId", player.entityId()).set("location", from).set("onGround", player.onGround());
+            cancel.set("entityId", player.getEntityId()).set("location", from).set("onGround", player.isOnGround());
 
             TridentPlayer.sendAll(cancel);
             return;

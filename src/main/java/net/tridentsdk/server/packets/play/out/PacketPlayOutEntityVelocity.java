@@ -44,8 +44,8 @@ public class PacketPlayOutEntityVelocity extends OutPacket {
     public void encode(ByteBuf buf) {
         Codec.writeVarInt32(buf, this.entityId);
 
-        buf.writeShort((int) this.velocity.x());
-        buf.writeShort((int) this.velocity.y());
-        buf.writeShort((int) this.velocity.z());
+        buf.writeShort((int) this.velocity.getX());
+        buf.writeShort((int) this.velocity.getY());
+        buf.writeShort((int) this.velocity.getZ());
     }
 }

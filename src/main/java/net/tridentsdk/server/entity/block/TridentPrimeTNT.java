@@ -50,19 +50,19 @@ public class TridentPrimeTNT extends TridentFallingBlock implements PrimeTNT {
         if (countDown.get() == 0) {
             EntityExplodeEvent event = new EntityExplodeEvent(this, radius);
             Handler.forEvents().fire(event);
-            if (event.isIgnored()) {
+            if (event.isCancelled()) {
                 return;
             }
 
-            Position p = position();
+            Position p = getPosition();
             int radius = this.radius; // Prevent the value from changing within operation
 
-            int minX = (int) (p.x() - radius);
-            int maxX = (int) (p.x() + radius);
-            int minY = (int) (p.y() - radius);
-            int maxY = (int) (p.y() + radius);
-            int minZ = (int) (p.z() - radius);
-            int maxZ = (int) (p.z() + radius);
+            int minX = (int) (p.getX() - radius);
+            int maxX = (int) (p.getX() + radius);
+            int minY = (int) (p.getY() - radius);
+            int maxY = (int) (p.getY() + radius);
+            int minZ = (int) (p.getZ() - radius);
+            int maxZ = (int) (p.getZ() + radius);
 
             RecordBuilder[] records = new RecordBuilder[(int) Math.pow(radius * 2, 3)];
             int recordIdx = 0;
@@ -70,15 +70,15 @@ public class TridentPrimeTNT extends TridentFallingBlock implements PrimeTNT {
             for (int i = minX; i < maxX; i++) {
                 for (int j = minY; j < maxY; j++) {
                     for (int k = minZ; k < maxZ; k++) {
-                        Block block = p.world().blockAt(new Position(p.world(), i, j, k));
-                        ((TridentChunk) p.world().chunkAt(i / 16, k / 16, false))
+                        Block block = p.getWorld().getBlockAt(new Position(p.getWorld(), i, j, k));
+                        ((TridentChunk) p.getWorld().getChunkAt(i / 16, k / 16, false))
                                 .setAt(i, j, k, Substance.AIR, (byte) 0, (byte) 0, (byte) 0);
                         records[recordIdx] = new RecordBuilder()
                                 .setX((byte) i)
                                 .setY((byte) j)
                                 .setZ((byte) k)
-                                .setData(block.meta())
-                                .setBlockId(block.substance().id());
+                                .setData(block.getMeta())
+                                .setBlockId(block.getSubstance().getID());
                         recordIdx++;
                     }
                 }
@@ -101,12 +101,12 @@ public class TridentPrimeTNT extends TridentFallingBlock implements PrimeTNT {
     }
 
     @Override
-    public int fuse() {
+    public int getExplodeTicks() {
         return fuse;
     }
 
     @Override
-    public int radius() {
+    public int getRadius() {
         return radius;
     }
 
@@ -116,13 +116,13 @@ public class TridentPrimeTNT extends TridentFallingBlock implements PrimeTNT {
     }
 
     @Override
-    public void setFuse(int ticks) {
+    public void getExplodeTicks(int ticks) {
         this.fuse = ticks;
         this.countDown.set(ticks);
     }
 
     @Override
-    public EntityType type() {
+    public EntityType getType() {
         return EntityType.PRIMED_TNT;
     }
 }

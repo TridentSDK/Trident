@@ -54,12 +54,12 @@ public class PacketPlayInPlayerCloseWindow extends InPacket {
 
     @Override
     public void handleReceived(ClientConnection connection) {
-        TridentWindow window = (TridentWindow) Handler.forWindows().windowBy(id);
+        TridentWindow window = (TridentWindow) Handler.forWindows().getById(id);
         PlayerCloseWindowEvent event = new PlayerCloseWindowEvent(window);
 
         Handler.forEvents().fire(event);
 
-        if (event.isIgnored()) {
+        if (event.isCancelled()) {
             return;
         }
 

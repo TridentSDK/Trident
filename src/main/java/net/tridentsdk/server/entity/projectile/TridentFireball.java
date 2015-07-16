@@ -45,7 +45,7 @@ public class TridentFireball extends TridentProjectile implements Fireball {
     }
 
     @Override
-    public EntityType type() {
+    public EntityType getType() {
         return EntityType.FIREBALL;
     }
 }

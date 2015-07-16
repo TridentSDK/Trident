@@ -52,17 +52,17 @@ public class TridentMooshroom extends TridentCow implements Mooshroom {
     }
 
     @Override
-    public EntityDamageEvent lastDamageEvent() {
+    public EntityDamageEvent getLastDamageEvent() {
         return null;
     }
 
     @Override
-    public Player lastPlayerDamager() {
+    public Player getLastPlayerDamager() {
         return null;
     }
 
     @Override
-    public EntityType type() {
+    public EntityType getType() {
         return EntityType.MOOSHROOM;
     }
 }

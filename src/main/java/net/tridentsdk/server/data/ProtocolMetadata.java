@@ -97,17 +97,17 @@ public class ProtocolMetadata implements Writable {
                 case XYZ:
                     Vector vector = (Vector) value.value;
 
-                    buf.writeInt((int) vector.x());
-                    buf.writeInt((int) vector.y());
-                    buf.writeInt((int) vector.z());
+                    buf.writeInt((int) vector.getX());
+                    buf.writeInt((int) vector.getY());
+                    buf.writeInt((int) vector.getZ());
                     break;
 
                 case PYR:
                     Vector v = (Vector) value.value;
 
-                    buf.writeFloat((float) v.x());
-                    buf.writeFloat((float) v.y());
-                    buf.writeFloat((float) v.z());
+                    buf.writeFloat((float) v.getX());
+                    buf.writeFloat((float) v.getY());
+                    buf.writeFloat((float) v.getZ());
 
                     break;
             }

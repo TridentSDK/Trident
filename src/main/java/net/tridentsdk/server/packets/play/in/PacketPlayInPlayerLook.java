@@ -63,8 +63,8 @@ public class PacketPlayInPlayerLook extends InPacket {
     @Override
     public void handleReceived(ClientConnection connection) {
         TridentPlayer player = ((PlayerConnection) connection).player();
-        Position from = player.position();
-        Position to = player.position();
+        Position from = player.getPosition();
+        Position to = player.getPosition();
 
         to.setYaw(this.newYaw);
         to.setPitch(this.newPitch);
@@ -73,10 +73,10 @@ public class PacketPlayInPlayerLook extends InPacket {
 
         Handler.forEvents().fire(event);
 
-        if (event.isIgnored()) {
+        if (event.isCancelled()) {
             PacketPlayOutEntityTeleport cancel = new PacketPlayOutEntityTeleport();
 
-            cancel.set("entityId", player.entityId()).set("location", from).set("onGround", player.onGround());
+            cancel.set("entityId", player.getEntityId()).set("location", from).set("onGround", player.isOnGround());
 
             TridentPlayer.sendAll(cancel);
             return;

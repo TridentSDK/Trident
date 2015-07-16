@@ -57,9 +57,9 @@ public class PacketPlayOutSoundEffect extends OutPacket {
     public void encode(ByteBuf buf) {
         Codec.writeString(buf, this.sound.toString());
 
-        buf.writeInt((int) this.loc.x());
-        buf.writeInt((int) this.loc.y());
-        buf.writeInt((int) this.loc.z());
+        buf.writeInt((int) this.loc.getX());
+        buf.writeInt((int) this.loc.getY());
+        buf.writeInt((int) this.loc.getZ());
 
         buf.writeFloat(this.volume);
         buf.writeByte(this.pitch);

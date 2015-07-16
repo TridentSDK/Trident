@@ -33,7 +33,7 @@ public class TridentDroppedItem extends TridentEntity implements DroppedItem {
     }
 
     @Override
-    public int age() {
+    public int getAge() {
         return 0;
     }
 
@@ -42,18 +42,20 @@ public class TridentDroppedItem extends TridentEntity implements DroppedItem {
 
     }
 
-    @Override
-    public short health() {
-        return 0;
-    }
+//    Pretty sure Dropped Items don't have health, hm?
+//
+//    @Override
+//    public short getHealth() {
+//        return 0;
+//    }
+//
+//    @Override
+//    public void setHealth(short health) {
+//
+//    }
 
     @Override
-    public void setHealth(short health) {
-
-    }
-
-    @Override
-    public String owner() {
+    public String getOwner() {
         return null;
     }
 
@@ -73,7 +75,7 @@ public class TridentDroppedItem extends TridentEntity implements DroppedItem {
     }
 
     @Override
-    public EntityType type() {
+    public EntityType getType() {
         return EntityType.ITEM;
     }
 }

@@ -167,23 +167,23 @@ public class MapTest {
         @Override public void teleport(double x, double y, double z) {}
         @Override public void teleport(Entity entity) {}
         @Override public void teleport(Position location) {}
-        @Override public World world() {return null;}
-        @Override public Position position() {return null;}
-        @Override public Vector velocity() {return null;}
+        @Override public World getWorld() {return null;}
+        @Override public Position getPosition() {return null;}
+        @Override public Vector getVelocity() {return null;}
         @Override public void setVelocity(Vector vector) {}
-        @Override public boolean onGround() {return false;}
-        @Override public Set<Entity> withinRange(double radius) {return null;}
-        @Override public String displayName() {return null;}
+        @Override public boolean isOnGround() {return false;}
+        @Override public Set<Entity> getNearbyEntities(double radius) {return null;}
+        @Override public String getDisplayName() {return null;}
         @Override public void setDisplayName(String name) {}
         @Override public boolean isNameVisible() {return false;}
         @Override public boolean isSilent() {return false;}
-        @Override public int entityId() {return 0;}
-        @Override public UUID uniqueId() {return null;}
+        @Override public int getEntityId() {return 0;}
+        @Override public UUID getUniqueId() {return null;}
         @Override public void remove() {}
-        @Override public Entity passenger() {return null;}
+        @Override public Entity getPassenger() {return null;}
         @Override public void setPassenger(Entity entity) {}
         @Override public void eject() {}
-        @Override public EntityType type() {return null;}
+        @Override public EntityType getType() {return null;}
         @Override public void applyProperties(EntityProperties properties) {}
     }), null);
 
@@ -404,23 +404,23 @@ public class MapTest {
             @Override public void teleport(double x, double y, double z) {}
             @Override public void teleport(Entity entity) {}
             @Override public void teleport(Position location) {}
-            @Override public World world() {return null;}
-            @Override public Position position() {return null;}
-            @Override public Vector velocity() {return null;}
+            @Override public World getWorld() {return null;}
+            @Override public Position getPosition() {return null;}
+            @Override public Vector getVelocity() {return null;}
             @Override public void setVelocity(Vector vector) {}
-            @Override public boolean onGround() {return false;}
-            @Override public Set<Entity> withinRange(double radius) {return null;}
-            @Override public String displayName() {return null;}
+            @Override public boolean isOnGround() {return false;}
+            @Override public Set<Entity> getNearbyEntities(double radius) {return null;}
+            @Override public String getDisplayName() {return null;}
             @Override public void setDisplayName(String name) {}
             @Override public boolean isNameVisible() {return false;}
             @Override public boolean isSilent() {return false;}
-            @Override public int entityId() {return 0;}
-            @Override public UUID uniqueId() {return null;}
+            @Override public int getEntityId() {return 0;}
+            @Override public UUID getUniqueId() {return null;}
             @Override public void remove() {}
-            @Override public Entity passenger() {return null;}
+            @Override public Entity getPassenger() {return null;}
             @Override public void setPassenger(Entity entity) {}
             @Override public void eject() {}
-            @Override public EntityType type() {return null;}
+            @Override public EntityType getType() {return null;}
             @Override public void applyProperties(EntityProperties properties) {}
 
             @Override

@@ -39,7 +39,7 @@ public class TridentWitherSkull extends TridentProjectile implements WitherSkull
     }
 
     @Override
-    public EntityType type() {
+    public EntityType getType() {
         return EntityType.WITHER_SKULL;
     }
 }

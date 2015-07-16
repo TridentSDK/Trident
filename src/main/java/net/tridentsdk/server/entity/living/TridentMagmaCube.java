@@ -35,7 +35,7 @@ public class TridentMagmaCube extends TridentLivingEntity implements MagmaCube {
     }
 
     @Override
-    public int size() {
+    public int getSlimeSize() {
         return 0;
     }
 
@@ -50,12 +50,12 @@ public class TridentMagmaCube extends TridentLivingEntity implements MagmaCube {
     }
 
     @Override
-    public EntityDamageEvent lastDamageEvent() {
+    public EntityDamageEvent getLastDamageEvent() {
         return null;
     }
 
     @Override
-    public Player lastPlayerDamager() {
+    public Player getLastPlayerDamager() {
         return null;
     }
 
@@ -75,7 +75,7 @@ public class TridentMagmaCube extends TridentLivingEntity implements MagmaCube {
     }
 
     @Override
-    public EntityType type() {
+    public EntityType getType() {
         return EntityType.MAGMA_CUBE;
     }
 }

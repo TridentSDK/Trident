@@ -65,12 +65,12 @@ public class DefaultMassChange implements MassChange {
 
     @Override
     public void setBlock(int x, int y, int z, Substance substance) throws IllegalStateException {
-        setBlock(x, y, z, substance.id(), (byte) 0);
+        setBlock(x, y, z, substance.getID(), (byte) 0);
     }
 
     @Override
     public void setBlock(int x, int y, int z, Substance substance, byte data) throws IllegalStateException {
-        setBlock(x, y, z, substance.id(), data);
+        setBlock(x, y, z, substance.getID(), data);
     }
 
     @Override
@@ -92,10 +92,10 @@ public class DefaultMassChange implements MassChange {
     @Override
     public void setBlock(Position coords, int id, byte data) throws IllegalArgumentException,
             IllegalStateException {
-        if (coords.world().equals(this.world)) {
-            setBlock((int) Math.round(coords.x()),
-                    (int) Math.round(coords.y()),
-                    (int) Math.round(coords.z()), id, data);
+        if (coords.getWorld().equals(this.world)) {
+            setBlock((int) Math.round(coords.getX()),
+                    (int) Math.round(coords.getY()),
+                    (int) Math.round(coords.getZ()), id, data);
         } else {
             throw new IllegalArgumentException("PositionWritable provided do not match the world that this change is for");
         }
@@ -110,7 +110,7 @@ public class DefaultMassChange implements MassChange {
     @Override
     public void setBlock(Position coords, Substance substance, byte data) throws IllegalArgumentException,
             IllegalStateException {
-        setBlock(coords, substance.id(), data);
+        setBlock(coords, substance.getID(), data);
     }
 
     @Override
@@ -137,7 +137,7 @@ public class DefaultMassChange implements MassChange {
             List<BlockChange> changes = entry.getValue();
             PacketPlayOutMultiBlockChange packet = new PacketPlayOutMultiBlockChange();
             RecordBuilder[] records = new RecordBuilder[changes.size()];
-            TridentChunk chunk = (TridentChunk) world.chunkAt(entry.getKey(), false);
+            TridentChunk chunk = (TridentChunk) world.getChunkAt(entry.getKey(), false);
 
             for (int i = 0; i < records.length; i++) {
                 BlockChange change = changes.get(i);
@@ -147,7 +147,7 @@ public class DefaultMassChange implements MassChange {
                         .setY((byte) change.y())
                         .setZ((byte) change.z())
                         .setData(change.data());
-                chunk.setAt(change.x(), change.y(), change.z(), Substance.fromId(change.id()),
+                chunk.setAt(change.x(), change.y(), change.z(), Substance.getById(change.id()),
                         change.data(), (byte) 255, (byte) 15);
             }
 

@@ -46,17 +46,17 @@ public class TridentEnderPearl extends TridentProjectile implements Enderpearl {
 
         // In case the launcher had not had the time yet to
         // record the launch into the projectile
-        while ((launcher = launcher()) == null) {
+        while ((launcher = getLauncher()) == null) {
         }
 
         if (launcher instanceof Entity) {
             Entity entity = (Entity) launcher;
-            entity.teleport(position());
+            entity.teleport(getPosition());
         }
     }
 
     @Override
-    public EntityType type() {
+    public EntityType getType() {
         return EntityType.ENDER_PEARL;
     }
 }

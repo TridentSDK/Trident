@@ -60,7 +60,7 @@ public final class EntityHandler {
      * @param entity the entity to manage
      */
     public void register(Entity entity) {
-        entities.put(entity.uniqueId(), entity);
+        entities.put(entity.getUniqueId(), entity);
         if (entity instanceof TridentPlayer)
             return;
         // tracker.track(entity);
@@ -72,7 +72,7 @@ public final class EntityHandler {
      * @param entity the entity to remove
      */
     public void removeEntity(Entity entity) {
-        entities.remove(entity.entityId());
+        entities.remove(entity.getEntityId());
     }
 
     /**

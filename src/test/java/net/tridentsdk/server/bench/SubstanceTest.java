@@ -47,38 +47,38 @@ public class SubstanceTest {
     @Benchmark
     public void testLowSubstanceSlow (Blackhole bh) {
         Blackhole.consumeCPU(cpuTokens);
-        bh.consume(Substance.fromStringId(Byte.toString(substance1b)));
+        bh.consume(Substance.getByName(Byte.toString(substance1b)));
     }
     
     @Benchmark
     public void testMidSubstanceSlow (Blackhole bh) {
         Blackhole.consumeCPU(cpuTokens);
-        bh.consume(Substance.fromStringId(Byte.toString(substance3b)));
+        bh.consume(Substance.getByName(Byte.toString(substance3b)));
     }
     
     @Benchmark
     public void testHighSubstanceSlow (Blackhole bh) {
         Blackhole.consumeCPU(cpuTokens);
-        bh.consume(Substance.fromStringId(Byte.toString(substance5b)));
+        bh.consume(Substance.getByName(Byte.toString(substance5b)));
     }
     
     @Benchmark
     public void testLowSubstanceFast (Blackhole bh) {
         Blackhole.consumeCPU(cpuTokens);
-        bh.consume(Substance.fromId(substance1b));
+        bh.consume(Substance.getById(substance1b));
     }
 
    
     @Benchmark
     public void testMidSubstanceFast (Blackhole bh) {
         Blackhole.consumeCPU(cpuTokens);
-        bh.consume(Substance.fromId(substance3b));
+        bh.consume(Substance.getById(substance3b));
     }
 
     @Benchmark
     public void testHighSubstanceFast (Blackhole bh) {
         Blackhole.consumeCPU(cpuTokens);
-        bh.consume(Substance.fromId(substance5b));
+        bh.consume(Substance.getById(substance5b));
     }
     
     @Benchmark
@@ -86,7 +86,7 @@ public class SubstanceTest {
     public void testSlowSubstanceAggregate (Blackhole bh) {
         Blackhole.consumeCPU(cpuTokens);
         for(byte i = 0; i < 100; i++) {
-            bh.consume(Substance.fromStringId(Byte.toString((byte)(200-i))));
+            bh.consume(Substance.getByName(Byte.toString((byte)(200-i))));
         }
     }
 
@@ -95,7 +95,7 @@ public class SubstanceTest {
     public void testFastSubstanceAggregate (Blackhole bh) {
         Blackhole.consumeCPU(cpuTokens);
         for(byte i = 0; i < 100; i++) {
-            bh.consume(Substance.fromId((byte) (200 - i)));
+            bh.consume(Substance.getById((byte) (200 - i)));
         }
     }
 

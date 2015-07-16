@@ -80,11 +80,11 @@ public class PacketPlayInPlayerDig extends InPacket {
         DigStatus digStatus = DigStatus.getStatus(this.status);
         BlockOrientation face = null;
 
-        if (digStatus == DigStatus.DIG_START && player.gameMode() == GameMode.CREATIVE) {
+        if (digStatus == DigStatus.DIG_START && player.getGameMode() == GameMode.CREATIVE) {
             digStatus = DigStatus.DIG_FINISH;
         }
 
-        this.location.setWorld(player.world());
+        this.location.setWorld(player.getWorld());
 
         switch (this.blockFace) {
             case 0:
@@ -124,10 +124,10 @@ public class PacketPlayInPlayerDig extends InPacket {
                 event = new PlayerDigEvent(player, face, this.status);
 
                 if(digStatus == DigStatus.DIG_FINISH) {
-                    Block block = player.world().blockAt(location());
-                    BlockBreakEvent blockBreak = new BlockBreakEvent(player, block, face, player.heldItem());
+                    Block block = player.getWorld().getBlockAt(location());
+                    BlockBreakEvent blockBreak = new BlockBreakEvent(player, block, face, player.getHeldItem());
 
-                    if(blockBreak.isIgnored())
+                    if(blockBreak.isCancelled())
                         return;
                 }
 
@@ -142,12 +142,12 @@ public class PacketPlayInPlayerDig extends InPacket {
                 break;
 
             case SHOOT_ARROW:
-                Item item = player.heldItem();
-                if (item.type().isWeapon()) {
-                    if (item.type() == Substance.BOW) // bow
+                Item item = player.getHeldItem();
+                if (item.getSubstance().isWeapon()) {
+                    if (item.getSubstance() == Substance.BOW) // bow
                         event = new PlayerShootBowEvent(player, null);
                     else event = new PlayerInteractEvent(player, location.block()); // other weapons
-                } else if (item.type().isEdible()) {
+                } else if (item.getSubstance().isEdible()) {
                     event = new PlayerConsumeEvent(player, item, 0.0);
                 }
                 // shoot bow, if player has a food item finish eating
@@ -157,17 +157,17 @@ public class PacketPlayInPlayerDig extends InPacket {
 
         Handler.forEvents().fire((Event) event);
 
-        if (event == null || event.isIgnored())
+        if (event == null || event.isCancelled())
             return;
 
         // TODO act accordingly
 
         if(digStatus == DigStatus.DIG_FINISH) {
-            int[] arr = {location.block().substance().id() + (location.block().meta() << 12)};
+            int[] arr = {location.block().getSubstance().getID() + (location.block().getMeta() << 12)};
 
-            ((TridentChunk) location().chunk()).setAt(location, Substance.AIR, (byte) 0, (byte) 255, (byte) 15);
+            ((TridentChunk) location().getChunk()).setAt(location, Substance.AIR, (byte) 0, (byte) 255, (byte) 15);
             TridentPlayer.sendAll(new PacketPlayOutBlockChange()
-                    .set("location", location).set("blockId", Substance.AIR.id()));
+                    .set("location", location).set("blockId", Substance.AIR.getID()));
             TridentPlayer.sendAll(new PacketPlayOutParticle()
                     .set("particleId", 37 ).set("distance", false).set("loc", location).set("offset", new Vector(0, 0, 0))
                     .set("count", 1).set("data", arr));

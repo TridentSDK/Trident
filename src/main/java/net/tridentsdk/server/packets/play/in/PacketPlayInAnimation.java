@@ -43,7 +43,6 @@ public class PacketPlayInAnimation extends InPacket {
     @Override
     public void handleReceived(ClientConnection connection) {
         TridentPlayer player = ((PlayerConnection) connection).player();
-        TridentPlayer.sendFiltered(new PacketPlayOutAnimation()
-                .set("entityId", player.entityId()).set("animationId", 0), p -> !player.equals(p));
+        TridentPlayer.sendFiltered(new PacketPlayOutAnimation().set("entityId", player.getEntityId()).set("animationId", 0), p -> !player.equals(p));
     }
 }

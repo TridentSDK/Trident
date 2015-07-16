@@ -35,7 +35,7 @@ public class TridentFurnaceMinecart extends TridentMinecart implements FurnaceMi
     }
 
     @Override
-    public int fuelTicks() {
+    public int getFuelTicks() {
         return 0;
     }
 
@@ -45,12 +45,12 @@ public class TridentFurnaceMinecart extends TridentMinecart implements FurnaceMi
     }
 
     @Override
-    public Window inventory() {
+    public Window getInventory() {
         return null;
     }
 
     @Override
-    public Item heldItem() {
+    public Item getHeldItem() {
         return null;
     }
 
@@ -60,7 +60,7 @@ public class TridentFurnaceMinecart extends TridentMinecart implements FurnaceMi
     }
 
     @Override
-    public EntityType type() {
+    public EntityType getType() {
         return EntityType.FURNANCE_MINECART;
     }
 }

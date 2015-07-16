@@ -35,7 +35,7 @@ public class TridentHopperMinecart extends TridentMinecart implements HopperMine
     }
 
     @Override
-    public int transferCooldown() {
+    public int getTransferCooldown() {
         return 0;
     }
 
@@ -45,12 +45,12 @@ public class TridentHopperMinecart extends TridentMinecart implements HopperMine
     }
 
     @Override
-    public Window inventory() {
+    public Window getInventory() {
         return null;
     }
 
     @Override
-    public Item heldItem() {
+    public Item getHeldItem() {
         return null;
     }
 
@@ -60,7 +60,7 @@ public class TridentHopperMinecart extends TridentMinecart implements HopperMine
     }
 
     @Override
-    public EntityType type() {
+    public EntityType getType() {
         return EntityType.HOPPER_MINECART;
     }
 }

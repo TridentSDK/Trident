@@ -71,7 +71,7 @@ public abstract class TridentProjectile extends TridentEntity implements Project
     protected abstract void hit();
 
     @Override
-    public ProjectileLauncher launcher() {
+    public ProjectileLauncher getLauncher() {
         return this.source.get();
     }
 

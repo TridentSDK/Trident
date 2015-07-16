@@ -35,8 +35,8 @@ public class PacketPlayOutSpawnPosition extends OutPacket {
 
     @Override
     public void encode(ByteBuf buf) {
-        buf.writeLong((long) (((int) this.location.x() & 0x3FFFFFF) << 6 |
-                ((int) this.location.y() & 0xFFF) << 26 |
-                (int) this.location.z() & 0x3FFFFFF));
+        buf.writeLong((long) (((int) this.location.getX() & 0x3FFFFFF) << 6 |
+                ((int) this.location.getY() & 0xFFF) << 26 |
+                (int) this.location.getZ() & 0x3FFFFFF));
     }
 }

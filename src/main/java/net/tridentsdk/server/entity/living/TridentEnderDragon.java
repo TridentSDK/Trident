@@ -45,12 +45,12 @@ public class TridentEnderDragon extends TridentLivingEntity implements EnderDrag
     }
 
     @Override
-    public EntityDamageEvent lastDamageEvent() {
+    public EntityDamageEvent getLastDamageEvent() {
         return null;
     }
 
     @Override
-    public Player lastPlayerDamager() {
+    public Player getLastPlayerDamager() {
         return null;
     }
 
@@ -70,7 +70,7 @@ public class TridentEnderDragon extends TridentLivingEntity implements EnderDrag
     }
 
     @Override
-    public EntityType type() {
+    public EntityType getType() {
         return EntityType.ENDER_DRAGON;
     }
 }

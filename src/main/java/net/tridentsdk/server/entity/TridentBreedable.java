@@ -23,6 +23,7 @@ import net.tridentsdk.meta.nbt.IntTag;
 import java.util.UUID;
 
 public abstract class TridentBreedable extends TridentAgeable {
+	
     protected volatile int loveTimeout;
     protected volatile boolean inLove;
     protected volatile boolean canBreed = false;
@@ -41,9 +42,14 @@ public abstract class TridentBreedable extends TridentAgeable {
         return inLove;
     }
 
+	@Override
+	public void setInLove(boolean love) {
+		this.inLove = love;
+	}
+
     @Override
     public void doLoad(CompoundTag tag) {
-        this.loveTimeout = ((IntTag) tag.getTag("InLove")).value();
+        this.loveTimeout = ((IntTag) tag.getTag("InLove")).getValue();
         this.inLove = false;
     }
 }

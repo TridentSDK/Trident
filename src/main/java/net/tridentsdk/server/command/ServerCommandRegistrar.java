@@ -21,6 +21,7 @@ import net.tridentsdk.Handler;
 import net.tridentsdk.meta.ChatColor;
 
 public class ServerCommandRegistrar {
+	
     private static volatile boolean registered;
     
     public static final String SERVER_PREFIX = ChatColor.AQUA + "[Server} " + ChatColor.RESET;
@@ -33,8 +34,9 @@ public class ServerCommandRegistrar {
         // Set it here in case some idiot tries to register twice
         registered = true;
 
-        Handler.forCommands().addCommand(null, new ShutdownCommand());
-        Handler.forCommands().addCommand(null, new HelpCommand());
-        Handler.forCommands().addCommand(null, new TeleportCommand());
+        Handler.forCommands().registerCommand(null, new StopCommand());
+        Handler.forCommands().registerCommand(null, new HelpCommand());
+        Handler.forCommands().registerCommand(null, new TeleportCommand());
     }
+    
 }

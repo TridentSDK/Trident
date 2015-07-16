@@ -37,7 +37,7 @@ import java.util.UUID;
  */
 public final class EntityBuilder {
     private UUID uuid = UUID.randomUUID();
-    private Position spawn = Position.create(Trident.worlds().get("world"), 0, 0, 0);
+    private Position spawn = Position.create(Trident.getServer().getWorlds().get("world"), 0, 0, 0);
     private ExecutorFactory executor;
     private boolean god;
     private Entity passenger;

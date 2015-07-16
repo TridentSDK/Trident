@@ -36,17 +36,17 @@ public class TridentWindowHandler implements WindowHandler {
     private static final Map<Integer, TridentWindow> windows = new ConcurrentHashMap<>();
 
     @Override
-    public Window windowBy(int id) {
+    public Window getById(int id) {
         return windows.get(id);
     }
 
     @Override
     public void registerWindow(Window window) {
-        windows.put(window.windowId(), (TridentWindow) window);
+        windows.put(window.getWindowID(), (TridentWindow) window);
     }
 
     @Override
-    public Collection<Window> windows() {
+    public Collection<Window> getWindows() {
         return Collections2.transform(windows.values(), (w) -> w);
     }
 }

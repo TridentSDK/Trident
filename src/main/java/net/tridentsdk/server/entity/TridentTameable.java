@@ -40,26 +40,29 @@ public abstract class TridentTameable extends TridentBreedable implements Tameab
     protected void doEncodeMeta(ProtocolMetadata protocolMeta) {
         protocolMeta.setMeta(16, MetadataType.BYTE, tameData);
         protocolMeta.setMeta(17, MetadataType.STRING,
-                owner == null ? "" : TridentPlayer.getPlayer(owner).name());
+                owner == null ? "" : TridentPlayer.getPlayer(owner).getName());
     }
 
     @Override
     public boolean isSitting() {
         return (tameData & 1) == 1;
     }
+    
+    @Override
+    public void setSitting(boolean sitting) {
+    	if (isSitting() != sitting) {
+    		tameData |= 1;
+    	}
+    }
 
     @Override
-    public UUID owner() {
+    public UUID getTamer() {
         return owner;
     }
 
     @Override
-    public boolean isTamed() {
-        return (tameData & 4) == 4;
-    }
-
-    public void setTame(final UUID owner) {
-        if(TridentPlayer.getPlayer(owner) == null) {
+    public void setTamer(final UUID owner) {
+        if (TridentPlayer.getPlayer(owner) == null) {
             TridentLogger.error(new IllegalArgumentException("No player found with provided UUID!"));
             return;
         }
@@ -67,4 +70,10 @@ public abstract class TridentTameable extends TridentBreedable implements Tameab
         TridentTameable.this.owner = owner;
         tameData |= 4;
     }
+
+    @Override
+    public boolean isTamed() {
+        return (tameData & 4) == 4;
+    }
+    
 }

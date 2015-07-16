@@ -31,7 +31,7 @@ import org.openjdk.jcstress.annotations.*;
 import org.openjdk.jcstress.infra.results.BooleanResult2;
 
 @JCStressTest
-@Outcome(id = "[true, true]", expect = Expect.ACCEPTABLE, desc = "Setting an object and double works concurrently")
+@Outcome(getID = "[true, true]", expect = Expect.ACCEPTABLE, desc = "Setting an object and double works concurrently")
 @Outcome(expect = Expect.FORBIDDEN)
 public class CoordinateTest {
     private final World world = new TridentWorldLoader().load("world");

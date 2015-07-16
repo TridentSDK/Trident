@@ -52,7 +52,7 @@ public class PaddingTest {
 
     @Benchmark
     public double normal() {
-        return COOR.x() + COOR.y() + COOR.z();
+        return COOR.getX() + COOR.getY() + COOR.getZ();
     }
 
     @Benchmark

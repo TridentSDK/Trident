@@ -55,7 +55,7 @@ public class TridentArrow extends TridentProjectile implements Arrow {
     }
 
     @Override
-    public EntityType type() {
+    public EntityType getType() {
         return EntityType.ARROW;
     }
 }

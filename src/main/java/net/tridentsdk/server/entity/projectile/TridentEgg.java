@@ -51,16 +51,16 @@ public class TridentEgg extends TridentProjectile implements Egg {
         if (chance <= 8) {
             if (chance == 1) {
                 for (int i = 0; i < 4; i++) {
-                    HANDLER.register(new TridentChicken(UUID.randomUUID(), this.position()));
+                    HANDLER.register(new TridentChicken(UUID.randomUUID(), this.getPosition()));
                 }
             } else {
-                HANDLER.register(new TridentChicken(UUID.randomUUID(), this.position()));
+                HANDLER.register(new TridentChicken(UUID.randomUUID(), this.getPosition()));
             }
         }
     }
 
     @Override
-    public EntityType type() {
+    public EntityType getType() {
         return EntityType.EGG;
     }
 }

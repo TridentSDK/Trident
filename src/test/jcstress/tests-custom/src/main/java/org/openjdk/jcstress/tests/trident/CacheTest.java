@@ -35,7 +35,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentMap;
 
 @JCStressTest
-@Outcome(id = "[true, true, true, false]", expect = Expect.ACCEPTABLE, desc = "Map works correctly")
+@Outcome(getID = "[true, true, true, false]", expect = Expect.ACCEPTABLE, desc = "Map works correctly")
 @Outcome(expect = Expect.FORBIDDEN)
 public class CacheTest {
     private final Object object = new Object();

@@ -16,29 +16,35 @@
  */
 package net.tridentsdk.server.entity.living;
 
+import java.util.UUID;
+
 import net.tridentsdk.Position;
 import net.tridentsdk.base.SubstanceColor;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.entity.living.Sheep;
 import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.event.entity.EntityDamageEvent;
-import net.tridentsdk.server.entity.TridentLivingEntity;
-
-import java.util.UUID;
+import net.tridentsdk.server.entity.TridentBreedable;
 
 /**
  * Represents a sheep
  *
  * @author The TridentSDK Team
  */
-public class TridentSheep extends TridentLivingEntity implements Sheep {
+public class TridentSheep extends TridentBreedable implements Sheep {
+	
     public TridentSheep(UUID uuid, Position spawnPosition) {
         super(uuid, spawnPosition);
     }
 
     @Override
-    public SubstanceColor color() {
+    public SubstanceColor getColor() {
         return null;
+    }
+    
+    @Override
+    public void setColor(SubstanceColor color) {
+    	
     }
 
     @Override
@@ -47,37 +53,18 @@ public class TridentSheep extends TridentLivingEntity implements Sheep {
     }
 
     @Override
-    public int age() {
-        return 0;
-    }
-
-    @Override
-    public void setAge(int ticks) {
-
-    }
-
-    @Override
-    public boolean canBreed() {
-        return false;
-    }
-
-    @Override
-    public boolean isInLove() {
-        return false;
-    }
-
-    @Override
-    public EntityDamageEvent lastDamageEvent() {
+    public EntityDamageEvent getLastDamageEvent() {
         return null;
     }
 
     @Override
-    public Player lastPlayerDamager() {
+    public Player getLastPlayerDamager() {
         return null;
     }
 
     @Override
-    public EntityType type() {
+    public EntityType getType() {
         return EntityType.SHEEP;
     }
+    
 }

@@ -18,6 +18,14 @@
 package net.tridentsdk.server.player;
 
 
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+
+import javax.annotation.concurrent.ThreadSafe;
+
 import net.tridentsdk.GameMode;
 import net.tridentsdk.Position;
 import net.tridentsdk.Trident;
@@ -28,7 +36,21 @@ import net.tridentsdk.entity.traits.EntityProperties;
 import net.tridentsdk.entity.traits.PlayerSpeed;
 import net.tridentsdk.event.entity.EntityDamageEvent;
 import net.tridentsdk.factory.Factories;
-import net.tridentsdk.meta.nbt.*;
+import net.tridentsdk.meta.nbt.ByteTag;
+import net.tridentsdk.meta.nbt.CompoundTag;
+import net.tridentsdk.meta.nbt.CompoundTagBuilder;
+import net.tridentsdk.meta.nbt.DoubleTag;
+import net.tridentsdk.meta.nbt.FloatTag;
+import net.tridentsdk.meta.nbt.IntTag;
+import net.tridentsdk.meta.nbt.ListTag;
+import net.tridentsdk.meta.nbt.ListTagBuilder;
+import net.tridentsdk.meta.nbt.LongTag;
+import net.tridentsdk.meta.nbt.NBTBuilder;
+import net.tridentsdk.meta.nbt.NBTSerializer;
+import net.tridentsdk.meta.nbt.NBTTag;
+import net.tridentsdk.meta.nbt.ShortTag;
+import net.tridentsdk.meta.nbt.TagType;
+import net.tridentsdk.permission.Permission;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.data.Slot;
 import net.tridentsdk.server.entity.TridentInventoryHolder;
@@ -38,13 +60,6 @@ import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.window.inventory.Inventory;
 import net.tridentsdk.world.Dimension;
 import net.tridentsdk.world.World;
-
-import javax.annotation.concurrent.ThreadSafe;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 @ThreadSafe
 public class OfflinePlayer extends TridentInventoryHolder implements Player {
@@ -110,37 +125,37 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     protected final Inventory enderChest = null;
     protected final PlayerAbilities abilities = new PlayerAbilities();
     protected final PlayerSpeed playerSpeed = new PlayerSpeedImpl();
-    protected final Set<String> permissions = Factories.collect().createSet();
+    protected final Set<Permission> permissions = Factories.collect().createSet();
 
     OfflinePlayer(UUID uuid, CompoundTag tag, TridentWorld world) {
-        super(uuid, world.spawnPosition());
+        super(uuid, world.getSpawnPosition());
 
         load(tag);
 
-        dimension = Dimension.dimension(((IntTag) tag.getTag("Dimension")).value());
-        gameMode = GameMode.gamemodeOf(((IntTag) tag.getTag("playerGameType")).value());
-        score = ((IntTag) tag.getTag("Score")).value();
-        selectedSlot = (short) ((IntTag) tag.getTag("SelectedItemSlot")).value();
+        dimension = Dimension.getDimension(((IntTag) tag.getTag("Dimension")).getValue());
+        gameMode = GameMode.getById(((IntTag) tag.getTag("playerGameType")).getValue());
+        score = ((IntTag) tag.getTag("Score")).getValue();
+        selectedSlot = (short) ((IntTag) tag.getTag("SelectedItemSlot")).getValue();
 
         if (tag.containsTag("SpawnX")) {
-            spawnLocation = Position.create(world, ((IntTag) tag.getTag("SpawnX")).value(),
-                    ((IntTag) tag.getTag("SpawnY")).value(), ((IntTag) tag.getTag("SpawnZ")).value());
+            spawnLocation = Position.create(world, ((IntTag) tag.getTag("SpawnX")).getValue(),
+                    ((IntTag) tag.getTag("SpawnY")).getValue(), ((IntTag) tag.getTag("SpawnZ")).getValue());
         } else {
-            spawnLocation = world.spawnPosition();
+            spawnLocation = world.getSpawnPosition();
         }
 
-        hunger = (short) ((IntTag) tag.getTag("foodLevel")).value();
-        exhaustion = ((FloatTag) tag.getTag("foodExhaustionLevel")).value();
-        saturation = ((FloatTag) tag.getTag("foodSaturationLevel")).value();
-        foodTickTimer = ((IntTag) tag.getTag("foodTickTimer")).value();
-        xpLevel = ((IntTag) tag.getTag("XpLevel")).value();
-        xpPercent = ((FloatTag) tag.getTag("XpP")).value();
-        xpTotal = ((IntTag) tag.getTag("XpLevel")).value();
-        xpSeed = tag.containsTag("XpSeed") ? ((IntTag) tag.getTag("XpSeed")).value() :
-                new IntTag("XpSeed").setValue(0).value();
+        hunger = (short) ((IntTag) tag.getTag("foodLevel")).getValue();
+        exhaustion = ((FloatTag) tag.getTag("foodExhaustionLevel")).getValue();
+        saturation = ((FloatTag) tag.getTag("foodSaturationLevel")).getValue();
+        foodTickTimer = ((IntTag) tag.getTag("foodTickTimer")).getValue();
+        xpLevel = ((IntTag) tag.getTag("XpLevel")).getValue();
+        xpPercent = ((FloatTag) tag.getTag("XpP")).getValue();
+        xpTotal = ((IntTag) tag.getTag("XpLevel")).getValue();
+        xpSeed = tag.containsTag("XpSeed") ? ((IntTag) tag.getTag("XpSeed")).getValue() :
+                new IntTag("XpSeed").setValue(0).getValue();
 
         // TODO come up with a valid implementation of this...?
-        inventory = new TridentWindow(44);
+        inventory = new TridentWindow(45);
         for (NBTTag t : ((ListTag) tag.getTag("Inventory")).listTags()) {
             Slot slot = NBTSerializer.deserialize(Slot.class, (CompoundTag) t);
 
@@ -164,7 +179,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
         // DEBUG =====
         World defaultWorld = TridentServer.WORLD;
         // =====
-        Position spawnLocation = defaultWorld.spawnPosition();
+        Position spawnLocation = defaultWorld.getSpawnPosition();
         CompoundTagBuilder<NBTBuilder> builder = NBTBuilder.newBase(id.toString());
 
         builder.stringTag("id", String.valueOf(counter.incrementAndGet()));
@@ -173,9 +188,9 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
 
         ListTagBuilder<CompoundTagBuilder<NBTBuilder>> pos = builder.beginListTag("Pos", TagType.DOUBLE);
 
-        pos.tag(spawnLocation.x());
-        pos.tag(spawnLocation.y());
-        pos.tag(spawnLocation.z());
+        pos.tag(spawnLocation.getX());
+        pos.tag(spawnLocation.getY());
+        pos.tag(spawnLocation.getZ());
 
         builder = pos.endListTag();
 
@@ -213,7 +228,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
         builder.compoundTag(new CompoundTag("Riding"));
 
         builder.intTag("Dimension", Dimension.OVERWORLD.asByte());
-        builder.intTag("playerGameType", Trident.config().getByte("default-gamemode"));
+        builder.intTag("playerGameType", Trident.getServer().getConfig().getByte("default-gamemode"));
         builder.intTag("Score", 0);
         builder.intTag("SelectedGameSlot", 0);
 
@@ -242,12 +257,12 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     }
 
     @Override
-    public Locale locale() {
+    public Locale getLocale() {
         return null;
     }
 
     @Override
-    public GameMode gameMode() {
+    public GameMode getGameMode() {
         return gameMode;
     }
 
@@ -259,7 +274,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     }
 
     @Override
-    public PlayerSpeed speedModifiers() {
+    public PlayerSpeed getSpeedModifiers() {
         return playerSpeed;
     }
 
@@ -269,12 +284,12 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     }
 
     @Override
-    public void invokeCommand(String message) {
+    public void runCommand(String message) {
         TridentLogger.error(new UnsupportedOperationException("You cannot make an OfflinePlayer invoke a command!"));
     }
 
     @Override
-    public String lastCommand() {
+    public String getLastCommand() {
         return null;
     }
 
@@ -283,6 +298,11 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
         // DEBUG ===== Everyone is OP'd!
         return true;
         // =====
+    }
+    
+    @Override
+    public void setOperator(boolean op) {
+    	// NYI
     }
 
     @Override
@@ -296,12 +316,12 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     }
 
     @Override
-    public EntityDamageEvent lastDamageEvent() {
+    public EntityDamageEvent getLastDamageEvent() {
         return null;
     }
 
     @Override
-    public Player lastPlayerDamager() {
+    public Player getLastPlayerDamager() {
         return null;
     }
 
@@ -311,12 +331,12 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     }
 
     @Override
-    public String lastMessage() {
+    public String getLastMessage() {
         return null;
     }
 
     @Override
-    public String name() {
+    public String getName() {
         return name;
     }
 
@@ -327,7 +347,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     }
 
     public CompoundTag asNbt() {
-        CompoundTag tag = new CompoundTag(uniqueId().toString());
+        CompoundTag tag = new CompoundTag(getUniqueId().toString());
 
         tag.addTag(new LongTag("UUIDMost").setValue(uniqueId.getMostSignificantBits()));
         tag.addTag(new LongTag("UUIDLeast").setValue(uniqueId.getLeastSignificantBits()));
@@ -338,9 +358,9 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
         tag.addTag(new IntTag("SelectedItemSlot").setValue(selectedSlot));
 
         //tag.addTag(NBTSerializer.serialize(new Slot(itemInHand())));
-        tag.addTag(new IntTag("SpawnX").setValue((int) spawnLocation.x()));
-        tag.addTag(new IntTag("SpawnY").setValue((int) spawnLocation.y()));
-        tag.addTag(new IntTag("SpawnZ").setValue((int) spawnLocation.z()));
+        tag.addTag(new IntTag("SpawnX").setValue((int) spawnLocation.getX()));
+        tag.addTag(new IntTag("SpawnY").setValue((int) spawnLocation.getY()));
+        tag.addTag(new IntTag("SpawnZ").setValue((int) spawnLocation.getZ()));
 
         tag.addTag(new IntTag("foodLevel").setValue(hunger));
         tag.addTag(new FloatTag("foodExhaustionLevel").setValue(exhaustion));
@@ -362,22 +382,22 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
         tag.addTag(new IntTag("SelectedItemSlot").setValue(selectedSlot));
 
         ListTag position = new ListTag("Pos",TagType.DOUBLE);
-        position.addTag(new DoubleTag("").setValue(loc.x()));
-        position.addTag(new DoubleTag("").setValue(loc.y()));
-        position.addTag(new DoubleTag("").setValue(loc.z()));
+        position.addTag(new DoubleTag("").setValue(loc.getX()));
+        position.addTag(new DoubleTag("").setValue(loc.getY()));
+        position.addTag(new DoubleTag("").setValue(loc.getZ()));
 
         tag.addTag(position);
 
         ListTag motion = new ListTag("Motion",TagType.DOUBLE) ;
-        motion.addTag(new DoubleTag("").setValue(velocity.x()));
-        motion.addTag(new DoubleTag("").setValue(velocity.y()));
-        motion.addTag(new DoubleTag("").setValue(velocity.z()));
+        motion.addTag(new DoubleTag("").setValue(velocity.getX()));
+        motion.addTag(new DoubleTag("").setValue(velocity.getY()));
+        motion.addTag(new DoubleTag("").setValue(velocity.getZ()));
 
         tag.addTag(motion);
 
         ListTag rotation = new ListTag("Rotation", TagType.FLOAT);
-        rotation.addTag(new FloatTag("").setValue(loc.yaw()));
-        rotation.addTag(new FloatTag("").setValue(loc.pitch()));
+        rotation.addTag(new FloatTag("").setValue(loc.getYaw()));
+        rotation.addTag(new FloatTag("").setValue(loc.getPitch()));
 
         tag.addTag(rotation);
 
@@ -402,23 +422,22 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     }
 
     @Override
-    public void grantPermission(String perm) {
-        permissions.add(perm);
+    public void setPermission(Permission permission, boolean enabled) {
+        if (enabled && !hasPermission(permission)) {
+        	permissions.add(permission);
+        } else if (hasPermission(permission) && !enabled) {
+        	permissions.remove(permission);
+        }
     }
 
     @Override
-    public void revokePermission(String perm) {
-        permissions.remove(perm);
-    }
-
-    @Override
-    public boolean holdsPermission(String perm) {
+    public boolean hasPermission(Permission perm) {
         return permissions.contains(perm);
     }
 
     class PlayerSpeedImpl implements PlayerSpeed {
         @Override
-        public float flyingSpeed() {
+        public float getFlyingSpeed() {
             return abilities.flySpeed;
         }
 
@@ -428,7 +447,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
         }
 
         @Override
-        public float sneakSpeed() {
+        public float getSneakSpeed() {
             TridentLogger.error(new UnsupportedOperationException("You may not get the sneak speed of an OfflinePlayer!"));
             return -1;
         }
@@ -439,7 +458,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
         }
 
         @Override
-        public float walkSpeed() {
+        public float setWalkSpeed() {
             return abilities.walkingSpeed;
         }
 

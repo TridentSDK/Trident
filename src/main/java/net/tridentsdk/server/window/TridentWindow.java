@@ -92,12 +92,12 @@ public class TridentWindow implements Window, Inventory {
     }
 
     @Override
-    public int windowId() {
+    public int getWindowID() {
         return this.id;
     }
 
     @Override
-    public Item[] items() {
+    public Item[] getItems() {
         Item[] array = new Item[contents.length()];
         for (int i = 0; i < contents.length(); i++) {
             array[i] = contents.get(i);
@@ -107,14 +107,14 @@ public class TridentWindow implements Window, Inventory {
     }
 
     @Override
-    public int length() {
+    public int getSize() {
         return this.length;
     }
 
     //@Override
     public int itemLength() {
         int counter = 0;
-        for (Item item : items()) {
+        for (Item item : getItems()) {
             if (item != null)
                 counter++;
         }
@@ -123,21 +123,21 @@ public class TridentWindow implements Window, Inventory {
     }
 
     @Override
-    public String name() {
+    public String getName() {
         return this.name;
     }
 
     @Override
-    public Item itemAt(int slot) {
-        return items()[slot];
+    public Item getItem(int slot) {
+        return getItems()[slot];
     }
 
     @Override
-    public void setSlot(int index, Item value) {
+    public void setItem(int index, Item value) {
         contents.set(index, value);
 
         PacketPlayOutSetSlot setSlot = new PacketPlayOutSetSlot();
-        setSlot.set("windowId", windowId()).set("slot", (short) index).set("item", new Slot(value));
+        setSlot.set("windowId", getWindowID()).set("slot", (short) index).set("item", new Slot(value));
 
         for (WeakEntity<Player> player : WeakEntity.iterate(users)) {
             ((TridentPlayer) player.obtain()).connection().sendPacket(setSlot);
@@ -145,7 +145,7 @@ public class TridentWindow implements Window, Inventory {
     }
 
     @Override
-    public void putItem(Item item) {
+    public void addItem(Item item) {
         for (int i = 0; i < contents.length(); i++) {
             if (contents.compareAndSet(i, null, item)) {
                 return;
@@ -155,7 +155,7 @@ public class TridentWindow implements Window, Inventory {
         for (WeakEntity<Player> player : WeakEntity.iterate(users)) {
             // TODO implement
             TridentEntity dropped = EntityBuilder.create()
-                    .spawn(player.obtain().position())
+                    .spawn(player.obtain().getPosition())
                     .build(TridentEntity.class);
             // TODO set dropped type
         }
@@ -163,16 +163,16 @@ public class TridentWindow implements Window, Inventory {
 
     public void sendTo(TridentPlayer player) {
         PacketPlayOutOpenWindow window = new PacketPlayOutOpenWindow();
-        window.set("windowId", windowId())
+        window.set("windowId", getWindowID())
                 .set("inventoryType", type)
-                .set("windowTitle", name())
-                .set("slots", length())
+                .set("windowTitle", getName())
+                .set("slots", getSize())
                 .set("entityId", -1);
         player.connection().sendPacket(window);
 
-        for (int i = 0; i < length(); i++) {
+        for (int i = 0; i < getSize(); i++) {
             PacketPlayOutSetSlot setSlot = new PacketPlayOutSetSlot();
-            setSlot.set("windowId", windowId()).set("slot", (short) i).set("item", new Slot(items()[i]));
+            setSlot.set("windowId", getWindowID()).set("slot", (short) i).set("item", new Slot(getItems()[i]));
             player.connection().sendPacket(window);
         }
         users.add(WeakEntity.<Player>of(player));

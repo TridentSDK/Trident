@@ -34,12 +34,12 @@ public class TridentCmdMinecart extends TridentMinecart implements CommandMineca
     }
 
     @Override
-    public BlockSnapshot commandBlockState() {
+    public BlockSnapshot getCommandBlock() {
         return null;
     }
 
     @Override
-    public EntityType type() {
+    public EntityType getType() {
         return EntityType.COMMAND_MINECART;
     }
 }
