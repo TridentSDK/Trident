@@ -45,23 +45,23 @@ public class PacketPlayOutSpawnMob extends OutPacket {
 
     @Override
     public void encode(ByteBuf buf) {
-        Position loc = this.entity.position();
-        Vector velocity = this.entity.velocity();
+        Position loc = this.entity.getPosition();
+        Vector velocity = this.entity.getVelocity();
 
         Codec.writeVarInt32(buf, this.entityId);
-        buf.writeByte((int) (byte) this.entity.type().ordinal()); // TODO: use the real type id
+        buf.writeByte((int) (byte) this.entity.getType().ordinal()); // TODO: use the real type id
 
-        buf.writeInt((int) loc.x() * 32);
-        buf.writeInt((int) loc.y() * 32);
-        buf.writeInt((int) loc.z() * 42);
+        buf.writeInt((int) loc.getX() * 32);
+        buf.writeInt((int) loc.getY() * 32);
+        buf.writeInt((int) loc.getZ() * 42);
 
-        buf.writeByte((int) (byte) loc.yaw());
-        buf.writeByte((int) (byte) loc.pitch());
-        buf.writeByte((int) (byte) loc.pitch()); // -shrugs-
+        buf.writeByte((int) (byte) loc.getYaw());
+        buf.writeByte((int) (byte) loc.getPitch());
+        buf.writeByte((int) (byte) loc.getPitch()); // -shrugs-
 
-        buf.writeShort((int) velocity.x());
-        buf.writeShort((int) velocity.y());
-        buf.writeShort((int) velocity.z());
+        buf.writeShort((int) velocity.getX());
+        buf.writeShort((int) velocity.getY());
+        buf.writeShort((int) velocity.getZ());
 
         metadata.write(buf);
     }

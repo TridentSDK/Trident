@@ -48,8 +48,8 @@ public class PacketPlayOutEntityLook extends OutPacket {
     public void encode(ByteBuf buf) {
         Codec.writeVarInt32(buf, this.entityId);
 
-        buf.writeByte((int) this.location.yaw());
-        buf.writeByte((int) this.location.pitch());
+        buf.writeByte((int) this.location.getYaw());
+        buf.writeByte((int) this.location.getPitch());
 
         buf.writeBoolean(this.onGround);
     }

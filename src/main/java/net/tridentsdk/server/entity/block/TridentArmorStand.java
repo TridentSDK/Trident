@@ -65,7 +65,7 @@ public class TridentArmorStand extends TridentLivingEntity implements ArmorStand
     }
 
     @Override
-    public SlotProperties slotProperties() {
+    public SlotProperties getSlotProperties() {
         return properties;
     }
 
@@ -75,12 +75,12 @@ public class TridentArmorStand extends TridentLivingEntity implements ArmorStand
     }
 
     @Override
-    public boolean displayBaseplate() {
+    public boolean isBaseplateEnabled() {
         return (data & 8) == 8;
     }
 
     @Override
-    public boolean displayArms() {
+    public boolean isArmsEnabled() {
         return (data & 4) == 4;
     }
 
@@ -90,7 +90,7 @@ public class TridentArmorStand extends TridentLivingEntity implements ArmorStand
     }
 
     @Override
-    public PartRotation[] pose() {
+    public PartRotation[] getPose() {
         return pose;
     }
 
@@ -100,7 +100,7 @@ public class TridentArmorStand extends TridentLivingEntity implements ArmorStand
     }
 
     @Override
-    public Item[] equipment() {
+    public Item[] getEquipment() {
         return armor;
     }
 
@@ -118,17 +118,17 @@ public class TridentArmorStand extends TridentLivingEntity implements ArmorStand
     }
 
     @Override
-    public EntityDamageEvent lastDamageEvent() {
+    public EntityDamageEvent getLastDamageEvent() {
         return null;
     }
 
     @Override
-    public Player lastPlayerDamager() {
+    public Player getLastPlayerDamager() {
         return null;
     }
 
     @Override
-    public EntityType type() {
+    public EntityType getType() {
         return EntityType.ARMOR_STAND;
     }
 }

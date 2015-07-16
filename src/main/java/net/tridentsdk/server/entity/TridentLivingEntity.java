@@ -100,7 +100,7 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
     }
 
     @Override
-    public double health() {
+    public double getHealth() {
         return this.health.get();
     }
 
@@ -110,7 +110,7 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
     }
 
     @Override
-    public double maxHealth() {
+    public double getMaxHealth() {
         return this.maxHealth;
     }
 
@@ -120,12 +120,12 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
     }
 
     @Override
-    public Position headLocation() {
-        return this.position().relative(new Vector(0.0d, 1.0d, 0.0d));
+    public Position getHeadPosition() {
+        return this.getPosition().relative(new Vector(0.0d, 1.0d, 0.0d));
     }
 
     @Override
-    public long remainingAir() {
+    public long getRemainingAir() {
         return this.airTicks.get();
     }
 
@@ -151,15 +151,15 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
     }
 
     @Override
-    public void setAiModule(AiModule module) {
+    public void setAI(AiModule module) {
         this.ai = module;
     }
 
     @Override
-    public AiModule aiModule() {
+    public AiModule getAI() {
         AiModule module = this.ai;
         if (module == null) {
-            return Trident.instance().aiHandler().defaultAiFor(type());
+            return Trident.getServer().getAIHandler().defaultAiFor(getType());
         } else {
             return module;
         }
@@ -171,7 +171,7 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
     }
 
     public void performAiUpdate() {
-        AiModule module = this.aiModule();
+        AiModule module = this.getAI();
 
         if (this.restTicks.get() <= 0) {
             this.restTicks.set(module.think(this));
@@ -182,7 +182,7 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
     }
 
     @Override
-    public Path path() {
+    public Path getPath() {
         return path;
     }
 
@@ -193,7 +193,7 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
     @Override
     public void hide(Entity entity) {
         PacketPlayOutDestroyEntities packet = new PacketPlayOutDestroyEntities();
-        packet.set("destroyedEntities", new int[]{ entity.entityId() });
+        packet.set("destroyedEntities", new int[]{ entity.getEntityId() });
 
         if (this instanceof Player) {
             ((TridentPlayer) this).connection().sendPacket(packet);
@@ -207,7 +207,7 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
 
         ((TridentEntity) entity).encodeMetadata(protocolMeta);
 
-        packet.set("entityId", entity.entityId())
+        packet.set("entityId", entity.getEntityId())
                 .set("entity", entity)
                 .set("metadata", protocolMeta);
 
@@ -220,14 +220,14 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
     public void load(CompoundTag tag) {
         super.load(tag);
 
-        if (type() == EntityType.PLAYER) {
+        if (getType() == EntityType.PLAYER) {
             return; // onlinePlayers do not inherit the living entity or "mob" NBT structure
         }
 
         if (tag.containsTag("HealF")) {
-            health.set(((FloatTag) tag.getTag("HealF")).value());
+            health.set(((FloatTag) tag.getTag("HealF")).getValue());
         } else {
-            health.set(((ShortTag) tag.getTag("Health")).value());
+            health.set(((ShortTag) tag.getTag("Health")).getValue());
         }
 
         FloatTag extraHealth = tag.getTagAs("AbsorptionAmount"); // health added if the entity has the absorption effect
@@ -244,8 +244,8 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
         ByteTag canRespawn = tag.getTagAs("PersistenceRequired");
         ByteTag leashed = tag.getTagAs("Leashed");
 
-        health.addAndGet(extraHealth.value());
-        this.invincibilityTicks.set(invincibilityTicks.value());
+        health.addAndGet(extraHealth.getValue());
+        this.invincibilityTicks.set(invincibilityTicks.getValue());
 
         for (NBTTag attribute : attributes.listTags()) {
             this.attributes.add(NBTSerializer.deserialize(EntityAttribute.class,

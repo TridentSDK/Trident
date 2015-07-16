@@ -84,7 +84,7 @@ public class TridentChunk implements Chunk {
     }
 
     @Override
-    public Set<Entity> entities() {
+    public Set<Entity> getEntities() {
         return ImmutableSet.copyOf(entities);
     }
 
@@ -105,7 +105,7 @@ public class TridentChunk implements Chunk {
             }
 
             // TODO add flag to prevent double generation
-            AbstractGenerator generator = world.loader().generator();
+            AbstractGenerator generator = world.getLoader().getGenerator();
             int i = 0;
 
             for (char[] blockData : generator.generateChunkBlocks(location)) {
@@ -145,27 +145,27 @@ public class TridentChunk implements Chunk {
     }
 
     @Override
-    public int x() {
+    public int getX() {
         return location.x();
     }
 
     @Override
-    public int z() {
+    public int getZ() {
         return location.z();
     }
 
     @Override
-    public ChunkLocation location() {
+    public ChunkLocation getLocation() {
         return this.location;
     }
 
     @Override
-    public TridentWorld world() {
+    public TridentWorld getWorld() {
         return this.world;
     }
 
     @Override
-    public Block blockAt(final int relX, final int y, final int relZ) {
+    public Block getBlockAt(final int relX, final int y, final int relZ) {
         final int index = WorldUtils.blockArrayIndex(relX, y & 15, relZ);
 
         try {
@@ -179,13 +179,13 @@ public class TridentChunk implements Chunk {
                 byte b = (byte) (section.types[index] >> 4);
                 byte meta = (byte) (section.types[index] & 0xF);
 
-                Substance material = Substance.fromId(b);
+                Substance material = Substance.getById(b);
 
                 if (material == null) {
                     material = Substance.AIR; // check if valid
                 }
 
-                return new TridentBlock(Position.create(world, relX + x() * 16, y, relZ + z() * 16),
+                return new TridentBlock(Position.create(world, relX + getX() * 16, y, relZ + getZ() * 16),
                         material, meta);
             }).get();
         } catch (InterruptedException | ExecutionException e) {
@@ -195,7 +195,7 @@ public class TridentChunk implements Chunk {
     }
 
     @Override
-    public ChunkSnapshot snapshot() {
+    public ChunkSnapshot getSnapshot() {
         final List<CompoundTag> sections = Lists.newArrayList();
 
         final ChunkSection[][] sections1 = new ChunkSection[1][1];
@@ -316,13 +316,13 @@ public class TridentChunk implements Chunk {
         this.lightPopulated = lightPopulated.value(); // Unknown use
         this.terrainPopulated = terrainPopulated.value(); // if chunk was populated with special things (ores,
         // trees, etc.), if 1 regenerate
-        this.lastModified = lastModifed.value(); // Tick when the chunk was last saved
-        this.inhabitedTime = inhabitedTime.value(); // Cumulative number of ticks player have been in the chunk
+        this.lastModified = lastModifed.getValue(); // Tick when the chunk was last saved
+        this.inhabitedTime = inhabitedTime.getValue(); // Cumulative number of ticks player have been in the chunk
     }
 
     @Override
     public void unload() {
-        world.loader().saveChunk(this);
+        world.getLoader().saveChunk(this);
         world.loadedChunks.remove(location);
     }
 
@@ -330,7 +330,7 @@ public class TridentChunk implements Chunk {
         CompoundTag root = new CompoundTag("root");
         CompoundTag level = new CompoundTag("Level");
 
-        level.addTag(new LongTag("LastUpdate").setValue(world.time()));
+        level.addTag(new LongTag("LastUpdate").setValue(world.getTime()));
         level.addTag(new ByteTag("LightPopulated").setValue(lightPopulated));
         level.addTag(new ByteTag("TerrainPopulated").setValue(terrainPopulated));
 
@@ -360,7 +360,7 @@ public class TridentChunk implements Chunk {
     }
 
     public void setAt(Position p, Substance type, byte metaData, byte skyLight, byte blockLight) {
-        setAt((int) p.x(), (int) p.y(), (int) p.z(), type, metaData, skyLight, blockLight);
+        setAt((int) p.getX(), (int) p.getY(), (int) p.getZ(), type, metaData, skyLight, blockLight);
     }
 
     public void setAt(int x, final int y, int z, final Substance type, final byte metaData, final byte skyLight,

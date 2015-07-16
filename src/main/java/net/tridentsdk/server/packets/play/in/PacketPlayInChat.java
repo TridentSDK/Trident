@@ -65,7 +65,7 @@ public class PacketPlayInChat extends InPacket {
 
             Handler.forEvents().fire(event);
 
-            if(event.isIgnored()) {
+            if(event.isCancelled()) {
                 return;
             }
         }
@@ -74,9 +74,9 @@ public class PacketPlayInChat extends InPacket {
 
         String identifier = Handler
                 .forChat()
-                .format(player.name() + "> ", player)
+                .format(player.getName() + "> ", player)
                 .replaceAll("%p", "")
-                .replaceAll("%n", player.name())
+                .replaceAll("%n", player.getName())
                 .replaceAll("%s", "")
                 .replaceAll("%d", "> ");
 

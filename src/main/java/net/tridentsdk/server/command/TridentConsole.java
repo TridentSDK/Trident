@@ -18,6 +18,7 @@
 package net.tridentsdk.server.command;
 
 import net.tridentsdk.Handler;
+import net.tridentsdk.permission.Permission;
 import net.tridentsdk.plugin.cmd.ServerConsole;
 import net.tridentsdk.util.TridentLogger;
 
@@ -26,21 +27,34 @@ public class TridentConsole implements ServerConsole {
     private volatile String lastMessage;
 
     @Override
-    public void invokeCommand(String message) {
+    public void runCommand(String message) {
         Handler.forCommands().handleCommand(message, this);
         lastCommand = message;
     }
 
     @Override
-    public String lastCommand() {
+    public String getLastCommand() {
         return lastCommand;
     }
 
     @Override
     public boolean isOperator() {
-        // console is always OP
         return true;
     }
+
+	@Override
+	public void setOperator(boolean op) {
+		
+	}
+
+	@Override
+	public boolean hasPermission(Permission permission) {
+		return true;
+	}
+	
+	public void setPermission(Permission permission, boolean enabled) {
+		
+	}
 
     @Override
     public void sendRaw(String... messages) {
@@ -54,7 +68,7 @@ public class TridentConsole implements ServerConsole {
     }
 
     @Override
-    public String lastMessage() {
+    public String getLastMessage() {
         return lastMessage;
     }
 }

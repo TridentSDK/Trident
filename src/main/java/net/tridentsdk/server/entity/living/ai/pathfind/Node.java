@@ -33,7 +33,7 @@ public class Node {
     private double f = -1;
 
     public Node(Node parent, Position position) {
-        this(parent, position.x(), position.y(), position.z());
+        this(parent, position.getX(), position.getY(), position.getZ());
     }
 
     public Node(Node parent, double x, double y, double z) {

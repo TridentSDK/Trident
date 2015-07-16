@@ -32,17 +32,17 @@ public class TridentPainting extends TridentEntity implements Painting {
     }
 
     @Override
-    public String motive() {
+    public String getArt() {
         return null;
     }
 
     @Override
-    public Block hangingBlock() {
+    public Block getAttachedBlock() {
         return null;
     }
 
     @Override
-    public EntityType type() {
+    public EntityType getType() {
         return EntityType.PAINTING;
     }
 }

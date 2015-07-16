@@ -36,12 +36,12 @@ public class TridentGuardian extends TridentLivingEntity implements Guardian {
     }
 
     @Override
-    public EntityDamageEvent lastDamageEvent() {
+    public EntityDamageEvent getLastDamageEvent() {
         return null;
     }
 
     @Override
-    public Player lastPlayerDamager() {
+    public Player getLastPlayerDamager() {
         return null;
     }
 
@@ -51,7 +51,7 @@ public class TridentGuardian extends TridentLivingEntity implements Guardian {
     }
 
     @Override
-    public EntityType type() {
+    public EntityType getType() {
         return EntityType.GUARDIAN;
     }
 }

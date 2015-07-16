@@ -42,7 +42,7 @@ public class TridentWolf extends TridentLivingEntity implements Wolf {
     }
 
     @Override
-    public SubstanceColor collarColor() {
+    public SubstanceColor getCollarColor() {
         return null;
     }
 
@@ -52,17 +52,27 @@ public class TridentWolf extends TridentLivingEntity implements Wolf {
     }
 
     @Override
-    public UUID owner() {
+    public UUID getTamer() {
         return null;
     }
+
+	@Override
+	public void setTamer(UUID uuid) {
+		
+	}
 
     @Override
     public boolean isSitting() {
         return false;
     }
 
+	@Override
+	public void setSitting(boolean sitting) {
+		
+	}
+
     @Override
-    public int age() {
+    public int getAge() {
         return 0;
     }
 
@@ -81,23 +91,28 @@ public class TridentWolf extends TridentLivingEntity implements Wolf {
         return false;
     }
 
+	@Override
+	public void setInLove(boolean love) {
+		
+	}
+
     @Override
     public boolean isHostile() {
         return false;
     }
 
     @Override
-    public EntityDamageEvent lastDamageEvent() {
+    public EntityDamageEvent getLastDamageEvent() {
         return null;
     }
 
     @Override
-    public Player lastPlayerDamager() {
+    public Player getLastPlayerDamager() {
         return null;
     }
 
     @Override
-    public EntityType type() {
+    public EntityType getType() {
         return EntityType.WOLF;
     }
 }

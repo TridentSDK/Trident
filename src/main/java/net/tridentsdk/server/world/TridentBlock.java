@@ -46,8 +46,8 @@ public class TridentBlock implements Block {
         this.location = location;
 
         // Note: Avoid recursion by not creating a new instance from World#blockAt(Location)
-        Block worldBlock = location.world().blockAt(location);
-        this.material = worldBlock.substance();
+        Block worldBlock = location.getWorld().getBlockAt(location);
+        this.material = worldBlock.getSubstance();
     }
 
     public TridentBlock(Position location, Substance substance, byte meta) {
@@ -57,7 +57,7 @@ public class TridentBlock implements Block {
     }
 
     @Override
-    public Substance substance() {
+    public Substance getSubstance() {
         return this.material;
     }
 
@@ -67,12 +67,12 @@ public class TridentBlock implements Block {
     }
 
     @Override
-    public Position location() {
+    public Position getPosition() {
         return this.location;
     }
 
     @Override
-    public byte meta() {
+    public byte getMeta() {
         return this.data;
     }
 
@@ -82,7 +82,7 @@ public class TridentBlock implements Block {
     }
 
     @Override
-    public Block relativeBlock(Vector vector) {
+    public Block getBlockRelative(Vector vector) {
         return new TridentBlock(this.location.relative(vector));
     }
 
@@ -93,9 +93,9 @@ public class TridentBlock implements Block {
 
 
         TridentPlayer.sendAll(new PacketPlayOutBlockChange()
-                .set("blockId", substance().id() << 4 | data)
+                .set("blockId", getSubstance().getID() << 4 | data)
                 .set("location", location));
 
-        ((TridentChunk) location().chunk()).setAt(location, material, data, (byte) 255, (byte) 0);
+        ((TridentChunk) getPosition().getChunk()).setAt(location, material, data, (byte) 255, (byte) 0);
     }
 }

@@ -34,17 +34,17 @@ public class TridentFirework extends TridentEntity implements Firework {
     }
 
     @Override
-    public int timeLived() {
+    public int getExplodeTicks() {
         return 0;
     }
 
     @Override
-    public FireworkProperties properties() {
+    public FireworkProperties getFireworkProperties() {
         return null;
     }
 
     @Override
-    public EntityType type() {
+    public EntityType getType() {
         return EntityType.FIREWORK;
     }
 }

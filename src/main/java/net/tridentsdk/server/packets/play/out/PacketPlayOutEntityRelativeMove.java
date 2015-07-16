@@ -48,9 +48,9 @@ public class PacketPlayOutEntityRelativeMove extends OutPacket {
     public void encode(ByteBuf buf) {
         Codec.writeVarInt32(buf, this.entityId);
 
-        buf.writeByte((int) this.difference.x() * 32);
-        buf.writeByte((int) this.difference.y() * 32);
-        buf.writeByte((int) this.difference.z() * 32);
+        buf.writeByte((int) this.difference.getX() * 32);
+        buf.writeByte((int) this.difference.getY() * 32);
+        buf.writeByte((int) this.difference.getZ() * 32);
 
         buf.writeBoolean(this.onGround);
     }

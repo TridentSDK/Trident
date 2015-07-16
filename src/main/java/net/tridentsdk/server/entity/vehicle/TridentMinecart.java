@@ -35,7 +35,7 @@ public class TridentMinecart extends TridentEntity implements MinecartBase {
     }
 
     @Override
-    public BlockSnapshot displayTitle() {
+    public BlockSnapshot getDisplayTile() {
         return null;
     }
 
@@ -45,7 +45,7 @@ public class TridentMinecart extends TridentEntity implements MinecartBase {
     }
 
     @Override
-    public int titleOffset() {
+    public int getTileOffset() {
         return 0;
     }
 
@@ -55,7 +55,7 @@ public class TridentMinecart extends TridentEntity implements MinecartBase {
     }
 
     @Override
-    public String name() {
+    public String getName() {
         return null;
     }
 
@@ -65,7 +65,7 @@ public class TridentMinecart extends TridentEntity implements MinecartBase {
     }
 
     @Override
-    public EntityType type() {
+    public EntityType getType() {
         return EntityType.MINECART;
     }
 }

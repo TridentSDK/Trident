@@ -75,7 +75,7 @@ public class PacketPlayInEntityAction extends InPacket {
 
                 Handler.forEvents().fire(event);
 
-                if(!event.isIgnored()) {
+                if(!event.isCancelled()) {
                     player.setSprinting(event.sprintOn());
                 }
                 break;

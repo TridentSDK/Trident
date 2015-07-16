@@ -83,7 +83,7 @@ public class TridentWorldLoader implements WorldLoader {
     @InternalUseOnly
     public void loadAll() {
         TridentLogger.log("Loading worlds...");
-        for (File file : Trident.fileContainer().toFile().listFiles()) {
+        for (File file : Trident.getWorkingDirectory().toFile().listFiles()) {
             if (!(file.isDirectory()) || file.getName().contains(" "))
                 continue;
 
@@ -100,7 +100,7 @@ public class TridentWorldLoader implements WorldLoader {
 
                     try {
                         byte[] sig = Files.readAllBytes(
-                                Trident.fileContainer().resolve(file.getName()).resolve("gensig"));
+                                Trident.getWorkingDirectory().resolve(file.getName()).resolve("gensig"));
                         className = new String(sig);
                         if (!className.equals(generator.getClass().getName())) {
                             // Create a new loader with that class, don't load it with this one
@@ -124,11 +124,11 @@ public class TridentWorldLoader implements WorldLoader {
             if (!(isWorld))
                 continue;
 
-            Path gensig = Trident.fileContainer().resolve(file.getName()).resolve("gensig");
+            Path gensig = Trident.getWorkingDirectory().resolve(file.getName()).resolve("gensig");
             if (!Files.exists(gensig)) {
                 try {
                     Files.createFile(gensig);
-                    Files.write(gensig, generator().getClass().getName().getBytes(Charset.defaultCharset()));
+                    Files.write(gensig, getGenerator().getClass().getName().getBytes(Charset.defaultCharset()));
                 } catch (IOException e) {
                     TridentLogger.error("Could not write gensig file");
                     TridentLogger.error(e);
@@ -179,7 +179,7 @@ public class TridentWorldLoader implements WorldLoader {
 
     @Override
     public boolean chunkExists(World world, int x, int z) {
-        return new File(world.name() + "/region/", WorldUtils.regionFile(x, z)).exists();
+        return new File(world.getName() + "/region/", WorldUtils.regionFile(x, z)).exists();
     }
 
     @Override
@@ -194,17 +194,17 @@ public class TridentWorldLoader implements WorldLoader {
 
     @Override
     public TridentChunk loadChunk(World world, ChunkLocation location) {
-        return RegionFile.fromPath(world.name(), location).loadChunkData((TridentWorld) world, location);
+        return RegionFile.fromPath(world.getName(), location).loadChunkData((TridentWorld) world, location);
     }
 
     @Override
     public void saveChunk(Chunk chunk) {
-        RegionFile.fromPath(chunk.world().name(), chunk.location())
+        RegionFile.fromPath(chunk.getWorld().getName(), chunk.getLocation())
                 .saveChunkData((TridentChunk) chunk);
     }
 
     @Override
-    public AbstractGenerator generator() {
+    public AbstractGenerator getGenerator() {
         return generator;
     }
 }

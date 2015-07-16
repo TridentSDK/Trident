@@ -52,9 +52,9 @@ public class PacketPlayOutExplosion extends OutPacket {
 
     @Override
     public void encode(ByteBuf buf) {
-        buf.writeFloat((float) this.loc.x());
-        buf.writeFloat((float) this.loc.y());
-        buf.writeFloat((float) this.loc.z());
+        buf.writeFloat((float) this.loc.getX());
+        buf.writeFloat((float) this.loc.getY());
+        buf.writeFloat((float) this.loc.getZ());
         buf.writeFloat(0.0F); // unused by client
 
         buf.writeInt(this.recordCount);
@@ -63,8 +63,8 @@ public class PacketPlayOutExplosion extends OutPacket {
             builder.write(buf);
         }
 
-        buf.writeFloat((float) this.velocity.x());
-        buf.writeFloat((float) this.velocity.y());
-        buf.writeFloat((float) this.velocity.z());
+        buf.writeFloat((float) this.velocity.getX());
+        buf.writeFloat((float) this.velocity.getY());
+        buf.writeFloat((float) this.velocity.getZ());
     }
 }

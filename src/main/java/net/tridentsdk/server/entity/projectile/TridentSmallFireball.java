@@ -45,7 +45,7 @@ public class TridentSmallFireball extends TridentProjectile implements SmallFire
     }
 
     @Override
-    public EntityType type() {
+    public EntityType getType() {
         return EntityType.SMALL_FIREBALL;
     }
 }

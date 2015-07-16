@@ -88,7 +88,7 @@ public final class TridentServer implements Server {
         Trident.setServer(server);
         server.mainThread.start();
         server.worldLoader.loadAll();
-        TridentServer.WORLD = (TridentWorld) server.worlds().get("world");
+        TridentServer.WORLD = (TridentWorld) server.getWorlds().get("world");
 
         if (WORLD == null) {
             World world = server.worldLoader.createWorld("world");
@@ -105,7 +105,7 @@ public final class TridentServer implements Server {
      * @return the server singleton
      */
     public static TridentServer instance() {
-        return (TridentServer) Trident.instance();
+        return (TridentServer) Trident.getServer();
     }
 
     /**
@@ -130,7 +130,7 @@ public final class TridentServer implements Server {
     }
 
     @Override
-    public ServerConsole console() {
+    public ServerConsole getConsole() {
         return console;
     }
 
@@ -140,12 +140,12 @@ public final class TridentServer implements Server {
      * @return the port occupied by the server
      */
     @Override
-    public int port() {
+    public int getPort() {
         return this.config.getInt("port", 25565);
     }
 
     @Override
-    public JsonConfig config() {
+    public JsonConfig getConfig() {
         return this.config;
     }
 
@@ -185,32 +185,32 @@ public final class TridentServer implements Server {
     }
 
     @Override
-    public Map<String, World> worlds() {
+    public Map<String, World> getWorlds() {
         Map<String, World> worlds = Maps.newHashMap();
         for (World world : worldLoader.worlds())
-            worlds.put(world.name(), world);
+            worlds.put(world.getName(), world);
 
         return worlds;
     }
 
     @Override
-    public WorldLoader newWorldLoader(Class<? extends AbstractGenerator> generator) {
+    public WorldLoader createWorldLoader(Class<? extends AbstractGenerator> generator) {
         return new TridentWorldLoader(generator);
     }
 
     @Override
-    public InetAddress serverIp() {
+    public InetAddress getServerIP() {
         return null;
     }
 
     @Override
-    public String version() {
+    public String getVersion() {
         // TODO: Make this more eloquent
         return "1.0-SNAPSHOT";
     }
 
     @Override
-    public DisplayInfo info() {
+    public DisplayInfo getDisplayInfo() {
         return displayInfo;
     }
 
@@ -219,22 +219,22 @@ public final class TridentServer implements Server {
     }
 
     @Override
-    public Logger logger() {
+    public Logger getLogger() {
         return logger;
     }
 
     @Override
-    public Player playerBy(UUID id) {
+    public Player getPlayer(UUID id) {
         return TridentPlayer.getPlayer(id);
     }
 
     @Override
-    public Collection<Player> onlinePlayers() {
+    public Collection<Player> getOnlinePlayers() {
         return TridentPlayer.players();
     }
 
     @Override
-    public AiHandler aiHandler() {
+    public AiHandler getAIHandler() {
         return aiHandler;
     }
 }

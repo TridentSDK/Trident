@@ -38,7 +38,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 @JCStressTest
-@Outcome(id = "[true]", expect = Expect.ACCEPTABLE, desc = "Executor does its job")
+@Outcome(getID = "[true]", expect = Expect.ACCEPTABLE, desc = "Executor does its job")
 @Outcome(expect = Expect.FORBIDDEN)
 public class ExecutorTest {
     static {

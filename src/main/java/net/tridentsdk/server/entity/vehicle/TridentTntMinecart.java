@@ -33,7 +33,7 @@ public class TridentTntMinecart extends TridentMinecart implements TNTMinecart {
     }
 
     @Override
-    public int fuseTime() {
+    public int getFuseTime() {
         return 0;
     }
 
@@ -43,7 +43,7 @@ public class TridentTntMinecart extends TridentMinecart implements TNTMinecart {
     }
 
     @Override
-    public EntityType type() {
+    public EntityType getType() {
         return EntityType.TNT_MINECART;
     }
 }

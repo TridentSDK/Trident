@@ -45,7 +45,7 @@ public class TridentExpBottle extends TridentProjectile implements Projectile {
     }
 
     @Override
-    public EntityType type() {
+    public EntityType getType() {
         return EntityType.EXPERIENCE_BOTTLE;
     }
 }

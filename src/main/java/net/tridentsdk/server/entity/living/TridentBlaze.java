@@ -45,12 +45,12 @@ public class TridentBlaze extends TridentLivingEntity implements Blaze {
     }
 
     @Override
-    public EntityDamageEvent lastDamageEvent() {
+    public EntityDamageEvent getLastDamageEvent() {
         return null;
     }
 
     @Override
-    public Player lastPlayerDamager() {
+    public Player getLastPlayerDamager() {
         return null;
     }
 
@@ -70,7 +70,7 @@ public class TridentBlaze extends TridentLivingEntity implements Blaze {
     }
 
     @Override
-    public EntityType type() {
+    public EntityType getType() {
         return EntityType.BLAZE;
     }
 }

@@ -38,7 +38,7 @@ public class PacketStatusOutResponse extends OutPacket {
     DisplayInfo info;
 
     public PacketStatusOutResponse() {
-        this.info = Trident.server().info();
+        this.info = Trident.server().getDisplayInfo();
     }
 
     @Override
@@ -59,13 +59,13 @@ public class PacketStatusOutResponse extends OutPacket {
         JsonObject version = new JsonObject();
         JsonObject motd = new JsonObject();
 
-        players.add("max", new JsonPrimitive(info.maxPlayers()));
-        players.add("online", new JsonPrimitive(info.playerCount()));
+        players.add("max", new JsonPrimitive(info.getMaxPlayers()));
+        players.add("online", new JsonPrimitive(info.getPlayerCount()));
 
-        version.add("name", new JsonPrimitive(info.version()));
+        version.add("name", new JsonPrimitive(info.getVersion()));
         version.add("protocol", new JsonPrimitive(47));
 
-        motd.add("text", new JsonPrimitive(info.motd()));
+        motd.add("text", new JsonPrimitive(info.getMotd()));
 
         object.add("players", players);
         object.add("version", version);

@@ -58,7 +58,8 @@ public class TridentSnowball extends TridentProjectile {
     }
 
     @Override
-    public EntityType type() {
+    public EntityType getType() {
         return EntityType.SNOWBALL;
     }
+    
 }

@@ -36,17 +36,17 @@ public class TridentSpawnerMinecart extends TridentEntity implements SpawnerMine
     }
 
     @Override
-    public EntityType spawnType() {
+    public EntityType getSpawnerType() {
         return null;
     }
 
     @Override
-    public EntityProperties appliedProperties() {
+    public EntityProperties getEntityProperties() {
         return null;
     }
 
     @Override
-    public BlockSnapshot displayTitle() {
+    public BlockSnapshot getDisplayTile() {
         return null;
     }
 
@@ -56,7 +56,7 @@ public class TridentSpawnerMinecart extends TridentEntity implements SpawnerMine
     }
 
     @Override
-    public int titleOffset() {
+    public int getTileOffset() {
         return 0;
     }
 
@@ -66,7 +66,7 @@ public class TridentSpawnerMinecart extends TridentEntity implements SpawnerMine
     }
 
     @Override
-    public String name() {
+    public String getName() {
         return null;
     }
 
@@ -76,7 +76,7 @@ public class TridentSpawnerMinecart extends TridentEntity implements SpawnerMine
     }
 
     @Override
-    public EntityType type() {
+    public EntityType getType() {
         return EntityType.SPAWNER_MINECART;
     }
 }

@@ -29,8 +29,8 @@ import org.openjdk.jcstress.annotations.*;
 import org.openjdk.jcstress.infra.results.BooleanResult1;
 
 @JCStressTest
-@Outcome(id = "[true, true]", expect = Expect.ACCEPTABLE, desc = "JMM works like it should")
-@Outcome(id = "[false, true]", expect = Expect.FORBIDDEN, desc = "Volatile array does not work")
+@Outcome(getID = "[true, true]", expect = Expect.ACCEPTABLE, desc = "JMM works like it should")
+@Outcome(getID = "[false, true]", expect = Expect.FORBIDDEN, desc = "Volatile array does not work")
 @Outcome(expect = Expect.FORBIDDEN)
 public class ArrayTest {
     // volatileArray

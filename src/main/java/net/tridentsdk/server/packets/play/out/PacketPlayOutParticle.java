@@ -70,13 +70,13 @@ public class PacketPlayOutParticle extends OutPacket {
         buf.writeInt(this.particleId);
         buf.writeBoolean(this.distance);
 
-        buf.writeFloat((float) this.loc.x());
-        buf.writeFloat((float) this.loc.y());
-        buf.writeFloat((float) this.loc.z());
+        buf.writeFloat((float) this.loc.getX());
+        buf.writeFloat((float) this.loc.getY());
+        buf.writeFloat((float) this.loc.getZ());
 
-        buf.writeFloat((float) this.offset.x());
-        buf.writeFloat((float) this.offset.y());
-        buf.writeFloat((float) this.offset.z());
+        buf.writeFloat((float) this.offset.getX());
+        buf.writeFloat((float) this.offset.getY());
+        buf.writeFloat((float) this.offset.getZ());
 
         buf.writeFloat(this.particleData);
         buf.writeInt(this.count);

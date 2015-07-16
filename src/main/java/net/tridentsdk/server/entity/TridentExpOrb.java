@@ -33,7 +33,7 @@ public class TridentExpOrb extends TridentEntity implements ExperienceOrb {
     }
 
     @Override
-    public int age() {
+    public int getAge() {
         return 0;
     }
 
@@ -42,18 +42,18 @@ public class TridentExpOrb extends TridentEntity implements ExperienceOrb {
 
     }
 
-    @Override
-    public short health() {
-        return 0;
-    }
+//    @Override
+//    public short getHealth() {
+//        return 0;
+//    }
+//
+//    @Override
+//    public void setHealth(short health) {
+//
+//    }
 
     @Override
-    public void setHealth(short health) {
-
-    }
-
-    @Override
-    public EntityType type() {
+    public EntityType getType() {
         return EntityType.EXPERIENCE_ORB;
     }
 }

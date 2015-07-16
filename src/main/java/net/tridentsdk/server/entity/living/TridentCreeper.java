@@ -17,6 +17,8 @@
 
 package net.tridentsdk.server.entity.living;
 
+import java.util.UUID;
+
 import net.tridentsdk.Position;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.living.Creeper;
@@ -30,8 +32,6 @@ import net.tridentsdk.meta.nbt.ShortTag;
 import net.tridentsdk.server.data.MetadataType;
 import net.tridentsdk.server.data.ProtocolMetadata;
 import net.tridentsdk.server.entity.TridentLivingEntity;
-
-import java.util.UUID;
 
 public class TridentCreeper extends TridentLivingEntity implements Creeper {
     private volatile boolean charged;
@@ -49,8 +49,8 @@ public class TridentCreeper extends TridentLivingEntity implements Creeper {
             this.charged = ((ByteTag) tag.getTag("powered")).value() == 1;
         }
 
-        this.explosionRadius = ((FloatTag) tag.getTag("ExplosionRadius")).value();
-        this.fuse = ((ShortTag) tag.getTag("Fuse")).value();
+        this.explosionRadius = ((FloatTag) tag.getTag("ExplosionRadius")).getValue();
+        this.fuse = ((ShortTag) tag.getTag("Fuse")).getValue();
         this.ignited = ((ByteTag) tag.getTag("ignited")).value() == 1;
     }
 
@@ -71,7 +71,7 @@ public class TridentCreeper extends TridentLivingEntity implements Creeper {
     }
 
     @Override
-    public float explosionRadius() {
+    public float getExplosionRadius() {
         return explosionRadius;
     }
 
@@ -91,17 +91,17 @@ public class TridentCreeper extends TridentLivingEntity implements Creeper {
     }
 
     @Override
-    public EntityDamageEvent lastDamageEvent() {
+    public EntityDamageEvent getLastDamageEvent() {
         return null;
     }
 
     @Override
-    public Player lastPlayerDamager() {
+    public Player getLastPlayerDamager() {
         return null;
     }
 
     @Override
-    public EntityType type() {
+    public EntityType getType() {
         return EntityType.CREEPER;
     }
 }

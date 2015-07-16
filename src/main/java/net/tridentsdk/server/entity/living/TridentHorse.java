@@ -17,6 +17,8 @@
 
 package net.tridentsdk.server.entity.living;
 
+import java.util.UUID;
+
 import net.tridentsdk.Position;
 import net.tridentsdk.entity.living.Horse;
 import net.tridentsdk.entity.living.Player;
@@ -26,14 +28,13 @@ import net.tridentsdk.entity.types.HorseVariant;
 import net.tridentsdk.event.entity.EntityDamageEvent;
 import net.tridentsdk.server.data.MetadataType;
 import net.tridentsdk.server.data.ProtocolMetadata;
-import net.tridentsdk.server.entity.TridentBreedable;
+import net.tridentsdk.server.entity.TridentTameable;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.window.inventory.Inventory;
 import net.tridentsdk.window.inventory.Item;
 
-import java.util.UUID;
-
-public class TridentHorse extends TridentBreedable implements Horse {
+public class TridentHorse extends TridentTameable implements Horse {
+	
     private volatile int data;
     private final HorseType breed;
     private volatile int colorData;
@@ -54,15 +55,15 @@ public class TridentHorse extends TridentBreedable implements Horse {
     @Override
     protected void doEncodeMeta(ProtocolMetadata protocolMeta) {
         protocolMeta.setMeta(16, MetadataType.INT, data);
-        protocolMeta.setMeta(19, MetadataType.BYTE, (byte) breed.id());
+        protocolMeta.setMeta(19, MetadataType.BYTE, (byte) breed.asInt());
         protocolMeta.setMeta(20, MetadataType.INT, colorData);
         protocolMeta.setMeta(21, MetadataType.STRING,
-                (owner == null) ? "" : TridentPlayer.getPlayer(owner).name());
+                (owner == null) ? "" : TridentPlayer.getPlayer(owner).getName());
         protocolMeta.setMeta(22, MetadataType.INT, armorType);
     }
 
     @Override
-    public HorseType breed() {
+    public HorseType getBreed() {
         return breed;
     }
 
@@ -72,7 +73,7 @@ public class TridentHorse extends TridentBreedable implements Horse {
     }
 
     @Override
-    public int temper() {
+    public int getTemper() {
         return temper;
     }
 
@@ -82,22 +83,17 @@ public class TridentHorse extends TridentBreedable implements Horse {
     }
 
     @Override
-    public HorseVariant variant() {
+    public HorseVariant getVariant() {
         return null;
     }
 
     @Override
-    public boolean isSitting() {
-        return false;
-    }
-
-    @Override
-    public Inventory inventory() {
+    public Inventory getInventory() {
         return null;
     }
 
     @Override
-    public Item heldItem() {
+    public Item getHeldItem() {
         return null;
     }
 
@@ -117,27 +113,17 @@ public class TridentHorse extends TridentBreedable implements Horse {
     }
 
     @Override
-    public boolean isTamed() {
-        return false;
-    }
-
-    @Override
-    public UUID owner() {
+    public EntityDamageEvent getLastDamageEvent() {
         return null;
     }
 
     @Override
-    public EntityDamageEvent lastDamageEvent() {
+    public Player getLastPlayerDamager() {
         return null;
     }
 
     @Override
-    public Player lastPlayerDamager() {
-        return null;
-    }
-
-    @Override
-    public EntityType type() {
+    public EntityType getType() {
         return EntityType.HORSE;
     }
 }

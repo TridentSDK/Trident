@@ -17,18 +17,15 @@
 
 package net.tridentsdk.server.entity.living;
 
+import java.util.UUID;
+
 import net.tridentsdk.Position;
 import net.tridentsdk.entity.Entity;
-import net.tridentsdk.entity.traits.EntityProperties;
-import net.tridentsdk.entity.types.EntityType;
-import net.tridentsdk.entity.Projectile;
 import net.tridentsdk.entity.living.Cow;
 import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.event.entity.EntityDamageEvent;
-import net.tridentsdk.server.entity.TridentAgeable;
 import net.tridentsdk.server.entity.TridentTameable;
-
-import java.util.UUID;
 
 public class TridentCow extends TridentTameable implements Cow {
     public TridentCow(UUID id, Position spawnLocation) {
@@ -46,17 +43,17 @@ public class TridentCow extends TridentTameable implements Cow {
     }
 
     @Override
-    public EntityDamageEvent lastDamageEvent() {
+    public EntityDamageEvent getLastDamageEvent() {
         return null;
     }
 
     @Override
-    public Player lastPlayerDamager() {
+    public Player getLastPlayerDamager() {
         return null;
     }
 
     @Override
-    public EntityType type() {
+    public EntityType getType() {
         return EntityType.COW;
     }
 }

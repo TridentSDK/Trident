@@ -101,12 +101,12 @@ public class PacketPlayInPlayerClickWindow extends InPacket {
 
     @Override
     public void handleReceived(ClientConnection connection) {
-        Window window = Handler.forWindows().windowBy(this.windowId);
+        Window window = Handler.forWindows().getById(this.windowId);
         PlayerClickItemEvent clickEvent = new PlayerClickItemEvent(window, this.clickedSlot, (int) this.actionNumber);
 
         Handler.forEvents().fire(clickEvent);
 
-        if (clickEvent.isIgnored()) {
+        if (clickEvent.isCancelled()) {
         }
     }
 }

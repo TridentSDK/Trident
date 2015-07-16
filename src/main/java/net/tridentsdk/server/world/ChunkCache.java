@@ -90,9 +90,9 @@ public class ChunkCache {
 
                 if (chunk.hasValue()) {      // No value = needs to generate
                     Chunk c = chunk.get();
-                    if (c.entities()         // Ensure there are no players
+                    if (c.getEntities()         // Ensure there are no players
                             .stream()
-                            .filter(e -> e.type().equals(EntityType.PLAYER))
+                            .filter(e -> e.getType().equals(EntityType.PLAYER))
                             .count() == 0) {
                         remove(location);
                         c.unload();

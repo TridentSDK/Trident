@@ -48,12 +48,12 @@ public class PacketPlayOutEntityTeleport extends OutPacket {
     public void encode(ByteBuf buf) {
         Codec.writeVarInt32(buf, this.entityId);
 
-        buf.writeInt((int) this.location.x() * 32);
-        buf.writeInt((int) this.location.y() * 32);
-        buf.writeInt((int) this.location.z() * 32);
+        buf.writeInt((int) this.location.getX() * 32);
+        buf.writeInt((int) this.location.getY() * 32);
+        buf.writeInt((int) this.location.getZ() * 32);
 
-        buf.writeByte((int) this.location.yaw() * 256/360);
-        buf.writeByte((int) this.location.pitch()* 256/360);
+        buf.writeByte((int) this.location.getYaw() * 256/360);
+        buf.writeByte((int) this.location.getPitch()* 256/360);
 
         buf.writeBoolean(this.onGround);
     }

@@ -41,7 +41,7 @@ public abstract class TridentAgeable extends TridentLivingEntity implements Agea
     }
 
     @Override
-    public int age() {
+    public int getAge() {
         return age;
     }
 }

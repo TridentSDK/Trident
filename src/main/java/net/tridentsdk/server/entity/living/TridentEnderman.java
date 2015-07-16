@@ -42,28 +42,28 @@ public class TridentEnderman extends TridentLivingEntity implements Enderman {
 
     @Override
     public void doLoad(CompoundTag tag) {
-        short carriedId = ((ShortTag) tag.getTag("carried")).value();
+        short carriedId = ((ShortTag) tag.getTag("carried")).getValue();
 
         if(carriedId != 0) {
-            carryingBlock = BlockSnapshot.from(null, Substance.fromId((byte) carriedId),
-                    (byte) ((ShortTag) tag.getTag("carriedData")).value());
+            carryingBlock = BlockSnapshot.from(null, Substance.getById((byte) carriedId),
+                    (byte) ((ShortTag) tag.getTag("carriedData")).getValue());
         }
     }
 
     @Override
     protected void doEncodeMeta(ProtocolMetadata protocolMeta) {
-        protocolMeta.setMeta(16, MetadataType.SHORT, (short) carryingBlock.type().id());
-        protocolMeta.setMeta(17, MetadataType.BYTE, carryingBlock.data());
+        protocolMeta.setMeta(16, MetadataType.SHORT, (short) carryingBlock.getSubstance().getID());
+        protocolMeta.setMeta(17, MetadataType.BYTE, carryingBlock.getData());
         protocolMeta.setMeta(18, MetadataType.BYTE, hostile ? (byte) 1 : (byte) 0);
     }
 
     @Override
-    public BlockSnapshot carryingBlock() {
+    public BlockSnapshot getCarriedBlock() {
         return carryingBlock;
     }
 
     @Override
-    public int endermiteCount() {
+    public int getEndermiteCount() {
         return 0;
     }
 
@@ -73,17 +73,17 @@ public class TridentEnderman extends TridentLivingEntity implements Enderman {
     }
 
     @Override
-    public EntityDamageEvent lastDamageEvent() {
+    public EntityDamageEvent getLastDamageEvent() {
         return null;
     }
 
     @Override
-    public Player lastPlayerDamager() {
+    public Player getLastPlayerDamager() {
         return null;
     }
 
     @Override
-    public EntityType type() {
+    public EntityType getType() {
         return EntityType.ENDERMAN;
     }
 }

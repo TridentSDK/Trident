@@ -21,6 +21,7 @@ import net.tridentsdk.Trident;
 import net.tridentsdk.server.TridentStart;
 
 public class ShutdownTest {
+	
     public static void main(String[] args) {
         new ShutdownTest().startStop();
     }
@@ -35,11 +36,12 @@ public class ShutdownTest {
                     e.printStackTrace();
                 }
 
-                Trident.shutdown();
+                Trident.getServer().shutdown();
             }).start();
             TridentStart.main();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+    
 }

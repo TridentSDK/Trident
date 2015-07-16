@@ -33,22 +33,22 @@ public class TridentItemFrame extends TridentEntity implements ItemFrame {
     }
 
     @Override
-    public Item item() {
+    public Item getItem() {
         return null;
     }
 
     @Override
-    public byte itemRotation() {
+    public byte getRotation() {
         return 0;
     }
 
     @Override
-    public Block hangingBlock() {
+    public Block getAttachedBlock() {
         return null;
     }
 
     @Override
-    public EntityType type() {
+    public EntityType getType() {
         return EntityType.ITEM_FRAME;
     }
 }

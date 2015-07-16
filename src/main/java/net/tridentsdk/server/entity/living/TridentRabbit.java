@@ -37,7 +37,7 @@ public class TridentRabbit extends TridentLivingEntity implements Rabbit {
     }
 
     @Override
-    public RabbitType breed() {
+    public RabbitType getBreed() {
         return null;
     }
 
@@ -47,17 +47,17 @@ public class TridentRabbit extends TridentLivingEntity implements Rabbit {
     }
 
     @Override
-    public EntityDamageEvent lastDamageEvent() {
+    public EntityDamageEvent getLastDamageEvent() {
         return null;
     }
 
     @Override
-    public Player lastPlayerDamager() {
+    public Player getLastPlayerDamager() {
         return null;
     }
 
     @Override
-    public EntityType type() {
+    public EntityType getType() {
         return EntityType.RABBIT;
     }
 }

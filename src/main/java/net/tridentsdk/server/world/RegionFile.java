@@ -80,7 +80,7 @@ public class RegionFile {
     }
 
     public void saveChunkData(TridentChunk chunk) {
-        ChunkLocation loc = chunk.location();
+        ChunkLocation loc = chunk.getLocation();
         CompoundTag chunkRoot = chunk.asNbt();
         DataOutputStream dos = getChunkDataOutputStream(loc.x() & 31, loc.z() & 31);
         NBTEncoder encoder = new NBTEncoder(dos);

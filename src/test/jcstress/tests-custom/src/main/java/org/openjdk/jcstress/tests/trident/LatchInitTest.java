@@ -32,7 +32,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import java.util.concurrent.CountDownLatch;
 
 @JCStressTest
-@Outcome(id = "[true, true, true, true]", expect = Expect.ACCEPTABLE, desc = "Latches work")
+@Outcome(getID = "[true, true, true, true]", expect = Expect.ACCEPTABLE, desc = "Latches work")
 @Outcome(expect = Expect.FORBIDDEN)
 public class LatchInitTest {
     private final Object object = new Object();

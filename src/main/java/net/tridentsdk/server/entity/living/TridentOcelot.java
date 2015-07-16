@@ -31,6 +31,7 @@ import net.tridentsdk.server.entity.TridentTameable;
 import java.util.UUID;
 
 public class TridentOcelot extends TridentTameable implements Ocelot {
+	
     private final OcelotType breed;
 
     public TridentOcelot(UUID id, Position spawnLocation) {
@@ -44,7 +45,7 @@ public class TridentOcelot extends TridentTameable implements Ocelot {
     }
 
     @Override
-    public OcelotType breed() {
+    public OcelotType getBreed() {
         return breed;
     }
 
@@ -57,17 +58,17 @@ public class TridentOcelot extends TridentTameable implements Ocelot {
     }
 
     @Override
-    public EntityDamageEvent lastDamageEvent() {
+    public EntityDamageEvent getLastDamageEvent() {
         return null;
     }
 
     @Override
-    public Player lastPlayerDamager() {
+    public Player getLastPlayerDamager() {
         return null;
     }
 
     @Override
-    public EntityType type() {
+    public EntityType getType() {
         return EntityType.OCELOT;
     }
 }

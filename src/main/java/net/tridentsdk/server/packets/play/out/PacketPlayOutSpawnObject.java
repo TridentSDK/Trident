@@ -37,22 +37,22 @@ public class PacketPlayOutSpawnObject extends OutPacket {
 
     @Override
     public void encode(ByteBuf buf) {
-        Position l = this.entity.position();
-        Vector v = this.entity.velocity();
+        Position l = this.entity.getPosition();
+        Vector v = this.entity.getVelocity();
 
         Codec.writeVarInt32(buf, this.entityId);
         buf.writeByte(this.type.ordinal()); // TODO: Get the correct id type
 
-        buf.writeInt((int) l.x() * 32);
-        buf.writeInt((int) l.y() * 32);
-        buf.writeInt((int) l.z() * 32);
+        buf.writeInt((int) l.getX() * 32);
+        buf.writeInt((int) l.getY() * 32);
+        buf.writeInt((int) l.getZ() * 32);
 
-        buf.writeByte((int) (byte) l.yaw());
-        buf.writeByte((int) (byte) l.pitch());
-        buf.writeByte((int) (byte) l.pitch()); // -shrugs-
+        buf.writeByte((int) (byte) l.getYaw());
+        buf.writeByte((int) (byte) l.getPitch());
+        buf.writeByte((int) (byte) l.getPitch()); // -shrugs-
 
-        buf.writeShort((int) v.x());
-        buf.writeShort((int) v.y());
-        buf.writeShort((int) v.z());
+        buf.writeShort((int) v.getX());
+        buf.writeShort((int) v.getY());
+        buf.writeShort((int) v.getZ());
     }
 }

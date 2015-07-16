@@ -48,8 +48,8 @@ public class PacketPlayOutSpawnGlobalEntity extends OutPacket {
         Codec.writeVarInt32(buf, this.entityId);
         buf.writeByte(1); // always thunderbolt
 
-        buf.writeInt((int) this.loc.x() * 32);
-        buf.writeInt((int) this.loc.y() * 32);
-        buf.writeInt((int) this.loc.z() * 32);
+        buf.writeInt((int) this.loc.getX() * 32);
+        buf.writeInt((int) this.loc.getY() * 32);
+        buf.writeInt((int) this.loc.getZ() * 32);
     }
 }
