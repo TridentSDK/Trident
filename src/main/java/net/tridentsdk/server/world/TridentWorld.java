@@ -26,6 +26,7 @@ import net.tridentsdk.base.Block;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.Projectile;
 import net.tridentsdk.entity.block.SlotProperties;
+import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.entity.living.ProjectileLauncher;
 import net.tridentsdk.entity.traits.EntityProperties;
 import net.tridentsdk.entity.types.EntityType;
@@ -243,6 +244,8 @@ public class TridentWorld implements World {
                 chunk.generate();
             }
 
+            world.save();
+
             TridentLogger.success("Loaded spawn chunks.");
         } catch (IOException e) {
             TridentLogger.error(e);
@@ -257,8 +260,6 @@ public class TridentWorld implements World {
 
             if (time >= 24000)
                 time = 0;
-            if (time % 40 == 0)
-                TridentPlayer.sendAll(new PacketPlayOutTimeUpdate().set("worldAge", existed).set("time", time));
 
             rainTime--;
             thunderTime--;
@@ -276,6 +277,10 @@ public class TridentWorld implements World {
 
             for (Entity entity : entities) {
                 ((TridentEntity) entity).tick();
+                if (entity instanceof Player) {
+                    ((TridentPlayer) entity).connection().sendPacket
+                            (new PacketPlayOutTimeUpdate().set("worldAge", existed).set("time", time));
+                }
             }
 
             time++;
