@@ -17,7 +17,12 @@
 
 package net.tridentsdk.server.player;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Queues;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import net.tridentsdk.GameMode;
 import net.tridentsdk.Handler;
 import net.tridentsdk.Position;
@@ -35,6 +40,7 @@ import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.data.MetadataType;
 import net.tridentsdk.server.data.ProtocolMetadata;
 import net.tridentsdk.server.netty.ClientConnection;
+import net.tridentsdk.server.netty.packet.OutPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.packets.play.out.*;
 import net.tridentsdk.server.threads.ThreadsHandler;
@@ -46,9 +52,16 @@ import net.tridentsdk.world.ChunkLocation;
 import net.tridentsdk.world.LevelType;
 
 import javax.annotation.concurrent.ThreadSafe;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiConsumer;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import static net.tridentsdk.server.packets.play.out.PacketPlayOutPlayerListItem.PlayerListDataBuilder;
@@ -131,27 +144,10 @@ public class TridentPlayer extends OfflinePlayer {
             p.connection.sendPacket(new PacketPlayOutPlayerCompleteMove().set("location",
                     p.spawnLocation()).set("flags", (byte) 0));
 
-            PacketPlayOutPlayerListItem packet = new PacketPlayOutPlayerListItem();
-
-            packet.set("action", 0); // add a player
-            packet.set("playerListData", new PlayerListDataBuilder[]{p.listData()});
-
-            sendAll(new PacketPlayOutPlayerListItem()
-                    .set("action", 0)
-                    .set("playerListData", new PlayerListDataBuilder[]{p.listData()}));
-
-            List<PlayerListDataBuilder> builders = new ArrayList<>();
-
-            players().stream().filter((player) -> !player.equals(p))
-                    .forEach((player) -> builders.add(((TridentPlayer) player).listData()));
-            TridentLogger.log(p.name + " has joined the server");
-
-            p.connection.sendPacket(new PacketPlayOutPlayerListItem()
-                    .set("action", 0)
-                    .set("playerListData", builders.stream().toArray(PlayerListDataBuilder[]::new)));
+            sendBetween(p, PacketPlayOutPlayerListItem::new, (player, packet) ->
+                    packet.set("action", 0).set("playerListData", new PlayerListDataBuilder[]{player.listData()}), true);
 
             ProtocolMetadata metadata = new ProtocolMetadata();
-
             p.encodeMetadata(metadata);
         });
 
@@ -165,6 +161,28 @@ public class TridentPlayer extends OfflinePlayer {
 
     public static Collection<Player> players() {
         return ONLINE_PLAYERS.values();
+    }
+
+    private static <T extends OutPacket> void sendBetween(TridentPlayer newPlayer, Supplier<T> packetSupplier,
+                                                          BiConsumer<TridentPlayer, T> consumer, boolean selfSend) {
+        for (Player player : TridentPlayer.players()) {
+            TridentPlayer p = (TridentPlayer) player;
+
+            // If you aren't sending to self and the player is self
+            // continue
+            if (p.equals(newPlayer) && !selfSend) continue;
+
+            // Send the packet to the newPlayer
+            T packet = packetSupplier.get();
+            consumer.accept(p, packet);
+            newPlayer.connection.sendPacket(packet);
+
+            // Send the packet to the current player
+            if (p.equals(newPlayer)) continue; // Don't send to the same player twice
+            T anotherPacket = packetSupplier.get();
+            consumer.accept(newPlayer, anotherPacket);
+            p.connection.sendPacket(anotherPacket);
+        }
     }
 
     @Override
@@ -204,27 +222,14 @@ public class TridentPlayer extends OfflinePlayer {
         TridentServer.WORLD.addEntity(this); // TODO
         Handler.forEvents().fire(new PlayerJoinEvent(this));
 
-        for (Player player : players()) {
-            TridentPlayer p = (TridentPlayer) player;
-            new MessageBuilder(name + " has joined the server").color(ChatColor.YELLOW).build().sendTo(player);
+        sendBetween(this, PacketPlayOutSpawnPlayer::new, (p, packet) -> {
+            ProtocolMetadata meta = new ProtocolMetadata();
+            p.encodeMetadata(meta);
 
-            if (!p.equals(this)) {
-                ProtocolMetadata metadata = new ProtocolMetadata();
-                encodeMetadata(metadata);
-
-                p.connection.sendPacket(new PacketPlayOutSpawnPlayer()
-                        .set("entityId", id)
-                        .set("player", this)
-                        .set("metadata", metadata));
-
-                metadata = new ProtocolMetadata();
-                p.encodeMetadata(metadata);
-                connection.sendPacket(new PacketPlayOutSpawnPlayer()
-                        .set("entityId", p.id)
-                        .set("player", p)
-                        .set("metadata", metadata));
-            }
-        }
+            packet.set("entityId", p.id)
+                    .set("player", p)
+                    .set("metadata", meta);
+        }, false);
     }
 
     @Override
@@ -328,15 +333,67 @@ public class TridentPlayer extends OfflinePlayer {
         TridentLogger.log(name + " was kicked for " + reason);
     }
 
+    private static final Map<UUID, JsonObject> textures = new ConcurrentHashMap<>();
     public PlayerListDataBuilder listData() {
-        return new PacketPlayOutPlayerListItem.PlayerListDataBuilder()
+        PlayerListDataBuilder builder = new PlayerListDataBuilder()
                 .id(uniqueId)
                 .values(name,
-                        0, // properties, TODO
+                        1, new Object[4],
                         (int) gameMode.asByte(),
                         0,
                         displayName != null,
                         displayName);
+        texture(builder);
+        return builder;
+    }
+
+    // TODO move to login
+    private String texture(PlayerListDataBuilder listData) {
+        JsonObject tex = textures.get(uniqueId());
+
+        if (tex == null) {
+            try {
+                URL mojang = new URL("https://sessionserver.mojang.com/session/minecraft/profile/" +
+                        uniqueId.toString().replace("-", "") + "?unsigned=false");
+                StringBuilder builder = new StringBuilder();
+                URLConnection connection = mojang.openConnection();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    builder.append(line).append("\n");
+                }
+
+                JsonElement object = new JsonParser().parse(builder.toString());
+                JsonArray properties = object.getAsJsonObject().get("properties").getAsJsonArray();
+
+                for (int i = 0; i < properties.size(); i++) {
+                    JsonObject element = properties.get(i).getAsJsonObject();
+                    if (element.get("name").getAsString().equals("textures")) {
+                        String value = element.get("value").getAsString();
+                        byte[] base64decoded = Base64.getDecoder().decode(value);
+                        JsonElement skinData = new JsonParser().parse(new String(base64decoded));
+                        JsonObject textureObj = skinData.getAsJsonObject().get("textures").getAsJsonObject();
+                        String skinUrl = textureObj.get("SKIN").getAsJsonObject().get("url").getAsString();
+
+                        tex = object.getAsJsonObject();
+                        textures.put(uniqueId(), object.getAsJsonObject());
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        JsonArray textures = tex.getAsJsonObject("properties").getAsJsonArray("textures");
+        List<Object> objs = Lists.newArrayList(listData.values()[3]);
+        objs.add("textures");
+        objs.add(tex.get("value").getAsString());
+        objs.add(true);
+        objs.add(tex.get("signature").getAsString());
+        listData.values()[3] = objs.toArray();
+        listData.values(listData.values());
+
+        return null;
     }
 
     public PlayerConnection connection() {

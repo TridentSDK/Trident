@@ -75,11 +75,11 @@ public final class Codec {
         if (string == null) {
             return;
         }
-        //Writes the length of the string
-        writeVarInt32(buf, string.length());
 
         //Writes the bytes of the string
         byte[] bytes = string.getBytes(CHARSET);
+        //Writes the length of the string
+        writeVarInt32(buf, bytes.length);
         buf.writeBytes(bytes);
     }
 
