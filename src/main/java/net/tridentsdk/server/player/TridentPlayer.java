@@ -384,12 +384,12 @@ public class TridentPlayer extends OfflinePlayer {
             }
         }
 
-        JsonArray textures = tex.getAsJsonObject("properties").getAsJsonArray("textures");
+        JsonObject textures = tex.getAsJsonArray("properties").get(0).getAsJsonObject();
         List<Object> objs = Lists.newArrayList(listData.values()[3]);
         objs.add("textures");
-        objs.add(tex.get("value").getAsString());
+        objs.add(textures.get("value").getAsString());
         objs.add(true);
-        objs.add(tex.get("signature").getAsString());
+        objs.add(textures.get("signature").getAsString());
         listData.values()[3] = objs.toArray();
         listData.values(listData.values());
 
