@@ -89,7 +89,7 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
 
     private volatile long expireIntervalMillis = 60_000;
     private volatile boolean mustEmptyBeforeExpire = true;
-    private volatile int maxScale = Integer.MAX_VALUE;
+    private volatile int maxScale = 50;
 
     public static void main(String[] args) throws InterruptedException {
         ConcurrentTaskExecutor executor = new ConcurrentTaskExecutor(100, "Test");
@@ -206,15 +206,15 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
 
     @Override
     public TaskExecutor scaledThread() {
-        /* for (TaskExecutor ex : workerSet) {
+        for (TaskExecutor ex : workerSet) {
             ConcurrentWorker w = (ConcurrentWorker) ex;
             if (!w.isHeld()) {
                 return w;
             }
         }
 
-        return addWorker(true); */
-        return nextWorker();
+        return addWorker(true);
+        // return nextWorker();
     }
 
     @Override
@@ -281,10 +281,10 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
             }
         }
 
-        /* ConcurrentWorker w = addWorker(true);
-        w.addTask(runnable); */
+        ConcurrentWorker w = addWorker(true);
+        w.addTask(runnable);
 
-        nextWorker().addTask(runnable);
+        // nextWorker().addTask(runnable);
     }
 
     // Workers
@@ -391,18 +391,17 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
             if (runnable == null) {
                 // Expiration mechanics, in the case of spurious wakeups
                 long time = System.currentTimeMillis();
-                if ((time - this.last) == expireIntervalMillis) {
+                if ((time - this.last) >= expireIntervalMillis) {
                     // Always empty, we just polled
                     this.interrupt();
-                } else {
-                    this.last = time;
                 }
 
-                return null;
+                LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(expireIntervalMillis));
+                return nextTask();
             } else {
                 // Expiration mechanics
                 long time = System.currentTimeMillis();
-                if ((time - this.last) == expireIntervalMillis) {
+                if ((time - this.last) >= expireIntervalMillis) {
                     if (mustEmptyBeforeExpire) {
                         if (isEmpty()) {
                             return () -> {

@@ -36,7 +36,7 @@ public final class ThreadsHandler implements ThreadFactory {
     private static final ExecutorFactory players = ConcurrentTaskExecutor.create(3, "Players");
     private static final ExecutorFactory worlds = ConcurrentTaskExecutor.create(2, "Worlds");
 
-    // These 3 were originally placed together but livelock concerns have partitioned them
+    // These 2 were originally placed together but livelock concerns have partitioned them
     private static final ExecutorFactory chunks = ConcurrentTaskExecutor.create(2, "Chunks");
     private static final ExecutorFactory generator = ConcurrentTaskExecutor.create(2, "Generator");
 

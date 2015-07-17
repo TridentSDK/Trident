@@ -82,7 +82,7 @@ public class TridentPlayer extends OfflinePlayer {
     private volatile boolean flying;
     private volatile byte skinFlags;
     private volatile Locale locale;
-    private volatile int viewDistance = 7;
+    private volatile int viewDistance = MAX_VIEW;
 
     private TridentPlayer(UUID uuid, CompoundTag tag, TridentWorld world, ClientConnection connection) {
         super(uuid, tag, world);
@@ -241,19 +241,18 @@ public class TridentPlayer extends OfflinePlayer {
         if (!chunkQueue.isEmpty())
             connection.sendPacket(chunkQueue.poll());
 
-        cleanChunks();
+        cleanChunks(distance);
 
         connection.tick();
         ticksExisted.incrementAndGet();
     }
 
-    public void cleanChunks() {
+    public void cleanChunks(int viewDist) {
         int toClean = knownChunks.size() - MAX_CHUNKS;
         if (toClean > 0) {
             Position pos = position();
             int x = (int) pos.x() / 16;
             int z = (int) pos.z() / 16;
-            int viewDist = viewDistance();
 
             for (ChunkLocation location : knownChunks) {
                 int cx = location.x();
@@ -274,6 +273,7 @@ public class TridentPlayer extends OfflinePlayer {
     @Override
     protected void doRemove() {
         ONLINE_PLAYERS.remove(this.uniqueId());
+        cleanChunks(0);
 
         PacketPlayOutPlayerListItem item = new PacketPlayOutPlayerListItem();
         item.set("action", 4).set("playerListData", new PlayerListDataBuilder[]{
