@@ -91,17 +91,6 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
     private volatile boolean mustEmptyBeforeExpire = true;
     private volatile int maxScale = 50;
 
-    public static void main(String[] args) throws InterruptedException {
-        ConcurrentTaskExecutor executor = new ConcurrentTaskExecutor(100, "Test");
-
-        for (int i = 0; i < 100000; i++) {
-            final int finalI = i;
-            executor.execute(() -> {
-                System.out.println(finalI);
-            });
-        }
-    }
-
     @Override
     public int maxScale() {
         return maxScale;

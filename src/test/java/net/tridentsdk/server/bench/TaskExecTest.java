@@ -42,56 +42,56 @@ import java.util.concurrent.TimeUnit;
 ========= Starting tests: TRIDENT =========
 
 ========= Warming up the system =========
-Warmup iteration 100: 0.000 ns/op
-Warmup iteration 200: 103717.305 ns/op
-Warmup iteration 300: 294320.694 ns/op
-Warmup iteration 400: 339208.573 ns/op
-Warmup iteration 500: 339208.573 ns/op
-Warmup iteration 600: 599198.814 ns/op
-Warmup iteration 700: 599198.814 ns/op
-Warmup iteration 800: 599198.814 ns/op
-Warmup iteration 900: 599198.814 ns/op
+Warmup iteration 100: 62260.925 ns/op
+Warmup iteration 200: 65756.727 ns/op
+Warmup iteration 300: 68446.565 ns/op
+Warmup iteration 400: 69847.482 ns/op
+Warmup iteration 500: 70371.203 ns/op
+Warmup iteration 600: 77257.760 ns/op
+Warmup iteration 700: 87191.854 ns/op
+Warmup iteration 800: 102266.268 ns/op
+Warmup iteration 900: 137517.677 ns/op
 ========= Warm up complete =========
 
 ========= Starting tests =========
-Iteration 10000000: 25528.165 ns/op
-Iteration 20000000: 26968.149 ns/op
-Iteration 30000000: 27278.767 ns/op
-Iteration 40000000: 27512.523 ns/op
-Iteration 50000000: 27720.204 ns/op
-Iteration 60000000: 27957.150 ns/op
-Iteration 70000000: 28344.386 ns/op
-Iteration 80000000: 28609.102 ns/op
-Iteration 90000000: 28894.367 ns/op
+Iteration 10000000: 11514.337 ns/op
+Iteration 20000000: 11888.623 ns/op
+Iteration 30000000: 12213.097 ns/op
+Iteration 40000000: 12514.686 ns/op
+Iteration 50000000: 12784.041 ns/op
+Iteration 60000000: 13044.231 ns/op
+Iteration 70000000: 13314.039 ns/op
+Iteration 80000000: 13573.871 ns/op
+Iteration 90000000: 13834.356 ns/op
 ========= Ended test =========
-Complete. 29172.143 ns/op
+Complete. 14092.016 ns/op
 
 ========= Starting tests: JAVA =========
 
 ========= Warming up the system =========
-Warmup iteration 100: 19886.610 ns/op
-Warmup iteration 200: 54039.265 ns/op
-Warmup iteration 300: 98061.718 ns/op
-Warmup iteration 400: 116969.406 ns/op
-Warmup iteration 500: 143913.421 ns/op
-Warmup iteration 600: 180630.039 ns/op
-Warmup iteration 700: 203655.650 ns/op
-Warmup iteration 800: 217234.967 ns/op
-Warmup iteration 900: 222483.645 ns/op
+Warmup iteration 100: 14084.928 ns/op
+Warmup iteration 200: 39437.247 ns/op
+Warmup iteration 300: 95570.785 ns/op
+Warmup iteration 400: 120466.101 ns/op
+Warmup iteration 500: 141641.633 ns/op
+Warmup iteration 600: 171363.029 ns/op
+Warmup iteration 700: 193828.099 ns/op
+Warmup iteration 800: 210892.953 ns/op
+Warmup iteration 900: 226652.580 ns/op
 ========= Warm up complete =========
 
 ========= Starting tests =========
-Iteration 10000000: 4628.598 ns/op
-Iteration 20000000: 9274.451 ns/op
-Iteration 30000000: 13210.221 ns/op
-Iteration 40000000: 16514.152 ns/op
-Iteration 50000000: 21006.449 ns/op
-Iteration 60000000: 24361.641 ns/op
-Iteration 70000000: 28390.795 ns/op
-Iteration 80000000: 33168.349 ns/op
-Iteration 90000000: 38249.874 ns/op
+Iteration 10000000: 574.331 ns/op
+Iteration 20000000: 1132.956 ns/op
+Iteration 30000000: 2306.080 ns/op
+Iteration 40000000: 3758.567 ns/op
+Iteration 50000000: 4781.880 ns/op
+Iteration 60000000: 5506.453 ns/op
+Iteration 70000000: 6616.521 ns/op
+Iteration 80000000: 8744.180 ns/op
+Iteration 90000000: 14312.670 ns/op
 ========= Ended test =========
-Complete. 42901.430 ns/op
+Complete. 21963.443 ns/op
 
 http://bit.ly/1xI4GcC
  */
@@ -117,6 +117,8 @@ public class TaskExecTest {
     }
 
     public static void main(String[] args) throws InterruptedException {
+        TASK_EXECUTOR.setMaxScale(300); // Realistically one would never do this unless in a controlled environment
+        // However TPE has MAX_VALUE so I am wondering why I don't do that either...
         // Latency tests
         System.out.println("========= Starting tests: TRIDENT =========");
 
