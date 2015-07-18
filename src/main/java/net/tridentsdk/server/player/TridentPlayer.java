@@ -366,11 +366,6 @@ public class TridentPlayer extends OfflinePlayer {
                     if (element.get("name").getAsString().equals("textures")) {
                         String value = element.get("value").getAsString();
                         String sig = element.get("signature").getAsString();
-                        byte[] base64decoded = Base64.getDecoder().decode(value);
-                        JsonElement skinData = new JsonParser().parse(new String(base64decoded));
-                        JsonObject textureObject = skinData.getAsJsonObject().get("textures").getAsJsonObject();
-                        JsonObject skinObject = textureObject.get("SKIN").getAsJsonObject();
-                        String skinUrl = skinObject.get("url").getAsString();
 
                         tex = value + "#" + sig;
                         textures.put(uniqueId(), tex);
