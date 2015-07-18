@@ -26,6 +26,8 @@ import net.tridentsdk.GameMode;
 import net.tridentsdk.Handler;
 import net.tridentsdk.Position;
 import net.tridentsdk.Trident;
+import net.tridentsdk.base.Block;
+import net.tridentsdk.base.Substance;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.living.Player;
@@ -128,8 +130,17 @@ public class TridentPlayer extends OfflinePlayer {
             p.abilities.canFly = 1;
 
             // DEBUG =====
-            p.setPosition(new Position(p.world(), 0, 255, 0));
-            p.spawnLocation = new Position(p.world(), 0, 255, 0);
+            // TODO: Use chunk HeightMap to get the spawn block more efficiently
+            Block block = p.world().blockAt(Position.create(p.world(), 0, 255, 0));
+            Vector below = new Vector(0, -1, 0);
+            while(block.substance() == Substance.AIR
+                    && block.relativeBlock(below).substance() == Substance.AIR) {
+                block = block.relativeBlock(below);
+            }
+
+            block = block.relativeBlock(new Vector(0, 5, 0));
+            p.setPosition(block.location());
+            p.spawnLocation = block.location();
             // =====
 
             p.connection.sendPacket(PacketPlayOutPluginMessage.VANILLA_CHANNEL);
