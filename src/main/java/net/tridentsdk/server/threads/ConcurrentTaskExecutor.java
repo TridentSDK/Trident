@@ -385,8 +385,9 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
                     this.interrupt();
                 }
 
-                LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(expireIntervalMillis));
-                return nextTask();
+                // Processing tasks very very quickly can result in stackoverflows
+                // if this method is called too often recursively
+                return () -> LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(expireIntervalMillis));
             } else {
                 // Expiration mechanics
                 long time = System.currentTimeMillis();

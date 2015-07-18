@@ -22,12 +22,13 @@ import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 import net.tridentsdk.world.ChunkLocation;
 
+import java.util.LinkedList;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class PacketPlayOutMapChunkBulk extends OutPacket {
-    protected final Queue<PacketPlayOutChunkData> entries = new ConcurrentLinkedQueue<>();
+    protected final Queue<PacketPlayOutChunkData> entries = new LinkedList<>();
     protected boolean lightSent = true;
+    private int size;
 
     @Override
     public int id() {
@@ -36,6 +37,11 @@ public class PacketPlayOutMapChunkBulk extends OutPacket {
 
     public void addEntry(PacketPlayOutChunkData entry) {
         entries.offer(entry);
+        size += 10 + entry.data.length;
+    }
+
+    public int size() {
+        return size;
     }
 
     public boolean hasEntries() {

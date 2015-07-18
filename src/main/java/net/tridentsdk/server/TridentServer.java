@@ -159,16 +159,15 @@ public final class TridentServer implements Server {
         for (TridentPlugin plugin : Handler.forPlugins().plugins())
             Handler.forPlugins().disable(plugin);
 
-        TridentLogger.log("Saving worlds...");
-        for (World world : worldLoader.worlds())
-            ((TridentWorld) world).save();
-
         TridentLogger.log("Kicking players...");
-
         for (Player player : TridentPlayer.players()) {
             ((TridentPlayer) player).kickPlayer("Server shutting down");
             ((TridentPlayer) player).connection().logout();
         }
+
+        TridentLogger.log("Saving worlds...");
+        for (World world : worldLoader.worlds())
+            ((TridentWorld) world).save();
 
         TridentLogger.log("Shutting down worker threads...");
         ((TridentTaskScheduler) Factories.tasks()).shutdown();

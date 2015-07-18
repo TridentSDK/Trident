@@ -346,7 +346,7 @@ public class TridentWorld implements World {
         }
 
         for (TridentChunk chunk : loadedChunks()) {
-            RegionFile.fromPath(name, chunk.location()).saveChunkData(chunk);
+            chunk.executor.addTask(() -> RegionFile.fromPath(name, chunk.location()).saveChunkData(chunk));
             // System.out.println("saved " + chunk.x() + ":" + chunk.z());
         }
 

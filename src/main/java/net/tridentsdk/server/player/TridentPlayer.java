@@ -112,7 +112,6 @@ public class TridentPlayer extends OfflinePlayer {
         ONLINE_PLAYERS.put(id, p);
 
         p.name = name;
-        //p.displayName = name;
 
         p.gameMode = GameMode.CREATIVE;//GameMode.gamemodeOf(((IntTag) playerTag.getTag("playerGameType")).value());
 
@@ -437,6 +436,65 @@ public class TridentPlayer extends OfflinePlayer {
         if (bulk.hasEntries()) {
             connection.sendPacket(bulk);
         }
+
+        // WARNING: The stability of this method is very, very poor
+        // there are two bugs to fix should you choose to implement this
+
+        // One: Spread out the chunk packet sending
+        // the client usually drops about 50 frames at regular intervals
+        // using this method
+
+        // Two: Update clutter
+        // There are more updates than chunks sent
+        // perhaps consider a local collection that is pushed at the end
+        // as the knownChunks is simply not enough to deal with the
+        // incredibly fast chunk serialization via this method, or the
+        // algorithm is completely incorrect in the first place
+
+        // This method is so quick that the most likely bottleneck is the
+        // client or the network
+
+        /* int centX = ((int) Math.floor(loc.x())) >> 4;
+        int centZ = ((int) Math.floor(loc.z())) >> 4;
+        ThreadLocal<PacketPlayOutMapChunkBulk> bulk = new ThreadLocal<PacketPlayOutMapChunkBulk>() {
+            @Override
+            protected PacketPlayOutMapChunkBulk initialValue() {
+                return new PacketPlayOutMapChunkBulk();
+            }
+        };
+
+        // Don't include this loop because that would result in micro sending
+        // if the size isn't close to the protocol max
+        // keep it in the inside loop to reduce buffer pollution
+        int minX = centX - viewDistance / 2;
+        int maxX = centX + viewDistance / 2;
+        for (int x = minX; x <= maxX; x += 1) {
+            final int finalX = x;
+            ThreadsHandler.worldExecutor().execute(() -> {
+                int minZ = centZ - viewDistance / 2;
+                int maxZ = centZ + viewDistance / 2;
+                for (int z = minZ; z <= maxZ; z += 1) {
+                    ChunkLocation location = ChunkLocation.create(finalX, z);
+                    if (!knownChunks.add(location)) continue;
+
+                    TridentChunk chunk = (TridentChunk) world().chunkAt(location, true);
+                    PacketPlayOutChunkData data = chunk.asPacket();
+
+                    PacketPlayOutMapChunkBulk b = bulk.get();
+                    b.addEntry(data);
+
+                    if (b.size() >= 1845152) { // send the packet if the length is close to the protocol maximum
+                        connection.sendPacket(bulk.get());
+
+                        bulk.set(new PacketPlayOutMapChunkBulk());
+                    }
+
+                    if (bulk.get().hasEntries()) {
+                        connection.sendPacket(bulk.get());
+                    }
+                }
+            });
+        } */
     }
 
     @Override
