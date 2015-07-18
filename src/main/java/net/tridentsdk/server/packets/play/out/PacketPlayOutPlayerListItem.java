@@ -20,7 +20,6 @@ package net.tridentsdk.server.packets.play.out;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
-import net.tridentsdk.server.player.TridentPlayer;
 
 import java.util.UUID;
 
@@ -89,9 +88,6 @@ public class PacketPlayOutPlayerListItem extends OutPacket {
                 if (o.getClass().isArray()) {
                     Object[] objects = (Object[]) o;
                     for (Object o1 : objects) {
-                        if (o1.getClass().getSimpleName().equals("String")) {
-                            System.out.println(TridentPlayer.getPlayer(id).name() + ": " + o1);
-                        }
                         encode(o1, buf);
                     }
 
