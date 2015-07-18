@@ -155,6 +155,7 @@ public class PacketLoginInStart extends InPacket {
                 return;
             }
 
+            LoginHandler.getInstance().finish(connection.address());
             PacketLoginOutSuccess success = new PacketLoginOutSuccess();
 
             // set values in the packet
