@@ -267,7 +267,7 @@ public class TridentPlayer extends OfflinePlayer {
     @Override
     protected void doRemove() {
         ONLINE_PLAYERS.remove(this.uniqueId());
-        // cleanChunks(0); don't do this yet
+        cleanChunks(0);
 
         PacketPlayOutPlayerListItem item = new PacketPlayOutPlayerListItem();
         item.set("action", 4).set("playerListData", new PlayerListDataBuilder[]{

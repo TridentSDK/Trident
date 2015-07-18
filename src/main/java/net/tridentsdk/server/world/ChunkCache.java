@@ -79,6 +79,11 @@ public class ChunkCache {
     }
 
     public boolean tryRemove(ChunkLocation location) {
+        if (location.x() < 7 && location.z() < 7) {
+            // Spawn chunk
+            return true;
+        }
+
         HeldValueLatch<TridentChunk> chunk = cachedChunks.get(location);
         if (chunk == null) {
             return false;
