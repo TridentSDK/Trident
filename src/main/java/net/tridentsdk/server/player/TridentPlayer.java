@@ -268,7 +268,7 @@ public class TridentPlayer extends OfflinePlayer {
     @Override
     protected void doRemove() {
         ONLINE_PLAYERS.remove(this.uniqueId());
-        cleanChunks(0);
+        // cleanChunks(0); don't do this yet
 
         PacketPlayOutPlayerListItem item = new PacketPlayOutPlayerListItem();
         item.set("action", 4).set("playerListData", new PlayerListDataBuilder[]{
@@ -282,16 +282,7 @@ public class TridentPlayer extends OfflinePlayer {
 
     @Override
     public void setPosition(Position loc) {
-        players().stream()
-                .filter((p) -> !p.equals(this))
-                .forEach((p) -> {
-                    ((TridentPlayer) p).connection.sendPacket(new PacketPlayOutEntityTeleport()
-                            .set("entityId", entityId())
-                            .set("location", loc)
-                            .set("onGround", onGround));
-                });
-
-        /* double dX = loc.x() - position().x();
+        double dX = loc.x() - position().x();
         double dY = loc.y() - position().y();
         double dZ = loc.z() - position().z();
         if (dX == 0 && dY == 0 && dZ == 0) {
@@ -302,19 +293,23 @@ public class TridentPlayer extends OfflinePlayer {
             return;
         }
 
-        if (dX > 4 || dY > 4 || dZ > 4) {
+        if ((dX > 4 || dY > 4 || dZ > 4) || (ticksExisted.get() & 1) == 0) {
             sendFiltered(new PacketPlayOutEntityTeleport()
                     .set("entityId", entityId())
                     .set("location", loc)
                     .set("onGround", onGround), player -> !player.equals(this));
         } else {
-            sendFiltered(new PacketPlayOutEntityRelativeMove()
-                    .set("entityId", entityId())
-                    .set("difference", new Vector(dX, dY, dZ))
-                            //.set("yaw", loc.yaw())
-                            //.set("pitch", loc.pitch())
-                    .set("onGround", onGround), player -> !player.equals(this));
-        } */
+            for (Player player : players()) {
+                if (player.equals(this)) continue;
+
+                Packet packet = new PacketPlayOutEntityRelativeMove()
+                        .set("entityId", entityId())
+                        .set("difference", new Vector(dX, dY, dZ))
+                        .set("onGround", onGround);
+
+                ((TridentPlayer) player).connection.sendPacket(packet);
+            }
+        }
 
         super.setPosition(loc);
     }
@@ -485,17 +480,14 @@ public class TridentPlayer extends OfflinePlayer {
 
     @InternalUseOnly
     public void setCrouching(boolean crouching) {
-        /* ProtocolMetadata meta = new ProtocolMetadata();
+        ProtocolMetadata meta = new ProtocolMetadata();
         encodeMetadata(meta);
 
         int idx = 0;
         int mask = 0x02;
         meta.setMeta(idx, MetadataType.BYTE, (byte) (((byte) meta.get(0).value() & ~mask) | (crouching ? mask : 0)));
-        System.out.println(meta.get(0).value());
         sendFiltered(new PacketPlayOutEntityMetadata().set("entityId", entityId()).set("metadata", meta),
-                p -> !p.equals(this)); */
-        PacketPlayOutEffect effect = new PacketPlayOutEffect();
-        effect.set("effectId", 104);
+                p -> !p.equals(this));
 
         this.crouching = crouching;
     }

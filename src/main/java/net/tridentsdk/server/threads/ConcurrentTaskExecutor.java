@@ -163,7 +163,7 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
     @Override
     public TaskExecutor nextWorker() {
         int count;
-        int max = this.count.get();
+        int max = this.workerSet.size();
 
         long stamp = lock.readLock();
         try {
