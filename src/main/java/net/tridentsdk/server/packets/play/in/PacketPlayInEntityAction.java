@@ -18,8 +18,8 @@
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Handler;
 import net.tridentsdk.event.entity.PlayerToggleSprintEvent;
+import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.InPacket;
@@ -73,7 +73,7 @@ public class PacketPlayInEntityAction extends InPacket {
                 PlayerToggleSprintEvent event = new PlayerToggleSprintEvent(player, type ==
                         ActionType.START_SPRINTING);
 
-                Handler.forEvents().fire(event);
+                Registered.forEvents().fire(event);
 
                 if(!event.isIgnored()) {
                     player.setSprinting(event.sprintOn());

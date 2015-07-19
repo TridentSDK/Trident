@@ -18,7 +18,6 @@
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Handler;
 import net.tridentsdk.event.player.PlayerClickItemEvent;
 import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.data.Slot;
@@ -105,7 +104,7 @@ public class PacketPlayInPlayerClickWindow extends InPacket {
         Inventory window = Registered.inventories().fromId(this.windowId);
         PlayerClickItemEvent clickEvent = new PlayerClickItemEvent(window, this.clickedSlot, (int) this.actionNumber);
 
-        Handler.forEvents().fire(clickEvent);
+        Registered.forEvents().fire(clickEvent);
 
         if (clickEvent.isIgnored()) {
         }

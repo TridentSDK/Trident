@@ -18,7 +18,10 @@
 package net.tridentsdk.server;
 
 import com.google.common.collect.Maps;
-import net.tridentsdk.*;
+import net.tridentsdk.Defaults;
+import net.tridentsdk.DisplayInfo;
+import net.tridentsdk.Server;
+import net.tridentsdk.Trident;
 import net.tridentsdk.config.Config;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.entity.living.ai.AiHandler;
@@ -154,8 +157,8 @@ public final class TridentServer implements Server {
     public void shutdown() {
         //TODO: Cleanup stuff...
         TridentLogger.log("Shutting down plugins...");
-        for (Plugin plugin : Handler.forPlugins().plugins())
-            Handler.forPlugins().disable(plugin);
+        for (Plugin plugin : Registered.plugins().plugins())
+            Registered.plugins().disable(plugin);
 
         TridentLogger.log("Kicking players...");
         for (Player player : TridentPlayer.players()) {

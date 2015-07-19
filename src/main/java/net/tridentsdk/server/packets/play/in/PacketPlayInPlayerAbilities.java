@@ -19,8 +19,8 @@ package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.GameMode;
-import net.tridentsdk.Handler;
 import net.tridentsdk.event.player.PlayerToggleFlyingEvent;
+import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
@@ -97,7 +97,7 @@ public class PacketPlayInPlayerAbilities extends InPacket {
                 toggleFly.cancel(true);
             }
 
-            Handler.forEvents().fire(toggleFly);
+            Registered.forEvents().fire(toggleFly);
 
             player.setFlying(!toggleFly.isIgnored());
         }

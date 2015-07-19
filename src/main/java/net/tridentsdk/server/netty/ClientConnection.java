@@ -21,10 +21,10 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
-import net.tridentsdk.Handler;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.player.PlayerDisconnectEvent;
+import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.protocol.Protocol;
 import net.tridentsdk.server.packets.login.LoginHandler;
@@ -397,7 +397,7 @@ public class ClientConnection {
             return;
         }
 
-        Handler.forEvents().fire(new PlayerDisconnectEvent(p));
+        Registered.forEvents().fire(new PlayerDisconnectEvent(p));
         p.remove();
 
         this.channel.close();

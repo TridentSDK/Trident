@@ -18,9 +18,9 @@
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Handler;
 import net.tridentsdk.event.player.PlayerChatEvent;
 import net.tridentsdk.meta.MessageBuilder;
+import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.InPacket;
@@ -58,12 +58,12 @@ public class PacketPlayInChat extends InPacket {
         TridentPlayer player = pc.player();
 
         if(message.startsWith("/")) {
-            Handler.forCommands().handleCommand(message.substring(1), player);
+            Registered.commands().handleCommand(message.substring(1), player);
             return;
         } else {
             PlayerChatEvent event = new PlayerChatEvent(player, message);
 
-            Handler.forEvents().fire(event);
+            Registered.forEvents().fire(event);
 
             if(event.isIgnored()) {
                 return;
@@ -72,8 +72,8 @@ public class PacketPlayInChat extends InPacket {
 
         PacketPlayOutChat packet = new PacketPlayOutChat();
 
-        String identifier = Handler
-                .forChat()
+        String identifier = Registered
+                .chatFormatter()
                 .format(player.name() + "> ", player)
                 .replaceAll("%p", "")
                 .replaceAll("%n", player.name())

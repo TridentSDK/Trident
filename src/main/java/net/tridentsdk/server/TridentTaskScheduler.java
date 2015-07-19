@@ -17,17 +17,15 @@
 
 package net.tridentsdk.server;
 
-import net.tridentsdk.Handler;
-import net.tridentsdk.concurrent.ScheduledTask;
-import net.tridentsdk.concurrent.TaskType;
-import net.tridentsdk.concurrent.SelectableThread;
-import net.tridentsdk.concurrent.ScheduledRunnable;
-import net.tridentsdk.concurrent.SelectableThreadPool;
-import net.tridentsdk.concurrent.Scheduler;
+import com.google.common.collect.ForwardingCollection;
+import com.google.common.collect.ImmutableList;
+import net.tridentsdk.concurrent.*;
 import net.tridentsdk.plugin.Plugin;
+import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
 
 import javax.annotation.concurrent.ThreadSafe;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -78,7 +76,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * @author The TridentSDK Team
  */
 @ThreadSafe
-public class TridentTaskScheduler implements Scheduler {
+public class TridentTaskScheduler extends ForwardingCollection<ScheduledTask> implements Scheduler {
     private final Queue<ScheduledTaskImpl> taskList = new ConcurrentLinkedQueue<>();
     private final SelectableThreadPool taskExecutor = ConcurrentTaskExecutor.create(3, "Scheduler");
 
@@ -104,7 +102,7 @@ public class TridentTaskScheduler implements Scheduler {
     private ScheduledTaskImpl doAdd(ScheduledTaskImpl wrap) {
         // Does not necessarily need to be atomic, as long as changes are visible
         // taskList is thread-safe
-        // markSchedule sets an AtomicReference
+        // markSchedule sets volatile field
         while (true) {
             boolean added = taskList.add(wrap);
             if (added) {
@@ -163,6 +161,11 @@ public class TridentTaskScheduler implements Scheduler {
         }, delay);
     }
 
+    @Override
+    protected Collection<ScheduledTask> delegate() {
+        return ImmutableList.copyOf(taskList);
+    }
+
     private class ScheduledTaskImpl implements ScheduledTask {
         private final Plugin plugin;
         private final TaskType type;
@@ -197,7 +200,7 @@ public class TridentTaskScheduler implements Scheduler {
                     };
                 }
             } else {
-                this.executor = Handler.forPlugins().executor();
+                this.executor = Registered.plugins().executor();
                 if (!type.name().contains("REPEAT")) {
                     this.runner = () -> {
                         runnable.beforeRun();

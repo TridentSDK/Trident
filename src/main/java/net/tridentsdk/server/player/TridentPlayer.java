@@ -23,7 +23,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.tridentsdk.GameMode;
-import net.tridentsdk.Handler;
 import net.tridentsdk.Position;
 import net.tridentsdk.Trident;
 import net.tridentsdk.base.Block;
@@ -37,6 +36,7 @@ import net.tridentsdk.meta.ChatColor;
 import net.tridentsdk.meta.MessageBuilder;
 import net.tridentsdk.meta.nbt.CompoundTag;
 import net.tridentsdk.registry.Factory;
+import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.data.MetadataType;
 import net.tridentsdk.server.data.ProtocolMetadata;
@@ -212,7 +212,7 @@ public class TridentPlayer extends OfflinePlayer {
                 .set("velocity", new Vector(0, -0.07, 0)));
         connection.sendPacket(new PacketPlayOutGameStateChange().set("reason", 3).set("value", (float) gameMode().asByte()));
         TridentServer.WORLD.addEntity(this); // TODO
-        Handler.forEvents().fire(new PlayerJoinEvent(this));
+        Registered.forEvents().fire(new PlayerJoinEvent(this));
 
         for (Player player : players()) {
             TridentPlayer p = (TridentPlayer) player;

@@ -17,8 +17,8 @@
 
 package net.tridentsdk.server.command;
 
-import net.tridentsdk.Handler;
 import net.tridentsdk.meta.ChatColor;
+import net.tridentsdk.registry.Registered;
 
 public class ServerCommandRegistrar {
     private static volatile boolean registered;
@@ -33,8 +33,8 @@ public class ServerCommandRegistrar {
         // Set it here in case some idiot tries to register twice
         registered = true;
 
-        Handler.forCommands().addCommand(null, new ShutdownCommand());
-        Handler.forCommands().addCommand(null, new HelpCommand());
-        Handler.forCommands().addCommand(null, new TeleportCommand());
+        Registered.commands().addCommand(null, new ShutdownCommand());
+        Registered.commands().addCommand(null, new HelpCommand());
+        Registered.commands().addCommand(null, new TeleportCommand());
     }
 }

@@ -19,7 +19,6 @@ package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.GameMode;
-import net.tridentsdk.Handler;
 import net.tridentsdk.Position;
 import net.tridentsdk.base.Block;
 import net.tridentsdk.base.BlockOrientation;
@@ -28,6 +27,7 @@ import net.tridentsdk.event.Cancellable;
 import net.tridentsdk.event.Event;
 import net.tridentsdk.event.block.BlockBreakEvent;
 import net.tridentsdk.event.player.*;
+import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
@@ -155,7 +155,7 @@ public class PacketPlayInPlayerDig extends InPacket {
             default:
         }
 
-        Handler.forEvents().fire((Event) event);
+        Registered.forEvents().fire((Event) event);
 
         if (event == null || event.isIgnored())
             return;

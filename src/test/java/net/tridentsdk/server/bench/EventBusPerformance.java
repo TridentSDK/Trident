@@ -22,6 +22,7 @@ import com.google.common.eventbus.Subscribe;
 import net.tridentsdk.concurrent.SelectableThread;
 import net.tridentsdk.concurrent.SelectableThreadPool;
 import net.tridentsdk.config.Config;
+import net.tridentsdk.event.Events;
 import net.tridentsdk.event.Listener;
 import net.tridentsdk.registry.Factory;
 import net.tridentsdk.server.threads.ThreadsHandler;
@@ -50,7 +51,7 @@ public class EventBusPerformance {
     private static final SelectableThread EXECUTOR = EXEC.selectScaled();
     private static final net.tridentsdk.plugin.Plugin PLUGIN = new Plugin();
     // Cannot be initialized first, else whole class cannot be loaded completely
-    private final net.tridentsdk.event.EventHandler EVENT_MANAGER = net.tridentsdk.event.EventHandler.create();
+    private final Events EVENT_MANAGER = Events.create();
     @Param({ "1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024" })
     private int cpuTokens;
 

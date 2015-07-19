@@ -17,14 +17,14 @@
 
 package net.tridentsdk.server.entity.block;
 
-import net.tridentsdk.Handler;
 import net.tridentsdk.Position;
 import net.tridentsdk.base.Audio;
 import net.tridentsdk.base.Block;
 import net.tridentsdk.base.Substance;
-import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.entity.block.PrimeTNT;
+import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.event.entity.EntityExplodeEvent;
+import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.data.RecordBuilder;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutExplosion;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutSoundEffect;
@@ -49,7 +49,7 @@ public class TridentPrimeTNT extends TridentFallingBlock implements PrimeTNT {
     protected void doTick() {
         if (countDown.get() == 0) {
             EntityExplodeEvent event = new EntityExplodeEvent(this, radius);
-            Handler.forEvents().fire(event);
+            Registered.forEvents().fire(event);
             if (event.isIgnored()) {
                 return;
             }

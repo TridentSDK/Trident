@@ -27,7 +27,6 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import net.tridentsdk.Defaults;
-import net.tridentsdk.Handler;
 import net.tridentsdk.Trident;
 import net.tridentsdk.concurrent.Scheduler;
 import net.tridentsdk.concurrent.SelectableThreadPool;
@@ -184,12 +183,12 @@ public final class TridentStart {
                 }
 
                 @Override
-                public PluginChannels chanHandler() {
+                public PluginChannels channels() {
                     return channelHandler;
                 }
 
                 @Override
-                public Inventories winHandler() {
+                public Inventories inventories() {
                     return windowHandler;
                 }
             };
@@ -212,7 +211,7 @@ public final class TridentStart {
                 fi.mkdir();
 
             for (File file : new File(System.getProperty("user.dir") + File.separator + "plugins").listFiles())
-                Handler.forPlugins().load(file);
+                Registered.plugins().load(file);
             TridentLogger.success("Loaded plugins.");
 
             ////////////////////////////////// NETTY SETUP //////////////////////////////////////////
