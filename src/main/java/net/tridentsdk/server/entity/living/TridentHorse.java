@@ -92,7 +92,7 @@ public class TridentHorse extends TridentBreedable implements Horse {
     }
 
     @Override
-    public Inventory inventory() {
+    public Inventory window() {
         return null;
     }
 

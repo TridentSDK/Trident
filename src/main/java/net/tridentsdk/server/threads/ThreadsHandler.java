@@ -17,9 +17,8 @@
 
 package net.tridentsdk.server.threads;
 
-import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.concurrent.SelectableThreadPool;
-import net.tridentsdk.factory.ThreadFactory;
+import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.server.TridentServer;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -30,7 +29,7 @@ import javax.annotation.concurrent.ThreadSafe;
  * @author The TridentSDK Team
  */
 @ThreadSafe
-public final class ThreadsHandler implements ThreadFactory {
+public final class ThreadsHandler {
     private static final SelectableThreadPool entities = ConcurrentTaskExecutor.create(4, "Entities");
     // private static final ExecutorFactory entities = ConcurrentTaskExecutor.create(4, "Tile Entities"); not needed yet
     private static final SelectableThreadPool players = ConcurrentTaskExecutor.create(3, "Players");
@@ -109,10 +108,5 @@ public final class ThreadsHandler implements ThreadFactory {
     @InternalUseOnly
     public static SelectableThreadPool playerExecutor() {
         return players;
-    }
-
-    @Override
-    public SelectableThreadPool executor(int threads, String name) {
-        return ConcurrentTaskExecutor.create(threads, name);
     }
 }

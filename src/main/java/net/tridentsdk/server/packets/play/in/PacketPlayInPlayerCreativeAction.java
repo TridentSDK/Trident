@@ -28,7 +28,7 @@ import net.tridentsdk.server.player.PlayerConnection;
 import net.tridentsdk.server.player.TridentPlayer;
 
 /**
- * While the user is in the standard inventory (i.e., not a crafting bench) on a creative-mode server, then this packet
+ * While the user is in the standard window (i.e., not a crafting bench) on a creative-mode server, then this packet
  * will be sent:  If an item is dropped into the quick bar If an item is picked up from the quick bar (item id is
  * -1)
  */
@@ -71,12 +71,12 @@ public class PacketPlayInPlayerCreativeAction extends InPacket {
         if (slot <= 0) {
             DroppedItem item = (DroppedItem) player.world().spawn(EntityType.ITEM, player.position());
             // TODO set item type
-            // TODO this can also clear the inventory
+            // TODO this can also clear the window
 
             return;
         }
 
         // TODO: Handle when the item is set in the Player's hand
-        player.inventory().setSlot(slot - 1, item.item());
+        player.window().setSlot(slot - 1, item.item());
     }
 }

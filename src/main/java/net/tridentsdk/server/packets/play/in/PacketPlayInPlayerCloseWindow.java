@@ -20,6 +20,7 @@ package net.tridentsdk.server.packets.play.in;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.Handler;
 import net.tridentsdk.event.player.PlayerCloseWindowEvent;
+import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
@@ -32,7 +33,7 @@ import net.tridentsdk.server.window.TridentWindow;
 public class PacketPlayInPlayerCloseWindow extends InPacket {
 
     /**
-     * Id of the window, 0 if player inventory
+     * Id of the window, 0 if player window
      */
     protected int id;
 
@@ -54,7 +55,7 @@ public class PacketPlayInPlayerCloseWindow extends InPacket {
 
     @Override
     public void handleReceived(ClientConnection connection) {
-        TridentWindow window = (TridentWindow) Handler.forWindows().windowBy(id);
+        TridentWindow window = (TridentWindow) Registered.windows().windowBy(id);
         PlayerCloseWindowEvent event = new PlayerCloseWindowEvent(window);
 
         Handler.forEvents().fire(event);

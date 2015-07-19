@@ -45,7 +45,7 @@ public class TridentFurnaceMinecart extends TridentMinecart implements FurnaceMi
     }
 
     @Override
-    public Window inventory() {
+    public Window window() {
         return null;
     }
 

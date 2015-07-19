@@ -18,7 +18,7 @@
 package net.tridentsdk.server.entity;
 
 import net.tridentsdk.Position;
-import net.tridentsdk.entity.traits.InventoryHolder;
+import net.tridentsdk.entity.traits.WindowHolder;
 import net.tridentsdk.meta.nbt.CompoundTag;
 import net.tridentsdk.meta.nbt.ListTag;
 import net.tridentsdk.meta.nbt.NBTSerializer;
@@ -32,11 +32,11 @@ import net.tridentsdk.window.inventory.Item;
 import java.util.UUID;
 
 /**
- * An entity that is able to hold an inventory
+ * An entity that is able to hold an window
  *
  * @author The TridentSDK Team
  */
-public abstract class TridentInventoryHolder extends TridentLivingEntity implements InventoryHolder {
+public abstract class TridentInventoryHolder extends TridentLivingEntity implements WindowHolder {
     protected volatile Inventory inventory;
     private volatile int selectedSlot = 0;
 
@@ -48,7 +48,7 @@ public abstract class TridentInventoryHolder extends TridentLivingEntity impleme
     }
 
     @Override
-    public Inventory inventory() {
+    public Inventory window() {
         return this.inventory;
     }
 

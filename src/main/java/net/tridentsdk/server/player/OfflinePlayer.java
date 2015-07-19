@@ -117,7 +117,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
 
         load(tag);
 
-        dimension = Dimension.dimension(((IntTag) tag.getTag("Dimension")).value());
+        dimension = Dimension.of(((IntTag) tag.getTag("Dimension")).value());
         gameMode = GameMode.gamemodeOf(((IntTag) tag.getTag("playerGameType")).value());
         score = ((IntTag) tag.getTag("Score")).value();
         selectedSlot = (short) ((IntTag) tag.getTag("SelectedItemSlot")).value();
@@ -144,7 +144,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
         for (NBTTag t : ((ListTag) tag.getTag("Inventory")).listTags()) {
             Slot slot = NBTSerializer.deserialize(Slot.class, (CompoundTag) t);
 
-            //inventory.setSlot(slot.getSlot(), slot.toItemStack());
+            //window.setSlot(slot.getSlot(), slot.toItemStack());
         }
 
         for (NBTTag t : ((ListTag) tag.getTag("EnderItems")).listTags()) {
@@ -383,7 +383,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
 
         ListTag inventoryTag = new ListTag("Inventory", TagType.COMPOUND);
 
-        /*for (ItemStack is : inventory.items()) {
+        /*for (ItemStack is : window.items()) {
             inventoryTag.addTag(NBTSerializer.serialize(new Slot(is)));
         }*/
 

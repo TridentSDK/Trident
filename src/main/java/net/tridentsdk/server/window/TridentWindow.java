@@ -17,10 +17,10 @@
 
 package net.tridentsdk.server.window;
 
-import net.tridentsdk.Handler;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.registry.Factory;
+import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.data.Slot;
 import net.tridentsdk.server.entity.EntityBuilder;
 import net.tridentsdk.server.entity.TridentEntity;
@@ -40,14 +40,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 
 /**
- * An inventory window, wherever and whatever is holding it or having it open
+ * An window window, wherever and whatever is holding it or having it open
  *
  * @author The TridentSDK Team
  */
 @ThreadSafe
 public class TridentWindow implements Window, Inventory {
     /**
-     * Counter for window ids, initial value is 2 to avoid confusion with a window and a player inventory
+     * Counter for window ids, initial value is 2 to avoid confusion with a window and a player window
      */
     private static final AtomicInteger counter = new AtomicInteger(2);
 
@@ -59,10 +59,10 @@ public class TridentWindow implements Window, Inventory {
     private final AtomicReferenceArray<Item> contents;
 
     /**
-     * Builds a new inventory window
+     * Builds a new window window
      *
-     * @param name   the title of the inventory
-     * @param length the amount of slots in the inventory (should be multiple of 9)
+     * @param name   the title of the window
+     * @param length the amount of slots in the window (should be multiple of 9)
      */
     private TridentWindow(String name, int length, InventoryType type) {
         this.name = name;
@@ -77,9 +77,9 @@ public class TridentWindow implements Window, Inventory {
     }
 
     /**
-     * Builds a new inventory window
+     * Builds a new window window
      *
-     * @param length the amount of slots in the inventory (should be multiple of 9)
+     * @param length the amount of slots in the window (should be multiple of 9)
      */
     public TridentWindow(int length) {
         this("", length, InventoryType.CHEST);
@@ -87,7 +87,7 @@ public class TridentWindow implements Window, Inventory {
 
     public static TridentWindow create(String name, int length, InventoryType type) {
         TridentWindow window = new TridentWindow(name, length, type);
-        Handler.forWindows().registerWindow(window);
+        Registered.windows().registerWindow(window);
         return window;
     }
 
@@ -183,6 +183,6 @@ public class TridentWindow implements Window, Inventory {
             ((TridentPlayer) player).connection().sendPacket(new PacketPlayOutCloseWindow().set("windowId", id));
         }
 
-        users.remove(WeakEntity.finderOf(player));
+        users.remove(WeakEntity.searchFor(player));
     }
 }

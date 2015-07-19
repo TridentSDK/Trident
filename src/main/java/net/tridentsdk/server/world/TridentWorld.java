@@ -149,7 +149,7 @@ public class TridentWorld implements World {
         // not exist
         difficulty = Difficulty.NORMAL;
         defaultGamemode = GameMode.gamemodeOf(((IntTag) level.getTag("GameType")).value());
-        type = LevelType.levelTypeOf(((StringTag) level.getTag("generatorName")).value());
+        type = LevelType.of(((StringTag) level.getTag("generatorName")).value());
         borderSize = level.containsTag("BorderSize") ?
                 ((DoubleTag) level.getTag("BorderSize")).value() : 6000;
 
@@ -497,7 +497,7 @@ public class TridentWorld implements World {
     }
 
     @Override
-    public boolean gameRule(String rule) {
+    public boolean isRule(String rule) {
         return false;
     }
 
@@ -527,7 +527,7 @@ public class TridentWorld implements World {
     }
 
     @Override
-    public boolean canGenerateStructures() {
+    public boolean generateStructures() {
         return false;
     }
 

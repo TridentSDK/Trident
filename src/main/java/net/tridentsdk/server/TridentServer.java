@@ -19,10 +19,10 @@ package net.tridentsdk.server;
 
 import com.google.common.collect.Maps;
 import net.tridentsdk.*;
+import net.tridentsdk.concurrent.Scheduler;
 import net.tridentsdk.config.Config;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.entity.living.ai.AiHandler;
-import net.tridentsdk.factory.Factories;
 import net.tridentsdk.plugin.Plugin;
 import net.tridentsdk.plugin.cmd.ServerConsole;
 import net.tridentsdk.server.command.TridentConsole;
@@ -63,7 +63,7 @@ public final class TridentServer implements Server {
 
     private final TridentConsole console;
 
-    private final TridentWorldLoader worldLoader;
+    private final TridentWorldLoader rootWorldLoader;
     private final AiHandler aiHandler;
     private volatile DisplayInfo displayInfo;
 
@@ -72,7 +72,7 @@ public final class TridentServer implements Server {
         this.protocol = new Protocol();
         this.logger = TridentLogger.logger();
         this.mainThread = new MainThread(20);
-        this.worldLoader = new TridentWorldLoader();
+        this.rootWorldLoader = new TridentWorldLoader();
         this.console = new TridentConsole();
         this.aiHandler = new TridentAiHandler();
         this.displayInfo = new DisplayInfo();
@@ -87,11 +87,11 @@ public final class TridentServer implements Server {
         TridentServer server = new TridentServer(config);
         Trident.setServer(server);
         server.mainThread.start();
-        server.worldLoader.loadAll();
+        TridentWorldLoader.loadAll();
         TridentServer.WORLD = (TridentWorld) server.worlds().get("world");
 
         if (WORLD == null) {
-            World world = server.worldLoader.createWorld("world");
+            World world = server.rootWorldLoader.createWorld("world");
             WORLD = (TridentWorld) world;
         }
 
@@ -166,11 +166,11 @@ public final class TridentServer implements Server {
         }
 
         TridentLogger.log("Saving worlds...");
-        for (World world : worldLoader.worlds())
+        for (World world : rootWorldLoader.worlds())
             ((TridentWorld) world).save();
 
         TridentLogger.log("Shutting down worker threads...");
-        ((TridentTaskScheduler) Factories.tasks()).shutdown();
+        ((TridentTaskScheduler) Scheduler.registry()).shutdown();
 
         TridentLogger.log("Shutting down server process...");
         ThreadsHandler.shutdownAll();
@@ -187,7 +187,7 @@ public final class TridentServer implements Server {
     @Override
     public Map<String, World> worlds() {
         Map<String, World> worlds = Maps.newHashMap();
-        for (World world : worldLoader.worlds())
+        for (World world : rootWorldLoader.worlds())
             worlds.put(world.name(), world);
 
         return worlds;

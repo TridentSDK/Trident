@@ -20,6 +20,7 @@ package net.tridentsdk.server.packets.play.in;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.Handler;
 import net.tridentsdk.event.player.PlayerClickItemEvent;
+import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.data.Slot;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
@@ -32,7 +33,7 @@ import net.tridentsdk.window.Window;
 public class PacketPlayInPlayerClickWindow extends InPacket {
 
     /**
-     * The id of the window which was clicked. 0 for player inventory.
+     * The id of the window which was clicked. 0 for player window.
      */
     protected int windowId;
     /**
@@ -101,7 +102,7 @@ public class PacketPlayInPlayerClickWindow extends InPacket {
 
     @Override
     public void handleReceived(ClientConnection connection) {
-        Window window = Handler.forWindows().windowBy(this.windowId);
+        Window window = Registered.windows().windowBy(this.windowId);
         PlayerClickItemEvent clickEvent = new PlayerClickItemEvent(window, this.clickedSlot, (int) this.actionNumber);
 
         Handler.forEvents().fire(clickEvent);

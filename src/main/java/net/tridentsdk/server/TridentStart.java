@@ -26,20 +26,27 @@ import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
-import net.tridentsdk.AccessBridge;
 import net.tridentsdk.Defaults;
 import net.tridentsdk.Handler;
+import net.tridentsdk.Implementation;
 import net.tridentsdk.Trident;
+import net.tridentsdk.concurrent.Scheduler;
+import net.tridentsdk.concurrent.SelectableThreadPool;
 import net.tridentsdk.config.Config;
 import net.tridentsdk.docs.Volatile;
 import net.tridentsdk.plugin.channel.ChannelHandler;
+import net.tridentsdk.registry.Factory;
 import net.tridentsdk.server.command.ServerCommandRegistrar;
 import net.tridentsdk.server.netty.ClientChannelInitializer;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutPluginMessage;
 import net.tridentsdk.server.player.TridentPlayer;
-import net.tridentsdk.server.threads.ThreadsHandler;
+import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
 import net.tridentsdk.server.window.TridentWindowHandler;
+import net.tridentsdk.server.world.TridentWorldLoader;
 import net.tridentsdk.util.TridentLogger;
+import net.tridentsdk.window.WindowHandler;
+import net.tridentsdk.world.WorldLoader;
+import net.tridentsdk.world.gen.AbstractGenerator;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.io.File;
@@ -146,18 +153,47 @@ public final class TridentStart {
     private static void init(final Config config) throws InterruptedException {
         try {
             TridentLogger.log("Initializing the API implementations");
-            AccessBridge bridge = AccessBridge.open();
+            Implementation implementation = new Implementation() {
+                private final TridentTaskScheduler scheduler = TridentTaskScheduler.create();
+                private final ChannelHandler channelHandler = new ChannelHandler() {
+                    @Override
+                    public void sendPluginMessage(String channel, byte... data) {
+                        TridentPlayer.sendAll(new PacketPlayOutPluginMessage().set("channel", channel).set("data", data));
+                    }
+                };
+                private final WindowHandler windowHandler = new TridentWindowHandler();
 
-            bridge.sendImplemented(ThreadsHandler.create());
-            bridge.sendImplemented(TridentTaskScheduler.create());
-
-            bridge.sendSuper(new ChannelHandler() {
                 @Override
-                public void sendPluginMessage(String channel, byte... data) {
-                    TridentPlayer.sendAll(new PacketPlayOutPluginMessage().set("channel", channel).set("data", data));
+                public SelectableThreadPool newPool(int i, String s) {
+                    return ConcurrentTaskExecutor.create(i, s);
                 }
-            });
-            bridge.sendImplemented(new TridentWindowHandler());
+
+                @Override
+                public WorldLoader newLoader(Class<? extends AbstractGenerator> g) {
+                    if (g == null) {
+                        return new TridentWorldLoader();
+                    }
+
+                    return new TridentWorldLoader(g);
+                }
+
+                @Override
+                public Scheduler scheduler() {
+                    return scheduler;
+                }
+
+                @Override
+                public ChannelHandler chanHandler() {
+                    return channelHandler;
+                }
+
+                @Override
+                public WindowHandler winHandler() {
+                    return windowHandler;
+                }
+            };
+            Factory.setProvider(implementation);
+
             TridentLogger.success("Loaded API implementations.");
 
             TridentLogger.log("Creating server...");

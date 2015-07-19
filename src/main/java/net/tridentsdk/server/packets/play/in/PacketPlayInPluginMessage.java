@@ -18,8 +18,8 @@
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Handler;
 import net.tridentsdk.plugin.channel.PluginChannel;
+import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.InPacket;
@@ -64,7 +64,7 @@ public class PacketPlayInPluginMessage extends InPacket {
 
     @Override
     public void handleReceived(ClientConnection connection) {
-        PluginChannel channel = Handler.forChannels().forChannel(this.channel);
+        PluginChannel channel = Registered.channels().forChannel(this.channel);
 
         if (channel != null) {
             channel.process(this.data);

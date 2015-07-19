@@ -45,7 +45,7 @@ public class TridentHopperMinecart extends TridentMinecart implements HopperMine
     }
 
     @Override
-    public Window inventory() {
+    public Window window() {
         return null;
     }
 

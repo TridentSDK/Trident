@@ -34,7 +34,7 @@ import net.tridentsdk.world.World;
 public class PacketPlayInClientStatus extends InPacket {
 
     /**
-     * Action ID values:  0 - Perform Respawn 1 - Request statistics 2 - Open inventory acheivement
+     * Action ID values:  0 - Perform Respawn 1 - Request statistics 2 - Open window acheivement
      */
     protected short actionId;
 

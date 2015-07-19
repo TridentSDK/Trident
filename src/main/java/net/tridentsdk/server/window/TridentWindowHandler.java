@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Manages the inventory windows on the server, whether being viewed or not
+ * Manages the window windows on the server, whether being viewed or not
  *
  * @author The TridentSDK Team
  */

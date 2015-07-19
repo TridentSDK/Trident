@@ -81,7 +81,7 @@ public class TridentWorldLoader implements WorldLoader {
     // besides, user created WorldLoaders should not re-create
     // the world
     @InternalUseOnly
-    public void loadAll() {
+    public static void loadAll() {
         TridentLogger.log("Loading worlds...");
         for (File file : Trident.fileContainer().toFile().listFiles()) {
             if (!(file.isDirectory()) || file.getName().contains(" "))
@@ -102,7 +102,7 @@ public class TridentWorldLoader implements WorldLoader {
                         byte[] sig = Files.readAllBytes(
                                 Trident.fileContainer().resolve(file.getName()).resolve("gensig"));
                         className = new String(sig);
-                        if (!className.equals(generator.getClass().getName())) {
+                        if (!className.equals(DEFAULT_GEN.getClass().getName())) {
                             // Create a new loader with that class, don't load it with this one
                             new TridentWorldLoader(Class.forName(className).asSubclass(AbstractGenerator.class))
                                     .load(file.getName());
@@ -128,13 +128,13 @@ public class TridentWorldLoader implements WorldLoader {
             if (!Files.exists(gensig)) {
                 try {
                     Files.createFile(gensig);
-                    Files.write(gensig, generator().getClass().getName().getBytes(Charset.defaultCharset()));
+                    Files.write(gensig, DEFAULT_GEN.getClass().getName().getBytes(Charset.defaultCharset()));
                 } catch (IOException e) {
                     TridentLogger.error("Could not write gensig file");
                     TridentLogger.error(e);
                 }
             }
-            load(file.getName());
+            new TridentWorldLoader().load(file.getName());
         }
         if (worlds.size() == 0) {
             TridentLogger.error("No worlds found, there is no world loaded!");

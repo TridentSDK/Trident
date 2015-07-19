@@ -399,7 +399,7 @@ public class TridentPlayer extends OfflinePlayer {
         TridentPlayer.super.selectedSlot = slot;
 
         setSelectedSlot(slot);
-        setHeldItem(heldItem()); // Updates inventory
+        setHeldItem(heldItem()); // Updates window
     }
 
     @Override
