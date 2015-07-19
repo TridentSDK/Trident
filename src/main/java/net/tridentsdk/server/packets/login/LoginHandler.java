@@ -20,6 +20,7 @@ package net.tridentsdk.server.packets.login;
 
 import com.google.common.collect.Maps;
 import net.tridentsdk.Trident;
+import net.tridentsdk.registry.Registered;
 
 import java.net.InetSocketAddress;
 import java.util.Map;
@@ -47,7 +48,7 @@ public final class LoginHandler {
 
     public boolean initLogin(InetSocketAddress address, String name) {
         synchronized (this) {
-            if (loginNames.size() + Trident.onlinePlayers().size() >= Trident.info().maxPlayers()) {
+            if (loginNames.size() + Registered.players().size() >= Trident.info().maxPlayers()) {
                 return false;
             }
 

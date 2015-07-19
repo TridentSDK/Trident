@@ -17,6 +17,8 @@
 
 package net.tridentsdk.server;
 
+import com.google.common.collect.ForwardingCollection;
+import com.google.common.collect.ImmutableMap;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -32,19 +34,23 @@ import net.tridentsdk.concurrent.Scheduler;
 import net.tridentsdk.concurrent.SelectableThreadPool;
 import net.tridentsdk.config.Config;
 import net.tridentsdk.docs.Volatile;
+import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.plugin.channel.PluginChannels;
 import net.tridentsdk.registry.Factory;
 import net.tridentsdk.registry.Implementation;
+import net.tridentsdk.registry.Players;
 import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.command.ServerCommandRegistrar;
 import net.tridentsdk.server.netty.ClientChannelInitializer;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutPluginMessage;
+import net.tridentsdk.server.player.OfflinePlayer;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
 import net.tridentsdk.server.window.TridentInventories;
 import net.tridentsdk.server.world.TridentWorldLoader;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.window.Inventories;
+import net.tridentsdk.world.World;
 import net.tridentsdk.world.WorldLoader;
 import net.tridentsdk.world.gen.AbstractGenerator;
 
@@ -53,8 +59,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.nio.file.Files;
-import java.util.NoSuchElementException;
-import java.util.Scanner;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -163,6 +168,25 @@ public final class TridentStart {
                 };
                 private final Inventories windowHandler = new TridentInventories();
 
+                class PlayersImpl extends ForwardingCollection<Player> implements Players {
+                    @Override
+                    protected Collection<Player> delegate() {
+                        return TridentPlayer.players();
+                    }
+
+                    @Override
+                    public Player fromUuid(UUID uuid) {
+                        return TridentPlayer.getPlayer(uuid);
+                    }
+
+                    @Override
+                    public Player offline(UUID uuid) {
+                        return OfflinePlayer.getOfflinePlayer(uuid);
+                    }
+                }
+
+                private final Players players = new PlayersImpl();
+
                 @Override
                 public SelectableThreadPool newPool(int i, String s) {
                     return ConcurrentTaskExecutor.create(i, s);
@@ -175,6 +199,16 @@ public final class TridentStart {
                     }
 
                     return new TridentWorldLoader(g);
+                }
+
+                @Override
+                public Map<String, World> worlds() {
+                    return ImmutableMap.copyOf(TridentWorldLoader.WORLDS);
+                }
+
+                @Override
+                public Players players() {
+                    return players;
                 }
 
                 @Override

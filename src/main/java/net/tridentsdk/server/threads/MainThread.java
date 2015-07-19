@@ -17,7 +17,6 @@
 
 package net.tridentsdk.server.threads;
 
-import net.tridentsdk.Trident;
 import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.TridentTaskScheduler;
 import net.tridentsdk.server.util.ConcurrentCircularArray;
@@ -87,7 +86,7 @@ public class MainThread extends Thread {
         this.notLostTicksElapsed.getAndIncrement();
 
         // Entities are ticked by the world
-        for (World world : Trident.worlds().values()) {
+        for (World world : Registered.worlds().values()) {
             ((TridentWorld) world).tick();
         }
 

@@ -17,7 +17,6 @@
 
 package net.tridentsdk.server;
 
-import com.google.common.collect.Maps;
 import net.tridentsdk.Defaults;
 import net.tridentsdk.DisplayInfo;
 import net.tridentsdk.Server;
@@ -27,6 +26,7 @@ import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.entity.living.ai.AiHandler;
 import net.tridentsdk.plugin.Plugin;
 import net.tridentsdk.plugin.cmd.ServerConsole;
+import net.tridentsdk.registry.Factory;
 import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.command.TridentConsole;
 import net.tridentsdk.server.entity.living.ai.TridentAiHandler;
@@ -39,13 +39,9 @@ import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.server.world.TridentWorldLoader;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.World;
-import org.slf4j.Logger;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.net.InetAddress;
-import java.util.Collection;
-import java.util.Map;
-import java.util.UUID;
 
 /**
  * The access base to internal workings of the server
@@ -60,7 +56,7 @@ public final class TridentServer implements Server {
 
     private final Config config;
     private final Protocol protocol;
-    private final Logger logger;
+    private final TridentLogger logger;
 
     private final TridentConsole console;
 
@@ -71,7 +67,7 @@ public final class TridentServer implements Server {
     private TridentServer(Config config) {
         this.config = config;
         this.protocol = new Protocol();
-        this.logger = TridentLogger.logger();
+        this.logger = Factory.newLogger();
         this.mainThread = new MainThread(20);
         this.rootWorldLoader = new TridentWorldLoader();
         this.console = new TridentConsole();
@@ -89,7 +85,7 @@ public final class TridentServer implements Server {
         Trident.setServer(server);
         server.mainThread.start();
         TridentWorldLoader.loadAll();
-        TridentServer.WORLD = (TridentWorld) server.worlds().get("world");
+        TridentServer.WORLD = (TridentWorld) Registered.worlds().get("world");
 
         if (WORLD == null) {
             World world = server.rootWorldLoader.createWorld("world");
@@ -120,10 +116,6 @@ public final class TridentServer implements Server {
 
     public int compressionThreshold() {
         return this.config.getInt("compression-threshold", Defaults.COMPRESSION_THRESHOLD);
-    }
-
-    public int viewDistance() {
-        return this.config.getInt("view-distance", Defaults.VIEW_DISTANCE);
     }
 
     public MainThread mainThread() {
@@ -157,7 +149,7 @@ public final class TridentServer implements Server {
     public void shutdown() {
         //TODO: Cleanup stuff...
         TridentLogger.log("Shutting down plugins...");
-        for (Plugin plugin : Registered.plugins().plugins())
+        for (Plugin plugin : Registered.plugins())
             Registered.plugins().disable(plugin);
 
         TridentLogger.log("Kicking players...");
@@ -186,15 +178,6 @@ public final class TridentServer implements Server {
     }
 
     @Override
-    public Map<String, World> worlds() {
-        Map<String, World> worlds = Maps.newHashMap();
-        for (World world : rootWorldLoader.worlds())
-            worlds.put(world.name(), world);
-
-        return worlds;
-    }
-
-    @Override
     public InetAddress serverIp() {
         return null;
     }
@@ -202,7 +185,7 @@ public final class TridentServer implements Server {
     @Override
     public String version() {
         // TODO: Make this more eloquent
-        return "1.0-SNAPSHOT";
+        return "0.3-alpha-DP";
     }
 
     @Override
@@ -210,23 +193,9 @@ public final class TridentServer implements Server {
         return displayInfo;
     }
 
-    public void setDisplayInfo(DisplayInfo displayInfo) {
-        this.displayInfo = displayInfo;
-    }
-
     @Override
-    public Logger logger() {
+    public TridentLogger logger() {
         return logger;
-    }
-
-    @Override
-    public Player playerBy(UUID id) {
-        return TridentPlayer.getPlayer(id);
-    }
-
-    @Override
-    public Collection<Player> onlinePlayers() {
-        return TridentPlayer.players();
     }
 
     @Override

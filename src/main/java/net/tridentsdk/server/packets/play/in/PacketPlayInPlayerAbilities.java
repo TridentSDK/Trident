@@ -97,7 +97,7 @@ public class PacketPlayInPlayerAbilities extends InPacket {
                 toggleFly.cancel(true);
             }
 
-            Registered.forEvents().fire(toggleFly);
+            Registered.events().fire(toggleFly);
 
             player.setFlying(!toggleFly.isIgnored());
         }

@@ -73,7 +73,7 @@ public class PacketPlayInEntityAction extends InPacket {
                 PlayerToggleSprintEvent event = new PlayerToggleSprintEvent(player, type ==
                         ActionType.START_SPRINTING);
 
-                Registered.forEvents().fire(event);
+                Registered.events().fire(event);
 
                 if(!event.isIgnored()) {
                     player.setSprinting(event.sprintOn());

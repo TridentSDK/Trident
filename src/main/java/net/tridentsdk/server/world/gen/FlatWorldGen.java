@@ -23,14 +23,16 @@ import net.tridentsdk.server.world.WorldUtils;
 import net.tridentsdk.world.ChunkLocation;
 import net.tridentsdk.world.gen.AbstractGenerator;
 
-import org.openjdk.jmh.infra.Blackhole;
-
 /**
  * Generates a flat world
  *
  * @author The TridentSDK Team
  */
 public class FlatWorldGen extends AbstractGenerator {
+    public FlatWorldGen(long seed) {
+        super(seed);
+    }
+
     @Override
     public char[][] generateChunkBlocks(ChunkLocation location) {
         char[][] data = new char[1][ChunkSection.LENGTH];

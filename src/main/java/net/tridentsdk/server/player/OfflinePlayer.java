@@ -118,7 +118,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
         load(tag);
 
         dimension = Dimension.of(((IntTag) tag.getTag("Dimension")).value());
-        gameMode = GameMode.gamemodeOf(((IntTag) tag.getTag("playerGameType")).value());
+        gameMode = GameMode.of(((IntTag) tag.getTag("playerGameType")).value());
         score = ((IntTag) tag.getTag("Score")).value();
         selectedSlot = (short) ((IntTag) tag.getTag("SelectedItemSlot")).value();
 
@@ -266,6 +266,11 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     @Override
     public void sendMessage(String message) {
         TridentLogger.error(new UnsupportedOperationException("You can't send messages to a non-existant player"));
+    }
+
+    @Override
+    public boolean connected() {
+        return false;
     }
 
     @Override

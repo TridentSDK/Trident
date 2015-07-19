@@ -20,9 +20,9 @@ package net.tridentsdk.server.entity.living;
 import net.tridentsdk.Position;
 import net.tridentsdk.base.BlockSnapshot;
 import net.tridentsdk.base.Substance;
-import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.entity.living.Enderman;
 import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.event.entity.EntityDamageEvent;
 import net.tridentsdk.meta.nbt.CompoundTag;
 import net.tridentsdk.meta.nbt.ShortTag;
@@ -53,7 +53,7 @@ public class TridentEnderman extends TridentLivingEntity implements Enderman {
     @Override
     protected void doEncodeMeta(ProtocolMetadata protocolMeta) {
         protocolMeta.setMeta(16, MetadataType.SHORT, (short) carryingBlock.type().id());
-        protocolMeta.setMeta(17, MetadataType.BYTE, carryingBlock.data());
+        protocolMeta.setMeta(17, MetadataType.BYTE, carryingBlock.meta());
         protocolMeta.setMeta(18, MetadataType.BYTE, hostile ? (byte) 1 : (byte) 0);
     }
 

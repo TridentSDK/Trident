@@ -115,7 +115,7 @@ public class TridentPlayer extends OfflinePlayer {
 
         p.name = name;
 
-        p.gameMode = GameMode.CREATIVE;//GameMode.gamemodeOf(((IntTag) playerTag.getTag("playerGameType")).value());
+        p.gameMode = GameMode.CREATIVE;//GameMode.of(((IntTag) playerTag.getTag("playerGameType")).value());
 
         p.executor.execute(() -> {
             p.connection.sendPacket(new PacketPlayOutJoinGame().set("entityId", p.entityId())
@@ -212,7 +212,7 @@ public class TridentPlayer extends OfflinePlayer {
                 .set("velocity", new Vector(0, -0.07, 0)));
         connection.sendPacket(new PacketPlayOutGameStateChange().set("reason", 3).set("value", (float) gameMode().asByte()));
         TridentServer.WORLD.addEntity(this); // TODO
-        Registered.forEvents().fire(new PlayerJoinEvent(this));
+        Registered.events().fire(new PlayerJoinEvent(this));
 
         for (Player player : players()) {
             TridentPlayer p = (TridentPlayer) player;
@@ -575,6 +575,11 @@ public class TridentPlayer extends OfflinePlayer {
 
     public int viewDistance() {
         return Math.min(viewDistance, MAX_VIEW);
+    }
+
+    @Override
+    public boolean connected() {
+        return true;
     }
 
     @Override

@@ -148,8 +148,9 @@ public class TridentWorld implements World {
         // difficulty = Difficulty.difficultyOf(((IntTag) level.getTag("Difficulty")).value()); from tests does
         // not exist
         difficulty = Difficulty.NORMAL;
-        defaultGamemode = GameMode.gamemodeOf(((IntTag) level.getTag("GameType")).value());
+        defaultGamemode = GameMode.of(((IntTag) level.getTag("GameType")).value());
         type = LevelType.of(((StringTag) level.getTag("generatorName")).value());
+        ((TridentWorldLoader) loader).setGenerator(((LongTag) level.getTag("RandomSeed")).value());
         borderSize = level.containsTag("BorderSize") ?
                 ((DoubleTag) level.getTag("BorderSize")).value() : 6000;
 
@@ -238,6 +239,8 @@ public class TridentWorld implements World {
             int centX = ((int) Math.floor(world.spawnPosition.x())) >> 4;
             int centZ = ((int) Math.floor(world.spawnPosition.z())) >> 4;
 
+            ((TridentWorldLoader) loader).setGenerator(ThreadLocalRandom.current().nextLong());
+
             for (ChunkLocation location :
                     new ChunkAxisAlignedBoundingBox(ChunkLocation.create(centX - 7, centZ - 7),
                             ChunkLocation.create(centX + 7, centZ + 7))) {
@@ -321,6 +324,7 @@ public class TridentWorld implements World {
         tag.addTag(new ByteTag("raining").setValue(raining ? (byte) 1 : (byte) 0));
         tag.addTag(new IntTag("GameType").setValue(defaultGamemode.asByte()));
         tag.addTag(new StringTag("generatorName").setValue(type.toString()));
+        tag.addTag(new LongTag("RandomSeed").setValue(loader.generator().seed()));
 
         tag.addTag(new IntTag("rainTime").setValue(rainTime.get()));
         tag.addTag(new ByteTag("thundering").setValue(thundering ? (byte) 1 : (byte) 0));

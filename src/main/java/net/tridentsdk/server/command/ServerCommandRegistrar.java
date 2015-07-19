@@ -33,8 +33,8 @@ public class ServerCommandRegistrar {
         // Set it here in case some idiot tries to register twice
         registered = true;
 
-        Registered.commands().addCommand(null, new ShutdownCommand());
-        Registered.commands().addCommand(null, new HelpCommand());
-        Registered.commands().addCommand(null, new TeleportCommand());
+        Registered.commands().register(null, new ShutdownCommand());
+        Registered.commands().register(null, new HelpCommand());
+        Registered.commands().register(null, new TeleportCommand());
     }
 }

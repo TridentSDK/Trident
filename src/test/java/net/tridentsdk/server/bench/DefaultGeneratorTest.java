@@ -31,6 +31,7 @@ import org.openjdk.jmh.runner.options.TimeValue;
 import org.openjdk.jmh.runner.options.VerboseMode;
 
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 @State(Scope.Thread)
@@ -72,8 +73,8 @@ public class DefaultGeneratorTest {
     @Setup(Level.Trial)
     public void setUpMembers() {
         this.rand = new Random();
-        this.generator = new DefaultWorldGen();
-        this.flatGenerator = new FlatWorldGen();
+        this.generator = new DefaultWorldGen(ThreadLocalRandom.current().nextLong());
+        this.flatGenerator = new FlatWorldGen(ThreadLocalRandom.current().nextLong());
         this.noiseGenerator = new SimplexOctaveGenerator(8,0.5,666);
     }   
     

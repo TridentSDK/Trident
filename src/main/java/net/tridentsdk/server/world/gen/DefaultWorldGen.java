@@ -26,7 +26,6 @@ import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.ChunkLocation;
 import net.tridentsdk.world.gen.AbstractGenerator;
 
-import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -35,8 +34,12 @@ import java.util.concurrent.CountDownLatch;
  * @author The TridentSDK Team
  */
 public class DefaultWorldGen extends AbstractGenerator {
-    private final SimplexOctaveGenerator generator = new SimplexOctaveGenerator(12, 0.5, new Random().nextInt());
+    private final SimplexOctaveGenerator generator = new SimplexOctaveGenerator(12, 0.5, (int) seed);
     private final SelectableThreadPool executor = ThreadsHandler.genExecutor();
+
+    public DefaultWorldGen(long seed) {
+        super(seed);
+    }
 
     @Override
     public char[][] generateChunkBlocks(final ChunkLocation location) {

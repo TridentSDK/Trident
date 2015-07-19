@@ -49,7 +49,7 @@ public class TridentPrimeTNT extends TridentFallingBlock implements PrimeTNT {
     protected void doTick() {
         if (countDown.get() == 0) {
             EntityExplodeEvent event = new EntityExplodeEvent(this, radius);
-            Registered.forEvents().fire(event);
+            Registered.events().fire(event);
             if (event.isIgnored()) {
                 return;
             }

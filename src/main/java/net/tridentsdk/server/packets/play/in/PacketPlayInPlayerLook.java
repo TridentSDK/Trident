@@ -71,7 +71,7 @@ public class PacketPlayInPlayerLook extends InPacket {
 
         PlayerMoveEvent event = new PlayerMoveEvent(player, from, to);
 
-        Registered.forEvents().fire(event);
+        Registered.events().fire(event);
 
         if (event.isIgnored()) {
             PacketPlayOutEntityTeleport cancel = new PacketPlayOutEntityTeleport();

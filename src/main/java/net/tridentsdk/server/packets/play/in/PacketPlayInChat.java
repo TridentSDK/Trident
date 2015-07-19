@@ -58,12 +58,12 @@ public class PacketPlayInChat extends InPacket {
         TridentPlayer player = pc.player();
 
         if(message.startsWith("/")) {
-            Registered.commands().handleCommand(message.substring(1), player);
+            Registered.commands().handle(message.substring(1), player);
             return;
         } else {
             PlayerChatEvent event = new PlayerChatEvent(player, message);
 
-            Registered.forEvents().fire(event);
+            Registered.events().fire(event);
 
             if(event.isIgnored()) {
                 return;

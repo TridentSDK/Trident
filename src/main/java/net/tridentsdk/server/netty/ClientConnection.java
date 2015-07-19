@@ -397,7 +397,7 @@ public class ClientConnection {
             return;
         }
 
-        Registered.forEvents().fire(new PlayerDisconnectEvent(p));
+        Registered.events().fire(new PlayerDisconnectEvent(p));
         p.remove();
 
         this.channel.close();

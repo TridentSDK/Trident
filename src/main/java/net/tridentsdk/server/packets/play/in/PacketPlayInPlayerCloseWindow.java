@@ -57,7 +57,7 @@ public class PacketPlayInPlayerCloseWindow extends InPacket {
         TridentInventory window = (TridentInventory) Registered.inventories().fromId(id);
         PlayerCloseWindowEvent event = new PlayerCloseWindowEvent(window);
 
-        Registered.forEvents().fire(event);
+        Registered.events().fire(event);
 
         if (event.isIgnored()) {
             return;

@@ -104,7 +104,7 @@ public class PacketPlayInPlayerClickWindow extends InPacket {
         Inventory window = Registered.inventories().fromId(this.windowId);
         PlayerClickItemEvent clickEvent = new PlayerClickItemEvent(window, this.clickedSlot, (int) this.actionNumber);
 
-        Registered.forEvents().fire(clickEvent);
+        Registered.events().fire(clickEvent);
 
         if (clickEvent.isIgnored()) {
         }

@@ -27,7 +27,7 @@ public class TridentConsole implements ServerConsole {
 
     @Override
     public void invokeCommand(String message) {
-        Registered.commands().handleCommand(message, this);
+        Registered.commands().handle(message, this);
         lastCommand = message;
     }
 
@@ -56,5 +56,18 @@ public class TridentConsole implements ServerConsole {
     @Override
     public String lastMessage() {
         return lastMessage;
+    }
+
+    @Override
+    public void grantPermission(String perm) {
+    }
+
+    @Override
+    public void revokePermission(String perm) {
+    }
+
+    @Override
+    public boolean holdsPermission(String perm) {
+        return true; // op
     }
 }

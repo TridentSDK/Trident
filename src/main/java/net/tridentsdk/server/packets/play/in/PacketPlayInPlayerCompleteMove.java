@@ -68,7 +68,7 @@ public class PacketPlayInPlayerCompleteMove extends PacketPlayInPlayerMove {
         super.location.setWorld(player.world());
 
         Event event = new PlayerMoveEvent(player, player.position(), super.location);
-        Registered.forEvents().fire(event);
+        Registered.events().fire(event);
 
         if (((Cancellable) event).isIgnored()) {
             PacketPlayOutEntityTeleport packet = new PacketPlayOutEntityTeleport();

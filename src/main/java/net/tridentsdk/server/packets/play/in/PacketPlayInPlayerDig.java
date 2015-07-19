@@ -155,7 +155,7 @@ public class PacketPlayInPlayerDig extends InPacket {
             default:
         }
 
-        Registered.forEvents().fire((Event) event);
+        Registered.events().fire((Event) event);
 
         if (event == null || event.isIgnored())
             return;

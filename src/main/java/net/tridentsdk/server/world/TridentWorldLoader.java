@@ -38,6 +38,7 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * The world loading class, creates, saves, handles worlds
@@ -45,28 +46,14 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author The TridentSDK Team
  */
 public class TridentWorldLoader implements WorldLoader {
-    private static final AbstractGenerator DEFAULT_GEN = new DefaultWorldGen();
-    private static final Map<String, TridentWorld> worlds = new ConcurrentHashMap<>();
-    private final AbstractGenerator generator;
+    private static final AbstractGenerator DEFAULT_GEN = new DefaultWorldGen(ThreadLocalRandom.current().nextLong());
+    public static final Map<String, TridentWorld> WORLDS = new ConcurrentHashMap<>();
+
+    private final Class<? extends AbstractGenerator> generatorClass;
+    private volatile AbstractGenerator generator;
 
     public TridentWorldLoader(Class<? extends AbstractGenerator> generator) {
-        AbstractGenerator gen;
-        try {
-            Constructor<? extends AbstractGenerator> g = generator.getDeclaredConstructor();
-            gen = g.newInstance();
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            TridentLogger.error("Error occurred while instantiating generator " + generator.getName());
-            TridentLogger.error("Switching to the default");
-            TridentLogger.error(e);
-            gen = DEFAULT_GEN;
-        } catch (NoSuchMethodException e) {
-            TridentLogger.error("Provided generator does not have a default constructor");
-            TridentLogger.error("Switching to the default");
-            TridentLogger.error(e);
-            gen = DEFAULT_GEN;
-        }
-
-        this.generator = gen;
+        this.generatorClass = generator;
     }
 
     public TridentWorldLoader() {
@@ -74,7 +61,7 @@ public class TridentWorldLoader implements WorldLoader {
     }
 
     public Collection<TridentWorld> worlds() {
-        return worlds.values();
+        return WORLDS.values();
     }
 
     // Prevents this reference from escaping during construction
@@ -136,7 +123,7 @@ public class TridentWorldLoader implements WorldLoader {
             }
             new TridentWorldLoader().load(file.getName());
         }
-        if (worlds.size() == 0) {
+        if (WORLDS.size() == 0) {
             TridentLogger.error("No worlds found, there is no world loaded!");
         }
         TridentLogger.log("Finished loading worlds!");
@@ -145,7 +132,7 @@ public class TridentWorldLoader implements WorldLoader {
     @Override
     public World load(String world) {
         TridentWorld w = new TridentWorld(world, this);
-        worlds.put(world, w);
+        WORLDS.put(world, w);
 
         return w;
     }
@@ -167,14 +154,14 @@ public class TridentWorldLoader implements WorldLoader {
         }
 
         TridentWorld world = TridentWorld.createWorld(name, this);
-        worlds.put(name, world);
+        WORLDS.put(name, world);
 
         return world;
     }
 
     @Override
     public boolean worldExists(String world) {
-        return worlds.containsKey(world);
+        return WORLDS.containsKey(world);
     }
 
     @Override
@@ -206,5 +193,25 @@ public class TridentWorldLoader implements WorldLoader {
     @Override
     public AbstractGenerator generator() {
         return generator;
+    }
+
+    public void setGenerator(long seed) {
+        AbstractGenerator gen;
+        try {
+            Constructor<? extends AbstractGenerator> g = generatorClass.getDeclaredConstructor(long.class);
+            gen = g.newInstance(seed);
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            TridentLogger.error("Error occurred while instantiating generator " + generatorClass.getName());
+            TridentLogger.error("Switching to the default");
+            TridentLogger.error(e);
+            gen = DEFAULT_GEN;
+        } catch (NoSuchMethodException e) {
+            TridentLogger.error("Provided generator does not have a default constructor");
+            TridentLogger.error("Switching to the default");
+            TridentLogger.error(e);
+            gen = DEFAULT_GEN;
+        }
+
+        this.generator = gen;
     }
 }

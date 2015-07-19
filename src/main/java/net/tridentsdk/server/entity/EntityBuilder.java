@@ -18,9 +18,9 @@
 package net.tridentsdk.server.entity;
 
 import net.tridentsdk.Position;
-import net.tridentsdk.Trident;
-import net.tridentsdk.entity.Entity;
 import net.tridentsdk.concurrent.SelectableThreadPool;
+import net.tridentsdk.entity.Entity;
+import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.threads.ThreadsHandler;
 import net.tridentsdk.util.TridentLogger;
 
@@ -37,7 +37,7 @@ import java.util.UUID;
  */
 public final class EntityBuilder {
     private UUID uuid = UUID.randomUUID();
-    private Position spawn = Position.create(Trident.worlds().get("world"), 0, 0, 0);
+    private Position spawn = Position.create(Registered.worlds().get("world"), 0, 0, 0);
     private SelectableThreadPool executor;
     private boolean god;
     private Entity passenger;
