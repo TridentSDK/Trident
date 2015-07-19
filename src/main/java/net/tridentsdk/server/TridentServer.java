@@ -19,12 +19,12 @@ package net.tridentsdk.server;
 
 import com.google.common.collect.Maps;
 import net.tridentsdk.*;
-import net.tridentsdk.concurrent.Scheduler;
 import net.tridentsdk.config.Config;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.entity.living.ai.AiHandler;
 import net.tridentsdk.plugin.Plugin;
 import net.tridentsdk.plugin.cmd.ServerConsole;
+import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.command.TridentConsole;
 import net.tridentsdk.server.entity.living.ai.TridentAiHandler;
 import net.tridentsdk.server.netty.protocol.Protocol;
@@ -36,8 +36,6 @@ import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.server.world.TridentWorldLoader;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.World;
-import net.tridentsdk.world.WorldLoader;
-import net.tridentsdk.world.gen.AbstractGenerator;
 import org.slf4j.Logger;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -170,7 +168,7 @@ public final class TridentServer implements Server {
             ((TridentWorld) world).save();
 
         TridentLogger.log("Shutting down worker threads...");
-        ((TridentTaskScheduler) Scheduler.registry()).shutdown();
+        ((TridentTaskScheduler) Registered.tasks()).shutdown();
 
         TridentLogger.log("Shutting down server process...");
         ThreadsHandler.shutdownAll();
@@ -191,11 +189,6 @@ public final class TridentServer implements Server {
             worlds.put(world.name(), world);
 
         return worlds;
-    }
-
-    @Override
-    public WorldLoader newWorldLoader(Class<? extends AbstractGenerator> generator) {
-        return new TridentWorldLoader(generator);
     }
 
     @Override

@@ -29,8 +29,7 @@ import net.tridentsdk.server.packets.play.out.PacketPlayOutOpenWindow;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutSetSlot;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.util.WeakEntity;
-import net.tridentsdk.window.Window;
-import net.tridentsdk.window.inventory.Inventory;
+import net.tridentsdk.window.Inventory;
 import net.tridentsdk.window.inventory.InventoryType;
 import net.tridentsdk.window.inventory.Item;
 
@@ -45,7 +44,7 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
  * @author The TridentSDK Team
  */
 @ThreadSafe
-public class TridentWindow implements Window, Inventory {
+public class TridentInventory implements Inventory {
     /**
      * Counter for window ids, initial value is 2 to avoid confusion with a window and a player window
      */
@@ -64,7 +63,7 @@ public class TridentWindow implements Window, Inventory {
      * @param name   the title of the window
      * @param length the amount of slots in the window (should be multiple of 9)
      */
-    private TridentWindow(String name, int length, InventoryType type) {
+    private TridentInventory(String name, int length, InventoryType type) {
         this.name = name;
         this.length = length;
         this.id = counter.addAndGet(1);
@@ -81,13 +80,13 @@ public class TridentWindow implements Window, Inventory {
      *
      * @param length the amount of slots in the window (should be multiple of 9)
      */
-    public TridentWindow(int length) {
+    public TridentInventory(int length) {
         this("", length, InventoryType.CHEST);
     }
 
-    public static TridentWindow create(String name, int length, InventoryType type) {
-        TridentWindow window = new TridentWindow(name, length, type);
-        Registered.windows().registerWindow(window);
+    public static TridentInventory create(String name, int length, InventoryType type) {
+        TridentInventory window = new TridentInventory(name, length, type);
+        Registered.inventories().register(window);
         return window;
     }
 

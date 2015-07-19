@@ -17,14 +17,10 @@
 
 package net.tridentsdk.server.bench;
 
-
-import net.tridentsdk.AccessBridge;
 import net.tridentsdk.concurrent.ScheduledRunnable;
-import net.tridentsdk.factory.CollectFactory;
 import net.tridentsdk.plugin.Plugin;
 import net.tridentsdk.plugin.annotation.PluginDescription;
 import net.tridentsdk.server.TridentTaskScheduler;
-import net.tridentsdk.server.threads.ThreadsHandler;
 import net.tridentsdk.util.TridentLogger;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
@@ -36,8 +32,6 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 import org.openjdk.jmh.runner.options.TimeValue;
 
 import java.util.Collection;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 
 /*
@@ -137,14 +131,6 @@ Trident is 10x faster than Bukkit
 public class SchedulerTest {
     static {
         TridentLogger.init();
-        AccessBridge.open().sendSelf(new CollectFactory() {
-            @Override
-            public <K, V> ConcurrentMap<K, V> createMap() {
-                return new ConcurrentHashMap<>();
-            }
-        });
-        AccessBridge.open().sendSuper(ThreadsHandler.create());
-        AccessBridge.open().sendSuper(TridentTaskScheduler.create());
     }
 
     private static final TridentTaskScheduler scheduler = TridentTaskScheduler.create();

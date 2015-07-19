@@ -19,7 +19,7 @@ package net.tridentsdk.server.entity.vehicle;
 import net.tridentsdk.Position;
 import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.entity.vehicle.FurnaceMinecart;
-import net.tridentsdk.window.Window;
+import net.tridentsdk.window.Inventory;
 import net.tridentsdk.window.inventory.Item;
 
 import java.util.UUID;
@@ -45,7 +45,7 @@ public class TridentFurnaceMinecart extends TridentMinecart implements FurnaceMi
     }
 
     @Override
-    public Window window() {
+    public Inventory window() {
         return null;
     }
 

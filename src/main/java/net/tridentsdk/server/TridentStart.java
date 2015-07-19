@@ -28,23 +28,24 @@ import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import net.tridentsdk.Defaults;
 import net.tridentsdk.Handler;
-import net.tridentsdk.Implementation;
 import net.tridentsdk.Trident;
 import net.tridentsdk.concurrent.Scheduler;
 import net.tridentsdk.concurrent.SelectableThreadPool;
 import net.tridentsdk.config.Config;
 import net.tridentsdk.docs.Volatile;
-import net.tridentsdk.plugin.channel.ChannelHandler;
+import net.tridentsdk.plugin.channel.PluginChannels;
 import net.tridentsdk.registry.Factory;
+import net.tridentsdk.registry.Implementation;
+import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.command.ServerCommandRegistrar;
 import net.tridentsdk.server.netty.ClientChannelInitializer;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutPluginMessage;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
-import net.tridentsdk.server.window.TridentWindowHandler;
+import net.tridentsdk.server.window.TridentInventories;
 import net.tridentsdk.server.world.TridentWorldLoader;
 import net.tridentsdk.util.TridentLogger;
-import net.tridentsdk.window.WindowHandler;
+import net.tridentsdk.window.Inventories;
 import net.tridentsdk.world.WorldLoader;
 import net.tridentsdk.world.gen.AbstractGenerator;
 
@@ -155,13 +156,13 @@ public final class TridentStart {
             TridentLogger.log("Initializing the API implementations");
             Implementation implementation = new Implementation() {
                 private final TridentTaskScheduler scheduler = TridentTaskScheduler.create();
-                private final ChannelHandler channelHandler = new ChannelHandler() {
+                private final PluginChannels channelHandler = new PluginChannels() {
                     @Override
                     public void sendPluginMessage(String channel, byte... data) {
                         TridentPlayer.sendAll(new PacketPlayOutPluginMessage().set("channel", channel).set("data", data));
                     }
                 };
-                private final WindowHandler windowHandler = new TridentWindowHandler();
+                private final Inventories windowHandler = new TridentInventories();
 
                 @Override
                 public SelectableThreadPool newPool(int i, String s) {
@@ -183,16 +184,17 @@ public final class TridentStart {
                 }
 
                 @Override
-                public ChannelHandler chanHandler() {
+                public PluginChannels chanHandler() {
                     return channelHandler;
                 }
 
                 @Override
-                public WindowHandler winHandler() {
+                public Inventories winHandler() {
                     return windowHandler;
                 }
             };
             Factory.setProvider(implementation);
+            Registered.setProvider(implementation);
 
             TridentLogger.success("Loaded API implementations.");
 

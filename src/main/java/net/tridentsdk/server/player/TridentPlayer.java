@@ -197,7 +197,7 @@ public class TridentPlayer extends OfflinePlayer {
         connection.sendPacket(PacketPlayOutStatistics.DEFAULT_STATISTIC);
         sendChunks(viewDistance());
 
-        //TridentWindow window = TridentWindow.create("Inventory", 18, InventoryType.CHEST);
+        //TridentInventory window = TridentInventory.create("Inventory", 18, InventoryType.CHEST);
         //window.setSlot(0, new Item(Substance.DIAMOND_PICKAXE));
         //window.sendTo(this);
 

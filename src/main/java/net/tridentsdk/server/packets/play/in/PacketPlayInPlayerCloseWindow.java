@@ -25,10 +25,10 @@ import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.player.PlayerConnection;
-import net.tridentsdk.server.window.TridentWindow;
+import net.tridentsdk.server.window.TridentInventory;
 
 /**
- * Packet sent by the client when closed a Window
+ * Packet sent by the client when closed a Inventory
  */
 public class PacketPlayInPlayerCloseWindow extends InPacket {
 
@@ -55,7 +55,7 @@ public class PacketPlayInPlayerCloseWindow extends InPacket {
 
     @Override
     public void handleReceived(ClientConnection connection) {
-        TridentWindow window = (TridentWindow) Registered.windows().windowBy(id);
+        TridentInventory window = (TridentInventory) Registered.inventories().fromId(id);
         PlayerCloseWindowEvent event = new PlayerCloseWindowEvent(window);
 
         Handler.forEvents().fire(event);

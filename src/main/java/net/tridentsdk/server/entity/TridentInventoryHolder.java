@@ -26,7 +26,7 @@ import net.tridentsdk.meta.nbt.NBTTag;
 import net.tridentsdk.server.data.Slot;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutEntityEquipment;
 import net.tridentsdk.server.player.TridentPlayer;
-import net.tridentsdk.window.inventory.Inventory;
+import net.tridentsdk.window.Inventory;
 import net.tridentsdk.window.inventory.Item;
 
 import java.util.UUID;

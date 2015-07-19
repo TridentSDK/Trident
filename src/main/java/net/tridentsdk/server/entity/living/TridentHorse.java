@@ -28,7 +28,7 @@ import net.tridentsdk.server.data.MetadataType;
 import net.tridentsdk.server.data.ProtocolMetadata;
 import net.tridentsdk.server.entity.TridentBreedable;
 import net.tridentsdk.server.player.TridentPlayer;
-import net.tridentsdk.window.inventory.Inventory;
+import net.tridentsdk.window.Inventory;
 import net.tridentsdk.window.inventory.Item;
 
 import java.util.UUID;

@@ -23,7 +23,7 @@ import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 import net.tridentsdk.window.inventory.InventoryType;
 
-@Volatile(policy = "Do not instantiate", reason = "Only used in TridentWindow.java", fix = "Use the Window instead")
+@Volatile(policy = "Do not instantiate", reason = "Only used in TridentInventory.java", fix = "Use the Inventory instead")
 public class PacketPlayOutOpenWindow extends OutPacket {
 
     protected int windowId;

@@ -25,7 +25,7 @@ import net.tridentsdk.server.data.Slot;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
-import net.tridentsdk.window.Window;
+import net.tridentsdk.window.Inventory;
 
 /**
  * Packet sent by the player when it clicks on a slot in a window.
@@ -102,7 +102,7 @@ public class PacketPlayInPlayerClickWindow extends InPacket {
 
     @Override
     public void handleReceived(ClientConnection connection) {
-        Window window = Registered.windows().windowBy(this.windowId);
+        Inventory window = Registered.inventories().fromId(this.windowId);
         PlayerClickItemEvent clickEvent = new PlayerClickItemEvent(window, this.clickedSlot, (int) this.actionNumber);
 
         Handler.forEvents().fire(clickEvent);

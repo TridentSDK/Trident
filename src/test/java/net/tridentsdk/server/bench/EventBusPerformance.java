@@ -19,14 +19,11 @@ package net.tridentsdk.server.bench;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
-import net.tridentsdk.AccessBridge;
 import net.tridentsdk.concurrent.SelectableThread;
+import net.tridentsdk.concurrent.SelectableThreadPool;
 import net.tridentsdk.config.Config;
 import net.tridentsdk.event.Listener;
-import net.tridentsdk.factory.CollectFactory;
-import net.tridentsdk.concurrent.SelectableThreadPool;
-import net.tridentsdk.factory.Factories;
-import net.tridentsdk.server.TridentTaskScheduler;
+import net.tridentsdk.registry.Factory;
 import net.tridentsdk.server.threads.ThreadsHandler;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
@@ -38,8 +35,6 @@ import org.openjdk.jmh.runner.options.TimeValue;
 import org.openjdk.jmh.runner.options.VerboseMode;
 
 import java.io.File;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 
 /*
@@ -51,7 +46,7 @@ public class EventBusPerformance {
     private static final EventHandler HANDLER = new EventHandler();
     private static final Listener LISTENER = new EventListener();
     private static final net.tridentsdk.event.Event EVENT = new Event();
-    private static final SelectableThreadPool EXEC = Factories.threads().executor(2, "EventBusPerformnace");
+    private static final SelectableThreadPool EXEC = Factory.newExecutor(2, "EventBusPerformance");
     private static final SelectableThread EXECUTOR = EXEC.selectScaled();
     private static final net.tridentsdk.plugin.Plugin PLUGIN = new Plugin();
     // Cannot be initialized first, else whole class cannot be loaded completely
@@ -123,15 +118,6 @@ public class EventBusPerformance {
     }
 
     static {
-        AccessBridge.open().sendSelf(new CollectFactory() {
-            @Override
-            public <K, V> ConcurrentMap<K, V> createMap() {
-                return new ConcurrentHashMap<>();
-            }
-        });
-        AccessBridge.open().sendSuper(ThreadsHandler.create());
-        AccessBridge.open().sendSuper(TridentTaskScheduler.create());
-
         final Config innerConfig = new Config(new File("toplel"));
     }
 

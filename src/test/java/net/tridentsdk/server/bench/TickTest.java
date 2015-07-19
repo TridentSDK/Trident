@@ -17,12 +17,7 @@
 
 package net.tridentsdk.server.bench;
 
-
-import net.tridentsdk.AccessBridge;
-import net.tridentsdk.factory.CollectFactory;
-import net.tridentsdk.server.TridentTaskScheduler;
 import net.tridentsdk.server.threads.MainThread;
-import net.tridentsdk.server.threads.ThreadsHandler;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
 import org.openjdk.jmh.runner.Runner;
@@ -32,8 +27,6 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 import org.openjdk.jmh.runner.options.TimeValue;
 import org.openjdk.jmh.runner.options.VerboseMode;
 
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 
 /*
@@ -54,17 +47,6 @@ tick 5.0183914333333336E7
 // Used for baseline measurements
 @State(Scope.Benchmark)
 public class TickTest {
-    static {
-        AccessBridge.open().sendSelf(new CollectFactory() {
-            @Override
-            public <K, V> ConcurrentMap<K, V> createMap() {
-                return new ConcurrentHashMap<>();
-            }
-        });
-        AccessBridge.open().sendSuper(ThreadsHandler.create());
-        AccessBridge.open().sendSuper(TridentTaskScheduler.create());
-    }
-
     private static final MainThread THREAD = new MainThread(20);
     @Param({ "1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024" })
     private int cpuTokens;

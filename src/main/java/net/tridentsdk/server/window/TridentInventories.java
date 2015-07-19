@@ -17,9 +17,10 @@
 
 package net.tridentsdk.server.window;
 
-import com.google.common.collect.Collections2;
-import net.tridentsdk.window.Window;
-import net.tridentsdk.window.WindowHandler;
+import com.google.common.collect.ForwardingCollection;
+import com.google.common.collect.ImmutableList;
+import net.tridentsdk.window.Inventories;
+import net.tridentsdk.window.Inventory;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Collection;
@@ -32,21 +33,21 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author The TridentSDK Team
  */
 @ThreadSafe
-public class TridentWindowHandler implements WindowHandler {
-    private static final Map<Integer, TridentWindow> windows = new ConcurrentHashMap<>();
+public class TridentInventories extends ForwardingCollection<Inventory> implements Inventories {
+    private static final Map<Integer, TridentInventory> windows = new ConcurrentHashMap<>();
 
     @Override
-    public Window windowBy(int id) {
+    public Inventory fromId(int id) {
         return windows.get(id);
     }
 
     @Override
-    public void registerWindow(Window window) {
-        windows.put(window.id(), (TridentWindow) window);
+    public void register(Inventory window) {
+        windows.put(window.id(), (TridentInventory) window);
     }
 
     @Override
-    public Collection<Window> windows() {
-        return Collections2.transform(windows.values(), (w) -> w);
+    protected Collection<Inventory> delegate() {
+        return ImmutableList.copyOf(windows.values());
     }
 }
