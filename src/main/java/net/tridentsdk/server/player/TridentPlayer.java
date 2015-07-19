@@ -139,6 +139,7 @@ public class TridentPlayer extends OfflinePlayer {
             }
 
             block = block.relativeBlock(new Vector(0, 5, 0));
+            //Position pos = Position.create(p.world(), 0, 255, 0);
             p.setPosition(block.location());
             p.spawnLocation = block.location();
             // =====

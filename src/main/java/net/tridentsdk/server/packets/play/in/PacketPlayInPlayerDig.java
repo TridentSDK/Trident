@@ -168,9 +168,14 @@ public class PacketPlayInPlayerDig extends InPacket {
             ((TridentChunk) location().chunk()).setAt(location, Substance.AIR, (byte) 0, (byte) 255, (byte) 15);
             TridentPlayer.sendAll(new PacketPlayOutBlockChange()
                     .set("location", location).set("blockId", Substance.AIR.id()));
-            TridentPlayer.sendAll(new PacketPlayOutParticle()
-                    .set("particleId", 37 ).set("distance", false).set("loc", location).set("offset", new Vector(0, 0, 0))
-                    .set("count", 1).set("data", arr));
+            //TridentPlayer.sendAll(new PacketPlayOutParticle()
+             //       .set("particleId", 37 ).set("distance", false).set("loc", location).set("offset", new Vector(0, 0, 0))
+             //       .set("count", 1).set("data", arr));
+            TridentPlayer.sendFiltered(new PacketPlayOutParticle()
+                    .set("particleId", 37 ).set("distance", false).set("loc", location.add(new Vector(.5, .5, .5)))
+                    .set("offset", new Vector(.45, .45, .45))
+                    .set("count", 64).set("data", arr), (player1) -> !player.equals(player1) );
+
         }
     }
 
