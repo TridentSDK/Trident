@@ -20,7 +20,7 @@ package net.tridentsdk.server.window;
 import net.tridentsdk.Handler;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.entity.living.Player;
-import net.tridentsdk.factory.Factories;
+import net.tridentsdk.registry.Factory;
 import net.tridentsdk.server.data.Slot;
 import net.tridentsdk.server.entity.EntityBuilder;
 import net.tridentsdk.server.entity.TridentEntity;
@@ -55,7 +55,7 @@ public class TridentWindow implements Window, Inventory {
     private final String name;
     private final int length;
     private final InventoryType type;
-    private final Set<WeakEntity<Player>> users = Factories.collect().createSet();
+    private final Set<WeakEntity<Player>> users = Factory.newSet();
     private final AtomicReferenceArray<Item> contents;
 
     /**
@@ -92,7 +92,7 @@ public class TridentWindow implements Window, Inventory {
     }
 
     @Override
-    public int windowId() {
+    public int id() {
         return this.id;
     }
 
@@ -137,7 +137,7 @@ public class TridentWindow implements Window, Inventory {
         contents.set(index, value);
 
         PacketPlayOutSetSlot setSlot = new PacketPlayOutSetSlot();
-        setSlot.set("windowId", windowId()).set("slot", (short) index).set("item", new Slot(value));
+        setSlot.set("windowId", id()).set("slot", (short) index).set("item", new Slot(value));
 
         for (WeakEntity<Player> player : WeakEntity.iterate(users)) {
             ((TridentPlayer) player.obtain()).connection().sendPacket(setSlot);
@@ -163,7 +163,7 @@ public class TridentWindow implements Window, Inventory {
 
     public void sendTo(TridentPlayer player) {
         PacketPlayOutOpenWindow window = new PacketPlayOutOpenWindow();
-        window.set("windowId", windowId())
+        window.set("windowId", id())
                 .set("inventoryType", type)
                 .set("windowTitle", name())
                 .set("slots", length())
@@ -172,7 +172,7 @@ public class TridentWindow implements Window, Inventory {
 
         for (int i = 0; i < length(); i++) {
             PacketPlayOutSetSlot setSlot = new PacketPlayOutSetSlot();
-            setSlot.set("windowId", windowId()).set("slot", (short) i).set("item", new Slot(items()[i]));
+            setSlot.set("windowId", id()).set("slot", (short) i).set("item", new Slot(items()[i]));
             player.connection().sendPacket(window);
         }
         users.add(WeakEntity.<Player>of(player));

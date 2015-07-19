@@ -30,9 +30,8 @@ import net.tridentsdk.AccessBridge;
 import net.tridentsdk.Defaults;
 import net.tridentsdk.Handler;
 import net.tridentsdk.Trident;
-import net.tridentsdk.config.JsonConfig;
+import net.tridentsdk.config.Config;
 import net.tridentsdk.docs.Volatile;
-import net.tridentsdk.factory.CollectFactory;
 import net.tridentsdk.plugin.channel.ChannelHandler;
 import net.tridentsdk.server.command.ServerCommandRegistrar;
 import net.tridentsdk.server.netty.ClientChannelInitializer;
@@ -49,8 +48,6 @@ import java.net.InetSocketAddress;
 import java.nio.file.Files;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -135,7 +132,7 @@ public final class TridentStart {
         TridentLogger.success("Created the server JSON");
 
         TridentLogger.log("Starting server process...");
-        init(new JsonConfig(f));
+        init(new Config(f));
     }
 
     /**
@@ -146,17 +143,11 @@ public final class TridentStart {
     @Volatile(policy = "Do not throw exceptions before",
             reason = "Init begins here",
             fix = "Just don't do it")
-    private static void init(final JsonConfig config) throws InterruptedException {
+    private static void init(final Config config) throws InterruptedException {
         try {
             TridentLogger.log("Initializing the API implementations");
             AccessBridge bridge = AccessBridge.open();
 
-            bridge.sendSuper(new CollectFactory() {
-                @Override
-                public <K, V> ConcurrentMap<K, V> createMap() {
-                    return new ConcurrentHashMap<>();
-                }
-            });
             bridge.sendImplemented(ThreadsHandler.create());
             bridge.sendImplemented(TridentTaskScheduler.create());
 

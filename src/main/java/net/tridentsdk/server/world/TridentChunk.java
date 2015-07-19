@@ -22,10 +22,10 @@ import com.google.common.collect.Lists;
 import net.tridentsdk.Position;
 import net.tridentsdk.base.Block;
 import net.tridentsdk.base.Substance;
-import net.tridentsdk.concurrent.TaskExecutor;
+import net.tridentsdk.concurrent.SelectableThread;
 import net.tridentsdk.entity.Entity;
-import net.tridentsdk.factory.Factories;
 import net.tridentsdk.meta.nbt.*;
+import net.tridentsdk.registry.Factory;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutChunkData;
 import net.tridentsdk.server.threads.ThreadsHandler;
 import net.tridentsdk.util.NibbleArray;
@@ -46,8 +46,8 @@ import java.util.stream.Stream;
 public class TridentChunk implements Chunk {
     private final TridentWorld world;
     private final ChunkLocation location;
-    final TaskExecutor executor = ThreadsHandler.chunkExecutor().scaledThread();
-    private final Set<Entity> entities = Factories.collect().createSet();
+    final SelectableThread executor = ThreadsHandler.chunkExecutor().selectScaled();
+    private final Set<Entity> entities = Factory.newSet();
     public volatile ChunkSection[] sections;
     private volatile int lastFileAccess;
     private volatile long lastModified;
@@ -94,7 +94,7 @@ public class TridentChunk implements Chunk {
 
     @Override
     public void generate() {
-        executor.addTask(() -> {
+        executor.execute(() -> {
             // Don't call mapSections, as this generates them
             ChunkSection[] sections = this.sections;
 
@@ -199,7 +199,7 @@ public class TridentChunk implements Chunk {
         final List<CompoundTag> sections = Lists.newArrayList();
 
         final ChunkSection[][] sections1 = new ChunkSection[1][1];
-        executor.addTask(() -> {
+        executor.execute(() -> {
             sections1[0] = mapSections();
 
             for (ChunkSection section : sections1[0]) {
@@ -207,7 +207,7 @@ public class TridentChunk implements Chunk {
             }
         });
 
-        executor.addTask(() -> Stream.of(sections1[0]).forEach((s) -> sections.add(NBTSerializer.serialize(s))));
+        executor.execute(() -> Stream.of(sections1[0]).forEach((s) -> sections.add(NBTSerializer.serialize(s))));
 
         return new TridentChunkSnapshot(world, location, sections, lastFileAccess, lastModified, inhabitedTime,
                 lightPopulated, terrainPopulated);
@@ -303,7 +303,7 @@ public class TridentChunk implements Chunk {
             }
         }
 
-        executor.addTask(() -> this.sections = sections);
+        executor.execute(() -> this.sections = sections);
 
         for (NBTTag t : entities.listTags()) {
             //TridentEntity entity = EntityBuilder.create().build(TridentEntity.class);
@@ -370,7 +370,7 @@ public class TridentChunk implements Chunk {
     public void setAt(int x, final int y, int z, final Substance type, final byte metaData, final byte skyLight,
                       final byte blockLight) {
         final int index = WorldUtils.blockArrayIndex(x & 15, y & 15, z & 15);
-        executor.addTask(() -> {
+        executor.execute(() -> {
             ChunkSection[] sections = mapSections();
 
             ChunkSection section = sections[WorldUtils.section(y)];

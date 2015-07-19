@@ -19,9 +19,9 @@ package net.tridentsdk.server.bench;
 
 
 import net.tridentsdk.AccessBridge;
-import net.tridentsdk.concurrent.TridentRunnable;
+import net.tridentsdk.concurrent.ScheduledRunnable;
 import net.tridentsdk.factory.CollectFactory;
-import net.tridentsdk.plugin.TridentPlugin;
+import net.tridentsdk.plugin.Plugin;
 import net.tridentsdk.plugin.annotation.PluginDescription;
 import net.tridentsdk.server.TridentTaskScheduler;
 import net.tridentsdk.server.threads.ThreadsHandler;
@@ -154,11 +154,11 @@ public class SchedulerTest {
 
     public static void main8(String... args) throws InterruptedException {
         @PluginDescription(name = "LOLCODE")
-        class PluginImpl extends TridentPlugin {
+        class PluginImpl extends Plugin {
         }
 
         for (int i = 0; i < 1000; i++) {
-            scheduler.asyncRepeat(new PluginImpl(), new TridentRunnable() {
+            scheduler.asyncRepeat(new PluginImpl(), new ScheduledRunnable() {
                 @Override
                 public void run() {
                     System.out.println("Your mom");
@@ -197,11 +197,11 @@ public class SchedulerTest {
         TridentTaskScheduler scheduler = TridentTaskScheduler.create();
         for (int i = 0; i < 100; i++) {
             @PluginDescription(name = "LOLCODE")
-            class PluginImpl extends TridentPlugin {
+            class PluginImpl extends Plugin {
             }
 
             final int finalI = i;
-            scheduler.asyncRepeat(new PluginImpl(), new TridentRunnable() {
+            scheduler.asyncRepeat(new PluginImpl(), new ScheduledRunnable() {
                 @Override
                 public void run() {
                     System.out.println("LOL: " + finalI);
@@ -220,10 +220,10 @@ public class SchedulerTest {
     public void setup() {
         for (int i = 0; i < 100000; i++) {
             @PluginDescription(name = "LOLCODE")
-            class PluginImpl extends TridentPlugin {
+            class PluginImpl extends Plugin {
             }
 
-            scheduler.asyncRepeat(new PluginImpl(), new TridentRunnable() {
+            scheduler.asyncRepeat(new PluginImpl(), new ScheduledRunnable() {
                 @Override
                 public void run() {
                     System.out.print("");

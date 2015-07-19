@@ -19,11 +19,11 @@ package net.tridentsdk.server;
 
 import com.google.common.collect.Maps;
 import net.tridentsdk.*;
-import net.tridentsdk.config.JsonConfig;
+import net.tridentsdk.config.Config;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.entity.living.ai.AiHandler;
 import net.tridentsdk.factory.Factories;
-import net.tridentsdk.plugin.TridentPlugin;
+import net.tridentsdk.plugin.Plugin;
 import net.tridentsdk.plugin.cmd.ServerConsole;
 import net.tridentsdk.server.command.TridentConsole;
 import net.tridentsdk.server.entity.living.ai.TridentAiHandler;
@@ -57,7 +57,7 @@ public final class TridentServer implements Server {
     public static TridentWorld WORLD;
     private final MainThread mainThread;
 
-    private final JsonConfig config;
+    private final Config config;
     private final Protocol protocol;
     private final Logger logger;
 
@@ -67,7 +67,7 @@ public final class TridentServer implements Server {
     private final AiHandler aiHandler;
     private volatile DisplayInfo displayInfo;
 
-    private TridentServer(JsonConfig config) {
+    private TridentServer(Config config) {
         this.config = config;
         this.protocol = new Protocol();
         this.logger = TridentLogger.logger();
@@ -83,7 +83,7 @@ public final class TridentServer implements Server {
      *
      * @param config the configuration to use for option lookup
      */
-    public static TridentServer createServer(JsonConfig config) {
+    public static TridentServer createServer(Config config) {
         TridentServer server = new TridentServer(config);
         Trident.setServer(server);
         server.mainThread.start();
@@ -145,7 +145,7 @@ public final class TridentServer implements Server {
     }
 
     @Override
-    public JsonConfig config() {
+    public Config config() {
         return this.config;
     }
 
@@ -156,7 +156,7 @@ public final class TridentServer implements Server {
     public void shutdown() {
         //TODO: Cleanup stuff...
         TridentLogger.log("Shutting down plugins...");
-        for (TridentPlugin plugin : Handler.forPlugins().plugins())
+        for (Plugin plugin : Handler.forPlugins().plugins())
             Handler.forPlugins().disable(plugin);
 
         TridentLogger.log("Kicking players...");

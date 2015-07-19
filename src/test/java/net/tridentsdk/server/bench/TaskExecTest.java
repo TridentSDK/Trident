@@ -18,7 +18,7 @@
 package net.tridentsdk.server.bench;
 
 
-import net.tridentsdk.concurrent.TaskExecutor;
+import net.tridentsdk.concurrent.SelectableThread;
 import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
@@ -107,7 +107,7 @@ public class TaskExecTest {
         }
     };
     private static ConcurrentTaskExecutor TASK_EXECUTOR = ConcurrentTaskExecutor.create(4, "Test");
-    private static TaskExecutor EXECUTOR = TASK_EXECUTOR.scaledThread();
+    private static SelectableThread EXECUTOR = TASK_EXECUTOR.selectScaled();
 
     public static void main2(String[] args) {
         while (true) {
@@ -117,7 +117,7 @@ public class TaskExecTest {
     }
 
     public static void main(String[] args) throws InterruptedException {
-        TASK_EXECUTOR.setMaxScale(300); // Realistically one would never do this unless in a controlled environment
+        TASK_EXECUTOR.setMaxThreads(300); // Realistically one would never do this unless in a controlled environment
         // However TPE has MAX_VALUE so I am wondering why I don't do that either...
         // Latency tests
         System.out.println("========= Starting tests: TRIDENT =========");
@@ -287,6 +287,6 @@ public class TaskExecTest {
     @Benchmark
     public void tridentThreadExecute() {
         Blackhole.consumeCPU(cpuTokens);
-        EXECUTOR.addTask(RUNNABLE);
+        EXECUTOR.execute(RUNNABLE);
     }
 }

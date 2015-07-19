@@ -42,7 +42,7 @@ public class TridentWindowHandler implements WindowHandler {
 
     @Override
     public void registerWindow(Window window) {
-        windows.put(window.windowId(), (TridentWindow) window);
+        windows.put(window.id(), (TridentWindow) window);
     }
 
     @Override

@@ -20,13 +20,12 @@ package net.tridentsdk.server.bench;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import net.tridentsdk.AccessBridge;
-import net.tridentsdk.concurrent.TaskExecutor;
-import net.tridentsdk.config.JsonConfig;
+import net.tridentsdk.concurrent.SelectableThread;
+import net.tridentsdk.config.Config;
 import net.tridentsdk.event.Listener;
 import net.tridentsdk.factory.CollectFactory;
-import net.tridentsdk.factory.ExecutorFactory;
+import net.tridentsdk.concurrent.SelectableThreadPool;
 import net.tridentsdk.factory.Factories;
-import net.tridentsdk.plugin.TridentPlugin;
 import net.tridentsdk.server.TridentTaskScheduler;
 import net.tridentsdk.server.threads.ThreadsHandler;
 import org.openjdk.jmh.annotations.*;
@@ -52,9 +51,9 @@ public class EventBusPerformance {
     private static final EventHandler HANDLER = new EventHandler();
     private static final Listener LISTENER = new EventListener();
     private static final net.tridentsdk.event.Event EVENT = new Event();
-    private static final ExecutorFactory EXEC = Factories.threads().executor(2, "EventBusPerformnace");
-    private static final TaskExecutor EXECUTOR = EXEC.scaledThread();
-    private static final TridentPlugin PLUGIN = new Plugin();
+    private static final SelectableThreadPool EXEC = Factories.threads().executor(2, "EventBusPerformnace");
+    private static final SelectableThread EXECUTOR = EXEC.selectScaled();
+    private static final net.tridentsdk.plugin.Plugin PLUGIN = new Plugin();
     // Cannot be initialized first, else whole class cannot be loaded completely
     private final net.tridentsdk.event.EventHandler EVENT_MANAGER = net.tridentsdk.event.EventHandler.create();
     @Param({ "1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024" })
@@ -120,7 +119,7 @@ public class EventBusPerformance {
         EVENT_MANAGER.fire(EVENT);
     }
 
-    private static class Plugin extends TridentPlugin {
+    private static class Plugin extends net.tridentsdk.plugin.Plugin {
     }
 
     static {
@@ -133,7 +132,7 @@ public class EventBusPerformance {
         AccessBridge.open().sendSuper(ThreadsHandler.create());
         AccessBridge.open().sendSuper(TridentTaskScheduler.create());
 
-        final JsonConfig innerConfig = new JsonConfig(new File("toplel"));
+        final Config innerConfig = new Config(new File("toplel"));
     }
 
     private static class Event extends net.tridentsdk.event.Event {

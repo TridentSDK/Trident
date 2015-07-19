@@ -17,7 +17,7 @@
 package net.tridentsdk.server.threads;
 
 import com.google.common.collect.Iterators;
-import net.tridentsdk.factory.ExecutorFactory;
+import net.tridentsdk.concurrent.SelectableThreadPool;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import java.util.Collection;
@@ -40,11 +40,11 @@ import java.util.function.Consumer;
  */
 @NotThreadSafe
 public class TaskGroup<T> {
-    private static final ExecutorFactory FACTORY = ConcurrentTaskExecutor.create(2, "Task Group Def");
+    private static final SelectableThreadPool FACTORY = ConcurrentTaskExecutor.create(2, "Task Group Def");
 
     private final Collection<T> items;
     private int per = 4;
-    private ExecutorFactory factory = FACTORY;
+    private SelectableThreadPool factory = FACTORY;
 
     private TaskGroup(Collection<T> items) {
         this.items = items;
@@ -78,7 +78,7 @@ public class TaskGroup<T> {
      *
      * @param factory the executor to process on
      */
-    public TaskGroup<T> with(ExecutorFactory factory) {
+    public TaskGroup<T> with(SelectableThreadPool factory) {
         this.factory = factory;
         return this;
     }

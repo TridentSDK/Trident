@@ -25,7 +25,7 @@ import net.tridentsdk.docs.PossiblyThreadSafe;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.traits.EntityProperties;
 import net.tridentsdk.entity.types.EntityType;
-import net.tridentsdk.factory.ExecutorFactory;
+import net.tridentsdk.concurrent.SelectableThreadPool;
 import net.tridentsdk.meta.nbt.*;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.data.MetadataType;
@@ -93,7 +93,7 @@ public class TridentEntity implements Entity {
     /**
      * Entity task executor
      */
-    protected volatile ExecutorFactory executor = ThreadsHandler.entityExecutor();
+    protected volatile SelectableThreadPool executor = ThreadsHandler.entityExecutor();
     /**
      * The movement vector for the entity
      */

@@ -33,10 +33,10 @@ import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.event.player.PlayerJoinEvent;
-import net.tridentsdk.factory.Factories;
 import net.tridentsdk.meta.ChatColor;
 import net.tridentsdk.meta.MessageBuilder;
 import net.tridentsdk.meta.nbt.CompoundTag;
+import net.tridentsdk.registry.Factory;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.data.MetadataType;
 import net.tridentsdk.server.data.ProtocolMetadata;
@@ -71,7 +71,7 @@ public class TridentPlayer extends OfflinePlayer {
             .getInt("max-chunks-player", 441);
 
     private final PlayerConnection connection;
-    private final Set<ChunkLocation> knownChunks = Factories.collect().createSet();
+    private final Set<ChunkLocation> knownChunks = Factory.newSet();
     private final Queue<PacketPlayOutMapChunkBulk> chunkQueue = Queues.newConcurrentLinkedQueue();
     private volatile boolean loggingIn = true;
     private volatile boolean sprinting;

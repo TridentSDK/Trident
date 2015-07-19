@@ -18,10 +18,10 @@
 package net.tridentsdk.server.threads;
 
 import com.google.common.collect.Lists;
-import net.tridentsdk.concurrent.TaskExecutor;
+import net.tridentsdk.concurrent.SelectableThread;
 import net.tridentsdk.docs.InternalUseOnly;
-import net.tridentsdk.factory.ExecutorFactory;
-import net.tridentsdk.factory.Factories;
+import net.tridentsdk.concurrent.SelectableThreadPool;
+import net.tridentsdk.registry.Factory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
@@ -68,8 +68,8 @@ import java.util.concurrent.locks.StampedLock;
  * @author The TridentSDK Team
  */
 @ThreadSafe
-public class ConcurrentTaskExecutor extends AbstractExecutorService implements ExecutorFactory {
-    private static final Set<ConcurrentTaskExecutor> EXECUTORS = Factories.collect().createSet();
+public class ConcurrentTaskExecutor extends AbstractExecutorService implements SelectableThreadPool {
+    private static final Set<ConcurrentTaskExecutor> EXECUTORS = Factory.newSet();
     private static final int INITIALIZING = 0;
     private static final int STARTING = 1;
     private static final int RUNNING = 2;
@@ -78,7 +78,7 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
 
     private final String name;
 
-    private final List<TaskExecutor> workerSet = Lists.newCopyOnWriteArrayList();
+    private final List<SelectableThread> workerSet = Lists.newCopyOnWriteArrayList();
     private final AtomicInteger count = new AtomicInteger();
 
     @GuardedBy("lock")
@@ -92,22 +92,22 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
     private volatile int maxScale = 50;
 
     @Override
-    public int maxScale() {
+    public int maxThreads() {
         return maxScale;
     }
 
     @Override
-    public void setMaxScale(int maxScale) {
+    public void setMaxThreads(int maxScale) {
         this.maxScale = maxScale;
     }
 
     @Override
-    public long expireIntervalMillis() {
+    public long threadExpiryTime() {
         return expireIntervalMillis;
     }
 
     @Override
-    public void setExpireIntervalMillis(long expireIntervalMillis) {
+    public void setThreadExpiryTime(long expireIntervalMillis) {
         this.expireIntervalMillis = expireIntervalMillis;
     }
 
@@ -144,7 +144,7 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
 
     private ConcurrentWorker addWorker(boolean expire) {
         ConcurrentWorker worker;
-        if (count.get() < maxScale()) {
+        if (count.get() < maxThreads()) {
             if (expire) {
                 worker = new ExpiringWorker(count.getAndIncrement());
             } else {
@@ -154,14 +154,14 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
             workerSet.add(worker);
             worker.start();
         } else {
-            worker = (ConcurrentWorker) nextWorker();
+            worker = (ConcurrentWorker) selectNext();
         }
 
         return worker;
     }
 
     @Override
-    public TaskExecutor nextWorker() {
+    public SelectableThread selectNext() {
         int count;
         int max = this.workerSet.size();
 
@@ -194,8 +194,8 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
     }
 
     @Override
-    public TaskExecutor scaledThread() {
-        for (TaskExecutor ex : workerSet) {
+    public SelectableThread selectScaled() {
+        for (SelectableThread ex : workerSet) {
             ConcurrentWorker w = (ConcurrentWorker) ex;
             if (!w.isHeld()) {
                 return w;
@@ -203,18 +203,17 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
         }
 
         return addWorker(true);
-        // return nextWorker();
     }
 
     @Override
-    public List<TaskExecutor> threadList() {
+    public List<SelectableThread> workers() {
         return workerSet;
     }
 
     @Override
     public void shutdown() {
         state = STOPPING;
-        workerSet.forEach(TaskExecutor::interrupt);
+        workerSet.forEach(SelectableThread::interrupt);
         workerSet.clear();
         EXECUTORS.remove(this);
         state = TERMINATED;
@@ -262,23 +261,21 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
 
     @Override
     public void execute(@Nonnull Runnable runnable) {
-        for (TaskExecutor ex : workerSet) {
+        for (SelectableThread ex : workerSet) {
             ConcurrentWorker w = (ConcurrentWorker) ex;
             if (!w.isHeld()) {
-                w.addTask(runnable);
+                w.execute(runnable);
                 return;
             }
         }
 
         ConcurrentWorker w = addWorker(true);
-        w.addTask(runnable);
-
-        // nextWorker().addTask(runnable);
+        w.execute(runnable);
     }
 
     // Workers
 
-    private class ConcurrentWorker extends Thread implements TaskExecutor {
+    private class ConcurrentWorker extends Thread implements SelectableThread {
         @GuardedBy("lock")
         final Deque<Runnable> tasks = new ArrayDeque<>(64);
         final StampedLock lock = new StampedLock();
@@ -322,7 +319,7 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
         }
 
         @Override
-        public void addTask(Runnable task) {
+        public void execute(Runnable task) {
             long stamp = lock.writeLock();
             try {
                 tasks.offerFirst(task);
@@ -338,7 +335,7 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements E
         public <V> Future<V> submitTask(Callable<V> task) {
             final RunnableFuture<V> future = new FutureTask<>(task);
 
-            addTask(future::run);
+            execute(future::run);
             return future;
         }
 

@@ -33,8 +33,8 @@ import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.entity.types.HorseType;
 import net.tridentsdk.entity.types.VillagerCareer;
 import net.tridentsdk.entity.types.VillagerProfession;
-import net.tridentsdk.factory.Factories;
 import net.tridentsdk.meta.nbt.*;
+import net.tridentsdk.registry.Factory;
 import net.tridentsdk.server.entity.TridentDroppedItem;
 import net.tridentsdk.server.entity.TridentEntity;
 import net.tridentsdk.server.entity.TridentExpOrb;
@@ -75,7 +75,7 @@ public class TridentWorld implements World {
     private static final int MAX_CHUNKS = 30_000_000;
 
     public final ChunkCache loadedChunks = new ChunkCache(this);
-    private final Set<Entity> entities = Factories.collect().createSet();
+    private final Set<Entity> entities = Factory.newSet();
     private final String name;
     private final WorldLoader loader;
     private final Position spawnPosition;
@@ -346,7 +346,7 @@ public class TridentWorld implements World {
         }
 
         for (TridentChunk chunk : loadedChunks()) {
-            chunk.executor.addTask(() -> RegionFile.fromPath(name, chunk.location()).saveChunkData(chunk));
+            chunk.executor.execute(() -> RegionFile.fromPath(name, chunk.location()).saveChunkData(chunk));
             // System.out.println("saved " + chunk.x() + ":" + chunk.z());
         }
 
