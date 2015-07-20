@@ -18,7 +18,7 @@
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Position;
+import net.tridentsdk.base.Position;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.server.data.ProtocolMetadata;
 import net.tridentsdk.server.netty.Codec;

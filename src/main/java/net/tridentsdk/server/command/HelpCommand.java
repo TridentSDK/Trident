@@ -17,9 +17,9 @@
 
 package net.tridentsdk.server.command;
 
+import net.tridentsdk.ServerConsole;
 import net.tridentsdk.plugin.annotation.CommandDescription;
 import net.tridentsdk.plugin.cmd.Command;
-import net.tridentsdk.plugin.cmd.ServerConsole;
 
 @CommandDescription(name = "help", permission = "trident.help", aliases = "")
 public class HelpCommand extends Command {

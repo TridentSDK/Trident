@@ -17,7 +17,7 @@
 
 package net.tridentsdk.server.bench;
 
-import net.tridentsdk.Position;
+import net.tridentsdk.base.Position;
 import net.tridentsdk.world.World;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Mode;

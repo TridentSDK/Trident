@@ -18,7 +18,7 @@
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Position;
+import net.tridentsdk.base.Position;
 import net.tridentsdk.event.player.PlayerMoveEvent;
 import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.netty.ClientConnection;

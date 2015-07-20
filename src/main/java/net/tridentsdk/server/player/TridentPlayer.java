@@ -22,10 +22,9 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import net.tridentsdk.GameMode;
-import net.tridentsdk.Position;
 import net.tridentsdk.Trident;
 import net.tridentsdk.base.Block;
+import net.tridentsdk.base.Position;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.entity.Entity;
@@ -49,7 +48,8 @@ import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.util.Vector;
 import net.tridentsdk.world.ChunkLocation;
-import net.tridentsdk.world.LevelType;
+import net.tridentsdk.world.settings.GameMode;
+import net.tridentsdk.world.settings.LevelType;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.io.BufferedReader;
@@ -198,9 +198,9 @@ public class TridentPlayer extends OfflinePlayer {
         connection.sendPacket(PacketPlayOutStatistics.DEFAULT_STATISTIC);
         sendChunks(viewDistance());
 
-        //TridentInventory window = TridentInventory.create("Inventory", 18, InventoryType.CHEST);
-        //window.setSlot(0, new Item(Substance.DIAMOND_PICKAXE));
-        //window.sendTo(this);
+        //TridentInventory inventory = TridentInventory.create("Inventory", 18, InventoryType.CHEST);
+        //inventory.setSlot(0, new Item(Substance.DIAMOND_PICKAXE));
+        //inventory.sendTo(this);
 
         // Wait for response
         for (Entity entity : world().entities()) {
@@ -400,7 +400,7 @@ public class TridentPlayer extends OfflinePlayer {
         TridentPlayer.super.selectedSlot = slot;
 
         setSelectedSlot(slot);
-        setHeldItem(heldItem()); // Updates window
+        setHeldItem(heldItem()); // Updates inventory
     }
 
     @Override
@@ -581,6 +581,11 @@ public class TridentPlayer extends OfflinePlayer {
     @Override
     public boolean connected() {
         return true;
+    }
+
+    @Override
+    public Player asPlayer() {
+        return this;
     }
 
     @Override

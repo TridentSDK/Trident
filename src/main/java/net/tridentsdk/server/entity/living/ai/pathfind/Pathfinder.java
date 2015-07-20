@@ -17,8 +17,8 @@
 
 package net.tridentsdk.server.entity.living.ai.pathfind;
 
-import net.tridentsdk.Position;
 import net.tridentsdk.base.Block;
+import net.tridentsdk.base.Position;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.util.Vector;

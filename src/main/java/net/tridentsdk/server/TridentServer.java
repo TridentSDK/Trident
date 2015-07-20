@@ -17,19 +17,13 @@
 
 package net.tridentsdk.server;
 
-import net.tridentsdk.Defaults;
-import net.tridentsdk.DisplayInfo;
-import net.tridentsdk.Server;
-import net.tridentsdk.Trident;
+import net.tridentsdk.*;
 import net.tridentsdk.config.Config;
 import net.tridentsdk.entity.living.Player;
-import net.tridentsdk.entity.living.ai.AiHandler;
 import net.tridentsdk.plugin.Plugin;
-import net.tridentsdk.plugin.cmd.ServerConsole;
 import net.tridentsdk.registry.Factory;
 import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.command.TridentConsole;
-import net.tridentsdk.server.entity.living.ai.TridentAiHandler;
 import net.tridentsdk.server.netty.protocol.Protocol;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
@@ -61,7 +55,6 @@ public final class TridentServer implements Server {
     private final TridentConsole console;
 
     private final TridentWorldLoader rootWorldLoader;
-    private final AiHandler aiHandler;
     private volatile DisplayInfo displayInfo;
 
     private TridentServer(Config config) {
@@ -71,7 +64,6 @@ public final class TridentServer implements Server {
         this.mainThread = new MainThread(20);
         this.rootWorldLoader = new TridentWorldLoader();
         this.console = new TridentConsole();
-        this.aiHandler = new TridentAiHandler();
         this.displayInfo = new DisplayInfo();
     }
 
@@ -178,7 +170,7 @@ public final class TridentServer implements Server {
     }
 
     @Override
-    public InetAddress serverIp() {
+    public InetAddress ip() {
         return null;
     }
 
@@ -196,10 +188,5 @@ public final class TridentServer implements Server {
     @Override
     public TridentLogger logger() {
         return logger;
-    }
-
-    @Override
-    public AiHandler aiHandler() {
-        return aiHandler;
     }
 }

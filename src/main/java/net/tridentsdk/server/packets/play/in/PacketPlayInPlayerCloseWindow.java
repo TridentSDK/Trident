@@ -32,7 +32,7 @@ import net.tridentsdk.server.window.TridentInventory;
 public class PacketPlayInPlayerCloseWindow extends InPacket {
 
     /**
-     * Id of the window, 0 if player window
+     * Id of the inventory, 0 if player inventory
      */
     protected int id;
 

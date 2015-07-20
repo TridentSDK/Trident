@@ -19,10 +19,8 @@ package net.tridentsdk.server.world;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteStreams;
-import net.tridentsdk.Difficulty;
-import net.tridentsdk.GameMode;
-import net.tridentsdk.Position;
 import net.tridentsdk.base.Block;
+import net.tridentsdk.base.Position;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.Projectile;
 import net.tridentsdk.entity.block.SlotProperties;
@@ -43,12 +41,18 @@ import net.tridentsdk.server.entity.block.*;
 import net.tridentsdk.server.entity.living.*;
 import net.tridentsdk.server.entity.projectile.*;
 import net.tridentsdk.server.entity.vehicle.*;
+import net.tridentsdk.server.packets.play.out.PacketPlayOutGameStateChange;
+import net.tridentsdk.server.packets.play.out.PacketPlayOutServerDifficulty;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutTimeUpdate;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.threads.ThreadsHandler;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.*;
 import net.tridentsdk.world.gen.ChunkAxisAlignedBoundingBox;
+import net.tridentsdk.world.settings.Difficulty;
+import net.tridentsdk.world.settings.Dimension;
+import net.tridentsdk.world.settings.GameMode;
+import net.tridentsdk.world.settings.LevelType;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.io.*;
@@ -95,13 +99,70 @@ public class TridentWorld implements World {
     private volatile boolean raining;
     private volatile boolean thundering;
 
+    private boolean generateStructures = true;
+    private Set<String> gameRules = Factory.newSet();
+    private final WeatherConditions conditions = new WeatherConditions() {
+        @Override
+        public boolean isRaining() {
+            return raining;
+        }
+
+        @Override
+        public int rainTime() {
+            return rainTime.get();
+        }
+
+        @Override
+        public void toggleRain(int ticks) {
+            rainTime.set(ticks);
+        }
+
+        @Override
+        public boolean isThundering() {
+            return thundering;
+        }
+
+        @Override
+        public int thunderTime() {
+            return thunderTime.get();
+        }
+
+        @Override
+        public void toggleThunder(int ticks) {
+            thunderTime.set(ticks);
+        }
+    };
+    private final WorldBorder border = new WorldBorder() {
+        @Override
+        public double borderSize() {
+            return 0;
+        }
+
+        @Override
+        public Position borderCenter() {
+            return spawnPosition;
+        }
+
+        @Override
+        public int borderSizeContraction() {
+            return 0;
+        }
+
+        @Override
+        public int borderSizeContractionTime() {
+            return 0;
+        }
+    };
+
     private TridentWorld(String name, WorldLoader loader, boolean throwaway) {
+        ((TridentWorldLoader) loader).world = this;
         this.name = name;
         this.loader = loader;
         this.spawnPosition = Position.create(this, 0, 0, 0);
     }
 
     TridentWorld(String name, WorldLoader loader) {
+        ((TridentWorldLoader) loader).world = this;
         this.name = name;
         this.loader = loader;
         this.spawnPosition = Position.create(this, 0, 0, 0);
@@ -145,7 +206,7 @@ public class TridentWorld implements World {
         spawnPosition.setZ(((IntTag) level.getTag("SpawnZ")).value());
 
         dimension = Dimension.OVERWORLD;
-        // difficulty = Difficulty.difficultyOf(((IntTag) level.getTag("Difficulty")).value()); from tests does
+        // difficulty = Difficulty.of(((IntTag) level.getTag("Difficulty")).value()); from tests does
         // not exist
         difficulty = Difficulty.NORMAL;
         defaultGamemode = GameMode.of(((IntTag) level.getTag("GameType")).value());
@@ -214,7 +275,7 @@ public class TridentWorld implements World {
 
             world = new TridentWorld(name, loader, false);
             world.dimension = Dimension.OVERWORLD;
-            // difficulty = Difficulty.difficultyOf(((IntTag) level.getTag("Difficulty")).value());
+            // difficulty = Difficulty.of(((IntTag) level.getTag("Difficulty")).value());
             // from tests does not exist
             world.difficulty = Difficulty.NORMAL;
             world.defaultGamemode = GameMode.SURVIVAL;
@@ -427,8 +488,8 @@ public class TridentWorld implements World {
         TridentChunk tChunk = this.chunkAt(location, false);
 
         if (tChunk == null) {
-            if (this.loader.chunkExists(this, x, z)) {
-                Chunk c = this.loader.loadChunk(this, x, z);
+            if (this.loader.chunkExists(x, z)) {
+                Chunk c = this.loader.loadChunk(x, z);
                 if (c != null) {
                     this.addChunkAt(location, c);
                     return (TridentChunk) c;
@@ -476,8 +537,26 @@ public class TridentWorld implements World {
     }
 
     @Override
-    public GameMode defaultGamemode() {
+    public void setDifficulty(Difficulty difficulty) {
+        this.difficulty = difficulty;
+
+        PacketPlayOutServerDifficulty d = new PacketPlayOutServerDifficulty();
+        d.set("difficulty", d);
+        TridentPlayer.sendFiltered(d, p -> p.world().equals(this));
+    }
+
+    @Override
+    public GameMode defaultGameMode() {
         return defaultGamemode;
+    }
+
+    @Override
+    public void setGameMode(GameMode gameMode) {
+        this.defaultGamemode = gameMode;
+
+        PacketPlayOutGameStateChange change = new PacketPlayOutGameStateChange();
+        change.set("reason", 3).set("value", (float) gameMode.asByte());
+        TridentPlayer.sendFiltered(change, p -> p.world().equals(this));
     }
 
     @Override
@@ -496,63 +575,38 @@ public class TridentWorld implements World {
     }
 
     @Override
+    public WeatherConditions weather() {
+        return conditions;
+    }
+
+    @Override
+    public WorldBorder border() {
+        return null;
+    }
+
+    @Override
     public Dimension dimension() {
         return dimension;
     }
 
     @Override
     public boolean isRule(String rule) {
-        return false;
+        return gameRules.contains(rule);
+    }
+
+    @Override
+    public Set<String> gameRules() {
+        return gameRules;
+    }
+
+    @Override
+    public boolean generateStructures() {
+        return generateStructures;
     }
 
     @Override
     public long time() {
         return time.get();
-    }
-
-    @Override
-    public boolean isRaining() {
-        return raining;
-    }
-
-    @Override
-    public int rainTime() {
-        return rainTime.get();
-    }
-
-    @Override
-    public boolean isThundering() {
-        return thundering;
-    }
-
-    @Override
-    public int thunderTime() {
-        return thunderTime.get();
-    }
-
-    @Override
-    public boolean generateStructures() {
-        return false;
-    }
-
-    @Override
-    public double borderSize() {
-        return borderSize;
-    }
-
-    @Override
-    public Position borderCenter() {
-        return null;
-    }
-
-    @Override
-    public int borderSizeContraction() {
-        return 0;
-    }
-
-    @Override
-    public int borderSizeContractionTime() {
-        return 0;
     }
 
     @Override

@@ -20,8 +20,8 @@ package net.tridentsdk.server.data;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import net.tridentsdk.base.Substance;
+import net.tridentsdk.inventory.inventory.Item;
 import net.tridentsdk.meta.nbt.*;
-import net.tridentsdk.window.inventory.Item;
 
 public class Slot implements Writable, NBTSerializable {
     @NBTField(name = "id", type = TagType.SHORT)

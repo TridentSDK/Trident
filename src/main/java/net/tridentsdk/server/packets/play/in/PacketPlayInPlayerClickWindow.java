@@ -19,20 +19,20 @@ package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.event.player.PlayerClickItemEvent;
+import net.tridentsdk.inventory.Inventory;
 import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.data.Slot;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
-import net.tridentsdk.window.Inventory;
 
 /**
- * Packet sent by the player when it clicks on a slot in a window.
+ * Packet sent by the player when it clicks on a slot in a inventory.
  */
 public class PacketPlayInPlayerClickWindow extends InPacket {
 
     /**
-     * The id of the window which was clicked. 0 for player window.
+     * The id of the inventory which was clicked. 0 for player inventory.
      */
     protected int windowId;
     /**

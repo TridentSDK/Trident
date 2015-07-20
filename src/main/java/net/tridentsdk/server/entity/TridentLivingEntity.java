@@ -18,12 +18,12 @@
 package net.tridentsdk.server.entity;
 
 import com.google.common.util.concurrent.AtomicDouble;
-import net.tridentsdk.Position;
-import net.tridentsdk.Trident;
+import net.tridentsdk.base.Position;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.LivingEntity;
 import net.tridentsdk.entity.Projectile;
 import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.entity.living.ai.AiHandler;
 import net.tridentsdk.entity.living.ai.AiModule;
 import net.tridentsdk.entity.living.ai.Path;
 import net.tridentsdk.entity.traits.EntityProperties;
@@ -31,6 +31,7 @@ import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.meta.nbt.*;
 import net.tridentsdk.server.data.MetadataType;
 import net.tridentsdk.server.data.ProtocolMetadata;
+import net.tridentsdk.server.entity.living.ai.TridentAiHandler;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutDestroyEntities;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutSpawnMob;
 import net.tridentsdk.server.player.TridentPlayer;
@@ -159,10 +160,16 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
     public AiModule aiModule() {
         AiModule module = this.ai;
         if (module == null) {
-            return Trident.instance().aiHandler().defaultAiFor(type());
+            return aiHandler().defaultAiFor(type());
         } else {
             return module;
         }
+    }
+
+    private static final AiHandler AI_HANDLER = new TridentAiHandler();
+
+    public static AiHandler aiHandler() {
+        return AI_HANDLER;
     }
 
     @Override

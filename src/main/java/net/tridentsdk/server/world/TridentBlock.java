@@ -17,8 +17,8 @@
 
 package net.tridentsdk.server.world;
 
-import net.tridentsdk.Position;
 import net.tridentsdk.base.Block;
+import net.tridentsdk.base.Position;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutBlockChange;

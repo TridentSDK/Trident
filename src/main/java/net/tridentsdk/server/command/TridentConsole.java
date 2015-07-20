@@ -17,7 +17,8 @@
 
 package net.tridentsdk.server.command;
 
-import net.tridentsdk.plugin.cmd.ServerConsole;
+import net.tridentsdk.ServerConsole;
+import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.registry.Registered;
 import net.tridentsdk.util.TridentLogger;
 
@@ -40,6 +41,11 @@ public class TridentConsole implements ServerConsole {
     public boolean isOperator() {
         // console is always OP
         return true;
+    }
+
+    @Override
+    public Player asPlayer() {
+        return null;
     }
 
     @Override

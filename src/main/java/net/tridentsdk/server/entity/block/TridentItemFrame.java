@@ -17,13 +17,12 @@
 
 package net.tridentsdk.server.entity.block;
 
-import net.tridentsdk.Position;
 import net.tridentsdk.base.Block;
-import net.tridentsdk.entity.traits.EntityProperties;
-import net.tridentsdk.entity.types.EntityType;
+import net.tridentsdk.base.Position;
 import net.tridentsdk.entity.block.ItemFrame;
+import net.tridentsdk.entity.types.EntityType;
+import net.tridentsdk.inventory.inventory.Item;
 import net.tridentsdk.server.entity.TridentEntity;
-import net.tridentsdk.window.inventory.Item;
 
 import java.util.UUID;
 

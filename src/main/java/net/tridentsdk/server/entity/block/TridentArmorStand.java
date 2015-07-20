@@ -17,18 +17,18 @@
 
 package net.tridentsdk.server.entity.block;
 
-import net.tridentsdk.Position;
+import net.tridentsdk.base.Position;
 import net.tridentsdk.entity.Entity;
-import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.entity.block.ArmorStand;
 import net.tridentsdk.entity.block.SlotProperties;
 import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.event.entity.EntityDamageEvent;
+import net.tridentsdk.inventory.inventory.Item;
 import net.tridentsdk.server.data.MetadataType;
 import net.tridentsdk.server.data.ProtocolMetadata;
 import net.tridentsdk.server.entity.TridentLivingEntity;
 import net.tridentsdk.util.PartRotation;
-import net.tridentsdk.window.inventory.Item;
 
 import java.util.UUID;
 

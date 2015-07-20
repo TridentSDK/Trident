@@ -18,15 +18,15 @@
 package net.tridentsdk.server.player;
 
 
-import net.tridentsdk.GameMode;
-import net.tridentsdk.Position;
 import net.tridentsdk.Trident;
+import net.tridentsdk.base.Position;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.Projectile;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.entity.traits.EntityProperties;
 import net.tridentsdk.entity.traits.PlayerSpeed;
 import net.tridentsdk.event.entity.EntityDamageEvent;
+import net.tridentsdk.inventory.Inventory;
 import net.tridentsdk.meta.nbt.*;
 import net.tridentsdk.registry.Factory;
 import net.tridentsdk.server.TridentServer;
@@ -35,9 +35,9 @@ import net.tridentsdk.server.entity.TridentInventoryHolder;
 import net.tridentsdk.server.window.TridentInventory;
 import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.util.TridentLogger;
-import net.tridentsdk.window.Inventory;
-import net.tridentsdk.world.Dimension;
 import net.tridentsdk.world.World;
+import net.tridentsdk.world.settings.Dimension;
+import net.tridentsdk.world.settings.GameMode;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Locale;
@@ -144,7 +144,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
         for (NBTTag t : ((ListTag) tag.getTag("Inventory")).listTags()) {
             Slot slot = NBTSerializer.deserialize(Slot.class, (CompoundTag) t);
 
-            //window.setSlot(slot.getSlot(), slot.toItemStack());
+            //inventory.setSlot(slot.getSlot(), slot.toItemStack());
         }
 
         for (NBTTag t : ((ListTag) tag.getTag("EnderItems")).listTags()) {
@@ -291,6 +291,11 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     }
 
     @Override
+    public Player asPlayer() {
+        return null;
+    }
+
+    @Override
     public void hide(Entity entity) {
         TridentLogger.error(new UnsupportedOperationException("You cannot hide an entity from an OfflinePlayer!"));
     }
@@ -388,7 +393,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
 
         ListTag inventoryTag = new ListTag("Inventory", TagType.COMPOUND);
 
-        /*for (ItemStack is : window.items()) {
+        /*for (ItemStack is : inventory.items()) {
             inventoryTag.addTag(NBTSerializer.serialize(new Slot(is)));
         }*/
 

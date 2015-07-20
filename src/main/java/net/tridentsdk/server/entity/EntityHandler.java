@@ -17,8 +17,8 @@
 
 package net.tridentsdk.server.entity;
 
-import net.tridentsdk.Position;
 import net.tridentsdk.Trident;
+import net.tridentsdk.base.Position;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.server.player.TridentPlayer;

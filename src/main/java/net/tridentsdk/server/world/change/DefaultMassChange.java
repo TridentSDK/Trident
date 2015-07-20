@@ -16,7 +16,7 @@
  */
 package net.tridentsdk.server.world.change;
 
-import net.tridentsdk.Position;
+import net.tridentsdk.base.Position;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.server.data.RecordBuilder;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutMultiBlockChange;

@@ -16,7 +16,7 @@
  */
 package net.tridentsdk.server.entity;
 
-import net.tridentsdk.Position;
+import net.tridentsdk.base.Position;
 import net.tridentsdk.entity.Firework;
 import net.tridentsdk.entity.traits.FireworkProperties;
 import net.tridentsdk.entity.types.EntityType;

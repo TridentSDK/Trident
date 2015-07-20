@@ -25,7 +25,7 @@ import net.tridentsdk.server.netty.packet.Packet;
 public class PacketPlayInPlayerEnchant extends InPacket {
 
     /**
-     * The position of the enchantment on the enchantment table window, starting with 0 as the topmost one
+     * The position of the enchantment on the enchantment table inventory, starting with 0 as the topmost one
      */
     protected byte enchantment;
 
@@ -36,7 +36,7 @@ public class PacketPlayInPlayerEnchant extends InPacket {
 
     @Override
     public Packet decode(ByteBuf buf) {
-        buf.readByte(); // ignore window id, we'd already know
+        buf.readByte(); // ignore inventory id, we'd already know
         this.enchantment = buf.readByte();
 
         return this;

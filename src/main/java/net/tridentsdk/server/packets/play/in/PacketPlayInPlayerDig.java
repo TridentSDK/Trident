@@ -18,15 +18,15 @@
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.GameMode;
-import net.tridentsdk.Position;
 import net.tridentsdk.base.Block;
 import net.tridentsdk.base.BlockOrientation;
+import net.tridentsdk.base.Position;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.event.Cancellable;
 import net.tridentsdk.event.Event;
 import net.tridentsdk.event.block.BlockBreakEvent;
 import net.tridentsdk.event.player.*;
+import net.tridentsdk.inventory.inventory.Item;
 import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
@@ -38,7 +38,7 @@ import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.world.TridentChunk;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.util.Vector;
-import net.tridentsdk.window.inventory.Item;
+import net.tridentsdk.world.settings.GameMode;
 
 public class PacketPlayInPlayerDig extends InPacket {
     private short status;

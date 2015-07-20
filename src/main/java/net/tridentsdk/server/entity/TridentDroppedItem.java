@@ -16,7 +16,7 @@
  */
 package net.tridentsdk.server.entity;
 
-import net.tridentsdk.Position;
+import net.tridentsdk.base.Position;
 import net.tridentsdk.entity.DroppedItem;
 import net.tridentsdk.entity.types.EntityType;
 

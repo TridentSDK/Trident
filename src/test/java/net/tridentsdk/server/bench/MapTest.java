@@ -17,7 +17,7 @@
 package net.tridentsdk.server.bench;
 
 import com.google.common.collect.Sets;
-import net.tridentsdk.Position;
+import net.tridentsdk.base.Position;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.traits.EntityProperties;
 import net.tridentsdk.entity.types.EntityType;

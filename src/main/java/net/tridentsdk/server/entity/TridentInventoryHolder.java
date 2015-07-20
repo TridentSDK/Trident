@@ -17,8 +17,10 @@
 
 package net.tridentsdk.server.entity;
 
-import net.tridentsdk.Position;
+import net.tridentsdk.base.Position;
 import net.tridentsdk.entity.traits.WindowHolder;
+import net.tridentsdk.inventory.Inventory;
+import net.tridentsdk.inventory.inventory.Item;
 import net.tridentsdk.meta.nbt.CompoundTag;
 import net.tridentsdk.meta.nbt.ListTag;
 import net.tridentsdk.meta.nbt.NBTSerializer;
@@ -26,13 +28,11 @@ import net.tridentsdk.meta.nbt.NBTTag;
 import net.tridentsdk.server.data.Slot;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutEntityEquipment;
 import net.tridentsdk.server.player.TridentPlayer;
-import net.tridentsdk.window.Inventory;
-import net.tridentsdk.window.inventory.Item;
 
 import java.util.UUID;
 
 /**
- * An entity that is able to hold an window
+ * An entity that is able to hold an inventory
  *
  * @author The TridentSDK Team
  */

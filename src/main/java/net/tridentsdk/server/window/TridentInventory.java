@@ -19,6 +19,9 @@ package net.tridentsdk.server.window;
 
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.inventory.Inventory;
+import net.tridentsdk.inventory.inventory.InventoryType;
+import net.tridentsdk.inventory.inventory.Item;
 import net.tridentsdk.registry.Factory;
 import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.data.Slot;
@@ -29,9 +32,6 @@ import net.tridentsdk.server.packets.play.out.PacketPlayOutOpenWindow;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutSetSlot;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.util.WeakEntity;
-import net.tridentsdk.window.Inventory;
-import net.tridentsdk.window.inventory.InventoryType;
-import net.tridentsdk.window.inventory.Item;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Set;
@@ -39,14 +39,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 
 /**
- * An window window, wherever and whatever is holding it or having it open
+ * An inventory inventory, wherever and whatever is holding it or having it open
  *
  * @author The TridentSDK Team
  */
 @ThreadSafe
 public class TridentInventory implements Inventory {
     /**
-     * Counter for window ids, initial value is 2 to avoid confusion with a window and a player window
+     * Counter for inventory ids, initial value is 2 to avoid confusion with a inventory and a player inventory
      */
     private static final AtomicInteger counter = new AtomicInteger(2);
 
@@ -58,10 +58,10 @@ public class TridentInventory implements Inventory {
     private final AtomicReferenceArray<Item> contents;
 
     /**
-     * Builds a new window window
+     * Builds a new inventory inventory
      *
-     * @param name   the title of the window
-     * @param length the amount of slots in the window (should be multiple of 9)
+     * @param name   the title of the inventory
+     * @param length the amount of slots in the inventory (should be multiple of 9)
      */
     private TridentInventory(String name, int length, InventoryType type) {
         this.name = name;
@@ -76,9 +76,9 @@ public class TridentInventory implements Inventory {
     }
 
     /**
-     * Builds a new window window
+     * Builds a new inventory inventory
      *
-     * @param length the amount of slots in the window (should be multiple of 9)
+     * @param length the amount of slots in the inventory (should be multiple of 9)
      */
     public TridentInventory(int length) {
         this("", length, InventoryType.CHEST);

@@ -18,6 +18,8 @@
 package net.tridentsdk.server.world;
 
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import net.tridentsdk.Trident;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.server.world.gen.DefaultWorldGen;
@@ -27,6 +29,10 @@ import net.tridentsdk.world.ChunkLocation;
 import net.tridentsdk.world.World;
 import net.tridentsdk.world.WorldLoader;
 import net.tridentsdk.world.gen.AbstractGenerator;
+import net.tridentsdk.world.settings.Difficulty;
+import net.tridentsdk.world.settings.Dimension;
+import net.tridentsdk.world.settings.GameMode;
+import net.tridentsdk.world.settings.LevelType;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,7 +42,9 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -51,6 +59,7 @@ public class TridentWorldLoader implements WorldLoader {
 
     private final Class<? extends AbstractGenerator> generatorClass;
     private volatile AbstractGenerator generator;
+    volatile TridentWorld world;
 
     public TridentWorldLoader(Class<? extends AbstractGenerator> generator) {
         this.generatorClass = generator;
@@ -131,6 +140,9 @@ public class TridentWorldLoader implements WorldLoader {
 
     @Override
     public World load(String world) {
+        checkNull();
+
+        // TODO load world settings
         TridentWorld w = new TridentWorld(world, this);
         WORLDS.put(world, w);
 
@@ -138,21 +150,23 @@ public class TridentWorldLoader implements WorldLoader {
     }
 
     @Override
-    public void save(World world) {
-        TridentWorld w = (TridentWorld) world;
-
-        w.loadedChunks().forEach(this::saveChunk);
+    public void save() {
+        checkNotNull();
+        world.loadedChunks().forEach(this::saveChunk);
         // TODO save player and entity data
         // consider saving the STATE instead
     }
 
     @Override
     public World createWorld(String name) {
-        if (worldExists(name)) {
+        if (WorldLoader.worldExists(name)) {
             TridentLogger.error(new IllegalArgumentException("Cannot create a duplicate world name"));
             return null;
         }
 
+        checkNull();
+
+        // TODO load world settings
         TridentWorld world = TridentWorld.createWorld(name, this);
         WORLDS.put(name, world);
 
@@ -160,39 +174,31 @@ public class TridentWorldLoader implements WorldLoader {
     }
 
     @Override
-    public boolean worldExists(String world) {
-        return WORLDS.containsKey(world);
-    }
-
-    @Override
-    public boolean chunkExists(World world, int x, int z) {
+    public boolean chunkExists(int x, int z) {
+        checkNotNull();
         return new File(world.name() + "/region/", WorldUtils.regionFile(x, z)).exists();
     }
 
     @Override
-    public boolean chunkExists(World world, ChunkLocation location) {
-        return this.chunkExists(world, location.x(), location.z());
+    public boolean chunkExists(ChunkLocation location) {
+        return this.chunkExists(location.x(), location.z());
     }
 
     @Override
-    public Chunk loadChunk(World world, int x, int z) {
-        return this.loadChunk(world, ChunkLocation.create(x, z));
+    public Chunk loadChunk(int x, int z) {
+        return this.loadChunk(ChunkLocation.create(x, z));
     }
 
     @Override
-    public TridentChunk loadChunk(World world, ChunkLocation location) {
-        return RegionFile.fromPath(world.name(), location).loadChunkData((TridentWorld) world, location);
+    public TridentChunk loadChunk(ChunkLocation location) {
+        checkNotNull();
+        return RegionFile.fromPath(world.name(), location).loadChunkData(world, location);
     }
 
     @Override
     public void saveChunk(Chunk chunk) {
         RegionFile.fromPath(chunk.world().name(), chunk.location())
                 .saveChunkData((TridentChunk) chunk);
-    }
-
-    @Override
-    public AbstractGenerator generator() {
-        return generator;
     }
 
     public void setGenerator(long seed) {
@@ -213,5 +219,123 @@ public class TridentWorldLoader implements WorldLoader {
         }
 
         this.generator = gen;
+    }
+
+    @Override
+    public AbstractGenerator generator() {
+        return generator;
+    }
+
+    private Dimension dimension = Dimension.OVERWORLD;
+    private Difficulty difficulty = Difficulty.PEACEFUL;
+    private GameMode gameMode = GameMode.SURVIVAL;
+    private LevelType levelType = LevelType.DEFAULT;
+    private List<String> rules = Lists.newArrayList();
+    private boolean structures = true;
+
+    @Override
+    public WorldLoader dimension(Dimension dimension) {
+        checkNull();
+        this.dimension = dimension;
+        return this;
+    }
+
+    @Override
+    public WorldLoader difficulty(Difficulty difficulty) {
+        checkNull();
+        this.difficulty = difficulty;
+        return this;
+    }
+
+    @Override
+    public WorldLoader gameMode(GameMode gameMode) {
+        checkNull();
+        this.gameMode = gameMode;
+        return this;
+    }
+
+    @Override
+    public WorldLoader level(LevelType levelType) {
+        checkNull();
+        this.levelType = levelType;
+        return this;
+    }
+
+    @Override
+    public WorldLoader rule(String... rules) {
+        checkNull();
+        for (String s : rules) this.rules.add(s);
+        return this;
+    }
+
+    @Override
+    public WorldLoader structures(boolean gen) {
+        checkNull();
+        this.structures = gen;
+        return this;
+    }
+
+    //////////////////////////////// DELEGATES
+
+    @Override
+    public Dimension dimension() {
+        checkNotNull();
+        return world.dimension();
+    }
+
+    @Override
+    public Difficulty difficulty() {
+        checkNotNull();
+        return world.difficulty();
+    }
+
+    @Override
+    public void setDifficulty(Difficulty difficulty) {
+        checkNotNull();
+        world.setDifficulty(difficulty);
+    }
+
+    @Override
+    public GameMode defaultGameMode() {
+        checkNotNull();
+        return world.defaultGameMode();
+    }
+
+    @Override
+    public void setGameMode(GameMode gameMode) {
+        checkNotNull();
+        world.setGameMode(gameMode);
+    }
+
+    @Override
+    public LevelType levelType() {
+        checkNotNull();
+        return world.levelType();
+    }
+
+    @Override
+    public boolean isRule(String rule) {
+        checkNotNull();
+        return world.isRule(rule);
+    }
+
+    @Override
+    public Set<String> gameRules() {
+        checkNotNull();
+        return world.gameRules();
+    }
+
+    @Override
+    public boolean generateStructures() {
+        checkNotNull();
+        return world.generateStructures();
+    }
+
+    private void checkNotNull() {
+        Preconditions.checkNotNull(world, "This world loader does not have a loaded world");
+    }
+
+    private void checkNull() {
+        Preconditions.checkArgument(world == null, "The current world must be null");
     }
 }

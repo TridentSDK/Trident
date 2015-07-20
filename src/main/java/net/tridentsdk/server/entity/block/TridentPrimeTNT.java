@@ -17,9 +17,9 @@
 
 package net.tridentsdk.server.entity.block;
 
-import net.tridentsdk.Position;
 import net.tridentsdk.base.Audio;
 import net.tridentsdk.base.Block;
+import net.tridentsdk.base.Position;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.entity.block.PrimeTNT;
 import net.tridentsdk.entity.types.EntityType;

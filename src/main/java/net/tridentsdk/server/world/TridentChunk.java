@@ -19,8 +19,8 @@ package net.tridentsdk.server.world;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
-import net.tridentsdk.Position;
 import net.tridentsdk.base.Block;
+import net.tridentsdk.base.Position;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.concurrent.SelectableThread;
 import net.tridentsdk.entity.Entity;

@@ -16,15 +16,15 @@
  */
 package net.tridentsdk.server.entity.living;
 
-import net.tridentsdk.Position;
+import net.tridentsdk.base.Position;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.entity.living.Villager;
 import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.entity.types.VillagerCareer;
 import net.tridentsdk.entity.types.VillagerProfession;
 import net.tridentsdk.event.entity.EntityDamageEvent;
+import net.tridentsdk.inventory.trade.Trade;
 import net.tridentsdk.server.entity.TridentLivingEntity;
-import net.tridentsdk.window.trade.Trade;
 
 import java.util.Collection;
 import java.util.UUID;

@@ -17,7 +17,7 @@
 
 package net.tridentsdk.server.entity.living;
 
-import net.tridentsdk.Position;
+import net.tridentsdk.base.Position;
 import net.tridentsdk.entity.living.Chicken;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.entity.types.EntityType;

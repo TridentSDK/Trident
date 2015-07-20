@@ -19,8 +19,8 @@ package net.tridentsdk.server.window;
 
 import com.google.common.collect.ForwardingCollection;
 import com.google.common.collect.ImmutableList;
-import net.tridentsdk.window.Inventories;
-import net.tridentsdk.window.Inventory;
+import net.tridentsdk.inventory.Inventories;
+import net.tridentsdk.inventory.Inventory;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Collection;
@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Manages the window windows on the server, whether being viewed or not
+ * Manages the inventory windows on the server, whether being viewed or not
  *
  * @author The TridentSDK Team
  */

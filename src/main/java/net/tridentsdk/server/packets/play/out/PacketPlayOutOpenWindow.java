@@ -19,9 +19,9 @@ package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.docs.Volatile;
+import net.tridentsdk.inventory.inventory.InventoryType;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
-import net.tridentsdk.window.inventory.InventoryType;
 
 @Volatile(policy = "Do not instantiate", reason = "Only used in TridentInventory.java", fix = "Use the Inventory instead")
 public class PacketPlayOutOpenWindow extends OutPacket {

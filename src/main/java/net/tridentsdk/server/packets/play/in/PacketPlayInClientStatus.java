@@ -34,7 +34,7 @@ import net.tridentsdk.world.World;
 public class PacketPlayInClientStatus extends InPacket {
 
     /**
-     * Action ID values:  0 - Perform Respawn 1 - Request statistics 2 - Open window acheivement
+     * Action ID values:  0 - Perform Respawn 1 - Request statistics 2 - Open inventory acheivement
      */
     protected short actionId;
 
@@ -66,7 +66,7 @@ public class PacketPlayInClientStatus extends InPacket {
 
                 respawn.set("dimension", (int) world.dimension().asByte())
                         .set("difficulity", (int) world.difficulty().asByte())
-                        .set("gameMode", (int) world.defaultGamemode().asByte()
+                        .set("gameMode", (int) world.defaultGameMode().asByte()
                         /* todo make this specific to the player */);
 
                 connection.sendPacket(respawn);

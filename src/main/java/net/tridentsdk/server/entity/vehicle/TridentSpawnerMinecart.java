@@ -16,8 +16,8 @@
  */
 package net.tridentsdk.server.entity.vehicle;
 
-import net.tridentsdk.Position;
 import net.tridentsdk.base.BlockSnapshot;
+import net.tridentsdk.base.Position;
 import net.tridentsdk.entity.traits.EntityProperties;
 import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.entity.vehicle.SpawnerMinecart;

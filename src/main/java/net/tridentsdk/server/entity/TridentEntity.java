@@ -18,14 +18,14 @@
 package net.tridentsdk.server.entity;
 
 import com.google.common.util.concurrent.AtomicDouble;
-import net.tridentsdk.Position;
+import net.tridentsdk.base.Position;
 import net.tridentsdk.base.Substance;
+import net.tridentsdk.concurrent.SelectableThreadPool;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.docs.PossiblyThreadSafe;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.traits.EntityProperties;
 import net.tridentsdk.entity.types.EntityType;
-import net.tridentsdk.concurrent.SelectableThreadPool;
 import net.tridentsdk.meta.nbt.*;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.data.MetadataType;

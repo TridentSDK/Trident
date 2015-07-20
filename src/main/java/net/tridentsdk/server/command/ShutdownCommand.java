@@ -17,10 +17,10 @@
 
 package net.tridentsdk.server.command;
 
+import net.tridentsdk.ServerConsole;
 import net.tridentsdk.Trident;
 import net.tridentsdk.plugin.annotation.CommandDescription;
 import net.tridentsdk.plugin.cmd.Command;
-import net.tridentsdk.plugin.cmd.ServerConsole;
 
 @CommandDescription(name = "shutdown", permission = "trident.shutdown", aliases = "stop", priority = 0)
 class ShutdownCommand extends Command {

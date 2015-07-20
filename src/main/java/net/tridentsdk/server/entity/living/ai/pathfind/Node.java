@@ -17,7 +17,7 @@
 
 package net.tridentsdk.server.entity.living.ai.pathfind;
 
-import net.tridentsdk.Position;
+import net.tridentsdk.base.Position;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
