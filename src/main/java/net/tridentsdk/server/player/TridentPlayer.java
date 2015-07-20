@@ -405,6 +405,7 @@ public class TridentPlayer extends OfflinePlayer {
 
     @Override
     public void sendMessage(String message) {
+        // fixme
         new MessageBuilder(message)
                 .build()
                 .sendTo(this);

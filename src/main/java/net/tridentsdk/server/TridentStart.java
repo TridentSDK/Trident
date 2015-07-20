@@ -36,6 +36,7 @@ import net.tridentsdk.config.Config;
 import net.tridentsdk.docs.Volatile;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.inventory.Inventories;
+import net.tridentsdk.plugin.Plugins;
 import net.tridentsdk.plugin.channel.PluginChannels;
 import net.tridentsdk.registry.Factory;
 import net.tridentsdk.registry.Implementation;
@@ -49,7 +50,9 @@ import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
 import net.tridentsdk.server.window.TridentInventories;
 import net.tridentsdk.server.world.TridentWorldLoader;
+import net.tridentsdk.server.world.change.DefaultMassChange;
 import net.tridentsdk.util.TridentLogger;
+import net.tridentsdk.world.MassChange;
 import net.tridentsdk.world.World;
 import net.tridentsdk.world.WorldLoader;
 import net.tridentsdk.world.gen.AbstractGenerator;
@@ -202,6 +205,11 @@ public final class TridentStart {
                 }
 
                 @Override
+                public MassChange newMc(World world) {
+                    return new DefaultMassChange(world);
+                }
+
+                @Override
                 public Map<String, World> worlds() {
                     return ImmutableMap.copyOf(TridentWorldLoader.WORLDS);
                 }
@@ -231,14 +239,7 @@ public final class TridentStart {
 
             TridentLogger.success("Loaded API implementations.");
 
-            TridentLogger.log("Creating server...");
-            TridentServer.createServer(config);
-            TridentLogger.success("Server created.");
-
-            TridentLogger.log("Setting server commands...");
-            ServerCommandRegistrar.registerAll();
-            TridentLogger.success("Server commands set.");
-
+            // Required before loading worlds to find all class files in case the plugin has a world generator
             TridentLogger.log("Loading plugins...");
             File fi = new File(System.getProperty("user.dir") + File.separator + "plugins");
             if (!fi.exists())
@@ -247,6 +248,19 @@ public final class TridentStart {
             for (File file : new File(System.getProperty("user.dir") + File.separator + "plugins").listFiles())
                 Registered.plugins().load(file);
             TridentLogger.success("Loaded plugins.");
+
+            TridentLogger.log("Creating server...");
+            TridentServer.createServer(config);
+            TridentLogger.success("Server created.");
+
+            TridentLogger.log("Setting server commands...");
+            ServerCommandRegistrar.registerAll();
+            TridentLogger.success("Server commands set.");
+
+            TridentLogger.log("Enabling plugins...");
+            Plugins handler = Registered.plugins();
+            handler.forEach(handler::enable);
+            TridentLogger.success("Enabled plugins.");
 
             ////////////////////////////////// NETTY SETUP //////////////////////////////////////////
 

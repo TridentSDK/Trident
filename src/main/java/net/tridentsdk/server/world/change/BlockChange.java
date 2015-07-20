@@ -27,7 +27,6 @@ import com.google.code.tempusfugit.concurrency.annotations.ThreadSafe;
  */
 @ThreadSafe
 public class BlockChange {
-
     private final int x;
     private final int y;
     private final int z;
@@ -63,5 +62,4 @@ public class BlockChange {
     public byte id() {
         return id;
     }
-
 }

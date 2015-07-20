@@ -25,7 +25,7 @@ import net.tridentsdk.server.world.TridentChunk;
 import net.tridentsdk.server.world.WorldUtils;
 import net.tridentsdk.world.ChunkLocation;
 import net.tridentsdk.world.World;
-import net.tridentsdk.world.change.MassChange;
+import net.tridentsdk.world.MassChange;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import java.util.*;
@@ -47,11 +47,8 @@ import java.util.*;
  */
 @NotThreadSafe
 public class DefaultMassChange implements MassChange {
-
     private final World world;
-
     private boolean committed = false;
-
     private List<BlockChange> changes = new LinkedList<>();
 
     public DefaultMassChange(World world) {
