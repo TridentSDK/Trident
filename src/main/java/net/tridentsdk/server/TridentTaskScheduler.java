@@ -184,7 +184,7 @@ public class TridentTaskScheduler extends ForwardingCollection<ScheduledTask> im
             this.interval = step;
 
             if (type.name().contains("ASYNC")) {
-                this.executor = taskExecutor.selectScaled();
+                this.executor = taskExecutor.selectCore();
                 if (!type.name().contains("REPEAT")) {
                     this.runner = () -> {
                         runnable.beforeRun();

@@ -19,8 +19,8 @@ package net.tridentsdk.server.threads;
 
 import com.google.common.collect.Lists;
 import net.tridentsdk.concurrent.SelectableThread;
-import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.concurrent.SelectableThreadPool;
+import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.registry.Factory;
 
 import javax.annotation.Nonnull;
@@ -45,7 +45,7 @@ import java.util.concurrent.locks.StampedLock;
  * <p>This thread pool always maintains the starting threads. Scaling is done once the current workers are occupied at
  * the time of observation. Workers are deemed as occupied if threads are in the process of attempting insertion into
  * the worker's internal queue. Workers are managed by native park and unparking, rather than using conditions. This
- * provides numerous advantages, which include reduced overhead, as it is native, and is not bound to a particular lock.
+ * provides numerous advantages, which include reduced overhead, as it is native, and is not bound to a particular scaleLock.
  * Additionally, native thread scheduling provides for more control over basic thread stopping, rather than using the
  * thread queue of a condition, or default guarding intrinsics.</p>
  * 
@@ -53,11 +53,11 @@ import java.util.concurrent.locks.StampedLock;
  * both StampedLocks, which provide increased throughput (in fact, is the primary motivator for creating this class).
  * In place of this class can be instead, a ThreadPoolExecutor. However, many new concurrent updates in Java 8
  * rationalize an effort to create a new class which fully utilizes those features, and subsequently providing this
- * class which is optimized to execute the heterogeneous tasks provided by the server. The first lock protects the
- * index which to pull workers from the worker Set, and a separate lock, per-worker, protects the internal Deque. A
+ * class which is optimized to execute the heterogeneous tasks provided by the server. The first scaleLock protects the
+ * index which to pull workers from the worker Set, and a separate scaleLock, per-worker, protects the internal Deque. A
  * Deque was selected as it can be inserted from both ends, sizable, and is array-based. Tests confirm that array
  * based collections do outperform their node-based counter parts, as there is reduced instantiation overhead. The
- * explicitly declared lock allows to check occupation of the worker, which increases scalability.</p>
+ * explicitly declared scaleLock allows to check occupation of the worker, which increases scalability.</p>
  * 
  * <p>No thread pool would be complete without tuning. This class provides 3 basic tuning properties, which modify
  * <em>expiring threads</em>. Expiring threads are new threads are those created to scale the executor. They are
@@ -80,10 +80,15 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements S
 
     private final List<SelectableThread> workerSet = Lists.newCopyOnWriteArrayList();
     private final AtomicInteger count = new AtomicInteger();
+    private final int core;
 
-    @GuardedBy("lock")
+    @GuardedBy("coreLock")
+    private int coreIdx = 0;
+    private final StampedLock coreLock = new StampedLock();
+
+    @GuardedBy("scaleLock")
     private int scaleIdx = 0;
-    private final StampedLock lock = new StampedLock();
+    private final StampedLock scaleLock = new StampedLock();
 
     private volatile int state = INITIALIZING;
 
@@ -123,6 +128,7 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements S
 
     private ConcurrentTaskExecutor(int startingThreadCount, String name) {
         this.name = name;
+        this.core = startingThreadCount;
 
         state = STARTING;
         for (int i = 0; i < startingThreadCount; i++) {
@@ -161,32 +167,65 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements S
     }
 
     @Override
-    public SelectableThread selectNext() {
+    public SelectableThread selectCore() {
         int count;
-        int max = this.workerSet.size();
+        int max = this.core - 1;
 
-        long stamp = lock.readLock();
+        long stamp = coreLock.readLock();
         try {
-            count = this.scaleIdx;
+            count = this.coreIdx;
         } finally {
-            lock.unlockRead(stamp);
+            coreLock.unlockRead(stamp);
         }
 
         if (count >= max) {
             count = 0;
 
-            stamp = lock.writeLock();
+            stamp = coreLock.writeLock();
+            try {
+                this.coreIdx = 0;
+            } finally {
+                coreLock.unlockWrite(stamp);
+            }
+        } else {
+            stamp = coreLock.writeLock();
+            try {
+                coreIdx++;
+            } finally {
+                coreLock.unlockWrite(stamp);
+            }
+        }
+
+        return workerSet.get(count);
+    }
+
+    @Override
+    public SelectableThread selectNext() {
+        int count;
+        int max = this.workerSet.size();
+
+        long stamp = scaleLock.readLock();
+        try {
+            count = this.scaleIdx;
+        } finally {
+            scaleLock.unlockRead(stamp);
+        }
+
+        if (count >= max) {
+            count = 0;
+
+            stamp = scaleLock.writeLock();
             try {
                 this.scaleIdx = 0;
             } finally {
-                lock.unlockWrite(stamp);
+                scaleLock.unlockWrite(stamp);
             }
         } else {
-            stamp = lock.writeLock();
+            stamp = scaleLock.writeLock();
             try {
                 scaleIdx++;
             } finally {
-                lock.unlockWrite(stamp);
+                scaleLock.unlockWrite(stamp);
             }
         }
 
@@ -276,7 +315,7 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements S
     // Workers
 
     private class ConcurrentWorker extends Thread implements SelectableThread {
-        @GuardedBy("lock")
+        @GuardedBy("scaleLock")
         final Deque<Runnable> tasks = new ArrayDeque<>(64);
         final StampedLock lock = new StampedLock();
 
@@ -288,7 +327,7 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements S
 
         @Override
         public void run() {
-            while (true) {
+            while (!isInterrupted()) {
                 try {
                     Runnable runnable = nextTask();
                     if (runnable == null) {
@@ -378,7 +417,6 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements S
                 // Expiration mechanics, in the case of spurious wakeups
                 long time = System.currentTimeMillis();
                 if ((time - this.last) >= expireIntervalMillis) {
-                    // Always empty, we just polled
                     this.interrupt();
                 }
 
@@ -406,9 +444,22 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements S
 
         @Override
         public void interrupt() {
-            super.interrupt();
+            // Most important thing: don't allow new tasks to be submitted
             workerSet.remove(this);
             count.decrementAndGet();
+
+            Queue<Runnable> left;
+            long stamp = lock.readLock();
+            try {
+                left = tasks;
+            } finally {
+                lock.unlockRead(stamp);
+            }
+
+            // in case I dun goofed
+            left.forEach(r -> selectNext().execute(r));
+
+            super.interrupt();
         }
 
         private boolean isEmpty() {

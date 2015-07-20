@@ -44,38 +44,37 @@ public class DefaultWorldGen extends AbstractGenerator {
     @Override
     public char[][] generateChunkBlocks(final ChunkLocation location) {
         final char[][] data = new char[15][ChunkSection.LENGTH];
-        final CountDownLatch release = new CountDownLatch(256);
+        final CountDownLatch release = new CountDownLatch(16);
 
         for (int x = 0; x < 16; x++) {
-            for (int z = 0; z < 16; z++) {
-                final int finalX = x;
-                final int finalZ = z;
+            final int finalX = x;
 
-                executor.execute(() -> {
-                    final int i = WorldUtils.intScale(0, 140, generator.noise(finalX + (location.x() << 4), finalZ +
+            executor.execute(() -> {
+                for (int z = 0; z < 16; z++) {
+                    final int i = WorldUtils.intScale(0, 140, generator.noise(finalX + (location.x() << 4), z +
                             (location.z() << 4))) - 20;
                     for (int y = 0; y < i; y++) {
                         if (i < 40 && y == (i - 1)) {
                             for (int rev = 40; rev > i; rev--) {
-                                data[rev / 16][WorldUtils.blockArrayIndex(finalX, rev % 16, finalZ)] =
+                                data[rev / 16][WorldUtils.blockArrayIndex(finalX, rev % 16, z)] =
                                         Substance.WATER.asExtended();
                             }
-                            data[i / 16][WorldUtils.blockArrayIndex(finalX, i % 16, finalZ)] =
+                            data[i / 16][WorldUtils.blockArrayIndex(finalX, i % 16, z)] =
                                     Substance.CLAY.asExtended();
                         }
 
                         if (y < i - 1) {
-                            data[y / 16][WorldUtils.blockArrayIndex(finalX, y % 16, finalZ)] =
+                            data[y / 16][WorldUtils.blockArrayIndex(finalX, y % 16, z)] =
                                     Substance.DIRT.asExtended();
                         } else {
-                            data[y / 16][WorldUtils.blockArrayIndex(finalX, y % 16, finalZ)] =
+                            data[y / 16][WorldUtils.blockArrayIndex(finalX, y % 16, z)] =
                                     Substance.GRASS.asExtended();
                         }
                     }
+                }
 
-                    release.countDown();
-                });
-            }
+                release.countDown();
+            });
         }
 
         try {

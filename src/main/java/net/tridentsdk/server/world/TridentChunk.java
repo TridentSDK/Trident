@@ -46,7 +46,7 @@ import java.util.stream.Stream;
 public class TridentChunk implements Chunk {
     private final TridentWorld world;
     private final ChunkLocation location;
-    final SelectableThread executor = ThreadsHandler.chunkExecutor().selectScaled();
+    final SelectableThread executor = ThreadsHandler.chunkExecutor().selectCore();
     private final Set<Entity> entities = Factory.newSet();
     public volatile ChunkSection[] sections;
     private volatile int lastFileAccess;

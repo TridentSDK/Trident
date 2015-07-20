@@ -113,6 +113,6 @@ public final class WorldUtils {
      * @return a value scaled between min and max by the scaling value, rounded
      */
     public static int intScale(int min, int max, double value) {
-        return (int) (((double)(max - min)) * ((value + 1) / 2)) - min;
+        return (int) (((double)(max - min)) * ((value + 1) / 2)) + min;
     }
 }
