@@ -180,6 +180,8 @@ public class TridentPlayer extends OfflinePlayer {
 
     @Override
     protected void doEncodeMeta(ProtocolMetadata protocolMeta) {
+        protocolMeta.setMeta(0, MetadataType.BYTE, ((fireTicks.intValue() == 0) ? 1 : 0) | (isCrouching() ? 2 : 0)
+                | (isSprinting() ? 8 : 0)); // TODO invisibility & blocking/eating
         protocolMeta.setMeta(10, MetadataType.BYTE, skinFlags);
         protocolMeta.setMeta(16, MetadataType.BYTE, (byte) 0); // hide cape, might need changing
         protocolMeta.setMeta(17, MetadataType.FLOAT, 0F); // absorption hearts TODO
@@ -543,6 +545,11 @@ public class TridentPlayer extends OfflinePlayer {
 
     public void setSprinting(boolean sprinting) {
         this.sprinting = sprinting;
+
+        ProtocolMetadata meta = new ProtocolMetadata();
+        encodeMetadata(meta);
+        sendFiltered(new PacketPlayOutEntityMetadata().set("entityId", entityId()).set("metadata", meta),
+                p -> !p.equals(this));
     }
 
     public boolean isCrouching() {
@@ -551,16 +558,12 @@ public class TridentPlayer extends OfflinePlayer {
 
     @InternalUseOnly
     public void setCrouching(boolean crouching) {
+        this.crouching = crouching;
+
         ProtocolMetadata meta = new ProtocolMetadata();
         encodeMetadata(meta);
-
-        int idx = 0;
-        int mask = 0x02;
-        meta.setMeta(idx, MetadataType.BYTE, (byte) (((byte) meta.get(0).value() & ~mask) | (crouching ? mask : 0)));
         sendFiltered(new PacketPlayOutEntityMetadata().set("entityId", entityId()).set("metadata", meta),
                 p -> !p.equals(this));
-
-        this.crouching = crouching;
     }
 
     public void setLocale(Locale locale) {
