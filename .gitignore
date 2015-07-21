@@ -99,3 +99,11 @@ MANIFEST.MF
 dependency-reduced-pom.xml
 
 Thumbs.db
+
+### Trident files ###
+world/
+bans.txt
+ops.txt
+server.json
+trident.log
+whitelist.txt
