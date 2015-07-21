@@ -25,6 +25,7 @@ import net.tridentsdk.event.Events;
 import net.tridentsdk.inventory.Inventories;
 import net.tridentsdk.plugin.Plugins;
 import net.tridentsdk.plugin.channel.PluginChannels;
+import net.tridentsdk.plugin.cmd.Commands;
 import net.tridentsdk.registry.Implementation;
 import net.tridentsdk.registry.PlayerStatus;
 import net.tridentsdk.registry.Players;
@@ -35,9 +36,12 @@ import net.tridentsdk.server.inventory.TridentInventories;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutPluginMessage;
 import net.tridentsdk.server.player.OfflinePlayer;
 import net.tridentsdk.server.player.TridentPlayer;
+import net.tridentsdk.server.plugin.CommandHandler;
 import net.tridentsdk.server.plugin.PluginHandler;
 import net.tridentsdk.server.world.TridentWorldLoader;
 import net.tridentsdk.server.world.change.DefaultMassChange;
+import net.tridentsdk.service.ChatFormatter;
+import net.tridentsdk.service.Transactions;
 import net.tridentsdk.world.MassChange;
 import net.tridentsdk.world.World;
 import net.tridentsdk.world.WorldLoader;
@@ -64,6 +68,9 @@ public class TridentImpl implements Implementation {
     private final Events events = EventHandler.create();
     private final PlayerStatus status = new Statuses();
     private final Plugins plugins = new PluginHandler();
+    private final Commands commands = new CommandHandler();
+    private final ChatFormatter formatter = new ChatHandler();
+    private final Transactions trasacts = new TransactionHandler();
 
     class PlayersImpl extends ForwardingCollection<Player> implements Players {
         @Override
@@ -109,6 +116,16 @@ public class TridentImpl implements Implementation {
     }
 
     @Override
+    public Transactions trasacts() {
+        return trasacts;
+    }
+
+    @Override
+    public ChatFormatter format() {
+        return formatter;
+    }
+
+    @Override
     public Players players() {
         return players;
     }
@@ -136,6 +153,11 @@ public class TridentImpl implements Implementation {
     @Override
     public PluginChannels channels() {
         return channelHandler;
+    }
+
+    @Override
+    public Commands cmds() {
+        return commands;
     }
 
     @Override
