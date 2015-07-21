@@ -180,8 +180,8 @@ public class TridentPlayer extends OfflinePlayer {
 
     @Override
     protected void doEncodeMeta(ProtocolMetadata protocolMeta) {
-        protocolMeta.setMeta(0, MetadataType.BYTE, ((fireTicks.intValue() == 0) ? 1 : 0) | (isCrouching() ? 2 : 0)
-                | (isSprinting() ? 8 : 0)); // TODO invisibility & blocking/eating
+        protocolMeta.setMeta(0, MetadataType.BYTE, (byte) (((fireTicks.intValue() == 0) ? 1 : 0) | (isCrouching() ? 2 : 0)
+                | (isSprinting() ? 8 : 0))); // TODO invisibility & blocking/eating
         protocolMeta.setMeta(10, MetadataType.BYTE, skinFlags);
         protocolMeta.setMeta(16, MetadataType.BYTE, (byte) 0); // hide cape, might need changing
         protocolMeta.setMeta(17, MetadataType.FLOAT, 0F); // absorption hearts TODO
