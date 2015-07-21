@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package net.tridentsdk.server.threads;
+package net.tridentsdk.server.concurrent;
 
 import net.tridentsdk.concurrent.SelectableThreadPool;
 import net.tridentsdk.docs.InternalUseOnly;
@@ -24,7 +24,7 @@ import net.tridentsdk.server.TridentServer;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * Handles the majority of the lifecycle for the threads
+ * Handles the majority of the lifecycle for the concurrent
  *
  * @author The TridentSDK Team
  */
@@ -43,7 +43,7 @@ public final class ThreadsHandler {
     }
 
     /**
-     * Creates the threads handler for internal use
+     * Creates the concurrent handler for internal use
      *
      * @return the new thread handler
      */
@@ -53,7 +53,7 @@ public final class ThreadsHandler {
     }
 
     /**
-     * Stops all the executors and clears all caches of concurrent threads
+     * Stops all the executors and clears all caches of concurrent concurrent
      */
     @InternalUseOnly
     public static void shutdownAll() {

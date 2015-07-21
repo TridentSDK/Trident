@@ -19,7 +19,7 @@ package net.tridentsdk.server.world.gen;
 
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.concurrent.SelectableThreadPool;
-import net.tridentsdk.server.threads.ThreadsHandler;
+import net.tridentsdk.server.concurrent.ThreadsHandler;
 import net.tridentsdk.server.world.ChunkSection;
 import net.tridentsdk.server.world.WorldUtils;
 import net.tridentsdk.util.TridentLogger;

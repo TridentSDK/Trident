@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package net.tridentsdk.server.threads;
+package net.tridentsdk.server.concurrent;
 
 import com.google.common.collect.Lists;
 import net.tridentsdk.concurrent.SelectableThread;
@@ -41,9 +41,9 @@ import java.util.concurrent.locks.StampedLock;
  * the need for index based access, as well as the majority of operations upon the collection iterations from thread
  * searching. Unfortunately, there are still many writes, as scaling requires the tracking of new workers, and the
  * removal of the workers that are no longer needed.</p>
- * 
- * <p>This thread pool always maintains the starting threads. Scaling is done once the current workers are occupied at
- * the time of observation. Workers are deemed as occupied if threads are in the process of attempting insertion into
+ *
+ * <p>This thread pool always maintains the starting concurrent. Scaling is done once the current workers are occupied at
+ * the time of observation. Workers are deemed as occupied if concurrent are in the process of attempting insertion into
  * the worker's internal queue. Workers are managed by native park and unparking, rather than using conditions. This
  * provides numerous advantages, which include reduced overhead, as it is native, and is not bound to a particular scaleLock.
  * Additionally, native thread scheduling provides for more control over basic thread stopping, rather than using the
@@ -60,10 +60,10 @@ import java.util.concurrent.locks.StampedLock;
  * explicitly declared scaleLock allows to check occupation of the worker, which increases scalability.</p>
  * 
  * <p>No thread pool would be complete without tuning. This class provides 3 basic tuning properties, which modify
- * <em>expiring threads</em>. Expiring threads are new threads are those created to scale the executor. They are
- * created when the current threads in the pool (including previously started expiring threads) are all occupied.
+ * <em>expiring concurrent</em>. Expiring concurrent are new concurrent are those created to scale the executor. They are
+ * created when the current concurrent in the pool (including previously started expiring concurrent) are all occupied.
  * One may modify the time which the worker expires, whether the task queue must be empty, and the maximum amount
- * of threads in the pool.</p>
+ * of concurrent in the pool.</p>
  *
  * @author The TridentSDK Team
  */

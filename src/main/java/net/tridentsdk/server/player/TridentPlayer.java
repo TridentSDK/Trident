@@ -37,12 +37,12 @@ import net.tridentsdk.meta.nbt.CompoundTag;
 import net.tridentsdk.registry.Factory;
 import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.TridentServer;
+import net.tridentsdk.server.concurrent.ThreadsHandler;
 import net.tridentsdk.server.data.MetadataType;
 import net.tridentsdk.server.data.ProtocolMetadata;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.packets.play.out.*;
-import net.tridentsdk.server.threads.ThreadsHandler;
 import net.tridentsdk.server.world.TridentChunk;
 import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.util.TridentLogger;
@@ -140,8 +140,8 @@ public class TridentPlayer extends OfflinePlayer {
 
             block = block.relativeBlock(new Vector(0, 5, 0));
             //Position pos = Position.create(p.world(), 0, 255, 0);
-            p.setPosition(block.location());
-            p.spawnLocation = block.location();
+            p.setPosition(block.position());
+            p.spawnPosition = block.position();
             // =====
 
             p.connection.sendPacket(PacketPlayOutPluginMessage.VANILLA_CHANNEL);

@@ -17,8 +17,6 @@
 
 package net.tridentsdk.server;
 
-import com.google.common.collect.ForwardingCollection;
-import com.google.common.collect.ImmutableMap;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -30,39 +28,25 @@ import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import net.tridentsdk.Defaults;
 import net.tridentsdk.Trident;
-import net.tridentsdk.concurrent.Scheduler;
-import net.tridentsdk.concurrent.SelectableThreadPool;
 import net.tridentsdk.config.Config;
 import net.tridentsdk.docs.Volatile;
-import net.tridentsdk.entity.living.Player;
-import net.tridentsdk.inventory.Inventories;
 import net.tridentsdk.plugin.Plugins;
-import net.tridentsdk.plugin.channel.PluginChannels;
 import net.tridentsdk.registry.Factory;
 import net.tridentsdk.registry.Implementation;
-import net.tridentsdk.registry.Players;
 import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.command.ServerCommandRegistrar;
 import net.tridentsdk.server.netty.ClientChannelInitializer;
-import net.tridentsdk.server.packets.play.out.PacketPlayOutPluginMessage;
-import net.tridentsdk.server.player.OfflinePlayer;
-import net.tridentsdk.server.player.TridentPlayer;
-import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
-import net.tridentsdk.server.window.TridentInventories;
-import net.tridentsdk.server.world.TridentWorldLoader;
-import net.tridentsdk.server.world.change.DefaultMassChange;
+import net.tridentsdk.server.service.Statuses;
+import net.tridentsdk.server.service.TridentImpl;
 import net.tridentsdk.util.TridentLogger;
-import net.tridentsdk.world.MassChange;
-import net.tridentsdk.world.World;
-import net.tridentsdk.world.WorldLoader;
-import net.tridentsdk.world.gen.AbstractGenerator;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.io.File;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.nio.file.Files;
-import java.util.*;
+import java.util.NoSuchElementException;
+import java.util.Scanner;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -137,14 +121,21 @@ public final class TridentStart {
         }
         TridentLogger.success("Parsed arguments.");
 
-        TridentLogger.log("Looking for server properties...");
+        TridentLogger.log("Initializing the API implementations");
+        Implementation implementation = new TridentImpl();
+        Factory.setProvider(implementation);
+        Registered.setProvider(implementation);
+        TridentLogger.success("Loaded API implementations.");
+
+        TridentLogger.log("Looking for server files...");
         File f = properties.value(options);
         if (!f.exists()) {
             TridentLogger.warn("Server properties not found, creating one for you...");
             InputStream link = TridentServer.class.getResourceAsStream("/server.json");
             Files.copy(link, f.getAbsoluteFile().toPath());
         }
-        TridentLogger.success("Created the server JSON");
+        ((Statuses) Registered.statuses()).loadAll();
+        TridentLogger.success("Loaded the server file");
 
         TridentLogger.log("Starting server process...");
         init(new Config(f));
@@ -160,85 +151,6 @@ public final class TridentStart {
             fix = "Just don't do it")
     private static void init(final Config config) throws InterruptedException {
         try {
-            TridentLogger.log("Initializing the API implementations");
-            Implementation implementation = new Implementation() {
-                private final TridentTaskScheduler scheduler = TridentTaskScheduler.create();
-                private final PluginChannels channelHandler = new PluginChannels() {
-                    @Override
-                    public void sendPluginMessage(String channel, byte... data) {
-                        TridentPlayer.sendAll(new PacketPlayOutPluginMessage().set("channel", channel).set("data", data));
-                    }
-                };
-                private final Inventories windowHandler = new TridentInventories();
-
-                class PlayersImpl extends ForwardingCollection<Player> implements Players {
-                    @Override
-                    protected Collection<Player> delegate() {
-                        return TridentPlayer.players();
-                    }
-
-                    @Override
-                    public Player fromUuid(UUID uuid) {
-                        return TridentPlayer.getPlayer(uuid);
-                    }
-
-                    @Override
-                    public Player offline(UUID uuid) {
-                        return OfflinePlayer.getOfflinePlayer(uuid);
-                    }
-                }
-
-                private final Players players = new PlayersImpl();
-
-                @Override
-                public SelectableThreadPool newPool(int i, String s) {
-                    return ConcurrentTaskExecutor.create(i, s);
-                }
-
-                @Override
-                public WorldLoader newLoader(Class<? extends AbstractGenerator> g) {
-                    if (g == null) {
-                        return new TridentWorldLoader();
-                    }
-
-                    return new TridentWorldLoader(g);
-                }
-
-                @Override
-                public MassChange newMc(World world) {
-                    return new DefaultMassChange(world);
-                }
-
-                @Override
-                public Map<String, World> worlds() {
-                    return ImmutableMap.copyOf(TridentWorldLoader.WORLDS);
-                }
-
-                @Override
-                public Players players() {
-                    return players;
-                }
-
-                @Override
-                public Scheduler scheduler() {
-                    return scheduler;
-                }
-
-                @Override
-                public PluginChannels channels() {
-                    return channelHandler;
-                }
-
-                @Override
-                public Inventories inventories() {
-                    return windowHandler;
-                }
-            };
-            Factory.setProvider(implementation);
-            Registered.setProvider(implementation);
-
-            TridentLogger.success("Loaded API implementations.");
-
             // Required before loading worlds to find all class files in case the plugin has a world generator
             TridentLogger.log("Loading plugins...");
             File fi = new File(System.getProperty("user.dir") + File.separator + "plugins");

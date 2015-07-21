@@ -23,10 +23,18 @@ import net.tridentsdk.concurrent.SelectableThread;
 import net.tridentsdk.concurrent.SelectableThreadPool;
 import net.tridentsdk.config.Config;
 import net.tridentsdk.event.Events;
+import net.tridentsdk.event.Importance;
 import net.tridentsdk.event.Listener;
+import net.tridentsdk.event.ListenerOpts;
 import net.tridentsdk.registry.Factory;
-import net.tridentsdk.server.threads.ThreadsHandler;
-import org.openjdk.jmh.annotations.*;
+import net.tridentsdk.registry.Implementation;
+import net.tridentsdk.registry.Registered;
+import net.tridentsdk.server.concurrent.ThreadsHandler;
+import net.tridentsdk.server.service.TridentImpl;
+import org.openjdk.jmh.annotations.Benchmark;
+import org.openjdk.jmh.annotations.Mode;
+import org.openjdk.jmh.annotations.Scope;
+import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.infra.Blackhole;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
@@ -43,6 +51,12 @@ Benchmark results: http://bit.ly/1B3psZv
  */
 @State(Scope.Thread)
 public class EventBusPerformance {
+    static {
+        Implementation implementation = new TridentImpl();
+        Factory.setProvider(implementation);
+        Registered.setProvider(implementation);
+    }
+
     private static final EventBus EVENT_BUS = new EventBus();
     private static final EventHandler HANDLER = new EventHandler();
     private static final Listener LISTENER = new EventListener();
@@ -51,8 +65,8 @@ public class EventBusPerformance {
     private static final SelectableThread EXECUTOR = EXEC.selectScaled();
     private static final net.tridentsdk.plugin.Plugin PLUGIN = new Plugin();
     // Cannot be initialized first, else whole class cannot be loaded completely
-    private final Events EVENT_MANAGER = Events.create();
-    @Param({ "1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024" })
+    private final Events EVENT_MANAGER = net.tridentsdk.server.event.EventHandler.create();
+    //@Param({ "1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024" })
     private int cpuTokens;
 
     public static void main0(String[] args) {
@@ -67,7 +81,7 @@ public class EventBusPerformance {
         ThreadsHandler.shutdownAll();
     }
 
-    public static void main(String[] args) throws RunnerException {
+    public static void main2(String[] args) throws RunnerException {
         Options opt = new OptionsBuilder().include(".*" + EventBusPerformance.class.getSimpleName() + ".*") // CLASS
                 .timeUnit(TimeUnit.NANOSECONDS).mode(Mode.AverageTime).warmupIterations(20).warmupTime(
                         TimeValue.milliseconds(1))              // ALLOWED TIME
@@ -86,6 +100,12 @@ public class EventBusPerformance {
         }
     }
 
+    public static void main(String[] args) {
+        Events events = net.tridentsdk.server.event.EventHandler.create();
+        events.registerListener(PLUGIN, new EventListener());
+        events.fire(new Event());
+    }
+
     @Benchmark
     public void control() {
         Blackhole.consumeCPU(cpuTokens);
@@ -93,25 +113,25 @@ public class EventBusPerformance {
 
     @Benchmark
     public void eventBusRegister() {
-        Blackhole.consumeCPU(cpuTokens);
+        //Blackhole.consumeCPU(cpuTokens);
         EVENT_BUS.register(HANDLER);
     }
 
     @Benchmark
     public void eventManagerRegister() {
-        Blackhole.consumeCPU(cpuTokens);
+        //Blackhole.consumeCPU(cpuTokens);
         EVENT_MANAGER.registerListener(PLUGIN, LISTENER);
     }
 
     @Benchmark
     public void eventBusDispatch() {
-        Blackhole.consumeCPU(cpuTokens);
+        ///Blackhole.consumeCPU(cpuTokens);
         EVENT_BUS.post(EVENT);
     }
 
     @Benchmark
     public void eventManagerDispatch() {
-        Blackhole.consumeCPU(cpuTokens);
+        //Blackhole.consumeCPU(cpuTokens);
         EVENT_MANAGER.fire(EVENT);
     }
 
@@ -132,8 +152,18 @@ public class EventBusPerformance {
     }
 
     private static class EventListener implements Listener {
+        @ListenerOpts(importance = Importance.HIGHEST)
         public void onEvent(Event event) {
-            System.out.println("LOL");
+            System.out.println("HIGH");
+        }
+
+        public void onEventMed(Event event) {
+            System.out.println("MED");
+        }
+
+        @ListenerOpts(importance = Importance.LOWEST)
+        public void onEventLow(Event event) {
+            System.out.println("LOW");
         }
     }
 }

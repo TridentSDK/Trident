@@ -1,7 +1,6 @@
 {
   // Don't change the address unless you know what you are doing
   "address": "0.0.0.0",
-
   // The port the server will run on
   "port": 25565,
   // Display options

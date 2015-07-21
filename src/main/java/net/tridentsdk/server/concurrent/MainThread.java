@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package net.tridentsdk.server.threads;
+package net.tridentsdk.server.concurrent;
 
 import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.TridentTaskScheduler;

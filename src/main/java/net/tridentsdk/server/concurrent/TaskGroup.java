@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.tridentsdk.server.threads;
+package net.tridentsdk.server.concurrent;
 
 import com.google.common.collect.Iterators;
 import net.tridentsdk.concurrent.SelectableThreadPool;

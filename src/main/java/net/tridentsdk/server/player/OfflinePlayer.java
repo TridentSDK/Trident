@@ -29,6 +29,7 @@ import net.tridentsdk.event.entity.EntityDamageEvent;
 import net.tridentsdk.inventory.Inventory;
 import net.tridentsdk.meta.nbt.*;
 import net.tridentsdk.registry.Factory;
+import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.data.Slot;
 import net.tridentsdk.server.entity.TridentInventoryHolder;
@@ -73,7 +74,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     /**
      * The spawn location of the player
      */
-    protected volatile Position spawnLocation;
+    protected volatile Position spawnPosition;
     /**
      * The current hunger of the player
      */
@@ -108,6 +109,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     protected volatile int xpSeed;
 
     protected final Inventory enderChest = null;
+    protected final boolean opped;
     protected final PlayerAbilities abilities = new PlayerAbilities();
     protected final PlayerSpeed playerSpeed = new PlayerSpeedImpl();
     protected final Set<String> permissions = Factory.newSet();
@@ -123,10 +125,10 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
         selectedSlot = (short) ((IntTag) tag.getTag("SelectedItemSlot")).value();
 
         if (tag.containsTag("SpawnX")) {
-            spawnLocation = Position.create(world, ((IntTag) tag.getTag("SpawnX")).value(),
+            spawnPosition = Position.create(world, ((IntTag) tag.getTag("SpawnX")).value(),
                     ((IntTag) tag.getTag("SpawnY")).value(), ((IntTag) tag.getTag("SpawnZ")).value());
         } else {
-            spawnLocation = world.spawnPosition();
+            spawnPosition = world.spawnPosition();
         }
 
         hunger = (short) ((IntTag) tag.getTag("foodLevel")).value();
@@ -154,6 +156,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
         }
 
         NBTSerializer.deserialize(abilities, (CompoundTag) tag.getTag("abilities"));
+        opped = Registered.statuses().isOpped(uuid);
     }
 
     public static OfflinePlayer getOfflinePlayer(UUID id) {
@@ -238,7 +241,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     }
 
     public Position spawnLocation() {
-        return spawnLocation;
+        return spawnPosition;
     }
 
     @Override
@@ -348,9 +351,9 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
         tag.addTag(new IntTag("SelectedItemSlot").setValue(selectedSlot));
 
         //tag.addTag(NBTSerializer.serialize(new Slot(itemInHand())));
-        tag.addTag(new IntTag("SpawnX").setValue((int) spawnLocation.x()));
-        tag.addTag(new IntTag("SpawnY").setValue((int) spawnLocation.y()));
-        tag.addTag(new IntTag("SpawnZ").setValue((int) spawnLocation.z()));
+        tag.addTag(new IntTag("SpawnX").setValue((int) spawnPosition.x()));
+        tag.addTag(new IntTag("SpawnY").setValue((int) spawnPosition.y()));
+        tag.addTag(new IntTag("SpawnZ").setValue((int) spawnPosition.z()));
 
         tag.addTag(new IntTag("foodLevel").setValue(hunger));
         tag.addTag(new FloatTag("foodExhaustionLevel").setValue(exhaustion));
@@ -424,6 +427,11 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     @Override
     public boolean holdsPermission(String perm) {
         return perm.isEmpty() || permissions.contains(perm);
+    }
+
+    @Override
+    public boolean opped() {
+        return opped;
     }
 
     class PlayerSpeedImpl implements PlayerSpeed {

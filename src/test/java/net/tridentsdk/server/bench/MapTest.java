@@ -44,7 +44,7 @@ import java.util.concurrent.locks.ReentrantLock;
 # Run progress: 0.00% complete, ETA 00:00:16
 # Warmup: 20 iterations, 200 ms each
 # Measurement: 20 iterations, 200 ms each
-# Threads: 4 threads, will synchronize iterations
+# Threads: 4 concurrent, will synchronize iterations
 # Benchmark mode: Average time, time/op
 # Benchmark: net.tridentsdk.server.bench.MapTest.regPut
 # VM invoker: /usr/lib/jvm/java-8-oracle/jre/bin/java
@@ -99,7 +99,7 @@ Result: 116.843 ±(99.9%) 1.961 ns/op [Average]
 # Run progress: 50.00% complete, ETA 00:00:16
 # Warmup: 20 iterations, 200 ms each
 # Measurement: 20 iterations, 200 ms each
-# Threads: 4 threads, will synchronize iterations
+# Threads: 4 concurrent, will synchronize iterations
 # Benchmark mode: Average time, time/op
 # Benchmark: net.tridentsdk.server.bench.MapTest.weakPut
 # VM invoker: /usr/lib/jvm/java-8-oracle/jre/bin/java

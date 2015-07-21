@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 /**
- * Contains most of the code to handle the threads of the server
+ * Contains most of the code to handle the concurrent of the server
  */
 
-package net.tridentsdk.server.threads;
+package net.tridentsdk.server.concurrent;

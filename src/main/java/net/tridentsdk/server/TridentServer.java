@@ -24,11 +24,12 @@ import net.tridentsdk.plugin.Plugin;
 import net.tridentsdk.registry.Factory;
 import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.command.TridentConsole;
+import net.tridentsdk.server.concurrent.ConcurrentTaskExecutor;
+import net.tridentsdk.server.concurrent.MainThread;
+import net.tridentsdk.server.concurrent.ThreadsHandler;
 import net.tridentsdk.server.netty.protocol.Protocol;
 import net.tridentsdk.server.player.TridentPlayer;
-import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
-import net.tridentsdk.server.threads.MainThread;
-import net.tridentsdk.server.threads.ThreadsHandler;
+import net.tridentsdk.server.service.Statuses;
 import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.server.world.TridentWorldLoader;
 import net.tridentsdk.util.TridentLogger;
@@ -139,6 +140,9 @@ public final class TridentServer implements Server {
      */
     @Override
     public void shutdown() {
+        TridentLogger.log("Saving files...");
+        ((Statuses) Registered.statuses()).loadAll();
+
         //TODO: Cleanup stuff...
         TridentLogger.log("Shutting down plugins...");
         for (Plugin plugin : Registered.plugins())
@@ -154,7 +158,7 @@ public final class TridentServer implements Server {
         for (World world : rootWorldLoader.worlds())
             ((TridentWorld) world).save();
 
-        TridentLogger.log("Shutting down worker threads...");
+        TridentLogger.log("Shutting down worker concurrent...");
         ((TridentTaskScheduler) Registered.tasks()).shutdown();
 
         TridentLogger.log("Shutting down server process...");

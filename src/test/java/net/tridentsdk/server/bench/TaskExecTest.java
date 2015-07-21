@@ -19,7 +19,7 @@ package net.tridentsdk.server.bench;
 
 
 import net.tridentsdk.concurrent.SelectableThread;
-import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
+import net.tridentsdk.server.concurrent.ConcurrentTaskExecutor;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
 import org.openjdk.jmh.results.RunResult;
@@ -174,7 +174,7 @@ public class TaskExecTest {
             System.gc();
         }
 
-        // Need to pause for the threads to switch
+        // Need to pause for the concurrent to switch
         Thread.sleep(1000);
 
         doJavaTest();

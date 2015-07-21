@@ -22,7 +22,7 @@ import com.google.common.collect.ImmutableList;
 import net.tridentsdk.concurrent.*;
 import net.tridentsdk.plugin.Plugin;
 import net.tridentsdk.registry.Registered;
-import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
+import net.tridentsdk.server.concurrent.ConcurrentTaskExecutor;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Collection;
@@ -51,7 +51,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  *
  * The difference between sync and async ScheduledTasks is sync runs on the plugin thread
  * that is from the plugin scheduling the ScheduledTask. This is why a plugin object is required for ScheduledTask
- * scheduling. Async runs on one of the other 2 ScheduledTask execution threads (because there are 3 threads in the
+ * scheduling. Async runs on one of the other 2 ScheduledTask execution concurrent (because there are 3 concurrent in the
  * scheduler).</p>
  *
  * <p>The benchmarks and testing units for the TridentTaskScheduler can be found at:

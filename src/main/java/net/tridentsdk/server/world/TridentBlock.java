@@ -62,12 +62,12 @@ public class TridentBlock implements Block {
     }
 
     @Override
-    public void setSubstance(Substance material) {
-        setSubstanceAndMeta(material, (byte) 0);
+    public void setSubstance(Substance substance) {
+        setSubstanceAndMeta(substance, (byte) 0);
     }
 
     @Override
-    public Position location() {
+    public Position position() {
         return this.location;
     }
 
@@ -87,8 +87,8 @@ public class TridentBlock implements Block {
     }
 
     @Override
-    public void setSubstanceAndMeta(Substance material, byte data) {
-        this.material = material;
+    public void setSubstanceAndMeta(Substance substance, byte data) {
+        this.material = substance;
         this.data = data;
 
 
@@ -96,6 +96,6 @@ public class TridentBlock implements Block {
                 .set("blockId", substance().id() << 4 | data)
                 .set("location", location));
 
-        ((TridentChunk) location().chunk()).setAt(location, material, data, (byte) 255, (byte) 0);
+        ((TridentChunk) position().chunk()).setAt(location, substance, data, (byte) 255, (byte) 0);
     }
 }

@@ -1,0 +1,168 @@
+package net.tridentsdk.server.service;
+
+import net.tridentsdk.Trident;
+import net.tridentsdk.registry.Factory;
+import net.tridentsdk.registry.PlayerStatus;
+
+import java.io.*;
+import java.net.InetSocketAddress;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.UUID;
+
+/**
+ * Loads the Trident status files for bans, ops, and whitelists
+ *
+ * @author The TridentSDK Team
+ */
+public class Statuses implements PlayerStatus {
+    @Override
+    public boolean isBanned(UUID uuid) {
+        return banList.contains(uuid.toString());
+    }
+
+    @Override
+    public boolean isIpBanned(InetSocketAddress address) {
+        return banList.contains("ip: " + address.getAddress().getHostAddress());
+    }
+
+    @Override
+    public boolean isOpped(UUID uuid) {
+        return opsList.contains(uuid.toString());
+    }
+
+    @Override
+    public boolean isWhitelisted(UUID uuid) {
+        return whiteList.contains(uuid.toString());
+    }
+
+    @Override
+    public void ban(UUID uuid) {
+        banList.add(uuid.toString());
+    }
+
+    @Override
+    public void ipBan(InetSocketAddress address) {
+        banList.add("ip: " + address.getAddress().getHostAddress());
+    }
+
+    @Override
+    public void op(UUID uuid) {
+        opsList.add(uuid.toString());
+    }
+
+    @Override
+    public void whitelist(UUID uuid) {
+        whiteList.add(uuid.toString());
+    }
+
+    private final Path bans = Trident.fileContainer().resolve("bans.txt");
+    private final Path ops = Trident.fileContainer().resolve("ops.txt");
+    private final Path whitelist = Trident.fileContainer().resolve("whitelist.txt");
+
+    private final Set<String> banList = Factory.newSet();
+    private final Set<String> opsList = Factory.newSet();
+    private final Set<String> whiteList = Factory.newSet();
+
+    public void loadAll() {
+        ensureExists(bans);
+        ensureExists(ops);
+        ensureExists(whitelist);
+
+        for (Iterator<String> iterator = loadFromReader(readFile(bans)); iterator.hasNext(); ) {
+            banList.add(iterator.next());
+        }
+
+        for (Iterator<String> iterator = loadFromReader(readFile(ops)); iterator.hasNext(); ) {
+            opsList.add(iterator.next());
+        }
+
+        for (Iterator<String> iterator = loadFromReader(readFile(whitelist)); iterator.hasNext(); ) {
+            whiteList.add(iterator.next());
+        }
+    }
+
+    private void ensureExists(Path path) {
+        if (!Files.exists(path)) {
+            try {
+                Files.createFile(path);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private BufferedReader readFile(Path path) {
+        try {
+            return new BufferedReader(new FileReader(path.toFile()));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    private BufferedWriter writeFile(Path path) {
+        try {
+            return new BufferedWriter(new FileWriter(path.toFile()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    private Iterator<String> loadFromReader(BufferedReader reader) {
+        return new Iterator<String>() {
+            String line;
+
+            @Override
+            public boolean hasNext() {
+                try {
+                    return (line = reader.readLine()) != null;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                return false;
+            }
+
+            @Override
+            public String next() {
+                if (line == null) {
+                    try {
+                        return reader.readLine();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    return line;
+                }
+
+                return null;
+            }
+        };
+    }
+
+    public void saveAll() throws IOException {
+        ensureExists(bans);
+        BufferedWriter banWriter = writeFile(bans);
+        for (String aBanList : banList) {
+            banWriter.write(aBanList);
+        }
+
+        ensureExists(ops);
+        BufferedWriter opsWriter = writeFile(ops);
+        for (String op : opsList) {
+            opsWriter.write(op);
+        }
+
+        ensureExists(whitelist);
+        BufferedWriter whitelistWriter = writeFile(whitelist);
+        for (String list : whiteList) {
+            whitelistWriter.write(list);
+        }
+    }
+}

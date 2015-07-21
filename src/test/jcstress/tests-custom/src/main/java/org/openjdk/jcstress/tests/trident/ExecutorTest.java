@@ -29,8 +29,8 @@ package org.openjdk.jcstress.tests.trident;
 import net.tridentsdk.factory.CollectFactory;
 import net.tridentsdk.factory.Factories;
 import net.tridentsdk.server.TridentTaskScheduler;
-import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
-import net.tridentsdk.server.threads.ThreadsHandler;
+import net.tridentsdk.server.concurrent.ConcurrentTaskExecutor;
+import net.tridentsdk.server.concurrent.ThreadsHandler;
 import org.openjdk.jcstress.annotations.*;
 import org.openjdk.jcstress.infra.results.BooleanResult1;
 

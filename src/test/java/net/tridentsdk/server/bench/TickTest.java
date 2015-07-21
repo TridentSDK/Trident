@@ -17,7 +17,7 @@
 
 package net.tridentsdk.server.bench;
 
-import net.tridentsdk.server.threads.MainThread;
+import net.tridentsdk.server.concurrent.MainThread;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
 import org.openjdk.jmh.runner.Runner;

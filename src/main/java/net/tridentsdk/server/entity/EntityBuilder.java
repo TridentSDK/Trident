@@ -21,7 +21,7 @@ import net.tridentsdk.base.Position;
 import net.tridentsdk.concurrent.SelectableThreadPool;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.registry.Registered;
-import net.tridentsdk.server.threads.ThreadsHandler;
+import net.tridentsdk.server.concurrent.ThreadsHandler;
 import net.tridentsdk.util.TridentLogger;
 
 import java.lang.reflect.Constructor;
