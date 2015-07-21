@@ -14,19 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package net.tridentsdk.server.entity.living.ai;
-
-import net.tridentsdk.entity.LivingEntity;
-import net.tridentsdk.entity.living.ai.AiModule;
-
 /**
- * The AI Module that provides the default implentation of AI for creepers on the server
+ * Contains the implementation of classes in the {@link net.tridentsdk.plugin}.* package
  */
-public class CreeperAiModule implements AiModule {
-    // TODO make this think
-    @Override
-    public int think(LivingEntity entity) {
-        return 0;
-    }
-}
+package net.tridentsdk.server.plugin;

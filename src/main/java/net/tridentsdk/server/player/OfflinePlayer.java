@@ -33,7 +33,7 @@ import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.data.Slot;
 import net.tridentsdk.server.entity.TridentInventoryHolder;
-import net.tridentsdk.server.window.TridentInventory;
+import net.tridentsdk.server.inventory.TridentInventory;
 import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.World;
@@ -109,7 +109,6 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     protected volatile int xpSeed;
 
     protected final Inventory enderChest = null;
-    protected final boolean opped;
     protected final PlayerAbilities abilities = new PlayerAbilities();
     protected final PlayerSpeed playerSpeed = new PlayerSpeedImpl();
     protected final Set<String> permissions = Factory.newSet();
@@ -156,7 +155,6 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
         }
 
         NBTSerializer.deserialize(abilities, (CompoundTag) tag.getTag("abilities"));
-        opped = Registered.statuses().isOpped(uuid);
     }
 
     public static OfflinePlayer getOfflinePlayer(UUID id) {
@@ -284,13 +282,6 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     @Override
     public String lastCommand() {
         return null;
-    }
-
-    @Override
-    public boolean isOperator() {
-        // DEBUG ===== Everyone is OP'd!
-        return true;
-        // =====
     }
 
     @Override
@@ -426,12 +417,12 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
 
     @Override
     public boolean holdsPermission(String perm) {
-        return perm.isEmpty() || permissions.contains(perm);
+        return perm.isEmpty() || opped() || permissions.contains(perm);
     }
 
     @Override
     public boolean opped() {
-        return opped;
+        return Registered.statuses().isOpped(uniqueId());
     }
 
     class PlayerSpeedImpl implements PlayerSpeed {

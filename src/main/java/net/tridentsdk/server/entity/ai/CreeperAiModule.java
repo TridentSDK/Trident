@@ -14,27 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.tridentsdk.server.packets.handshake;
 
-import io.netty.buffer.ByteBuf;
-import net.tridentsdk.server.netty.ClientConnection;
-import net.tridentsdk.server.netty.packet.InPacket;
-import net.tridentsdk.server.netty.packet.Packet;
+package net.tridentsdk.server.entity.ai;
 
-public class LegacyPacketHandshakeIn extends InPacket {
+import net.tridentsdk.entity.LivingEntity;
+import net.tridentsdk.entity.living.ai.AiModule;
 
+/**
+ * The AI Module that provides the default implentation of AI for creepers on the server
+ */
+public class CreeperAiModule implements AiModule {
+    // TODO make this think
     @Override
-    public Packet decode(ByteBuf buf) {
-        buf.readByte(); // always 0x01
-        return this;
-    }
-
-    @Override
-    public void handleReceived(ClientConnection connection) {
-    }
-
-    @Override
-    public int id() {
-        return 0xFE;
+    public int think(LivingEntity entity) {
+        return 0;
     }
 }

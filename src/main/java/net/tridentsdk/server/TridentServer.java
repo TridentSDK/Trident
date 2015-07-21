@@ -36,6 +36,7 @@ import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.World;
 
 import javax.annotation.concurrent.ThreadSafe;
+import java.io.IOException;
 import java.net.InetAddress;
 
 /**
@@ -141,7 +142,11 @@ public final class TridentServer implements Server {
     @Override
     public void shutdown() {
         TridentLogger.log("Saving files...");
-        ((Statuses) Registered.statuses()).loadAll();
+        try {
+            ((Statuses) Registered.statuses()).saveAll();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         //TODO: Cleanup stuff...
         TridentLogger.log("Shutting down plugins...");

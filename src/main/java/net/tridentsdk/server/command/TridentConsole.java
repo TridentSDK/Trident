@@ -38,12 +38,6 @@ public class TridentConsole implements ServerConsole {
     }
 
     @Override
-    public boolean isOperator() {
-        // console is always OP
-        return true;
-    }
-
-    @Override
     public Player asPlayer() {
         return null;
     }

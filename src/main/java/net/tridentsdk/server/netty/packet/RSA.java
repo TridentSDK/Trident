@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package net.tridentsdk.server.encryption;
+package net.tridentsdk.server.netty.packet;
 
 import javax.crypto.Cipher;
 import java.security.Key;

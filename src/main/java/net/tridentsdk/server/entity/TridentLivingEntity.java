@@ -31,7 +31,7 @@ import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.meta.nbt.*;
 import net.tridentsdk.server.data.MetadataType;
 import net.tridentsdk.server.data.ProtocolMetadata;
-import net.tridentsdk.server.entity.living.ai.TridentAiHandler;
+import net.tridentsdk.server.entity.ai.TridentAiHandler;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutDestroyEntities;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutSpawnMob;
 import net.tridentsdk.server.player.TridentPlayer;

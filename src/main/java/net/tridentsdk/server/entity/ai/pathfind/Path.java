@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package net.tridentsdk.server.entity.living.ai.pathfind;
+package net.tridentsdk.server.entity.ai.pathfind;
 
 import net.tridentsdk.util.Vector;
 

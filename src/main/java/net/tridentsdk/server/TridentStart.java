@@ -195,7 +195,7 @@ public final class TridentStart {
             Scanner scanner = new Scanner(System.in);
 
             while (true) {
-                String command = scanner.next();
+                String command = scanner.nextLine();
                 System.out.print("$ ");
 
                 Trident.console().invokeCommand(command);

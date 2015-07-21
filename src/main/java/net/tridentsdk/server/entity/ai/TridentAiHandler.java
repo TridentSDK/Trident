@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package net.tridentsdk.server.entity.living.ai;
+package net.tridentsdk.server.entity.ai;
 
 
 import net.tridentsdk.entity.living.ai.AiHandler;

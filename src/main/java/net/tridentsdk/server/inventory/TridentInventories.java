@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package net.tridentsdk.server.window;
+package net.tridentsdk.server.inventory;
 
 import com.google.common.collect.ForwardingCollection;
 import com.google.common.collect.ImmutableList;

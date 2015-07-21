@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package net.tridentsdk.server.window;
+package net.tridentsdk.server.inventory;
 
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.entity.living.Player;

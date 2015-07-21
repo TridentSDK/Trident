@@ -20,11 +20,11 @@ package net.tridentsdk.server.packets.play.in;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.event.player.PlayerCloseWindowEvent;
 import net.tridentsdk.registry.Registered;
+import net.tridentsdk.server.inventory.TridentInventory;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.player.PlayerConnection;
-import net.tridentsdk.server.window.TridentInventory;
 
 /**
  * Packet sent by the client when closed a Inventory

@@ -1,3 +1,19 @@
+/*
+ * Trident - A Multithreaded Server Alternative
+ * Copyright 2014 The TridentSDK Team
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package net.tridentsdk.server.service;
 
 import com.google.common.collect.ForwardingCollection;
@@ -15,11 +31,11 @@ import net.tridentsdk.registry.Players;
 import net.tridentsdk.server.TridentTaskScheduler;
 import net.tridentsdk.server.concurrent.ConcurrentTaskExecutor;
 import net.tridentsdk.server.event.EventHandler;
+import net.tridentsdk.server.inventory.TridentInventories;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutPluginMessage;
 import net.tridentsdk.server.player.OfflinePlayer;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.plugin.PluginHandler;
-import net.tridentsdk.server.window.TridentInventories;
 import net.tridentsdk.server.world.TridentWorldLoader;
 import net.tridentsdk.server.world.change.DefaultMassChange;
 import net.tridentsdk.world.MassChange;
