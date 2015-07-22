@@ -23,6 +23,7 @@ import net.tridentsdk.config.Config;
 import net.tridentsdk.config.ConfigSection;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.server.TridentServer;
+import net.tridentsdk.util.TridentLogger;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -48,9 +49,14 @@ public final class ThreadsHandler {
     private ThreadsHandler() {
     }
 
-    private static SelectableThreadPool configure(String uppercaseName) {
+    public static SelectableThreadPool configure(String uppercaseName) {
         String tagName = uppercaseName.toLowerCase() + "-threads";
-        int threads = section.getInt(tagName, 2);
+        int threads = section.getInt(tagName);
+        if (threads == 0) {
+            threads = 2;
+            TridentLogger.warn("Could not find config field for " + tagName + ", using 2 threads instead.");
+        }
+
         return ConcurrentTaskExecutor.create(threads, uppercaseName);
     }
 

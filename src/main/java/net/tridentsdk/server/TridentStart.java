@@ -121,12 +121,6 @@ public final class TridentStart {
         }
         TridentLogger.success("Parsed arguments.");
 
-        TridentLogger.log("Initializing the API implementations");
-        Implementation implementation = new TridentImpl();
-        Factory.setProvider(implementation);
-        Registered.setProvider(implementation);
-        TridentLogger.success("Loaded API implementations.");
-
         TridentLogger.log("Looking for server files...");
         File f = properties.value(options);
         if (!f.exists()) {
@@ -134,8 +128,15 @@ public final class TridentStart {
             InputStream link = TridentServer.class.getResourceAsStream("/server.json");
             Files.copy(link, f.getAbsoluteFile().toPath());
         }
+
+        TridentLogger.log("Initializing the API implementations");
+        Implementation implementation = new TridentImpl();
+        Factory.setProvider(implementation);
+        Registered.setProvider(implementation);
+        TridentLogger.success("Loaded API implementations.");
+
         ((Statuses) Registered.statuses()).loadAll();
-        TridentLogger.success("Loaded the server file");
+        TridentLogger.success("Loaded the server files");
 
         TridentLogger.log("Starting server process...");
         init(new Config(f));

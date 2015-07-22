@@ -22,7 +22,7 @@ import com.google.common.collect.ImmutableList;
 import net.tridentsdk.concurrent.*;
 import net.tridentsdk.plugin.Plugin;
 import net.tridentsdk.registry.Registered;
-import net.tridentsdk.server.concurrent.ConcurrentTaskExecutor;
+import net.tridentsdk.server.concurrent.ThreadsHandler;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Collection;
@@ -78,7 +78,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 @ThreadSafe
 public class TridentTaskScheduler extends ForwardingCollection<ScheduledTask> implements Scheduler {
     private final Queue<ScheduledTaskImpl> taskList = new ConcurrentLinkedQueue<>();
-    private final SelectableThreadPool taskExecutor = ConcurrentTaskExecutor.create(3, "Scheduler");
+    private final SelectableThreadPool taskExecutor = ThreadsHandler.configure("Scheduler");
 
     private TridentTaskScheduler() {
     }

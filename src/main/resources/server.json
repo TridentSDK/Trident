@@ -28,7 +28,8 @@
     "entities-threads": 4,
     "tile-entities-threads": 4,
     "players-threads": 3,
-    "world-threads": 2,
+    "scheduler-threads": 3,
+    "worlds-threads": 2,
     "chunks-threads": 2,
     "generator-threads": 2
   }
