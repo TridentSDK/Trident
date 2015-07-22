@@ -17,7 +17,10 @@
 
 package net.tridentsdk.server.concurrent;
 
+import net.tridentsdk.Trident;
 import net.tridentsdk.concurrent.SelectableThreadPool;
+import net.tridentsdk.config.Config;
+import net.tridentsdk.config.ConfigSection;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.server.TridentServer;
 
@@ -30,16 +33,25 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class ThreadsHandler {
-    private static final SelectableThreadPool entities = ConcurrentTaskExecutor.create(4, "Entities");
-    // private static final ExecutorFactory entities = ConcurrentTaskExecutor.create(4, "Tile Entities"); not needed yet
-    private static final SelectableThreadPool players = ConcurrentTaskExecutor.create(3, "Players");
-    private static final SelectableThreadPool worlds = ConcurrentTaskExecutor.create(2, "Worlds");
+    private static final Config cfg = new Config(Trident.fileContainer().resolve("server.json")); // Initialization code can't use factory
+    private static final ConfigSection section = cfg.getConfigSection("performance");
+
+    private static final SelectableThreadPool entities = configure("Entities");
+    // private static final ExecutorFactory entities = configure("Tile-Entities"); not needed yet
+    private static final SelectableThreadPool players = configure("Players");
+    private static final SelectableThreadPool worlds = configure("Worlds");
 
     // These 2 were originally placed together but livelock concerns have partitioned them
-    private static final SelectableThreadPool chunks = ConcurrentTaskExecutor.create(2, "Chunks");
-    private static final SelectableThreadPool generator = ConcurrentTaskExecutor.create(2, "Generator");
+    private static final SelectableThreadPool chunks = configure("Chunks");
+    private static final SelectableThreadPool generator = configure("Generator");
 
     private ThreadsHandler() {
+    }
+
+    private static SelectableThreadPool configure(String uppercaseName) {
+        String tagName = uppercaseName.toLowerCase() + "-threads";
+        int threads = section.getInt(tagName, 2);
+        return ConcurrentTaskExecutor.create(threads, uppercaseName);
     }
 
     /**

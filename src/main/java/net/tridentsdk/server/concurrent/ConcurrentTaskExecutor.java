@@ -18,10 +18,10 @@
 package net.tridentsdk.server.concurrent;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import net.tridentsdk.concurrent.SelectableThread;
 import net.tridentsdk.concurrent.SelectableThreadPool;
 import net.tridentsdk.docs.InternalUseOnly;
-import net.tridentsdk.registry.Factory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
@@ -69,7 +69,7 @@ import java.util.concurrent.locks.StampedLock;
  */
 @ThreadSafe
 public class ConcurrentTaskExecutor extends AbstractExecutorService implements SelectableThreadPool {
-    private static final Set<ConcurrentTaskExecutor> EXECUTORS = Factory.newSet();
+    private static final Set<ConcurrentTaskExecutor> EXECUTORS = Sets.newConcurrentHashSet();
     private static final int INITIALIZING = 0;
     private static final int STARTING = 1;
     private static final int RUNNING = 2;

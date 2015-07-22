@@ -3,6 +3,7 @@
   "address": "0.0.0.0",
   // The port the server will run on
   "port": 25565,
+
   // Display options
   "motd": "Just another TridentSDK server",
   "max-players": 10,
@@ -16,10 +17,19 @@
   "view-distance": 15,
   // Unused
   "default-gamemode": 0,
-  // Performance optins
+
+  // Performance options
   "performance": {
     // The maximum amount of chunks to attempt to keep on the player
     // View distance always takes priority over this
-    "max-chunks-player": 441
+    "max-chunks-player": 441,
+
+    // Thread options
+    "entities-threads": 4,
+    "tile-entities-threads": 4,
+    "players-threads": 3,
+    "world-threads": 2,
+    "chunks-threads": 2,
+    "generator-threads": 2
   }
 }
