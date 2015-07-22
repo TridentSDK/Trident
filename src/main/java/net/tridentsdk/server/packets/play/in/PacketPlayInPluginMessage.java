@@ -67,7 +67,7 @@ public class PacketPlayInPluginMessage extends InPacket {
         PluginChannel channel = Registered.channels().fromName(this.channel);
 
         if (channel != null) {
-            channel.read(this.data);
+            Registered.plugins().executor().execute(() -> channel.read(this.data));
         }
     }
 }
