@@ -233,6 +233,7 @@ public class TridentWorld implements World {
         if (!(region.exists()) || !(region.isDirectory())) {
             TridentLogger.error(
                     new IllegalStateException("Region folder is rather non-existent or isn't a directory!"));
+            return;
         }
 
         TridentLogger.success("Loaded region files successfully. Moving onto player data...");
@@ -778,12 +779,5 @@ public class TridentWorld implements World {
     @Override
     public Set<Entity> entities() {
         return ImmutableSet.copyOf(this.entities);
-    }
-
-    private static class PlayerFilter implements FilenameFilter {
-        @Override
-        public boolean accept(File file, String name) {
-            return name.endsWith(".dat") && (name.length() == 40); // 40 for UUID, dashes, and extension
-        }
     }
 }
