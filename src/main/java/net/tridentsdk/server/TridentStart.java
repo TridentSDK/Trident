@@ -38,7 +38,10 @@ import net.tridentsdk.server.command.ServerCommandRegistrar;
 import net.tridentsdk.server.netty.ClientChannelInitializer;
 import net.tridentsdk.server.service.Statuses;
 import net.tridentsdk.server.service.TridentImpl;
+import net.tridentsdk.server.world.TridentWorld;
+import net.tridentsdk.server.world.TridentWorldLoader;
 import net.tridentsdk.util.TridentLogger;
+import net.tridentsdk.world.World;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.io.File;
@@ -152,6 +155,10 @@ public final class TridentStart {
             fix = "Just don't do it")
     private static void init(final Config config) throws InterruptedException {
         try {
+            TridentLogger.log("Creating server...");
+            TridentServer.createServer(config);
+            TridentLogger.success("Server created.");
+
             // Required before loading worlds to find all class files in case the plugin has a world generator
             TridentLogger.log("Loading plugins...");
             File fi = new File(System.getProperty("user.dir") + File.separator + "plugins");
@@ -162,9 +169,13 @@ public final class TridentStart {
                 Registered.plugins().load(file);
             TridentLogger.success("Loaded plugins.");
 
-            TridentLogger.log("Creating server...");
-            TridentServer.createServer(config);
-            TridentLogger.success("Server created.");
+            TridentWorldLoader.loadAll();
+            TridentServer.WORLD = (TridentWorld) Registered.worlds().get("world");
+
+            if (TridentServer.WORLD == null) {
+                World world = TridentServer.instance().rootWorldLoader.createWorld("world");
+                TridentServer.WORLD = (TridentWorld) world;
+            }
 
             TridentLogger.log("Setting server commands...");
             ServerCommandRegistrar.registerAll();

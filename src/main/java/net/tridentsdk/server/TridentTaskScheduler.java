@@ -21,14 +21,16 @@ import com.google.common.collect.ForwardingCollection;
 import com.google.common.collect.ImmutableList;
 import net.tridentsdk.concurrent.*;
 import net.tridentsdk.plugin.Plugin;
-import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.concurrent.ThreadsHandler;
+import net.tridentsdk.server.concurrent.TickSync;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Queue;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Future;
 
 /**
  * TridentTaskScheduler is a scheduling utility that is used to reflect ScheduledTasks at a given offset of the current
@@ -200,7 +202,13 @@ public class TridentTaskScheduler extends ForwardingCollection<ScheduledTask> im
                     };
                 }
             } else {
-                this.executor = Registered.plugins().executor();
+                this.executor = new SelectableThread() {
+                    @Override public void execute(Runnable task) { TickSync.sync(task); }
+                    @Override public <V> Future<V> submitTask(Callable<V> task) { return null; }
+                    @Override public void interrupt() {}
+                    @Override public Thread asThread() { return null; }
+                };
+
                 if (!type.name().contains("REPEAT")) {
                     this.runner = () -> {
                         runnable.beforeRun();

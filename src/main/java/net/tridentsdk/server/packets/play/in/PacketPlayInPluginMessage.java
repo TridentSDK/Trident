@@ -20,6 +20,7 @@ package net.tridentsdk.server.packets.play.in;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.plugin.channel.PluginChannel;
 import net.tridentsdk.registry.Registered;
+import net.tridentsdk.server.concurrent.TickSync;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.InPacket;
@@ -67,7 +68,7 @@ public class PacketPlayInPluginMessage extends InPacket {
         PluginChannel channel = Registered.channels().fromName(this.channel);
 
         if (channel != null) {
-            Registered.plugins().executor().execute(() -> channel.read(this.data));
+            TickSync.sync(() -> channel.read(this.data));
         }
     }
 }

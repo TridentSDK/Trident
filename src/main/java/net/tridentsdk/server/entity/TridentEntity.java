@@ -29,6 +29,7 @@ import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.meta.nbt.*;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.concurrent.ThreadsHandler;
+import net.tridentsdk.server.concurrent.TickSync;
 import net.tridentsdk.server.data.MetadataType;
 import net.tridentsdk.server.data.ProtocolMetadata;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutDestroyEntities;
@@ -269,8 +270,9 @@ public class TridentEntity implements Entity {
 
     public void tick() {
         executor.execute(() -> {
-                ticksExisted.incrementAndGet();
-                doTick();
+            ticksExisted.incrementAndGet();
+            doTick();
+            TickSync.complete();
         });
     }
 

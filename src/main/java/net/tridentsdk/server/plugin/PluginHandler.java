@@ -33,6 +33,7 @@ import net.tridentsdk.plugin.annotation.IgnoreRegistration;
 import net.tridentsdk.plugin.cmd.Command;
 import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.concurrent.ConcurrentTaskExecutor;
+import net.tridentsdk.server.concurrent.TickSync;
 import net.tridentsdk.util.TridentLogger;
 
 import java.io.File;
@@ -59,7 +60,7 @@ import java.util.jar.JarFile;
  */
 public class PluginHandler extends ForwardingList<Plugin> implements Plugins {
     private static final SelectableThread EXECUTOR = ConcurrentTaskExecutor.create(1, "Plugins").selectCore();
-    final Map<String, Plugin> plugins = Maps.newConcurrentMap();
+    final Map<String, Plugin> plugins = Maps.newConcurrentMap(); // This need not be concurrent... but TridentLogger >.<
 
     /**
      * Do not instantiate this without being Trident
@@ -79,7 +80,7 @@ public class PluginHandler extends ForwardingList<Plugin> implements Plugins {
     public Plugin load(final File pluginFile) {
         HeldValueLatch<Plugin> latch = HeldValueLatch.create();
 
-        EXECUTOR.execute(new Runnable() {
+        TickSync.sync(new Runnable() {
             @Override
             public void run() {
                 JarFile jarFile = null;
@@ -175,7 +176,7 @@ public class PluginHandler extends ForwardingList<Plugin> implements Plugins {
             }
         }
 
-        plugin.enable();
+        TickSync.sync(plugin::enable);
         TridentLogger.success("Enabled " + plugin.description().name() + " version " + plugin.description().version());
     }
 
@@ -212,13 +213,13 @@ public class PluginHandler extends ForwardingList<Plugin> implements Plugins {
 
     @Override
     public void disable(final Plugin plugin) {
-        EXECUTOR.execute(() -> {
+        TickSync.sync(() -> {
             // Perform disabling first, we don't want to unload everything
             // then disable it
             // State checking could be performed which breaks the class loader
             plugin.disable();
 
-            plugins.remove(plugin);
+            plugins.remove(plugin.description().name());
 
             plugin.classLoader.unloadClasses();
             plugin.classLoader = null;

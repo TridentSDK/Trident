@@ -34,6 +34,7 @@ import net.tridentsdk.entity.types.VillagerProfession;
 import net.tridentsdk.meta.nbt.*;
 import net.tridentsdk.registry.Factory;
 import net.tridentsdk.server.concurrent.ThreadsHandler;
+import net.tridentsdk.server.concurrent.TickSync;
 import net.tridentsdk.server.entity.TridentDroppedItem;
 import net.tridentsdk.server.entity.TridentEntity;
 import net.tridentsdk.server.entity.TridentExpOrb;
@@ -343,6 +344,7 @@ public class TridentWorld implements World {
             boolean updateTime = time.get() % 40 == 0;
 
             for (Entity entity : entities) {
+                TickSync.increment();
                 ((TridentEntity) entity).tick();
                 if (entity instanceof Player && updateTime) {
                     ((TridentPlayer) entity).connection().sendPacket
@@ -352,6 +354,7 @@ public class TridentWorld implements World {
 
             time.getAndIncrement();
             existed.getAndIncrement();
+            TickSync.complete();
         });
     }
 

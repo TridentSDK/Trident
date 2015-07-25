@@ -17,15 +17,19 @@
 
 package net.tridentsdk.server.bench;
 
+import net.tridentsdk.registry.Factory;
+import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.concurrent.MainThread;
-import org.openjdk.jmh.annotations.*;
+import net.tridentsdk.server.service.TridentImpl;
+import org.openjdk.jmh.annotations.Benchmark;
+import org.openjdk.jmh.annotations.Mode;
+import org.openjdk.jmh.annotations.Scope;
+import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.infra.Blackhole;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
-import org.openjdk.jmh.runner.options.TimeValue;
-import org.openjdk.jmh.runner.options.VerboseMode;
 
 import java.util.concurrent.TimeUnit;
 
@@ -47,36 +51,51 @@ tick 5.0183914333333336E7
 // Used for baseline measurements
 @State(Scope.Benchmark)
 public class TickTest {
+    static {
+        TridentImpl trident = new TridentImpl();
+        Factory.setProvider(trident);
+        Registered.setProvider(trident);
+    }
+
     private static final MainThread THREAD = new MainThread(20);
-    @Param({ "1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024" })
+    //@Param({ "1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024" })
     private int cpuTokens;
 
-    public static void main(String[] args) {
+    public static void main0(String[] args) {
         for (int i = 0; i < 100; i++) {
-            THREAD.doRun();
+            try {
+                THREAD.doRun();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
-    public static void main0(String[] args) throws RunnerException {
+    public static void main(String[] args) throws RunnerException {
         Options opt = new OptionsBuilder().include(".*" + TickTest.class.getSimpleName() + ".*") // CLASS
-                .timeUnit(TimeUnit.NANOSECONDS).mode(Mode.AverageTime).warmupIterations(20).warmupTime(
-                        TimeValue.milliseconds(50))              // ALLOWED TIME
-                .measurementIterations(5).measurementTime(TimeValue.milliseconds(50))         // ALLOWED TIME
+                .timeUnit(TimeUnit.MILLISECONDS)
+                .mode(Mode.AverageTime)
+                .warmupIterations(20)
+                .measurementIterations(5)         // ALLOWED TIME
                 .forks(1)                                           // FORKS
-                .verbosity(VerboseMode.SILENT)                      // GRAPH
+                //.verbosity(VerboseMode.SILENT)                      // GRAPH
                 .threads(1)                                         // THREADS
                 .build();
 
         Benchmarks.chart(Benchmarks.parse(new Runner(opt).run()), "Tick+Length"); // TITLE
     }
 
-    @Benchmark
+    //@Benchmark
     public void control() {
         Blackhole.consumeCPU(cpuTokens);
     }
 
     @Benchmark
     public void tick() {
-        THREAD.doRun();
+        try {
+            THREAD.doRun();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -25,7 +25,7 @@ import net.tridentsdk.Trident;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.event.*;
 import net.tridentsdk.plugin.Plugin;
-import net.tridentsdk.registry.Registered;
+import net.tridentsdk.server.concurrent.TickSync;
 
 import java.lang.reflect.Method;
 import java.util.*;
@@ -112,7 +112,7 @@ public class EventHandler extends ForwardingCollection<EventNotifier> implements
 
         final CountDownLatch latch = new CountDownLatch(1);
 
-        Registered.plugins().executor().execute(() -> {
+        TickSync.sync(() -> {
             for (ReflectNotifier listener : listeners) {
                 listener.handle(event);
             }

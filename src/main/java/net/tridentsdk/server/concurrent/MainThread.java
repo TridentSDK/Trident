@@ -21,10 +21,12 @@ import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.TridentTaskScheduler;
 import net.tridentsdk.server.util.ConcurrentCircularArray;
 import net.tridentsdk.server.world.TridentWorld;
+import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.World;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Iterator;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -66,7 +68,7 @@ public class MainThread extends Thread {
         this.tickLength = 1000 / ticksPerSecond;
     }
 
-    public void doRun() {
+    public void doRun() throws InterruptedException {
         long startTime = System.currentTimeMillis();
 
         this.ticksElapsed.getAndIncrement();
@@ -87,6 +89,7 @@ public class MainThread extends Thread {
 
         // Entities are ticked by the world
         for (World world : Registered.worlds().values()) {
+            TickSync.increment();
             ((TridentWorld) world).tick();
         }
 
@@ -94,9 +97,22 @@ public class MainThread extends Thread {
 
         ((TridentTaskScheduler) Registered.tasks()).tick();
 
-        int timeInTick = (int) (System.currentTimeMillis() - startTime);
-        recentTickLength.add(timeInTick);
-        this.calcAndWait(timeInTick);
+        TickSync.awaitSync();
+
+        long time;
+        while ((time = System.currentTimeMillis() - startTime) < tickLength) {
+            Runnable next = TickSync.waitForTask(TimeUnit.NANOSECONDS.convert(time, TimeUnit.NANOSECONDS) / 3);
+            if (next != null) {
+                Registered.plugins().executor().execute(next);
+            }
+        }
+
+        int left = TickSync.left();
+        if (left > 0) {
+            TridentLogger.warn("Skipped " + left + " plugin task this tick");
+        }
+
+        TickSync.reset();
     }
 
     @Override
@@ -104,7 +120,11 @@ public class MainThread extends Thread {
         super.run();
 
         while (!this.isInterrupted()) {
-            doRun();
+            try {
+                doRun();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 

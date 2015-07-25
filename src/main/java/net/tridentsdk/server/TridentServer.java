@@ -56,7 +56,7 @@ public final class TridentServer implements Server {
 
     private final TridentConsole console;
 
-    private final TridentWorldLoader rootWorldLoader;
+    final TridentWorldLoader rootWorldLoader;
     private volatile DisplayInfo displayInfo;
 
     private TridentServer(Config config) {
@@ -78,14 +78,6 @@ public final class TridentServer implements Server {
         TridentServer server = new TridentServer(config);
         Trident.setServer(server);
         server.mainThread.start();
-        TridentWorldLoader.loadAll();
-        TridentServer.WORLD = (TridentWorld) Registered.worlds().get("world");
-
-        if (WORLD == null) {
-            World world = server.rootWorldLoader.createWorld("world");
-            WORLD = (TridentWorld) world;
-        }
-
         return server;
         // We CANNOT let the "this" instance escape during creation, else we lose thread-safety
     }

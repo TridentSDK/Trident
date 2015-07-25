@@ -31,7 +31,7 @@ import net.tridentsdk.plugin.annotation.CommandDescription;
 import net.tridentsdk.plugin.cmd.Command;
 import net.tridentsdk.plugin.cmd.CommandIssuer;
 import net.tridentsdk.plugin.cmd.Commands;
-import net.tridentsdk.registry.Registered;
+import net.tridentsdk.server.concurrent.TickSync;
 import net.tridentsdk.util.TridentLogger;
 
 import java.util.Collection;
@@ -72,7 +72,7 @@ public class CommandHandler extends ForwardingCollection<Command> implements Com
         final Set<CommandData> cmdData = findCommand(label);
 
         if (!cmdData.isEmpty()) {
-            Registered.plugins().executor().execute(() -> {
+            TickSync.sync(() -> {
                 for (CommandData data : cmdData) {
                     handle(data.command(), issuer, args, contents, data);
                 }
