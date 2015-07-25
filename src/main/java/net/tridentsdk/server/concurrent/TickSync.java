@@ -53,10 +53,18 @@ public final class TickSync {
     private static final Lock taskLock = new ReentrantLock();
     private static final Condition available = taskLock.newCondition();
 
+    /**
+     * Increments the expected updates counter
+     */
     public static void increment() {
         expected.increment();
     }
 
+    /**
+     * Records that an update has occurred
+     * <p>
+     * <p>Signals the main thread to sync method to continue if the expected and update counters match</p>
+     */
     public static void complete() {
         complete.increment();
 
@@ -65,10 +73,18 @@ public final class TickSync {
         }
     }
 
+    /**
+     * Tests to see if the expected and update counters match
+     *
+     * @return {@code true} to indicate that the ticking can proceed
+     */
     public static boolean canProceed() {
         return expected.sum() == complete.sum();
     }
 
+    /**
+     * Blocks the thread until this method is called again by a {@link #complete()} method
+     */
     public static void awaitSync() {
         if (canProceed()) return;
 
@@ -79,12 +95,20 @@ public final class TickSync {
         }
     }
 
+    /**
+     * Resets the counters and the blocking mechanisms for the next tick iteration
+     */
     public static void reset() {
         expected.reset();
         complete.reset();
         proceed.reset();
     }
 
+    /**
+     * Synchronizes the task for later execution once the tick completes
+     *
+     * @param pluginTask the task
+     */
     public static void sync(Runnable pluginTask) {
         taskLock.lock();
         try {
@@ -95,6 +119,14 @@ public final class TickSync {
         }
     }
 
+    /**
+     * Waits for a task to become available, or blocks until waitNanos has elapsed, in which case {@code null}
+     * will be returned
+     *
+     * @param waitNanos the nanos to wait for a task
+     * @return a task, or {@code null} if there were none
+     * @throws InterruptedException if the current thread was interrupted in waiting for a task
+     */
     public static Runnable waitForTask(long waitNanos) throws InterruptedException {
         taskLock.lock();
         try {
@@ -109,6 +141,11 @@ public final class TickSync {
         }
     }
 
+    /**
+     * Obtains the next task in the queue
+     *
+     * @return the next task, or {@code null} if there were none
+     */
     public static Runnable next() {
         taskLock.lock();
         try {
@@ -118,6 +155,11 @@ public final class TickSync {
         }
     }
 
+    /**
+     * Obtains the tasks left in the queue
+     *
+     * @return the amount of tasks left
+     */
     public static int left() {
         taskLock.lock();
         try {

@@ -123,7 +123,7 @@ public class MainThread extends Thread {
             try {
                 doRun();
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                break;
             }
         }
     }
