@@ -37,6 +37,12 @@ import java.util.concurrent.locks.ReentrantLock;
  * events until the entire tick has been processed.
  * </p>
  *
+ * <p>Unless you want to severely mess up the server, do not call any methods in this class unless:
+ * <ul>
+ *     <li>You know what you are doing (unlikely)</li>
+ *     <li>Developing Trident (in which case you need to check with Pierre to ensure you're doing it right)</li>
+ * </ul></p>
+ *
  * @author The TridentSDK Team
  */
 public final class TickSync {
