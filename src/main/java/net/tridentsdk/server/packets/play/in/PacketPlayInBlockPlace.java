@@ -129,16 +129,19 @@ public class PacketPlayInBlockPlace extends InPacket {
 
             Position position = location.relative(new Vector(x, y, z));
             Block block = position.block();
-            block.setSubstance(substance);
 
             short yaw = (short) (player.position().yaw() * 10);
             short meta = player.heldItem().damageValue();
 
-            MetaFactory.decode(block, new byte[]{
+            boolean canPlace = MetaFactory.decode(block, new byte[]{
                     writeFirst(yaw), writeSecond(yaw), direction,
                     ((byte) cursorPosition.x()), ((byte) cursorPosition.y()), ((byte) cursorPosition.z()),
                     writeFirst(meta), writeSecond(meta)
             });
+
+            if (canPlace) {
+                block.setSubstance(substance);
+            }
         }
     }
 }
