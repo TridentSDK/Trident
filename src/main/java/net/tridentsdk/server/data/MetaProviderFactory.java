@@ -22,6 +22,7 @@ import net.tridentsdk.base.Substance;
 import net.tridentsdk.meta.block.BlockMeta;
 import net.tridentsdk.meta.component.*;
 import net.tridentsdk.server.data.block.WoolMetaImpl;
+import net.tridentsdk.util.Value;
 
 import java.util.Collection;
 import java.util.List;
@@ -47,13 +48,13 @@ public class MetaProviderFactory implements MetaProvider {
     }
 
     @Override
-    public boolean decode(Block block, byte[] data) {
-        Substance substance = block.substance();
+    public boolean decode(Block block, Substance substance, byte[] data, Value<Byte> result) {
         MetaCompiler compiler = metaMap.get(substance);
         if (compiler != null) {
             byte metaByte = 0;
             for (Meta<?> meta : compiler.compileBlock(block, data)) {
                 if (meta instanceof IllegalMeta) {
+                    block.clearMeta();
                     return false;
                 }
 
@@ -61,7 +62,7 @@ public class MetaProviderFactory implements MetaProvider {
                 metaByte |= meta.encode();
             }
 
-            block.setMeta(metaByte);
+            result.set(metaByte);
         }
 
         return true;

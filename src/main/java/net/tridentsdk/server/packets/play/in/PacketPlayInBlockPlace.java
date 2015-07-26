@@ -27,6 +27,8 @@ import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.player.PlayerConnection;
 import net.tridentsdk.server.player.TridentPlayer;
+import net.tridentsdk.util.TridentLogger;
+import net.tridentsdk.util.Value;
 import net.tridentsdk.util.Vector;
 
 import static net.tridentsdk.meta.block.ByteArray.writeFirst;
@@ -89,59 +91,66 @@ public class PacketPlayInBlockPlace extends InPacket {
         Substance substance = player.heldItem().type();
 
         if (substance != Substance.AIR) {
-            int x = 0;
-            int y = 0;
-            int z = 0;
-
-            switch (blockDirection()) {
-                case 0:
-                    y--;
-                    break;
-                case 1:
-                    y++;
-                    break;
-                case 2:
-                    z--;
-                    break;
-                case 3:
-                    z++;
-                    break;
-                case 4:
-                    x--;
-                    break;
-                case 5:
-                    x++;
-                    break;
-                default:
-                    return;
-            }
-
+            Vector vector = determineOffset();
             if (!substance.isBlock()) {
                 // TODO
                 // eat food or pull bow or release/obtain water in a bucket, etc
             }
 
             // TODO prevent void placement
-            if (location.y() + y > 255 || location.y() + y < 0) {
+            TridentLogger.warn(location.y() + " " + vector.y());
+            if (location.y() + vector.y() > 255 || location.y() + vector.y() < 0) {
                 // Illegal block position
                 return;
             }
 
-            Position position = location.relative(new Vector(x, y, z));
+            Position position = location.relative(vector);
             Block block = position.block();
 
             short yaw = (short) (player.position().yaw() * 10);
             short meta = player.heldItem().damageValue();
+            Value<Byte> result = Value.of((byte) 0);
 
-            boolean canPlace = MetaFactory.decode(block, new byte[]{
+            boolean allow = MetaFactory.decode(block, substance, new byte[]{
                     writeFirst(yaw), writeSecond(yaw), direction,
                     ((byte) cursorPosition.x()), ((byte) cursorPosition.y()), ((byte) cursorPosition.z()),
                     writeFirst(meta), writeSecond(meta)
-            });
+            }, result);
 
-            if (canPlace) {
-                block.setSubstance(substance);
+            if (allow) {
+                block.setSubstanceAndMeta(substance, result.get());
             }
         }
+    }
+
+    private Vector determineOffset() {
+        int x = 0;
+        int y = 0;
+        int z = 0;
+
+        switch (blockDirection()) {
+            case 0:
+                y--;
+                break;
+            case 1:
+                y++;
+                break;
+            case 2:
+                z--;
+                break;
+            case 3:
+                z++;
+                break;
+            case 4:
+                x--;
+                break;
+            case 5:
+                x++;
+                break;
+            default:
+                return new Vector(0, 0, 0);
+        }
+
+        return new Vector(x, y, z);
     }
 }

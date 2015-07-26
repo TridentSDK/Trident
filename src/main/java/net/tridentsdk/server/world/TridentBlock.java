@@ -94,7 +94,6 @@ public class TridentBlock extends AbstractBlockMetaOwner<Block> implements Block
         this.material = substance;
         this.data = data;
 
-
         TridentPlayer.sendAll(new PacketPlayOutBlockChange()
                 .set("blockId", substance().id() << 4 | data)
                 .set("location", location));
@@ -105,5 +104,11 @@ public class TridentBlock extends AbstractBlockMetaOwner<Block> implements Block
     @Override
     protected MetaCollection<Block> collect() {
         return MetaFactory.newCollection();
+    }
+
+    @Override
+    public void clearMeta() {
+        super.clearMeta();
+        this.data = 0;
     }
 }
