@@ -21,11 +21,14 @@ import net.tridentsdk.base.Block;
 import net.tridentsdk.base.Position;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.docs.InternalUseOnly;
+import net.tridentsdk.meta.block.AbstractBlockMetaOwner;
+import net.tridentsdk.meta.component.MetaCollection;
+import net.tridentsdk.meta.component.MetaFactory;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutBlockChange;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.util.Vector;
 
-public class TridentBlock implements Block {
+public class TridentBlock extends AbstractBlockMetaOwner<Block> implements Block {
     private final Position location;
     /**
      * The type for this block
@@ -97,5 +100,10 @@ public class TridentBlock implements Block {
                 .set("location", location));
 
         ((TridentChunk) position().chunk()).setAt(location, substance, data, (byte) 255, (byte) 0);
+    }
+
+    @Override
+    protected MetaCollection<Block> collect() {
+        return MetaFactory.newCollection();
     }
 }

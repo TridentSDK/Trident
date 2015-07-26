@@ -54,7 +54,7 @@ public class MetaProviderFactory implements MetaProvider {
         MetaCompiler compiler = metaMap.get(substance);
         if (compiler != null) {
             for (BlockMeta<Block> meta : compiler.compileBlock(block)) {
-                block.commit(meta, false);
+                block.applyMeta(meta, false);
             }
         }
     }
