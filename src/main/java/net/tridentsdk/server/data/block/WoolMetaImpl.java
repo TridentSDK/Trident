@@ -48,10 +48,15 @@ public class WoolMetaImpl implements WoolMeta {
     }
 
     @Override
-    public Meta<Block> decode(Block instance, byte[] data) {
+    public Meta<Block> decode(Block instance, float yaw, byte direction, byte cx, byte cy, byte cz, short damageValue) {
         WoolMeta meta = new WoolMetaImpl();
-        meta.setColor(SubstanceColor.of(data[0]));
+        meta.setColor(SubstanceColor.of((byte) damageValue));
         return meta;
+    }
+
+    @Override
+    public byte encode() {
+        return (byte) color.asInt();
     }
 
     @Override

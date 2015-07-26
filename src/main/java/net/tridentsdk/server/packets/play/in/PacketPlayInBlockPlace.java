@@ -18,14 +18,19 @@
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.base.Block;
 import net.tridentsdk.base.Position;
 import net.tridentsdk.base.Substance;
+import net.tridentsdk.meta.component.MetaFactory;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.player.PlayerConnection;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.util.Vector;
+
+import static net.tridentsdk.meta.block.ByteArray.writeFirst;
+import static net.tridentsdk.meta.block.ByteArray.writeSecond;
 
 public class PacketPlayInBlockPlace extends InPacket {
     /**
@@ -116,15 +121,24 @@ public class PacketPlayInBlockPlace extends InPacket {
                 // eat food or pull bow or release/obtain water in a bucket, etc
             }
 
-            if (location.y() + y > 255) {
+            // TODO prevent void placement
+            if (location.y() + y > 255 || location.y() + y < 0) {
                 // Illegal block position
                 return;
             }
 
             Position position = location.relative(new Vector(x, y, z));
-            byte meta = (byte) player.heldItem().damageValue();
-            //TODO: Special Cases for stairs and whatnot
-            position.block().setSubstanceAndMeta(substance, meta);
+            Block block = position.block();
+            block.setSubstance(substance);
+
+            short yaw = (short) (player.position().yaw() * 10);
+            short meta = player.heldItem().damageValue();
+
+            MetaFactory.decode(block, new byte[]{
+                    writeFirst(yaw), writeSecond(yaw), direction,
+                    ((byte) cursorPosition.x()), ((byte) cursorPosition.y()), ((byte) cursorPosition.z()),
+                    writeFirst(meta), writeSecond(meta)
+            });
         }
     }
 }

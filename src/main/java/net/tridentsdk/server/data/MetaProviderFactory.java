@@ -20,10 +20,7 @@ import com.google.common.collect.Lists;
 import net.tridentsdk.base.Block;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.meta.block.BlockMeta;
-import net.tridentsdk.meta.component.Meta;
-import net.tridentsdk.meta.component.MetaCollection;
-import net.tridentsdk.meta.component.MetaFactory;
-import net.tridentsdk.meta.component.MetaProvider;
+import net.tridentsdk.meta.component.*;
 import net.tridentsdk.server.data.block.WoolMetaImpl;
 
 import java.util.Collection;
@@ -49,14 +46,25 @@ public class MetaProviderFactory implements MetaProvider {
         return metaMap.containsKey(substance);
     }
 
-    public void populate(Block block) {
+    @Override
+    public boolean decode(Block block, byte[] data) {
         Substance substance = block.substance();
         MetaCompiler compiler = metaMap.get(substance);
         if (compiler != null) {
-            for (BlockMeta<Block> meta : compiler.compileBlock(block)) {
-                block.applyMeta(meta, false);
+            byte metaByte = 0;
+            for (Meta<?> meta : compiler.compileBlock(block, data)) {
+                if (meta instanceof IllegalMeta) {
+                    return false;
+                }
+
+                block.applyMeta((BlockMeta) meta, false);
+                metaByte |= meta.encode();
             }
+
+            block.setMeta(metaByte);
         }
+
+        return true;
     }
 
     @Override
@@ -85,10 +93,10 @@ public class MetaProviderFactory implements MetaProvider {
             metas.add(meta);
         }
 
-        public Collection<BlockMeta> compileBlock(Block block) {
-            List<BlockMeta> compiled = Lists.newArrayList();
+        public Collection<Meta> compileBlock(Block block, byte[] data) {
+            List<Meta> compiled = Lists.newArrayList();
             for (Meta meta : metas) {
-                compiled.add(((BlockMeta) meta.decode(block, new byte[]{block.meta()})));
+                compiled.add(meta.decode(block, data));
             }
 
             return compiled;
