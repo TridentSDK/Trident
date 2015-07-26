@@ -42,6 +42,7 @@ import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.server.world.TridentWorldLoader;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.World;
+import org.apache.log4j.Level;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.io.File;
@@ -63,12 +64,9 @@ import static com.google.common.collect.Lists.newArrayList;
  */
 @ThreadSafe
 public final class TridentStart {
-    static {
-        TridentLogger.init();
-    }
 
-    private static final EventLoopGroup bossGroup = new NioEventLoopGroup(4, Defaults.ERROR_HANDLED);
-    private static final EventLoopGroup workerGroup = new NioEventLoopGroup(4, Defaults.ERROR_HANDLED);
+    private static volatile EventLoopGroup bossGroup;
+    private static volatile EventLoopGroup workerGroup;
 
     private TridentStart() {
     } // Do not initialize
@@ -95,18 +93,14 @@ public final class TridentStart {
         } */
         // ===
 
-        TridentLogger.log("Open source software by TridentSDK - https://github.com/TridentSDK");
-        TridentLogger.log("Starting Trident server");
-
-        TridentLogger.log("Creating handlers...");
         OptionParser parser = new OptionParser();
         parser.acceptsAll(newArrayList("h", "help"), "Show this help dialog.").forHelp();
+        parser.accepts("d", "Prints debug level logging output");
         parser.acceptsAll(newArrayList("log-append"), "Whether to append to the log file")
                 .withRequiredArg()
                 .ofType(Boolean.class)
                 .defaultsTo(true)
                 .describedAs("Log append");
-        TridentLogger.log("Parsing server properties, using server.json...");
         OptionSpec<File> properties = parser.acceptsAll(newArrayList("properties"),
                 "The location for the properties file")
                 .withRequiredArg()
@@ -114,7 +108,6 @@ public final class TridentStart {
                 .defaultsTo(new File("server.json"))
                 .describedAs("Properties file");
 
-        TridentLogger.log("Parsing command line arguments...");
         OptionSet options;
         try {
             options = parser.parse(args);
@@ -122,7 +115,11 @@ public final class TridentStart {
             TridentLogger.error(ex);
             return;
         }
-        TridentLogger.success("Parsed arguments.");
+
+        TridentLogger.init(options.has("d") ? Level.DEBUG : Level.INFO);
+
+        TridentLogger.log("Open source software by TridentSDK - https://github.com/TridentSDK");
+        TridentLogger.log("Starting Trident server");
 
         TridentLogger.log("Looking for server files...");
         File f = properties.value(options);
@@ -154,6 +151,9 @@ public final class TridentStart {
             reason = "Init begins here",
             fix = "Just don't do it")
     private static void init(final Config config) throws InterruptedException {
+        bossGroup = new NioEventLoopGroup(4, Defaults.ERROR_HANDLED);
+        workerGroup = new NioEventLoopGroup(4, Defaults.ERROR_HANDLED);
+
         try {
             TridentLogger.log("Creating server...");
             TridentServer.createServer(config);
@@ -204,20 +204,18 @@ public final class TridentStart {
             TridentLogger.success("Server started.");
 
             /////////////////////////// Console command handling ////////////////////////////////////
-            Scanner scanner = new Scanner(System.in);
+            Thread thread = new Thread(() -> {
+                Scanner scanner = new Scanner(System.in);
 
-            while (true) {
-                String command = scanner.nextLine();
-                System.out.print("$ ");
+                while (true) {
+                    String command = scanner.nextLine();
+                    System.out.print("$ ");
 
-                Trident.console().invokeCommand(command);
-
-                switch (command) {
-                    case "shutdown":
-                    case "stop":
-                        return;
+                    Trident.console().invokeCommand(command);
                 }
-            }
+            });
+            thread.setDaemon(true);
+            thread.start();
         } catch (InterruptedException e) {
             // This exception is caught if server is closed.
         } catch (NoSuchElementException e) {
@@ -233,7 +231,6 @@ public final class TridentStart {
      * Shuts down the backed event loops
      */
     public static void close() {
-        // Correct way to close the socket and shut down the server
         workerGroup.shutdownGracefully().awaitUninterruptibly();
         bossGroup.shutdownGracefully().awaitUninterruptibly();
     }

@@ -22,6 +22,7 @@ import net.tridentsdk.plugin.Plugin;
 import net.tridentsdk.plugin.annotation.Desc;
 import net.tridentsdk.server.TridentTaskScheduler;
 import net.tridentsdk.util.TridentLogger;
+import org.apache.log4j.Level;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
 import org.openjdk.jmh.results.RunResult;
@@ -130,7 +131,7 @@ Trident is 10x faster than Bukkit
 @State(Scope.Benchmark)
 public class SchedulerTest {
     static {
-        TridentLogger.init();
+        TridentLogger.init(Level.DEBUG);
     }
 
     private static final TridentTaskScheduler scheduler = TridentTaskScheduler.create();

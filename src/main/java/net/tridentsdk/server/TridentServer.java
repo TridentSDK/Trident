@@ -155,7 +155,7 @@ public final class TridentServer implements Server {
         for (World world : rootWorldLoader.worlds())
             ((TridentWorld) world).save();
 
-        TridentLogger.log("Shutting down worker concurrent...");
+        TridentLogger.log("Shutting down concurrent workers...");
         ((TridentTaskScheduler) Registered.tasks()).shutdown();
 
         TridentLogger.log("Shutting down server process...");

@@ -167,18 +167,24 @@ public class Statuses implements PlayerStatus {
         BufferedWriter banWriter = writeFile(bans);
         for (String aBanList : banList) {
             banWriter.write(aBanList);
+            banWriter.newLine();
         }
+        banWriter.close();
 
         ensureExists(ops);
         BufferedWriter opsWriter = writeFile(ops);
         for (String op : opsList) {
             opsWriter.write(op);
+            opsWriter.newLine();
         }
+        opsWriter.close();
 
         ensureExists(whitelist);
         BufferedWriter whitelistWriter = writeFile(whitelist);
         for (String list : whiteList) {
             whitelistWriter.write(list);
+            whitelistWriter.newLine();
         }
+        whitelistWriter.close();
     }
 }
