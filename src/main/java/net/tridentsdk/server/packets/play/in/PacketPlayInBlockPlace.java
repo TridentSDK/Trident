@@ -52,7 +52,6 @@ public class PacketPlayInBlockPlace extends InPacket {
         this.direction = buf.readByte();
 
         // ignore held item
-        // TODO possible NBT
         for (int i = 0; i < buf.readableBytes() - 3; i++) {
             buf.readByte();
         }

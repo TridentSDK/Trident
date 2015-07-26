@@ -23,6 +23,7 @@ import net.tridentsdk.concurrent.SelectableThreadPool;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.Events;
 import net.tridentsdk.inventory.Inventories;
+import net.tridentsdk.meta.component.MetaProvider;
 import net.tridentsdk.plugin.Plugins;
 import net.tridentsdk.plugin.channel.PluginChannels;
 import net.tridentsdk.plugin.cmd.Commands;
@@ -31,6 +32,7 @@ import net.tridentsdk.registry.PlayerStatus;
 import net.tridentsdk.registry.Players;
 import net.tridentsdk.server.TridentTaskScheduler;
 import net.tridentsdk.server.concurrent.ConcurrentTaskExecutor;
+import net.tridentsdk.server.data.MetaProviderFactory;
 import net.tridentsdk.server.event.EventHandler;
 import net.tridentsdk.server.inventory.TridentInventories;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutPluginMessage;
@@ -71,6 +73,7 @@ public class TridentImpl implements Implementation {
     private final Commands commands = new CommandHandler();
     private final ChatFormatter formatter = new ChatHandler();
     private final Transactions trasacts = new TransactionHandler();
+    private final MetaProvider metaProviderFactory = new MetaProviderFactory();
 
     class PlayersImpl extends ForwardingCollection<Player> implements Players {
         @Override
@@ -113,6 +116,11 @@ public class TridentImpl implements Implementation {
     @Override
     public Map<String, World> worlds() {
         return ImmutableMap.copyOf(TridentWorldLoader.WORLDS);
+    }
+
+    @Override
+    public MetaProvider meta() {
+        return metaProviderFactory;
     }
 
     @Override
