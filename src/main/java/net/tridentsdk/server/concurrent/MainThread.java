@@ -17,6 +17,7 @@
 
 package net.tridentsdk.server.concurrent;
 
+import net.tridentsdk.config.Config;
 import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.TridentTaskScheduler;
 import net.tridentsdk.server.util.ConcurrentCircularArray;
@@ -25,6 +26,7 @@ import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.World;
 
 import javax.annotation.concurrent.ThreadSafe;
+import java.nio.file.Paths;
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -36,7 +38,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 @ThreadSafe
 public class MainThread extends Thread {
-
+    private static final boolean FINISH_TASKS_LEFT = new Config(Paths.get("server.json"))
+            .getConfigSection("performance")
+            .getBoolean("finish-tasks-left");
     private static final int RECENT_TICKS_KEPT = 40;
     private static final String NAME = "Trident - Tick Thread";
 
@@ -101,15 +105,22 @@ public class MainThread extends Thread {
 
         long time;
         while ((time = System.currentTimeMillis() - startTime) < tickLength) {
-            Runnable next = TickSync.waitForTask(TimeUnit.NANOSECONDS.convert(time, TimeUnit.NANOSECONDS) / 3);
+            Runnable next = TickSync.waitForTask(TimeUnit.NANOSECONDS.convert(time, TimeUnit.NANOSECONDS) / 50);
             if (next != null) {
                 Registered.plugins().executor().execute(next);
             }
         }
 
-        int left = TickSync.left();
-        if (left > 0) {
-            TridentLogger.warn("Skipped " + left + " plugin task this tick");
+        if (!FINISH_TASKS_LEFT) {
+            int left = TickSync.left();
+            if (left > 0) {
+                TridentLogger.warn("Skipped " + left + " plugin task(s) this tick");
+            }
+        } else {
+            while (TickSync.left() > 0) {
+                Runnable runnable = TickSync.next();
+                if (runnable != null) runnable.run();
+            }
         }
 
         TickSync.reset();

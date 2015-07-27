@@ -31,6 +31,9 @@
     "scheduler-threads": 3,
     "worlds-threads": 2,
     "chunks-threads": 2,
-    "generator-threads": 2
+    "generator-threads": 2,
+
+    // Finish extra tasks left at the end of the tick?
+    "finish-tasks-left": false
   }
 }
