@@ -64,9 +64,6 @@ public class PacketHandler extends SimpleChannelInboundHandler<PacketData> {
         }
 
         Packet packet = this.protocol.getPacket(data.getId(), this.connection.stage(), PacketDirection.IN);
-        if (packet.getClass() != PacketPlayInPlayerFall.class && packet.getClass() != PacketPlayInPlayerMove.class) {
-            TridentLogger.log(packet.getClass().getSimpleName() + " received");
-        }
 
         //If packet is unknown disconnect the client, as said client seems to be modified
         if (packet.id() == -1) {
@@ -87,8 +84,8 @@ public class PacketHandler extends SimpleChannelInboundHandler<PacketData> {
 
         try {
             // DEBUG =====
-            // if(!(packet instanceof PacketPlayInPlayerFall) && !(packet instanceof PacketPlayInPlayerMove))
-            //    TridentLogger.log("Received packet " + packet.getClass().getSimpleName());
+            if (!(packet instanceof PacketPlayInPlayerFall) && !(packet instanceof PacketPlayInPlayerMove))
+                TridentLogger.debug("Received packet " + packet.getClass().getSimpleName());
             // =====
 
             //TODO: add plugin registration for packet handling

@@ -201,7 +201,7 @@ public class ClientConnection {
 
         Codec.writeVarInt32(buffer, packet.id());
         packet.encode(buffer);
-        TridentLogger.log(packet.getClass().getSimpleName() + " sent");
+        TridentLogger.debug(packet.getClass().getSimpleName() + " sent");
 
         // Write the packet and flush it
         this.channel.write(buffer);
