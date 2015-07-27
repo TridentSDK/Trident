@@ -153,8 +153,9 @@ public final class TickSync {
         taskLock.lock();
         try {
             Runnable task;
-            while ((task = pluginTasks.poll()) == null) {
+            if ((task = pluginTasks.poll()) == null) {
                 available.await(waitNanos, TimeUnit.NANOSECONDS);
+                task = pluginTasks.poll();
             }
 
             return task;

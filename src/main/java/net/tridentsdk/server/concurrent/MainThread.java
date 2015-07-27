@@ -196,7 +196,7 @@ public class MainThread extends Thread {
     }
 
     /**
-     * Compliment to MainThread#pauseTicking(), resumes the ticking of the server
+     * Complement to MainThread#pauseTicking(), resumes the ticking of the server
      */
     public void resumeTicking() {
         this.pausedTicking = false;

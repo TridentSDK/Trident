@@ -27,7 +27,6 @@ import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.player.PlayerConnection;
 import net.tridentsdk.server.player.TridentPlayer;
-import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.util.Value;
 import net.tridentsdk.util.Vector;
 
@@ -98,7 +97,6 @@ public class PacketPlayInBlockPlace extends InPacket {
             }
 
             // TODO prevent void placement
-            TridentLogger.warn(location.y() + " " + vector.y());
             if (location.y() + vector.y() > 255 || location.y() + vector.y() < 0) {
                 // Illegal block position
                 return;
