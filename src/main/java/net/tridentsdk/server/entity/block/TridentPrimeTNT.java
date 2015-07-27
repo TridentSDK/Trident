@@ -24,8 +24,8 @@ import net.tridentsdk.base.Substance;
 import net.tridentsdk.entity.block.PrimeTNT;
 import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.event.entity.EntityExplodeEvent;
-import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.data.RecordBuilder;
+import net.tridentsdk.server.event.EventProcessor;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutExplosion;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutSoundEffect;
 import net.tridentsdk.server.player.TridentPlayer;
@@ -48,8 +48,7 @@ public class TridentPrimeTNT extends TridentFallingBlock implements PrimeTNT {
     @Override
     protected void doTick() {
         if (countDown.get() == 0) {
-            EntityExplodeEvent event = new EntityExplodeEvent(this, radius);
-            Registered.events().fire(event);
+            EntityExplodeEvent event = EventProcessor.fire(new EntityExplodeEvent(this, radius));
             if (event.isIgnored()) {
                 return;
             }

@@ -21,6 +21,7 @@ import io.netty.buffer.ByteBuf;
 import net.tridentsdk.event.player.PlayerChatEvent;
 import net.tridentsdk.meta.MessageBuilder;
 import net.tridentsdk.registry.Registered;
+import net.tridentsdk.server.event.EventProcessor;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.InPacket;
@@ -61,10 +62,7 @@ public class PacketPlayInChat extends InPacket {
             Registered.commands().handle(message.substring(1), player);
             return;
         } else {
-            PlayerChatEvent event = new PlayerChatEvent(player, message);
-
-            Registered.events().fire(event);
-
+            PlayerChatEvent event = EventProcessor.fire(new PlayerChatEvent(player, message));
             if(event.isIgnored()) {
                 return;
             }

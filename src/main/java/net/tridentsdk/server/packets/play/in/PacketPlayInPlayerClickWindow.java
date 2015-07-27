@@ -22,6 +22,7 @@ import net.tridentsdk.event.player.PlayerClickItemEvent;
 import net.tridentsdk.inventory.Inventory;
 import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.data.Slot;
+import net.tridentsdk.server.event.EventProcessor;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
@@ -102,9 +103,8 @@ public class PacketPlayInPlayerClickWindow extends InPacket {
     @Override
     public void handleReceived(ClientConnection connection) {
         Inventory window = Registered.inventories().fromId(this.windowId);
-        PlayerClickItemEvent clickEvent = new PlayerClickItemEvent(window, this.clickedSlot, (int) this.actionNumber);
-
-        Registered.events().fire(clickEvent);
+        PlayerClickItemEvent clickEvent = EventProcessor
+                .fire(new PlayerClickItemEvent(window, this.clickedSlot, (int) this.actionNumber));
 
         if (clickEvent.isIgnored()) {
         }

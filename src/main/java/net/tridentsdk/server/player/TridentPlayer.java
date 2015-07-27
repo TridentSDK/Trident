@@ -31,15 +31,16 @@ import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.event.player.PlayerJoinEvent;
+import net.tridentsdk.event.player.PlayerMoveEvent;
 import net.tridentsdk.meta.ChatColor;
 import net.tridentsdk.meta.MessageBuilder;
 import net.tridentsdk.meta.nbt.CompoundTag;
 import net.tridentsdk.registry.Factory;
-import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.concurrent.ThreadsHandler;
 import net.tridentsdk.server.data.MetadataType;
 import net.tridentsdk.server.data.ProtocolMetadata;
+import net.tridentsdk.server.event.EventProcessor;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.packets.play.out.*;
@@ -215,7 +216,7 @@ public class TridentPlayer extends OfflinePlayer {
                 .set("velocity", new Vector(0, -0.07, 0)));
         connection.sendPacket(new PacketPlayOutGameStateChange().set("reason", 3).set("value", (float) gameMode().asByte()));
         TridentServer.WORLD.addEntity(this); // TODO
-        Registered.events().fire(new PlayerJoinEvent(this));
+        EventProcessor.fire(new PlayerJoinEvent(this));
 
         for (Player player : players()) {
             TridentPlayer p = (TridentPlayer) player;
@@ -298,6 +299,22 @@ public class TridentPlayer extends OfflinePlayer {
         double dX = loc.x() - position().x();
         double dY = loc.y() - position().y();
         double dZ = loc.z() - position().z();
+
+        PlayerMoveEvent event = EventProcessor.fire(new PlayerMoveEvent(this, this.position(), loc));
+
+        if (event.isIgnored()) {
+            PacketPlayOutEntityTeleport packet = new PacketPlayOutEntityTeleport();
+
+            packet.set("entityId", this.entityId());
+            packet.set("location", this.position());
+            packet.set("onGround", this.onGround());
+
+            connection.sendPacket(packet);
+            return;
+        }
+
+        super.setPosition(loc);
+
         if (dX == 0 && dY == 0 && dZ == 0) {
             sendFiltered(new PacketPlayOutEntityLook().set("entityId", entityId())
                             .set("location", loc).set("onGround", onGround), player -> !player.equals(this)
@@ -323,8 +340,6 @@ public class TridentPlayer extends OfflinePlayer {
                 ((TridentPlayer) player).connection.sendPacket(packet);
             }
         }
-
-        super.setPosition(loc);
     }
 
     /*

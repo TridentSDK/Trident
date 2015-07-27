@@ -31,6 +31,9 @@ import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.entity.types.HorseType;
 import net.tridentsdk.entity.types.VillagerCareer;
 import net.tridentsdk.entity.types.VillagerProfession;
+import net.tridentsdk.event.weather.RainEvent;
+import net.tridentsdk.event.weather.SunEvent;
+import net.tridentsdk.event.weather.ThunderEvent;
 import net.tridentsdk.meta.nbt.*;
 import net.tridentsdk.registry.Factory;
 import net.tridentsdk.server.concurrent.ThreadsHandler;
@@ -43,6 +46,7 @@ import net.tridentsdk.server.entity.block.*;
 import net.tridentsdk.server.entity.living.*;
 import net.tridentsdk.server.entity.projectile.*;
 import net.tridentsdk.server.entity.vehicle.*;
+import net.tridentsdk.server.event.EventProcessor;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutGameStateChange;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutServerDifficulty;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutTimeUpdate;
@@ -135,22 +139,22 @@ public class TridentWorld implements World {
     };
     private final WorldBorder border = new WorldBorder() {
         @Override
-        public double borderSize() {
+        public double size() {
             return 0;
         }
 
         @Override
-        public Position borderCenter() {
+        public Position center() {
             return spawnPosition;
         }
 
         @Override
-        public int borderSizeContraction() {
+        public int sizeContraction() {
             return 0;
         }
 
         @Override
-        public int borderSizeContractionTime() {
+        public int contractionTime() {
             return 0;
         }
     };
@@ -334,11 +338,36 @@ public class TridentWorld implements World {
 
             if (rainTime.get() <= 0) {
                 raining = !raining;
+                if (raining) {
+                    RainEvent e = EventProcessor.fire(new RainEvent(this));
+                    if (e.isIgnored()) {
+                        raining = false;
+                    }
+                } else {
+                    SunEvent event = EventProcessor.fire(new SunEvent(this));
+                    if (event.isIgnored()) {
+                        raining = true;
+                    }
+                }
+
                 rainTime.set(ThreadLocalRandom.current().nextInt());
             }
 
             if (thunderTime.get() <= 0) {
                 thundering = !thundering;
+                if (thundering) {
+                    ThunderEvent e = EventProcessor.fire(new ThunderEvent(this));
+                    if (e.isIgnored()) {
+                        thundering = false;
+                    }
+                } else {
+                    // TODO do we really want this?
+                    SunEvent event = EventProcessor.fire(new SunEvent(this));
+                    if (event.isIgnored()) {
+                        thundering = true;
+                    }
+                }
+
                 thunderTime.set(ThreadLocalRandom.current().nextInt());
             }
 

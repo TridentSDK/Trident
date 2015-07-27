@@ -19,12 +19,9 @@ package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.base.Position;
-import net.tridentsdk.event.player.PlayerMoveEvent;
-import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
-import net.tridentsdk.server.packets.play.out.PacketPlayOutEntityTeleport;
 import net.tridentsdk.server.player.PlayerConnection;
 import net.tridentsdk.server.player.TridentPlayer;
 
@@ -71,22 +68,6 @@ public class PacketPlayInPlayerMove extends InPacket {
     public void handleReceived(ClientConnection connection) {
         TridentPlayer player = ((PlayerConnection) connection).player();
         this.location.setWorld(player.world());
-        Position from = player.position();
-        Position to = this.location;
-
-        PlayerMoveEvent event = new PlayerMoveEvent(player, from, to);
-
-        Registered.events().fire(event);
-
-        if (event.isIgnored()) {
-            PacketPlayOutEntityTeleport cancel = new PacketPlayOutEntityTeleport();
-
-            cancel.set("entityId", player.entityId()).set("location", from).set("onGround", player.onGround());
-
-            TridentPlayer.sendAll(cancel);
-            return;
-        }
-
-        player.setPosition(to);
+        player.setPosition(location());
     }
 }

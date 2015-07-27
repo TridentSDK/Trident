@@ -24,7 +24,7 @@ import io.netty.channel.ChannelHandlerContext;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.player.PlayerDisconnectEvent;
-import net.tridentsdk.registry.Registered;
+import net.tridentsdk.server.event.EventProcessor;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.protocol.Protocol;
 import net.tridentsdk.server.packets.login.LoginHandler;
@@ -397,7 +397,7 @@ public class ClientConnection {
             return;
         }
 
-        Registered.events().fire(new PlayerDisconnectEvent(p));
+        EventProcessor.fire(new PlayerDisconnectEvent(p));
         p.remove();
 
         this.channel.close();

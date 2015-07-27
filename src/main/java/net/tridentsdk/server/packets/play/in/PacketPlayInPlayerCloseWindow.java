@@ -20,6 +20,7 @@ package net.tridentsdk.server.packets.play.in;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.event.player.PlayerCloseWindowEvent;
 import net.tridentsdk.registry.Registered;
+import net.tridentsdk.server.event.EventProcessor;
 import net.tridentsdk.server.inventory.TridentInventory;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
@@ -55,10 +56,7 @@ public class PacketPlayInPlayerCloseWindow extends InPacket {
     @Override
     public void handleReceived(ClientConnection connection) {
         TridentInventory window = (TridentInventory) Registered.inventories().fromId(id);
-        PlayerCloseWindowEvent event = new PlayerCloseWindowEvent(window);
-
-        Registered.events().fire(event);
-
+        PlayerCloseWindowEvent event = EventProcessor.fire(new PlayerCloseWindowEvent(window));
         if (event.isIgnored()) {
             return;
         }
