@@ -16,15 +16,14 @@
  */
 package net.tridentsdk.server.concurrent;
 
+import net.tridentsdk.server.TridentServer;
+
 import javax.annotation.concurrent.GuardedBy;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.LongAdder;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.LockSupport;
 
 /**
  * Synchronizes plugin calls with the ticking thread
@@ -69,10 +68,8 @@ public final class TickSync {
 
     private static volatile CountDownLatch latch = new CountDownLatch(1);
 
-    @GuardedBy("taskLock")
+    @GuardedBy("this")
     private static final Queue<Runnable> pluginTasks = new LinkedList<>();
-    private static volatile Lock taskLock = new ReentrantLock();
-    private static volatile Condition available = taskLock.newCondition();
 
     /**
      * Increments the expected updates counter
@@ -123,15 +120,6 @@ public final class TickSync {
         expected.reset();
         complete.reset();
         latch = new CountDownLatch(1);
-
-        Lock lock = taskLock;
-        lock.lock();
-        try {
-            taskLock = new ReentrantLock();
-            available = taskLock.newCondition();
-        } finally {
-            lock.unlock();
-        }
     }
 
     /**
@@ -140,13 +128,11 @@ public final class TickSync {
      * @param pluginTask the task
      */
     public static void sync(Runnable pluginTask) {
-        taskLock.lock();
-        try {
+        synchronized (TickSync.class) {
             pluginTasks.add(pluginTask);
-            available.signal(); // SignalAll not needed, only the main thread waits on this condition
-        } finally {
-            taskLock.unlock();
         }
+
+        LockSupport.unpark(TridentServer.instance().mainThread());
     }
 
     /**
@@ -158,17 +144,14 @@ public final class TickSync {
      * @throws InterruptedException if the current thread was interrupted in waiting for a task
      */
     public static Runnable waitForTask(long waitNanos) throws InterruptedException {
-        taskLock.lock();
-        try {
+        synchronized (TickSync.class) {
             Runnable task;
             if ((task = pluginTasks.poll()) == null) {
-                available.await(waitNanos, TimeUnit.NANOSECONDS);
+                LockSupport.parkNanos(waitNanos);
                 task = pluginTasks.poll();
             }
 
             return task;
-        } finally {
-            taskLock.unlock();
         }
     }
 
@@ -178,11 +161,8 @@ public final class TickSync {
      * @return the next task, or {@code null} if there were none
      */
     public static Runnable next() {
-        taskLock.lock();
-        try {
+        synchronized (TickSync.class) {
             return pluginTasks.poll();
-        } finally {
-            taskLock.unlock();
         }
     }
 
@@ -192,11 +172,8 @@ public final class TickSync {
      * @return the amount of tasks left
      */
     public static int left() {
-        taskLock.lock();
-        try {
+        synchronized (TickSync.class) {
             return pluginTasks.size();
-        } finally {
-            taskLock.unlock();
         }
     }
 }
