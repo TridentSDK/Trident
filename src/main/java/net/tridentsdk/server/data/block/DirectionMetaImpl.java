@@ -17,50 +17,51 @@
 package net.tridentsdk.server.data.block;
 
 import net.tridentsdk.base.Block;
+import net.tridentsdk.base.BlockDirection;
 import net.tridentsdk.base.Substance;
-import net.tridentsdk.base.SubstanceColor;
-import net.tridentsdk.meta.block.WoolMeta;
+import net.tridentsdk.meta.block.DirectionMeta;
 import net.tridentsdk.meta.component.Meta;
 import net.tridentsdk.meta.component.MetaCollection;
 
 /**
- * Represents data held by a wool block
+ * Represents a block direction
  *
  * @author The TridentSDK Team
  */
-public class WoolMetaImpl implements WoolMeta {
-    private volatile SubstanceColor color = SubstanceColor.WHITE;
+// TODO
+public class DirectionMetaImpl implements DirectionMeta {
+    private volatile BlockDirection direction = BlockDirection.SELF;
 
     @Override
-    public void setColor(SubstanceColor color) {
-        this.color = color;
+    public BlockDirection direction() {
+        return direction;
     }
 
     @Override
-    public SubstanceColor color() {
-        return color;
-    }
-
-    @Override
-    public Substance[] applyTo(MetaCollection collection) {
-        collection.putIfAbsent(WoolMeta.class, this);
-        return new Substance[]{Substance.WOOL};
-    }
-
-    @Override
-    public Meta<Block> decode(Block instance, float yaw, byte direction, byte cx, byte cy, byte cz, short damageValue) {
-        WoolMeta meta = new WoolMetaImpl();
-        meta.setColor(SubstanceColor.of((byte) damageValue));
-        return meta;
+    public void setDirection(BlockDirection direction) {
+        this.direction = direction;
     }
 
     @Override
     public byte encode() {
-        return (byte) color.asInt();
+        return 0;
+    }
+
+    @Override
+    public Meta<Block> decode(Block instance, float yaw, byte direction, byte cx, byte cy, byte cz, short damageValue) {
+        DirectionMeta meta = new DirectionMetaImpl();
+
+        return meta;
     }
 
     @Override
     public Meta<Block> make() {
-        return new WoolMetaImpl();
+        return new DirectionMetaImpl();
+    }
+
+    @Override
+    public Substance[] applyTo(MetaCollection collection) {
+        collection.putIfAbsent(DirectionMeta.class, this);
+        return new Substance[]{Substance.WOOL};
     }
 }

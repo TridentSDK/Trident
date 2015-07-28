@@ -21,10 +21,12 @@ import net.tridentsdk.base.Block;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.meta.block.BlockMeta;
 import net.tridentsdk.meta.component.*;
+import net.tridentsdk.server.data.block.DirectionMetaImpl;
 import net.tridentsdk.server.data.block.WoolMetaImpl;
 import net.tridentsdk.util.Value;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -41,6 +43,7 @@ public class MetaProviderFactory implements MetaProvider {
 
     public MetaProviderFactory() {
         register(new WoolMetaImpl());
+        register(new DirectionMetaImpl());
     }
 
     public boolean hasData(Substance substance) {
@@ -59,10 +62,15 @@ public class MetaProviderFactory implements MetaProvider {
                 }
 
                 block.applyMeta((BlockMeta) meta, false);
-                metaByte |= meta.encode();
+                metaByte |= meta.encodeMeta()[0];
             }
 
             result.set(metaByte);
+        } else {
+            // If no data was found for an item, the item is not placeable
+            if (!substance.isBlock()) {
+                return false;
+            }
         }
 
         return true;
@@ -92,12 +100,32 @@ public class MetaProviderFactory implements MetaProvider {
 
         public void add(Meta meta) {
             metas.add(meta);
+            Collections.sort(metas, (o1, o2) -> {
+                if (o1 instanceof BlockMeta && o2 instanceof BlockMeta) {
+                    BlockMeta<?> b1 = ((BlockMeta) o1);
+                    BlockMeta<?> b2 = ((BlockMeta) o2);
+
+                    for (Class c : b1.dependencies()) {
+                        if (c.isInstance(b2)) {
+                            return 1;
+                        }
+                    }
+
+                    for (Class c : b2.dependencies()) {
+                        if (c.isInstance(b1)) {
+                            return -1;
+                        }
+                    }
+                }
+
+                return 0;
+            });
         }
 
         public Collection<Meta> compileBlock(Block block, byte[] data) {
             List<Meta> compiled = Lists.newArrayList();
             for (Meta meta : metas) {
-                compiled.add(meta.decode(block, data));
+                compiled.add(meta.decodeMeta(block, data));
             }
 
             return compiled;

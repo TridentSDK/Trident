@@ -96,7 +96,6 @@ public class PacketPlayInBlockPlace extends InPacket {
                 // eat food or pull bow or release/obtain water in a bucket, etc
             }
 
-            // TODO prevent void placement
             if (location.y() + vector.y() > 255 || location.y() + vector.y() < 0) {
                 // Illegal block position
                 return;
