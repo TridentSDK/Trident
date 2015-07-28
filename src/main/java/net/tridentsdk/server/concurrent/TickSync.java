@@ -19,8 +19,7 @@ package net.tridentsdk.server.concurrent;
 import javax.annotation.concurrent.GuardedBy;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.concurrent.BrokenBarrierException;
-import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.concurrent.locks.Condition;
@@ -68,12 +67,12 @@ public final class TickSync {
     private static final LongAdder expected = new LongAdder();
     private static final LongAdder complete = new LongAdder();
 
-    private static final CyclicBarrier proceed = new CyclicBarrier(1);
+    private static volatile CountDownLatch latch = new CountDownLatch(1);
 
     @GuardedBy("taskLock")
     private static final Queue<Runnable> pluginTasks = new LinkedList<>();
-    private static final Lock taskLock = new ReentrantLock();
-    private static final Condition available = taskLock.newCondition();
+    private static volatile Lock taskLock = new ReentrantLock();
+    private static volatile Condition available = taskLock.newCondition();
 
     /**
      * Increments the expected updates counter
@@ -91,7 +90,7 @@ public final class TickSync {
         complete.increment();
 
         if (canProceed()) {
-            awaitSync();
+            latch.countDown();
         }
     }
 
@@ -111,8 +110,8 @@ public final class TickSync {
         if (canProceed()) return;
 
         try {
-            proceed.await();
-        } catch (InterruptedException | BrokenBarrierException e) {
+            latch.await();
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
@@ -123,7 +122,16 @@ public final class TickSync {
     public static void reset() {
         expected.reset();
         complete.reset();
-        proceed.reset();
+        latch = new CountDownLatch(1);
+
+        Lock lock = taskLock;
+        lock.lock();
+        try {
+            taskLock = new ReentrantLock();
+            available = taskLock.newCondition();
+        } finally {
+            lock.unlock();
+        }
     }
 
     /**
