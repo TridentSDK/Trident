@@ -21,8 +21,8 @@ import net.tridentsdk.base.Block;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.meta.block.BlockMeta;
 import net.tridentsdk.meta.component.*;
+import net.tridentsdk.server.data.block.ColorMetaImpl;
 import net.tridentsdk.server.data.block.DirectionMetaImpl;
-import net.tridentsdk.server.data.block.WoolMetaImpl;
 import net.tridentsdk.util.Value;
 
 import java.util.Collection;
@@ -42,7 +42,7 @@ public class MetaProviderFactory implements MetaProvider {
     private final Map<Substance, MetaCompiler> metaMap = new ConcurrentHashMap<>();
 
     public MetaProviderFactory() {
-        register(new WoolMetaImpl());
+        register(new ColorMetaImpl());
         register(new DirectionMetaImpl());
     }
 

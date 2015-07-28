@@ -19,7 +19,7 @@ package net.tridentsdk.server.data.block;
 import net.tridentsdk.base.Block;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.base.SubstanceColor;
-import net.tridentsdk.meta.block.WoolMeta;
+import net.tridentsdk.meta.block.ColorMeta;
 import net.tridentsdk.meta.component.Meta;
 import net.tridentsdk.meta.component.MetaCollection;
 
@@ -28,7 +28,7 @@ import net.tridentsdk.meta.component.MetaCollection;
  *
  * @author The TridentSDK Team
  */
-public class WoolMetaImpl implements WoolMeta {
+public class ColorMetaImpl implements ColorMeta {
     private volatile SubstanceColor color = SubstanceColor.WHITE;
 
     @Override
@@ -43,13 +43,13 @@ public class WoolMetaImpl implements WoolMeta {
 
     @Override
     public Substance[] applyTo(MetaCollection collection) {
-        collection.putIfAbsent(WoolMeta.class, this);
-        return new Substance[]{Substance.WOOL};
+        collection.putIfAbsent(ColorMeta.class, this);
+        return new Substance[]{Substance.WOOL, Substance.STAINED_GLASS, Substance.STAINED_GLASS_PANE, Substance.STAINED_CLAY};
     }
 
     @Override
     public Meta<Block> decode(Block instance, float yaw, byte direction, byte cx, byte cy, byte cz, short damageValue) {
-        WoolMeta meta = new WoolMetaImpl();
+        ColorMeta meta = new ColorMetaImpl();
         meta.setColor(SubstanceColor.of((byte) damageValue));
         return meta;
     }
@@ -61,6 +61,6 @@ public class WoolMetaImpl implements WoolMeta {
 
     @Override
     public Meta<Block> make() {
-        return new WoolMetaImpl();
+        return new ColorMetaImpl();
     }
 }
