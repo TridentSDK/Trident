@@ -44,6 +44,8 @@ public class MetaProviderFactory implements MetaProvider {
     public MetaProviderFactory() {
         register(new ColorMetaImpl());
         register(new DirectionMetaImpl());
+
+
     }
 
     public boolean hasData(Substance substance) {
@@ -61,7 +63,7 @@ public class MetaProviderFactory implements MetaProvider {
                     return false;
                 }
 
-                block.applyMeta((BlockMeta) meta, false);
+                block.applyMeta((BlockMeta) meta);
                 metaByte |= meta.encodeMeta()[0];
             }
 
