@@ -132,7 +132,9 @@ public final class TickSync {
             pluginTasks.add(pluginTask);
         }
 
-        LockSupport.unpark(TridentServer.instance().mainThread());
+        if (canProceed()) {
+            LockSupport.unpark(TridentServer.instance().mainThread());
+        }
     }
 
     /**
