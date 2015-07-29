@@ -250,7 +250,11 @@ public class TridentPlayer extends OfflinePlayer {
         if (!chunkQueue.isEmpty())
             connection.sendPacket(chunkQueue.poll());
 
-        cleanChunks(distance);
+        for (int i = 0; i < 10; i++) {
+            if (knownChunks.size() > MAX_CHUNKS) {
+                cleanChunks(distance - i);
+            } else break;
+        }
 
         connection.tick();
         ticksExisted.incrementAndGet();
