@@ -17,10 +17,10 @@
 
 package net.tridentsdk.server.entity.block;
 
-import net.tridentsdk.base.Audio;
 import net.tridentsdk.base.Block;
 import net.tridentsdk.base.Position;
 import net.tridentsdk.base.Substance;
+import net.tridentsdk.effect.sound.SoundEffectType;
 import net.tridentsdk.entity.block.PrimeTNT;
 import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.event.entity.EntityExplodeEvent;
@@ -90,7 +90,7 @@ public class TridentPrimeTNT extends TridentFallingBlock implements PrimeTNT {
                     .set("velocity", new Vector(radius, radius, radius));
 
             PacketPlayOutSoundEffect sound = new PacketPlayOutSoundEffect();
-            sound.set("sound", Audio.RANDOM_EXPLODE).set("loc", p).set("volume", 50).set("pitch", 20);
+            sound.set("sound", SoundEffectType.RANDOM_EXPLODE).set("loc", p).set("volume", 50).set("pitch", 20);
 
             TridentPlayer.sendAll(explosion);
             TridentPlayer.sendAll(sound);

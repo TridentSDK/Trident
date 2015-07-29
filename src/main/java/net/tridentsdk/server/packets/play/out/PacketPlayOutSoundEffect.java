@@ -18,13 +18,14 @@
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.base.Audio;
 import net.tridentsdk.base.Position;
+import net.tridentsdk.effect.sound.SoundEffectType;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutSoundEffect extends OutPacket {
-    protected Audio sound;
+
+    protected SoundEffectType sound;
     protected Position loc;
     protected float volume; // f * 100
     protected int pitch; // 63 = 100%
@@ -34,10 +35,7 @@ public class PacketPlayOutSoundEffect extends OutPacket {
         return 0x29;
     }
 
-    /**
-     * @return Darude - Sandstorm
-     */
-    public Audio sound() {
+    public SoundEffectType sound() {
         return this.sound;
     }
 
