@@ -31,7 +31,6 @@ import net.tridentsdk.Trident;
 import net.tridentsdk.config.Config;
 import net.tridentsdk.docs.Volatile;
 import net.tridentsdk.plugin.Plugins;
-import net.tridentsdk.registry.Factory;
 import net.tridentsdk.registry.Implementation;
 import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.command.ServerCommandRegistrar;
@@ -131,7 +130,6 @@ public final class TridentStart {
 
         TridentLogger.log("Initializing the API implementations");
         Implementation implementation = new TridentImpl();
-        Factory.setProvider(implementation);
         Registered.setProvider(implementation);
         TridentLogger.success("Loaded API implementations.");
 

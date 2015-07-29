@@ -19,7 +19,7 @@ package net.tridentsdk.server.bench;
 
 import net.tridentsdk.concurrent.ScheduledRunnable;
 import net.tridentsdk.plugin.Plugin;
-import net.tridentsdk.plugin.annotation.Desc;
+import net.tridentsdk.plugin.annotation.PluginDesc;
 import net.tridentsdk.server.TridentTaskScheduler;
 import net.tridentsdk.util.TridentLogger;
 import org.apache.log4j.Level;
@@ -140,7 +140,7 @@ public class SchedulerTest {
     private int cpuTokens;
 
     public static void main8(String... args) throws InterruptedException {
-        @Desc(name = "LOLCODE")
+        @PluginDesc(name = "LOLCODE")
         class PluginImpl extends Plugin {
         }
 
@@ -183,7 +183,7 @@ public class SchedulerTest {
     public static void main0(String... args) throws InterruptedException {
         TridentTaskScheduler scheduler = TridentTaskScheduler.create();
         for (int i = 0; i < 100; i++) {
-            @Desc(name = "LOLCODE")
+            @PluginDesc(name = "LOLCODE")
             class PluginImpl extends Plugin {
             }
 
@@ -206,7 +206,7 @@ public class SchedulerTest {
     @Setup
     public void setup() {
         for (int i = 0; i < 100000; i++) {
-            @Desc(name = "LOLCODE")
+            @PluginDesc(name = "LOLCODE")
             class PluginImpl extends Plugin {
             }
 

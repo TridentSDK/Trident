@@ -27,7 +27,7 @@ import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.meta.MessageBuilder;
 import net.tridentsdk.plugin.Plugin;
 import net.tridentsdk.plugin.PluginLoadException;
-import net.tridentsdk.plugin.annotation.CommandDescription;
+import net.tridentsdk.plugin.annotation.CommandDesc;
 import net.tridentsdk.plugin.cmd.Command;
 import net.tridentsdk.plugin.cmd.CommandIssuer;
 import net.tridentsdk.plugin.cmd.Commands;
@@ -112,11 +112,11 @@ public class CommandHandler extends ForwardingCollection<Command> implements Com
 
     @Override
     public int register(Plugin plugin, Command command) {
-        CommandDescription description = command.getClass().getAnnotation(CommandDescription.class);
+        CommandDesc description = command.getClass().getAnnotation(CommandDesc.class);
 
         if (description == null) {
             TridentLogger.error(new PluginLoadException(
-                    "Error in registering commands: Class does not have annotation " + "\"CommandDescription\"!"));
+                    "Error in registering commands: Class does not have annotation " + "\"CommandDesc\"!"));
             return 0;
         }
 

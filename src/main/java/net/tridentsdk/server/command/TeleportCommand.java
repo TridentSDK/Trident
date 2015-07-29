@@ -18,11 +18,10 @@ package net.tridentsdk.server.command;
 
 
 import net.tridentsdk.entity.living.Player;
-import net.tridentsdk.meta.ChatColor;
-import net.tridentsdk.plugin.annotation.CommandDescription;
+import net.tridentsdk.plugin.annotation.CommandDesc;
 import net.tridentsdk.plugin.cmd.Command;
 
-@CommandDescription(name = "teleport", permission = "trident.teleport", aliases = "tp")
+@CommandDesc(name = "teleport", permission = "trident.teleport", aliases = "tp")
 public class TeleportCommand extends Command {
     @Override
     public void handlePlayer(Player player, String arguments, String alias) {

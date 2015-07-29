@@ -28,8 +28,8 @@ import net.tridentsdk.event.Listener;
 import net.tridentsdk.plugin.Plugin;
 import net.tridentsdk.plugin.PluginLoadException;
 import net.tridentsdk.plugin.Plugins;
-import net.tridentsdk.plugin.annotation.Desc;
 import net.tridentsdk.plugin.annotation.IgnoreRegistration;
+import net.tridentsdk.plugin.annotation.PluginDesc;
 import net.tridentsdk.plugin.cmd.Command;
 import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.concurrent.ConcurrentTaskExecutor;
@@ -119,10 +119,10 @@ public class PluginHandler extends ForwardingList<Plugin> implements Plugins {
                         return;
                     }
 
-                    Desc description = pluginClass.getAnnotation(Desc.class);
+                    PluginDesc description = pluginClass.getAnnotation(PluginDesc.class);
 
                     if (description == null) {
-                        TridentLogger.error(new PluginLoadException("Desc annotation does not exist!"));
+                        TridentLogger.error(new PluginLoadException("PluginDesc annotation does not exist!"));
                         loader.unloadClasses();
                         loader = null; // help gc
                         return;

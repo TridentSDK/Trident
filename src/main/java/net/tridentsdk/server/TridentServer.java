@@ -21,7 +21,6 @@ import net.tridentsdk.*;
 import net.tridentsdk.config.Config;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.plugin.Plugin;
-import net.tridentsdk.registry.Factory;
 import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.command.TridentConsole;
 import net.tridentsdk.server.concurrent.ConcurrentTaskExecutor;
@@ -62,7 +61,7 @@ public final class TridentServer implements Server {
     private TridentServer(Config config) {
         this.config = config;
         this.protocol = new Protocol();
-        this.logger = Factory.newLogger();
+        this.logger = TridentLogger.get(getClass());
         this.mainThread = new MainThread(20);
         this.rootWorldLoader = new TridentWorldLoader();
         this.console = new TridentConsole();

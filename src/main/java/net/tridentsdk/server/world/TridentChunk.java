@@ -19,13 +19,13 @@ package net.tridentsdk.server.world;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import net.tridentsdk.base.Block;
 import net.tridentsdk.base.Position;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.concurrent.SelectableThread;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.meta.nbt.*;
-import net.tridentsdk.registry.Factory;
 import net.tridentsdk.server.concurrent.ThreadsHandler;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutChunkData;
 import net.tridentsdk.util.NibbleArray;
@@ -47,7 +47,7 @@ public class TridentChunk implements Chunk {
     private final TridentWorld world;
     private final ChunkLocation location;
     final SelectableThread executor = ThreadsHandler.chunkExecutor().selectCore();
-    private final Set<Entity> entities = Factory.newSet();
+    private final Set<Entity> entities = Sets.newConcurrentHashSet();
     public volatile ChunkSection[] sections;
     private volatile int lastFileAccess;
     private volatile long lastModified;

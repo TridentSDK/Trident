@@ -18,6 +18,7 @@
 package net.tridentsdk.server.player;
 
 import com.google.common.collect.Queues;
+import com.google.common.collect.Sets;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -35,7 +36,6 @@ import net.tridentsdk.event.player.PlayerMoveEvent;
 import net.tridentsdk.meta.ChatColor;
 import net.tridentsdk.meta.MessageBuilder;
 import net.tridentsdk.meta.nbt.CompoundTag;
-import net.tridentsdk.registry.Factory;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.concurrent.ThreadsHandler;
 import net.tridentsdk.server.data.MetadataType;
@@ -72,7 +72,7 @@ public class TridentPlayer extends OfflinePlayer {
             .getInt("max-chunks-player", 441);
 
     private final PlayerConnection connection;
-    private final Set<ChunkLocation> knownChunks = Factory.newSet();
+    private final Set<ChunkLocation> knownChunks = Sets.newConcurrentHashSet();
     private final Queue<PacketPlayOutMapChunkBulk> chunkQueue = Queues.newConcurrentLinkedQueue();
     private volatile boolean loggingIn = true;
     private volatile boolean sprinting;

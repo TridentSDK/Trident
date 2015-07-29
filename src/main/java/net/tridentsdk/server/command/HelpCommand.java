@@ -18,10 +18,10 @@
 package net.tridentsdk.server.command;
 
 import net.tridentsdk.ServerConsole;
-import net.tridentsdk.plugin.annotation.CommandDescription;
+import net.tridentsdk.plugin.annotation.CommandDesc;
 import net.tridentsdk.plugin.cmd.Command;
 
-@CommandDescription(name = "help", permission = "trident.help", aliases = "")
+@CommandDesc(name = "help", permission = "trident.help", aliases = "")
 public class HelpCommand extends Command {
     @Override
     public void handleConsole(ServerConsole sender, String arguments, String alias) {
