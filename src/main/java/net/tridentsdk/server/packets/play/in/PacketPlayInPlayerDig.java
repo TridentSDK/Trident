@@ -22,12 +22,14 @@ import net.tridentsdk.base.Block;
 import net.tridentsdk.base.BlockDirection;
 import net.tridentsdk.base.Position;
 import net.tridentsdk.base.Substance;
+import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.event.Cancellable;
 import net.tridentsdk.event.Event;
 import net.tridentsdk.event.block.BlockBreakEvent;
 import net.tridentsdk.event.player.*;
 import net.tridentsdk.inventory.inventory.Item;
 import net.tridentsdk.registry.Registered;
+import net.tridentsdk.server.entity.projectile.TridentArrow;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
@@ -161,6 +163,11 @@ public class PacketPlayInPlayerDig extends InPacket {
             return;
 
         // TODO act accordingly
+
+        if (digStatus == DigStatus.SHOOT_ARROW) {
+            TridentArrow entity = (TridentArrow) location.world().spawn(EntityType.ARROW, location);
+            entity.setVelocity(player.position().asUnitVector());
+        }
 
         if(digStatus == DigStatus.DIG_FINISH) {
             int[] arr = {location.block().substance().id() + (location.block().meta() << 12)};

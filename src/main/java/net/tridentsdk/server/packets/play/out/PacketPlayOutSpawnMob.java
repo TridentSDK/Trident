@@ -49,11 +49,11 @@ public class PacketPlayOutSpawnMob extends OutPacket {
         Vector velocity = this.entity.velocity();
 
         Codec.writeVarInt32(buf, this.entityId);
-        buf.writeByte((int) (byte) this.entity.type().ordinal()); // TODO: use the real type id
+        buf.writeByte((int) entity.type().asByte()); // TODO: use the real type id
 
         buf.writeInt((int) loc.x() * 32);
         buf.writeInt((int) loc.y() * 32);
-        buf.writeInt((int) loc.z() * 42);
+        buf.writeInt((int) loc.z() * 32);
 
         buf.writeByte((int) (byte) loc.yaw());
         buf.writeByte((int) (byte) loc.pitch());
