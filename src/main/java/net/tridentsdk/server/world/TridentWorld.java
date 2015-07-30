@@ -21,6 +21,12 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteStreams;
 import net.tridentsdk.base.Block;
 import net.tridentsdk.base.Position;
+import net.tridentsdk.effect.particle.ParticleEffect;
+import net.tridentsdk.effect.particle.ParticleEffectType;
+import net.tridentsdk.effect.sound.SoundEffect;
+import net.tridentsdk.effect.sound.SoundEffectType;
+import net.tridentsdk.effect.visual.VisualEffect;
+import net.tridentsdk.effect.visual.VisualEffectType;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.Projectile;
 import net.tridentsdk.entity.block.SlotProperties;
@@ -38,6 +44,9 @@ import net.tridentsdk.meta.nbt.*;
 import net.tridentsdk.registry.Factory;
 import net.tridentsdk.server.concurrent.ThreadsHandler;
 import net.tridentsdk.server.concurrent.TickSync;
+import net.tridentsdk.server.effect.particle.TridentParticleEffect;
+import net.tridentsdk.server.effect.sound.TridentSoundEffect;
+import net.tridentsdk.server.effect.visual.TridentVisualEffect;
 import net.tridentsdk.server.entity.TridentDroppedItem;
 import net.tridentsdk.server.entity.TridentEntity;
 import net.tridentsdk.server.entity.TridentExpOrb;
@@ -808,5 +817,20 @@ public class TridentWorld implements World {
     @Override
     public Set<Entity> entities() {
         return ImmutableSet.copyOf(this.entities);
+    }
+
+    @Override
+    public ParticleEffect spawnParticle(ParticleEffectType particle){
+        return new TridentParticleEffect(this);
+    }
+
+    @Override
+    public VisualEffect spawnVisual(VisualEffectType visual){
+        return new TridentVisualEffect(this);
+    }
+
+    @Override
+    public SoundEffect playSound(SoundEffectType sound){
+        return new TridentSoundEffect(this);
     }
 }

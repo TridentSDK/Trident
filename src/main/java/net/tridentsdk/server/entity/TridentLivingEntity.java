@@ -19,6 +19,8 @@ package net.tridentsdk.server.entity;
 
 import com.google.common.util.concurrent.AtomicDouble;
 import net.tridentsdk.base.Position;
+import net.tridentsdk.effect.entity.EntityStatusEffect;
+import net.tridentsdk.effect.entity.EntityStatusEffectType;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.LivingEntity;
 import net.tridentsdk.entity.Projectile;
@@ -31,6 +33,7 @@ import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.meta.nbt.*;
 import net.tridentsdk.server.data.MetadataType;
 import net.tridentsdk.server.data.ProtocolMetadata;
+import net.tridentsdk.server.effect.entity.TridentEntityStatusEffect;
 import net.tridentsdk.server.entity.ai.TridentAiHandler;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutDestroyEntities;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutSpawnMob;
@@ -258,5 +261,10 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
             this.attributes.add(NBTSerializer.deserialize(EntityAttribute.class,
                     attribute.asType(CompoundTag.class)));
         }
+    }
+
+    @Override
+    public EntityStatusEffect createStatusEffect(EntityStatusEffectType status){
+        return new TridentEntityStatusEffect(this);
     }
 }
