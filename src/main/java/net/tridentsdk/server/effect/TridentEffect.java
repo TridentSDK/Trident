@@ -17,15 +17,25 @@
 package net.tridentsdk.server.effect;
 
 import net.tridentsdk.effect.Effect;
-import net.tridentsdk.entity.LivingEntity;
+import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.server.netty.packet.OutPacket;
 import net.tridentsdk.server.player.TridentPlayer;
 
 public abstract class TridentEffect<T> implements Effect<T> {
 
     @Override
-    public void apply(LivingEntity entity){
+    public void apply(){
         TridentPlayer.sendAll(getPacket());
+    }
+
+    @Override
+    public void apply(Player player){
+        TridentPlayer.sendFiltered(getPacket(), p -> p.equals(player));
+    }
+
+    @Override
+    public void applyToEveryoneExcept(Player player){
+        TridentPlayer.sendFiltered(getPacket(), p -> !p.equals(player));
     }
 
     public abstract OutPacket getPacket();

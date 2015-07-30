@@ -19,7 +19,6 @@ package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.effect.entity.EntityStatusEffectType;
-import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutEntityStatus extends OutPacket {
@@ -42,7 +41,7 @@ public class PacketPlayOutEntityStatus extends OutPacket {
 
     @Override
     public void encode(ByteBuf buf) {
-        Codec.writeVarInt32(buf, this.entityId);
+        buf.writeInt(this.entityId);
         buf.writeByte((int) this.status.id());
     }
 }

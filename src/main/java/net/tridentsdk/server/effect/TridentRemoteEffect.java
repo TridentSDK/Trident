@@ -17,19 +17,7 @@
 package net.tridentsdk.server.effect;
 
 import net.tridentsdk.effect.RemoteEffect;
-import net.tridentsdk.entity.living.Player;
-import net.tridentsdk.server.player.TridentPlayer;
 
 public abstract class TridentRemoteEffect<T> extends TridentEffect<T> implements RemoteEffect<T> {
-
-    @Override
-    public void apply(){
-        TridentPlayer.sendAll(getPacket());
-    }
-
-    @Override
-    public void apply(Player player){
-        TridentPlayer.sendFiltered(getPacket(), p -> p.equals(player));
-    }
 
 }
