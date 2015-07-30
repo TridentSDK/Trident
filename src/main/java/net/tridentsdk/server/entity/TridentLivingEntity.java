@@ -265,6 +265,6 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
 
     @Override
     public EntityStatusEffect createStatusEffect(EntityStatusEffectType status){
-        return new TridentEntityStatusEffect(this);
+        return new TridentEntityStatusEffect(this, status);
     }
 }

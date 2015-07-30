@@ -29,8 +29,10 @@ public class TridentParticleEffect extends TridentRemoteEffect<ParticleEffectTyp
 
     private PacketPlayOutParticle packet = new PacketPlayOutParticle();
 
-    public TridentParticleEffect(World world){
+    public TridentParticleEffect(World world, ParticleEffectType type){
         packet.set("loc", new Position(world, 0, 0, 0));
+        packet.set("particle", type);
+        packet.set("data", new int[0]);
     }
 
     @Override

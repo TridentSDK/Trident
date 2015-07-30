@@ -29,8 +29,9 @@ public class TridentSoundEffect extends TridentRemoteEffect<SoundEffectType> imp
 
     private PacketPlayOutSoundEffect packet = new PacketPlayOutSoundEffect();
 
-    public TridentSoundEffect(World world){
+    public TridentSoundEffect(World world, SoundEffectType type){
         packet.set("loc", new Position(world, 0, 0, 0));
+        packet.set("sound", type);
     }
 
     @Override
@@ -45,9 +46,9 @@ public class TridentSoundEffect extends TridentRemoteEffect<SoundEffectType> imp
 
     @Override
     public void setPosition(Vector vector){
-        packet.location().setX(vector.x());
-        packet.location().setY(vector.y());
-        packet.location().setZ(vector.z());
+        packet.location().setX(vector.x() * 8);
+        packet.location().setY(vector.y() * 8);
+        packet.location().setZ(vector.z() * 8);
     }
 
     @Override

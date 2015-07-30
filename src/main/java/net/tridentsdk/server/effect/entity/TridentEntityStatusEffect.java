@@ -28,8 +28,9 @@ public class TridentEntityStatusEffect extends TridentEffect<EntityStatusEffectT
 
     private PacketPlayOutEntityStatus packet = new PacketPlayOutEntityStatus();
 
-    public TridentEntityStatusEffect(LivingEntity entity){
+    public TridentEntityStatusEffect(LivingEntity entity, EntityStatusEffectType type){
         packet.set("entityId", entity.entityId());
+        packet.set("status", type);
     }
 
     @Override

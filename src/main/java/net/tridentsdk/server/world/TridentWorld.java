@@ -821,16 +821,16 @@ public class TridentWorld implements World {
 
     @Override
     public ParticleEffect spawnParticle(ParticleEffectType particle){
-        return new TridentParticleEffect(this);
+        return new TridentParticleEffect(this, particle);
     }
 
     @Override
     public VisualEffect spawnVisual(VisualEffectType visual){
-        return new TridentVisualEffect(this);
+        return new TridentVisualEffect(this, visual);
     }
 
     @Override
     public SoundEffect playSound(SoundEffectType sound){
-        return new TridentSoundEffect(this);
+        return new TridentSoundEffect(this, sound);
     }
 }

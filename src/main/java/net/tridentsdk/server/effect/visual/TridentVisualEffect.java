@@ -29,8 +29,9 @@ public class TridentVisualEffect extends TridentRemoteEffect<VisualEffectType> i
 
     private PacketPlayOutEffect packet = new PacketPlayOutEffect();
 
-    public TridentVisualEffect(World world){
+    public TridentVisualEffect(World world, VisualEffectType type){
         packet.set("loc", new Position(world, 0, 0, 0));
+        packet.set("status", type);
     }
 
     @Override
