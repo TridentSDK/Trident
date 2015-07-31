@@ -452,6 +452,8 @@ public class TridentPlayer extends OfflinePlayer {
                 if (!knownChunks.add(location)) continue;
 
                 TridentChunk chunk = (TridentChunk) world().chunkAt(x, z, true);
+                chunk.paint(); // Chunks only need to be painted when they are used
+
                 PacketPlayOutChunkData data = chunk.asPacket();
 
                 bulk.addEntry(data);

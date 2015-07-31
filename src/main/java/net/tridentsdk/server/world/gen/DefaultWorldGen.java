@@ -27,6 +27,7 @@ import net.tridentsdk.world.ChunkLocation;
 import net.tridentsdk.world.gen.AbstractGenerator;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicReferenceArray;
 
 /**
  * Default world generator engine for Trident
@@ -42,7 +43,7 @@ public class DefaultWorldGen extends AbstractGenerator {
     }
 
     @Override
-    public char[][] generateChunkBlocks(final ChunkLocation location) {
+    public char[][] generateChunkBlocks(final ChunkLocation location, AtomicReferenceArray<Integer> heights) {
         final char[][] data = new char[15][ChunkSection.LENGTH];
         final CountDownLatch release = new CountDownLatch(16);
 
@@ -53,6 +54,8 @@ public class DefaultWorldGen extends AbstractGenerator {
                 for (int z = 0; z < 16; z++) {
                     final int i = WorldUtils.intScale(0, 140, generator.noise(finalX + (location.x() << 4), z +
                             (location.z() << 4))) - 20;
+                    heights.set(WorldUtils.heightIndex(finalX, z), i - 1);
+
                     for (int y = 0; y < i; y++) {
                         if (i < 40 && y == (i - 1)) {
                             for (int rev = 40; rev > i; rev--) {
