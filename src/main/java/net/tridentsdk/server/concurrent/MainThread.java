@@ -19,7 +19,6 @@ package net.tridentsdk.server.concurrent;
 
 import net.tridentsdk.config.Config;
 import net.tridentsdk.registry.Registered;
-import net.tridentsdk.server.TridentTaskScheduler;
 import net.tridentsdk.server.util.ConcurrentCircularArray;
 import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.util.TridentLogger;
