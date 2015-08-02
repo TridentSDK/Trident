@@ -101,7 +101,7 @@ dependency-reduced-pom.xml
 Thumbs.db
 
 ### Trident files ###
-world/
+/world/
 bans.txt
 ops.txt
 server.json
