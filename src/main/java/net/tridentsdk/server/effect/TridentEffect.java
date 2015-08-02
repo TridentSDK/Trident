@@ -30,7 +30,7 @@ public abstract class TridentEffect<T> implements Effect<T> {
 
     @Override
     public void apply(Player player){
-        TridentPlayer.sendFiltered(getPacket(), p -> p.equals(player));
+        ((TridentPlayer) player).connection().sendPacket(getPacket());
     }
 
     @Override

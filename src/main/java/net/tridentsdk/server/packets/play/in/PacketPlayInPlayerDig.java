@@ -24,6 +24,8 @@ import net.tridentsdk.base.Position;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.effect.particle.ParticleEffect;
 import net.tridentsdk.effect.particle.ParticleEffectType;
+import net.tridentsdk.effect.sound.SoundEffect;
+import net.tridentsdk.effect.sound.SoundEffectType;
 import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.event.Cancellable;
 import net.tridentsdk.event.Event;
@@ -36,7 +38,6 @@ import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutBlockChange;
-import net.tridentsdk.server.packets.play.out.PacketPlayOutParticle;
 import net.tridentsdk.server.player.PlayerConnection;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.world.TridentChunk;
@@ -184,7 +185,13 @@ public class PacketPlayInPlayerDig extends InPacket {
             effect.setPosition(location.add(new Vector(0.5, 0.5, 0.5)).asVector());
             effect.setOffset(new Vector(0.45, 0.45, 0.45));
             effect.setData(arr);
-            effect.apply();
+            effect.applyToEveryoneExcept(player);
+
+            SoundEffectType soundEffectType = location.block().substance().breakSound();
+            if(soundEffectType != null){
+                SoundEffect sound = location.world().playSound(soundEffectType);
+                sound.applyToEveryoneExcept(player);
+            }
         }
     }
 
