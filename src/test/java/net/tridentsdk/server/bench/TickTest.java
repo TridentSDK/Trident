@@ -17,7 +17,6 @@
 
 package net.tridentsdk.server.bench;
 
-import net.tridentsdk.registry.Factory;
 import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.concurrent.MainThread;
 import net.tridentsdk.server.service.TridentImpl;
@@ -53,7 +52,6 @@ tick 5.0183914333333336E7
 public class TickTest {
     static {
         TridentImpl trident = new TridentImpl();
-        Factory.setProvider(trident);
         Registered.setProvider(trident);
     }
 

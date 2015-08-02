@@ -17,12 +17,12 @@
 
 package net.tridentsdk.server.inventory;
 
+import com.google.common.collect.Sets;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.inventory.Inventory;
 import net.tridentsdk.inventory.inventory.InventoryType;
 import net.tridentsdk.inventory.inventory.Item;
-import net.tridentsdk.registry.Factory;
 import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.data.Slot;
 import net.tridentsdk.server.entity.EntityBuilder;
@@ -54,7 +54,7 @@ public class TridentInventory implements Inventory {
     private final String name;
     private final int length;
     private final InventoryType type;
-    private final Set<WeakEntity<Player>> users = Factory.newSet();
+    private final Set<WeakEntity<Player>> users = Sets.newConcurrentHashSet();
     private final AtomicReferenceArray<Item> contents;
 
     /**

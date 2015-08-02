@@ -23,9 +23,9 @@ import net.tridentsdk.concurrent.SelectableThread;
 import net.tridentsdk.concurrent.SelectableThreadPool;
 import net.tridentsdk.event.Events;
 import net.tridentsdk.event.Listener;
-import net.tridentsdk.registry.Factory;
 import net.tridentsdk.registry.Implementation;
 import net.tridentsdk.registry.Registered;
+import net.tridentsdk.server.concurrent.ConcurrentTaskExecutor;
 import net.tridentsdk.server.concurrent.MainThread;
 import net.tridentsdk.server.concurrent.ThreadsHandler;
 import net.tridentsdk.server.service.TridentImpl;
@@ -50,7 +50,6 @@ public class EventBusPerformance {
     static {
         TridentLogger.init(Level.ALL);
         Implementation implementation = new TridentImpl();
-        Factory.setProvider(implementation);
         Registered.setProvider(implementation);
         new MainThread(20).start();
     }
@@ -59,7 +58,7 @@ public class EventBusPerformance {
     private static final EventHandler HANDLER = new EventHandler();
     private static final Listener LISTENER = new EventListener();
     private static final Event EVENT = new Event();
-    private static final SelectableThreadPool EXEC = Factory.newExecutor(2, "EventBusPerformance");
+    private static final SelectableThreadPool EXEC = ConcurrentTaskExecutor.create(2, "EventBusPerformance");
     private static final SelectableThread EXECUTOR = EXEC.selectScaled();
     private static final net.tridentsdk.plugin.Plugin PLUGIN = new Plugin();
     // Cannot be initialized first, else whole class cannot be loaded completely

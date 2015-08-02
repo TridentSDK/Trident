@@ -20,14 +20,14 @@ import net.tridentsdk.ServerConsole;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.meta.ChatColor;
 import net.tridentsdk.meta.MessageBuilder;
-import net.tridentsdk.plugin.annotation.CommandDescription;
+import net.tridentsdk.plugin.annotation.CommandDesc;
 import net.tridentsdk.plugin.cmd.Command;
 import net.tridentsdk.registry.Registered;
-import net.tridentsdk.service.PermissionHolder;
+import net.tridentsdk.service.PermissionOwner;
 
 import java.util.UUID;
 
-@CommandDescription(name = "op", permission = "trident.op")
+@CommandDesc(name = "op", permission = "trident.op")
 public class OpCommand extends Command {
     @Override
     public void handlePlayer(Player player, String arguments, String alias) {
@@ -77,7 +77,7 @@ public class OpCommand extends Command {
         sender.sendRaw(ChatColor.GREEN + "Opped " + uuid);
 
         final UUID finalUuid = uuid;
-        Registered.players().stream().filter(PermissionHolder::opped).forEach(player ->
+        Registered.players().stream().filter(PermissionOwner::opped).forEach(player ->
                 new MessageBuilder("[CONSOLE: Opped " + finalUuid + "]").color(ChatColor.GRAY).sendTo(player));
     }
 }

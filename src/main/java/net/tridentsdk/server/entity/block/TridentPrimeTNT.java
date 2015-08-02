@@ -92,8 +92,8 @@ public class TridentPrimeTNT extends TridentFallingBlock implements PrimeTNT {
             PacketPlayOutSoundEffect sound = new PacketPlayOutSoundEffect();
             sound.set("sound", SoundEffectType.RANDOM_EXPLODE).set("loc", p).set("volume", 50).set("pitch", 20);
 
-            TridentPlayer.sendAll(explosion);
-            TridentPlayer.sendAll(sound);
+            TridentPlayer.sendFiltered(explosion, player -> player.world().equals(world()));
+            TridentPlayer.sendFiltered(sound, player -> player.world().equals(world()));
         }
 
         countDown.decrementAndGet();

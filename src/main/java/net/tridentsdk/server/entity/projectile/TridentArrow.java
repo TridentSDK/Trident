@@ -21,6 +21,9 @@ import net.tridentsdk.entity.living.ProjectileLauncher;
 import net.tridentsdk.entity.projectile.Arrow;
 import net.tridentsdk.entity.traits.EntityProperties;
 import net.tridentsdk.entity.types.EntityType;
+import net.tridentsdk.server.entity.TridentEntity;
+import net.tridentsdk.server.packets.play.out.PacketPlayOutSpawnObject;
+import net.tridentsdk.server.player.TridentPlayer;
 
 import java.util.UUID;
 
@@ -57,5 +60,12 @@ public class TridentArrow extends TridentProjectile implements Arrow {
     @Override
     public EntityType type() {
         return EntityType.ARROW;
+    }
+
+    @Override
+    public TridentEntity spawn() {
+        TridentPlayer.sendFiltered(new PacketPlayOutSpawnObject().set("entityId", entityId()).set("entity", this),
+                player -> player.world().equals(this.world()));
+        return super.spawn();
     }
 }

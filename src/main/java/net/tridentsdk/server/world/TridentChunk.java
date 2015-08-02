@@ -19,13 +19,13 @@ package net.tridentsdk.server.world;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import net.tridentsdk.base.Block;
 import net.tridentsdk.base.Position;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.concurrent.SelectableThread;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.meta.nbt.*;
-import net.tridentsdk.registry.Factory;
 import net.tridentsdk.server.concurrent.ThreadsHandler;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutChunkData;
 import net.tridentsdk.util.NibbleArray;
@@ -34,6 +34,8 @@ import net.tridentsdk.world.Chunk;
 import net.tridentsdk.world.ChunkLocation;
 import net.tridentsdk.world.ChunkSnapshot;
 import net.tridentsdk.world.gen.AbstractGenerator;
+import net.tridentsdk.world.gen.AbstractOverlayBrush;
+import net.tridentsdk.world.gen.GeneratorRandom;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -41,14 +43,18 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.stream.Stream;
 
 public class TridentChunk implements Chunk {
     private final TridentWorld world;
     private final ChunkLocation location;
     final SelectableThread executor = ThreadsHandler.chunkExecutor().selectCore();
-    private final Set<Entity> entities = Factory.newSet();
-    public volatile ChunkSection[] sections;
+    private final Set<Entity> entities = Sets.newConcurrentHashSet();
+
+    public ChunkSection[] sections;
+    private final AtomicReferenceArray<Integer> heights = new AtomicReferenceArray<>(256);
+
     private volatile int lastFileAccess;
     private volatile long lastModified;
     private volatile long inhabitedTime;
@@ -108,7 +114,7 @@ public class TridentChunk implements Chunk {
             AbstractGenerator generator = world.loader().generator();
             int i = 0;
 
-            for (char[] blockData : generator.generateChunkBlocks(location)) {
+            for (char[] blockData : generator.generateChunkBlocks(location, heights)) {
                 sections[i].setBlocks(blockData);
                 i++;
             }
@@ -142,6 +148,100 @@ public class TridentChunk implements Chunk {
 
             //TODO lighting
         });
+    }
+
+    public void paint() {
+        List<AbstractOverlayBrush> brushes = world.loader().brushes();
+        GeneratorRandom random = new GeneratorRandom(world.loader().generator().seed());
+        AbstractOverlayBrush.ChunkManipulator manipulator = new AbstractOverlayBrush.ChunkManipulator() {
+            @Override
+            public void manipulate(int relX, int y, int relZ, Substance substance, byte data) {
+                if (relX >= 0 && relX <= 15 && relZ >= 0 && relZ <= 15) {
+                    setAt(relX, y, relZ, substance, data, (byte) 255, (byte) 15);
+                    return;
+                }
+
+                int cx = location.x();
+                int cz = location.z();
+
+                int xMinDiff = Math.max(relX, 0) - Math.min(relX, 0);
+                int xMaxDiff = Math.max(relX, 15) - Math.min(relX, 15);
+                int zMinDiff = Math.max(relZ, 0) - Math.min(relZ, 0);
+                int zMaxDiff = Math.max(relZ, 15) - Math.min(relZ, 15);
+
+                if (relX > 15 && relZ > 15) { // q1 +,+
+                    ChunkLocation loc = ChunkLocation.create(cx + ceil(xMaxDiff / 16), cz + ceil(zMaxDiff / 16));
+                    TridentChunk chunk = world.chunkAt(loc, true);
+                    chunk.setAt(relX + xMaxDiff, y, relZ + zMaxDiff, substance, data, (byte) 255, (byte) 15);
+                } else if (relX > 15 && relZ < 0) { // q4 +,-
+                    ChunkLocation loc = ChunkLocation.create(cx + ceil(xMaxDiff / 16), cz - ceil(zMinDiff / 16));
+                    TridentChunk chunk = world.chunkAt(loc, true);
+                    chunk.setAt(relX + xMaxDiff, y, relZ - zMinDiff, substance, data, (byte) 255, (byte) 15);
+                } else if (relX < 0 && relZ > 15) { // q2 -,+
+                    ChunkLocation loc = ChunkLocation.create(cx - ceil(xMinDiff / 16), cz + ceil(zMaxDiff / 16));
+                    TridentChunk chunk = world.chunkAt(loc, true);
+                    chunk.setAt(relX - xMinDiff, y, relZ + zMaxDiff, substance, data, (byte) 255, (byte) 15);
+                } else if (relX < 0 && relZ < 15) { // q3 -,-
+                    ChunkLocation loc = ChunkLocation.create(cx - ceil(xMinDiff / 16), cz - ceil(zMinDiff / 16));
+                    TridentChunk chunk = world.chunkAt(loc, true);
+                    chunk.setAt(relX + xMinDiff, y, relZ - zMinDiff, substance, data, (byte) 255, (byte) 15);
+                }
+            }
+
+            @Override
+            public Block blockAt(int relX, int y, int relZ) {
+                if (relX >= 0 && relX <= 15 && relZ >= 0 && relZ <= 15) {
+                    return TridentChunk.this.blockAt(relX, y, relZ);
+                }
+
+                int cx = location.x();
+                int cz = location.z();
+
+                int xMinDiff = Math.max(relX, 0) - Math.min(relX, 0);
+                int xMaxDiff = Math.max(relX, 15) - Math.min(relX, 15);
+                int zMinDiff = Math.max(relZ, 0) - Math.min(relZ, 0);
+                int zMaxDiff = Math.max(relZ, 15) - Math.min(relZ, 15);
+
+                if (relX > 15 && relZ > 15) { // q1 +,+
+                    ChunkLocation loc = ChunkLocation.create(cx + ceil(xMaxDiff / 16), cz + ceil(zMaxDiff / 16));
+                    TridentChunk chunk = world.chunkAt(loc, true);
+                    chunk.blockAt(relX + xMaxDiff, y, relZ + zMaxDiff);
+                } else if (relX > 15 && relZ < 0) { // q4 +,-
+                    ChunkLocation loc = ChunkLocation.create(cx + ceil(xMaxDiff / 16), cz - ceil(zMinDiff / 16));
+                    TridentChunk chunk = world.chunkAt(loc, true);
+                    return chunk.blockAt(relX + xMaxDiff, y, relZ - zMinDiff);
+                } else if (relX < 0 && relZ > 15) { // q2 -,+
+                    ChunkLocation loc = ChunkLocation.create(cx - ceil(xMinDiff / 16), cz + ceil(zMaxDiff / 16));
+                    TridentChunk chunk = world.chunkAt(loc, true);
+                    return chunk.blockAt(relX - xMinDiff, y, relZ + zMaxDiff);
+                } else if (relX < 0 && relZ < 15) { // q3 -,-
+                    ChunkLocation loc = ChunkLocation.create(cx - ceil(xMinDiff / 16), cz - ceil(zMinDiff / 16));
+                    TridentChunk chunk = world.chunkAt(loc, true);
+                    return chunk.blockAt(relX + xMinDiff, y, relZ - zMinDiff);
+                }
+
+                return null;
+            }
+        };
+
+        for (int i = 0; i < 16; i++) {
+            for (int j = 0; j < 16; j++) {
+                for (AbstractOverlayBrush brush : brushes) {
+                    final int finalI = i;
+                    final int finalJ = j;
+                    executor.execute(() ->
+                            brush.brush(location, finalI, maxHeightAt(finalI, finalJ), finalJ, random, manipulator));
+                }
+            }
+        }
+    }
+
+    private int ceil(double d) {
+        return (int) Math.ceil(d);
+    }
+
+    public int maxHeightAt(int x, int z) {
+        return heights.get(WorldUtils.heightIndex(x, z));
     }
 
     @Override

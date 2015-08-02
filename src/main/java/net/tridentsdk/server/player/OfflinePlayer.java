@@ -18,6 +18,7 @@
 package net.tridentsdk.server.player;
 
 
+import com.google.common.collect.Sets;
 import net.tridentsdk.Trident;
 import net.tridentsdk.base.Position;
 import net.tridentsdk.entity.Entity;
@@ -28,7 +29,6 @@ import net.tridentsdk.entity.traits.PlayerSpeed;
 import net.tridentsdk.event.entity.EntityDamageEvent;
 import net.tridentsdk.inventory.Inventory;
 import net.tridentsdk.meta.nbt.*;
-import net.tridentsdk.registry.Factory;
 import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.data.Slot;
@@ -111,7 +111,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     protected final Inventory enderChest = null;
     protected final PlayerAbilities abilities = new PlayerAbilities();
     protected final PlayerSpeed playerSpeed = new PlayerSpeedImpl();
-    protected final Set<String> permissions = Factory.newSet();
+    protected final Set<String> permissions = Sets.newConcurrentHashSet();
 
     OfflinePlayer(UUID uuid, CompoundTag tag, TridentWorld world) {
         super(uuid, world.spawnPosition());

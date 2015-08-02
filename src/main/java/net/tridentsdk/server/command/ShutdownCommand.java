@@ -20,10 +20,10 @@ package net.tridentsdk.server.command;
 import net.tridentsdk.ServerConsole;
 import net.tridentsdk.Trident;
 import net.tridentsdk.entity.living.Player;
-import net.tridentsdk.plugin.annotation.CommandDescription;
+import net.tridentsdk.plugin.annotation.CommandDesc;
 import net.tridentsdk.plugin.cmd.Command;
 
-@CommandDescription(name = "shutdown", permission = "trident.shutdown", aliases = "stop", priority = 0)
+@CommandDesc(name = "shutdown", permission = "trident.shutdown", aliases = "stop", priority = 0)
 class ShutdownCommand extends Command {
     @Override
     public void handlePlayer(Player player, String arguments, String alias) {

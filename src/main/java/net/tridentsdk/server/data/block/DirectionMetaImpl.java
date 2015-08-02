@@ -30,7 +30,6 @@ import static net.tridentsdk.base.Substance.*;
  *
  * @author The TridentSDK Team
  */
-// TODO
 public class DirectionMetaImpl implements DirectionMeta {
     private volatile BlockDirection direction = BlockDirection.SELF;
 
@@ -52,7 +51,7 @@ public class DirectionMetaImpl implements DirectionMeta {
     @Override
     public Meta<Block> decode(Block instance, float yaw, byte direction, byte cx, byte cy, byte cz, short damageValue) {
         DirectionMeta meta = new DirectionMetaImpl();
-
+        // TODO
         return meta;
     }
 

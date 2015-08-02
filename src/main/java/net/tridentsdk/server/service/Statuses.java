@@ -16,8 +16,8 @@
  */
 package net.tridentsdk.server.service;
 
+import com.google.common.collect.Sets;
 import net.tridentsdk.Trident;
-import net.tridentsdk.registry.Factory;
 import net.tridentsdk.registry.PlayerStatus;
 
 import java.io.*;
@@ -78,9 +78,9 @@ public class Statuses implements PlayerStatus {
     private final Path ops = Trident.fileContainer().resolve("ops.txt");
     private final Path whitelist = Trident.fileContainer().resolve("whitelist.txt");
 
-    private final Set<String> banList = Factory.newSet();
-    private final Set<String> opsList = Factory.newSet();
-    private final Set<String> whiteList = Factory.newSet();
+    private final Set<String> banList = Sets.newConcurrentHashSet();
+    private final Set<String> opsList = Sets.newConcurrentHashSet();
+    private final Set<String> whiteList = Sets.newConcurrentHashSet();
 
     public void loadAll() {
         ensureExists(bans);

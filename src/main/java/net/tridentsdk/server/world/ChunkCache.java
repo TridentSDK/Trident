@@ -95,10 +95,8 @@ public class ChunkCache {
                     .stream()
                     .filter(e -> e.type().equals(EntityType.PLAYER))
                     .count() == 0) {
-                c.executor.execute(() -> {
-                    remove(location);
-                    c.unload();
-                });
+                remove(location);
+                c.unload();
 
                 return true;
             }

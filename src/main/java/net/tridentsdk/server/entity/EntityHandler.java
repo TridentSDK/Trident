@@ -21,7 +21,6 @@ import net.tridentsdk.Trident;
 import net.tridentsdk.base.Position;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.entity.Entity;
-import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.util.TridentLogger;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -61,9 +60,6 @@ public final class EntityHandler {
      */
     public void register(Entity entity) {
         entities.put(entity.uniqueId(), entity);
-        if (entity instanceof TridentPlayer)
-            return;
-        // tracker.track(entity);
     }
 
     /**

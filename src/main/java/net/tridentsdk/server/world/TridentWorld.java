@@ -18,6 +18,7 @@
 package net.tridentsdk.server.world;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import com.google.common.io.ByteStreams;
 import net.tridentsdk.base.Block;
 import net.tridentsdk.base.Position;
@@ -41,7 +42,6 @@ import net.tridentsdk.event.weather.RainEvent;
 import net.tridentsdk.event.weather.SunEvent;
 import net.tridentsdk.event.weather.ThunderEvent;
 import net.tridentsdk.meta.nbt.*;
-import net.tridentsdk.registry.Factory;
 import net.tridentsdk.server.concurrent.ThreadsHandler;
 import net.tridentsdk.server.concurrent.TickSync;
 import net.tridentsdk.server.effect.particle.TridentParticleEffect;
@@ -93,7 +93,7 @@ public class TridentWorld implements World {
     private static final int MAX_CHUNKS = 30_000_000;
 
     public final ChunkCache loadedChunks = new ChunkCache(this);
-    private final Set<Entity> entities = Factory.newSet();
+    private final Set<Entity> entities = Sets.newConcurrentHashSet();
     private final String name;
     private final WorldLoader loader;
     private final Position spawnPosition;
@@ -114,7 +114,7 @@ public class TridentWorld implements World {
     private volatile boolean thundering;
 
     private boolean generateStructures = true;
-    private Set<String> gameRules = Factory.newSet();
+    private Set<String> gameRules = Sets.newConcurrentHashSet();
     private final WeatherConditions conditions = new WeatherConditions() {
         @Override
         public boolean isRaining() {
@@ -132,6 +132,19 @@ public class TridentWorld implements World {
         }
 
         @Override
+        public void setRaining(boolean rain) {
+            if (rain) {
+                if (!raining) {
+                    toggleRain(0);
+                }
+            } else {
+                if (raining) {
+                    toggleRain(0);
+                }
+            }
+        }
+
+        @Override
         public boolean isThundering() {
             return thundering;
         }
@@ -144,6 +157,30 @@ public class TridentWorld implements World {
         @Override
         public void toggleThunder(int ticks) {
             thunderTime.set(ticks);
+        }
+
+        @Override
+        public void setThundering(boolean thunder) {
+            if (thunder) {
+                if (!thundering) {
+                    toggleThunder(0);
+                }
+            } else {
+                if (thundering) {
+                    toggleThunder(0);
+                }
+            }
+        }
+
+        @Override
+        public boolean isSunny() {
+            return !raining && !thundering;
+        }
+
+        @Override
+        public void setSunny() {
+            setRaining(false);
+            setThundering(false);
         }
     };
     private final WorldBorder border = new WorldBorder() {
@@ -623,7 +660,7 @@ public class TridentWorld implements World {
 
     @Override
     public WorldBorder border() {
-        return null;
+        return border;
     }
 
     @Override
