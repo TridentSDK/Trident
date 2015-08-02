@@ -33,7 +33,7 @@ public class TallGrassBrush extends AbstractOverlayBrush {
 
     @Override
     public void brush(ChunkLocation location, int relX, int top, int relZ, GeneratorRandom random, ChunkManipulator manipulator) {
-        if (random.under(99) > 90 /* && manipulator.blockAt(relX, top, relZ).substance() == Substance.GRASS */) {
+        if (random.under(99) < 40 && manipulator.blockAt(relX, top, relZ).substance() == Substance.GRASS) {
             manipulator.manipulate(relX, top + 1, relZ, Substance.LONG_GRASS, (byte) 0x01);
         }
     }

@@ -20,7 +20,6 @@ package net.tridentsdk.server.util;
 import com.google.code.tempusfugit.concurrency.annotations.ThreadSafe;
 
 import java.util.Iterator;
-import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -34,14 +33,14 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 @ThreadSafe
 public class ConcurrentCircularArray<E> {
 
-    protected final AtomicReferenceArray<E> backing;
+    protected final Object[] array;
     private final int maxSize;
     private final ReadWriteLock rwLock;
     private int current;
     private int size;
 
     public ConcurrentCircularArray(final int length) {
-        backing = new AtomicReferenceArray<>(length);
+        array = new Object[length];
         // The position of the value to write
         current = 0;
         size = 0;
@@ -52,12 +51,11 @@ public class ConcurrentCircularArray<E> {
     }
 
     public boolean add(E element) {
-
         Lock lock = rwLock.writeLock();
         lock.lock();
         try {
             if (size < maxSize) {
-                backing.set(current, element);
+                array[current] = element;
                 size++;
                 if (current + 1 == maxSize) {
                     current = 0;
@@ -65,7 +63,7 @@ public class ConcurrentCircularArray<E> {
                     current++;
                 }
             } else {
-                backing.set(current, element);
+                array[current] = element;
                 if (current + 1 == maxSize) {
                     current = 0;
                 } else {
@@ -79,15 +77,19 @@ public class ConcurrentCircularArray<E> {
     }
 
     public int size() {
-        return size;
+        rwLock.readLock().lock();
+        try {
+            return size;
+        } finally {
+            rwLock.readLock().unlock();
+        }
     }
 
     public boolean isEmpty() {
-        return size == 0;
+        return size() == 0;
     }
 
     public Iterator<E> iterator() {
-
         Lock lock = rwLock.readLock();
         lock.lock();
         Iterator<E> retVal = null;
@@ -106,7 +108,7 @@ public class ConcurrentCircularArray<E> {
         lock.lock();
         try {
             for (int i = 0; i < maxSize; i++) {
-                backing.set(i, null);
+                array[i] = null;
             }
             size = 0;
             current = 0;
@@ -129,14 +131,15 @@ public class ConcurrentCircularArray<E> {
         lock.lock();
         try {
             if (value == null) {
-                backing.set(i, null);
+                array[i] = null;
                 size--;
             } else {
-                boolean retVal = backing.compareAndSet(i, value, null);
-                if (retVal) {
+                boolean eq = array[i] == value;
+                if (eq) {
+                    array[i] = null;
                     size--;
                 }
-                return retVal;
+                return eq;
             }
         } finally {
             lock.unlock();
@@ -151,10 +154,15 @@ public class ConcurrentCircularArray<E> {
      * @return whether or not this is full
      */
     public boolean isFull() {
-        return size == maxSize;
+        return size() == maxSize();
     }
 
     public int maxSize() {
-        return maxSize;
+        rwLock.readLock().lock();
+        try {
+            return maxSize;
+        } finally {
+            rwLock.readLock().lock();
+        }
     }
 }

@@ -54,7 +54,7 @@ public class CircularArrayIterator<E> implements Iterator<E> {
         contents = new Object[parent.maxSize()];
         int notNulls = 0;
         for (int i = 0; i < parent.maxSize(); i++) {
-            contents[i] = parent.backing.get(i);
+            contents[i] = parent.array[i];
             if (contents[i] != null) {
                 notNulls++;
             }

@@ -103,6 +103,7 @@ public class TridentWorld implements World {
     private final AtomicInteger rainTime = new AtomicInteger();
     private final AtomicInteger thunderTime = new AtomicInteger();
     private volatile double borderSize;
+    private final long seed;
     private volatile Dimension dimension;
     private volatile Difficulty difficulty;
     private volatile GameMode defaultGamemode;
@@ -208,6 +209,7 @@ public class TridentWorld implements World {
     private TridentWorld(String name, WorldLoader loader, boolean throwaway) {
         ((TridentWorldLoader) loader).world = this;
         this.name = name;
+        this.seed = loader.seed();
         this.loader = loader;
         this.spawnPosition = Position.create(this, 0, 0, 0);
     }
@@ -215,6 +217,7 @@ public class TridentWorld implements World {
     TridentWorld(String name, WorldLoader loader) {
         ((TridentWorldLoader) loader).world = this;
         this.name = name;
+        this.seed = loader.seed();
         this.loader = loader;
         this.spawnPosition = Position.create(this, 0, 0, 0);
 
@@ -352,7 +355,7 @@ public class TridentWorld implements World {
             int centX = ((int) Math.floor(world.spawnPosition.x())) >> 4;
             int centZ = ((int) Math.floor(world.spawnPosition.z())) >> 4;
 
-            ((TridentWorldLoader) loader).setGenerator(ThreadLocalRandom.current().nextLong());
+            ((TridentWorldLoader) loader).setGenerator(loader.seed());
 
             for (ChunkLocation location :
                     new ChunkAxisAlignedBoundingBox(ChunkLocation.create(centX - 7, centZ - 7),
@@ -661,6 +664,11 @@ public class TridentWorld implements World {
     @Override
     public WorldBorder border() {
         return border;
+    }
+
+    @Override
+    public long seed() {
+        return 0;
     }
 
     @Override

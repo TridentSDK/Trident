@@ -242,6 +242,14 @@ public class TridentWorldLoader implements WorldLoader {
     private LevelType levelType = LevelType.DEFAULT;
     private List<String> rules = Lists.newArrayList();
     private boolean structures = true;
+    private long seed = ThreadLocalRandom.current().nextLong();
+
+    @Override
+    public WorldLoader seed(long seed) {
+        checkNull();
+        this.seed = seed;
+        return this;
+    }
 
     @Override
     public WorldLoader dimension(Dimension dimension) {
@@ -286,6 +294,11 @@ public class TridentWorldLoader implements WorldLoader {
     }
 
     //////////////////////////////// DELEGATES
+
+    @Override
+    public long seed() {
+        return seed;
+    }
 
     @Override
     public Dimension dimension() {
