@@ -23,7 +23,8 @@ import com.google.common.collect.Lists;
 import net.tridentsdk.Trident;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.server.world.gen.DefaultWorldGen;
-import net.tridentsdk.server.world.gen.TallGrassBrush;
+import net.tridentsdk.server.world.gen.brush.OakTreeBrush;
+import net.tridentsdk.server.world.gen.brush.TallGrassBrush;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.Chunk;
 import net.tridentsdk.world.ChunkLocation;
@@ -43,10 +44,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -210,7 +208,7 @@ public class TridentWorldLoader implements WorldLoader {
             Constructor<? extends AbstractGenerator> g = generatorClass.getDeclaredConstructor(long.class);
             gen = g.newInstance(seed);
             // TODO init brushes
-            brushes.add(new TallGrassBrush(seed));
+            Collections.addAll(brushes, new TallGrassBrush(seed), new OakTreeBrush(seed));
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
             TridentLogger.error("Error occurred while instantiating generator " + generatorClass.getName());
             TridentLogger.error("Switching to the default");
@@ -297,7 +295,8 @@ public class TridentWorldLoader implements WorldLoader {
 
     @Override
     public long seed() {
-        return seed;
+        checkNotNull();
+        return world.seed();
     }
 
     @Override

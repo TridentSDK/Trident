@@ -55,6 +55,7 @@ public class TridentChunk implements Chunk {
 
     public ChunkSection[] sections;
     private final AtomicReferenceArray<Integer> heights = new AtomicReferenceArray<>(256);
+    private final GeneratorRandom random;
 
     private volatile int lastFileAccess;
     private volatile long lastModified;
@@ -68,6 +69,7 @@ public class TridentChunk implements Chunk {
 
     protected TridentChunk(TridentWorld world, ChunkLocation coord) {
         this.world = world;
+        this.random = new GeneratorRandom(world.loader().generator().seed());
         this.location = coord;
         this.lastFileAccess = 0;
         sections = new ChunkSection[16];
@@ -153,7 +155,6 @@ public class TridentChunk implements Chunk {
 
     public void paint() {
         List<AbstractOverlayBrush> brushes = world.loader().brushes();
-        GeneratorRandom random = new GeneratorRandom(world.loader().generator().seed());
         AbstractOverlayBrush.ChunkManipulator manipulator = new AbstractOverlayBrush.ChunkManipulator() {
             @Override
             public void manipulate(int relX, int y, int relZ, Substance substance, byte data) {
