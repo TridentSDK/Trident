@@ -42,6 +42,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.stream.Stream;
@@ -224,15 +225,24 @@ public class TridentChunk implements Chunk {
             }
         };
 
+        CountDownLatch latch = new CountDownLatch(256);
         for (int i = 0; i < 16; i++) {
             for (int j = 0; j < 16; j++) {
                 for (AbstractOverlayBrush brush : brushes) {
                     final int finalI = i;
                     final int finalJ = j;
-                    executor.execute(() ->
-                            brush.brush(location, finalI, maxHeightAt(finalI, finalJ), finalJ, random, manipulator));
+                    executor.execute(() -> {
+                        brush.brush(location, finalI, maxHeightAt(finalI, finalJ), finalJ, random.get(), manipulator);
+                        latch.countDown();
+                    });
                 }
             }
+        }
+
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 
@@ -379,6 +389,11 @@ public class TridentChunk implements Chunk {
         LongTag inhabitedTime = tag.getTagAs("InhabitedTime");
         IntArrayTag biomes = tag.getTagAs("HeightMap");
 
+        int[] rawHeight = biomes.value();
+        for (int i = 0; i < 256; i++) {
+            heights.set(i, rawHeight[i]);
+        }
+
         final ListTag sectionTags = tag.getTagAs("Sections");
         ListTag entities = tag.getTagAs("Entities");
         ListTag tileEntities = (tag.containsTag("TileEntities")) ? (ListTag) tag.getTag("TileEntities") :
@@ -435,7 +450,13 @@ public class TridentChunk implements Chunk {
         level.addTag(new ByteTag("TerrainPopulated").setValue(terrainPopulated));
 
         level.addTag(new LongTag("InhabitedTime").setValue(inhabitedTime));
-        level.addTag(new IntArrayTag("HeightMap").setValue(new int[1024])); // placeholder TODO
+
+        int[] rawHeights = new int[256];
+        for (int i = 0; i < 256; i++) {
+            rawHeights[i] = heights.get(i);
+        }
+
+        level.addTag(new IntArrayTag("HeightMap").setValue(rawHeights));
 
         final ListTag sectionTags = new ListTag("Sections", TagType.COMPOUND);
 

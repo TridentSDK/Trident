@@ -359,6 +359,10 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements S
 
         @Override
         public void execute(Runnable task) {
+            if (Thread.currentThread().equals(asThread())) {
+                task.run();
+            }
+
             long stamp = lock.writeLock();
             try {
                 tasks.offerFirst(task);

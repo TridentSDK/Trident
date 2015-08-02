@@ -23,6 +23,8 @@ import net.tridentsdk.server.world.WorldUtils;
 import net.tridentsdk.world.ChunkLocation;
 import net.tridentsdk.world.gen.AbstractGenerator;
 
+import java.util.concurrent.atomic.AtomicReferenceArray;
+
 /**
  * Generates a flat world
  *
@@ -34,11 +36,11 @@ public class FlatWorldGen extends AbstractGenerator {
     }
 
     @Override
-    public char[][] generateChunkBlocks(ChunkLocation location, int[] heights) {
+    public char[][] generateChunkBlocks(ChunkLocation location, AtomicReferenceArray<Integer> heights) {
         char[][] data = new char[1][ChunkSection.LENGTH];
         for (int x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++) {
-                heights[WorldUtils.heightIndex(x, z)] = 4;
+                heights.set(WorldUtils.heightIndex(x, z), 3);
 
                 for (int y = 0; y < 4; y++ ) {
                     switch (y) {
