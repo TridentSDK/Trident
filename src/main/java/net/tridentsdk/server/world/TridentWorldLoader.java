@@ -23,12 +23,14 @@ import com.google.common.collect.Lists;
 import net.tridentsdk.Trident;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.server.world.gen.DefaultWorldGen;
+import net.tridentsdk.server.world.gen.TallGrassBrush;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.Chunk;
 import net.tridentsdk.world.ChunkLocation;
 import net.tridentsdk.world.World;
 import net.tridentsdk.world.WorldLoader;
 import net.tridentsdk.world.gen.AbstractGenerator;
+import net.tridentsdk.world.gen.AbstractOverlayBrush;
 import net.tridentsdk.world.settings.Difficulty;
 import net.tridentsdk.world.settings.Dimension;
 import net.tridentsdk.world.settings.GameMode;
@@ -58,6 +60,7 @@ public class TridentWorldLoader implements WorldLoader {
     public static final Map<String, TridentWorld> WORLDS = new ConcurrentHashMap<>();
 
     private final Class<? extends AbstractGenerator> generatorClass;
+    private final List<AbstractOverlayBrush> brushes = Lists.newArrayList();
     private volatile AbstractGenerator generator;
     volatile TridentWorld world;
 
@@ -206,6 +209,8 @@ public class TridentWorldLoader implements WorldLoader {
         try {
             Constructor<? extends AbstractGenerator> g = generatorClass.getDeclaredConstructor(long.class);
             gen = g.newInstance(seed);
+            // TODO init brushes
+            brushes.add(new TallGrassBrush(seed));
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
             TridentLogger.error("Error occurred while instantiating generator " + generatorClass.getName());
             TridentLogger.error("Switching to the default");
@@ -224,6 +229,11 @@ public class TridentWorldLoader implements WorldLoader {
     @Override
     public AbstractGenerator generator() {
         return generator;
+    }
+
+    @Override
+    public List<AbstractOverlayBrush> brushes() {
+        return brushes;
     }
 
     private Dimension dimension = Dimension.OVERWORLD;

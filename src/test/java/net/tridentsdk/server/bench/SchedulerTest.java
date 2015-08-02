@@ -20,7 +20,7 @@ package net.tridentsdk.server.bench;
 import net.tridentsdk.concurrent.ScheduledRunnable;
 import net.tridentsdk.plugin.Plugin;
 import net.tridentsdk.plugin.annotation.PluginDesc;
-import net.tridentsdk.server.TridentTaskScheduler;
+import net.tridentsdk.server.concurrent.TridentTaskScheduler;
 import net.tridentsdk.util.TridentLogger;
 import org.apache.log4j.Level;
 import org.openjdk.jmh.annotations.*;

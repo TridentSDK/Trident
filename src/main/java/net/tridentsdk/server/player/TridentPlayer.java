@@ -27,7 +27,10 @@ import net.tridentsdk.Trident;
 import net.tridentsdk.base.Block;
 import net.tridentsdk.base.Position;
 import net.tridentsdk.base.Substance;
+import net.tridentsdk.config.ConfigSection;
 import net.tridentsdk.docs.InternalUseOnly;
+import net.tridentsdk.effect.entity.EntityStatusEffect;
+import net.tridentsdk.effect.entity.EntityStatusEffectType;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.entity.types.EntityType;
@@ -40,6 +43,7 @@ import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.concurrent.ThreadsHandler;
 import net.tridentsdk.server.data.MetadataType;
 import net.tridentsdk.server.data.ProtocolMetadata;
+import net.tridentsdk.server.effect.entity.TridentEntityStatusEffect;
 import net.tridentsdk.server.event.EventProcessor;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.Packet;
@@ -68,8 +72,9 @@ import static net.tridentsdk.server.packets.play.out.PacketPlayOutPlayerListItem
 public class TridentPlayer extends OfflinePlayer {
     private static final Map<UUID, Player> ONLINE_PLAYERS = new ConcurrentHashMap<>();
     private static final int MAX_VIEW = Trident.config().getInt("view-distance", 15);
-    private static final int MAX_CHUNKS = (int) Trident.config().getConfigSection("performance")
-            .getInt("max-chunks-player", 441);
+    private static final ConfigSection tridentCfg = Trident.config().getConfigSection("performance");
+    private static final int MAX_CHUNKS = tridentCfg.getInt("max-chunks-player", 441);
+    private static final int CLEAN_ITERATIONS = tridentCfg.getInt("chunk-clean-iterations-player", 2);
 
     private final PlayerConnection connection;
     private final Set<ChunkLocation> knownChunks = Sets.newConcurrentHashSet();
@@ -250,7 +255,7 @@ public class TridentPlayer extends OfflinePlayer {
         if (!chunkQueue.isEmpty())
             connection.sendPacket(chunkQueue.poll());
 
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < CLEAN_ITERATIONS; i++) {
             if (knownChunks.size() > MAX_CHUNKS) {
                 cleanChunks(distance - i);
             } else break;
@@ -261,24 +266,21 @@ public class TridentPlayer extends OfflinePlayer {
     }
 
     public void cleanChunks(int viewDist) {
-        int toClean = knownChunks.size() - MAX_CHUNKS;
-        if (toClean > 0) {
-            Position pos = position();
-            int x = (int) pos.x() / 16;
-            int z = (int) pos.z() / 16;
+        Position pos = position();
+        int x = (int) pos.x() / 16;
+        int z = (int) pos.z() / 16;
 
-            for (ChunkLocation location : knownChunks) {
-                int cx = location.x();
-                int cz = location.z();
+        for (ChunkLocation location : knownChunks) {
+            int cx = location.x();
+            int cz = location.z();
 
-                int abs = Math.abs(cx - x);
-                int abs1 = Math.abs(cz - z);
+            int abs = Math.abs(cx - x);
+            int abs1 = Math.abs(cz - z);
 
-                if (abs > viewDist || abs1 > viewDist) {
-                    ((TridentWorld) world()).loadedChunks.tryRemove(location);
-                    connection.sendPacket(new PacketPlayOutChunkData(new byte[0], location, true, (short) 0));
-                    knownChunks.remove(location);
-                }
+            if (abs > viewDist || abs1 > viewDist) {
+                ((TridentWorld) world()).loadedChunks.tryRemove(location);
+                connection.sendPacket(new PacketPlayOutChunkData(new byte[0], location, true, (short) 0));
+                knownChunks.remove(location);
             }
         }
     }
@@ -453,6 +455,8 @@ public class TridentPlayer extends OfflinePlayer {
                 if (!knownChunks.add(location)) continue;
 
                 TridentChunk chunk = (TridentChunk) world().chunkAt(x, z, true);
+                chunk.paint(); // Chunks only need to be painted when they are used
+
                 PacketPlayOutChunkData data = chunk.asPacket();
 
                 bulk.addEntry(data);

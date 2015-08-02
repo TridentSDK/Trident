@@ -26,6 +26,7 @@ import net.tridentsdk.server.command.TridentConsole;
 import net.tridentsdk.server.concurrent.ConcurrentTaskExecutor;
 import net.tridentsdk.server.concurrent.MainThread;
 import net.tridentsdk.server.concurrent.ThreadsHandler;
+import net.tridentsdk.server.concurrent.TridentTaskScheduler;
 import net.tridentsdk.server.netty.protocol.Protocol;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.service.Statuses;

@@ -34,10 +34,12 @@ public class FlatWorldGen extends AbstractGenerator {
     }
 
     @Override
-    public char[][] generateChunkBlocks(ChunkLocation location) {
+    public char[][] generateChunkBlocks(ChunkLocation location, int[] heights) {
         char[][] data = new char[1][ChunkSection.LENGTH];
         for (int x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++) {
+                heights[WorldUtils.heightIndex(x, z)] = 4;
+
                 for (int y = 0; y < 4; y++ ) {
                     switch (y) {
                         case 0:

@@ -14,34 +14,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package net.tridentsdk.server.effect;
 
-package net.tridentsdk.server.packets.play.out;
-
-import io.netty.buffer.ByteBuf;
-import net.tridentsdk.effect.entity.EntityStatusEffectType;
+import net.tridentsdk.effect.Effect;
+import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.server.netty.packet.OutPacket;
+import net.tridentsdk.server.player.TridentPlayer;
 
-public class PacketPlayOutEntityStatus extends OutPacket {
-
-    protected int entityId;
-    protected EntityStatusEffectType status;
+public abstract class TridentEffect<T> implements Effect<T> {
 
     @Override
-    public int id() {
-        return 0x1A;
-    }
-
-    public int entityId() {
-        return this.entityId;
-    }
-
-    public EntityStatusEffectType status() {
-        return this.status;
+    public void apply(){
+        TridentPlayer.sendAll(getPacket());
     }
 
     @Override
-    public void encode(ByteBuf buf) {
-        buf.writeInt(this.entityId);
-        buf.writeByte((int) this.status.id());
+    public void apply(Player player){
+        TridentPlayer.sendFiltered(getPacket(), p -> p.equals(player));
     }
+
+    @Override
+    public void applyToEveryoneExcept(Player player){
+        TridentPlayer.sendFiltered(getPacket(), p -> !p.equals(player));
+    }
+
+    public abstract OutPacket getPacket();
+
 }

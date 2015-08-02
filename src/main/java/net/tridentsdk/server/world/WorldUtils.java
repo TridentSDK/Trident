@@ -115,4 +115,8 @@ public final class WorldUtils {
     public static int intScale(int min, int max, double value) {
         return (int) (((double)(max - min)) * ((value + 1) / 2)) + min;
     }
+
+    public static int heightIndex(int relX, int relZ) {
+        return (relX * 16) + relZ;
+    }
 }
