@@ -29,7 +29,7 @@ public class PacketPlayOutEntityMetadata extends OutPacket {
 
     @Override
     public int id() {
-        return 0x0C;
+        return 0x1C;
     }
 
     @Override
