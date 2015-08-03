@@ -19,12 +19,13 @@ package net.tridentsdk.server.world;
 
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import net.tridentsdk.Trident;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.server.world.gen.DefaultWorldGen;
 import net.tridentsdk.server.world.gen.brush.OakTreeBrush;
 import net.tridentsdk.server.world.gen.brush.TallGrassBrush;
+import net.tridentsdk.util.FastRandom;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.Chunk;
 import net.tridentsdk.world.ChunkLocation;
@@ -46,6 +47,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -58,7 +60,7 @@ public class TridentWorldLoader implements WorldLoader {
     public static final Map<String, TridentWorld> WORLDS = new ConcurrentHashMap<>();
 
     private final Class<? extends AbstractGenerator> generatorClass;
-    private final List<AbstractOverlayBrush> brushes = Lists.newArrayList();
+    private final List<AbstractOverlayBrush> brushes = new CopyOnWriteArrayList<>();
     private volatile AbstractGenerator generator;
     volatile TridentWorld world;
 
@@ -234,13 +236,13 @@ public class TridentWorldLoader implements WorldLoader {
         return brushes;
     }
 
-    private Dimension dimension = Dimension.OVERWORLD;
-    private Difficulty difficulty = Difficulty.PEACEFUL;
-    private GameMode gameMode = GameMode.SURVIVAL;
-    private LevelType levelType = LevelType.DEFAULT;
-    private List<String> rules = Lists.newArrayList();
-    private boolean structures = true;
-    private long seed = ThreadLocalRandom.current().nextLong();
+    Dimension dimension = Dimension.OVERWORLD;
+    Difficulty difficulty = Difficulty.PEACEFUL;
+    GameMode gameMode = GameMode.SURVIVAL;
+    LevelType levelType = LevelType.DEFAULT;
+    Set<String> rules = Sets.newHashSet();
+    boolean structures = true;
+    long seed = FastRandom.random();
 
     @Override
     public WorldLoader seed(long seed) {
@@ -296,19 +298,19 @@ public class TridentWorldLoader implements WorldLoader {
     @Override
     public long seed() {
         checkNotNull();
-        return world.seed();
+        return seed;
     }
 
     @Override
     public Dimension dimension() {
         checkNotNull();
-        return world.dimension();
+        return dimension;
     }
 
     @Override
     public Difficulty difficulty() {
         checkNotNull();
-        return world.difficulty();
+        return difficulty;
     }
 
     @Override
@@ -320,7 +322,7 @@ public class TridentWorldLoader implements WorldLoader {
     @Override
     public GameMode defaultGameMode() {
         checkNotNull();
-        return world.defaultGameMode();
+        return gameMode;
     }
 
     @Override
@@ -332,25 +334,25 @@ public class TridentWorldLoader implements WorldLoader {
     @Override
     public LevelType levelType() {
         checkNotNull();
-        return world.levelType();
+        return levelType;
     }
 
     @Override
     public boolean isRule(String rule) {
         checkNotNull();
-        return world.isRule(rule);
+        return rules.contains(rule);
     }
 
     @Override
     public Set<String> gameRules() {
         checkNotNull();
-        return world.gameRules();
+        return rules;
     }
 
     @Override
     public boolean generateStructures() {
         checkNotNull();
-        return world.generateStructures();
+        return structures;
     }
 
     private void checkNotNull() {

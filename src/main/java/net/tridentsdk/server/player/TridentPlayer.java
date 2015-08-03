@@ -29,8 +29,6 @@ import net.tridentsdk.base.Position;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.config.ConfigSection;
 import net.tridentsdk.docs.InternalUseOnly;
-import net.tridentsdk.effect.entity.EntityStatusEffect;
-import net.tridentsdk.effect.entity.EntityStatusEffectType;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.entity.types.EntityType;
@@ -43,7 +41,6 @@ import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.concurrent.ThreadsHandler;
 import net.tridentsdk.server.data.MetadataType;
 import net.tridentsdk.server.data.ProtocolMetadata;
-import net.tridentsdk.server.effect.entity.TridentEntityStatusEffect;
 import net.tridentsdk.server.event.EventProcessor;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.Packet;
@@ -455,7 +452,7 @@ public class TridentPlayer extends OfflinePlayer {
                 if (!knownChunks.add(location)) continue;
 
                 TridentChunk chunk = (TridentChunk) world().chunkAt(x, z, true);
-                chunk.paint(); // Chunks only need to be painted when they are used
+                chunk.paint();
 
                 PacketPlayOutChunkData data = chunk.asPacket();
 

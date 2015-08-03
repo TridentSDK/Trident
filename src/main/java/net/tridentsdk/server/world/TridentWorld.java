@@ -63,6 +63,7 @@ import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.*;
 import net.tridentsdk.world.gen.ChunkAxisAlignedBoundingBox;
+import net.tridentsdk.world.gen.GeneratorRandom;
 import net.tridentsdk.world.settings.Difficulty;
 import net.tridentsdk.world.settings.Dimension;
 import net.tridentsdk.world.settings.GameMode;
@@ -103,7 +104,8 @@ public class TridentWorld implements World {
     private final AtomicInteger rainTime = new AtomicInteger();
     private final AtomicInteger thunderTime = new AtomicInteger();
     private volatile double borderSize;
-    private final long seed;
+    private volatile long seed;
+    private volatile GeneratorRandom random;
     private volatile Dimension dimension;
     private volatile Difficulty difficulty;
     private volatile GameMode defaultGamemode;
@@ -210,14 +212,21 @@ public class TridentWorld implements World {
         ((TridentWorldLoader) loader).world = this;
         this.name = name;
         this.seed = loader.seed();
+        this.random = new GeneratorRandom(seed);
         this.loader = loader;
         this.spawnPosition = Position.create(this, 0, 0, 0);
+
+        this.dimension = loader.dimension();
+        this.difficulty = loader.difficulty();
+        this.defaultGamemode = loader.defaultGameMode();
+        // level
+        this.gameRules.addAll(loader.gameRules());
+        this.generateStructures = loader.generateStructures();
     }
 
     TridentWorld(String name, WorldLoader loader) {
         ((TridentWorldLoader) loader).world = this;
         this.name = name;
-        this.seed = loader.seed();
         this.loader = loader;
         this.spawnPosition = Position.create(this, 0, 0, 0);
 
@@ -225,7 +234,6 @@ public class TridentWorld implements World {
 
         File directory = new File(name + File.separator);
         File levelFile = new File(directory, "level.dat");
-        CompoundTag level;
 
         InputStream fis = null;
         try {
@@ -234,9 +242,37 @@ public class TridentWorld implements World {
             byte[] compressedData = new byte[fis.available()];
             fis.read(compressedData);
 
-            level = new NBTDecoder(new DataInputStream(new ByteArrayInputStream(
+            CompoundTag level = new NBTDecoder(new DataInputStream(new ByteArrayInputStream(
                     ByteStreams.toByteArray(new GZIPInputStream(new ByteArrayInputStream(compressedData)))))).decode()
                     .getTagAs("Data");
+
+            TridentLogger.log("Loading values of level.dat....");
+            spawnPosition.setX(((IntTag) level.getTag("SpawnX")).value());
+            spawnPosition.setY(((IntTag) level.getTag("SpawnY")).value() + 5);
+            spawnPosition.setZ(((IntTag) level.getTag("SpawnZ")).value());
+
+            dimension = Dimension.OVERWORLD;
+            // difficulty = Difficulty.of(((IntTag) level.getTag("Difficulty")).value()); from tests does
+            // not exist
+            difficulty = Difficulty.NORMAL;
+            defaultGamemode = GameMode.of(((IntTag) level.getTag("GameType")).value());
+            type = LevelType.of(((StringTag) level.getTag("generatorName")).value());
+            seed = ((LongTag) level.getTag("RandomSeed")).value();
+            ((TridentWorldLoader) loader).setGenerator(seed);
+            random = new GeneratorRandom(seed);
+
+            borderSize = level.containsTag("BorderSize") ?
+                    ((DoubleTag) level.getTag("BorderSize")).value() : 6000;
+
+            time.set(((LongTag) level.getTag("DayTime")).value());
+            existed.set(((LongTag) level.getTag("Time")).value());
+            raining = ((ByteTag) level.getTag("raining")).value() == 1;
+            rainTime.set(((IntTag) level.getTag("rainTime")).value());
+            thundering = ((ByteTag) level.getTag("thundering")).value() == 1;
+            thunderTime.set(((IntTag) level.getTag("thunderTime")).value());
+            difficultyLocked = level.containsTag("DifficultyLocked") &&
+                    ((ByteTag) level.getTag("DifficultyLocked")).value() == 1;
+            TridentLogger.success("Loaded level.dat successfully. Moving on to region files...");
         } catch (FileNotFoundException ignored) {
             TridentLogger.error(new IllegalArgumentException("Could not find world " + name));
             return;
@@ -253,31 +289,6 @@ public class TridentWorld implements World {
                 e.printStackTrace();
             }
         }
-
-        TridentLogger.log("Loading values of level.dat....");
-        spawnPosition.setX(((IntTag) level.getTag("SpawnX")).value());
-        spawnPosition.setY(((IntTag) level.getTag("SpawnY")).value() + 5);
-        spawnPosition.setZ(((IntTag) level.getTag("SpawnZ")).value());
-
-        dimension = Dimension.OVERWORLD;
-        // difficulty = Difficulty.of(((IntTag) level.getTag("Difficulty")).value()); from tests does
-        // not exist
-        difficulty = Difficulty.NORMAL;
-        defaultGamemode = GameMode.of(((IntTag) level.getTag("GameType")).value());
-        type = LevelType.of(((StringTag) level.getTag("generatorName")).value());
-        ((TridentWorldLoader) loader).setGenerator(((LongTag) level.getTag("RandomSeed")).value());
-        borderSize = level.containsTag("BorderSize") ?
-                ((DoubleTag) level.getTag("BorderSize")).value() : 6000;
-
-        time.set(((LongTag) level.getTag("DayTime")).value());
-        existed.set(((LongTag) level.getTag("Time")).value());
-        raining = ((ByteTag) level.getTag("raining")).value() == 1;
-        rainTime.set(((IntTag) level.getTag("rainTime")).value());
-        thundering = ((ByteTag) level.getTag("thundering")).value() == 1;
-        thunderTime.set(((IntTag) level.getTag("thunderTime")).value());
-        difficultyLocked = level.containsTag("DifficultyLocked") &&
-                ((ByteTag) level.getTag("DifficultyLocked")).value() == 1;
-        TridentLogger.success("Loaded level.dat successfully. Moving on to region files...");
 
         // TODO: load other values
 
@@ -447,6 +458,10 @@ public class TridentWorld implements World {
 
     public Collection<TridentChunk> loadedChunks() {
         return loadedChunks.values();
+    }
+
+    public GeneratorRandom random() {
+        return random;
     }
 
     public void save() {

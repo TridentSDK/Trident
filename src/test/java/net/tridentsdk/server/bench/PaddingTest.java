@@ -62,15 +62,15 @@ public class PaddingTest {
 
     public static class Coordinates implements Cloneable {
         private volatile double x;
-        private volatile double d0, d1, d2, d3, d4, d5, d6, d7 = 0;
+        private volatile double d0, d1, d2, d3, d4, d5, d6, d7;
         private volatile double y;
-        private volatile double d8, d9, d10, d11, d12, d13, d14, d15 = 0;
+        private volatile double d8, d9, d10, d11, d12, d13, d14, d15;
         private volatile double z;
 
         private volatile World world;
 
         private volatile float yaw;
-        private float f0, f1, f2, f3, f4, f5, f6, f7 = 0;
+        private float f0, f1, f2, f3, f4, f5, f6, f7;
         private volatile float pitch;
 
         private volatile double po;

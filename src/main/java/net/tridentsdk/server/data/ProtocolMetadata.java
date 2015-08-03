@@ -33,13 +33,13 @@ public class ProtocolMetadata implements Writable {
 
     public void setMeta(int index, MetadataValue value) {
         synchronized (metadata) {
-            metadata.add(index, value);
+            metadata.set(index, value);
         }
     }
 
     public void setMeta(int index, MetadataType type, Object value) {
         synchronized (metadata) {
-            metadata.add(index, new MetadataValue(index, value, type));
+            metadata.set(index, new MetadataValue(index, value, type));
         }
     }
 

@@ -23,6 +23,7 @@ import com.google.common.collect.Sets;
 import net.tridentsdk.base.Block;
 import net.tridentsdk.base.Position;
 import net.tridentsdk.base.Substance;
+import net.tridentsdk.concurrent.Joiner;
 import net.tridentsdk.concurrent.SelectableThread;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.meta.nbt.*;
@@ -35,7 +36,6 @@ import net.tridentsdk.world.ChunkLocation;
 import net.tridentsdk.world.ChunkSnapshot;
 import net.tridentsdk.world.gen.AbstractGenerator;
 import net.tridentsdk.world.gen.AbstractOverlayBrush;
-import net.tridentsdk.world.gen.GeneratorRandom;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -55,7 +55,6 @@ public class TridentChunk implements Chunk {
 
     public ChunkSection[] sections;
     private final AtomicReferenceArray<Integer> heights = new AtomicReferenceArray<>(256);
-    private final GeneratorRandom random;
 
     private volatile int lastFileAccess;
     private volatile long lastModified;
@@ -69,7 +68,6 @@ public class TridentChunk implements Chunk {
 
     protected TridentChunk(TridentWorld world, ChunkLocation coord) {
         this.world = world;
-        this.random = new GeneratorRandom(world.loader().generator().seed());
         this.location = coord;
         this.lastFileAccess = 0;
         sections = new ChunkSection[16];
@@ -78,7 +76,6 @@ public class TridentChunk implements Chunk {
         }*/
     }
 
-    // TODO decide necessity, also TBD disk storage
     // IMPORTANT: MUST BE CALLED FROM executor
     private ChunkSection[] mapSections() {
         return sections;
@@ -153,7 +150,65 @@ public class TridentChunk implements Chunk {
         });
     }
 
+    private void generateSpecial() {
+        Joiner joiner = new Joiner();
+        executor.execute(() -> {
+            // Don't call mapSections, as this generates them
+            ChunkSection[] sections = this.sections;
+
+            for (int i = 0; i < 16; i++) {
+                if (sections[i] == null) {
+                    sections[i] = new ChunkSection((byte) i);
+                }
+            }
+
+            // TODO add flag to prevent double generation
+            AbstractGenerator generator = world.loader().generator();
+            int i = 0;
+
+            for (char[] blockData : generator.generateChunkBlocks(location, heights)) {
+                sections[i].setBlocks(blockData);
+                i++;
+            }
+
+            i = 0;
+
+            for (byte[] dataValues : generator.generateBlockData(location)) {
+                sections[i].setData(dataValues);
+                i++;
+            }
+
+            for (ChunkSection section : sections) {
+                if (section.blockLight == null) {
+                    section.blockLight = new byte[ChunkSection.LENGTH / 2];
+                }
+
+                if (section.skyLight == null) {
+                    section.skyLight = new byte[ChunkSection.LENGTH / 2];
+                }
+
+                if (section.types == null) {
+                    section.types = new char[ChunkSection.LENGTH];
+                }
+            }
+
+            // DEBUG ===== Makes the entire chunk full brightness, not exactly ideal
+            for (i = 0; i < 16; i++) {
+                Arrays.fill(sections[i].skyLight, (byte) 255);
+            }
+            // =====
+
+            joiner.doJoin();
+            //TODO lighting
+        });
+        joiner.await();
+    }
+
     public void paint() {
+        if (terrainPopulated == 0x01) {
+            return;
+        }
+
         List<AbstractOverlayBrush> brushes = world.loader().brushes();
         AbstractOverlayBrush.ChunkManipulator manipulator = new AbstractOverlayBrush.ChunkManipulator() {
             @Override
@@ -171,21 +226,31 @@ public class TridentChunk implements Chunk {
                 int zMinDiff = Math.max(relZ, 0) - Math.min(relZ, 0);
                 int zMaxDiff = Math.max(relZ, 15) - Math.min(relZ, 15);
 
-                if (relX > 15 && relZ > 15) { // q1 +,+
-                    ChunkLocation loc = ChunkLocation.create(cx + ceil(xMaxDiff / 16), cz + ceil(zMaxDiff / 16));
-                    TridentChunk chunk = world.chunkAt(loc, true);
-                    chunk.setAt(relX + xMaxDiff, y, relZ + zMaxDiff, substance, data, (byte) 255, (byte) 15);
-                } else if (relX > 15 && relZ < 0) { // q4 +,-
-                    ChunkLocation loc = ChunkLocation.create(cx + ceil(xMaxDiff / 16), cz - ceil(zMinDiff / 16));
-                    TridentChunk chunk = world.chunkAt(loc, true);
-                    chunk.setAt(relX + xMaxDiff, y, relZ - zMinDiff, substance, data, (byte) 255, (byte) 15);
-                } else if (relX < 0 && relZ > 15) { // q2 -,+
+                /*      x
+                        |
+                   -,-  |  -,+
+                        |
+                ----------------- z (x,z)
+                        |
+                   +,-  |  +,+
+                        |
+                 */
+
+                if (relX < 0 && relZ > 15) { // q1
                     ChunkLocation loc = ChunkLocation.create(cx - ceil(xMinDiff / 16), cz + ceil(zMaxDiff / 16));
-                    TridentChunk chunk = world.chunkAt(loc, true);
-                    chunk.setAt(relX - xMinDiff, y, relZ + zMaxDiff, substance, data, (byte) 255, (byte) 15);
-                } else if (relX < 0 && relZ < 15) { // q3 -,-
+                    TridentChunk chunk = rawChunk(loc);
+                    chunk.setAt(relX - xMaxDiff, y, relZ + zMaxDiff, substance, data, (byte) 255, (byte) 15);
+                } else if (relX > 15 && relZ > 15) { // q4
+                    ChunkLocation loc = ChunkLocation.create(cx + ceil(xMaxDiff / 16), cz + ceil(zMaxDiff / 16));
+                    TridentChunk chunk = rawChunk(loc);
+                    chunk.setAt(relX + xMaxDiff, y, relZ + zMinDiff, substance, data, (byte) 255, (byte) 15);
+                } else if (relX < 0 && relZ < 0) { // q2
                     ChunkLocation loc = ChunkLocation.create(cx - ceil(xMinDiff / 16), cz - ceil(zMinDiff / 16));
-                    TridentChunk chunk = world.chunkAt(loc, true);
+                    TridentChunk chunk = rawChunk(loc);
+                    chunk.setAt(relX - xMinDiff, y, relZ - zMaxDiff, substance, data, (byte) 255, (byte) 15);
+                } else if (relX > 15 && relZ < 0) { // q3
+                    ChunkLocation loc = ChunkLocation.create(cx + ceil(xMaxDiff / 16), cz - ceil(zMinDiff / 16));
+                    TridentChunk chunk = rawChunk(loc);
                     chunk.setAt(relX + xMinDiff, y, relZ - zMinDiff, substance, data, (byte) 255, (byte) 15);
                 }
             }
@@ -204,21 +269,21 @@ public class TridentChunk implements Chunk {
                 int zMinDiff = Math.max(relZ, 0) - Math.min(relZ, 0);
                 int zMaxDiff = Math.max(relZ, 15) - Math.min(relZ, 15);
 
-                if (relX > 15 && relZ > 15) { // q1 +,+
-                    ChunkLocation loc = ChunkLocation.create(cx + ceil(xMaxDiff / 16), cz + ceil(zMaxDiff / 16));
-                    TridentChunk chunk = world.chunkAt(loc, true);
-                    chunk.blockAt(relX + xMaxDiff, y, relZ + zMaxDiff);
-                } else if (relX > 15 && relZ < 0) { // q4 +,-
-                    ChunkLocation loc = ChunkLocation.create(cx + ceil(xMaxDiff / 16), cz - ceil(zMinDiff / 16));
-                    TridentChunk chunk = world.chunkAt(loc, true);
-                    return chunk.blockAt(relX + xMaxDiff, y, relZ - zMinDiff);
-                } else if (relX < 0 && relZ > 15) { // q2 -,+
+                if (relX > 15 && relZ > 15) { // q1
                     ChunkLocation loc = ChunkLocation.create(cx - ceil(xMinDiff / 16), cz + ceil(zMaxDiff / 16));
-                    TridentChunk chunk = world.chunkAt(loc, true);
-                    return chunk.blockAt(relX - xMinDiff, y, relZ + zMaxDiff);
-                } else if (relX < 0 && relZ < 15) { // q3 -,-
+                    TridentChunk chunk = rawChunk(loc);
+                    return chunk.blockAt(relX - xMaxDiff, y, relZ + zMaxDiff);
+                } else if (relX > 15 && relZ < 0) { // q4
+                    ChunkLocation loc = ChunkLocation.create(cx + ceil(xMaxDiff / 16), cz + ceil(zMaxDiff / 16));
+                    TridentChunk chunk = rawChunk(loc);
+                    return chunk.blockAt(relX + xMaxDiff, y, relZ + zMinDiff);
+                } else if (relX < 0 && relZ > 15) { // q2
                     ChunkLocation loc = ChunkLocation.create(cx - ceil(xMinDiff / 16), cz - ceil(zMinDiff / 16));
-                    TridentChunk chunk = world.chunkAt(loc, true);
+                    TridentChunk chunk = rawChunk(loc);
+                    return chunk.blockAt(relX - xMinDiff, y, relZ - zMaxDiff);
+                } else if (relX < 0 && relZ < 15) { // q3
+                    ChunkLocation loc = ChunkLocation.create(cx + ceil(xMaxDiff / 16), cz - ceil(zMinDiff / 16));
+                    TridentChunk chunk = rawChunk(loc);
                     return chunk.blockAt(relX + xMinDiff, y, relZ - zMinDiff);
                 }
 
@@ -228,23 +293,43 @@ public class TridentChunk implements Chunk {
 
         CountDownLatch latch = new CountDownLatch(256);
         for (int i = 0; i < 16; i++) {
-            for (int j = 0; j < 16; j++) {
-                for (AbstractOverlayBrush brush : brushes) {
-                    final int finalI = i;
-                    final int finalJ = j;
-                    executor.execute(() -> {
-                        brush.brush(location, finalI, maxHeightAt(finalI, finalJ), finalJ, random.get(), manipulator);
+            final int finalI = i;
+            executor.execute(() -> {
+                for (int j = 0; j < 16; j++) {
+                    for (AbstractOverlayBrush brush : brushes) {
+                        brush.brush(location, finalI, maxHeightAt(finalI, j), j, world.random(), manipulator);
                         latch.countDown();
-                    });
+                    }
                 }
-            }
+            });
         }
+
+        // Label as populated, so the chunk is not repopulated
+        terrainPopulated = 0x01;
 
         try {
             latch.await();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    private TridentChunk rawChunk(ChunkLocation location) {
+        TridentChunk worldChunk = world.chunkAt(location, false);
+        if (worldChunk != null) return worldChunk;
+
+        if (world.loader().chunkExists(location)) {
+            Chunk c = world.loader().loadChunk(location);
+            if (c != null) {
+                world.addChunkAt(location, c);
+                return (TridentChunk) c;
+            }
+        }
+
+        TridentChunk chunk = new TridentChunk(world, location);
+        world.addChunkAt(location, chunk);
+        chunk.generateSpecial();
+        return chunk;
     }
 
     private int ceil(double d) {
@@ -405,7 +490,7 @@ public class TridentChunk implements Chunk {
 
         final ChunkSection[] sections = new ChunkSection[sectionsList.size()];
 
-                /* Load sections */
+        /* Load sections */
         for (int i = 0; i < sectionsList.size(); i += 1) {
             NBTTag t = sectionTags.getTag(i);
 
