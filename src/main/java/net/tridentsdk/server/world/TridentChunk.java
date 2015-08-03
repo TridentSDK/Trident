@@ -20,6 +20,7 @@ package net.tridentsdk.server.world;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.google.common.math.DoubleMath;
 import net.tridentsdk.base.Block;
 import net.tridentsdk.base.Position;
 import net.tridentsdk.base.Substance;
@@ -29,11 +30,13 @@ import net.tridentsdk.entity.Entity;
 import net.tridentsdk.meta.nbt.*;
 import net.tridentsdk.server.concurrent.ThreadsHandler;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutChunkData;
+import net.tridentsdk.server.world.change.DefaultMassChange;
 import net.tridentsdk.util.NibbleArray;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.Chunk;
 import net.tridentsdk.world.ChunkLocation;
 import net.tridentsdk.world.ChunkSnapshot;
+import net.tridentsdk.world.MassChange;
 import net.tridentsdk.world.gen.AbstractGenerator;
 import net.tridentsdk.world.gen.AbstractOverlayBrush;
 
@@ -211,6 +214,8 @@ public class TridentChunk implements Chunk {
 
         List<AbstractOverlayBrush> brushes = world.loader().brushes();
         AbstractOverlayBrush.ChunkManipulator manipulator = new AbstractOverlayBrush.ChunkManipulator() {
+            MassChange change = new DefaultMassChange(world);
+
             @Override
             public void manipulate(int relX, int y, int relZ, Substance substance, byte data) {
                 if (relX >= 0 && relX <= 15 && relZ >= 0 && relZ <= 15) {
@@ -237,26 +242,35 @@ public class TridentChunk implements Chunk {
                  */
 
                 if (relX < 0 && relZ > 15) { // q1
-                    ChunkLocation loc = ChunkLocation.create(cx - ceil(xMinDiff / 16), cz + ceil(zMaxDiff / 16));
+                    ChunkLocation loc = ChunkLocation.create(cx - up(xMinDiff / 16), cz + up(zMaxDiff / 16));
                     TridentChunk chunk = rawChunk(loc);
-                    chunk.setAt(relX - xMaxDiff, y, relZ + zMaxDiff, substance, data, (byte) 255, (byte) 15);
+                    TridentLogger.debug(relX + ", " + relZ + " with " + xMinDiff + ", " + xMaxDiff + " / " + zMinDiff + ", " + zMaxDiff + " led to " + (16 - xMinDiff) + ", " + (zMaxDiff - 1));
+                    chunk.setAndSend(16 - xMinDiff, y, zMaxDiff - 1, substance, data, (byte) 255, (byte) 15, change);
                 } else if (relX > 15 && relZ > 15) { // q4
-                    ChunkLocation loc = ChunkLocation.create(cx + ceil(xMaxDiff / 16), cz + ceil(zMaxDiff / 16));
+                    ChunkLocation loc = ChunkLocation.create(cx + up(xMaxDiff / 16), cz + up(zMaxDiff / 16));
+                    TridentLogger.debug(relX + ", " + relZ + " with " + xMinDiff + ", " + xMaxDiff + " / " + zMinDiff + ", " + zMaxDiff + " led to " + (xMaxDiff - 1) + ", " + (zMaxDiff - 1));
                     TridentChunk chunk = rawChunk(loc);
-                    chunk.setAt(relX + xMaxDiff, y, relZ + zMinDiff, substance, data, (byte) 255, (byte) 15);
+                    chunk.setAndSend(xMaxDiff - 1, y, zMaxDiff - 1, substance, data, (byte) 255, (byte) 15, change);
                 } else if (relX < 0 && relZ < 0) { // q2
-                    ChunkLocation loc = ChunkLocation.create(cx - ceil(xMinDiff / 16), cz - ceil(zMinDiff / 16));
+                    ChunkLocation loc = ChunkLocation.create(cx - up(xMinDiff / 16), cz - up(zMinDiff / 16));
+                    TridentLogger.debug(relX + ", " + relZ + " with " + xMinDiff + ", " + xMaxDiff + " / " + zMinDiff + ", " + zMaxDiff + " led to " + (16 - xMinDiff) + ", " + (16 - zMinDiff));
                     TridentChunk chunk = rawChunk(loc);
-                    chunk.setAt(relX - xMinDiff, y, relZ - zMaxDiff, substance, data, (byte) 255, (byte) 15);
+                    chunk.setAndSend(16 - xMinDiff, y, 16 - zMinDiff, substance, data, (byte) 255, (byte) 15, change);
                 } else if (relX > 15 && relZ < 0) { // q3
-                    ChunkLocation loc = ChunkLocation.create(cx + ceil(xMaxDiff / 16), cz - ceil(zMinDiff / 16));
+                    ChunkLocation loc = ChunkLocation.create(cx + up(xMaxDiff / 16), cz - up(zMinDiff / 16));
+                    TridentLogger.debug(relX + ", " + relZ + " with " + xMinDiff + ", " + xMaxDiff + " / " + zMinDiff + ", " + zMaxDiff + " led to " + (xMaxDiff - 1) + ", " + (16 - zMinDiff));
                     TridentChunk chunk = rawChunk(loc);
-                    chunk.setAt(relX + xMinDiff, y, relZ - zMinDiff, substance, data, (byte) 255, (byte) 15);
+                    chunk.setAndSend(xMaxDiff - 1, y, 16 - zMinDiff, substance, data, (byte) 255, (byte) 15, change);
                 }
             }
 
             @Override
             public Block blockAt(int relX, int y, int relZ) {
+                if (y == Integer.MAX_VALUE) {
+                    change.commitChanges();
+                    return null;
+                }
+
                 if (relX >= 0 && relX <= 15 && relZ >= 0 && relZ <= 15) {
                     return TridentChunk.this.blockAt(relX, y, relZ);
                 }
@@ -270,21 +284,21 @@ public class TridentChunk implements Chunk {
                 int zMaxDiff = Math.max(relZ, 15) - Math.min(relZ, 15);
 
                 if (relX > 15 && relZ > 15) { // q1
-                    ChunkLocation loc = ChunkLocation.create(cx - ceil(xMinDiff / 16), cz + ceil(zMaxDiff / 16));
+                    ChunkLocation loc = ChunkLocation.create(cx - up(xMinDiff / 16), cz + up(zMaxDiff / 16));
                     TridentChunk chunk = rawChunk(loc);
-                    return chunk.blockAt(relX - xMaxDiff, y, relZ + zMaxDiff);
+                    return chunk.blockAt(relX - xMinDiff, y, relZ + zMaxDiff);
                 } else if (relX > 15 && relZ < 0) { // q4
-                    ChunkLocation loc = ChunkLocation.create(cx + ceil(xMaxDiff / 16), cz + ceil(zMaxDiff / 16));
+                    ChunkLocation loc = ChunkLocation.create(cx + up(xMaxDiff / 16), cz + up(zMaxDiff / 16));
                     TridentChunk chunk = rawChunk(loc);
-                    return chunk.blockAt(relX + xMaxDiff, y, relZ + zMinDiff);
+                    return chunk.blockAt(relX + xMaxDiff, y, relZ + zMaxDiff);
                 } else if (relX < 0 && relZ > 15) { // q2
-                    ChunkLocation loc = ChunkLocation.create(cx - ceil(xMinDiff / 16), cz - ceil(zMinDiff / 16));
+                    ChunkLocation loc = ChunkLocation.create(cx - up(xMinDiff / 16), cz - up(zMinDiff / 16));
                     TridentChunk chunk = rawChunk(loc);
-                    return chunk.blockAt(relX - xMinDiff, y, relZ - zMaxDiff);
+                    return chunk.blockAt(relX - xMinDiff, y, relZ - zMinDiff);
                 } else if (relX < 0 && relZ < 15) { // q3
-                    ChunkLocation loc = ChunkLocation.create(cx + ceil(xMaxDiff / 16), cz - ceil(zMinDiff / 16));
+                    ChunkLocation loc = ChunkLocation.create(cx + up(xMaxDiff / 16), cz - up(zMinDiff / 16));
                     TridentChunk chunk = rawChunk(loc);
-                    return chunk.blockAt(relX + xMinDiff, y, relZ - zMinDiff);
+                    return chunk.blockAt(relX + xMaxDiff, y, relZ - zMinDiff);
                 }
 
                 return null;
@@ -303,6 +317,7 @@ public class TridentChunk implements Chunk {
                 }
             });
         }
+        manipulator.blockAt(0, Integer.MAX_VALUE, 0);
 
         // Label as populated, so the chunk is not repopulated
         terrainPopulated = 0x01;
@@ -332,8 +347,16 @@ public class TridentChunk implements Chunk {
         return chunk;
     }
 
-    private int ceil(double d) {
-        return (int) Math.ceil(d);
+    private int up(double d) {
+        if (DoubleMath.isMathematicalInteger(d))
+            return ((int) d) + 1;
+        return (int) d;
+    }
+
+    private void setAndSend(int x, final int y, int z, final Substance type, final byte metaData, final byte skyLight,
+                            final byte blockLight, MassChange change) {
+        setAt(x, y, z, type, metaData, skyLight, blockLight);
+        change.setBlock(WorldUtils.heightIndex(location.x(), x), y, WorldUtils.heightIndex(location.z(), z), type, metaData);
     }
 
     public int maxHeightAt(int x, int z) {
