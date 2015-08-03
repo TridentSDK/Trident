@@ -29,6 +29,7 @@ import net.tridentsdk.server.concurrent.ThreadsHandler;
 import net.tridentsdk.server.concurrent.TridentTaskScheduler;
 import net.tridentsdk.server.netty.protocol.Protocol;
 import net.tridentsdk.server.player.TridentPlayer;
+import net.tridentsdk.server.scoreboard.TridentScoreboardManager;
 import net.tridentsdk.server.service.Statuses;
 import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.server.world.TridentWorldLoader;
@@ -53,6 +54,7 @@ public final class TridentServer implements Server {
     private final Config config;
     private final Protocol protocol;
     private final TridentLogger logger;
+    private final TridentScoreboardManager scoreboardManager;
 
     private final TridentConsole console;
 
@@ -67,6 +69,7 @@ public final class TridentServer implements Server {
         this.rootWorldLoader = new TridentWorldLoader();
         this.console = new TridentConsole();
         this.displayInfo = new DisplayInfo();
+        this.scoreboardManager = new TridentScoreboardManager();
     }
 
     /**
@@ -189,5 +192,10 @@ public final class TridentServer implements Server {
     @Override
     public TridentLogger logger() {
         return logger;
+    }
+
+    @Override
+    public TridentScoreboardManager scoreboardManager(){
+        return scoreboardManager;
     }
 }

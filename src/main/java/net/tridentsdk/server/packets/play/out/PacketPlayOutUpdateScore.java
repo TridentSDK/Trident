@@ -52,13 +52,13 @@ public class PacketPlayOutUpdateScore extends OutPacket {
     @Override
     public void encode(ByteBuf buf) {
         Codec.writeString(buf, this.itemName);
-        buf.writeByte((int) this.type.asByte());
+        buf.writeByte(this.type.asByte());
+        Codec.writeString(buf, this.scoreName);
 
-        if (this.type.b == 1) {
+        if (this.type == UpdateType.REMOVE) {
             return;
         }
 
-        Codec.writeString(buf, this.scoreName);
         Codec.writeVarInt32(buf, this.value);
     }
 
