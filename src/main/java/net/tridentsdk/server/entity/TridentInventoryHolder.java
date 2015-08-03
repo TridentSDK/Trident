@@ -26,6 +26,7 @@ import net.tridentsdk.meta.nbt.ListTag;
 import net.tridentsdk.meta.nbt.NBTSerializer;
 import net.tridentsdk.meta.nbt.NBTTag;
 import net.tridentsdk.server.data.Slot;
+import net.tridentsdk.server.inventory.TridentInventory;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutEntityEquipment;
 import net.tridentsdk.server.player.TridentPlayer;
 
@@ -37,7 +38,7 @@ import java.util.UUID;
  * @author The TridentSDK Team
  */
 public abstract class TridentInventoryHolder extends TridentLivingEntity implements WindowHolder {
-    protected volatile Inventory inventory;
+    protected volatile TridentInventory inventory;
     private volatile int selectedSlot = 0;
 
     /**
@@ -48,7 +49,7 @@ public abstract class TridentInventoryHolder extends TridentLivingEntity impleme
     }
 
     @Override
-    public Inventory window() {
+    public TridentInventory window() {
         return this.inventory;
     }
 
@@ -62,8 +63,8 @@ public abstract class TridentInventoryHolder extends TridentLivingEntity impleme
         inventory.setSlot(TridentPlayer.SLOT_OFFSET + selectedSlot, item);
         PacketPlayOutEntityEquipment packet = new PacketPlayOutEntityEquipment();
         packet.set("entityId", entityId());
-        packet.set("item", new Slot(item));
         packet.set("slot", (short) 0);
+        packet.set("item", new Slot(item));
 
         TridentPlayer.sendFiltered(packet, (p) -> !p.equals(TridentInventoryHolder.this));
     }
@@ -85,5 +86,9 @@ public abstract class TridentInventoryHolder extends TridentLivingEntity impleme
             inventory.setSlot(index++, NBTSerializer.deserialize(Slot.class,
                     t.asType(CompoundTag.class)).item());
         }
+    }
+
+    public int selectedSlot(){
+        return selectedSlot;
     }
 }

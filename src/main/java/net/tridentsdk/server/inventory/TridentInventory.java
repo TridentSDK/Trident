@@ -63,10 +63,10 @@ public class TridentInventory implements Inventory {
      * @param name   the title of the inventory
      * @param length the amount of slots in the inventory (should be multiple of 9)
      */
-    private TridentInventory(String name, int length, InventoryType type) {
+    private TridentInventory(String name, int length, InventoryType type, int id) {
         this.name = name;
         this.length = length;
-        this.id = counter.addAndGet(1);
+        this.id = id;
         this.contents = new AtomicReferenceArray<>(length);
         for (int i = 0; i < contents.length(); i++) {
             contents.set(i, new Item(Substance.AIR));
@@ -75,13 +75,21 @@ public class TridentInventory implements Inventory {
         this.type = type;
     }
 
+    private TridentInventory(String name, int length, InventoryType type) {
+        this("", length, InventoryType.CHEST, counter.addAndGet(1));
+    }
+
     /**
      * Builds a new inventory inventory
      *
      * @param length the amount of slots in the inventory (should be multiple of 9)
      */
     public TridentInventory(int length) {
-        this("", length, InventoryType.CHEST);
+        this("", length, InventoryType.CHEST, counter.addAndGet(1));
+    }
+
+    public TridentInventory(int length, int id) {
+        this("", length, InventoryType.CHEST, id);
     }
 
     public static TridentInventory create(String name, int length, InventoryType type) {
@@ -133,6 +141,9 @@ public class TridentInventory implements Inventory {
 
     @Override
     public void setSlot(int index, Item value) {
+        if(value != null && value.quantity() == 0){
+            value = null;
+        }
         contents.set(index, value);
 
         PacketPlayOutSetSlot setSlot = new PacketPlayOutSetSlot();

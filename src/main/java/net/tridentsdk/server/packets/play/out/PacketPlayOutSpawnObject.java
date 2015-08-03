@@ -39,9 +39,9 @@ public class PacketPlayOutSpawnObject extends OutPacket {
         Codec.writeVarInt32(buf, this.entityId);
         buf.writeByte(entity.type().asByte());
 
-        buf.writeInt((int) l.x() * 32);
-        buf.writeInt((int) l.y() * 32);
-        buf.writeInt((int) l.z() * 32);
+        buf.writeInt((int) (l.x() * 32));
+        buf.writeInt((int) (l.y() * 32));
+        buf.writeInt((int) (l.z() * 32));
 
         buf.writeByte((int) (byte) l.pitch());
         buf.writeByte((int) (byte) l.yaw());

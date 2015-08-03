@@ -33,6 +33,7 @@ import net.tridentsdk.event.block.BlockBreakEvent;
 import net.tridentsdk.event.player.*;
 import net.tridentsdk.inventory.Item;
 import net.tridentsdk.registry.Registered;
+import net.tridentsdk.server.entity.TridentDroppedItem;
 import net.tridentsdk.server.entity.projectile.TridentArrow;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
@@ -139,10 +140,18 @@ public class PacketPlayInPlayerDig extends InPacket {
                 break;
 
             case DROP_ITEMSTACK:
+                if(player.heldItem() == null || player.heldItem().type() == Substance.AIR){
+                    return;
+                }
+
                 event = new PlayerDropItemEvent(player, null); // todo: spawn item and call the event
                 break;
 
             case DROP_ITEM:
+                if(player.heldItem() == null || player.heldItem().type() == Substance.AIR){
+                    return;
+                }
+
                 event = new PlayerDropItemEvent(player, null);
                 break;
 
@@ -167,32 +176,48 @@ public class PacketPlayInPlayerDig extends InPacket {
 
         // TODO act accordingly
 
-        if (digStatus == DigStatus.SHOOT_ARROW) {
-            TridentArrow entity = (TridentArrow) location.world().spawn(EntityType.ARROW, location);
-            entity.setVelocity(player.position().asUnitVector());
+        switch(digStatus){
+            case SHOOT_ARROW:
+                TridentArrow entity = (TridentArrow) location.world().spawn(EntityType.ARROW, location);
+                entity.setVelocity(player.position().asUnitVector());
+                break;
+
+            case DIG_FINISH:
+                int[] arr = {location.block().substance().id() + (location.block().meta() << 12)};
+
+                ((TridentChunk) location().chunk()).setAt(location, Substance.AIR, (byte) 0, (byte) 255, (byte) 15);
+                TridentPlayer.sendAll(new PacketPlayOutBlockChange()
+                        .set("location", location).set("blockId", Substance.AIR.id()));
+
+                ParticleEffect effect = location.world().spawnParticle(ParticleEffectType.BLOCK_CRACK);
+                effect.setCount(64);
+                effect.setLongDistance(false);
+                effect.setPosition(location.add(new Vector(0.5, 0.5, 0.5)).asVector());
+                effect.setOffset(new Vector(0.45, 0.45, 0.45));
+                effect.setData(arr);
+                effect.applyToEveryoneExcept(player);
+
+                SoundEffectType soundEffectType = location.block().substance().breakSound();
+                if(soundEffectType != null){
+                    SoundEffect sound = location.world().playSound(soundEffectType);
+                    sound.applyToEveryoneExcept(player);
+                }
+                break;
+
+            case DROP_ITEM:
+            case DROP_ITEMSTACK:
+                short count = digStatus == DigStatus.DROP_ITEM ? 1 : player.heldItem().quantity();
+                Item heldItem = player.heldItem().clone();
+                heldItem.setQuantity(count);
+                TridentDroppedItem item = new TridentDroppedItem(player.headLocation(), heldItem);
+                item.spawn();
+                item.setVelocity(player.position().toDirection().normalize().multiply(2000));
+                player.heldItem().setQuantity((short) (player.heldItem().quantity() - count));
+                player.window().setSlot(player.selectedSlot(), player.heldItem());
+                player.setHeldItem(player.heldItem());
+                break;
         }
 
-        if(digStatus == DigStatus.DIG_FINISH) {
-            int[] arr = {location.block().substance().id() + (location.block().meta() << 12)};
-
-            ((TridentChunk) location().chunk()).setAt(location, Substance.AIR, (byte) 0, (byte) 255, (byte) 15);
-            TridentPlayer.sendAll(new PacketPlayOutBlockChange()
-                    .set("location", location).set("blockId", Substance.AIR.id()));
-
-            ParticleEffect effect = location.world().spawnParticle(ParticleEffectType.BLOCK_CRACK);
-            effect.setCount(64);
-            effect.setLongDistance(false);
-            effect.setPosition(location.add(new Vector(0.5, 0.5, 0.5)).asVector());
-            effect.setOffset(new Vector(0.45, 0.45, 0.45));
-            effect.setData(arr);
-            effect.applyToEveryoneExcept(player);
-
-            SoundEffectType soundEffectType = location.block().substance().breakSound();
-            if(soundEffectType != null){
-                SoundEffect sound = location.world().playSound(soundEffectType);
-                sound.applyToEveryoneExcept(player);
-            }
-        }
     }
 
     public enum DigStatus {

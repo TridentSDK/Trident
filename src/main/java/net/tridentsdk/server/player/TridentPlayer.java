@@ -44,7 +44,6 @@ import net.tridentsdk.server.concurrent.ThreadsHandler;
 import net.tridentsdk.server.data.MetadataType;
 import net.tridentsdk.server.data.ProtocolMetadata;
 import net.tridentsdk.server.event.EventProcessor;
-import net.tridentsdk.server.inventory.TridentInventory;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.packets.play.out.*;
@@ -91,6 +90,7 @@ public class TridentPlayer extends OfflinePlayer {
         super(uuid, tag, world);
 
         this.connection = PlayerConnection.createPlayerConnection(connection, this);
+        inventory.sendTo(this);
     }
 
     public static void sendAll(Packet packet) {
@@ -205,10 +205,6 @@ public class TridentPlayer extends OfflinePlayer {
 
         connection.sendPacket(PacketPlayOutStatistics.DEFAULT_STATISTIC);
         sendChunks(viewDistance());
-
-        TridentInventory inventory = TridentInventory.create("Inventory", 18, InventoryType.CHEST);
-        inventory.setSlot(0, new Item(Substance.DIAMOND_PICKAXE));
-        inventory.sendTo(this);
 
         // Wait for response
         for (Entity entity : world().entities()) {
@@ -412,9 +408,9 @@ public class TridentPlayer extends OfflinePlayer {
         return this.connection;
     }
 
-    public static final int SLOT_OFFSET = 35;
+    public static final int SLOT_OFFSET = 36;
 
-    public void setSlot(final short slot) {
+    public void setSlot(short slot) {
         if ((int) slot > 8 || (int) slot < 0) {
             TridentLogger.error(new IllegalArgumentException("Slot must be within the ranges of 0-8"));
             return;

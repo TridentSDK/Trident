@@ -22,6 +22,7 @@ import com.google.common.collect.Sets;
 import com.google.common.io.ByteStreams;
 import net.tridentsdk.base.Block;
 import net.tridentsdk.base.Position;
+import net.tridentsdk.base.Substance;
 import net.tridentsdk.effect.particle.ParticleEffect;
 import net.tridentsdk.effect.particle.ParticleEffectType;
 import net.tridentsdk.effect.sound.SoundEffect;
@@ -41,6 +42,7 @@ import net.tridentsdk.entity.types.VillagerProfession;
 import net.tridentsdk.event.weather.RainEvent;
 import net.tridentsdk.event.weather.SunEvent;
 import net.tridentsdk.event.weather.ThunderEvent;
+import net.tridentsdk.inventory.Item;
 import net.tridentsdk.meta.nbt.*;
 import net.tridentsdk.server.concurrent.ThreadsHandler;
 import net.tridentsdk.server.concurrent.TickSync;
@@ -864,7 +866,7 @@ public class TridentWorld implements World {
             case TNT_MINECART:
                 return internalSpawn(new TridentTntMinecart(UUID.randomUUID(), spawnPosition));
             case ITEM:
-                return internalSpawn(new TridentDroppedItem(UUID.randomUUID(), spawnPosition));
+                return internalSpawn(new TridentDroppedItem(spawnPosition, new Item(Substance.STONE)));
             case EXPERIENCE_ORB:
                 return internalSpawn(new TridentExpOrb(UUID.randomUUID(), spawnPosition));
             case FIREWORK:

@@ -19,6 +19,13 @@ package net.tridentsdk.server.entity;
 import net.tridentsdk.base.Position;
 import net.tridentsdk.entity.DroppedItem;
 import net.tridentsdk.entity.types.EntityType;
+import net.tridentsdk.inventory.Item;
+import net.tridentsdk.server.data.MetadataType;
+import net.tridentsdk.server.data.ProtocolMetadata;
+import net.tridentsdk.server.data.Slot;
+import net.tridentsdk.server.packets.play.out.PacketPlayOutEntityMetadata;
+import net.tridentsdk.server.packets.play.out.PacketPlayOutSpawnObject;
+import net.tridentsdk.server.player.TridentPlayer;
 
 import java.util.UUID;
 
@@ -28,8 +35,12 @@ import java.util.UUID;
  * @author The TridentSDK Team
  */
 public class TridentDroppedItem extends TridentEntity implements DroppedItem {
-    public TridentDroppedItem(UUID uuid, Position spawnPosition) {
-        super(uuid, spawnPosition);
+
+    private Item item;
+
+    public TridentDroppedItem(Position spawnPosition, Item item) {
+        super(UUID.randomUUID(), spawnPosition);
+        this.item = item;
     }
 
     @Override
@@ -75,5 +86,26 @@ public class TridentDroppedItem extends TridentEntity implements DroppedItem {
     @Override
     public EntityType type() {
         return EntityType.ITEM;
+    }
+
+    @Override
+    public TridentEntity spawn(){
+        super.spawn();
+
+        ProtocolMetadata metadata = new ProtocolMetadata();
+        super.encodeMetadata(metadata);
+        metadata.setMeta(10, MetadataType.SLOT, new Slot(item));
+
+        PacketPlayOutSpawnObject object = new PacketPlayOutSpawnObject();
+        object.set("entityId", entityId());
+        object.set("entity", this);
+
+        PacketPlayOutEntityMetadata meta = new PacketPlayOutEntityMetadata();
+        meta.set("entityId", entityId());
+        meta.set("metadata", metadata);
+
+        TridentPlayer.sendAll(object);
+        TridentPlayer.sendAll(meta);
+        return this;
     }
 }

@@ -28,14 +28,6 @@ import net.tridentsdk.server.player.TridentPlayer;
  * Packet sent when player moved both x, y, z and yaw, and pitch.
  */
 public class PacketPlayInPlayerCompleteMove extends PacketPlayInPlayerMove {
-    /**
-     * New yaw of the client
-     */
-    protected float newYaw;
-    /**
-     * New pitch of the client
-     */
-    protected float newPitch;
 
     @Override
     public int id() {
@@ -47,12 +39,10 @@ public class PacketPlayInPlayerCompleteMove extends PacketPlayInPlayerMove {
         double x = buf.readDouble();
         double y = buf.readDouble();
         double z = buf.readDouble();
+        float newYaw = buf.readFloat();
+        float newPitch = buf.readFloat();
 
-        super.location = Position.create(null, x, y, z);
-
-        this.newYaw = buf.readFloat();
-        this.newPitch = buf.readFloat();
-
+        super.location = Position.create(null, x, y, z, newYaw, newPitch);
         super.onGround = buf.readBoolean();
         return this;
     }
@@ -61,8 +51,10 @@ public class PacketPlayInPlayerCompleteMove extends PacketPlayInPlayerMove {
     public void handleReceived(ClientConnection connection) {
         TridentPlayer player = ((PlayerConnection) connection).player();
         super.location.setWorld(player.world());
+        player.setPosition(super.location);
 
-        if (player.isLoggingIn())
+        if (player.isLoggingIn()){
             player.resumeLogin();
+        }
     }
 }

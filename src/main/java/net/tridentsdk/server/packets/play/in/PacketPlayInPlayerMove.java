@@ -34,7 +34,7 @@ public class PacketPlayInPlayerMove extends InPacket {
      */
     protected Position location;
     /**
-     * Wether the player is on the ground or not
+     * Whether the player is on the ground or not
      */
     protected boolean onGround;
 
@@ -68,6 +68,8 @@ public class PacketPlayInPlayerMove extends InPacket {
     public void handleReceived(ClientConnection connection) {
         TridentPlayer player = ((PlayerConnection) connection).player();
         this.location.setWorld(player.world());
+        this.location.setPitch(player.position().pitch());
+        this.location.setYaw(player.position().yaw());
         player.setPosition(location());
     }
 }

@@ -141,7 +141,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
                 new IntTag("XpSeed").setValue(0).value();
 
         // TODO come up with a valid implementation of this...?
-        inventory = new TridentInventory(44);
+        inventory = new TridentInventory(45, 0);
         for (NBTTag t : ((ListTag) tag.getTag("Inventory")).listTags()) {
             Slot slot = NBTSerializer.deserialize(Slot.class, (CompoundTag) t);
 
