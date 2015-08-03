@@ -62,7 +62,7 @@ public class TridentEntity implements Entity {
     /**
      * Internal entity tracker, used to spawn the entity and track movement, etc.
      */
-    protected static final EntityHandler HANDLER = EntityHandler.create();
+    public static final EntityHandler HANDLER = EntityHandler.create();
     /**
      * The distance the entity has fallen
      */
@@ -458,5 +458,10 @@ public class TridentEntity implements Entity {
         this.displayName = displayName.value();
 
         doLoad(tag);
+    }
+
+    public CompoundTag asNbt() {
+        // TODO
+        return null;
     }
 }

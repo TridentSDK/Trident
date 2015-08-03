@@ -21,6 +21,7 @@ import net.tridentsdk.effect.entity.EntityStatusEffectType;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.LivingEntity;
 import net.tridentsdk.server.effect.TridentEffect;
+import net.tridentsdk.server.entity.TridentEntity;
 import net.tridentsdk.server.netty.packet.OutPacket;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutEntityStatus;
 
@@ -50,7 +51,7 @@ public class TridentEntityStatusEffect extends TridentEffect<EntityStatusEffectT
 
     @Override
     public Entity entity(){
-        return null; // TODO Find Entity By ID
+        return TridentEntity.HANDLER.entityBy(packet.entityId());
     }
 
     @Override

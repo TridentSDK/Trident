@@ -144,8 +144,6 @@ public class TridentWorldLoader implements WorldLoader {
     @Override
     public World load(String world) {
         checkNull();
-
-        // TODO load world settings
         TridentWorld w = new TridentWorld(world, this);
         WORLDS.put(world, w);
 
@@ -209,7 +207,6 @@ public class TridentWorldLoader implements WorldLoader {
         try {
             Constructor<? extends AbstractGenerator> g = generatorClass.getDeclaredConstructor(long.class);
             gen = g.newInstance(seed);
-            // TODO init brushes
             Collections.addAll(brushes, new TallGrassBrush(seed), new OakTreeBrush(seed));
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
             TridentLogger.error("Error occurred while instantiating generator " + generatorClass.getName());

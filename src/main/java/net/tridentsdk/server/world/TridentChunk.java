@@ -18,7 +18,6 @@
 package net.tridentsdk.server.world;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.math.DoubleMath;
 import net.tridentsdk.base.Block;
@@ -29,6 +28,7 @@ import net.tridentsdk.concurrent.SelectableThread;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.meta.nbt.*;
 import net.tridentsdk.server.concurrent.ThreadsHandler;
+import net.tridentsdk.server.entity.TridentEntity;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutChunkData;
 import net.tridentsdk.server.world.change.DefaultMassChange;
 import net.tridentsdk.util.NibbleArray;
@@ -48,7 +48,6 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReferenceArray;
-import java.util.stream.Stream;
 
 public class TridentChunk implements Chunk {
     private final TridentWorld world;
@@ -164,7 +163,6 @@ public class TridentChunk implements Chunk {
                 }
             }
 
-            // TODO add flag to prevent double generation
             AbstractGenerator generator = world.loader().generator();
             int i = 0;
 
@@ -414,21 +412,7 @@ public class TridentChunk implements Chunk {
 
     @Override
     public ChunkSnapshot snapshot() {
-        final List<CompoundTag> sections = Lists.newArrayList();
-
-        final ChunkSection[][] sections1 = new ChunkSection[1][1];
-        executor.execute(() -> {
-            sections1[0] = mapSections();
-
-            for (ChunkSection section : sections1[0]) {
-                sections.add(NBTSerializer.serialize(section));
-            }
-        });
-
-        executor.execute(() -> Stream.of(sections1[0]).forEach((s) -> sections.add(NBTSerializer.serialize(s))));
-
-        return new TridentChunkSnapshot(world, location, sections, lastFileAccess, lastModified, inhabitedTime,
-                lightPopulated, terrainPopulated);
+        return new TridentChunkSnapshot(world, this);
     }
 
     public PacketPlayOutChunkData asPacket() {
@@ -585,7 +569,12 @@ public class TridentChunk implements Chunk {
         }
 
         level.addTag(sectionTags);
-        level.addTag(new ListTag("Entities", TagType.COMPOUND)); // another placeholder TODO
+
+        ListTag tag = new ListTag("Entities", TagType.COMPOUND);
+        for (Entity entity : entities()) {
+            tag.addTag(((TridentEntity) entity).asNbt());
+        }
+        level.addTag(tag);
 
         root.addTag(level);
 

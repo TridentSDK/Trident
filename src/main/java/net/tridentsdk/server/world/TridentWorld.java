@@ -513,8 +513,6 @@ public class TridentWorld implements World {
         }
 
         TridentLogger.log("Saved " + name + " successfully!");
-
-        // TODO RegionFile.saveAll();
     }
 
     private Entity internalSpawn(Entity entity) {

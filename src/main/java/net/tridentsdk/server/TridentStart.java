@@ -76,22 +76,6 @@ public final class TridentStart {
      * @param args the command line arguments
      */
     public static void main(String... args) throws Exception {
-        /*TODO:
-         check some args here, using an interpreter
-         parse the configuration file
-         create the server from the args/config values
-         */
-
-        // DEBUG ===
-        /* Path path = Paths.get("world");
-        if (Files.exists(path)) {
-            for (File file : path.toFile().listFiles()) {
-                file.delete();
-            }
-            Files.delete(path);
-        } */
-        // ===
-
         OptionParser parser = new OptionParser();
         parser.acceptsAll(newArrayList("h", "help"), "Show this help dialog.").forHelp();
         parser.accepts("d", "Prints debug level logging output");
