@@ -482,7 +482,7 @@ public class TridentWorld implements World {
         tag.addTag(new ByteTag("raining").setValue(raining ? (byte) 1 : (byte) 0));
         tag.addTag(new IntTag("GameType").setValue(defaultGamemode.asByte()));
         tag.addTag(new StringTag("generatorName").setValue(type.toString()));
-        tag.addTag(new LongTag("RandomSeed").setValue(loader.generator().seed()));
+        tag.addTag(new LongTag("RandomSeed").setValue(seed));
 
         tag.addTag(new IntTag("rainTime").setValue(rainTime.get()));
         tag.addTag(new ByteTag("thundering").setValue(thundering ? (byte) 1 : (byte) 0));
