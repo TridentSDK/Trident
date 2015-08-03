@@ -20,7 +20,7 @@ import net.tridentsdk.base.Position;
 import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.entity.vehicle.HopperMinecart;
 import net.tridentsdk.inventory.Inventory;
-import net.tridentsdk.inventory.inventory.Item;
+import net.tridentsdk.inventory.Item;
 
 import java.util.UUID;
 

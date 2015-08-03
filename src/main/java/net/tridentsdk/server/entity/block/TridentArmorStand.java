@@ -24,7 +24,7 @@ import net.tridentsdk.entity.block.SlotProperties;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.event.entity.EntityDamageEvent;
-import net.tridentsdk.inventory.inventory.Item;
+import net.tridentsdk.inventory.Item;
 import net.tridentsdk.server.data.MetadataType;
 import net.tridentsdk.server.data.ProtocolMetadata;
 import net.tridentsdk.server.entity.TridentLivingEntity;

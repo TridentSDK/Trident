@@ -21,7 +21,7 @@ import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.entity.living.Zombie;
 import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.event.entity.EntityDamageEvent;
-import net.tridentsdk.inventory.inventory.Item;
+import net.tridentsdk.inventory.Item;
 import net.tridentsdk.server.entity.TridentLivingEntity;
 
 import java.util.UUID;

@@ -20,7 +20,7 @@ package net.tridentsdk.server.entity;
 import net.tridentsdk.base.Position;
 import net.tridentsdk.entity.traits.WindowHolder;
 import net.tridentsdk.inventory.Inventory;
-import net.tridentsdk.inventory.inventory.Item;
+import net.tridentsdk.inventory.Item;
 import net.tridentsdk.meta.nbt.CompoundTag;
 import net.tridentsdk.meta.nbt.ListTag;
 import net.tridentsdk.meta.nbt.NBTSerializer;

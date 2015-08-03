@@ -20,7 +20,7 @@ package net.tridentsdk.server.data;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import net.tridentsdk.base.Substance;
-import net.tridentsdk.inventory.inventory.Item;
+import net.tridentsdk.inventory.Item;
 import net.tridentsdk.meta.nbt.*;
 
 public class Slot implements Writable, NBTSerializable {

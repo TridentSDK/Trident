@@ -25,7 +25,7 @@ import net.tridentsdk.entity.types.HorseType;
 import net.tridentsdk.entity.types.HorseVariant;
 import net.tridentsdk.event.entity.EntityDamageEvent;
 import net.tridentsdk.inventory.Inventory;
-import net.tridentsdk.inventory.inventory.Item;
+import net.tridentsdk.inventory.Item;
 import net.tridentsdk.server.data.MetadataType;
 import net.tridentsdk.server.data.ProtocolMetadata;
 import net.tridentsdk.server.entity.TridentBreedable;

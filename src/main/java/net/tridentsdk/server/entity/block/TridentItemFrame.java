@@ -21,7 +21,7 @@ import net.tridentsdk.base.Block;
 import net.tridentsdk.base.Position;
 import net.tridentsdk.entity.block.ItemFrame;
 import net.tridentsdk.entity.types.EntityType;
-import net.tridentsdk.inventory.inventory.Item;
+import net.tridentsdk.inventory.Item;
 import net.tridentsdk.server.entity.TridentEntity;
 
 import java.util.UUID;

@@ -19,7 +19,7 @@ package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.docs.Volatile;
-import net.tridentsdk.inventory.inventory.InventoryType;
+import net.tridentsdk.inventory.InventoryType;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 

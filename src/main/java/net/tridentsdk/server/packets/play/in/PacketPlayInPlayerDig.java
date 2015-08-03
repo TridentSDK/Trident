@@ -31,7 +31,7 @@ import net.tridentsdk.event.Cancellable;
 import net.tridentsdk.event.Event;
 import net.tridentsdk.event.block.BlockBreakEvent;
 import net.tridentsdk.event.player.*;
-import net.tridentsdk.inventory.inventory.Item;
+import net.tridentsdk.inventory.Item;
 import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.entity.projectile.TridentArrow;
 import net.tridentsdk.server.netty.ClientConnection;
