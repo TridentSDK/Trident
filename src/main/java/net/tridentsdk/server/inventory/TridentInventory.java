@@ -26,7 +26,7 @@ import net.tridentsdk.inventory.inventory.Item;
 import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.data.Slot;
 import net.tridentsdk.server.entity.EntityBuilder;
-import net.tridentsdk.server.entity.TridentEntity;
+import net.tridentsdk.server.entity.TridentDroppedItem;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutCloseWindow;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutOpenWindow;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutSetSlot;
@@ -153,9 +153,9 @@ public class TridentInventory implements Inventory {
 
         for (WeakEntity<Player> player : WeakEntity.iterate(users)) {
             // TODO implement
-            TridentEntity dropped = EntityBuilder.create()
+            TridentDroppedItem dropped = EntityBuilder.create()
                     .spawn(player.obtain().position())
-                    .build(TridentEntity.class);
+                    .build(TridentDroppedItem.class);
             // TODO set dropped type
         }
     }
@@ -172,9 +172,9 @@ public class TridentInventory implements Inventory {
         for (int i = 0; i < length(); i++) {
             PacketPlayOutSetSlot setSlot = new PacketPlayOutSetSlot();
             setSlot.set("windowId", id()).set("slot", (short) i).set("item", new Slot(items()[i]));
-            player.connection().sendPacket(window);
+            player.connection().sendPacket(setSlot);
         }
-        users.add(WeakEntity.<Player>of(player));
+        users.add(WeakEntity.of(player));
     }
 
     public void close(Player player, boolean force) {

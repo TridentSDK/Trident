@@ -34,6 +34,8 @@ import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.event.player.PlayerJoinEvent;
 import net.tridentsdk.event.player.PlayerMoveEvent;
+import net.tridentsdk.inventory.inventory.InventoryType;
+import net.tridentsdk.inventory.inventory.Item;
 import net.tridentsdk.meta.ChatColor;
 import net.tridentsdk.meta.MessageBuilder;
 import net.tridentsdk.meta.nbt.CompoundTag;
@@ -42,6 +44,7 @@ import net.tridentsdk.server.concurrent.ThreadsHandler;
 import net.tridentsdk.server.data.MetadataType;
 import net.tridentsdk.server.data.ProtocolMetadata;
 import net.tridentsdk.server.event.EventProcessor;
+import net.tridentsdk.server.inventory.TridentInventory;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.packets.play.out.*;
@@ -203,9 +206,9 @@ public class TridentPlayer extends OfflinePlayer {
         connection.sendPacket(PacketPlayOutStatistics.DEFAULT_STATISTIC);
         sendChunks(viewDistance());
 
-        //TridentInventory inventory = TridentInventory.create("Inventory", 18, InventoryType.CHEST);
-        //inventory.setSlot(0, new Item(Substance.DIAMOND_PICKAXE));
-        //inventory.sendTo(this);
+        TridentInventory inventory = TridentInventory.create("Inventory", 18, InventoryType.CHEST);
+        inventory.setSlot(0, new Item(Substance.DIAMOND_PICKAXE));
+        inventory.sendTo(this);
 
         // Wait for response
         for (Entity entity : world().entities()) {
