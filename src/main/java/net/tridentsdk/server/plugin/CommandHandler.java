@@ -97,7 +97,7 @@ public class CommandHandler extends ForwardingCollection<Command> implements Com
     }
 
     private void handle(Command cmd, CommandIssuer issuer, String args, String[] contents, CommandData data) {
-        if (!issuer.holdsPermission(data.permission)) {
+        if (!issuer.ownsPermission(data.permission)) {
             issuer.sendRaw(new MessageBuilder("You do not have permission").build().asJson());
             return;
         }

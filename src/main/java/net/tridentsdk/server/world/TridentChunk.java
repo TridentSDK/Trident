@@ -113,7 +113,6 @@ public class TridentChunk implements Chunk {
                 }
             }
 
-            // TODO add flag to prevent double generation
             AbstractGenerator generator = world.loader().generator();
             int i = 0;
 
@@ -214,7 +213,7 @@ public class TridentChunk implements Chunk {
 
         List<AbstractOverlayBrush> brushes = world.loader().brushes();
         AbstractOverlayBrush.ChunkManipulator manipulator = new AbstractOverlayBrush.ChunkManipulator() {
-            MassChange change = new DefaultMassChange(world);
+            private final MassChange change = new DefaultMassChange(world);
 
             @Override
             public void manipulate(int relX, int y, int relZ, Substance substance, byte data) {

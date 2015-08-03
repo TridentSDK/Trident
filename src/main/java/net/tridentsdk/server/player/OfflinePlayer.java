@@ -416,7 +416,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     }
 
     @Override
-    public boolean holdsPermission(String perm) {
+    public boolean ownsPermission(String perm) {
         return perm.isEmpty() || opped() || permissions.contains(perm);
     }
 

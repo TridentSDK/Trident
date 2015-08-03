@@ -67,7 +67,7 @@ public class TridentConsole implements ServerConsole {
     }
 
     @Override
-    public boolean holdsPermission(String perm) {
+    public boolean ownsPermission(String perm) {
         return true; // op
     }
 

@@ -104,7 +104,7 @@ public class TridentWorld implements World {
     private final AtomicInteger rainTime = new AtomicInteger();
     private final AtomicInteger thunderTime = new AtomicInteger();
     private volatile double borderSize;
-    private volatile long seed;
+    private volatile long seed; // TODO prevent seeds == 0
     private volatile GeneratorRandom random;
     private volatile Dimension dimension;
     private volatile Difficulty difficulty;
@@ -596,6 +596,7 @@ public class TridentWorld implements World {
             TridentChunk chunk = new TridentChunk(this, x, z);
             this.addChunkAt(location, chunk);
             chunk.generate();
+            chunk.paint();
             // DEBUG =====
             //TridentLogger.log("Generated chunk at (" + x + "," + z + ")");
             // =====
