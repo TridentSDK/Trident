@@ -213,7 +213,6 @@ public class PacketPlayInPlayerDig extends InPacket {
                 item.spawn();
                 item.setVelocity(player.position().toDirection().normalize().multiply(2000));
                 player.heldItem().setQuantity((short) (player.heldItem().quantity() - count));
-                player.window().setSlot(player.selectedSlot(), player.heldItem());
                 player.setHeldItem(player.heldItem());
                 break;
         }
