@@ -180,7 +180,7 @@ public class TridentEntity implements Entity {
     }
 
     protected void encodeMetadata(ProtocolMetadata protocolMeta) {
-        protocolMeta.setMeta(0, MetadataType.BYTE, (byte) ((fireTicks.intValue() == 0) ? 1 : 0));
+        protocolMeta.setMeta(0, MetadataType.BYTE, (byte) ((fireTicks.intValue() == 0) ? 0 : 1));
         protocolMeta.setMeta(1, MetadataType.SHORT, airTicks.shortValue());
         doEncodeMeta(protocolMeta);
     }
