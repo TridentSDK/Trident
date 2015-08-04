@@ -3,6 +3,8 @@
   "address": "0.0.0.0",
   // The port the server will run on
   "port": 25565,
+  // Whether authentication will be done for players
+  "online-mode": true,
 
   // Display options
   "motd": "Just another TridentSDK server",

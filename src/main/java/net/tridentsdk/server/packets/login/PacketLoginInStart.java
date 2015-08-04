@@ -42,6 +42,8 @@ import java.util.UUID;
  * @author The TridentSDK Team
  */
 public class PacketLoginInStart extends InPacket {
+    private static final boolean ONLINE_MODE = TridentServer.instance().config().getBoolean("online-mode", true);
+
     /**
      * Username of the client to be verified
      */
@@ -84,7 +86,7 @@ public class PacketLoginInStart extends InPacket {
         /*
          * If the client is the local machine, skip the encryption process and proceed to the PLAY stage
          */
-        if (connection.address().getHostString().equals("127.0.0.1")) {
+        if (connection.address().getHostString().equals("127.0.0.1") || !ONLINE_MODE) {
             UUID id;
 
             try {
@@ -128,14 +130,12 @@ public class PacketLoginInStart extends InPacket {
                 JsonArray array = PacketLoginInEncryptionResponse.GSON.fromJson(sb.toString(), JsonArray.class);
                 JsonArray jsonArray = array.getAsJsonArray();
                 if (jsonArray.size() == 0) {
-                    connection.sendPacket(
-                            new PacketLoginOutDisconnect().setJsonMessage("This server is in online-mode"));
-                    return;
+                    id = UUID.randomUUID();
+                } else {
+                    id = UUID.fromString(PacketLoginInEncryptionResponse.idDash.matcher(
+                            jsonArray.get(0).getAsJsonObject().get("id").getAsString())
+                            .replaceAll("$1-$2-$3-$4-$5"));
                 }
-
-                id = UUID.fromString(PacketLoginInEncryptionResponse.idDash.matcher(
-                        jsonArray.get(0).getAsJsonObject().get("id").getAsString())
-                        .replaceAll("$1-$2-$3-$4-$5"));
 
                 if (TridentPlayer.getPlayer(id) != null) {
                     connection.sendPacket(new PacketLoginOutDisconnect().setJsonMessage(

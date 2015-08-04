@@ -402,8 +402,11 @@ public class TridentPlayer extends OfflinePlayer {
                 }
 
                 JsonElement object = new JsonParser().parse(builder.toString());
-                JsonArray properties = object.getAsJsonObject().get("properties").getAsJsonArray();
+                if (object.isJsonNull()) {
+                    return " # ";
+                }
 
+                JsonArray properties = object.getAsJsonObject().get("properties").getAsJsonArray();
 
                 for (int i = 0; i < properties.size(); i++) {
                     JsonObject element = properties.get(i).getAsJsonObject();
