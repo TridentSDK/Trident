@@ -17,6 +17,7 @@
 
 package net.tridentsdk.server.world;
 
+import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.google.common.io.ByteStreams;
@@ -552,6 +553,11 @@ public class TridentWorld implements World {
     }
 
     @Override
+    public Collection<Chunk> chunks() {
+        return Collections2.transform(loadedChunks.values(), c -> (Chunk) c);
+    }
+
+    @Override
     public Chunk chunkAt(int x, int z, boolean generateIfNotFound) {
         return this.chunkAt(ChunkLocation.create(x, z), generateIfNotFound);
     }
@@ -890,11 +896,6 @@ public class TridentWorld implements World {
 
     public Set<Entity> internalEntities() {
         return this.entities;
-    }
-
-    @Override
-    public Set<Tile> tiles() {
-        return ImmutableSet.copyOf(tiles);
     }
 
     public Set<Tile> tilesInternal() {

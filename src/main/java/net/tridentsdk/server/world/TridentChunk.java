@@ -18,6 +18,8 @@
 package net.tridentsdk.server.world;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.math.DoubleMath;
 import net.tridentsdk.base.Block;
@@ -27,6 +29,8 @@ import net.tridentsdk.base.Substance;
 import net.tridentsdk.concurrent.Joiner;
 import net.tridentsdk.concurrent.SelectableThread;
 import net.tridentsdk.entity.Entity;
+import net.tridentsdk.meta.block.BlockMeta;
+import net.tridentsdk.meta.block.Tile;
 import net.tridentsdk.meta.nbt.*;
 import net.tridentsdk.server.concurrent.ThreadsHandler;
 import net.tridentsdk.server.entity.TridentEntity;
@@ -34,6 +38,7 @@ import net.tridentsdk.server.packets.play.out.PacketPlayOutChunkData;
 import net.tridentsdk.server.world.change.ThreadSafeChange;
 import net.tridentsdk.util.NibbleArray;
 import net.tridentsdk.util.TridentLogger;
+import net.tridentsdk.util.Vector;
 import net.tridentsdk.world.Chunk;
 import net.tridentsdk.world.ChunkLocation;
 import net.tridentsdk.world.ChunkSnapshot;
@@ -54,7 +59,9 @@ public class TridentChunk implements Chunk {
     private final TridentWorld world;
     private final ChunkLocation location;
     final SelectableThread executor = ThreadsHandler.chunkExecutor().selectCore();
+
     private final Set<Entity> entities = Sets.newConcurrentHashSet();
+    private final Map<Vector, List<BlockMeta>> blockMeta = Maps.newConcurrentMap();
 
     public ChunkSection[] sections;
     private final AtomicReferenceArray<Integer> heights = new AtomicReferenceArray<>(256);
@@ -97,8 +104,26 @@ public class TridentChunk implements Chunk {
         return ImmutableSet.copyOf(entities);
     }
 
+    @Override
+    public Collection<Tile> tiles() {
+        List<Tile> concat = Lists.newArrayList();
+        for (List<BlockMeta> metaList : blockMeta.values()) {
+            for (BlockMeta meta : metaList) {
+                if (meta instanceof Tile) {
+                    concat.add((Tile) meta);
+                }
+            }
+        }
+
+        return concat;
+    }
+
     public Set<Entity> entitiesInternal() {
         return entities;
+    }
+
+    public Map<Vector, List<BlockMeta>> tilesInternal() {
+        return blockMeta;
     }
 
     @Override
@@ -402,8 +427,17 @@ public class TridentChunk implements Chunk {
                     material = Substance.AIR; // check if valid
                 }
 
-                return new TridentBlock(Position.create(world, relX + x() * 16, y, relZ + z() * 16),
+                TridentBlock block = new TridentBlock(Position.create(world, relX + x() * 16, y, relZ + z() * 16),
                         material, meta);
+                Vector key = new Vector(relX, y, relZ);
+                List<BlockMeta> metas = blockMeta.get(key);
+                if (metas != null) {
+                    for (BlockMeta m : metas) {
+                        block.applyMeta(m);
+                    }
+                }
+
+                return block;
             }).get();
         } catch (InterruptedException | ExecutionException e) {
             TridentLogger.error(e);
@@ -599,6 +633,8 @@ public class TridentChunk implements Chunk {
             NibbleArray.set(section.skyLight, index, skyLight);
             NibbleArray.set(section.blockLight, index, blockLight);
         });
+
+
     }
 
     public ArrayList<Entity> getEntities(Entity exclude, BoundingBox boundingBox, Predicate<? super Entity> predicate){

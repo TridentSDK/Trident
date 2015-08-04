@@ -20,6 +20,7 @@ package net.tridentsdk.server.world;
 import net.tridentsdk.base.Block;
 import net.tridentsdk.base.BoundingBox;
 import net.tridentsdk.entity.Entity;
+import net.tridentsdk.meta.block.Tile;
 import net.tridentsdk.meta.nbt.CompoundTag;
 import net.tridentsdk.world.Chunk;
 import net.tridentsdk.world.ChunkLocation;
@@ -27,6 +28,7 @@ import net.tridentsdk.world.ChunkSnapshot;
 import net.tridentsdk.world.World;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Set;
 import java.util.function.Predicate;
 
@@ -56,6 +58,13 @@ public class TridentChunkSnapshot implements ChunkSnapshot {
         TridentChunk chunk = new TridentChunk((TridentWorld) world(), location);
         chunk.load(tag);
         return chunk.entities();
+    }
+
+    @Override
+    public Collection<Tile> tiles() {
+        TridentChunk chunk = new TridentChunk((TridentWorld) world(), location);
+        chunk.load(tag);
+        return chunk.tiles();
     }
 
     @Override

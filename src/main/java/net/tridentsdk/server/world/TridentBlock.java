@@ -17,16 +17,21 @@
 
 package net.tridentsdk.server.world;
 
+import com.google.common.collect.Lists;
 import net.tridentsdk.base.Block;
 import net.tridentsdk.base.Position;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.meta.block.AbstractBlockMetaOwner;
+import net.tridentsdk.meta.block.BlockMeta;
 import net.tridentsdk.meta.component.MetaCollection;
 import net.tridentsdk.meta.component.MetaFactory;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutBlockChange;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.util.Vector;
+
+import java.util.Collections;
+import java.util.List;
 
 public class TridentBlock extends AbstractBlockMetaOwner<Block> implements Block {
     private final Position location;
@@ -110,5 +115,16 @@ public class TridentBlock extends AbstractBlockMetaOwner<Block> implements Block
     public void clearMeta() {
         super.clearMeta();
         this.data = 0;
+    }
+
+    @Override
+    public <M extends BlockMeta<Block>> boolean applyMeta(boolean replace, M... meta) {
+        TridentChunk chunk = ((TridentChunk) location.chunk());
+        Vector key = new Vector((int) location.x() & 15, location.y(), (int) location.z() & 15);
+        List<BlockMeta> tiles = chunk.tilesInternal().computeIfAbsent(key, k -> Lists.newCopyOnWriteArrayList());
+        Collections.addAll(tiles, meta);
+        chunk.tilesInternal().put(key, tiles);
+
+        return super.applyMeta(replace, meta);
     }
 }
