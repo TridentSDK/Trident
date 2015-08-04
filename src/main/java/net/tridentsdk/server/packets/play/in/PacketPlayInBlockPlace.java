@@ -27,6 +27,7 @@ import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.player.PlayerConnection;
 import net.tridentsdk.server.player.TridentPlayer;
+import net.tridentsdk.server.util.OwnedTridentBlock;
 import net.tridentsdk.util.Value;
 import net.tridentsdk.util.Vector;
 
@@ -102,20 +103,21 @@ public class PacketPlayInBlockPlace extends InPacket {
             }
 
             Position position = location.relative(vector);
-            Block block = position.block();
+            Block block = new OwnedTridentBlock(player, position.block());
 
             short yaw = (short) (player.position().yaw() * 10);
             short meta = player.heldItem().damageValue();
             Value<Byte> result = Value.of((byte) 0);
+            Value<Substance> substanceValue = Value.of(substance);
 
-            boolean allow = MetaFactory.decode(block, substance, new byte[]{
+            boolean allow = MetaFactory.decode(block, substanceValue, new byte[]{
                     writeFirst(yaw), writeSecond(yaw), direction,
                     ((byte) cursorPosition.x()), ((byte) cursorPosition.y()), ((byte) cursorPosition.z()),
                     writeFirst(meta), writeSecond(meta)
             }, result);
 
             if (allow) {
-                block.setSubstanceAndMeta(substance, result.get());
+                block.setSubstanceAndMeta(substanceValue.get(), result.get());
             }
         }
     }

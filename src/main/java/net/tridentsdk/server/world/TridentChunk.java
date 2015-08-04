@@ -30,7 +30,7 @@ import net.tridentsdk.meta.nbt.*;
 import net.tridentsdk.server.concurrent.ThreadsHandler;
 import net.tridentsdk.server.entity.TridentEntity;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutChunkData;
-import net.tridentsdk.server.world.change.DefaultMassChange;
+import net.tridentsdk.server.world.change.ThreadSafeChange;
 import net.tridentsdk.util.NibbleArray;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.Chunk;
@@ -211,7 +211,7 @@ public class TridentChunk implements Chunk {
 
         List<AbstractOverlayBrush> brushes = world.loader().brushes();
         AbstractOverlayBrush.ChunkManipulator manipulator = new AbstractOverlayBrush.ChunkManipulator() {
-            private final MassChange change = new DefaultMassChange(world);
+            private final MassChange change = new ThreadSafeChange(world);
 
             @Override
             public void manipulate(int relX, int y, int relZ, Substance substance, byte data) {

@@ -43,6 +43,7 @@ import net.tridentsdk.event.weather.RainEvent;
 import net.tridentsdk.event.weather.SunEvent;
 import net.tridentsdk.event.weather.ThunderEvent;
 import net.tridentsdk.inventory.Item;
+import net.tridentsdk.meta.block.Tile;
 import net.tridentsdk.meta.nbt.*;
 import net.tridentsdk.server.concurrent.ThreadsHandler;
 import net.tridentsdk.server.concurrent.TickSync;
@@ -97,6 +98,8 @@ public class TridentWorld implements World {
 
     public final ChunkCache loadedChunks = new ChunkCache(this);
     private final Set<Entity> entities = Sets.newConcurrentHashSet();
+    private final Set<Tile> tiles = Sets.newConcurrentHashSet();
+
     private final String name;
     private final WorldLoader loader;
     private final Position spawnPosition;
@@ -880,6 +883,15 @@ public class TridentWorld implements World {
     @Override
     public Set<Entity> entities() {
         return ImmutableSet.copyOf(this.entities);
+    }
+
+    @Override
+    public Set<Tile> tiles() {
+        return ImmutableSet.copyOf(tiles);
+    }
+
+    public Set<Tile> tilesInternal() {
+        return tiles;
     }
 
     @Override

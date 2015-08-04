@@ -23,6 +23,7 @@ import net.tridentsdk.meta.block.BlockMeta;
 import net.tridentsdk.meta.component.*;
 import net.tridentsdk.server.data.block.ColorMetaImpl;
 import net.tridentsdk.server.data.block.DirectionMetaImpl;
+import net.tridentsdk.server.data.block.SignMetaImpl;
 import net.tridentsdk.util.Value;
 
 import java.util.Collection;
@@ -44,8 +45,7 @@ public class MetaProviderFactory implements MetaProvider {
     public MetaProviderFactory() {
         register(new ColorMetaImpl());
         register(new DirectionMetaImpl());
-
-
+        register(new SignMetaImpl());
     }
 
     public boolean hasData(Substance substance) {
@@ -53,8 +53,8 @@ public class MetaProviderFactory implements MetaProvider {
     }
 
     @Override
-    public boolean decode(Block block, Substance substance, byte[] data, Value<Byte> result) {
-        MetaCompiler compiler = metaMap.get(substance);
+    public boolean decode(Block block, Value<Substance> substance, byte[] data, Value<Byte> result) {
+        MetaCompiler compiler = metaMap.get(substance.get());
         if (compiler != null) {
             byte metaByte = 0;
             for (Meta<?> meta : compiler.compileBlock(block, data)) {
@@ -68,9 +68,10 @@ public class MetaProviderFactory implements MetaProvider {
             }
 
             result.set(metaByte);
+            substance.set(block.substance());
         } else {
             // If no data was found for an item, the item is not placeable
-            if (!substance.isBlock()) {
+            if (!substance.get().isBlock()) {
                 return false;
             }
         }

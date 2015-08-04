@@ -19,10 +19,18 @@ package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.base.Position;
+import net.tridentsdk.concurrent.ScheduledRunnable;
+import net.tridentsdk.meta.block.SignMeta;
+import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
+import net.tridentsdk.server.player.PlayerConnection;
+import net.tridentsdk.server.player.TridentPlayer;
+import net.tridentsdk.util.TridentLogger;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Packet is sent when a player wishes to update a sign
@@ -51,7 +59,7 @@ public class PacketPlayInUpdateSign extends InPacket {
 
         this.signLocation = Position.create(null, x, y, z);
 
-        for (int i = 0; i <= 4; i++) {
+        for (int i = 0; i < 4; i++) {
             this.jsonContents[i] = Codec.readString(buf);
         }
         return this;
@@ -67,6 +75,29 @@ public class PacketPlayInUpdateSign extends InPacket {
 
     @Override
     public void handleReceived(ClientConnection connection) {
-        // TODO: Act accordingly (reminder: update world)
+        TridentPlayer player = ((PlayerConnection) connection).player();
+        signLocation.setWorld(player.world());
+
+        Registered.tasks().asyncRepeat(null, new ScheduledRunnable() {
+            private final AtomicInteger integer = new AtomicInteger();
+
+            @Override
+            public void run() {
+                SignMeta meta = signLocation.block().obtainMeta(SignMeta.class);
+                System.out.println("Meta at " + signLocation + " is " + signLocation.block().substance());
+                integer.incrementAndGet();
+                if (meta != null) {
+                    for (int i = 0; i < 4; i++) {
+                        meta.setTextAt(i, jsonContents[i]);
+                    }
+                    cancel();
+                } else {
+                    if (integer.get() > 10) {
+                        TridentLogger.warn("Could not find sign at " + signLocation);
+                        cancel();
+                    }
+                }
+            }
+        }, 1L, 1L);
     }
 }

@@ -32,6 +32,7 @@ import net.tridentsdk.event.Event;
 import net.tridentsdk.event.block.BlockBreakEvent;
 import net.tridentsdk.event.player.*;
 import net.tridentsdk.inventory.Item;
+import net.tridentsdk.meta.block.Tile;
 import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.entity.TridentDroppedItem;
 import net.tridentsdk.server.entity.projectile.TridentArrow;
@@ -42,6 +43,7 @@ import net.tridentsdk.server.packets.play.out.PacketPlayOutBlockChange;
 import net.tridentsdk.server.player.PlayerConnection;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.world.TridentChunk;
+import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.util.Vector;
 import net.tridentsdk.world.settings.GameMode;
@@ -123,6 +125,7 @@ public class PacketPlayInPlayerDig extends InPacket {
 
         Cancellable event = null;
 
+        Block block = location.block();
         switch (digStatus) {
             case DIG_START:
             case DIG_CANCEL:
@@ -130,7 +133,6 @@ public class PacketPlayInPlayerDig extends InPacket {
                 event = new PlayerDigEvent(player, face, this.status);
 
                 if(digStatus == DigStatus.DIG_FINISH) {
-                    Block block = player.world().blockAt(location());
                     BlockBreakEvent blockBreak = new BlockBreakEvent(player, block, face, player.heldItem());
 
                     if(blockBreak.isIgnored())
@@ -160,7 +162,7 @@ public class PacketPlayInPlayerDig extends InPacket {
                 if (item.type().isWeapon()) {
                     if (item.type() == Substance.BOW) // bow
                         event = new PlayerShootBowEvent(player, null);
-                    else event = new PlayerInteractEvent(player, location.block()); // other weapons
+                    else event = new PlayerInteractEvent(player, block); // other weapons
                 } else if (item.type().isEdible()) {
                     event = new PlayerConsumeEvent(player, item, 0.0);
                 }
@@ -183,7 +185,13 @@ public class PacketPlayInPlayerDig extends InPacket {
                 break;
 
             case DIG_FINISH:
-                int[] arr = {location.block().substance().id() + (location.block().meta() << 12)};
+                block.ownedMeta().iterate(e -> {
+                    if (e.getValue() instanceof Tile) {
+                        ((TridentWorld) location.world()).tilesInternal().remove(e.getValue());
+                    }
+                });
+
+                int[] arr = {block.substance().id() + (block.meta() << 12)};
 
                 ((TridentChunk) location().chunk()).setAt(location, Substance.AIR, (byte) 0, (byte) 255, (byte) 15);
                 TridentPlayer.sendAll(new PacketPlayOutBlockChange()
@@ -197,7 +205,7 @@ public class PacketPlayInPlayerDig extends InPacket {
                 effect.setData(arr);
                 effect.applyToEveryoneExcept(player);
 
-                SoundEffectType soundEffectType = location.block().substance().breakSound();
+                SoundEffectType soundEffectType = block.substance().breakSound();
                 if(soundEffectType != null){
                     SoundEffect sound = location.world().playSound(soundEffectType);
                     sound.applyToEveryoneExcept(player);

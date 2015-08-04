@@ -34,10 +34,9 @@ import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.event.player.PlayerJoinEvent;
 import net.tridentsdk.event.player.PlayerMoveEvent;
-import net.tridentsdk.inventory.InventoryType;
-import net.tridentsdk.inventory.Item;
 import net.tridentsdk.meta.ChatColor;
 import net.tridentsdk.meta.MessageBuilder;
+import net.tridentsdk.meta.block.Tile;
 import net.tridentsdk.meta.nbt.CompoundTag;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.concurrent.ThreadsHandler;
@@ -216,6 +215,10 @@ public class TridentPlayer extends OfflinePlayer {
                 .set("entityId", entityId())
                 .set("velocity", new Vector(0, -0.07, 0)));
         connection.sendPacket(new PacketPlayOutGameStateChange().set("reason", 3).set("value", (float) gameMode().asByte()));
+        for (Tile tile : ((TridentWorld) world()).tilesInternal()) {
+            tile.update(this);
+        }
+
         TridentServer.WORLD.addEntity(this); // TODO
         EventProcessor.fire(new PlayerJoinEvent(this));
 
