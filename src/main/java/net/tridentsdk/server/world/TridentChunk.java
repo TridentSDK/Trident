@@ -306,22 +306,22 @@ public class TridentChunk implements Chunk {
                 int zMinDiff = Math.max(relZ, 0) - Math.min(relZ, 0);
                 int zMaxDiff = Math.max(relZ, 15) - Math.min(relZ, 15);
 
-                if (relX > 15 && relZ > 15) { // q1
+                if (relX < 0 && relZ > 15) { // q1
                     ChunkLocation loc = ChunkLocation.create(cx - up(xMinDiff / 16), cz + up(zMaxDiff / 16));
                     TridentChunk chunk = rawChunk(loc);
-                    return chunk.blockAt(relX - xMinDiff, y, relZ + zMaxDiff);
-                } else if (relX > 15 && relZ < 0) { // q4
+                    return chunk.blockAt(16 - xMinDiff, y, zMaxDiff - 1);
+                } else if (relX > 15 && relZ > 15) { // q4
                     ChunkLocation loc = ChunkLocation.create(cx + up(xMaxDiff / 16), cz + up(zMaxDiff / 16));
                     TridentChunk chunk = rawChunk(loc);
-                    return chunk.blockAt(relX + xMaxDiff, y, relZ + zMaxDiff);
-                } else if (relX < 0 && relZ > 15) { // q2
+                    return chunk.blockAt(xMaxDiff - 1, y, zMaxDiff - 1);
+                } else if (relX < 0 && relZ < 0) { // q2
                     ChunkLocation loc = ChunkLocation.create(cx - up(xMinDiff / 16), cz - up(zMinDiff / 16));
                     TridentChunk chunk = rawChunk(loc);
-                    return chunk.blockAt(relX - xMinDiff, y, relZ - zMinDiff);
-                } else if (relX < 0 && relZ < 15) { // q3
+                    return chunk.blockAt(16 - xMinDiff, y, 16 - zMinDiff);
+                } else if (relX > 15 && relZ < 0) { // q3
                     ChunkLocation loc = ChunkLocation.create(cx + up(xMaxDiff / 16), cz - up(zMinDiff / 16));
                     TridentChunk chunk = rawChunk(loc);
-                    return chunk.blockAt(relX + xMaxDiff, y, relZ - zMinDiff);
+                    return chunk.blockAt(xMaxDiff - 1, y, 16 - zMinDiff);
                 }
 
                 return null;

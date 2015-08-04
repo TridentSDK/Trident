@@ -50,6 +50,7 @@ public class PacketDecrypter extends ByteToMessageDecoder {
 
             in.readBytes(tmpBuf, in.readableBytes());
             bufOut.writeBytes(this.connection.decrypt(tmpBuf));
+            tmpBuf.release();
         } else {
             bufOut.writeBytes(in);
         }

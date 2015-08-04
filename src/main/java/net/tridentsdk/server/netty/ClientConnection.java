@@ -69,8 +69,18 @@ public class ClientConnection {
     /**
      * The RSA cipher used to encrypt client data
      */
-    protected final Cipher encryptCipher = getCipher();
-    protected final Cipher decryptCipher = getCipher();
+    protected final ThreadLocal<Cipher> encryptCipher = new ThreadLocal<Cipher>() {
+        @Override
+        protected Cipher initialValue() {
+            return getCipher();
+        }
+    };
+    protected final ThreadLocal<Cipher> decryptCipher = new ThreadLocal<Cipher>() {
+        @Override
+        protected Cipher initialValue() {
+            return getCipher();
+        }
+    };
 
     /* Network fields */
     private final Object BARRIER;
@@ -223,14 +233,12 @@ public class ClientConnection {
      * @throws Exception if something wrong occurs
      */
     public ByteBuf encrypt(ByteBuf data) throws Exception {
-        synchronized (encryptCipher) {
-            ByteBuffer out = ByteBuffer.allocate(data.readableBytes());
+        ByteBuffer out = ByteBuffer.allocate(data.readableBytes());
 
-            encryptCipher.update(data.nioBuffer(), out);
-            out.flip();
+        encryptCipher.get().update(data.nioBuffer(), out);
+        out.flip();
 
-            return Unpooled.wrappedBuffer(out);
-        }
+        return Unpooled.wrappedBuffer(out);
     }
 
     /**
@@ -241,14 +249,12 @@ public class ClientConnection {
      * @throws Exception if something wrong occurs
      */
     public ByteBuf decrypt(ByteBuf data) throws Exception {
-        synchronized (decryptCipher) {
-            ByteBuffer out = ByteBuffer.allocate(data.readableBytes());
+        ByteBuffer out = ByteBuffer.allocate(data.readableBytes());
 
-            decryptCipher.update(data.nioBuffer(), out);
-            out.flip();
+        decryptCipher.get().update(data.nioBuffer(), out);
+        out.flip();
 
-            return Unpooled.wrappedBuffer(out);
-        }
+        return Unpooled.wrappedBuffer(out);
     }
 
     /**
@@ -273,13 +279,8 @@ public class ClientConnection {
             this.encryptionEnabled = true;
 
             try {
-                synchronized (encryptCipher) {
-                    encryptCipher.init(Cipher.ENCRYPT_MODE, sharedSecret, ivSpec);
-                }
-
-                synchronized (decryptCipher) {
-                    decryptCipher.init(Cipher.DECRYPT_MODE, sharedSecret, ivSpec);
-                }
+                encryptCipher.get().init(Cipher.ENCRYPT_MODE, sharedSecret, ivSpec);
+                decryptCipher.get().init(Cipher.DECRYPT_MODE, sharedSecret, ivSpec);
             } catch (InvalidKeyException | InvalidAlgorithmParameterException e) {
                 TridentLogger.error(e);
             }
