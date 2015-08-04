@@ -58,12 +58,7 @@ public class PacketHandler extends SimpleChannelInboundHandler<PacketData> {
      */
     @Override
     protected void messageReceived(ChannelHandlerContext context, PacketData data) throws Exception {
-
-        if (this.connection.isEncryptionEnabled()) {
-            data.decrypt(this.connection);
-        }
-
-        Packet packet = this.protocol.getPacket(data.getId(), this.connection.stage(), PacketDirection.IN);
+        Packet packet = this.protocol.getPacket(data.id(), this.connection.stage(), PacketDirection.IN);
 
         //If packet is unknown disconnect the client, as said client seems to be modified
         if (packet.id() == -1) {
@@ -74,13 +69,14 @@ public class PacketHandler extends SimpleChannelInboundHandler<PacketData> {
 
                 TridentLogger.log(con.player().displayName() + " has been disconnected from the server " +
                         "for sending an invalid packet (" +
-                        con.address().getHostString() + "," + con.player().uniqueId().toString() + ")");
+                        con.address().getHostString() + "," + con.player().uniqueId().toString() +
+                        "," + data.id() + ")");
             }
             return;
         }
 
         // decode and handle the packet
-        packet.decode(data.getData());
+        packet.decode(data.data());
 
         try {
             // DEBUG =====

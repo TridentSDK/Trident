@@ -18,10 +18,7 @@
 package net.tridentsdk.server.netty.packet;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
-import net.tridentsdk.util.TridentLogger;
 
 /**
  * Wraps the raw Packet Data/Bytes received over the network (May serve more functions later)
@@ -30,7 +27,6 @@ import net.tridentsdk.util.TridentLogger;
  */
 public class PacketData {
     private final ByteBuf rawData;
-    private ByteBuf decrypted;
     private Integer id;
 
     /**
@@ -47,8 +43,8 @@ public class PacketData {
      *
      * @return id the id of the packet
      */
-    public int getId() {
-        return this.id == null ? this.id = Codec.readVarInt32(this.getData()) : this.id;
+    public int id() {
+        return this.id == null ? this.id = Codec.readVarInt32(this.data()) : this.id;
     }
 
     /**
@@ -56,18 +52,8 @@ public class PacketData {
      *
      * @return the serialized packet
      */
-    public ByteBuf getData() {
-        return this.decrypted != null ? this.decrypted : this.rawData;
-    }
-
-    public void decrypt(ClientConnection con) {
-        try {
-            this.decrypted = Unpooled.buffer();
-
-            this.decrypted.writeBytes(con.decrypt(Codec.asArray(this.rawData)));
-        } catch (Exception ex) {
-            TridentLogger.error(ex);
-        }
+    public ByteBuf data() {
+        return this.rawData;
     }
 
     /**
@@ -76,6 +62,6 @@ public class PacketData {
      * @return the byte length of the serialized data
      */
     public int getLength() {
-        return this.getData().readableBytes();
+        return this.data().readableBytes();
     }
 }

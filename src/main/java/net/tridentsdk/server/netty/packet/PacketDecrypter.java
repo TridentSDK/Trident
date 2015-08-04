@@ -21,7 +21,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import net.tridentsdk.server.netty.ClientConnection;
-import net.tridentsdk.server.netty.Codec;
 
 import java.util.List;
 
@@ -47,7 +46,10 @@ public class PacketDecrypter extends ByteToMessageDecoder {
         ByteBuf bufOut = ctx.alloc().buffer(in.readableBytes());
 
         if (this.connection.isEncryptionEnabled()) {
-            bufOut.writeBytes(this.connection.decrypt(Codec.asArray(in)));
+            ByteBuf tmpBuf = ctx.alloc().buffer(in.readableBytes());
+
+            in.readBytes(tmpBuf, in.readableBytes());
+            bufOut.writeBytes(this.connection.decrypt(tmpBuf));
         } else {
             bufOut.writeBytes(in);
         }

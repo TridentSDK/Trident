@@ -18,6 +18,7 @@
 package net.tridentsdk.server.netty;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
@@ -40,6 +41,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
@@ -220,8 +222,15 @@ public class ClientConnection {
      * @return the encrypted data
      * @throws Exception if something wrong occurs
      */
-    public byte[] encrypt(byte... data) throws Exception {
-        return encryptCipher.doFinal(data);
+    public ByteBuf encrypt(ByteBuf data) throws Exception {
+        synchronized (encryptCipher) {
+            ByteBuffer out = ByteBuffer.allocate(data.readableBytes());
+
+            encryptCipher.update(data.nioBuffer(), out);
+            out.flip();
+
+            return Unpooled.wrappedBuffer(out);
+        }
     }
 
     /**
@@ -231,8 +240,15 @@ public class ClientConnection {
      * @return the decrypted data
      * @throws Exception if something wrong occurs
      */
-    public byte[] decrypt(byte... data) throws Exception {
-        return decryptCipher.doFinal(data);
+    public ByteBuf decrypt(ByteBuf data) throws Exception {
+        synchronized (decryptCipher) {
+            ByteBuffer out = ByteBuffer.allocate(data.readableBytes());
+
+            decryptCipher.update(data.nioBuffer(), out);
+            out.flip();
+
+            return Unpooled.wrappedBuffer(out);
+        }
     }
 
     /**
@@ -257,10 +273,15 @@ public class ClientConnection {
             this.encryptionEnabled = true;
 
             try {
-                encryptCipher.init(Cipher.ENCRYPT_MODE, sharedSecret, ivSpec);
-                decryptCipher.init(Cipher.DECRYPT_MODE, sharedSecret, ivSpec);
+                synchronized (encryptCipher) {
+                    encryptCipher.init(Cipher.ENCRYPT_MODE, sharedSecret, ivSpec);
+                }
+
+                synchronized (decryptCipher) {
+                    decryptCipher.init(Cipher.DECRYPT_MODE, sharedSecret, ivSpec);
+                }
             } catch (InvalidKeyException | InvalidAlgorithmParameterException e) {
-                e.printStackTrace();
+                TridentLogger.error(e);
             }
         }
     }

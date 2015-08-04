@@ -84,7 +84,7 @@ public class PacketLoginInStart extends InPacket {
         /*
          * If the client is the local machine, skip the encryption process and proceed to the PLAY stage
          */
-        if (true) {
+        if (connection.address().getHostString().equals("127.0.0.1")) {
             UUID id;
 
             try {
@@ -128,7 +128,6 @@ public class PacketLoginInStart extends InPacket {
                 JsonArray array = PacketLoginInEncryptionResponse.GSON.fromJson(sb.toString(), JsonArray.class);
                 JsonArray jsonArray = array.getAsJsonArray();
                 if (jsonArray.size() == 0) {
-                    // TODO more checks, session validity
                     connection.sendPacket(
                             new PacketLoginOutDisconnect().setJsonMessage("This server is in online-mode"));
                     return;

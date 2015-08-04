@@ -163,6 +163,8 @@ public class PacketLoginInEncryptionResponse extends InPacket {
         } catch (Exception ex) {
             TridentLogger.error(ex);
 
+            connection.sendPacket(new PacketLoginOutDisconnect().setJsonMessage("An internal error occurred while " +
+                    "validating session. Perhaps authentication servers are down?"));
             connection.logout();
             return;
         }

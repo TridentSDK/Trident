@@ -21,7 +21,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 import net.tridentsdk.server.netty.ClientConnection;
-import net.tridentsdk.server.netty.Codec;
 
 /**
  * An encoder that encrypts the information contained in the raw packet
@@ -45,7 +44,7 @@ public class PacketEncrypter extends MessageToByteEncoder<ByteBuf> {
     @Override
     protected void encode(ChannelHandlerContext ctx, ByteBuf msg, ByteBuf out) throws Exception {
         if (this.connection.isEncryptionEnabled()) {
-            out.writeBytes(this.connection.encrypt(Codec.asArray(msg)));
+            out.writeBytes(this.connection.encrypt(msg));
         } else {
             out.writeBytes(msg);
         }
