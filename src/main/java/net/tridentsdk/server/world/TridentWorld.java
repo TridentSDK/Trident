@@ -366,11 +366,6 @@ public class TridentWorld implements World {
             TridentLogger.success("Created directories and set all values");
 
             // TODO: load other values
-
-            world.spawnPosition.setX(0);
-            world.spawnPosition.setY(64);
-            world.spawnPosition.setZ(0);
-
             TridentLogger.log("Loading spawn chunks...");
             int centX = ((int) Math.floor(world.spawnPosition.x())) >> 4;
             int centZ = ((int) Math.floor(world.spawnPosition.z())) >> 4;
@@ -384,6 +379,11 @@ public class TridentWorld implements World {
                 world.addChunkAt(location, chunk);
                 chunk.generate();
             }
+
+            world.spawnPosition.setX(0);
+            world.spawnPosition.setZ(0);
+            int y = ((TridentChunk) world.spawnPosition.chunk()).maxHeightAt(0, 0);
+            world.spawnPosition().setY(y + 3);
 
             world.save();
 

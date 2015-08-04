@@ -24,10 +24,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.tridentsdk.Trident;
-import net.tridentsdk.base.Block;
 import net.tridentsdk.base.BoundingBox;
 import net.tridentsdk.base.Position;
-import net.tridentsdk.base.Substance;
 import net.tridentsdk.config.ConfigSection;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.effect.sound.SoundEffect;
@@ -138,20 +136,7 @@ public class TridentPlayer extends OfflinePlayer {
             p.abilities.flySpeed = 0.135F;
             p.abilities.canFly = 1;
 
-            // DEBUG =====
-            // TODO: Use chunk HeightMap to get the spawn block more efficiently
-            Block block = p.world().blockAt(Position.create(p.world(), 0, 255, 0));
-            Vector below = new Vector(0, -1, 0);
-            while(block.substance() == Substance.AIR
-                    && block.relativeBlock(below).substance() == Substance.AIR) {
-                block = block.relativeBlock(below);
-            }
-
-            block = block.relativeBlock(new Vector(0, 5, 0));
-            //Position pos = Position.create(p.world(), 0, 255, 0);
-            p.setPosition(block.position());
-            p.spawnPosition = block.position();
-            // =====
+            p.spawnPosition = TridentServer.WORLD.spawnPosition();
 
             p.connection.sendPacket(PacketPlayOutPluginMessage.VANILLA_CHANNEL);
             p.connection.sendPacket(new PacketPlayOutServerDifficulty().set("difficulty", p.world().difficulty()));
@@ -206,8 +191,8 @@ public class TridentPlayer extends OfflinePlayer {
         if (!loggingIn)
             return;
 
-        connection.sendPacket(PacketPlayOutStatistics.DEFAULT_STATISTIC);
         sendChunks(viewDistance());
+        connection.sendPacket(PacketPlayOutStatistics.DEFAULT_STATISTIC);
 
         // Wait for response
         for (Entity entity : world().entities()) {
