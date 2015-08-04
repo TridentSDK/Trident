@@ -17,9 +17,12 @@
 package net.tridentsdk.server.world.gen.brush;
 
 import net.tridentsdk.base.Substance;
+import net.tridentsdk.server.world.WorldUtils;
 import net.tridentsdk.world.ChunkLocation;
 import net.tridentsdk.world.gen.AbstractOverlayBrush;
 import net.tridentsdk.world.gen.GeneratorRandom;
+
+import java.util.concurrent.atomic.AtomicReferenceArray;
 
 /**
  * Creates tall grass in the world
@@ -32,9 +35,12 @@ public class TallGrassBrush extends AbstractOverlayBrush {
     }
 
     @Override
-    public void brush(ChunkLocation location, int relX, int top, int relZ, GeneratorRandom random, ChunkManipulator manipulator) {
+    public void brush(ChunkLocation location, int relX, int relZ, GeneratorRandom random, AtomicReferenceArray<Integer> heights, ChunkManipulator manipulator) {
+        int i = WorldUtils.heightIndex(relX, relZ);
+        int top = heights.get(i);
         if (random.under(99) < 40 && manipulator.blockAt(relX, top, relZ).substance() == Substance.GRASS) {
-            manipulator.manipulate(relX, top + 1, relZ, Substance.LONG_GRASS, (byte) 0x01);
+            int y = top + 1;
+            manipulator.manipulate(relX, y, relZ, Substance.LONG_GRASS, (byte) 0x01);
         }
     }
 }

@@ -334,7 +334,7 @@ public class TridentChunk implements Chunk {
             executor.execute(() -> {
                 for (int j = 0; j < 16; j++) {
                     for (AbstractOverlayBrush brush : brushes) {
-                        brush.brush(location, finalI, maxHeightAt(finalI, j), j, world.random(), manipulator);
+                        brush.brush(location, finalI, j, world.random(), heights, manipulator);
                         latch.countDown();
                     }
                 }
@@ -380,6 +380,12 @@ public class TridentChunk implements Chunk {
                             final byte blockLight, MassChange change) {
         setAt(x, y, z, type, metaData, skyLight, blockLight);
         change.setBlock(WorldUtils.heightIndex(location.x(), x), y, WorldUtils.heightIndex(location.z(), z), type, metaData);
+        if (type != Substance.AIR) {
+            int i = WorldUtils.heightIndex(x, z);
+            if (heights.get(i) < y) {
+                heights.set(i, y);
+            }
+        }
     }
 
     public int maxHeightAt(int x, int z) {
@@ -411,7 +417,7 @@ public class TridentChunk implements Chunk {
         final int index = WorldUtils.blockArrayIndex(relX, y & 15, relZ);
 
         try {
-            return (Block) executor.submitTask(() -> {
+            return executor.submitTask(() -> {
                 ChunkSection[] sections = mapSections();
 
                 int sectionIndex = WorldUtils.section(y);

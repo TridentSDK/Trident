@@ -17,9 +17,12 @@
 package net.tridentsdk.server.world.gen.brush;
 
 import net.tridentsdk.base.Substance;
+import net.tridentsdk.server.world.WorldUtils;
 import net.tridentsdk.world.ChunkLocation;
 import net.tridentsdk.world.gen.AbstractOverlayBrush;
 import net.tridentsdk.world.gen.GeneratorRandom;
+
+import java.util.concurrent.atomic.AtomicReferenceArray;
 
 /**
  * Generates oak trees in the world
@@ -32,7 +35,9 @@ public class OakTreeBrush extends AbstractOverlayBrush {
     }
 
     @Override
-    public void brush(ChunkLocation location, int relX, int top, int relZ, GeneratorRandom random, ChunkManipulator manipulator) {
+    public void brush(ChunkLocation location, int relX, int relZ, GeneratorRandom random, AtomicReferenceArray<Integer> heights, ChunkManipulator manipulator) {
+        int heightIndex = WorldUtils.heightIndex(relX, relZ);
+        int top = heights.get(heightIndex);
         Substance substance = manipulator.blockAt(relX, top, relZ).substance();
         if (random.under(100) < 1 && (substance == Substance.GRASS || substance == Substance.DIRT)) {
             for (int i = 1; i < 7; i++) {
