@@ -28,7 +28,7 @@ public class PacketPlayOutCollectItem extends OutPacket {
 
     @Override
     public int id() {
-        return 0x0E;
+        return 0x0D;
     }
 
     public int collectedId() {
