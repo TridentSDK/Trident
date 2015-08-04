@@ -208,6 +208,7 @@ public class PacketPlayInPlayerDig extends InPacket {
                 SoundEffectType soundEffectType = block.substance().breakSound();
                 if(soundEffectType != null){
                     SoundEffect sound = location.world().playSound(soundEffectType);
+                    sound.setPosition(location);
                     sound.applyToEveryoneExcept(player);
                 }
                 break;
