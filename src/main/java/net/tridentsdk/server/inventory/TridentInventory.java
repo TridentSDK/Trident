@@ -196,7 +196,6 @@ public class TridentInventory implements Inventory {
         if(item.quantity() <= 0){
             return;
         }else if(freeSlot != -1){
-            System.out.println("SET " + freeSlot + " as " + item.clone());
             contents.set(freeSlot, item.clone());
             item.setQuantity((short) 0);
             return;
