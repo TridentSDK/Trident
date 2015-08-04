@@ -49,7 +49,7 @@ public class PacketPlayInPlayerMove extends InPacket {
         double y = buf.readDouble();
         double z = buf.readDouble();
 
-        this.location = Position.create(null, x, y, z); // TODO: Get the player's world
+        this.location = Position.create(null, x, y, z);
 
         this.onGround = buf.readBoolean();
 

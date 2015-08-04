@@ -23,6 +23,8 @@ import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
+import net.tridentsdk.server.player.PlayerConnection;
+import net.tridentsdk.server.player.TridentPlayer;
 
 import javax.annotation.Nullable;
 
@@ -58,7 +60,7 @@ public class PacketPlayInEntityInteract extends InPacket {
             double x = (double) buf.readFloat();
             double y = (double) buf.readFloat();
             double z = (double) buf.readFloat();
-            this.location = Position.create(null, x, y, z); // TODO: Get the clients world
+            this.location = Position.create(null, x, y, z);
         }
 
         return this;
@@ -78,7 +80,13 @@ public class PacketPlayInEntityInteract extends InPacket {
 
     @Override
     public void handleReceived(ClientConnection connection) {
-        // TODO: Respond to the client accordingly
+        TridentPlayer player = ((PlayerConnection) connection).player();
+
+        if (location != null) {
+            location.setWorld(player.world());
+        }
+
+        // TODO: call event and process interact
     }
 
     public enum InteractType {

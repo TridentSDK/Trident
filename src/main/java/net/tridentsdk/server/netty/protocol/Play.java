@@ -32,11 +32,10 @@ class Play extends ProtocolHandler {
         super.inPackets.put(0x04, PacketPlayInPlayerMove.class);
         super.inPackets.put(0x05, PacketPlayInPlayerLook.class);
         super.inPackets.put(0x06, PacketPlayInPlayerCompleteMove.class);
-        //TODO: Work on PlayeInDig Packet
         super.inPackets.put(0x07, PacketPlayInPlayerDig.class);
         super.inPackets.put(0x08, PacketPlayInBlockPlace.class);
         super.inPackets.put(0x09, PacketPlayInPlayerHeldItemChange.class);
-        super.inPackets.put(0x0A, PacketPlayInAnimation.class); // I don't even
+        super.inPackets.put(0x0A, PacketPlayInAnimation.class);
         super.inPackets.put(0x0B, PacketPlayInEntityAction.class);
         super.inPackets.put(0x0C, PacketPlayInSteerVehicle.class);
         super.inPackets.put(0x0D, PacketPlayInPlayerCloseWindow.class);

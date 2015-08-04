@@ -39,7 +39,7 @@ public class PacketPlayInBlockPlace extends InPacket {
      * Location of the block being placed
      */
     protected Position location;
-    protected byte direction; // wat
+    protected byte direction;
     /**
      * PositionWritable of the cursor, incorrect use of a Vector
      */

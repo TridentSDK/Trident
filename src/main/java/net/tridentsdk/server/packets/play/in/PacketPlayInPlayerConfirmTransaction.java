@@ -22,6 +22,7 @@ import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 
+// NOTE: This packet is inconsistently sent from the client
 public class PacketPlayInPlayerConfirmTransaction extends InPacket {
 
     /**

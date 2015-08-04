@@ -26,7 +26,7 @@ import net.tridentsdk.server.player.PlayerConnection;
 import net.tridentsdk.server.player.TridentPlayer;
 
 /**
- * What the fuck is this? Take me on my word when I say I have no idea for the use of this
+ * This packet is sent when a player swings his arms
  */
 public class PacketPlayInAnimation extends InPacket {
 
