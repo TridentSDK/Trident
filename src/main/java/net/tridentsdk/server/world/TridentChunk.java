@@ -411,7 +411,7 @@ public class TridentChunk implements Chunk {
         final int index = WorldUtils.blockArrayIndex(relX, y & 15, relZ);
 
         try {
-            return executor.submitTask(() -> {
+            return (Block) executor.submitTask(() -> {
                 ChunkSection[] sections = mapSections();
 
                 int sectionIndex = WorldUtils.section(y);

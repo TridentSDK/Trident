@@ -154,19 +154,51 @@ public class TridentInventory implements Inventory {
 
     @Override
     public void putItem(Item item) {
-        for (int i = 0; i < contents.length() && item.quantity() > 0; i++) {
-            if(contents.get(i).isSimilarIgnoreQuantity(item)){
-                int available  = contents.get(i).type().maxStackSize() - contents.get(i).quantity();
-                if(available > item.quantity()){
-                    contents.get(i).setQuantity((short) (contents.get(i).quantity() + item.quantity()));
-                }else{
-                    contents.get(i).setQuantity((short) (contents.get(i).quantity() + available));
+        int freeSlot = -1;
+        if(contents.length() == 45){
+            for(int i = 36; i < contents.length() && item.quantity() > 0; i++){
+                if(contents.get(i) == null || contents.get(i).type() == Substance.AIR){
+                    if(freeSlot == -1){
+                        freeSlot = i;
+                    }
+                }else if(contents.get(i).isSimilarIgnoreQuantity(item)){
+                    int available = contents.get(i).type().maxStackSize() - contents.get(i).quantity();
+                    if(available > item.quantity()){
+                        contents.get(i).setQuantity((short) (contents.get(i).quantity() + item.quantity()));
+                    }else{
+                        contents.get(i).setQuantity((short) (contents.get(i).quantity() + available));
+                    }
+                    item.setQuantity((short) (item.quantity() - available));
                 }
-                item.setQuantity((short) (item.quantity() - available));
+            }
+
+            if(item.quantity() == 0){
+                return;
+            }
+
+            for(int i = 0; i < 36 && item.quantity() > 0; i++){
+                if(contents.get(i) == null || contents.get(i).type() == Substance.AIR){
+                    if(i >= 9 && freeSlot == -1){
+                        freeSlot = i;
+                    }
+                }else if(contents.get(i).isSimilarIgnoreQuantity(item)){
+                    int available = contents.get(i).type().maxStackSize() - contents.get(i).quantity();
+                    if(available > item.quantity()){
+                        contents.get(i).setQuantity((short) (contents.get(i).quantity() + item.quantity()));
+                    }else{
+                        contents.get(i).setQuantity((short) (contents.get(i).quantity() + available));
+                    }
+                    item.setQuantity((short) (item.quantity() - available));
+                }
             }
         }
 
         if(item.quantity() <= 0){
+            return;
+        }else if(freeSlot != -1){
+            System.out.println("SET " + freeSlot + " as " + item.clone());
+            contents.set(freeSlot, item.clone());
+            item.setQuantity((short) 0);
             return;
         }
 

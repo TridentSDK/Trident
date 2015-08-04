@@ -32,6 +32,8 @@ public class TridentSoundEffect extends TridentRemoteEffect<SoundEffectType> imp
     public TridentSoundEffect(World world, SoundEffectType type){
         packet.set("loc", new Position(world, 0, 0, 0));
         packet.set("sound", type);
+        packet.set("pitch", 63);
+        packet.set("volume", 1f);
     }
 
     @Override

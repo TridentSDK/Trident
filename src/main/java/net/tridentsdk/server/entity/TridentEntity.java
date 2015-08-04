@@ -299,6 +299,9 @@ public class TridentEntity implements Entity {
         executor.execute(() -> {
             ticksExisted.incrementAndGet();
             doTick();
+            if(ticksExisted.get() % 20 == 0){
+                updateBoudingBox();
+            }
             TickSync.complete();
         });
     }

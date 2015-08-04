@@ -30,6 +30,8 @@ import net.tridentsdk.base.Position;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.config.ConfigSection;
 import net.tridentsdk.docs.InternalUseOnly;
+import net.tridentsdk.effect.sound.SoundEffect;
+import net.tridentsdk.effect.sound.SoundEffectType;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.entity.types.EntityType;
@@ -326,7 +328,15 @@ public class TridentPlayer extends OfflinePlayer {
             BoundingBox checkBox = boundingBox().grow(1, 0.5, 1);
             ArrayList<Entity> items = position().world().getEntities(this, checkBox, entity -> entity instanceof TridentDroppedItem);
             items.stream().filter(item -> ((TridentDroppedItem) item).canPickupItem()).forEach(item -> {
+                int started = ((TridentDroppedItem) item).item().quantity();
                 window().putItem(((TridentDroppedItem) item).item());
+
+                if(started > ((TridentDroppedItem) item).item().quantity()){
+                    SoundEffect soundEffect = loc.world().playSound(SoundEffectType.RANDOM_POP);
+                    soundEffect.setPosition(position().asVector());
+                    soundEffect.apply(this);
+                }
+
                 if(((TridentDroppedItem) item).item().quantity() <= 0){
                     PacketPlayOutCollectItem collectItem = new PacketPlayOutCollectItem();
                     collectItem.set("collectedId", item.entityId());
@@ -335,7 +345,10 @@ public class TridentPlayer extends OfflinePlayer {
                     item.remove();
                 }
             });
-            window().sendTo(this);
+
+            if(items.size() > 0){
+                window().sendTo(this);
+            }
         }
 
         if (dX == 0 && dY == 0 && dZ == 0) {
