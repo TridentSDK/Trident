@@ -25,6 +25,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.tridentsdk.Trident;
 import net.tridentsdk.base.Block;
+import net.tridentsdk.base.BoundingBox;
 import net.tridentsdk.base.Position;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.config.ConfigSection;
@@ -42,6 +43,7 @@ import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.concurrent.ThreadsHandler;
 import net.tridentsdk.server.data.MetadataType;
 import net.tridentsdk.server.data.ProtocolMetadata;
+import net.tridentsdk.server.entity.TridentDroppedItem;
 import net.tridentsdk.server.event.EventProcessor;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.Packet;
@@ -319,6 +321,22 @@ public class TridentPlayer extends OfflinePlayer {
         }
 
         super.setPosition(loc);
+
+        if(/* health() > 0 && */ gameMode() != GameMode.SPECTATE){
+            BoundingBox checkBox = boundingBox().grow(1, 0.5, 1);
+            ArrayList<Entity> items = position().world().getEntities(this, checkBox, entity -> entity instanceof TridentDroppedItem);
+            items.stream().filter(item -> ((TridentDroppedItem) item).canPickupItem()).forEach(item -> {
+                window().putItem(((TridentDroppedItem) item).item());
+                if(((TridentDroppedItem) item).item().quantity() <= 0){
+                    PacketPlayOutCollectItem collectItem = new PacketPlayOutCollectItem();
+                    collectItem.set("collectedId", item.entityId());
+                    collectItem.set("collectorId", entityId());
+                    TridentPlayer.sendAll(collectItem);
+                    item.remove();
+                }
+            });
+            window().sendTo(this);
+        }
 
         if (dX == 0 && dY == 0 && dZ == 0) {
             sendFiltered(new PacketPlayOutEntityLook().set("entityId", entityId())

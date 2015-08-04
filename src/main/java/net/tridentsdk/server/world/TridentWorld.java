@@ -21,6 +21,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.google.common.io.ByteStreams;
 import net.tridentsdk.base.Block;
+import net.tridentsdk.base.BoundingBox;
 import net.tridentsdk.base.Position;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.effect.particle.ParticleEffect;
@@ -76,12 +77,14 @@ import javax.annotation.concurrent.ThreadSafe;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Predicate;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -885,6 +888,10 @@ public class TridentWorld implements World {
         return ImmutableSet.copyOf(this.entities);
     }
 
+    public Set<Entity> internalEntities() {
+        return this.entities;
+    }
+
     @Override
     public Set<Tile> tiles() {
         return ImmutableSet.copyOf(tiles);
@@ -907,5 +914,22 @@ public class TridentWorld implements World {
     @Override
     public SoundEffect playSound(SoundEffectType sound){
         return new TridentSoundEffect(this, sound);
+    }
+
+    public ArrayList<Entity> getEntities(Entity exclude, BoundingBox boundingBox, Predicate<? super Entity> predicate){
+        ArrayList<Entity> list = new ArrayList<>();
+        int minX = (int) Math.floor((boundingBox.minX - 2.0D) / 16.0D);
+        int maxX = (int) Math.floor((boundingBox.maxX + 2.0D) / 16.0D);
+        int minZ = (int) Math.floor((boundingBox.minZ - 2.0D) / 16.0D);
+        int maxZ = (int) Math.floor((boundingBox.maxZ + 2.0D) / 16.0D);
+        for(int x = minX; x <= maxX; x++){
+            for(int z = minZ; z <= maxZ; z++){
+                Chunk chunk = chunkAt(x, z, false);
+                if(chunk != null){
+                    list.addAll(chunk.getEntities(exclude, boundingBox, predicate));
+                }
+            }
+        }
+        return list;
     }
 }

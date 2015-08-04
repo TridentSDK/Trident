@@ -25,8 +25,6 @@ import net.tridentsdk.inventory.InventoryType;
 import net.tridentsdk.inventory.Item;
 import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.data.Slot;
-import net.tridentsdk.server.entity.EntityBuilder;
-import net.tridentsdk.server.entity.TridentDroppedItem;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutCloseWindow;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutOpenWindow;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutSetSlot;
@@ -156,17 +154,27 @@ public class TridentInventory implements Inventory {
 
     @Override
     public void putItem(Item item) {
-        for (int i = 0; i < contents.length(); i++) {
-            if (contents.compareAndSet(i, null, item)) {
-                return;
+        for (int i = 0; i < contents.length() && item.quantity() > 0; i++) {
+            if(contents.get(i).isSimilarIgnoreQuantity(item)){
+                int available  = contents.get(i).type().maxStackSize() - contents.get(i).quantity();
+                if(available > item.quantity()){
+                    contents.get(i).setQuantity((short) (contents.get(i).quantity() + item.quantity()));
+                }else{
+                    contents.get(i).setQuantity((short) (contents.get(i).quantity() + available));
+                }
+                item.setQuantity((short) (item.quantity() - available));
             }
+        }
+
+        if(item.quantity() <= 0){
+            return;
         }
 
         for (WeakEntity<Player> player : WeakEntity.iterate(users)) {
             // TODO implement
-            TridentDroppedItem dropped = EntityBuilder.create()
+            /*TridentDroppedItem dropped = EntityBuilder.create()
                     .spawn(player.obtain().position())
-                    .build(TridentDroppedItem.class);
+                    .build(TridentDroppedItem.class);*/
             // TODO set dropped type
         }
     }

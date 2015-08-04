@@ -17,6 +17,7 @@
 package net.tridentsdk.server.bench;
 
 import com.google.common.collect.Sets;
+import net.tridentsdk.base.BoundingBox;
 import net.tridentsdk.base.Position;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.traits.EntityProperties;
@@ -185,6 +186,8 @@ public class MapTest {
         @Override public void eject() {}
         @Override public EntityType type() {return null;}
         @Override public void applyProperties(EntityProperties properties) {}
+        @Override public void setSize(float width, float height) {}
+        @Override public BoundingBox boundingBox() {return null;}
     }), null);
 
     public static void main(String[] args) throws RunnerException {
@@ -422,6 +425,8 @@ public class MapTest {
             @Override public void eject() {}
             @Override public EntityType type() {return null;}
             @Override public void applyProperties(EntityProperties properties) {}
+            @Override public void setSize(float width, float height) {}
+            @Override public BoundingBox boundingBox() {return null;}
 
             @Override
             public int hashCode() {

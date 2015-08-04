@@ -18,6 +18,7 @@
 package net.tridentsdk.server.entity;
 
 import com.google.common.util.concurrent.AtomicDouble;
+import net.tridentsdk.base.BoundingBox;
 import net.tridentsdk.base.Position;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.concurrent.SelectableThreadPool;
@@ -127,6 +128,18 @@ public class TridentEntity implements Entity {
      * {@code true} to indicate the entity cannot be damaged
      */
     protected volatile boolean godMode;
+    /**
+     * TODO
+     */
+    protected volatile BoundingBox boundingBox;
+    /**
+     * TODO
+     */
+    protected volatile float width;
+    /**
+     * TODO
+     */
+    protected volatile float height;
 
     /**
      * Creates a new entity
@@ -139,6 +152,14 @@ public class TridentEntity implements Entity {
         this.id = counter.incrementAndGet();
         this.velocity = new Vector(0.0D, 0.0D, 0.0D);
         this.loc = spawnLocation;
+        this.boundingBox = new BoundingBox(0.0D, 0.0D, 0.0D, 0.0D, 0.0D, 0.0D);
+        setSize(0.6f, 1.8f);
+        updateBoudingBox();
+
+        ((TridentChunk) loc.chunk()).entitiesInternal().add(this);
+        if(!((TridentWorld) loc.world()).internalEntities().contains(this)){
+            ((TridentWorld) loc.world()).addEntity(this);
+        }
 
         for (double y = this.loc.y(); y > 0.0; y--) {
             Position l = Position.create(this.loc.world(), this.loc.x(), y, this.loc.z());
@@ -234,6 +255,12 @@ public class TridentEntity implements Entity {
         }
 
         this.loc = loc;
+        updateBoudingBox();
+    }
+
+    private void updateBoudingBox(){
+        double halfWidth = this.width / 2.0F;
+        this.boundingBox = new BoundingBox(loc.x() - halfWidth, loc.y(), loc.z() - halfWidth, loc.x() + halfWidth, loc.y() + this.height, loc.z() + halfWidth);
     }
 
     @Override
@@ -464,4 +491,19 @@ public class TridentEntity implements Entity {
         // TODO
         return null;
     }
+
+    @Override
+    public void setSize(float width, float height){
+        if (width != this.width || height != this.height){
+            this.width = width;
+            this.height = height;
+            this.boundingBox = new BoundingBox(boundingBox.minX, boundingBox.minY, boundingBox.minZ, boundingBox.minX + (double) width, boundingBox.minY + (double) height, boundingBox.minZ + (double) width);
+        }
+    }
+
+    @Override
+    public BoundingBox boundingBox(){
+        return boundingBox;
+    }
+
 }

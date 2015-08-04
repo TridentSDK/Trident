@@ -36,21 +36,28 @@ import java.util.UUID;
  */
 public class TridentDroppedItem extends TridentEntity implements DroppedItem {
 
+    private int age = 0;
     private Item item;
 
     public TridentDroppedItem(Position spawnPosition, Item item) {
         super(UUID.randomUUID(), spawnPosition);
         this.item = item;
+        setSize(0.25f, 0.25f);
     }
 
     @Override
     public int age() {
-        return 0;
+        return age;
     }
 
     @Override
     public void setAge(int age) {
+        this.age = age;
+    }
 
+    @Override
+    protected void doTick(){
+        age++;
     }
 
     @Override
@@ -107,5 +114,13 @@ public class TridentDroppedItem extends TridentEntity implements DroppedItem {
         TridentPlayer.sendAll(object);
         TridentPlayer.sendAll(meta);
         return this;
+    }
+
+    public Item item(){
+        return item;
+    }
+
+    public boolean canPickupItem(){
+        return age() > 40; // TODO Find out actual value
     }
 }

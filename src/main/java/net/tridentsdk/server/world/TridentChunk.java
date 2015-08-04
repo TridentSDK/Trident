@@ -21,6 +21,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.google.common.math.DoubleMath;
 import net.tridentsdk.base.Block;
+import net.tridentsdk.base.BoundingBox;
 import net.tridentsdk.base.Position;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.concurrent.Joiner;
@@ -42,12 +43,12 @@ import net.tridentsdk.world.gen.AbstractOverlayBrush;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReferenceArray;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class TridentChunk implements Chunk {
     private final TridentWorld world;
@@ -598,5 +599,12 @@ public class TridentChunk implements Chunk {
             NibbleArray.set(section.skyLight, index, skyLight);
             NibbleArray.set(section.blockLight, index, blockLight);
         });
+    }
+
+    public ArrayList<Entity> getEntities(Entity exclude, BoundingBox boundingBox, Predicate<? super Entity> predicate){
+        return new ArrayList<>(this.entities.stream()
+                .filter(checking -> checking != exclude && checking.boundingBox().collidesWith(boundingBox))
+                .filter(checking -> predicate == null || predicate.test(checking))
+                .collect(Collectors.toList()));
     }
 }

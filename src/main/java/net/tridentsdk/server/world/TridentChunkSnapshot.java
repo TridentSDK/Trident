@@ -18,6 +18,7 @@
 package net.tridentsdk.server.world;
 
 import net.tridentsdk.base.Block;
+import net.tridentsdk.base.BoundingBox;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.meta.nbt.CompoundTag;
 import net.tridentsdk.world.Chunk;
@@ -25,7 +26,9 @@ import net.tridentsdk.world.ChunkLocation;
 import net.tridentsdk.world.ChunkSnapshot;
 import net.tridentsdk.world.World;
 
+import java.util.ArrayList;
 import java.util.Set;
+import java.util.function.Predicate;
 
 public class TridentChunkSnapshot implements ChunkSnapshot {
     private final TridentWorld world;
@@ -95,5 +98,9 @@ public class TridentChunkSnapshot implements ChunkSnapshot {
     @Override
     public void unload() {
         throw new UnsupportedOperationException("Cannot unload a snapshot");
+    }
+
+    public ArrayList<Entity> getEntities(Entity exclude, BoundingBox boundingBox, Predicate<? super Entity> predicate){
+        return new ArrayList<>();
     }
 }
