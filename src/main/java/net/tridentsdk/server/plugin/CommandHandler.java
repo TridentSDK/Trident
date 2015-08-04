@@ -79,7 +79,11 @@ public class CommandHandler extends ForwardingCollection<Command> implements Com
             });
         } else {
             // Command not found
-            issuer.sendRaw("Command not found");
+            if(issuer instanceof Player){
+                issuer.sendRaw(new MessageBuilder("Command not found").build().asJson());
+            }else{
+                issuer.sendRaw("Command not found");
+            }
         }
     }
 

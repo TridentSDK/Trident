@@ -21,6 +21,8 @@ import io.netty.buffer.ByteBuf;
 import net.tridentsdk.base.Block;
 import net.tridentsdk.base.Position;
 import net.tridentsdk.base.Substance;
+import net.tridentsdk.effect.sound.SoundEffect;
+import net.tridentsdk.effect.sound.SoundEffectType;
 import net.tridentsdk.meta.component.MetaFactory;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
@@ -93,8 +95,13 @@ public class PacketPlayInBlockPlace extends InPacket {
         if (substance != Substance.AIR) {
             Vector vector = determineOffset();
             if (!substance.isBlock()) {
-                // TODO
-                // eat food or pull bow or release/obtain water in a bucket, etc
+                // TODO eat food or pull bow or release/obtain water in a bucket, etc
+                return;
+            }
+
+            if(substance.isFunctional() && !player.isCrouching()){
+                // TODO Add all functional blocks (workbench, furnace, anvil, etc)
+                return;
             }
 
             if (location.y() + vector.y() > 255 || location.y() + vector.y() < 0) {
@@ -118,6 +125,13 @@ public class PacketPlayInBlockPlace extends InPacket {
 
             if (allow) {
                 block.setSubstanceAndMeta(substanceValue.get(), result.get());
+
+                SoundEffectType soundEffectType = substance.placeSound();
+                if(soundEffectType != null){
+                    SoundEffect sound = location.world().playSound(soundEffectType);
+                    sound.setPosition(location);
+                    sound.apply();
+                }
             }
         }
     }
