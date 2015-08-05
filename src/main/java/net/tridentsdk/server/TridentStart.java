@@ -34,6 +34,7 @@ import net.tridentsdk.plugin.Plugins;
 import net.tridentsdk.registry.Implementation;
 import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.command.ServerCommandRegistrar;
+import net.tridentsdk.server.concurrent.TickSync;
 import net.tridentsdk.server.netty.ClientChannelInitializer;
 import net.tridentsdk.server.service.Statuses;
 import net.tridentsdk.server.service.TridentImpl;
@@ -99,7 +100,9 @@ public final class TridentStart {
             return;
         }
 
-        TridentLogger.init(options.has("d") ? Level.DEBUG : Level.INFO);
+        boolean d = options.has("d");
+        TridentLogger.init(d ? Level.DEBUG : Level.INFO);
+        TickSync.DEBUG = d;
 
         TridentLogger.log("Open source software by TridentSDK - https://github.com/TridentSDK");
         TridentLogger.log("Starting Trident server");

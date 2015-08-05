@@ -37,8 +37,8 @@ public class GenTest {
                 .measurementTime(TimeValue.milliseconds(200))
                 .warmupIterations(20)
                 .warmupTime(TimeValue.milliseconds(200))
-                        //.threads(4)
-                .forks(1)
+                .threads(1)
+                .forks(0)
                 .timeUnit(TimeUnit.NANOSECONDS)
                 .build();
 

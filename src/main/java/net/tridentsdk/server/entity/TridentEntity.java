@@ -296,13 +296,13 @@ public class TridentEntity implements Entity {
     }
 
     public void tick() {
-        executor.execute(() -> {
+        executor.selectNext().execute(() -> {
             ticksExisted.incrementAndGet();
             doTick();
             if(ticksExisted.get() % 20 == 0){
                 updateBoudingBox();
             }
-            TickSync.complete();
+            TickSync.complete("ENTITY: uuid-" + uniqueId.toString() + " id-" + id);
         });
     }
 
@@ -491,8 +491,9 @@ public class TridentEntity implements Entity {
     }
 
     public CompoundTag asNbt() {
+        CompoundTag tag = new CompoundTag("lel");
         // TODO
-        return null;
+        return tag;
     }
 
     @Override

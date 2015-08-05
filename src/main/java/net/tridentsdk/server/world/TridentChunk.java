@@ -639,8 +639,6 @@ public class TridentChunk implements Chunk {
             NibbleArray.set(section.skyLight, index, skyLight);
             NibbleArray.set(section.blockLight, index, blockLight);
         });
-
-
     }
 
     public ArrayList<Entity> getEntities(Entity exclude, BoundingBox boundingBox, Predicate<? super Entity> predicate){

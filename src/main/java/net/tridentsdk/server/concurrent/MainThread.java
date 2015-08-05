@@ -92,7 +92,7 @@ public class MainThread extends Thread {
 
         // Entities are ticked by the world
         for (World world : Registered.worlds().values()) {
-            TickSync.increment();
+            TickSync.increment("WORLD: " + world.name());
             ((TridentWorld) world).tick();
         }
 

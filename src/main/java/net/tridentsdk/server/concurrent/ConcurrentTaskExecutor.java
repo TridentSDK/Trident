@@ -336,16 +336,14 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements S
                     } else {
                         runnable.run();
                     }
-                } catch (InterruptedException e) {
-                    break;
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         }
 
-        Runnable nextTask() throws InterruptedException {
-            long stamp = lock.writeLockInterruptibly();
+        Runnable nextTask() {
+            long stamp = lock.writeLock();
             try {
                 return tasks.pollLast();
             } finally {
@@ -384,6 +382,7 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements S
 
         @Override
         public void interrupt() {
+            LockSupport.unpark(asThread());
             super.interrupt();
 
             long stamp = lock.writeLock();
@@ -408,8 +407,8 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements S
         }
 
         @Override
-        Runnable nextTask() throws InterruptedException {
-            long stamp = lock.readLockInterruptibly();
+        Runnable nextTask() {
+            long stamp = lock.readLock();
             Runnable runnable;
             try {
                 runnable = tasks.pollLast();

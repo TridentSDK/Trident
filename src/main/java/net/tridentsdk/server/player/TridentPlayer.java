@@ -133,7 +133,7 @@ public class TridentPlayer extends OfflinePlayer {
                     .set("levelType", LevelType.DEFAULT));
 
             p.abilities.creative = 1;
-            p.abilities.flySpeed = 0.135F;
+            p.abilities.flySpeed = 1F;
             p.abilities.canFly = 1;
 
             p.spawnPosition = TridentServer.WORLD.spawnPosition();

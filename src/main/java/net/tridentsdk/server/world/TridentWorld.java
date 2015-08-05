@@ -396,7 +396,7 @@ public class TridentWorld implements World {
     }
 
     public void tick() {
-        ThreadsHandler.worldExecutor().execute(() -> {
+        ThreadsHandler.worldExecutor().selectNext().execute(() -> {
             redstoneTick = !redstoneTick;
 
             if (time.get() >= 24000)
@@ -443,7 +443,7 @@ public class TridentWorld implements World {
             boolean updateTime = time.get() % 40 == 0;
 
             for (Entity entity : entities) {
-                TickSync.increment();
+                TickSync.increment("ENTITY: uuid-" + entity.uniqueId().toString() + " id-" + entity.entityId() + " type-" + entity.type());
                 ((TridentEntity) entity).tick();
                 if (entity instanceof Player && updateTime) {
                     ((TridentPlayer) entity).connection().sendPacket
@@ -453,7 +453,7 @@ public class TridentWorld implements World {
 
             time.getAndIncrement();
             existed.getAndIncrement();
-            TickSync.complete();
+            TickSync.complete("WORLD: " + name());
         });
     }
 

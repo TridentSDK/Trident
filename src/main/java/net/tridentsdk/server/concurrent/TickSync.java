@@ -17,11 +17,14 @@
 package net.tridentsdk.server.concurrent;
 
 import net.tridentsdk.server.TridentServer;
+import net.tridentsdk.util.TridentLogger;
 
 import javax.annotation.concurrent.GuardedBy;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.concurrent.locks.LockSupport;
 
@@ -63,6 +66,10 @@ public final class TickSync {
     private TickSync() {
     }
 
+    public static volatile boolean DEBUG = false;
+
+    private static final Queue<String> expect = new ConcurrentLinkedQueue<>();
+    private static final Queue<String> completed = new ConcurrentLinkedQueue<>();
     private static final LongAdder expected = new LongAdder();
     private static final LongAdder complete = new LongAdder();
 
@@ -74,8 +81,11 @@ public final class TickSync {
     /**
      * Increments the expected updates counter
      */
-    public static void increment() {
+    public static void increment(String s) {
         expected.increment();
+        if (DEBUG) {
+            expect.add(s + " T: " + Thread.currentThread().getName());
+        }
     }
 
     /**
@@ -83,8 +93,11 @@ public final class TickSync {
      * <p>
      * <p>Signals the main thread to sync method to continue if the expected and update counters match</p>
      */
-    public static void complete() {
+    public static void complete(String s) {
         complete.increment();
+        if (DEBUG) {
+            completed.add(s + " T: " + Thread.currentThread().getName());
+        }
 
         if (canProceed()) {
             latch.countDown();
@@ -101,13 +114,28 @@ public final class TickSync {
     }
 
     /**
-     * Blocks the thread until this method is called again by a {@link #complete()} method
+     * Blocks the thread until this method is called again by a {@link #complete(String)} method
      */
     public static void awaitSync() {
-        if (canProceed()) return;
+        boolean b = canProceed();
+        if (b) return;
 
         try {
-            latch.await();
+            if (!latch.await(50, TimeUnit.MILLISECONDS)) {
+                TridentLogger.warn("Lost tick sync: complete-" + complete.sum() + " needed-" + expected.sum() + " proceed-" + b);
+                if (DEBUG) {
+                    TridentLogger.warn("");
+                    TridentLogger.warn("===== PRINTING COMPLETED TASKS =====");
+                    completed.forEach(TridentLogger::warn);
+                    TridentLogger.warn("===== END COMPLETED TASKS =====");
+                    TridentLogger.warn("");
+                    TridentLogger.warn("===== PRINTING NEEDED TASKS =====");
+                    expect.forEach(TridentLogger::warn);
+                    TridentLogger.warn("===== END NEEDED TASKS =====");
+                } else {
+                    TridentLogger.warn("Enable debug to see extra information");
+                }
+            }
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -119,6 +147,8 @@ public final class TickSync {
     public static void reset() {
         expected.reset();
         complete.reset();
+        expect.clear();
+        completed.clear();
         latch = new CountDownLatch(1);
     }
 
