@@ -242,22 +242,12 @@ public class TridentPlayer extends OfflinePlayer {
         if (!loggingIn) sendChunks(distance);
 
         ThreadsHandler.chunkExecutor().selectNext().execute(() -> {
-            Set<ChunkLocation> set = Sets.newHashSet();
-            for (int i = 0; i < 16; i++) {
-                ChunkLocation location = chunkQueue.poll();
-                if (location != null) {
-                    set.add(location);
-                }
-            }
-
             PacketPlayOutMapChunkBulk bulk = new PacketPlayOutMapChunkBulk();
-            for (ChunkLocation location : set) {
+            while (bulk.size() < 1845152) {
+                ChunkLocation location = chunkQueue.poll();
+                for (int i = 0; i < 16 && location == null; i++) location = chunkQueue.poll();
+                if (location == null) break;
                 bulk.addEntry(((TridentChunk) world().chunkAt(location, true)).asPacket());
-
-                if (bulk.size() >= 1845152) {
-                    connection().sendPacket(bulk);
-                    bulk = new PacketPlayOutMapChunkBulk();
-                }
             }
 
             if (bulk.hasEntries()) {

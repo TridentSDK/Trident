@@ -21,7 +21,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.google.common.math.DoubleMath;
 import net.tridentsdk.base.Block;
 import net.tridentsdk.base.BoundingBox;
 import net.tridentsdk.base.Position;
@@ -371,7 +370,7 @@ public class TridentChunk implements Chunk {
     }
 
     private int up(double d) {
-        if (DoubleMath.isMathematicalInteger(d))
+        if (Math.rint(d) != d)
             return ((int) d) + 1;
         return (int) d;
     }
