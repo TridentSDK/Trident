@@ -155,12 +155,6 @@ public class TridentEntity implements Entity {
         this.boundingBox = new BoundingBox(0.0D, 0.0D, 0.0D, 0.0D, 0.0D, 0.0D);
         setSize(0.6f, 1.8f);
         updateBoudingBox();
-
-        ((TridentChunk) loc.chunk()).entitiesInternal().add(this);
-        if(!((TridentWorld) loc.world()).internalEntities().contains(this)){
-            ((TridentWorld) loc.world()).addEntity(this);
-        }
-
         for (double y = this.loc.y(); y > 0.0; y--) {
             Position l = Position.create(this.loc.world(), this.loc.x(), y, this.loc.z());
 
@@ -197,6 +191,7 @@ public class TridentEntity implements Entity {
      */
     public TridentEntity spawn() {
         HANDLER.register(this);
+        ((TridentWorld) loc.world()).addEntity(this);
         return this;
     }
 

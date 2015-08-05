@@ -18,7 +18,6 @@
 package net.tridentsdk.server.player;
 
 import com.google.common.collect.Queues;
-import com.google.common.collect.Sets;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -63,6 +62,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -77,7 +77,7 @@ public class TridentPlayer extends OfflinePlayer {
     private static final int CLEAN_ITERATIONS = tridentCfg.getInt("chunk-clean-iterations-player", 2);
 
     private final PlayerConnection connection;
-    private final Set<ChunkLocation> knownChunks = Sets.newConcurrentHashSet();
+    private final StripedChunkTable knownChunks = new StripedChunkTable(MAX_CHUNKS, 49);
     private final Queue<PacketPlayOutMapChunkBulk> chunkQueue = Queues.newConcurrentLinkedQueue();
     private volatile boolean loggingIn = true;
     private volatile boolean sprinting;
@@ -86,6 +86,7 @@ public class TridentPlayer extends OfflinePlayer {
     private volatile byte skinFlags;
     private volatile Locale locale;
     private volatile int viewDistance = MAX_VIEW;
+    private volatile int unneededChunks = viewDistance > 3 ? viewDistance / 2 : 0;
 
     private TridentPlayer(UUID uuid, CompoundTag tag, TridentWorld world, ClientConnection connection) {
         super(uuid, tag, world);
@@ -133,7 +134,7 @@ public class TridentPlayer extends OfflinePlayer {
                     .set("levelType", LevelType.DEFAULT));
 
             p.abilities.creative = 1;
-            p.abilities.flySpeed = 1F;
+            p.abilities.flySpeed = 0.135F;
             p.abilities.canFly = 1;
 
             p.spawnPosition = TridentServer.WORLD.spawnPosition();
@@ -160,7 +161,6 @@ public class TridentPlayer extends OfflinePlayer {
                     .set("playerListData", builders.stream().toArray(PlayerListDataBuilder[]::new)));
         });
 
-        p.spawn();
         return p;
     }
 
@@ -191,7 +191,7 @@ public class TridentPlayer extends OfflinePlayer {
         if (!loggingIn)
             return;
 
-        sendChunks(viewDistance());
+        sendChunks(1);
         connection.sendPacket(PacketPlayOutStatistics.DEFAULT_STATISTIC);
 
         // Wait for response
@@ -200,6 +200,7 @@ public class TridentPlayer extends OfflinePlayer {
         }
 
         loggingIn = false;
+        spawn();
         connection.sendPacket(new PacketPlayOutEntityVelocity()
                 .set("entityId", entityId())
                 .set("velocity", new Vector(0, -0.07, 0)));
@@ -244,39 +245,58 @@ public class TridentPlayer extends OfflinePlayer {
             connection.sendPacket(chunkQueue.poll());
 
         for (int i = 0; i < CLEAN_ITERATIONS; i++) {
-            if (knownChunks.size() > MAX_CHUNKS) {
-                cleanChunks(distance - i);
-            } else break;
+            if (cleanChunks(distance - i)) break;
         }
 
         connection.tick();
         ticksExisted.incrementAndGet();
     }
 
-    public void cleanChunks(int viewDist) {
+    private final AtomicInteger counter = new AtomicInteger();
+
+    public boolean cleanChunks(int viewDist) {
         Position pos = position();
         int x = (int) pos.x() / 16;
         int z = (int) pos.z() / 16;
 
-        for (ChunkLocation location : knownChunks) {
-            int cx = location.x();
-            int cz = location.z();
-
-            int abs = Math.abs(cx - x);
-            int abs1 = Math.abs(cz - z);
-
-            if (abs > viewDist || abs1 > viewDist) {
-                ((TridentWorld) world()).loadedChunks.tryRemove(location);
-                connection.sendPacket(new PacketPlayOutChunkData(new byte[0], location, true, (short) 0));
-                knownChunks.remove(location);
-            }
+        int count = counter.getAndIncrement();
+        if (count >= knownChunks.tableLength()) {
+            count = 0;
+            counter.set(0);
         }
+
+        int size = 0;
+        Set<ChunkLocation> partition = this.knownChunks.at(count);
+        try {
+            for (Iterator<ChunkLocation> iterator = partition.iterator(); iterator.hasNext(); ) {
+                ChunkLocation location = iterator.next();
+                int cx = location.x();
+                int cz = location.z();
+
+                int abs = Math.abs(cx - x);
+                int abs1 = Math.abs(cz - z);
+
+                if (abs >= viewDist || abs1 >= viewDist) {
+                    ((TridentWorld) world()).loadedChunks.tryRemove(location);
+                    connection.sendPacket(new PacketPlayOutChunkData(new byte[0], location, true, (short) 0));
+                    iterator.remove();
+                }
+                size++;
+            }
+        } finally {
+            knownChunks.acquire(count).unlock();
+        }
+
+        return size < knownChunks.partSize();
     }
 
     @Override
     protected void doRemove() {
         ONLINE_PLAYERS.remove(this.uniqueId());
-        cleanChunks(0);
+        while (knownChunks.size() > 0) {
+            // clean each chunk
+            cleanChunks(0);
+        }
 
         PacketPlayOutPlayerListItem item = new PacketPlayOutPlayerListItem();
         item.set("action", 4).set("playerListData", new PlayerListDataBuilder[]{
@@ -469,6 +489,10 @@ public class TridentPlayer extends OfflinePlayer {
 
         for (int x = (centX - viewDistance / 2); x <= (centX + viewDistance / 2); x += 1) {
             for (int z = (centZ - viewDistance / 2); z <= (centZ + viewDistance / 2); z += 1) {
+                if (x <= unneededChunks && z <= unneededChunks) {
+                    if (knownChunks.size() > MAX_CHUNKS) continue;
+                }
+
                 ChunkLocation location = ChunkLocation.create(x, z);
                 if (!knownChunks.add(location)) continue;
 
@@ -615,6 +639,7 @@ public class TridentPlayer extends OfflinePlayer {
 
     public void setViewDistance(int viewDistance) {
         this.viewDistance = viewDistance;
+        this.unneededChunks = viewDistance > 3 ? (viewDistance / 2) : 0;
     }
 
     public int viewDistance() {
