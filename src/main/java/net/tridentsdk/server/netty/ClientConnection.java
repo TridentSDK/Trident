@@ -420,8 +420,8 @@ public class ClientConnection {
         }
 
         EventProcessor.fire(new PlayerDisconnectEvent(p));
-        p.remove();
-
         this.channel.close();
+
+        p.remove();
     }
 }

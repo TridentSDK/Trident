@@ -20,7 +20,9 @@ import net.tridentsdk.world.ChunkLocation;
 
 import javax.annotation.concurrent.GuardedBy;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
+import java.util.concurrent.atomic.LongAdder;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BiFunction;
@@ -29,16 +31,14 @@ import java.util.function.BiFunction;
  * A fast table of chunk locations which possesses the known player chunks
  *
  * @author The TridentSDK Team
- */
+ */ // heehee didn't work but ok
 public class StripedChunkTable {
+    private final LongAdder length = new LongAdder();
     private final BiFunction<Integer, Integer, Integer> part;
     private final Lock[] stripes;
     private final Partition[] table;
     private final int partSize;
 
-    // max == MAX_CHUNKS
-    // size == 100, partition size
-    // partitions =~ 5
     public StripedChunkTable(int max, int size) {
         int partitions = max / size + 1;
         int stripeHalf = partitions / 2;
@@ -63,12 +63,7 @@ public class StripedChunkTable {
     }
 
     public int size() {
-        int aggr = 0;
-        for (Partition p : table) {
-            aggr += p.size();
-        }
-
-        return aggr;
+        return length.intValue();
     }
 
     public Set<ChunkLocation> at(int index) {
@@ -85,10 +80,18 @@ public class StripedChunkTable {
         Lock lock = stripes[partition];
         lock.lock();
         try {
-            return p.chunks().add(location);
+            if (p.chunks().add(location)) {
+                length.increment();
+                return true;
+            } else return false;
         } finally {
             lock.unlock();
         }
+    }
+
+    public void remove(Iterator<ChunkLocation> iterator) {
+        iterator.remove();
+        length.decrement();
     }
 
     public Lock acquire(int partition) {
@@ -97,7 +100,7 @@ public class StripedChunkTable {
 
     private class Partition {
         @GuardedBy("StripedChunkTable.stripes[(x & partitions/2)|(z * partitions/2)]")
-        private final Set<ChunkLocation> knownChunks = new HashSet<>();
+        private final HashSet<ChunkLocation> knownChunks = new HashSet<>();
 
         public Set<ChunkLocation> chunks() {
             return knownChunks;

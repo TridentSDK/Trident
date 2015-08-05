@@ -594,14 +594,10 @@ public class TridentChunk implements Chunk {
         final ListTag sectionTags = new ListTag("Sections", TagType.COMPOUND);
 
         ChunkSection[] sectionCopy = new ChunkSection[0];
-        if (Thread.currentThread().equals(executor.asThread())) {
-            sectionCopy = mapSections();
-        } else {
-            try {
-                sectionCopy = executor.submitTask(this::mapSections).get();
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-            }
+        try {
+            sectionCopy = executor.submitTask(this::mapSections).get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
         }
 
         for (ChunkSection section : sectionCopy) {

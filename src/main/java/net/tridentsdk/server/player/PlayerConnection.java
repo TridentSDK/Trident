@@ -125,6 +125,7 @@ public class PlayerConnection extends ClientConnection {
 
     @Override
     public void sendPacket(Packet packet) {
+        if (!channel.isWritable()) return;
         super.sendPacket(packet);
 
         synchronized (this) {

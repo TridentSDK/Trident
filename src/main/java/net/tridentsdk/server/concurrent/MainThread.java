@@ -123,6 +123,7 @@ public class MainThread extends Thread {
         }
 
         TickSync.reset();
+        recentTickLength.add((int) (System.currentTimeMillis() - startTime));
     }
 
     @Override

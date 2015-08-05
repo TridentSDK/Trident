@@ -121,7 +121,7 @@ public final class TickSync {
         if (b) return;
 
         try {
-            if (!latch.await(50, TimeUnit.MILLISECONDS)) {
+            if (!latch.await(200, TimeUnit.MILLISECONDS)) {
                 TridentLogger.warn("Lost tick sync: complete-" + complete.sum() + " needed-" + expected.sum() + " proceed-" + b);
                 if (DEBUG) {
                     TridentLogger.warn("");
@@ -132,6 +132,7 @@ public final class TickSync {
                     TridentLogger.warn("===== PRINTING NEEDED TASKS =====");
                     expect.forEach(TridentLogger::warn);
                     TridentLogger.warn("===== END NEEDED TASKS =====");
+                    TridentLogger.warn("AVG TICK TIME: " + TridentServer.instance().mainThread().getAverageTickLength() + " ms");
                 } else {
                     TridentLogger.warn("Enable debug to see extra information");
                 }
