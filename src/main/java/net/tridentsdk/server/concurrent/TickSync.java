@@ -126,11 +126,11 @@ public final class TickSync {
                 if (DEBUG) {
                     TridentLogger.get().warn("");
                     TridentLogger.get().warn("===== PRINTING COMPLETED TASKS =====");
-                    completed.forEach(TridentLogger::warn);
+                    completed.forEach(s -> TridentLogger.get().warn(s));
                     TridentLogger.get().warn("===== END COMPLETED TASKS =====");
                     TridentLogger.get().warn("");
                     TridentLogger.get().warn("===== PRINTING NEEDED TASKS =====");
-                    expect.forEach(TridentLogger::warn);
+                    expect.forEach(s -> TridentLogger.get().warn(s));
                     TridentLogger.get().warn("===== END NEEDED TASKS =====");
                     TridentLogger.get().warn("AVG TICK TIME: " + TridentServer.instance().mainThread().getAverageTickLength() + " ms");
                 } else {
