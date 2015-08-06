@@ -84,7 +84,7 @@ public class DefaultWorldGen extends AbstractGenerator {
         try {
             release.await();
         } catch (InterruptedException e) {
-            TridentLogger.error(e);
+            TridentLogger.get().error(e);
             return null;
         }
 

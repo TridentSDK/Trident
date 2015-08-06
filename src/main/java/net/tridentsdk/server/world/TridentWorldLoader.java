@@ -81,7 +81,7 @@ public class TridentWorldLoader implements WorldLoader {
     // the world
     @InternalUseOnly
     public static void loadAll() {
-        TridentLogger.log("Loading worlds...");
+        TridentLogger.get().log("Loading worlds...");
         for (File file : Trident.fileContainer().toFile().listFiles()) {
             if (!(file.isDirectory()) || file.getName().contains(" "))
                 continue;
@@ -108,11 +108,11 @@ public class TridentWorldLoader implements WorldLoader {
                             isWorld = false;
                         }
                     } catch (IOException e) {
-                        TridentLogger.error(e);
+                        TridentLogger.get().error(e);
                         isWorld = true;
                     } catch (ClassNotFoundException e) {
-                        TridentLogger.error("Could not find loader " + className + ", resorting to default");
-                        TridentLogger.error(e);
+                        TridentLogger.get().error("Could not find loader " + className + ", resorting to default");
+                        TridentLogger.get().error(e);
 
                         // Nevermind, load with this one anyways
                         isWorld = true;
@@ -129,16 +129,16 @@ public class TridentWorldLoader implements WorldLoader {
                     Files.createFile(gensig);
                     Files.write(gensig, DEFAULT_GEN.getClass().getName().getBytes(Charset.defaultCharset()));
                 } catch (IOException e) {
-                    TridentLogger.error("Could not write gensig file");
-                    TridentLogger.error(e);
+                    TridentLogger.get().error("Could not write gensig file");
+                    TridentLogger.get().error(e);
                 }
             }
             new TridentWorldLoader().load(file.getName());
         }
         if (WORLDS.size() == 0) {
-            TridentLogger.error("No worlds found, there is no world loaded!");
+            TridentLogger.get().error("No worlds found, there is no world loaded!");
         }
-        TridentLogger.log("Finished loading worlds!");
+        TridentLogger.get().log("Finished loading worlds!");
     }
 
     @Override
@@ -161,7 +161,7 @@ public class TridentWorldLoader implements WorldLoader {
     @Override
     public World createWorld(String name) {
         if (WorldLoader.worldExists(name)) {
-            TridentLogger.error(new IllegalArgumentException("Cannot create a duplicate world name"));
+            TridentLogger.get().error(new IllegalArgumentException("Cannot create a duplicate world name"));
             return null;
         }
 
@@ -209,14 +209,14 @@ public class TridentWorldLoader implements WorldLoader {
             gen = g.newInstance(seed);
             Collections.addAll(brushes, new TallGrassBrush(seed), new OakTreeBrush(seed));
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            TridentLogger.error("Error occurred while instantiating generator " + generatorClass.getName());
-            TridentLogger.error("Switching to the default");
-            TridentLogger.error(e);
+            TridentLogger.get().error("Error occurred while instantiating generator " + generatorClass.getName());
+            TridentLogger.get().error("Switching to the default");
+            TridentLogger.get().error(e);
             gen = DEFAULT_GEN;
         } catch (NoSuchMethodException e) {
-            TridentLogger.error("Provided generator does not have a default constructor");
-            TridentLogger.error("Switching to the default");
-            TridentLogger.error(e);
+            TridentLogger.get().error("Provided generator does not have a default constructor");
+            TridentLogger.get().error("Switching to the default");
+            TridentLogger.get().error(e);
             gen = DEFAULT_GEN;
         }
 

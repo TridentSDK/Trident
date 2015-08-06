@@ -105,7 +105,7 @@ public class PluginHandler extends ForwardingList<Plugin> implements Plugins {
 
                         if (Plugin.class.isAssignableFrom(loadedClass)) {
                             if (pluginClass != null)
-                                TridentLogger.error(new PluginLoadException("Plugin has more than one main class!"));
+                                TridentLogger.get().error(new PluginLoadException("Plugin has more than one main class!"));
 
                             pluginClass = loadedClass.asSubclass(Plugin.class);
                         }
@@ -113,7 +113,7 @@ public class PluginHandler extends ForwardingList<Plugin> implements Plugins {
 
                     // start initiating the plugin class and registering commands and listeners
                     if (pluginClass == null) {
-                        TridentLogger.error(new PluginLoadException("Plugin does not have a main class"));
+                        TridentLogger.get().error(new PluginLoadException("Plugin does not have a main class"));
                         loader.unloadClasses();
                         loader = null; // help gc
                         return;
@@ -122,36 +122,36 @@ public class PluginHandler extends ForwardingList<Plugin> implements Plugins {
                     PluginDesc description = pluginClass.getAnnotation(PluginDesc.class);
 
                     if (description == null) {
-                        TridentLogger.error(new PluginLoadException("PluginDesc annotation does not exist!"));
+                        TridentLogger.get().error(new PluginLoadException("PluginDesc annotation does not exist!"));
                         loader.unloadClasses();
                         loader = null; // help gc
                         return;
                     }
 
                     if (plugins.containsKey(description.name())) {
-                        TridentLogger.error(new PluginLoadException("Plugin with name " + description.name() +
+                        TridentLogger.get().error(new PluginLoadException("Plugin with name " + description.name() +
                                 " has been loaded"));
                         loader.unloadClasses();
                         loader = null; // help gc
                         return;
                     }
 
-                    TridentLogger.log("Loading " + description.name() + " version " + description.version());
+                    TridentLogger.get().log("Loading " + description.name() + " version " + description.version());
 
                     Plugin plugin = pluginClass.newInstance();
                     plugin.init(pluginFile, description, loader);
                     plugins.put(description.name(), plugin);
                     plugin.load();
                     latch.countDown(plugin);
-                    TridentLogger.success("Loaded " + description.name() + " version " + description.version());
+                    TridentLogger.get().success("Loaded " + description.name() + " version " + description.version());
                 } catch (IOException | IllegalAccessException | InstantiationException | ClassNotFoundException ex) { // UNLOAD PLUGIN
-                    TridentLogger.error(new PluginLoadException(ex));
+                    TridentLogger.get().error(new PluginLoadException(ex));
                 } finally {
                     if (jarFile != null)
                         try {
                             jarFile.close();
                         } catch (IOException e) {
-                            TridentLogger.error(e);
+                            TridentLogger.get().error(e);
                         }
                 }
             }
@@ -167,7 +167,7 @@ public class PluginHandler extends ForwardingList<Plugin> implements Plugins {
 
     @Override
     public void enable(Plugin plugin) {
-        TridentLogger.log("Enabling " + plugin.description().name() + " version " + plugin.description().version());
+        TridentLogger.get().log("Enabling " + plugin.description().name() + " version " + plugin.description().version());
         for (Class<?> cls : plugin.classLoader.loadedClasses().values()) {
             try {
                 register(plugin, cls, EXECUTOR);
@@ -177,7 +177,7 @@ public class PluginHandler extends ForwardingList<Plugin> implements Plugins {
         }
 
         TickSync.sync(plugin::enable);
-        TridentLogger.success("Enabled " + plugin.description().name() + " version " + plugin.description().version());
+        TridentLogger.get().success("Enabled " + plugin.description().name() + " version " + plugin.description().version());
     }
 
     private void register(Plugin plugin, Class<?> cls, SelectableThread executor) throws InstantiationException {
@@ -201,10 +201,10 @@ public class PluginHandler extends ForwardingList<Plugin> implements Plugins {
                 }
             }
         } catch (NoSuchMethodException e) {
-            TridentLogger.error(
+            TridentLogger.get().error(
                     new PluginLoadException("A no-arg constructor for class " + cls.getName() + " does not exist"));
         } catch (IllegalAccessException e) {
-            TridentLogger.error(
+            TridentLogger.get().error(
                     new PluginLoadException("A no-arg constructor for class " + cls.getName() + " is not accessible"));
         } catch (InvocationTargetException e) {
             e.printStackTrace();

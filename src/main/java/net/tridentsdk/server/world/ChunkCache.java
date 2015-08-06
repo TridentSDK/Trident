@@ -122,7 +122,7 @@ public class ChunkCache {
                     try {
                         chunks.add(c.await());
                     } catch (InterruptedException e) {
-                        TridentLogger.error(e);
+                        TridentLogger.get().error(e);
                     }
                 });
 

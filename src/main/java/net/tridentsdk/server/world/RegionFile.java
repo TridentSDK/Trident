@@ -179,7 +179,7 @@ public class RegionFile {
 
     // various small // debug printing helpers
     private void debug(String in) {
-        TridentLogger.warn(in);
+        TridentLogger.get().warn(in);
     }
 
     private void debugln(String in) {

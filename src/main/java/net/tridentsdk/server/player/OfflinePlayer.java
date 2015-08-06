@@ -266,7 +266,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
 
     @Override
     public void sendMessage(String message) {
-        TridentLogger.error(new UnsupportedOperationException("You can't send messages to a non-existant player"));
+        TridentLogger.get().error(new UnsupportedOperationException("You can't send messages to a non-existant player"));
     }
 
     @Override
@@ -276,7 +276,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
 
     @Override
     public void invokeCommand(String message) {
-        TridentLogger.error(new UnsupportedOperationException("You cannot make an OfflinePlayer invoke a command!"));
+        TridentLogger.get().error(new UnsupportedOperationException("You cannot make an OfflinePlayer invoke a command!"));
     }
 
     @Override
@@ -291,12 +291,12 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
 
     @Override
     public void hide(Entity entity) {
-        TridentLogger.error(new UnsupportedOperationException("You cannot hide an entity from an OfflinePlayer!"));
+        TridentLogger.get().error(new UnsupportedOperationException("You cannot hide an entity from an OfflinePlayer!"));
     }
 
     @Override
     public void show(Entity entity) {
-        TridentLogger.error(new UnsupportedOperationException("You cannot show an entity to an OfflinePlayer!"));
+        TridentLogger.get().error(new UnsupportedOperationException("You cannot show an entity to an OfflinePlayer!"));
     }
 
     @Override
@@ -311,7 +311,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
 
     @Override
     public void sendRaw(String... messages) {
-        TridentLogger.error(new UnsupportedOperationException("You cannot send a message to an OfflinePlayer!"));
+        TridentLogger.get().error(new UnsupportedOperationException("You cannot send a message to an OfflinePlayer!"));
     }
 
     @Override
@@ -326,7 +326,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
 
     @Override
     public <T extends Projectile> T launchProjectile(EntityProperties properties) {
-        TridentLogger.error(new UnsupportedOperationException("You cannot make an OfflinePlayer launch a projectile!"));
+        TridentLogger.get().error(new UnsupportedOperationException("You cannot make an OfflinePlayer launch a projectile!"));
         return null;
     }
 
@@ -438,13 +438,13 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
 
         @Override
         public float sneakSpeed() {
-            TridentLogger.error(new UnsupportedOperationException("You may not get the sneak speed of an OfflinePlayer!"));
+            TridentLogger.get().error(new UnsupportedOperationException("You may not get the sneak speed of an OfflinePlayer!"));
             return -1;
         }
 
         @Override
         public void setSneakSpeed(float speed) {
-            TridentLogger.error(new UnsupportedOperationException("You may not set the sneak speed of an OfflinePlayer!"));
+            TridentLogger.get().error(new UnsupportedOperationException("You may not set the sneak speed of an OfflinePlayer!"));
         }
 
         @Override

@@ -87,7 +87,7 @@ public class PacketPlayInClientStatus extends InPacket {
                 break;
 
             default:
-                TridentLogger.error(
+                TridentLogger.get().error(
                         new IllegalArgumentException("Client sent invalid status, maybe modified?")); // catched by
                 // PacketHandler
         }

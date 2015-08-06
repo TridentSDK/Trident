@@ -156,7 +156,7 @@ public class TridentPlayer extends OfflinePlayer {
 
             players().stream().filter((player) -> !player.equals(p))
                     .forEach((player) -> builders.add(((TridentPlayer) player).listData()));
-            TridentLogger.log(p.name + " has joined the server");
+            TridentLogger.get().log(p.name + " has joined the server");
 
             p.connection.sendPacket(new PacketPlayOutPlayerListItem()
                     .set("action", 0)
@@ -310,7 +310,7 @@ public class TridentPlayer extends OfflinePlayer {
 
         players().forEach(p ->
                 new MessageBuilder(name + " has left the server").color(ChatColor.YELLOW).build().sendTo(p));
-        TridentLogger.log(name + " has left the server");
+        TridentLogger.get().log(name + " has left the server");
     }
 
     @Override
@@ -394,7 +394,7 @@ public class TridentPlayer extends OfflinePlayer {
          */
     public void kickPlayer(String reason) {
         connection.sendPacket(new PacketPlayOutDisconnect().set("reason", new MessageBuilder(reason).build().asJson()));
-        TridentLogger.log(name + " was kicked for " + reason);
+        TridentLogger.get().log(name + " was kicked for " + reason);
     }
 
     private static final Map<UUID, String> textures = new ConcurrentHashMap<>();
@@ -459,7 +459,7 @@ public class TridentPlayer extends OfflinePlayer {
 
     public void setSlot(short slot) {
         if ((int) slot > 8 || (int) slot < 0) {
-            TridentLogger.error(new IllegalArgumentException("Slot must be within the ranges of 0-8"));
+            TridentLogger.get().error(new IllegalArgumentException("Slot must be within the ranges of 0-8"));
             return;
         }
 

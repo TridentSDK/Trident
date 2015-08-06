@@ -34,7 +34,7 @@ public abstract class InPacket implements Packet {
      */
     @Override
     public void encode(ByteBuf buf) {
-        TridentLogger.error(new UnsupportedOperationException(this.getClass().getName() + " cannot be encoded!"));
+        TridentLogger.get().error(new UnsupportedOperationException(this.getClass().getName() + " cannot be encoded!"));
     }
 
     @Override

@@ -48,7 +48,7 @@ public class TransactionHandler extends ForwardingCollection<Transaction> implem
      */
     public TransactionHandler() {
         if (!Trident.isTrident())
-            TridentLogger.error(new IllegalAccessException("This class should only be instantiated by Trident"));
+            TridentLogger.get().error(new IllegalAccessException("This class should only be instantiated by Trident"));
     }
 
     @Override

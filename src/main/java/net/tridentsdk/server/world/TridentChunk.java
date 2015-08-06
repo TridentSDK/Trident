@@ -266,21 +266,21 @@ public class TridentChunk implements Chunk {
                 if (relX < 0 && relZ > 15) { // q1
                     ChunkLocation loc = ChunkLocation.create(cx - up(xMinDiff / 16), cz + up(zMaxDiff / 16));
                     TridentChunk chunk = rawChunk(loc);
-                    TridentLogger.debug(relX + ", " + relZ + " with " + xMinDiff + ", " + xMaxDiff + " / " + zMinDiff + ", " + zMaxDiff + " led to " + (16 - xMinDiff) + ", " + (zMaxDiff - 1));
+                    TridentLogger.get().debug(relX + ", " + relZ + " with " + xMinDiff + ", " + xMaxDiff + " / " + zMinDiff + ", " + zMaxDiff + " led to " + (16 - xMinDiff) + ", " + (zMaxDiff - 1));
                     chunk.setAndSend(16 - xMinDiff, y, zMaxDiff - 1, substance, data, (byte) 255, (byte) 15, change);
                 } else if (relX > 15 && relZ > 15) { // q4
                     ChunkLocation loc = ChunkLocation.create(cx + up(xMaxDiff / 16), cz + up(zMaxDiff / 16));
-                    TridentLogger.debug(relX + ", " + relZ + " with " + xMinDiff + ", " + xMaxDiff + " / " + zMinDiff + ", " + zMaxDiff + " led to " + (xMaxDiff - 1) + ", " + (zMaxDiff - 1));
+                    TridentLogger.get().debug(relX + ", " + relZ + " with " + xMinDiff + ", " + xMaxDiff + " / " + zMinDiff + ", " + zMaxDiff + " led to " + (xMaxDiff - 1) + ", " + (zMaxDiff - 1));
                     TridentChunk chunk = rawChunk(loc);
                     chunk.setAndSend(xMaxDiff - 1, y, zMaxDiff - 1, substance, data, (byte) 255, (byte) 15, change);
                 } else if (relX < 0 && relZ < 0) { // q2
                     ChunkLocation loc = ChunkLocation.create(cx - up(xMinDiff / 16), cz - up(zMinDiff / 16));
-                    TridentLogger.debug(relX + ", " + relZ + " with " + xMinDiff + ", " + xMaxDiff + " / " + zMinDiff + ", " + zMaxDiff + " led to " + (16 - xMinDiff) + ", " + (16 - zMinDiff));
+                    TridentLogger.get().debug(relX + ", " + relZ + " with " + xMinDiff + ", " + xMaxDiff + " / " + zMinDiff + ", " + zMaxDiff + " led to " + (16 - xMinDiff) + ", " + (16 - zMinDiff));
                     TridentChunk chunk = rawChunk(loc);
                     chunk.setAndSend(16 - xMinDiff, y, 16 - zMinDiff, substance, data, (byte) 255, (byte) 15, change);
                 } else if (relX > 15 && relZ < 0) { // q3
                     ChunkLocation loc = ChunkLocation.create(cx + up(xMaxDiff / 16), cz - up(zMinDiff / 16));
-                    TridentLogger.debug(relX + ", " + relZ + " with " + xMinDiff + ", " + xMaxDiff + " / " + zMinDiff + ", " + zMaxDiff + " led to " + (xMaxDiff - 1) + ", " + (16 - zMinDiff));
+                    TridentLogger.get().debug(relX + ", " + relZ + " with " + xMinDiff + ", " + xMaxDiff + " / " + zMinDiff + ", " + zMaxDiff + " led to " + (xMaxDiff - 1) + ", " + (16 - zMinDiff));
                     TridentChunk chunk = rawChunk(loc);
                     chunk.setAndSend(xMaxDiff - 1, y, 16 - zMinDiff, substance, data, (byte) 255, (byte) 15, change);
                 }
@@ -445,7 +445,7 @@ public class TridentChunk implements Chunk {
                 return block;
             }).get();
         } catch (InterruptedException | ExecutionException e) {
-            TridentLogger.error(e);
+            TridentLogger.get().error(e);
             return null;
         }
     }
@@ -482,7 +482,7 @@ public class TridentChunk implements Chunk {
 
                         data.write(section.blockLight);
                     } catch (IOException e) {
-                        TridentLogger.error(e);
+                        TridentLogger.get().error(e);
                     }
                 }
 
@@ -495,7 +495,7 @@ public class TridentChunk implements Chunk {
 
                         data.write(section.skyLight);
                     } catch (IOException e) {
-                        TridentLogger.error(e);
+                        TridentLogger.get().error(e);
                     }
                 }
 
@@ -506,7 +506,7 @@ public class TridentChunk implements Chunk {
                 return new PacketPlayOutChunkData(data.toByteArray(), location, false, (short) bitmask);
             }).get();
         } catch (InterruptedException | ExecutionException e) {
-            TridentLogger.error(e);
+            TridentLogger.get().error(e);
             return null;
         }
     }

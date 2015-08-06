@@ -119,7 +119,7 @@ public class CommandHandler extends ForwardingCollection<Command> implements Com
         CommandDesc description = command.getClass().getAnnotation(CommandDesc.class);
 
         if (description == null) {
-            TridentLogger.error(new PluginLoadException(
+            TridentLogger.get().error(new PluginLoadException(
                     "Error in registering commands: Class does not have annotation " + "\"CommandDesc\"!"));
             return 0;
         }
@@ -130,7 +130,7 @@ public class CommandHandler extends ForwardingCollection<Command> implements Com
         String permission = description.permission();
 
         if (name == null || "".equals(name)) {
-            TridentLogger.error(new PluginLoadException("cmd does not declare a valid name!"));
+            TridentLogger.get().error(new PluginLoadException("cmd does not declare a valid name!"));
             return 0;
         }
 

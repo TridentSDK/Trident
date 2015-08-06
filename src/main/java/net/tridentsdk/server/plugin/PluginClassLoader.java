@@ -73,7 +73,7 @@ public class PluginClassLoader extends URLClassLoader implements PluginLoader {
                     try {
                         field.set(null, null);
                     } catch (IllegalAccessException e) {
-                        TridentLogger.error(e);
+                        TridentLogger.get().error(e);
                     }
                 } // TODO instance held fields
             }

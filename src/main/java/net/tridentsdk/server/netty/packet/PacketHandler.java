@@ -67,7 +67,7 @@ public class PacketHandler extends SimpleChannelInboundHandler<PacketData> {
             if(connection instanceof PlayerConnection) {
                 PlayerConnection con = (PlayerConnection) connection;
 
-                TridentLogger.log(con.player().displayName() + " has been disconnected from the server " +
+                TridentLogger.get().log(con.player().displayName() + " has been disconnected from the server " +
                         "for sending an invalid packet (" +
                         con.address().getHostString() + "," + con.player().uniqueId().toString() +
                         "," + data.id() + ")");
@@ -81,7 +81,7 @@ public class PacketHandler extends SimpleChannelInboundHandler<PacketData> {
         try {
             // DEBUG =====
             if (!(packet instanceof PacketPlayInPlayerFall) && !(packet instanceof PacketPlayInPlayerMove))
-                TridentLogger.debug("Received packet " + packet.getClass().getSimpleName());
+                TridentLogger.get().debug("Received packet " + packet.getClass().getSimpleName());
             // =====
 
             //TODO: add plugin registration for packet handling
@@ -92,7 +92,7 @@ public class PacketHandler extends SimpleChannelInboundHandler<PacketData> {
                 ((PlayerConnection) connection).resetReadCounter();
             }
         } catch (Exception ex) {
-            TridentLogger.error(ex);
+            TridentLogger.get().error(ex);
 
             switch (this.connection.stage()) {
                 case LOGIN:

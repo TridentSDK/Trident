@@ -102,7 +102,7 @@ public final class EntityBuilder {
             entity.spawn();
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException |
                 InstantiationException e) {
-            TridentLogger.error(e);
+            TridentLogger.get().error(e);
         }
 
         return (T) entity;
@@ -133,7 +133,7 @@ public final class EntityBuilder {
             entity.spawn();
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException |
                 InstantiationException e) {
-            TridentLogger.error(e);
+            TridentLogger.get().error(e);
         }
 
         return (T) entity;

@@ -43,7 +43,7 @@ public class ChatHandler
 
         @Override
         public void overriden(ChatIdentityFormatter other, Plugin overrider) {
-            TridentLogger.warn("Trident default chat overriden by " + overrider);
+            TridentLogger.get().warn("Trident default chat overriden by " + overrider);
         }
     };
 

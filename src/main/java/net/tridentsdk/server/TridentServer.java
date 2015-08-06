@@ -133,7 +133,7 @@ public final class TridentServer implements Server {
      */
     @Override
     public void shutdown() {
-        TridentLogger.log("Saving files...");
+        TridentLogger.get().log("Saving files...");
         try {
             ((Statuses) Registered.statuses()).saveAll();
         } catch (IOException e) {
@@ -141,33 +141,33 @@ public final class TridentServer implements Server {
         }
 
         //TODO: Cleanup stuff...
-        TridentLogger.log("Shutting down plugins...");
+        TridentLogger.get().log("Shutting down plugins...");
         for (Plugin plugin : Registered.plugins())
             Registered.plugins().disable(plugin);
 
-        TridentLogger.log("Kicking players...");
+        TridentLogger.get().log("Kicking players...");
         for (Player player : TridentPlayer.players()) {
             ((TridentPlayer) player).kickPlayer("Server shutting down");
             ((TridentPlayer) player).connection().logout();
         }
 
-        TridentLogger.log("Saving worlds...");
+        TridentLogger.get().log("Saving worlds...");
         for (World world : rootWorldLoader.worlds())
             ((TridentWorld) world).save();
 
-        TridentLogger.log("Shutting down concurrent workers...");
+        TridentLogger.get().log("Shutting down concurrent workers...");
         ((TridentTaskScheduler) Registered.tasks()).shutdown();
 
-        TridentLogger.log("Shutting down server process...");
+        TridentLogger.get().log("Shutting down server process...");
         ThreadsHandler.shutdownAll();
 
-        TridentLogger.log("Shutting down thread pools...");
+        TridentLogger.get().log("Shutting down thread pools...");
         ConcurrentTaskExecutor.executors().forEach(ConcurrentTaskExecutor::shutdown);
 
-        TridentLogger.log("Shutting down server connections...");
+        TridentLogger.get().log("Shutting down server connections...");
         TridentStart.close();
 
-        TridentLogger.log("Server shutdown successfully.");
+        TridentLogger.get().log("Server shutdown successfully.");
     }
 
     @Override

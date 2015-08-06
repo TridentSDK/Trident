@@ -93,7 +93,7 @@ public class PacketPlayInUpdateSign extends InPacket {
                     cancel();
                 } else {
                     if (integer.get() > 10) {
-                        TridentLogger.warn("Could not find sign at " + signLocation);
+                        TridentLogger.get().warn("Could not find sign at " + signLocation);
                         cancel();
                     }
                 }

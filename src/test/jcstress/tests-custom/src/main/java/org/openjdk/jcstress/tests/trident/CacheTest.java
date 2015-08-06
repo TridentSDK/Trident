@@ -136,7 +136,7 @@ public class CacheTest {
             try {
                 return val.await();
             } catch (InterruptedException e) {
-                TridentLogger.error(e);
+                TridentLogger.get().error(e);
                 return null;
             }
         }

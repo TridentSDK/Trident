@@ -61,7 +61,7 @@ abstract class ProtocolHandler {
 
             return fastClass.constructor().newInstance();
         } catch (Exception ex) {
-            TridentLogger.error(new RuntimeException(ex.getMessage()));
+            TridentLogger.get().error(new RuntimeException(ex.getMessage()));
             return null;
         }
     }

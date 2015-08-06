@@ -47,7 +47,7 @@ public class TridentConsole implements ServerConsole {
         // TODO: convert MessageBuilder json to console output
 
         for (String s : messages) {
-            TridentLogger.log(s);
+            TridentLogger.get().log(s);
         }
 
         lastMessage = messages[messages.length - 1];

@@ -113,7 +113,7 @@ public class MainThread extends Thread {
         if (!FINISH_TASKS_LEFT) {
             int left = TickSync.left();
             if (left > 0) {
-                TridentLogger.warn("Skipped " + left + " plugin task(s) this tick");
+                TridentLogger.get().warn("Skipped " + left + " plugin task(s) this tick");
             }
         } else {
             while (TickSync.left() > 0) {

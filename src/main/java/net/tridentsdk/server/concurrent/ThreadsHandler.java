@@ -54,7 +54,7 @@ public final class ThreadsHandler {
         int threads = section.getInt(tagName);
         if (threads == 0) {
             threads = 2;
-            TridentLogger.warn("Could not find config field for " + tagName + ", using 2 threads instead.");
+            TridentLogger.get().warn("Could not find config field for " + tagName + ", using 2 threads instead.");
         }
 
         return ConcurrentTaskExecutor.create(threads, uppercaseName);

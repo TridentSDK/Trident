@@ -120,7 +120,7 @@ public class PacketPlayInPlayerDig extends InPacket {
                 break;
 
             default:
-                TridentLogger.error(new IllegalArgumentException("Client sent invalid BlockFace!"));
+                TridentLogger.get().error(new IllegalArgumentException("Client sent invalid BlockFace!"));
         }
 
         Cancellable event = null;

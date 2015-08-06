@@ -72,7 +72,7 @@ public class PacketLoginOutDisconnect implements Packet {
      */
     @Override
     public Packet decode(ByteBuf buf) {
-        TridentLogger.error(new UnsupportedOperationException("PacketLoginOutDisconnect cannot be encoded!"));
+        TridentLogger.get().error(new UnsupportedOperationException("PacketLoginOutDisconnect cannot be encoded!"));
         return null;
     }
 }

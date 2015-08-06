@@ -153,7 +153,7 @@ public class ClientConnection {
         try {
             return Cipher.getInstance("AES/CFB8/NoPadding");
         } catch (Exception ex) {
-            TridentLogger.error(ex);
+            TridentLogger.get().error(ex);
         }
 
         return null;
@@ -209,11 +209,11 @@ public class ClientConnection {
         // Create new ByteBuf
         ByteBuf buffer = this.channel.alloc().buffer();
 
-        // TridentLogger.log("Sent " + packet.getClass().getSimpleName());
+        // TridentLogger.get().log("Sent " + packet.getClass().getSimpleName());
 
         Codec.writeVarInt32(buffer, packet.id());
         packet.encode(buffer);
-        TridentLogger.debug(packet.getClass().getSimpleName() + " sent");
+        TridentLogger.get().debug(packet.getClass().getSimpleName() + " sent");
 
         // Write the packet and flush it
         this.channel.write(buffer);
@@ -282,7 +282,7 @@ public class ClientConnection {
                 encryptCipher.get().init(Cipher.ENCRYPT_MODE, sharedSecret, ivSpec);
                 decryptCipher.get().init(Cipher.DECRYPT_MODE, sharedSecret, ivSpec);
             } catch (InvalidKeyException | InvalidAlgorithmParameterException e) {
-                TridentLogger.error(e);
+                TridentLogger.get().error(e);
             }
         }
     }
@@ -292,11 +292,11 @@ public class ClientConnection {
      */
     public void enableCompression() {
         if (compressionEnabled) {
-            TridentLogger.error(new UnsupportedOperationException("Compression is already enabled!"));
+            TridentLogger.get().error(new UnsupportedOperationException("Compression is already enabled!"));
         }
 
         if (stage != Protocol.ClientStage.LOGIN) {
-            TridentLogger.error(new UnsupportedOperationException());
+            TridentLogger.get().error(new UnsupportedOperationException());
         }
 
         sendPacket(new PacketLoginOutSetCompression());

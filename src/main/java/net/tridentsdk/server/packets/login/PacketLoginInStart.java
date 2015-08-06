@@ -143,14 +143,14 @@ public class PacketLoginInStart extends InPacket {
                     return;
                 }
             } catch (Exception e) {
-                TridentLogger.error(e);
+                TridentLogger.get().error(e);
                 return;
             }
 
             if (TridentServer.WORLD == null) {
                 connection.sendPacket(new PacketLoginOutDisconnect()
                         .setJsonMessage("{\"text\":\"Disconnected: no world on server\"}"));
-                TridentLogger.error("Rejected a client due to not having a map!");
+                TridentLogger.get().error("Rejected a client due to not having a map!");
                 return;
             }
 

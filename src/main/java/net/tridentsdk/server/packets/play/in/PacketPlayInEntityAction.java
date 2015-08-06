@@ -112,7 +112,7 @@ public class PacketPlayInEntityAction extends InPacket {
                     return type;
             }
 
-            TridentLogger.error(new IllegalArgumentException(id + " is not a valid ActionType id!"));
+            TridentLogger.get().error(new IllegalArgumentException(id + " is not a valid ActionType id!"));
             return null;
         }
 
