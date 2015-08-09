@@ -133,16 +133,16 @@ public class PacketPlayInPlayerClickWindow extends InPacket {
         switch(mode) {
             case LEFT_CLICK:
             case RIGHT_CLICK:
-                if(player.cursorItem() == null) {
+                if(player.pickedItem() == null) {
                     if(window.itemAt(clickedSlot) != null && window.itemAt(clickedSlot).type() != Substance.AIR) {
                         if(window.itemAt(clickedSlot).isSimilar(clickedItem.item())) {
                             if(mode == ClickAction.LEFT_CLICK) {
-                                player.setCursorItem(clickedItem.item());
+                                player.setPickedItem(clickedItem.item());
                                 window.setSlot(clickedSlot, null);
                             } else {
                                 Item cursor = clickedItem.item().clone();
                                 cursor.setQuantity((short) (cursor.quantity() / 2));
-                                player.setCursorItem(cursor);
+                                player.setPickedItem(cursor);
                                 window.itemAt(clickedSlot).setQuantity((short) (window.itemAt(clickedSlot).quantity() - cursor.quantity()));
                                 window.setSlot(clickedSlot, window.itemAt(clickedSlot));
                             }
@@ -152,12 +152,12 @@ public class PacketPlayInPlayerClickWindow extends InPacket {
                     }
                 } else {
                     Item temp = window.itemAt(clickedSlot);
-                    window.setSlot(clickedSlot, player.cursorItem());
+                    window.setSlot(clickedSlot, player.pickedItem());
 
                     if(temp != null && temp.type() != Substance.AIR) {
-                        player.setCursorItem(temp);
+                        player.setPickedItem(temp);
                     } else {
-                        player.setCursorItem(null);
+                        player.setPickedItem(null);
                     }
                 }
                 break;

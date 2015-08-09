@@ -90,7 +90,9 @@ public class TridentPlayer extends OfflinePlayer {
     private volatile byte skinFlags;
     private volatile Locale locale;
     private volatile int viewDistance = MAX_VIEW;
-    private volatile Item itemOnCursor;
+    private volatile Item pickedItem;
+    private volatile String header;
+    private volatile String footer;
 
     private TridentPlayer(UUID uuid, CompoundTag tag, TridentWorld world, ClientConnection connection) {
         super(uuid, tag, world);
@@ -587,12 +589,46 @@ public class TridentPlayer extends OfflinePlayer {
     }
 
     @Override
-    public Item cursorItem() {
-        return itemOnCursor;
+    public Item pickedItem() {
+        return pickedItem;
     }
 
     @Override
-    public void setCursorItem(Item item) {
-        itemOnCursor = item;
+    public void setPickedItem(Item item) {
+        pickedItem = item;
+    }
+
+    @Override
+    public String header() {
+        return header;
+    }
+
+    @Override
+    public void setHeader(MessageBuilder builder) {
+        if (!builder.isBuilt()) {
+            builder.build();
+        }
+
+        header = builder.asJson();
+        connection.sendPacket(new PacketPlayOutPlayerListUpdate()
+                .set("header", header)
+                .set("footer", footer == null ? "{\"text\": \"\"}" : footer));
+    }
+
+    @Override
+    public String footer() {
+        return footer;
+    }
+
+    @Override
+    public void setFooter(MessageBuilder builder) {
+        if (!builder.isBuilt()) {
+            builder.build();
+        }
+
+        footer = builder.asJson();
+        connection.sendPacket(new PacketPlayOutPlayerListUpdate()
+                .set("header", header == null ? "{\"text\": \"\"}" : header)
+                .set("footer", footer));
     }
 }
