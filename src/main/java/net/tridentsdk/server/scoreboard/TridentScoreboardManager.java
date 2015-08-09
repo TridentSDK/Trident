@@ -23,15 +23,16 @@ import net.tridentsdk.scoreboard.Scoreboard;
 import net.tridentsdk.scoreboard.ScoreboardManager;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class TridentScoreboardManager implements ScoreboardManager {
-
     private TridentScoreboard globalScoreboard = new TridentScoreboard();
-    private HashMap<Player, TridentScoreboard> playerScoreboards = new HashMap<>();
+    private Map<Player, TridentScoreboard> playerScoreboards = new HashMap<>();
 
-    public TridentScoreboardManager(){
+    public TridentScoreboardManager() {
         Registered.tasks().asyncRepeat(null, new ScheduledRunnable() {
             private int tick = 1;
+
             @Override
             public void run(){
                 globalScoreboard.updateBoard(tick);
@@ -42,13 +43,13 @@ public class TridentScoreboardManager implements ScoreboardManager {
     }
 
     @Override
-    public Scoreboard getGlobalScoreboard(){
+    public Scoreboard globalScoreboard() {
         return globalScoreboard;
     }
 
     @Override
-    public Scoreboard getPlayerScoreboard(Player player){
-        if(!playerScoreboards.containsKey(player)){
+    public Scoreboard scoreboardFor(Player player) {
+        if(!playerScoreboards.containsKey(player)) {
             playerScoreboards.put(player, new TridentScoreboard());
         }
 

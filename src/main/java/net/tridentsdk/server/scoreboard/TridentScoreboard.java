@@ -27,23 +27,24 @@ import net.tridentsdk.server.player.TridentPlayer;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class TridentScoreboard implements Scoreboard {
 
-    private HashMap<ScoreboardModule, Integer> modules = new HashMap<>();
+    private Map<ScoreboardModule, Integer> modules = new HashMap<>();
     private Set<Player> players = new HashSet<>();
     private String resetSpaces = " ";
     private String spaces = " ";
 
     @Override
-    public void addModule(ScoreboardModule module, int priority){
+    public void addModule(ScoreboardModule module, int priority) {
         modules.put(module, priority);
         updateBoard(0, true);
     }
 
     @Override
-    public void showToPlayer(Player player){
+    public void showToPlayer(Player player) {
         PacketPlayOutScoreboardObjective objective = new PacketPlayOutScoreboardObjective();
         objective.set("name", "Sidebar");
         objective.set("mode", (short) 0);
@@ -87,11 +88,11 @@ public class TridentScoreboard implements Scoreboard {
         players.add(player);
     }
 
-    public void updateBoard(int tick){
+    public void updateBoard(int tick) {
         updateBoard(tick, false);
     }
 
-    public void updateBoard(int tick, boolean reset){
+    public void updateBoard(int tick, boolean reset) {
         if(reset){
             resetSpaces = " ";
         }
@@ -114,9 +115,10 @@ public class TridentScoreboard implements Scoreboard {
                 update.set("value", item.score());
                 players.stream().forEach(player -> ((TridentPlayer) player).connection().sendPacket(update));
 
-                if(item.value().startsWith("%SPACE%")){
+                if(item.value().startsWith("%SPACE%")) {
                     spaces += " ";
-                    if(reset){
+
+                    if(reset) {
                         resetSpaces += " ";
                     }
                 }
