@@ -272,7 +272,6 @@ public class PacketPlayInPlayerClickWindow extends InPacket {
                     break;
                 }
 
-                System.out.println(player.pickedItem());
                 available = player.pickedItem().quantity();
                 for (Integer i : player.dragSlots()){
                     if(available == 0){
