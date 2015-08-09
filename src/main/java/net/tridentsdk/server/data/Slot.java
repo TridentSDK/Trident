@@ -39,14 +39,8 @@ public class Slot implements Writable, NBTSerializable {
 
     public Slot(ByteBuf buf) {
         try {
-            ByteBuf potentialBuffer = buf.copy();
-            short possibleId = potentialBuffer.readUnsignedByte();
+            //short possibleId = potentialBuffer.readUnsignedByte();
             this.id = buf.readShort();
-
-            if(this.id > 255 || this.id < 0) {
-                this.id = possibleId;
-                buf = potentialBuffer;
-            }
 
             this.mat = Substance.fromId(this.id);
 
@@ -54,7 +48,7 @@ public class Slot implements Writable, NBTSerializable {
                 return;
             }
 
-            this.quantity = buf.readByte();
+            this.quantity = (byte) buf.readUnsignedByte();
             this.damageValue = buf.readShort();
             byte b;
 
