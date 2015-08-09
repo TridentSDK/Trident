@@ -21,9 +21,7 @@ import net.tridentsdk.base.Block;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.meta.block.BlockMeta;
 import net.tridentsdk.meta.component.*;
-import net.tridentsdk.server.data.block.ColorMetaImpl;
-import net.tridentsdk.server.data.block.DirectionMetaImpl;
-import net.tridentsdk.server.data.block.SignMetaImpl;
+import net.tridentsdk.server.data.block.*;
 import net.tridentsdk.util.Value;
 
 import java.util.Collection;
@@ -44,8 +42,10 @@ public class MetaProviderFactory implements MetaProvider {
 
     public MetaProviderFactory() {
         register(new ColorMetaImpl());
-        register(new DirectionMetaImpl());
         register(new SignMetaImpl());
+        register(new FurnaceMetaImpl());
+        register(new ChestMetaImpl());
+        register(new DirectionMetaImpl());
     }
 
     public boolean hasData(Substance substance) {

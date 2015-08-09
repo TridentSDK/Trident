@@ -23,7 +23,11 @@ import net.tridentsdk.base.Position;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.effect.sound.SoundEffect;
 import net.tridentsdk.effect.sound.SoundEffectType;
+import net.tridentsdk.meta.block.ChestMeta;
+import net.tridentsdk.meta.block.FurnaceMeta;
 import net.tridentsdk.meta.component.MetaFactory;
+import net.tridentsdk.server.data.block.FurnaceMetaImpl;
+import net.tridentsdk.server.inventory.TridentInventory;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
@@ -92,15 +96,22 @@ public class PacketPlayInBlockPlace extends InPacket {
 
         Substance substance = player.heldItem().type();
 
-        if (substance != Substance.AIR) {
+        if(location.y() < 255 && location.block() != null && location.block().substance().isFunctional() && !player.isCrouching()){
+            Block clickAt = location.block();
+            switch(clickAt.substance()){
+                case FURNACE:
+                case BURNING_FURNACE:
+                    ((FurnaceMetaImpl) clickAt.obtainMeta(FurnaceMeta.class)).furnaceInventory().sendTo(player);
+                    break;
+                case CHEST:
+                    ((TridentInventory) clickAt.obtainMeta(ChestMeta.class).inventory()).sendTo(player);
+                    break;
+            }
+            // TODO Add all functional blocks (workbench, furnace, anvil, etc)
+        }else if (substance != Substance.AIR) {
             Vector vector = determineOffset();
             if (!substance.isBlock()) {
                 // TODO eat food or pull bow or release/obtain water in a bucket, etc
-                return;
-            }
-
-            if(substance.isFunctional() && !player.isCrouching()){
-                // TODO Add all functional blocks (workbench, furnace, anvil, etc)
                 return;
             }
 

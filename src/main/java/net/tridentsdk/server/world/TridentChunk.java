@@ -48,6 +48,7 @@ import net.tridentsdk.world.gen.AbstractOverlayBrush;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReferenceArray;
@@ -416,33 +417,37 @@ public class TridentChunk implements Chunk {
         final int index = WorldUtils.blockArrayIndex(relX, y & 15, relZ);
 
         try {
-            return (Block) executor.submitTask(() -> {
-                ChunkSection[] sections = mapSections();
+            //noinspection Convert2Lambda Because lamdbda doesn't carry over generic type of method
+            return executor.submitTask(new Callable<Block>() {
+                @Override
+                public Block call() throws Exception{
+                    ChunkSection[] sections = mapSections();
 
-                int sectionIndex = WorldUtils.section(y);
-                ChunkSection section = sections[sectionIndex];
+                    int sectionIndex = WorldUtils.section(y);
+                    ChunkSection section = sections[sectionIndex];
 
-                /* Get block data; use extras accordingly */
-                byte b = (byte) (section.types[index] >> 4);
-                byte meta = (byte) (section.types[index] & 0xF);
+                    /* Get block data; use extras accordingly */
+                    byte b = (byte) (section.types[index] >> 4);
+                    byte meta = (byte) (section.types[index] & 0xF);
 
-                Substance material = Substance.fromId(b);
+                    Substance material = Substance.fromId(b);
 
-                if (material == null) {
-                    material = Substance.AIR; // check if valid
-                }
-
-                TridentBlock block = new TridentBlock(Position.create(world, relX + x() * 16, y, relZ + z() * 16),
-                        material, meta);
-                Vector key = new Vector(relX, y, relZ);
-                List<BlockMeta> metas = blockMeta.get(key);
-                if (metas != null) {
-                    for (BlockMeta m : metas) {
-                        block.applyMeta(m);
+                    if (material == null) {
+                        material = Substance.AIR; // check if valid
                     }
-                }
 
-                return block;
+                    TridentBlock block = new TridentBlock(Position.create(world, relX + x() * 16, y, relZ + z() * 16),
+                            material, meta);
+                    Vector key = new Vector(relX, y, relZ);
+                    List<BlockMeta> metas = blockMeta.get(key);
+                    if (metas != null) {
+                        for (BlockMeta m : metas) {
+                            block.applyMeta(m);
+                        }
+                    }
+
+                    return block;
+                }
             }).get();
         } catch (InterruptedException | ExecutionException e) {
             TridentLogger.get().error(e);

@@ -62,7 +62,7 @@ public class TridentInventory implements Inventory {
      * @param length the amount of slots in the inventory (should be multiple of 9)
      */
     private TridentInventory(String name, int length, InventoryType type, int id) {
-        this.name = name;
+        this.name = name != null ? name : type.defaultName();
         this.length = length;
         this.id = id;
         this.contents = new AtomicReferenceArray<>(length);
@@ -74,7 +74,7 @@ public class TridentInventory implements Inventory {
     }
 
     private TridentInventory(String name, int length, InventoryType type) {
-        this("", length, InventoryType.CHEST, counter.addAndGet(1));
+        this(name, length, type, counter.addAndGet(1));
     }
 
     /**

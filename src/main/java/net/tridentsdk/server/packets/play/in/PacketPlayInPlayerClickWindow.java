@@ -18,14 +18,19 @@
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.base.Substance;
+import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.player.PlayerClickItemEvent;
 import net.tridentsdk.inventory.Inventory;
+import net.tridentsdk.inventory.Item;
 import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.data.Slot;
 import net.tridentsdk.server.event.EventProcessor;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
+import net.tridentsdk.server.player.PlayerConnection;
+import net.tridentsdk.util.TridentLogger;
 
 /**
  * Packet sent by the player when it clicks on a slot in a inventory.
@@ -52,7 +57,7 @@ public class PacketPlayInPlayerClickWindow extends InPacket {
     /**
      * Inventory operation mode
      */
-    protected short mode;
+    protected ClickAction mode;
     /**
      * Item clicked
      */
@@ -79,7 +84,7 @@ public class PacketPlayInPlayerClickWindow extends InPacket {
         return this.actionNumber;
     }
 
-    public short mode() {
+    public ClickAction mode() {
         return this.mode;
     }
 
@@ -94,7 +99,10 @@ public class PacketPlayInPlayerClickWindow extends InPacket {
         this.clickedButton = (int) buf.readByte();
 
         this.actionNumber = buf.readShort();
-        this.mode = buf.readShort();
+
+        short mode = buf.readShort();
+
+        this.mode = ClickAction.getAction(mode, clickedButton, clickedSlot);
         this.clickedItem = new Slot(buf);
 
         return this;
@@ -102,11 +110,178 @@ public class PacketPlayInPlayerClickWindow extends InPacket {
 
     @Override
     public void handleReceived(ClientConnection connection) {
+        if(mode == null){
+            return;
+        }
+
+        Player player = ((PlayerConnection) connection).player();
         Inventory window = Registered.inventories().fromId(this.windowId);
+
+        if(clickedSlot >= window.length()){
+            clickedSlot += (9 - window.length());
+            window = player.window();
+        }
+
         PlayerClickItemEvent clickEvent = EventProcessor
                 .fire(new PlayerClickItemEvent(window, this.clickedSlot, (int) this.actionNumber));
 
         if (clickEvent.isIgnored()) {
+            return;
+        }
+
+        // TODO Implement all
+        switch(mode){
+            case LEFT_CLICK:
+            case RIGHT_CLICK:
+                if(player.itemPickedWithCursor() == null){
+                    if(window.itemAt(clickedSlot) != null && window.itemAt(clickedSlot).type() != Substance.AIR){
+                        if(window.itemAt(clickedSlot).isSimilar(clickedItem.item())){
+                            if(mode == ClickAction.LEFT_CLICK){
+                                player.setItemPickedWithCursor(clickedItem.item());
+                                window.setSlot(clickedSlot, null);
+                            }else{
+                                Item cursor = clickedItem.item().clone();
+                                cursor.setQuantity((short) (cursor.quantity() / 2));
+                                player.setItemPickedWithCursor(cursor);
+                                window.itemAt(clickedSlot).setQuantity((short) (window.itemAt(clickedSlot).quantity() - cursor.quantity()));
+                                window.setSlot(clickedSlot, window.itemAt(clickedSlot));
+                            }
+                        }else{
+                            TridentLogger.get().warn(player.name() + " tried to cheat items!");
+                        }
+                    }
+                }else{
+                    Item temp = window.itemAt(clickedSlot);
+                    window.setSlot(clickedSlot, player.itemPickedWithCursor());
+                    if(temp != null && temp.type() != Substance.AIR){
+                        player.setItemPickedWithCursor(temp);
+                    }else{
+                        player.setItemPickedWithCursor(null);
+                    }
+                }
+                break;
+            case SHIFT_LEFT_CLICK:
+                break;
+            case SHIFT_RIGHT_CLICK:
+                break;
+            case NUMBER_KEY:
+                break;
+            case MIDDLE_CLICK:
+                break;
+            case DROP_KEY_ONE:
+                break;
+            case DROP_KEY_STACK:
+                break;
+            case LEFT_CLICK_OUTSIDE:
+                break;
+            case RIGHT_CLICK_OUTSIDE:
+                break;
+            case START_LEFT_CLICK_DRAG:
+                break;
+            case START_RIGHT_CLICK_DRAG:
+                break;
+            case ADD_SLOT_LEFT_CLICK_DRAG:
+                break;
+            case ADD_SLOT_RIGHT_CLICK_DRAG:
+                break;
+            case END_LEFT_CLICK_DRAG:
+                break;
+            case END_RIGHT_CLICK_DRAG:
+                break;
+            case DOUBLE_CLICK:
+                break;
         }
     }
+
+    public enum ClickAction {
+
+        LEFT_CLICK,
+        RIGHT_CLICK,
+
+        SHIFT_LEFT_CLICK,
+        SHIFT_RIGHT_CLICK,
+
+        NUMBER_KEY,
+
+        MIDDLE_CLICK,
+
+        DROP_KEY_ONE,
+        DROP_KEY_STACK,
+        LEFT_CLICK_OUTSIDE,
+        RIGHT_CLICK_OUTSIDE,
+
+        START_LEFT_CLICK_DRAG,
+        START_RIGHT_CLICK_DRAG,
+        ADD_SLOT_LEFT_CLICK_DRAG,
+        ADD_SLOT_RIGHT_CLICK_DRAG,
+        END_LEFT_CLICK_DRAG,
+        END_RIGHT_CLICK_DRAG,
+
+        DOUBLE_CLICK;
+
+        public static ClickAction getAction(short mode, int button, int slot){
+            switch(mode){
+                case 0:
+                case 255:
+                    switch(button){
+                        case 0:
+                            return LEFT_CLICK;
+                        case 1:
+                            return RIGHT_CLICK;
+                    }
+                    break;
+                case 1:
+                    switch(button){
+                        case 0:
+                            return SHIFT_LEFT_CLICK;
+                        case 1:
+                            return SHIFT_RIGHT_CLICK;
+                    }
+                    break;
+                case 2:
+                    return NUMBER_KEY;
+                case 3:
+                    return MIDDLE_CLICK;
+                case 4:
+                    if(slot == -999){
+                        switch(button){
+                            case 0:
+                                return LEFT_CLICK_OUTSIDE;
+                            case 1:
+                                return RIGHT_CLICK_OUTSIDE;
+                        }
+                    }else{
+                        switch(button){
+                            case 0:
+                                return DROP_KEY_ONE;
+                            case 1:
+                                return DROP_KEY_STACK;
+                        }
+                    }
+                    break;
+                case 5:
+                    switch(button){
+                        case 0:
+                            return START_LEFT_CLICK_DRAG;
+                        case 4:
+                            return START_RIGHT_CLICK_DRAG;
+                        case 1:
+                            return ADD_SLOT_LEFT_CLICK_DRAG;
+                        case 5:
+                            return ADD_SLOT_RIGHT_CLICK_DRAG;
+                        case 2:
+                            return END_LEFT_CLICK_DRAG;
+                        case 6:
+                            return END_RIGHT_CLICK_DRAG;
+                    }
+                    break;
+                case 6:
+                    return DOUBLE_CLICK;
+            }
+
+            return null;
+        }
+
+    }
+
 }

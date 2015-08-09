@@ -36,6 +36,7 @@ import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.event.player.PlayerJoinEvent;
 import net.tridentsdk.event.player.PlayerMoveEvent;
+import net.tridentsdk.inventory.Item;
 import net.tridentsdk.meta.ChatColor;
 import net.tridentsdk.meta.MessageBuilder;
 import net.tridentsdk.meta.block.Tile;
@@ -89,6 +90,7 @@ public class TridentPlayer extends OfflinePlayer {
     private volatile byte skinFlags;
     private volatile Locale locale;
     private volatile int viewDistance = MAX_VIEW;
+    private volatile Item itemOnCursor;
 
     private TridentPlayer(UUID uuid, CompoundTag tag, TridentWorld world, ClientConnection connection) {
         super(uuid, tag, world);
@@ -582,5 +584,15 @@ public class TridentPlayer extends OfflinePlayer {
     @Override
     public EntityType type() {
         return EntityType.PLAYER;
+    }
+
+    @Override
+    public Item itemPickedWithCursor(){
+        return itemOnCursor;
+    }
+
+    @Override
+    public void setItemPickedWithCursor(Item item){
+        itemOnCursor = item;
     }
 }

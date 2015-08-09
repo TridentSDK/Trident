@@ -28,6 +28,7 @@ import net.tridentsdk.entity.traits.EntityProperties;
 import net.tridentsdk.entity.traits.PlayerSpeed;
 import net.tridentsdk.event.entity.EntityDamageEvent;
 import net.tridentsdk.inventory.Inventory;
+import net.tridentsdk.inventory.Item;
 import net.tridentsdk.meta.nbt.*;
 import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.TridentServer;
@@ -457,4 +458,16 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
             abilities.walkingSpeed = speed;
         }
     }
+
+    @Override
+    public Item itemPickedWithCursor(){
+        TridentLogger.get().error(new UnsupportedOperationException("You may not get the cursor item of an OfflinePlayer!"));
+        return null;
+    }
+
+    @Override
+    public void setItemPickedWithCursor(Item item){
+        TridentLogger.get().error(new UnsupportedOperationException("You may not set the cursor item of an OfflinePlayer!"));
+    }
+
 }
