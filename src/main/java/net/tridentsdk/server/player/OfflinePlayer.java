@@ -29,6 +29,7 @@ import net.tridentsdk.entity.traits.PlayerSpeed;
 import net.tridentsdk.event.entity.EntityDamageEvent;
 import net.tridentsdk.inventory.Inventory;
 import net.tridentsdk.inventory.Item;
+import net.tridentsdk.meta.MessageBuilder;
 import net.tridentsdk.meta.nbt.*;
 import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.TridentServer;
@@ -460,14 +461,33 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     }
 
     @Override
-    public Item itemPickedWithCursor(){
+    public Item pickedItem() {
         TridentLogger.get().error(new UnsupportedOperationException("You may not get the cursor item of an OfflinePlayer!"));
         return null;
     }
 
     @Override
-    public void setItemPickedWithCursor(Item item){
+    public void setPickedItem(Item item) {
         TridentLogger.get().error(new UnsupportedOperationException("You may not set the cursor item of an OfflinePlayer!"));
     }
 
+    @Override
+    public String header() {
+        return null;
+    }
+
+    @Override
+    public void setHeader(MessageBuilder builder) {
+        TridentLogger.get().error(new UnsupportedOperationException("You cannot set the header of an OfflinePlayer!"));
+    }
+
+    @Override
+    public String footer() {
+        return null;
+    }
+
+    @Override
+    public void setFooter(MessageBuilder builder) {
+        TridentLogger.get().error(new UnsupportedOperationException("You cannot set the footer of an OfflinePlayer!"));
+    }
 }

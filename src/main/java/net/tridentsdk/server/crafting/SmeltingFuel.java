@@ -24,21 +24,21 @@ public class SmeltingFuel {
     private int burnTicks;
     private Item returnItem;
 
-    public SmeltingFuel(Item source, int burnTicks, Item returnItem){
+    public SmeltingFuel(Item source, int burnTicks, Item returnItem) {
         this.source = source;
         this.burnTicks = burnTicks;
         this.returnItem = returnItem;
     }
 
-    public Item source(){
+    public Item source() {
         return source;
     }
 
-    public int burnTicks(){
+    public int burnTicks() {
         return burnTicks;
     }
 
-    public Item returnItem(){
+    public Item returnItem() {
         return returnItem;
     }
 

@@ -49,6 +49,7 @@ import net.tridentsdk.server.entity.TridentDroppedItem;
 import net.tridentsdk.server.event.EventProcessor;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.Packet;
+import net.tridentsdk.server.packets.play.in.PacketPlayInPlayerClickWindow;
 import net.tridentsdk.server.packets.play.out.*;
 import net.tridentsdk.server.world.TridentChunk;
 import net.tridentsdk.server.world.TridentWorld;
@@ -83,6 +84,8 @@ public class TridentPlayer extends OfflinePlayer {
     private final PlayerConnection connection;
     private final Set<ChunkLocation> knownChunks = Sets.newConcurrentHashSet();
     private final Queue<ChunkLocation> chunkQueue = Queues.newConcurrentLinkedQueue();
+    private final LinkedHashSet<Integer> dragSlots = new LinkedHashSet<>();
+    private volatile PacketPlayInPlayerClickWindow.ClickAction drag;
     private volatile boolean loggingIn = true;
     private volatile boolean sprinting;
     private volatile boolean crouching;
@@ -90,7 +93,9 @@ public class TridentPlayer extends OfflinePlayer {
     private volatile byte skinFlags;
     private volatile Locale locale;
     private volatile int viewDistance = MAX_VIEW;
-    private volatile Item itemOnCursor;
+    private volatile Item pickedItem;
+    private volatile String header;
+    private volatile String footer;
 
     private TridentPlayer(UUID uuid, CompoundTag tag, TridentWorld world, ClientConnection connection) {
         super(uuid, tag, world);
@@ -587,12 +592,58 @@ public class TridentPlayer extends OfflinePlayer {
     }
 
     @Override
-    public Item itemPickedWithCursor(){
-        return itemOnCursor;
+    public Item pickedItem() {
+        return pickedItem;
     }
 
     @Override
-    public void setItemPickedWithCursor(Item item){
-        itemOnCursor = item;
+    public void setPickedItem(Item item) {
+        pickedItem = item;
+    }
+
+    @Override
+    public String header() {
+        return header;
+    }
+
+    @Override
+    public void setHeader(MessageBuilder builder) {
+        if (!builder.isBuilt()) {
+            builder.build();
+        }
+
+        header = builder.asJson();
+        connection.sendPacket(new PacketPlayOutPlayerListUpdate()
+                .set("header", header)
+                .set("footer", footer == null ? "{\"text\": \"\"}" : footer));
+    }
+
+    @Override
+    public String footer() {
+        return footer;
+    }
+
+    @Override
+    public void setFooter(MessageBuilder builder) {
+        if (!builder.isBuilt()) {
+            builder.build();
+        }
+
+        footer = builder.asJson();
+        connection.sendPacket(new PacketPlayOutPlayerListUpdate()
+                .set("header", header == null ? "{\"text\": \"\"}" : header)
+                .set("footer", footer));
+    }
+
+    public LinkedHashSet<Integer> dragSlots() {
+        return dragSlots;
+    }
+
+    public PacketPlayInPlayerClickWindow.ClickAction drag(){
+        return drag;
+    }
+
+    public void setDrag(PacketPlayInPlayerClickWindow.ClickAction drag){
+        this.drag = drag;
     }
 }

@@ -19,7 +19,6 @@ package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.base.Substance;
-import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.player.PlayerClickItemEvent;
 import net.tridentsdk.inventory.Inventory;
 import net.tridentsdk.inventory.Item;
@@ -30,6 +29,7 @@ import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.player.PlayerConnection;
+import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.util.TridentLogger;
 
 /**
@@ -57,6 +57,7 @@ public class PacketPlayInPlayerClickWindow extends InPacket {
     /**
      * Inventory operation mode
      */
+    protected byte modeId;
     protected ClickAction mode;
     /**
      * Item clicked
@@ -97,27 +98,25 @@ public class PacketPlayInPlayerClickWindow extends InPacket {
         this.windowId = (int) buf.readByte();
         this.clickedSlot = buf.readShort();
         this.clickedButton = (int) buf.readByte();
-
         this.actionNumber = buf.readShort();
-
-        short mode = buf.readShort();
-
-        this.mode = ClickAction.getAction(mode, clickedButton, clickedSlot);
+        this.modeId = buf.readByte();
+        this.mode = ClickAction.getAction(modeId, clickedButton, clickedSlot);
         this.clickedItem = new Slot(buf);
-
         return this;
     }
 
     @Override
     public void handleReceived(ClientConnection connection) {
-        if(mode == null){
+        if(mode == null) {
             return;
         }
 
-        Player player = ((PlayerConnection) connection).player();
+        TridentPlayer player = ((PlayerConnection) connection).player();
         Inventory window = Registered.inventories().fromId(this.windowId);
+        Inventory originalWindow = window;
 
-        if(clickedSlot >= window.length()){
+        int originalSlot = clickedSlot;
+        if(clickedSlot >= window.length()) {
             clickedSlot += (9 - window.length());
             window = player.window();
         }
@@ -125,38 +124,58 @@ public class PacketPlayInPlayerClickWindow extends InPacket {
         PlayerClickItemEvent clickEvent = EventProcessor
                 .fire(new PlayerClickItemEvent(window, this.clickedSlot, (int) this.actionNumber));
 
-        if (clickEvent.isIgnored()) {
+        if(clickEvent.isIgnored()) {
             return;
         }
 
         // TODO Implement all
-        switch(mode){
+        switch(mode) {
             case LEFT_CLICK:
             case RIGHT_CLICK:
-                if(player.itemPickedWithCursor() == null){
-                    if(window.itemAt(clickedSlot) != null && window.itemAt(clickedSlot).type() != Substance.AIR){
-                        if(window.itemAt(clickedSlot).isSimilar(clickedItem.item())){
-                            if(mode == ClickAction.LEFT_CLICK){
-                                player.setItemPickedWithCursor(clickedItem.item());
+                if(player.pickedItem() == null) {
+                    if(window.itemAt(clickedSlot) != null && window.itemAt(clickedSlot).type() != Substance.AIR) {
+                        if(window.itemAt(clickedSlot).isSimilar(clickedItem.item())) {
+                            if(mode == ClickAction.LEFT_CLICK) {
+                                player.setPickedItem(clickedItem.item());
                                 window.setSlot(clickedSlot, null);
-                            }else{
+                            } else {
                                 Item cursor = clickedItem.item().clone();
-                                cursor.setQuantity((short) (cursor.quantity() / 2));
-                                player.setItemPickedWithCursor(cursor);
+                                cursor.setQuantity((short) Math.ceil((cursor.quantity() / 2)));
+                                player.setPickedItem(cursor);
                                 window.itemAt(clickedSlot).setQuantity((short) (window.itemAt(clickedSlot).quantity() - cursor.quantity()));
                                 window.setSlot(clickedSlot, window.itemAt(clickedSlot));
                             }
-                        }else{
+                        } else {
                             TridentLogger.get().warn(player.name() + " tried to cheat items!");
                         }
                     }
-                }else{
+                } else {
                     Item temp = window.itemAt(clickedSlot);
-                    window.setSlot(clickedSlot, player.itemPickedWithCursor());
-                    if(temp != null && temp.type() != Substance.AIR){
-                        player.setItemPickedWithCursor(temp);
-                    }else{
-                        player.setItemPickedWithCursor(null);
+                    if(mode == ClickAction.LEFT_CLICK) {
+                        window.setSlot(clickedSlot, player.pickedItem());
+                        if(temp != null && temp.type() != Substance.AIR) {
+                            player.setPickedItem(temp);
+                        } else {
+                            player.setPickedItem(null);
+                        }
+                    } else {
+                        if(temp == null || temp.type() == Substance.AIR) {
+                            Item single = player.pickedItem().clone();
+                            single.setQuantity((short) 1);
+                            window.setSlot(clickedSlot, single);
+                            if(player.pickedItem().quantity() > 1){
+                                player.pickedItem().setQuantity((short) (player.pickedItem().quantity() - 1));
+                            }else{
+                                player.setPickedItem(null);
+                            }
+                        }else{
+                            window.setSlot(clickedSlot, player.pickedItem());
+                            if(temp.type() != Substance.AIR) {
+                                player.setPickedItem(temp);
+                            } else {
+                                player.setPickedItem(null);
+                            }
+                        }
                     }
                 }
                 break;
@@ -177,18 +196,163 @@ public class PacketPlayInPlayerClickWindow extends InPacket {
             case RIGHT_CLICK_OUTSIDE:
                 break;
             case START_LEFT_CLICK_DRAG:
-                break;
             case START_RIGHT_CLICK_DRAG:
+                if(player.drag() != null){
+                    TridentLogger.get().warn(player.name() + " tried to drag whilst already dragging!");
+                    break;
+                }
+
+                player.setDrag(mode);
                 break;
             case ADD_SLOT_LEFT_CLICK_DRAG:
-                break;
             case ADD_SLOT_RIGHT_CLICK_DRAG:
+                if(player.drag() == null){
+                    TridentLogger.get().warn(player.name() + " tried to add drag slot, whilst not dragging!");
+                    break;
+                }else{
+                    if((mode == ClickAction.ADD_SLOT_LEFT_CLICK_DRAG && player.drag() == ClickAction.START_RIGHT_CLICK_DRAG) ||
+                       (mode == ClickAction.ADD_SLOT_RIGHT_CLICK_DRAG && player.drag() == ClickAction.START_LEFT_CLICK_DRAG)){
+                        TridentLogger.get().warn(player.name() + " tried to add drag slot, whilst dragging the wrong click!");
+                        break;
+                    }
+                }
+
+                player.dragSlots().add((int) originalSlot);
                 break;
             case END_LEFT_CLICK_DRAG:
+                if(player.drag() == null){
+                    TridentLogger.get().warn(player.name() + " tried to stop dragging, whilst not dragging!");
+                    break;
+                }else if(player.drag() == ClickAction.START_RIGHT_CLICK_DRAG){
+                    TridentLogger.get().warn(player.name() + " tried to stop dragging, whilst dragging the wrong click!");
+                    break;
+                }
+
+                int available = player.pickedItem().quantity();
+                int split = (int) Math.floor(available / player.dragSlots().size());
+                for (Integer i : player.dragSlots()){
+                    if(available == 0){
+                        break;
+                    }
+
+                    Inventory using = originalWindow;
+                    if(i >= originalWindow.length()){
+                        using = player.window();
+                    }
+
+                    Item current = using.itemAt(i);
+                    if(current == null || current.type() == Substance.AIR){
+                        current = player.pickedItem().clone();
+                        current.setQuantity((short) split);
+                        using.setSlot(i, current);
+                        available -= split;
+                    }else if(current.isSimilarIgnoreQuantity(player.pickedItem()) && current.quantity() < current.type().maxStackSize()){
+                        int canAdd = Math.min(split, current.type().maxStackSize() - current.quantity());
+                        current.setQuantity((short) (current.quantity() + canAdd));
+                        using.setSlot(i, current);
+                        available -= canAdd;
+                    }
+                }
+
+                if(available == 0){
+                    player.setPickedItem(null);
+                }else{
+                    player.pickedItem().setQuantity((short) available);
+                }
+
+                player.dragSlots().clear();
+                player.setDrag(null);
                 break;
             case END_RIGHT_CLICK_DRAG:
+                if(player.drag() == null){
+                    TridentLogger.get().warn(player.name() + " tried to stop dragging, whilst not dragging!");
+                    break;
+                }else if(player.drag() == ClickAction.START_LEFT_CLICK_DRAG){
+                    TridentLogger.get().warn(player.name() + " tried to stop dragging, whilst dragging the wrong click!");
+                    break;
+                }
+
+                available = player.pickedItem().quantity();
+                for (Integer i : player.dragSlots()){
+                    if(available == 0){
+                        break;
+                    }
+
+                    Inventory using = originalWindow;
+                    if(i >= originalWindow.length()){
+                        using = player.window();
+                    }
+
+                    Item current = using.itemAt(i);
+                    if(current == null || current.type() == Substance.AIR){
+                        current = player.pickedItem().clone();
+                        current.setQuantity((short) 1);
+                        using.setSlot(i, current);
+                        available--;
+                    }else if(current.isSimilarIgnoreQuantity(player.pickedItem()) && current.quantity() < current.type().maxStackSize()){
+                        current.setQuantity((short) (current.quantity() + 1));
+                        using.setSlot(i, current);
+                        available--;
+                    }
+                }
+
+                if(available == 0){
+                    player.setPickedItem(null);
+                }else{
+                    player.pickedItem().setQuantity((short) available);
+                }
+
+                player.dragSlots().clear();
+                player.setDrag(null);
                 break;
             case DOUBLE_CLICK:
+                Item picking = window.itemAt(clickedSlot);
+                if(player.pickedItem() != null) {
+                    picking = player.pickedItem();
+                }
+
+                int count = picking.quantity();
+                int slot = 0;
+                if(window.id() != windowId) {
+                    window = originalWindow;
+                }
+
+                while (count <= picking.type().maxStackSize() && slot < window.length()) {
+                    if(window.itemAt(slot) != null && window.itemAt(slot).isSimilarIgnoreQuantity(picking)) {
+                        if(count + window.itemAt(slot).quantity() <= picking.type().maxStackSize()) {
+                            count += window.itemAt(slot).quantity();
+                            window.setSlot(slot, null);
+                        } else {
+                            window.itemAt(slot).setQuantity((short) (window.itemAt(slot).quantity() - (picking.type().maxStackSize() - count)));
+                            window.setSlot(slot, window.itemAt(slot));
+                            count = picking.type().maxStackSize();
+                            break;
+                        }
+                    }
+                    slot++;
+                }
+
+                if(count < picking.type().maxStackSize() && windowId > 0) {
+                    slot = 0;
+                    Inventory pW = player.window();
+                    while (count <= picking.type().maxStackSize() && slot < pW.length()) {
+                        if(pW.itemAt(slot) != null && pW.itemAt(slot).isSimilarIgnoreQuantity(picking)) {
+                            if(count + pW.itemAt(slot).quantity() <= picking.type().maxStackSize()) {
+                                count += pW.itemAt(slot).quantity();
+                                pW.setSlot(slot, null);
+                            } else {
+                                pW.itemAt(slot).setQuantity((short) (pW.itemAt(slot).quantity() - (picking.type().maxStackSize() - count)));
+                                pW.setSlot(slot, pW.itemAt(slot));
+                                count = picking.type().maxStackSize();
+                                break;
+                            }
+                        }
+                        slot++;
+                    }
+                }
+
+                picking.setQuantity((short) count);
+                player.setPickedItem(picking);
                 break;
         }
     }
@@ -219,11 +383,11 @@ public class PacketPlayInPlayerClickWindow extends InPacket {
 
         DOUBLE_CLICK;
 
-        public static ClickAction getAction(short mode, int button, int slot){
-            switch(mode){
+        public static ClickAction getAction(short mode, int button, int slot) {
+            switch(mode) {
                 case 0:
                 case 255:
-                    switch(button){
+                    switch(button) {
                         case 0:
                             return LEFT_CLICK;
                         case 1:
@@ -231,7 +395,7 @@ public class PacketPlayInPlayerClickWindow extends InPacket {
                     }
                     break;
                 case 1:
-                    switch(button){
+                    switch(button) {
                         case 0:
                             return SHIFT_LEFT_CLICK;
                         case 1:
@@ -243,15 +407,15 @@ public class PacketPlayInPlayerClickWindow extends InPacket {
                 case 3:
                     return MIDDLE_CLICK;
                 case 4:
-                    if(slot == -999){
-                        switch(button){
+                    if(slot == -999) {
+                        switch(button) {
                             case 0:
                                 return LEFT_CLICK_OUTSIDE;
                             case 1:
                                 return RIGHT_CLICK_OUTSIDE;
                         }
-                    }else{
-                        switch(button){
+                    } else {
+                        switch(button) {
                             case 0:
                                 return DROP_KEY_ONE;
                             case 1:
@@ -260,7 +424,8 @@ public class PacketPlayInPlayerClickWindow extends InPacket {
                     }
                     break;
                 case 5:
-                    switch(button){
+                case 1535:
+                    switch(button) {
                         case 0:
                             return START_LEFT_CLICK_DRAG;
                         case 4:
@@ -276,6 +441,7 @@ public class PacketPlayInPlayerClickWindow extends InPacket {
                     }
                     break;
                 case 6:
+                case 1791:
                     return DOUBLE_CLICK;
             }
 

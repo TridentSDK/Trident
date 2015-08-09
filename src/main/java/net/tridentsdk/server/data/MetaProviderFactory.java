@@ -16,7 +16,6 @@
  */
 package net.tridentsdk.server.data;
 
-import com.google.common.collect.Lists;
 import net.tridentsdk.base.Block;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.meta.block.BlockMeta;
@@ -30,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 /**
  * Provides metadata implementations to the API
@@ -126,12 +126,9 @@ public class MetaProviderFactory implements MetaProvider {
         }
 
         public Collection<Meta> compileBlock(Block block, byte[] data) {
-            List<Meta> compiled = Lists.newArrayList();
-            for (Meta meta : metas) {
-                compiled.add(meta.decodeMeta(block, data));
-            }
-
-            return compiled;
+            return metas.stream()
+                    .map((meta) -> meta.decodeMeta(block, data))
+                    .collect(Collectors.toList());
         }
     }
 }

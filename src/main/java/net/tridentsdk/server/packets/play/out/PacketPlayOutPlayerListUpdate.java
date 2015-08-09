@@ -22,7 +22,6 @@ import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutPlayerListUpdate extends OutPacket {
-
     protected String header;
     protected String footer;
 

@@ -150,7 +150,8 @@ public final class TridentStart {
             if (!fi.exists())
                 fi.mkdir();
 
-            for (File file : new File(System.getProperty("user.dir") + File.separator + "plugins").listFiles())
+            for (File file : new File(System.getProperty("user.dir") + File.separator + "plugins")
+                    .listFiles((dir, name) -> name.endsWith(".jar")))
                 Registered.plugins().load(file);
             TridentLogger.get().success("Loaded plugins.");
 

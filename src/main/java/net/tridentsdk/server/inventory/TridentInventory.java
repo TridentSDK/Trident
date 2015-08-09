@@ -139,9 +139,10 @@ public class TridentInventory implements Inventory {
 
     @Override
     public void setSlot(int index, Item value) {
-        if(value != null && value.quantity() == 0){
+        if(value != null && value.quantity() == 0) {
             value = null;
         }
+
         contents.set(index, value);
 
         PacketPlayOutSetSlot setSlot = new PacketPlayOutSetSlot();
