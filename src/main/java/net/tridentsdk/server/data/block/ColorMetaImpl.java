@@ -49,9 +49,8 @@ public class ColorMetaImpl implements ColorMeta {
 
     @Override
     public Meta<Block> decode(Block instance, float yaw, byte direction, byte cx, byte cy, byte cz, short damageValue) {
-        ColorMeta meta = new ColorMetaImpl();
-        meta.setColor(SubstanceColor.of((byte) damageValue));
-        return meta;
+        setColor(SubstanceColor.of((byte) damageValue));
+        return this;
     }
 
     @Override

@@ -460,13 +460,13 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     }
 
     @Override
-    public Item itemPickedWithCursor(){
+    public Item cursorItem() {
         TridentLogger.get().error(new UnsupportedOperationException("You may not get the cursor item of an OfflinePlayer!"));
         return null;
     }
 
     @Override
-    public void setItemPickedWithCursor(Item item){
+    public void setCursorItem(Item item) {
         TridentLogger.get().error(new UnsupportedOperationException("You may not set the cursor item of an OfflinePlayer!"));
     }
 

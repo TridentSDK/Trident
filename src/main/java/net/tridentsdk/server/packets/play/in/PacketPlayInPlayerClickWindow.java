@@ -110,14 +110,14 @@ public class PacketPlayInPlayerClickWindow extends InPacket {
 
     @Override
     public void handleReceived(ClientConnection connection) {
-        if(mode == null){
+        if(mode == null) {
             return;
         }
 
         Player player = ((PlayerConnection) connection).player();
         Inventory window = Registered.inventories().fromId(this.windowId);
 
-        if(clickedSlot >= window.length()){
+        if(clickedSlot >= window.length()) {
             clickedSlot += (9 - window.length());
             window = player.window();
         }
@@ -130,33 +130,34 @@ public class PacketPlayInPlayerClickWindow extends InPacket {
         }
 
         // TODO Implement all
-        switch(mode){
+        switch(mode) {
             case LEFT_CLICK:
             case RIGHT_CLICK:
-                if(player.itemPickedWithCursor() == null){
-                    if(window.itemAt(clickedSlot) != null && window.itemAt(clickedSlot).type() != Substance.AIR){
-                        if(window.itemAt(clickedSlot).isSimilar(clickedItem.item())){
-                            if(mode == ClickAction.LEFT_CLICK){
-                                player.setItemPickedWithCursor(clickedItem.item());
+                if(player.cursorItem() == null) {
+                    if(window.itemAt(clickedSlot) != null && window.itemAt(clickedSlot).type() != Substance.AIR) {
+                        if(window.itemAt(clickedSlot).isSimilar(clickedItem.item())) {
+                            if(mode == ClickAction.LEFT_CLICK) {
+                                player.setCursorItem(clickedItem.item());
                                 window.setSlot(clickedSlot, null);
-                            }else{
+                            } else {
                                 Item cursor = clickedItem.item().clone();
                                 cursor.setQuantity((short) (cursor.quantity() / 2));
-                                player.setItemPickedWithCursor(cursor);
+                                player.setCursorItem(cursor);
                                 window.itemAt(clickedSlot).setQuantity((short) (window.itemAt(clickedSlot).quantity() - cursor.quantity()));
                                 window.setSlot(clickedSlot, window.itemAt(clickedSlot));
                             }
-                        }else{
+                        } else {
                             TridentLogger.get().warn(player.name() + " tried to cheat items!");
                         }
                     }
-                }else{
+                } else {
                     Item temp = window.itemAt(clickedSlot);
-                    window.setSlot(clickedSlot, player.itemPickedWithCursor());
-                    if(temp != null && temp.type() != Substance.AIR){
-                        player.setItemPickedWithCursor(temp);
-                    }else{
-                        player.setItemPickedWithCursor(null);
+                    window.setSlot(clickedSlot, player.cursorItem());
+
+                    if(temp != null && temp.type() != Substance.AIR) {
+                        player.setCursorItem(temp);
+                    } else {
+                        player.setCursorItem(null);
                     }
                 }
                 break;
@@ -223,7 +224,7 @@ public class PacketPlayInPlayerClickWindow extends InPacket {
             switch(mode){
                 case 0:
                 case 255:
-                    switch(button){
+                    switch(button) {
                         case 0:
                             return LEFT_CLICK;
                         case 1:
@@ -231,7 +232,7 @@ public class PacketPlayInPlayerClickWindow extends InPacket {
                     }
                     break;
                 case 1:
-                    switch(button){
+                    switch(button) {
                         case 0:
                             return SHIFT_LEFT_CLICK;
                         case 1:
@@ -243,15 +244,15 @@ public class PacketPlayInPlayerClickWindow extends InPacket {
                 case 3:
                     return MIDDLE_CLICK;
                 case 4:
-                    if(slot == -999){
-                        switch(button){
+                    if(slot == -999) {
+                        switch(button) {
                             case 0:
                                 return LEFT_CLICK_OUTSIDE;
                             case 1:
                                 return RIGHT_CLICK_OUTSIDE;
                         }
-                    }else{
-                        switch(button){
+                    } else {
+                        switch(button) {
                             case 0:
                                 return DROP_KEY_ONE;
                             case 1:
@@ -260,7 +261,7 @@ public class PacketPlayInPlayerClickWindow extends InPacket {
                     }
                     break;
                 case 5:
-                    switch(button){
+                    switch(button) {
                         case 0:
                             return START_LEFT_CLICK_DRAG;
                         case 4:

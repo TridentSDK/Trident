@@ -38,19 +38,19 @@ public class Slot implements Writable, NBTSerializable {
     protected volatile CompoundTag compoundTag;
 
     public Slot(ByteBuf buf) {
-        try{
+        try {
             ByteBuf potentialBuffer = buf.copy();
             short possibleId = potentialBuffer.readUnsignedByte();
             this.id = buf.readShort();
 
-            if(this.id > 255 || this.id < 0){
+            if(this.id > 255 || this.id < 0) {
                 this.id = possibleId;
                 buf = potentialBuffer;
             }
 
             this.mat = Substance.fromId(this.id);
 
-            if(this.id == -1){
+            if(this.id == -1) {
                 return;
             }
 
@@ -58,16 +58,16 @@ public class Slot implements Writable, NBTSerializable {
             this.damageValue = buf.readShort();
             byte b;
 
-            if((b = buf.readByte()) != 0){
-                try{
+            if((b = buf.readByte()) != 0) {
+                try {
                     NBTDecoder builder = new NBTDecoder(new ByteBufInputStream(buf));
 
                     this.compoundTag = builder.decode(b);
-                }catch(NBTException ignored){
+                } catch(NBTException ignored) {
                     // do something
                 }
             }
-        } catch(Exception ignored){ // TODO Find out why this throws exceptions
+        } catch(Exception ignored) { // TODO Find out why this throws exceptions
         }
     }
 

@@ -98,7 +98,8 @@ public class PacketPlayInBlockPlace extends InPacket {
 
         if(location.y() < 255 && location.block() != null && location.block().substance().isFunctional() && !player.isCrouching()){
             Block clickAt = location.block();
-            switch(clickAt.substance()){
+
+            switch(clickAt.substance()) {
                 case FURNACE:
                 case BURNING_FURNACE:
                     ((FurnaceMetaImpl) clickAt.obtainMeta(FurnaceMeta.class)).furnaceInventory().sendTo(player);
@@ -108,7 +109,7 @@ public class PacketPlayInBlockPlace extends InPacket {
                     break;
             }
             // TODO Add all functional blocks (workbench, furnace, anvil, etc)
-        }else if (substance != Substance.AIR) {
+        } else if (substance != Substance.AIR) {
             Vector vector = determineOffset();
             if (!substance.isBlock()) {
                 // TODO eat food or pull bow or release/obtain water in a bucket, etc
@@ -138,7 +139,7 @@ public class PacketPlayInBlockPlace extends InPacket {
                 block.setSubstanceAndMeta(substanceValue.get(), result.get());
 
                 SoundEffectType soundEffectType = substance.placeSound();
-                if(soundEffectType != null){
+                if(soundEffectType != null) {
                     SoundEffect sound = location.world().playSound(soundEffectType);
                     sound.setPosition(location);
                     sound.apply();

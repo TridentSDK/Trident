@@ -24,38 +24,31 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TridentRecipeManager extends RecipeManager {
-
     private List<SmeltingFuel> smeltingFuels = new ArrayList<>();
     private List<SmeltingRecipe> smeltingRecipes = new ArrayList<>();
 
     @Override
-    public void addShapelessRecipe(Item result, List<Item> source){
+    public void addShapelessRecipe(Item result, List<Item> source) {
         // TODO
     }
 
     @Override
-    public void addShapedRecipe(Item result, char[][] grid, List<CraftTuple> source){
+    public void addShapedRecipe(Item result, char[][] grid, List<CraftTuple> source) {
         // TODO
     }
 
     @Override
-    public void addSmeltingRecipe(Item result, Item source, int smeltTicks, float experience){
+    public void addSmeltingRecipe(Item result, Item source, int smeltTicks, float experience) {
         smeltingRecipes.add(new SmeltingRecipe(result, source, smeltTicks, experience));
     }
 
     @Override
-    public void addSmeltingFuel(Item source, int burnTicks, Item returnItem){
+    public void addSmeltingFuel(Item source, int burnTicks, Item returnItem) {
         smeltingFuels.add(new SmeltingFuel(source, burnTicks, returnItem));
     }
 
-    public boolean isValidSmeltingFuel(Item item){
-        for(SmeltingFuel fuel : smeltingFuels){
-            if(fuel.source().isSimilarIgnoreQuantity(item)){
-                return true;
-            }
-        }
-
-        return false;
+    public boolean isValidSmeltingFuel(Item item) {
+        return smeltingFuels.stream().anyMatch((fuel) -> fuel.source().isSimilarIgnoreQuantity(item));
     }
 
 }

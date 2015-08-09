@@ -587,12 +587,12 @@ public class TridentPlayer extends OfflinePlayer {
     }
 
     @Override
-    public Item itemPickedWithCursor(){
+    public Item cursorItem() {
         return itemOnCursor;
     }
 
     @Override
-    public void setItemPickedWithCursor(Item item){
+    public void setCursorItem(Item item) {
         itemOnCursor = item;
     }
 }

@@ -78,8 +78,6 @@ public class SignMetaImpl implements SignMeta, Tile {
 
     @Override
     public Meta<Block> decode(Block instance, float yaw, byte direction, byte cx, byte cy, byte cz, short damageValue) {
-        SignMetaImpl meta = new SignMetaImpl();
-
         byte data = 0x00;
 
         yaw = (yaw + 180.0f + 45.0f) % 360.0f;     // +180 puts north at 360/0 - +45 puts north/west to 0
@@ -102,10 +100,10 @@ public class SignMetaImpl implements SignMeta, Tile {
 
         instance.setSubstanceAndMeta(Substance.SIGN_POST, data);
 
-        meta.orientation = data;
-        meta.position = instance.position();
-        ((OwnedTridentBlock) instance).player().connection().sendPacket(new PacketPlayOutSignEditorOpen().set("loc", meta.position));
-        return meta;
+        orientation = data;
+        position = instance.position();
+        ((OwnedTridentBlock) instance).player().connection().sendPacket(new PacketPlayOutSignEditorOpen().set("loc", position));
+        return this;
     }
 
     @Override

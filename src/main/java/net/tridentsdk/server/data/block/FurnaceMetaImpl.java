@@ -34,70 +34,69 @@ public class FurnaceMetaImpl implements FurnaceMeta {
     private int burnTicks;
 
     @Override
-    public Item sourceSlot(){
+    public Item sourceSlot() {
         return source;
     }
 
     @Override
-    public Item fuelSlot(){
+    public Item fuelSlot() {
         return fuel;
     }
 
     @Override
-    public Item resultSlot(){
+    public Item resultSlot() {
         return result;
     }
 
     @Override
-    public int burnTicks(){
+    public int burnTicks() {
         return burnTicks;
     }
 
     @Override
-    public void setSourceSlot(Item source){
+    public void setSourceSlot(Item source) {
         this.source = source;
     }
 
     @Override
-    public void setFuelSlot(Item fuel){
+    public void setFuelSlot(Item fuel) {
         this.fuel = fuel;
     }
 
     @Override
-    public void setResultSlot(Item result){
+    public void setResultSlot(Item result) {
         this.result = result;
     }
 
     @Override
-    public void setBurnTicks(int burnTicks){
+    public void setBurnTicks(int burnTicks) {
         this.burnTicks = burnTicks;
     }
 
     @Override
-    public byte encode(){
+    public byte encode() {
         return 0;
     }
 
     @Override
-    public Meta<Block> decode(Block instance, float yaw, byte direction, byte cx, byte cy, byte cz, short damageValue){
-        FurnaceMetaImpl meta = new FurnaceMetaImpl();
-        meta.furnaceInventory = TridentInventory.create(null, 3, InventoryType.FURNACE);
+    public Meta<Block> decode(Block instance, float yaw, byte direction, byte cx, byte cy, byte cz, short damageValue) {
+        furnaceInventory = TridentInventory.create(null, 3, InventoryType.FURNACE);
         instance.setSubstance(Substance.FURNACE);
-        return meta;
+        return this;
     }
 
     @Override
-    public Meta<Block> make(){
+    public Meta<Block> make() {
         return new FurnaceMetaImpl();
     }
 
     @Override
-    public Substance[] applyTo(MetaCollection collection){
+    public Substance[] applyTo(MetaCollection collection) {
         collection.put(FurnaceMeta.class, this);
         return new Substance[]{Substance.FURNACE};
     }
 
-    public TridentInventory furnaceInventory(){
+    public TridentInventory furnaceInventory() {
         return furnaceInventory;
     }
 

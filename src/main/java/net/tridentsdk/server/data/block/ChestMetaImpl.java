@@ -30,30 +30,29 @@ public class ChestMetaImpl implements ChestMeta {
     private TridentInventory inventory;
 
     @Override
-    public Inventory inventory(){
+    public Inventory inventory() {
         return inventory;
     }
 
     @Override
-    public byte encode(){
+    public byte encode() {
         return 0;
     }
 
     @Override
-    public Meta<Block> decode(Block instance, float yaw, byte direction, byte cx, byte cy, byte cz, short damageValue){
-        ChestMetaImpl meta = new ChestMetaImpl();
-        meta.inventory = TridentInventory.create(null, 27, InventoryType.CHEST);
+    public Meta<Block> decode(Block instance, float yaw, byte direction, byte cx, byte cy, byte cz, short damageValue) {
+        inventory = TridentInventory.create(null, 27, InventoryType.CHEST);
         instance.setSubstance(Substance.CHEST);
-        return meta;
+        return this;
     }
 
     @Override
-    public Meta<Block> make(){
+    public Meta<Block> make() {
         return new ChestMetaImpl();
     }
 
     @Override
-    public Substance[] applyTo(MetaCollection collection){
+    public Substance[] applyTo(MetaCollection collection) {
         collection.put(ChestMeta.class, this);
         return new Substance[]{Substance.CHEST};
     }

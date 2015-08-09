@@ -25,26 +25,26 @@ public class SmeltingRecipe {
     private int smeltTicks;
     private float experience;
 
-    public SmeltingRecipe(Item result, Item source, int smeltTicks, float experience){
+    public SmeltingRecipe(Item result, Item source, int smeltTicks, float experience) {
         this.result = result;
         this.source = source;
         this.smeltTicks = smeltTicks;
         this.experience = experience;
     }
 
-    public Item result(){
+    public Item result() {
         return result;
     }
 
-    public Item source(){
+    public Item source() {
         return source;
     }
 
-    public int smeltTicks(){
+    public int smeltTicks() {
         return smeltTicks;
     }
 
-    public float experience(){
+    public float experience() {
         return experience;
     }
 }
