@@ -39,7 +39,6 @@ public class Slot implements Writable, NBTSerializable {
 
     public Slot(ByteBuf buf) {
         try {
-            //short possibleId = potentialBuffer.readUnsignedByte();
             this.id = buf.readShort();
 
             this.mat = Substance.fromId(this.id);

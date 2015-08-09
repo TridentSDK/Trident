@@ -57,6 +57,7 @@ public class PacketPlayInPlayerClickWindow extends InPacket {
     /**
      * Inventory operation mode
      */
+    protected byte modeId;
     protected ClickAction mode;
     /**
      * Item clicked
@@ -97,14 +98,10 @@ public class PacketPlayInPlayerClickWindow extends InPacket {
         this.windowId = (int) buf.readByte();
         this.clickedSlot = buf.readShort();
         this.clickedButton = (int) buf.readByte();
-
         this.actionNumber = buf.readShort();
-
-        short mode = buf.readShort();
-
-        this.mode = ClickAction.getAction(mode, clickedButton, clickedSlot);
+        this.modeId = buf.readByte();
+        this.mode = ClickAction.getAction(modeId, clickedButton, clickedSlot);
         this.clickedItem = new Slot(buf);
-
         return this;
     }
 
@@ -275,6 +272,7 @@ public class PacketPlayInPlayerClickWindow extends InPacket {
                     break;
                 }
 
+                System.out.println(player.pickedItem());
                 available = player.pickedItem().quantity();
                 for (Integer i : player.dragSlots()){
                     if(available == 0){
