@@ -49,6 +49,7 @@ import net.tridentsdk.server.entity.TridentDroppedItem;
 import net.tridentsdk.server.event.EventProcessor;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.Packet;
+import net.tridentsdk.server.packets.play.in.PacketPlayInPlayerClickWindow;
 import net.tridentsdk.server.packets.play.out.*;
 import net.tridentsdk.server.world.TridentChunk;
 import net.tridentsdk.server.world.TridentWorld;
@@ -83,6 +84,8 @@ public class TridentPlayer extends OfflinePlayer {
     private final PlayerConnection connection;
     private final Set<ChunkLocation> knownChunks = Sets.newConcurrentHashSet();
     private final Queue<ChunkLocation> chunkQueue = Queues.newConcurrentLinkedQueue();
+    private final LinkedHashSet<Integer> dragSlots = new LinkedHashSet<>();
+    private volatile PacketPlayInPlayerClickWindow.ClickAction drag;
     private volatile boolean loggingIn = true;
     private volatile boolean sprinting;
     private volatile boolean crouching;
@@ -630,5 +633,17 @@ public class TridentPlayer extends OfflinePlayer {
         connection.sendPacket(new PacketPlayOutPlayerListUpdate()
                 .set("header", header == null ? "{\"text\": \"\"}" : header)
                 .set("footer", footer));
+    }
+
+    public LinkedHashSet<Integer> dragSlots() {
+        return dragSlots;
+    }
+
+    public PacketPlayInPlayerClickWindow.ClickAction drag(){
+        return drag;
+    }
+
+    public void setDrag(PacketPlayInPlayerClickWindow.ClickAction drag){
+        this.drag = drag;
     }
 }

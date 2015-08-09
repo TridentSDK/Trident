@@ -94,11 +94,8 @@ public class PacketPlayInBlockPlace extends InPacket {
         TridentPlayer player = ((PlayerConnection) connection).player();
         location.setWorld(player.world());
 
-        Substance substance = player.heldItem().type();
-
-        if(location.y() < 255 && location.block() != null && location.block().substance().isFunctional() && !player.isCrouching()){
-            Block clickAt = location.block();
-
+        Block clickAt = location.block();
+        if(location.y() < 255 && location.block() != null && clickAt.substance().isFunctional() && !player.isCrouching()){
             switch(clickAt.substance()) {
                 case FURNACE:
                 case BURNING_FURNACE:
@@ -109,7 +106,8 @@ public class PacketPlayInBlockPlace extends InPacket {
                     break;
             }
             // TODO Add all functional blocks (workbench, furnace, anvil, etc)
-        } else if (substance != Substance.AIR) {
+        } else if (player.heldItem() != null && player.heldItem().type() != Substance.AIR) {
+            Substance substance = player.heldItem().type();
             Vector vector = determineOffset();
             if (!substance.isBlock()) {
                 // TODO eat food or pull bow or release/obtain water in a bucket, etc
