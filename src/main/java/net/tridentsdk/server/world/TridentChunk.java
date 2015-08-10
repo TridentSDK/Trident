@@ -343,7 +343,7 @@ public class TridentChunk implements Chunk {
             }
         };
 
-        CountDownLatch latch = new CountDownLatch(256);
+        CountDownLatch latch = new CountDownLatch(16);
         for (int i = 0; i < 16; i++) {
             final int finalI = i;
             executor.execute(() -> {
