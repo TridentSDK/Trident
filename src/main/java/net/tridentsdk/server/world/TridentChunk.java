@@ -316,25 +316,30 @@ public class TridentChunk implements Chunk {
                 int zMinDiff = Math.max(relZ, 0) - Math.min(relZ, 0);
                 int zMaxDiff = Math.max(relZ, 15) - Math.min(relZ, 15);
 
-                if (relX < 0 && relZ > 15) { // q1
-                    ChunkLocation loc = ChunkLocation.create(cx - up(xMinDiff / 16), cz + up(zMaxDiff / 16));
-                    TridentChunk chunk = rawChunk(loc);
-                    return chunk.blockAt(16 - xMinDiff, y, zMaxDiff - 1);
-                } else if (relX > 15 && relZ > 15) { // q4
-                    ChunkLocation loc = ChunkLocation.create(cx + up(xMaxDiff / 16), cz + up(zMaxDiff / 16));
-                    TridentChunk chunk = rawChunk(loc);
-                    return chunk.blockAt(xMaxDiff - 1, y, zMaxDiff - 1);
-                } else if (relX < 0 && relZ < 0) { // q2
-                    ChunkLocation loc = ChunkLocation.create(cx - up(xMinDiff / 16), cz - up(zMinDiff / 16));
-                    TridentChunk chunk = rawChunk(loc);
-                    return chunk.blockAt(16 - xMinDiff, y, 16 - zMinDiff);
-                } else if (relX > 15 && relZ < 0) { // q3
-                    ChunkLocation loc = ChunkLocation.create(cx + up(xMaxDiff / 16), cz - up(zMinDiff / 16));
-                    TridentChunk chunk = rawChunk(loc);
-                    return chunk.blockAt(xMaxDiff - 1, y, 16 - zMinDiff);
+                int chunkX = location.x();
+                int chunkZ = location.z();
+                int newX = relX;
+                int newZ = relZ;
+
+                if (relX < 0) {
+                    newX = 16 - xMinDiff;
+                    chunkX = cx - up(xMinDiff / 16) - 1;
+                } else if (relX > 15) {
+                    newX = xMaxDiff - 1;
+                    chunkX = cx + up(xMaxDiff / 16) + 1;
                 }
 
-                return null;
+                if (relZ < 0){
+                    newZ = 16 - zMinDiff;
+                    chunkZ = cz - up(zMinDiff / 16) - 1;
+                } else if (relZ > 15) {
+                    newZ = zMaxDiff - 1;
+                    chunkZ = cz + up(zMaxDiff / 16) + 1;
+                }
+
+                ChunkLocation loc = ChunkLocation.create(chunkX, chunkZ);
+                TridentChunk chunk = rawChunk(loc);
+                return chunk.blockAt(newX, y, newZ);
             }
         };
 
