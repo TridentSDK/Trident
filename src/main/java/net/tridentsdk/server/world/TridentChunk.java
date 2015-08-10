@@ -235,6 +235,12 @@ public class TridentChunk implements Chunk {
             return;
         }
 
+        for (int i = location.x() - 1; i < location.x() + 1; i++) {
+            for (int j = location.z() - 1; j < location.z() + 1; j++) {
+                rawChunk(ChunkLocation.create(i, j));
+            }
+        }
+
         List<AbstractOverlayBrush> brushes = world.loader().brushes();
         AbstractOverlayBrush.ChunkManipulator manipulator = new AbstractOverlayBrush.ChunkManipulator() {
             private final MassChange change = new ThreadSafeChange(world);
