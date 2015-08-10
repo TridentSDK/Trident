@@ -140,10 +140,8 @@ public final class TridentServer implements Server {
             e.printStackTrace();
         }
 
-        //TODO: Cleanup stuff...
-        TridentLogger.get().log("Shutting down plugins...");
-        for (Plugin plugin : Registered.plugins())
-            Registered.plugins().disable(plugin);
+        TridentLogger.get().log("Shutting down thread pools...");
+        ConcurrentTaskExecutor.executors().forEach(ConcurrentTaskExecutor::shutdown);
 
         TridentLogger.get().log("Kicking players...");
         for (Player player : TridentPlayer.players()) {
@@ -161,8 +159,10 @@ public final class TridentServer implements Server {
         TridentLogger.get().log("Shutting down server process...");
         ThreadsHandler.shutdownAll();
 
-        TridentLogger.get().log("Shutting down thread pools...");
-        ConcurrentTaskExecutor.executors().forEach(ConcurrentTaskExecutor::shutdown);
+        //TODO: Cleanup stuff...
+        TridentLogger.get().log("Shutting down plugins...");
+        for (Plugin plugin : Registered.plugins())
+            Registered.plugins().disable(plugin);
 
         TridentLogger.get().log("Shutting down server connections...");
         TridentStart.close();
