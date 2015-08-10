@@ -248,7 +248,7 @@ public class TridentChunk implements Chunk {
             @Override
             public void manipulate(int relX, int y, int relZ, Substance substance, byte data) {
                 if (relX >= 0 && relX <= 15 && relZ >= 0 && relZ <= 15) {
-                    setAt(relX, y, relZ, substance, data, (byte) 255, (byte) 15);
+                    setAndSend(relX, y, relZ, substance, data, (byte) 255, (byte) 15, change);
                     return;
                 }
 
