@@ -235,8 +235,8 @@ public class TridentChunk implements Chunk {
             return;
         }
 
-        for (int i = location.x() - 1; i < location.x() + 1; i++) {
-            for (int j = location.z() - 1; j < location.z() + 1; j++) {
+        for (int i = location.x() - 1; i <= location.x() + 1; i++) {
+            for (int j = location.z() - 1; j <= location.z() + 1; j++) {
                 rawChunk(ChunkLocation.create(i, j));
             }
         }
@@ -270,27 +270,31 @@ public class TridentChunk implements Chunk {
                         |
                  */
 
-                if (relX < 0 && relZ > 15) { // q1
-                    ChunkLocation loc = ChunkLocation.create(cx - up(xMinDiff / 16), cz + up(zMaxDiff / 16));
-                    TridentChunk chunk = rawChunk(loc);
-                    TridentLogger.get().debug(relX + ", " + relZ + " with " + xMinDiff + ", " + xMaxDiff + " / " + zMinDiff + ", " + zMaxDiff + " led to " + (16 - xMinDiff) + ", " + (zMaxDiff - 1));
-                    chunk.setAndSend(16 - xMinDiff, y, zMaxDiff - 1, substance, data, (byte) 255, (byte) 15, change);
-                } else if (relX > 15 && relZ > 15) { // q4
-                    ChunkLocation loc = ChunkLocation.create(cx + up(xMaxDiff / 16), cz + up(zMaxDiff / 16));
-                    TridentLogger.get().debug(relX + ", " + relZ + " with " + xMinDiff + ", " + xMaxDiff + " / " + zMinDiff + ", " + zMaxDiff + " led to " + (xMaxDiff - 1) + ", " + (zMaxDiff - 1));
-                    TridentChunk chunk = rawChunk(loc);
-                    chunk.setAndSend(xMaxDiff - 1, y, zMaxDiff - 1, substance, data, (byte) 255, (byte) 15, change);
-                } else if (relX < 0 && relZ < 0) { // q2
-                    ChunkLocation loc = ChunkLocation.create(cx - up(xMinDiff / 16), cz - up(zMinDiff / 16));
-                    TridentLogger.get().debug(relX + ", " + relZ + " with " + xMinDiff + ", " + xMaxDiff + " / " + zMinDiff + ", " + zMaxDiff + " led to " + (16 - xMinDiff) + ", " + (16 - zMinDiff));
-                    TridentChunk chunk = rawChunk(loc);
-                    chunk.setAndSend(16 - xMinDiff, y, 16 - zMinDiff, substance, data, (byte) 255, (byte) 15, change);
-                } else if (relX > 15 && relZ < 0) { // q3
-                    ChunkLocation loc = ChunkLocation.create(cx + up(xMaxDiff / 16), cz - up(zMinDiff / 16));
-                    TridentLogger.get().debug(relX + ", " + relZ + " with " + xMinDiff + ", " + xMaxDiff + " / " + zMinDiff + ", " + zMaxDiff + " led to " + (xMaxDiff - 1) + ", " + (16 - zMinDiff));
-                    TridentChunk chunk = rawChunk(loc);
-                    chunk.setAndSend(xMaxDiff - 1, y, 16 - zMinDiff, substance, data, (byte) 255, (byte) 15, change);
+                int chunkX = location.x();
+                int chunkZ = location.z();
+                int newX = relX;
+                int newZ = relZ;
+
+                if (relX < 0) {
+                    newX = 16 - xMinDiff;
+                    chunkX = cx - up(xMinDiff / 16) - 1;
+                } else if (relX > 15) {
+                    newX = xMaxDiff - 1;
+                    chunkX = cx + up(xMaxDiff / 16) + 1;
                 }
+
+                if (relZ < 0){
+                    newZ = 16 - zMinDiff;
+                    chunkZ = cz - up(zMinDiff / 16) - 1;
+                } else if (relZ > 15) {
+                    newZ = zMaxDiff - 1;
+                    chunkZ = cz + up(zMaxDiff / 16) + 1;
+                }
+
+                ChunkLocation loc = ChunkLocation.create(chunkX, chunkZ);
+                TridentChunk chunk = rawChunk(loc);
+                TridentLogger.get().debug(relX + ", " + relZ + " with " + xMinDiff + ", " + xMaxDiff + " / " + zMinDiff + ", " + zMaxDiff + " led to " + newX + ", " + newZ);
+                chunk.setAndSend(newX, y, newZ, substance, data, (byte) 255, (byte) 15, change);
             }
 
             @Override
