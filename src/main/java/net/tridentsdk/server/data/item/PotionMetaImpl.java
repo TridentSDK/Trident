@@ -16,15 +16,15 @@
  */
 package net.tridentsdk.server.data.item;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import net.tridentsdk.effect.potion.PotionEffect;
 import net.tridentsdk.meta.item.PotionMeta;
 import net.tridentsdk.meta.nbt.NBTField;
 import net.tridentsdk.meta.nbt.TagType;
 import net.tridentsdk.server.effect.potion.TridentPotionEffect;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class PotionMetaImpl extends ItemMetaImpl implements PotionMeta {
     @NBTField(name = "CustomPotionEffects", type = TagType.LIST)
@@ -37,8 +37,6 @@ public class PotionMetaImpl extends ItemMetaImpl implements PotionMeta {
 
     @Override
     public void setEffects(List<PotionEffect> effects) {
-        this.additionalEffects = effects.stream()
-                .map((e) -> (TridentPotionEffect) e)
-                .collect(Collectors.toList());
+        this.additionalEffects = effects.stream().map((e) -> (TridentPotionEffect) e).collect(Collectors.toList());
     }
 }

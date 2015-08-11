@@ -16,37 +16,49 @@
  */
 package net.tridentsdk.server.data.item;
 
-import java.util.List;
-
-import net.tridentsdk.meta.item.ItemDisplayProperties;
+import net.tridentsdk.meta.item.MapDecoration;
 import net.tridentsdk.meta.nbt.NBTField;
 import net.tridentsdk.meta.nbt.NBTSerializable;
 import net.tridentsdk.meta.nbt.TagType;
 
-public class ItemDisplayPropertiesImpl implements ItemDisplayProperties, NBTSerializable {
-    @NBTField(name = "name", type = TagType.STRING)
-    protected String name;
+public class MapDecorationImpl implements MapDecoration, NBTSerializable {
+    @NBTField(name = "id", type = TagType.STRING)
+    private String id;
 
-    @NBTField(name = "lore", type = TagType.LIST)
-    protected List<String> lore;
+    @NBTField(name = "type", type = TagType.BYTE)
+    private byte type;
+
+    @NBTField(name = "x", type = TagType.DOUBLE)
+    private double x;
+
+    @NBTField(name = "z", type = TagType.DOUBLE)
+    private double z;
+
+    @NBTField(name = "rot", type = TagType.DOUBLE)
+    private double rot;
 
     @Override
-    public String displayName() {
-        return this.name;
+    public String id() {
+        return id;
     }
 
     @Override
-    public void setDisplayName(String displayName) {
-        this.name = displayName;
+    public byte type() {
+        return type;
     }
 
     @Override
-    public List<String> lore() {
-        return this.lore;
+    public double x() {
+        return x;
     }
 
     @Override
-    public void setLore(List<String> lore) {
-        this.lore = lore;
+    public double z() {
+        return z;
+    }
+
+    @Override
+    public double rot() {
+        return rot;
     }
 }

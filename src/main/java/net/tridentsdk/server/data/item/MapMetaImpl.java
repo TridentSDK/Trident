@@ -17,36 +17,28 @@
 package net.tridentsdk.server.data.item;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
-import net.tridentsdk.meta.item.ItemDisplayProperties;
+import net.tridentsdk.meta.item.MapDecoration;
+import net.tridentsdk.meta.item.MapMeta;
 import net.tridentsdk.meta.nbt.NBTField;
 import net.tridentsdk.meta.nbt.NBTSerializable;
 import net.tridentsdk.meta.nbt.TagType;
 
-public class ItemDisplayPropertiesImpl implements ItemDisplayProperties, NBTSerializable {
-    @NBTField(name = "name", type = TagType.STRING)
-    protected String name;
+public class MapMetaImpl implements MapMeta, NBTSerializable {
+    @NBTField(name = "map_is_scaling", type = TagType.BYTE)
+    private boolean scaling;
 
-    @NBTField(name = "lore", type = TagType.LIST)
-    protected List<String> lore;
+    @NBTField(name = "Decorations", type = TagType.LIST)
+    private List<MapDecorationImpl> decorations;
 
     @Override
-    public String displayName() {
-        return this.name;
+    public boolean isScaling() {
+        return scaling;
     }
 
     @Override
-    public void setDisplayName(String displayName) {
-        this.name = displayName;
-    }
-
-    @Override
-    public List<String> lore() {
-        return this.lore;
-    }
-
-    @Override
-    public void setLore(List<String> lore) {
-        this.lore = lore;
+    public List<MapDecoration> decorations() {
+        return decorations.stream().collect(Collectors.toList());
     }
 }
