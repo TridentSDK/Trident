@@ -68,6 +68,7 @@ If we've released a JAR for you to use, it usually comes with a nice read. So if
 1. A [mouse](https://en.wikipedia.org/wiki/Mouse_(computing))
 2. A [web browser](https://en.wikipedia.org/wiki/Web_browser)
 3. A [computer](https://en.wikipedia.org/wiki/Computer)
+4. [Java 8 JRE/JDK](http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html)
 
 #### Directions ####
 
