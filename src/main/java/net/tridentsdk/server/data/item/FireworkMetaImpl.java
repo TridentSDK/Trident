@@ -18,35 +18,26 @@ package net.tridentsdk.server.data.item;
 
 import java.util.List;
 
-import net.tridentsdk.meta.item.ItemDisplayProperties;
+import net.tridentsdk.meta.item.ExplosionMeta;
+import net.tridentsdk.meta.item.FireworkMeta;
 import net.tridentsdk.meta.nbt.NBTField;
 import net.tridentsdk.meta.nbt.NBTSerializable;
 import net.tridentsdk.meta.nbt.TagType;
 
-public class ItemDisplayPropertiesImpl implements ItemDisplayProperties, NBTSerializable {
-    @NBTField(name = "name", type = TagType.STRING)
-    protected String name;
+public class FireworkMetaImpl implements FireworkMeta, NBTSerializable {
+    @NBTField(name = "Flight", type = TagType.BYTE)
+    private byte flight;
 
-    @NBTField(name = "lore", type = TagType.LIST)
-    protected List<String> lore;
+    @NBTField(name = "Fireworks", type = TagType.LIST)
+    private List<ExplosionMeta> explosions;
 
     @Override
-    public String displayName() {
-        return this.name;
+    public byte flight() {
+        return flight;
     }
 
     @Override
-    public void setDisplayName(String displayName) {
-        this.name = displayName;
-    }
-
-    @Override
-    public List<String> lore() {
-        return this.lore;
-    }
-
-    @Override
-    public void setLore(List<String> lore) {
-        this.lore = lore;
+    public List<ExplosionMeta> explosions() {
+        return explosions;
     }
 }

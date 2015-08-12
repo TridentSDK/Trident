@@ -16,21 +16,60 @@
  */
 package net.tridentsdk.server.data.item;
 
+import java.util.Set;
+
+import com.google.common.collect.Sets;
+
 import net.tridentsdk.meta.item.ItemDisplayProperties;
 import net.tridentsdk.meta.item.ItemMeta;
-import net.tridentsdk.meta.nbt.*;
+import net.tridentsdk.meta.nbt.NBTField;
+import net.tridentsdk.meta.nbt.TagType;
 
 public class ItemMetaImpl implements ItemMeta {
-    @NBTField(name = "display", type = TagType.COMPOUND)
-    protected CompoundTag displayProperties;
+    @NBTField(name = "display", type = TagType.COMPOUND, asClass = ItemDisplayPropertiesImpl.class)
+    protected ItemDisplayProperties displayProperties;
+
+    @NBTField(name = "HideFlags", type = TagType.INT)
+    protected int flags;
+
+    Set<HiddenModifierFlag> hiddenFlags = Sets.newConcurrentHashSet();
+
+    @Override
+    public void process() {
+        for (ItemMeta.HiddenModifierFlag flag : ItemMeta.HiddenModifierFlag.values()) {
+            if ((this.flags & flag.modifier()) == flag.modifier()) {
+                this.hiddenFlags.add(flag);
+            }
+        }
+    }
 
     @Override
     public ItemDisplayProperties displayProperties() {
-        return NBTSerializer.deserialize(ItemDisplayPropertiesImpl.class, displayProperties);
+        return this.displayProperties;
     }
 
     @Override
     public void setDisplayProperties(ItemDisplayProperties properties) {
-        this.displayProperties = NBTSerializer.serialize(properties);
+        this.displayProperties = properties;
+    }
+
+    @Override
+    public Set<HiddenModifierFlag> flags() {
+        return this.hiddenFlags;
+    }
+
+    @Override
+    public void setFlag(HiddenModifierFlag flag, boolean shown) {
+        if (shown) {
+            if (this.hiddenFlags.contains(flag)) {
+                this.hiddenFlags.remove(flag);
+                this.flags -= flag.modifier();
+            }
+        } else {
+            if (this.hiddenFlags.contains(flag)) {
+                this.hiddenFlags.add(flag);
+                this.flags += flag.modifier();
+            }
+        }
     }
 }
