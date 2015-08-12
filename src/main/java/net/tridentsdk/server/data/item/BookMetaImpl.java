@@ -16,19 +16,22 @@
  */
 package net.tridentsdk.server.data.item;
 
+import java.util.List;
+
 import net.tridentsdk.meta.item.BookMeta;
 import net.tridentsdk.meta.nbt.NBTField;
 import net.tridentsdk.meta.nbt.TagType;
 
-import java.util.List;
-
 public class BookMetaImpl extends ItemMetaImpl implements BookMeta {
     @NBTField(name = "generation", type = TagType.INT)
     protected int copyTier;
+
     @NBTField(name = "author", type = TagType.STRING)
     protected String author;
+
     @NBTField(name = "title", type = TagType.STRING)
     protected String title;
+
     @NBTField(name = "pages", type = TagType.LIST)
     protected List<String> pages;
 
