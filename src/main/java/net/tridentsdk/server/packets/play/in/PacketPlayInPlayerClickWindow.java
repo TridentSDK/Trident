@@ -180,8 +180,20 @@ public class PacketPlayInPlayerClickWindow extends InPacket {
                 }
                 break;
             case SHIFT_LEFT_CLICK:
-                break;
             case SHIFT_RIGHT_CLICK:
+                if(window.itemAt(clickedSlot) != null && window.itemAt(clickedSlot).type() != Substance.AIR){
+                    if(originalWindow.equals(window)){
+                        if(player.window().putItem(window.itemAt(clickedSlot))){
+                            System.out.println("Success to Player");
+                            window.setSlot(clickedSlot, null);
+                        }
+                    }else{
+                        if(originalWindow.putItem(window.itemAt(clickedSlot))){
+                            System.out.println("Success to TOP");
+                            window.setSlot(clickedSlot, null);
+                        }
+                    }
+                }
                 break;
             case NUMBER_KEY:
                 break;
