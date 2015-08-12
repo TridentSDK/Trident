@@ -24,7 +24,7 @@ import net.tridentsdk.meta.nbt.NBTField;
 import net.tridentsdk.meta.nbt.NBTSerializable;
 import net.tridentsdk.meta.nbt.TagType;
 
-public class FireworkMetaImpl implements FireworkMeta, NBTSerializable {
+public class FireworkMetaImpl extends ItemMetaImpl implements FireworkMeta, NBTSerializable {
     @NBTField(name = "Flight", type = TagType.BYTE)
     private byte flight;
 
