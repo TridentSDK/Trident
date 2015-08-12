@@ -27,6 +27,7 @@ If you have decided that our forms of distribution are questionable, or you woul
 1. A [computer](https://en.wikipedia.org/wiki/Computer)
 2. [Git](https://git-scm.com/)
 3. [Maven](https://maven.apache.org/)
+4. [Java 8 JDK](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
 
 #### Directions ####
 
@@ -51,6 +52,7 @@ For a precompiled solution, one which has passed the tests we have wrote, as wel
 1. A [mouse](https://en.wikipedia.org/wiki/Mouse_(computing))
 2. A [web browser](https://en.wikipedia.org/wiki/Web_browser)
 3. A [computer](https://en.wikipedia.org/wiki/Computer)
+4. [Java 8 JRE/JDK](http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html)
 
 #### Directions ####
 
