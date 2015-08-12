@@ -191,6 +191,7 @@ public class TridentEntity implements Entity {
      */
     public TridentEntity spawn() {
         HANDLER.register(this);
+        ((TridentChunk) loc.chunk()).entitiesInternal().add(this);
         ((TridentWorld) loc.world()).addEntity(this);
         return this;
     }

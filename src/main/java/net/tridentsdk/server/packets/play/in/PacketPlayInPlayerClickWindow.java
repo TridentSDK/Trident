@@ -24,6 +24,7 @@ import net.tridentsdk.inventory.Inventory;
 import net.tridentsdk.inventory.Item;
 import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.data.Slot;
+import net.tridentsdk.server.entity.TridentDroppedItem;
 import net.tridentsdk.server.event.EventProcessor;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
@@ -180,16 +181,37 @@ public class PacketPlayInPlayerClickWindow extends InPacket {
                 }
                 break;
             case SHIFT_LEFT_CLICK:
-                break;
             case SHIFT_RIGHT_CLICK:
+                if(window.itemAt(clickedSlot) != null && window.itemAt(clickedSlot).type() != Substance.AIR){
+                    if(originalWindow.equals(window)){
+                        if(player.window().putItem(window.itemAt(clickedSlot))){
+                            window.setSlot(clickedSlot, null);
+                        }
+                    }else{
+                        if(originalWindow.putItem(window.itemAt(clickedSlot))){
+                            window.setSlot(clickedSlot, null);
+                        }
+                    }
+                }
                 break;
             case NUMBER_KEY:
                 break;
             case MIDDLE_CLICK:
                 break;
             case DROP_KEY_ONE:
-                break;
             case DROP_KEY_STACK:
+                if(window.itemAt(clickedSlot) != null && window.itemAt(clickedSlot).type() != Substance.AIR){
+                    short amount = (mode == ClickAction.DROP_KEY_STACK) ? window.itemAt(clickedSlot).quantity() : 1;
+                    Item item = window.itemAt(clickedSlot).clone();
+                    item.setQuantity(amount);
+                    TridentDroppedItem droppedItem = new TridentDroppedItem(player.position(), item);
+                    droppedItem.spawn();
+                    droppedItem.setVelocity(player.position().toDirection().normalize().multiply(2000));
+                    window.itemAt(clickedSlot).setQuantity((short) (window.itemAt(clickedSlot).quantity() - amount));
+                    if(window.itemAt(clickedSlot).quantity() == 0){
+                        window.setSlot(clickedSlot, null);
+                    }
+                }
                 break;
             case LEFT_CLICK_OUTSIDE:
                 break;

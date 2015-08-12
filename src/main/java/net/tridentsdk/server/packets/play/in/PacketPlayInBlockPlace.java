@@ -119,7 +119,7 @@ public class PacketPlayInBlockPlace extends InPacket {
                 return;
             }
 
-            Position position = location.relative(vector);
+            Position position = clickAt.substance().canBeReplaced() ? location : location.relative(vector);
             Block block = new OwnedTridentBlock(player, position.block());
 
             short yaw = (short) (player.position().yaw() * 10);
@@ -136,7 +136,7 @@ public class PacketPlayInBlockPlace extends InPacket {
             if (allow) {
                 block.setSubstanceAndMeta(substanceValue.get(), result.get());
 
-                SoundEffectType soundEffectType = substance.placeSound();
+                SoundEffectType soundEffectType = substanceValue.get().placeSound();
                 if(soundEffectType != null) {
                     SoundEffect sound = location.world().playSound(soundEffectType);
                     sound.setPosition(location);
