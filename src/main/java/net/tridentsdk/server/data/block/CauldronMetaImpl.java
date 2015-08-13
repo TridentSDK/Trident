@@ -40,7 +40,6 @@ public class CauldronMetaImpl implements CauldronMeta {
     public void setFilledLevel(short level) {
         this.filledLevel = level;
         //Is it possible to update this for the players?
-
     }
 
     @Override
