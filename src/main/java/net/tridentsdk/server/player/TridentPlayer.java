@@ -200,7 +200,7 @@ public class TridentPlayer extends OfflinePlayer {
         if (!loggingIn)
             return;
 
-        sendChunks(1);
+        sendChunks(7);
         connection.sendPacket(PacketPlayOutStatistics.DEFAULT_STATISTIC);
 
         // Wait for response
@@ -248,16 +248,21 @@ public class TridentPlayer extends OfflinePlayer {
         int distance = viewDistance();
         if (!loggingIn) sendChunks(distance);
 
-        ThreadsHandler.chunkExecutor().selectNext().execute(() -> {
+        ThreadsHandler.chunkExecutor().execute(() -> {
             PacketPlayOutMapChunkBulk bulk = new PacketPlayOutMapChunkBulk();
-            while (bulk.size() < 1845152) {
+            boolean reached = false;
+            for (int i = 0; bulk.size() < 1845152; i++) {
                 ChunkLocation location = chunkQueue.poll();
-                for (int i = 0; i < 16 && location == null; i++) location = chunkQueue.poll();
-                if (location == null) break;
+                if (location == null) continue;
                 bulk.addEntry(((TridentChunk) world().chunkAt(location, true)).asPacket());
+
+                if (i == 16) {
+                    reached = true;
+                    break;
+                }
             }
 
-            if (bulk.hasEntries()) {
+            if (bulk.hasEntries() && !reached) {
                 connection().sendPacket(bulk);
             }
 

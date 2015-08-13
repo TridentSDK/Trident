@@ -316,10 +316,10 @@ public class TridentWorld implements World {
         int centX = ((int) Math.floor(spawnPosition.x())) >> 4;
         int centZ = ((int) Math.floor(spawnPosition.z())) >> 4;
 
-        for (int x = centX - 7; x <= centX + 7; x++) {
-            for (int z = centZ - 7; z <= centZ + 7; z++) {
-                chunkAt(x, z, true);
-            }
+        for (ChunkLocation location :
+                new ChunkAxisAlignedBoundingBox(ChunkLocation.create(centX - 3, centZ - 3),
+                        ChunkLocation.create(centX + 3, centZ + 3))) {
+            chunkAt(location, true);
         }
 
         TridentLogger.get().success("Loaded spawn chunks. ");
@@ -373,8 +373,8 @@ public class TridentWorld implements World {
             ((TridentWorldLoader) loader).setGenerator(loader.seed());
 
             for (ChunkLocation location :
-                    new ChunkAxisAlignedBoundingBox(ChunkLocation.create(centX - 7, centZ - 7),
-                            ChunkLocation.create(centX + 7, centZ + 7))) {
+                    new ChunkAxisAlignedBoundingBox(ChunkLocation.create(centX - 3, centZ - 3),
+                            ChunkLocation.create(centX + 3, centZ + 3))) {
                 world.chunkAt(location, true);
             }
 

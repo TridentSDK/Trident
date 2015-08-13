@@ -34,14 +34,12 @@ import net.tridentsdk.meta.nbt.*;
 import net.tridentsdk.server.concurrent.ThreadsHandler;
 import net.tridentsdk.server.entity.TridentEntity;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutChunkData;
-import net.tridentsdk.server.world.change.ThreadSafeChange;
 import net.tridentsdk.util.NibbleArray;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.util.Vector;
 import net.tridentsdk.world.Chunk;
 import net.tridentsdk.world.ChunkLocation;
 import net.tridentsdk.world.ChunkSnapshot;
-import net.tridentsdk.world.MassChange;
 import net.tridentsdk.world.gen.AbstractGenerator;
 import net.tridentsdk.world.gen.AbstractOverlayBrush;
 
@@ -128,56 +126,6 @@ public class TridentChunk implements Chunk {
 
     @Override
     public void generate() {
-        executor.execute(() -> {
-            // Don't call mapSections, as this generates them
-            ChunkSection[] sections = this.sections;
-
-            for (int i = 0; i < 16; i++) {
-                if (sections[i] == null) {
-                    sections[i] = new ChunkSection((byte) i);
-                }
-            }
-
-            AbstractGenerator generator = world.loader().generator();
-            int i = 0;
-
-            for (char[] blockData : generator.generateChunkBlocks(location, heights)) {
-                sections[i].setBlocks(blockData);
-                i++;
-            }
-
-            i = 0;
-
-            for (byte[] dataValues : generator.generateBlockData(location)) {
-                sections[i].setData(dataValues);
-                i++;
-            }
-
-            for (ChunkSection section : sections) {
-                if (section.blockLight == null) {
-                    section.blockLight = new byte[ChunkSection.LENGTH / 2];
-                }
-
-                if (section.skyLight == null) {
-                    section.skyLight = new byte[ChunkSection.LENGTH / 2];
-                }
-
-                if (section.types == null) {
-                    section.types = new char[ChunkSection.LENGTH];
-                }
-            }
-
-            // DEBUG ===== Makes the entire chunk full brightness, not exactly ideal
-            for (i = 0; i < 16; i++) {
-                Arrays.fill(sections[i].skyLight, (byte) 255);
-            }
-            // =====
-
-            //TODO lighting
-        });
-    }
-
-    private void generateSpecial() {
         Joiner joiner = new Joiner();
         executor.execute(() -> {
             // Don't call mapSections, as this generates them
@@ -235,20 +183,12 @@ public class TridentChunk implements Chunk {
             return;
         }
 
-        for (int i = location.x() - 1; i <= location.x() + 1; i++) {
-            for (int j = location.z() - 1; j <= location.z() + 1; j++) {
-                rawChunk(ChunkLocation.create(i, j));
-            }
-        }
-
         List<AbstractOverlayBrush> brushes = world.loader().brushes();
         AbstractOverlayBrush.ChunkManipulator manipulator = new AbstractOverlayBrush.ChunkManipulator() {
-            private final MassChange change = new ThreadSafeChange(world);
-
             @Override
             public void manipulate(int relX, int y, int relZ, Substance substance, byte data) {
                 if (relX >= 0 && relX <= 15 && relZ >= 0 && relZ <= 15) {
-                    setAndSend(relX, y, relZ, substance, data, (byte) 255, (byte) 15, change);
+                    setAt(relX, y, relZ, substance, data, (byte) 255, (byte) 15);
                     return;
                 }
 
@@ -293,17 +233,11 @@ public class TridentChunk implements Chunk {
 
                 ChunkLocation loc = ChunkLocation.create(chunkX, chunkZ);
                 TridentChunk chunk = rawChunk(loc);
-                TridentLogger.get().debug(relX + ", " + relZ + " with " + xMinDiff + ", " + xMaxDiff + " / " + zMinDiff + ", " + zMaxDiff + " led to " + newX + ", " + newZ);
-                chunk.setAndSend(newX, y, newZ, substance, data, (byte) 255, (byte) 15, change);
+                chunk.setAt(newX, y, newZ, substance, data, (byte) 255, (byte) 15);
             }
 
             @Override
             public Block blockAt(int relX, int y, int relZ) {
-                if (y == Integer.MAX_VALUE) {
-                    change.commitChanges();
-                    return null;
-                }
-
                 if (relX >= 0 && relX <= 15 && relZ >= 0 && relZ <= 15) {
                     return TridentChunk.this.blockAt(relX, y, relZ);
                 }
@@ -355,7 +289,6 @@ public class TridentChunk implements Chunk {
                 }
             });
         }
-        manipulator.blockAt(0, Integer.MAX_VALUE, 0);
 
         // Label as populated, so the chunk is not repopulated
         terrainPopulated = 0x01;
@@ -371,17 +304,9 @@ public class TridentChunk implements Chunk {
         TridentChunk worldChunk = world.chunkAt(location, false);
         if (worldChunk != null) return worldChunk;
 
-        if (world.loader().chunkExists(location)) {
-            Chunk c = world.loader().loadChunk(location);
-            if (c != null) {
-                world.addChunkAt(location, c);
-                return (TridentChunk) c;
-            }
-        }
-
         TridentChunk chunk = new TridentChunk(world, location);
         world.addChunkAt(location, chunk);
-        chunk.generateSpecial();
+        chunk.generate();
         return chunk;
     }
 
@@ -389,18 +314,6 @@ public class TridentChunk implements Chunk {
         if (Math.rint(d) != d)
             return ((int) d) + 1;
         return (int) d;
-    }
-
-    private void setAndSend(int x, final int y, int z, final Substance type, final byte metaData, final byte skyLight,
-                            final byte blockLight, MassChange change) {
-        setAt(x, y, z, type, metaData, skyLight, blockLight);
-        change.setBlock(WorldUtils.heightIndex(location.x(), x), y, WorldUtils.heightIndex(location.z(), z), type, metaData);
-        if (type != Substance.AIR) {
-            int i = WorldUtils.heightIndex(x, z);
-            if (heights.get(i) < y) {
-                heights.set(i, y);
-            }
-        }
     }
 
     public int maxHeightAt(int x, int z) {

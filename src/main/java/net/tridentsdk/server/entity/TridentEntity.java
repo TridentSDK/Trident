@@ -292,10 +292,10 @@ public class TridentEntity implements Entity {
     }
 
     public void tick() {
-        executor.selectNext().execute(() -> {
+        executor.execute(() -> {
             ticksExisted.incrementAndGet();
             doTick();
-            if(ticksExisted.get() % 20 == 0){
+            if (ticksExisted.get() % 20 == 0) {
                 updateBoudingBox();
             }
             TickSync.complete("ENTITY: uuid-" + uniqueId.toString() + " id-" + id);
