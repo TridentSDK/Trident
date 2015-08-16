@@ -47,7 +47,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.Callable;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.function.Predicate;
@@ -126,6 +125,9 @@ public class TridentChunk implements Chunk {
 
     @Override
     public void generate() {
+        // Has generated already
+        if (lightPopulated == 0x01) return;
+
         Joiner joiner = new Joiner();
         executor.execute(() -> {
             // Don't call mapSections, as this generates them
@@ -172,6 +174,7 @@ public class TridentChunk implements Chunk {
             }
             // =====
 
+            lightPopulated = 0x01;
             joiner.doJoin();
             //TODO lighting
         });
@@ -277,36 +280,29 @@ public class TridentChunk implements Chunk {
             }
         };
 
-        CountDownLatch latch = new CountDownLatch(16);
         for (int i = 0; i < 16; i++) {
-            final int finalI = i;
-            executor.execute(() -> {
-                for (int j = 0; j < 16; j++) {
-                    for (AbstractOverlayBrush brush : brushes) {
-                        brush.brush(location, finalI, j, world.random(), heights, manipulator);
-                        latch.countDown();
-                    }
+            for (int j = 0; j < 16; j++) {
+                for (AbstractOverlayBrush brush : brushes) {
+                    brush.brush(location, i, j, world.random(), heights, manipulator);
                 }
-            });
+            }
         }
 
         // Label as populated, so the chunk is not repopulated
         terrainPopulated = 0x01;
-
-        try {
-            latch.await();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
 
     private TridentChunk rawChunk(ChunkLocation location) {
-        TridentChunk worldChunk = world.chunkAt(location, false);
-        if (worldChunk != null) return worldChunk;
+        TridentChunk chunk = world.chunkAt(location, false);
+        if (chunk == null) {
+            chunk = new TridentChunk(world, location);
+            world.addChunkAt(location, chunk);
+        }
 
-        TridentChunk chunk = new TridentChunk(world, location);
-        world.addChunkAt(location, chunk);
-        chunk.generate();
+        while (chunk.lightPopulated != 0x01) {
+            chunk.generate();
+        }
+
         return chunk;
     }
 
