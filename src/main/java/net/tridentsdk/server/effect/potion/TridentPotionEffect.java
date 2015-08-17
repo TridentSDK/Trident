@@ -21,6 +21,11 @@ import net.tridentsdk.effect.potion.PotionEffectType;
 import net.tridentsdk.meta.nbt.NBTField;
 import net.tridentsdk.meta.nbt.TagType;
 
+/**
+ * Represents a potion effect
+ *
+ * @author The TridentSDK Team
+ */
 public class TridentPotionEffect implements PotionEffect {
     @NBTField(name = "id", type = TagType.BYTE)
     protected byte id;

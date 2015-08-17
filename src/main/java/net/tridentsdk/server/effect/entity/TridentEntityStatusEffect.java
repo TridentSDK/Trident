@@ -25,8 +25,12 @@ import net.tridentsdk.server.entity.TridentEntity;
 import net.tridentsdk.server.netty.packet.OutPacket;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutEntityStatus;
 
+/**
+ * Implements the entity status effect
+ *
+ * @author The TridentSDK Team
+ */
 public class TridentEntityStatusEffect extends TridentEffect<EntityStatusEffectType> implements EntityStatusEffect {
-
     private PacketPlayOutEntityStatus packet = new PacketPlayOutEntityStatus();
 
     public TridentEntityStatusEffect(LivingEntity entity, EntityStatusEffectType type){
@@ -58,5 +62,4 @@ public class TridentEntityStatusEffect extends TridentEffect<EntityStatusEffectT
     public OutPacket getPacket(){
         return packet;
     }
-
 }

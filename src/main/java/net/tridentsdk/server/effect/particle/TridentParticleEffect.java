@@ -25,8 +25,12 @@ import net.tridentsdk.server.packets.play.out.PacketPlayOutParticle;
 import net.tridentsdk.util.Vector;
 import net.tridentsdk.world.World;
 
+/**
+ * Represents a particle effect
+ *
+ * @author The TridentSDK Team
+ */
 public class TridentParticleEffect extends TridentRemoteEffect<ParticleEffectType> implements ParticleEffect {
-
     private PacketPlayOutParticle packet = new PacketPlayOutParticle();
 
     public TridentParticleEffect(World world, ParticleEffectType type){
@@ -96,5 +100,4 @@ public class TridentParticleEffect extends TridentRemoteEffect<ParticleEffectTyp
     public OutPacket getPacket(){
         return packet;
     }
-
 }

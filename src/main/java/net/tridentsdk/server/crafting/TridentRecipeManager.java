@@ -16,14 +16,19 @@
  */
 package net.tridentsdk.server.crafting;
 
-import net.tridentsdk.crafting.CraftTuple;
-import net.tridentsdk.crafting.RecipeManager;
 import net.tridentsdk.inventory.Item;
+import net.tridentsdk.inventory.crafting.CraftTuple;
+import net.tridentsdk.inventory.crafting.RecipeManager;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class TridentRecipeManager extends RecipeManager {
+/**
+ * Manages the server crafting and smelting recipes
+ *
+ * @author The TridentSDK Team
+ */
+public class TridentRecipeManager implements RecipeManager {
     private List<SmeltingFuel> smeltingFuels = new ArrayList<>();
     private List<SmeltingRecipe> smeltingRecipes = new ArrayList<>();
 
@@ -34,7 +39,7 @@ public class TridentRecipeManager extends RecipeManager {
 
     @Override
     public void addShapedRecipe(Item result, char[][] grid, List<CraftTuple> source) {
-        // TODO
+
     }
 
     @Override
@@ -47,8 +52,13 @@ public class TridentRecipeManager extends RecipeManager {
         smeltingFuels.add(new SmeltingFuel(source, burnTicks, returnItem));
     }
 
+    /**
+     * Checks if the smelting fuel is able to be smelted on the server
+     *
+     * @param item the item to check
+     * @return {@code true} if the fuel can be smelted
+     */
     public boolean isValidSmeltingFuel(Item item) {
         return smeltingFuels.stream().anyMatch((fuel) -> fuel.source().isSimilarIgnoreQuantity(item));
     }
-
 }

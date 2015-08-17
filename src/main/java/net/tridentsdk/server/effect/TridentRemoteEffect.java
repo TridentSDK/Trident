@@ -19,5 +19,4 @@ package net.tridentsdk.server.effect;
 import net.tridentsdk.effect.RemoteEffect;
 
 public abstract class TridentRemoteEffect<T> extends TridentEffect<T> implements RemoteEffect<T> {
-
 }

@@ -22,7 +22,6 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 import net.tridentsdk.server.player.TridentPlayer;
 
 public abstract class TridentEffect<T> implements Effect<T> {
-
     @Override
     public void apply(){
         TridentPlayer.sendAll(getPacket());
@@ -39,5 +38,4 @@ public abstract class TridentEffect<T> implements Effect<T> {
     }
 
     public abstract OutPacket getPacket();
-
 }

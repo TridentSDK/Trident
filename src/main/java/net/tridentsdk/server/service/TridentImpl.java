@@ -23,6 +23,7 @@ import net.tridentsdk.concurrent.SelectableThreadPool;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.Events;
 import net.tridentsdk.inventory.Inventories;
+import net.tridentsdk.inventory.crafting.RecipeManager;
 import net.tridentsdk.meta.component.MetaProvider;
 import net.tridentsdk.plugin.Plugins;
 import net.tridentsdk.plugin.channel.PluginChannels;
@@ -32,6 +33,7 @@ import net.tridentsdk.registry.PlayerStatus;
 import net.tridentsdk.registry.Players;
 import net.tridentsdk.server.concurrent.ConcurrentTaskExecutor;
 import net.tridentsdk.server.concurrent.TridentTaskScheduler;
+import net.tridentsdk.server.crafting.TridentRecipeManager;
 import net.tridentsdk.server.data.MetaProviderFactory;
 import net.tridentsdk.server.event.EventHandler;
 import net.tridentsdk.server.inventory.TridentInventories;
@@ -74,6 +76,7 @@ public class TridentImpl implements Implementation {
     private final ChatFormatter formatter = new ChatHandler();
     private final Transactions trasacts = new TransactionHandler();
     private final MetaProvider metaProviderFactory = new MetaProviderFactory();
+    private final RecipeManager recipes = new TridentRecipeManager();
 
     class PlayersImpl extends ForwardingCollection<Player> implements Players {
         @Override
@@ -171,5 +174,10 @@ public class TridentImpl implements Implementation {
     @Override
     public Inventories inventories() {
         return windowHandler;
+    }
+
+    @Override
+    public RecipeManager recipe() {
+        return recipes;
     }
 }

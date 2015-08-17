@@ -25,8 +25,12 @@ import net.tridentsdk.server.packets.play.out.PacketPlayOutSoundEffect;
 import net.tridentsdk.util.Vector;
 import net.tridentsdk.world.World;
 
+/**
+ * Represents a sound effect
+ *
+ * @author The TridentSDK Team
+ */
 public class TridentSoundEffect extends TridentRemoteEffect<SoundEffectType> implements SoundEffect {
-
     private PacketPlayOutSoundEffect packet = new PacketPlayOutSoundEffect();
 
     public TridentSoundEffect(World world, SoundEffectType type){
@@ -77,5 +81,4 @@ public class TridentSoundEffect extends TridentRemoteEffect<SoundEffectType> imp
     public OutPacket getPacket(){
         return packet;
     }
-
 }
