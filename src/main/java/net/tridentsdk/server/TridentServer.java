@@ -140,6 +140,10 @@ public final class TridentServer implements Server {
             e.printStackTrace();
         }
 
+        TridentLogger.get().log("Saving worlds...");
+        for (World world : rootWorldLoader.worlds())
+            ((TridentWorld) world).save();
+
         TridentLogger.get().log("Shutting down thread pools...");
         ConcurrentTaskExecutor.executors().forEach(ConcurrentTaskExecutor::shutdown);
 
@@ -148,10 +152,6 @@ public final class TridentServer implements Server {
             ((TridentPlayer) player).kickPlayer("Server shutting down");
             ((TridentPlayer) player).connection().logout();
         }
-
-        TridentLogger.get().log("Saving worlds...");
-        for (World world : rootWorldLoader.worlds())
-            ((TridentWorld) world).save();
 
         TridentLogger.get().log("Shutting down concurrent workers...");
         ((TridentTaskScheduler) Registered.tasks()).shutdown();

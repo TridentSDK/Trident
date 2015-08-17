@@ -203,16 +203,6 @@ public class TridentChunk implements Chunk {
                 int zMinDiff = Math.max(relZ, 0) - Math.min(relZ, 0);
                 int zMaxDiff = Math.max(relZ, 15) - Math.min(relZ, 15);
 
-                /*      x
-                        |
-                   -,-  |  -,+
-                        |
-                ----------------- z (x,z)
-                        |
-                   +,-  |  +,+
-                        |
-                 */
-
                 int chunkX = location.x();
                 int chunkZ = location.z();
                 int newX = relX;
@@ -280,13 +270,15 @@ public class TridentChunk implements Chunk {
             }
         };
 
-        for (int i = 0; i < 16; i++) {
-            for (int j = 0; j < 16; j++) {
-                for (AbstractOverlayBrush brush : brushes) {
-                    brush.brush(location, i, j, world.random(), heights, manipulator);
+        executor.execute(() -> {
+            for (int i = 0; i < 16; i++) {
+                for (int j = 0; j < 16; j++) {
+                    for (AbstractOverlayBrush brush : brushes) {
+                        brush.brush(location, i, j, world.random(), heights, manipulator);
+                    }
                 }
             }
-        }
+        });
 
         // Label as populated, so the chunk is not repopulated
         terrainPopulated = 0x01;
@@ -555,7 +547,6 @@ public class TridentChunk implements Chunk {
         final int index = WorldUtils.blockArrayIndex(x & 15, y & 15, z & 15);
         executor.execute(() -> {
             ChunkSection[] sections = mapSections();
-
             ChunkSection section = sections[WorldUtils.section(y)];
 
             section.types[index] = (char) ((type.asExtended() & 0xfff0) | metaData);

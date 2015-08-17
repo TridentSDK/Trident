@@ -25,6 +25,7 @@ import net.tridentsdk.Trident;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.event.*;
 import net.tridentsdk.plugin.Plugin;
+import net.tridentsdk.plugin.annotation.IgnoreRegistration;
 import net.tridentsdk.server.concurrent.TickSync;
 
 import java.lang.reflect.Method;
@@ -82,15 +83,14 @@ public class EventHandler extends ForwardingCollection<EventNotifier> implements
         Method[] methods = c.getDeclaredMethods();
 
         HashMultimap<Class<? extends Event>, ReflectNotifier> map = HashMultimap.create(11, 11);
-        for (int i = 0, n = methods.length; i < n; i++) {
-            Method method = methods[i];
+        for (Method method : methods) {
             Class<?>[] parameterTypes = method.getParameterTypes();
             if (parameterTypes.length != 1)
                 continue;
 
             Class<?> type = parameterTypes[0];
 
-            if (!Event.class.isAssignableFrom(type))
+            if (!Event.class.isAssignableFrom(type) || !method.isAnnotationPresent(IgnoreRegistration.class))
                 continue;
 
             Class<? extends Event> eventClass = type.asSubclass(Event.class);
