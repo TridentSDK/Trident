@@ -76,7 +76,7 @@ public class TridentImpl implements Implementation {
     private final ChatFormatter formatter = new ChatHandler();
     private final Transactions trasacts = new TransactionHandler();
     private final MetaProvider metaProviderFactory = new MetaProviderFactory();
-    private final RecipeManager recipes = new TridentRecipeManager();
+    private final TridentRecipeManager recipes = new TridentRecipeManager();
 
     class PlayersImpl extends ForwardingCollection<Player> implements Players {
         @Override
