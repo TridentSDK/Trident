@@ -19,7 +19,6 @@ package net.tridentsdk.server.crafting;
 import net.tridentsdk.inventory.Item;
 
 public class SmeltingRecipe {
-
     private Item result;
     private Item source;
     private int smeltTicks;

@@ -19,7 +19,6 @@ package net.tridentsdk.server.crafting;
 import net.tridentsdk.inventory.Item;
 
 public class SmeltingFuel {
-
     private Item source;
     private int burnTicks;
     private Item returnItem;
@@ -41,5 +40,4 @@ public class SmeltingFuel {
     public Item returnItem() {
         return returnItem;
     }
-
 }
