@@ -5,63 +5,7 @@ TridentSDK is a from-scratch, high-performance, and multithreaded Minecraft serv
 
 ## Style Guidelines ##
 
-Unless otherwise specified below, we follow [Google's Java Style Guide](http://google-styleguide.googlecode.com/svn/trunk/javaguide.html) style.
-
-In addition to the above link, below is a brief summary of the key points and changes.
-
-### Format
-
-- 4 space indentation. Do not use tabs
-- 80 character limit per line
-- K & R Style brackets
-- The copyright notice appears at the very top of the file, followed by an empty line, followed by the package
-- No whitespace between first field declaration and class declaration
-- Always include ```@author The TridentSDK Team``` as the last item in the class javadoc
-- Indent as specified in §4 of the Google Style Guidelines (except indentation is 4 spaces instead of 2).
-- No whitespace after closing brace of class, no empty line before closing brace.
-- New line after ```;```, do not put multiple statements on one line, except for ```for``` statements
-- Keywords and braces have whitespace around them
-- All operators have surrounding whitespace
-- All ```for``` statements have whitespace after the ```;```, always have whitespace after commas ```,```
-
-### Naming
-
-- Managers or handling classes are named ```{Function}Handler```
-- Package names are always lowercase and singular
-- **NEVER** use underscores ```_``` except for ```CONSTANT_FIELDS``` and enumerations
-- Use shortened field names sparingly
-- Abbreviations allowed for local variables
-- Classes go by CapitalCamelCase
-- Class names that contain an abbreviation are discouraged, except for common abbreviations
-- Abbreviations follow standard Camel-case (e.g. ID becomes id or Id, HTTP becomes http or Http, etc.)
-- Interfaces have the same casing and rules as class names
-- Constants declared static and final, and their names must be all uppercase, with underscores separating words
-- Methods and fields use lowercaseCamelCase
-
-### Technical Design
-
-- Thread safe classes use static factories
-- Immutable classes marked with ```@ThreadSafe```
-- Use ```@GuardedBy``` annotations if synchronization is used
-- **IMPLEMENTED API METHODS MUST BE THREAD SAFE**
-- Fields made final whenever it possible
-- Initialize as soon as possible, unless object contains heavy computation. Mark for discussion.
-
-### Documentation
-
-- Should be in the following format: description, whitespace, then tags
-- Only field comments are allowed to be single line comments
-- Overridden methods do not need documentation, as long as the superclass/superinterface is documented
-- Classes are always documented unless they are package private
-- Package private classes are marked with ```@AccessNoDoc```. Do not document them.
-- ```@InternalUseOnly``` members may not be documented, should not be used in API classes/interfaces
-- All packages must include a ```package-info.html``` to describe/list classes in that package
-- API documentation should not include implementation details
-- Use ```@Volatile``` to document an unstable or non-conventional usage of a particular member
-- Prefer ```@throws``` over ```@exception```, and ```@code``` over ```<code>```
-- First mention of another class that is in Trident or TridentSDK should be linked
-- Java keywords should have ```@code``` tags
-- Document return of null, or possible usage of null in parameters
+See the [Trident Development Wiki Page](https://tridentsdkwiki.atlassian.net/wiki/display/DEV/TridentSDK+Project+Guidelines)
 
 ### Practices
 - Use ```this``` qualifiers for method calls or field references, where it improves readablity
@@ -82,6 +26,17 @@ In addition to the above link, below is a brief summary of the key points and ch
 6. Push to the fork
 7. Create a new Pull Request following the below guidlines
 
+## Getting your PR accepted ##
+
+We are more likely to accept your Pull Request should you follow all of the given bullet points listed below. That is:
+
+- Your code meets the code requirements
+- Your PR fits within the PR guidelines
+- Your code is tested and provides testing materials
+- Your PR adds or fixes a bug, and lies within the scope of the TridentSDK project
+
+Once you have created your Pull Request, do not abandon GitHub for a week. We provide responses and code comments, as well as general discussion on the PR page. This feedback, along with proper action taken in response to our feedback will help improve your chances of getting the PR pulled.
+
 ## Code Requirements ##
 
 - We expect all public members to be thouroughly documented
@@ -89,15 +44,33 @@ In addition to the above link, below is a brief summary of the key points and ch
 - Follows the [style guide](#style-guidelines)
 - Compiles with Java 8
 - Maven install runs correctly with the latest bleeding-edge commit
+- Overriden methods need not have documentation
 
 ## PR Guidelines ##
 
 - Upstream must be `bleeding-edge`
 - Must contain title summarizing the changes
-- Body contains description of the issue to be fixed, the implementaiotn method, the methods of testing, and references
+- Body contains description of the issue to be fixed, the implementation method, the methods of testing, and references (PRs, sources, stackoverflow, etc...)
 
 ## Testing Requirements ##
 
+- If a performance fix is suggested, it must include JMH benchmarks and/or profiling data
+- A player must join the server, stay on for 5 minutes, leave for 1 minute, join and stay on for 5 further minutes before deeming "joinable"
+- The server must be shutdown with `stop` successfully
+- Player framerate is very important - ensure it is stable and does not drop significantly
+- Ensure that the `MultiplayerChunkCache` has 2 of the same values ({loaded}, {updates})
+- Fly around and ensure chunks load correctly. Expiry threads must expire after 1 minute of inactivity.
+- Ensure all required threads are active
+
 ## What To **NOT** Add ##
 
-WIP
+TridentSDK is a work in progress server reimplementation. We are open to PRs adding features in the Vanilla server that is not present in Trident. We are also open to new APIs, so that the server can be controlled by plugins in a way that was never possible before.
+
+As such, there are things that are *out of the scope* of the TridentSDK project.
+
+- Protocol APIs. We are continuing to discuss this. Currently, we have no maintainable way to provide a reliable API for controlling the Minecraft protocol. Packets continually change IDs, continually change the information contained in them, data types, etc... Please leave this in plugin requeusts.
+- Support for other programming languages. This should be done through an interpreter, not through our API.
+- Adds non-vanilla features. We reimplement the Vanilla server. This belongs in forks of Trident, not within the TridentSDK project itself.
+- Your code contains content viewable from Mojang software. We are cleanroom. Please refrain from basing your content off of copyrighted code.
+
+If the proposed PR adds to Trident what is described above, it does not fall within the scope of the TridentSDK project. Please refrain from creating Pull Requests of the content described. If you have any questions, they may be asked on our [Trident Development](https://tridentsdk.net/f/c/79/) forum.
