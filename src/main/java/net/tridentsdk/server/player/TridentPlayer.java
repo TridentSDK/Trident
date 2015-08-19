@@ -260,37 +260,6 @@ public class TridentPlayer extends OfflinePlayer {
 
     private final AtomicInteger counter = new AtomicInteger();
 
-    public void cleanChunks(int viewDist) {
-        Position pos = position();
-        int x = (int) pos.x() / 16;
-        int z = (int) pos.z() / 16;
-
-        int count = counter.getAndIncrement();
-        if (count >= knownChunks.size() / MAX_PARTITION_SIZE) {
-            count = 0;
-            counter.set(0);
-        }
-
-        List<ChunkLocation> partition = Iterators.get(Iterators.partition(knownChunks.iterator(), 49), count);
-        for (ChunkLocation location : partition) {
-            int cx = location.x();
-            int cz = location.z();
-
-            int abs = Math.max(cx, x) - Math.min(cx, x);
-            int abs1 = Math.max(cz, z) - Math.min(cz, z);
-
-            if (abs >= viewDist || abs1 >= viewDist) {
-                removeChunk(location);
-            }
-        }
-    }
-
-    private void removeChunk(ChunkLocation location) {
-        ((TridentWorld) world()).loadedChunks.tryRemove(location);
-        connection.sendPacket(new PacketPlayOutChunkData(new byte[0], location, true, (short) 0));
-        knownChunks.remove(location);
-    }
-
     @Override
     protected void doRemove() {
         ONLINE_PLAYERS.remove(this.uniqueId());
@@ -500,6 +469,37 @@ public class TridentPlayer extends OfflinePlayer {
         if (bulk.hasEntries()) {
             connection().sendPacket(bulk);
         }
+    }
+
+    public void cleanChunks(int viewDist) {
+        Position pos = position();
+        int x = (int) pos.x() / 16;
+        int z = (int) pos.z() / 16;
+
+        int count = counter.getAndIncrement();
+        if (count >= knownChunks.size() / MAX_PARTITION_SIZE) {
+            count = 0;
+            counter.set(0);
+        }
+
+        List<ChunkLocation> partition = Iterators.get(Iterators.partition(knownChunks.iterator(), 49), count);
+        for (ChunkLocation location : partition) {
+            int cx = location.x();
+            int cz = location.z();
+
+            int abs = Math.max(cx, x) - Math.min(cx, x);
+            int abs1 = Math.max(cz, z) - Math.min(cz, z);
+
+            if (abs >= viewDist || abs1 >= viewDist) {
+                removeChunk(location);
+            }
+        }
+    }
+
+    private void removeChunk(ChunkLocation location) {
+        ((TridentWorld) world()).loadedChunks.tryRemove(location);
+        connection.sendPacket(new PacketPlayOutChunkData(new byte[0], location, true, (short) 0));
+        knownChunks.remove(location);
     }
 
     @Override

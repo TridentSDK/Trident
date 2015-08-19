@@ -133,39 +133,45 @@ public final class TridentServer implements Server {
      */
     @Override
     public void shutdown() {
-        TridentLogger.get().log("Saving files...");
         try {
-            ((Statuses) Registered.statuses()).saveAll();
-        } catch (IOException e) {
-            e.printStackTrace();
+            TridentLogger.get().log("Saving files...");
+            try {
+                ((Statuses) Registered.statuses()).saveAll();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            TridentLogger.get().log("Saving worlds...");
+            for (World world : rootWorldLoader.worlds())
+                ((TridentWorld) world).save();
+
+            TridentLogger.get().log("Kicking players...");
+            for (Player player : TridentPlayer.players()) {
+                ((TridentPlayer) player).kickPlayer("Server shutting down");
+                ((TridentPlayer) player).connection().logout();
+            }
+
+            TridentLogger.get().log("Shutting down thread pools...");
+            ConcurrentTaskExecutor.executors().forEach(ConcurrentTaskExecutor::shutdown);
+
+            TridentLogger.get().log("Shutting down concurrent workers...");
+            ((TridentTaskScheduler) Registered.tasks()).shutdown();
+
+            TridentLogger.get().log("Shutting down server process...");
+            ThreadsHandler.shutdownAll();
+
+            //TODO: Cleanup stuff...
+            TridentLogger.get().log("Shutting down plugins...");
+            for (Plugin plugin : Registered.plugins())
+                Registered.plugins().disable(plugin);
+
+            TridentLogger.get().log("Shutting down server connections...");
+            TridentStart.close();
+        } catch (Exception e) {
+            TridentLogger.get().error("Server failed to shutdown correctly");
+            TridentLogger.get().error(e);
+            return;
         }
-
-        TridentLogger.get().log("Saving worlds...");
-        for (World world : rootWorldLoader.worlds())
-            ((TridentWorld) world).save();
-
-        TridentLogger.get().log("Shutting down thread pools...");
-        ConcurrentTaskExecutor.executors().forEach(ConcurrentTaskExecutor::shutdown);
-
-        TridentLogger.get().log("Kicking players...");
-        for (Player player : TridentPlayer.players()) {
-            ((TridentPlayer) player).kickPlayer("Server shutting down");
-            ((TridentPlayer) player).connection().logout();
-        }
-
-        TridentLogger.get().log("Shutting down concurrent workers...");
-        ((TridentTaskScheduler) Registered.tasks()).shutdown();
-
-        TridentLogger.get().log("Shutting down server process...");
-        ThreadsHandler.shutdownAll();
-
-        //TODO: Cleanup stuff...
-        TridentLogger.get().log("Shutting down plugins...");
-        for (Plugin plugin : Registered.plugins())
-            Registered.plugins().disable(plugin);
-
-        TridentLogger.get().log("Shutting down server connections...");
-        TridentStart.close();
 
         TridentLogger.get().log("Server shutdown successfully.");
     }

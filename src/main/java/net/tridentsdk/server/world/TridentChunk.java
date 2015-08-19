@@ -48,6 +48,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -66,8 +67,8 @@ public class TridentChunk implements Chunk {
     private volatile int lastFileAccess;
     private volatile long lastModified;
     private volatile long inhabitedTime;
-    private volatile byte lightPopulated;
-    private volatile byte terrainPopulated;
+    private final AtomicInteger lightPopulated = new AtomicInteger();
+    private final AtomicInteger terrainPopulated = new AtomicInteger();
 
     protected TridentChunk(TridentWorld world, int x, int z) {
         this(world, ChunkLocation.create(x, z));
@@ -125,8 +126,10 @@ public class TridentChunk implements Chunk {
 
     @Override
     public void generate() {
-        // Has generated already
-        if (lightPopulated == 0x01) return;
+        // Has or is generated already if the state is not 0x00
+        if (!lightPopulated.compareAndSet(0x00, 0xFFFFFFFF)) {
+            return;
+        }
 
         Joiner joiner = new Joiner();
         executor.execute(() -> {
@@ -174,7 +177,7 @@ public class TridentChunk implements Chunk {
             }
             // =====
 
-            lightPopulated = 0x01;
+            lightPopulated.set(0x01);
             joiner.doJoin();
             //TODO lighting
         });
@@ -182,7 +185,8 @@ public class TridentChunk implements Chunk {
     }
 
     public void paint() {
-        if (terrainPopulated == 0x01) {
+        // If the state is not 0x00 it is either generating (-1) or has already been
+        if (!terrainPopulated.compareAndSet(0x00, 0xFFFFFFFF)) {
             return;
         }
 
@@ -278,10 +282,10 @@ public class TridentChunk implements Chunk {
                     }
                 }
             }
-        });
 
-        // Label as populated, so the chunk is not repopulated
-        terrainPopulated = 0x01;
+            // Label as populated, so the chunk is not repopulated
+            terrainPopulated.set(0x01);
+        });
     }
 
     private TridentChunk rawChunk(ChunkLocation location) {
@@ -291,9 +295,7 @@ public class TridentChunk implements Chunk {
             world.addChunkAt(location, chunk);
         }
 
-        while (chunk.lightPopulated != 0x01) {
-            chunk.generate();
-        }
+        while (chunk.lightPopulated.get() != 0x01) chunk.generate();
 
         return chunk;
     }
@@ -481,8 +483,8 @@ public class TridentChunk implements Chunk {
         }
 
         /* Load extras */
-        this.lightPopulated = lightPopulated.value(); // Unknown use
-        this.terrainPopulated = terrainPopulated.value(); // if chunk was populated with special things (ores,
+        this.lightPopulated.set(lightPopulated.value()); // Unknown use
+        this.terrainPopulated.set(terrainPopulated.value()); // if chunk was populated with special things (ores,
         // trees, etc.), if 1 regenerate
         this.lastModified = lastModifed.value(); // Tick when the chunk was last saved
         this.inhabitedTime = inhabitedTime.value(); // Cumulative number of ticks player have been in the chunk
@@ -490,8 +492,10 @@ public class TridentChunk implements Chunk {
 
     @Override
     public void unload() {
-        world.loader().saveChunk(this);
-        world.loadedChunks.remove(location);
+        executor.execute(() -> {
+            world.loader().saveChunk(this);
+            world.loadedChunks.remove(location);
+        });
     }
 
     public CompoundTag asNbt() {
@@ -499,8 +503,8 @@ public class TridentChunk implements Chunk {
         CompoundTag level = new CompoundTag("Level");
 
         level.addTag(new LongTag("LastUpdate").setValue(world.time()));
-        level.addTag(new ByteTag("LightPopulated").setValue(lightPopulated));
-        level.addTag(new ByteTag("TerrainPopulated").setValue(terrainPopulated));
+        level.addTag(new ByteTag("LightPopulated").setValue((byte) lightPopulated.get()));
+        level.addTag(new ByteTag("TerrainPopulated").setValue((byte) terrainPopulated.get()));
 
         level.addTag(new LongTag("InhabitedTime").setValue(inhabitedTime));
 
