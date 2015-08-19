@@ -46,6 +46,7 @@ public class MetaProviderFactory implements MetaProvider {
         register(new FurnaceMetaImpl());
         register(new ChestMetaImpl());
         register(new DirectionMetaImpl());
+        register(new CauldronMetaImpl());
     }
 
     public boolean hasData(Substance substance) {
