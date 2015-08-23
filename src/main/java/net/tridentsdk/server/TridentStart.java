@@ -64,7 +64,6 @@ import static com.google.common.collect.Lists.newArrayList;
  */
 @ThreadSafe
 public final class TridentStart {
-
     private static volatile EventLoopGroup bossGroup;
     private static volatile EventLoopGroup workerGroup;
 

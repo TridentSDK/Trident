@@ -104,7 +104,7 @@ public class MainThread extends Thread {
 
         long time;
         while ((time = System.currentTimeMillis() - startTime) < tickLength) {
-            Runnable next = TickSync.waitForTask(TimeUnit.NANOSECONDS.convert(time, TimeUnit.NANOSECONDS) / 50);
+            Runnable next = TickSync.waitForTask(TimeUnit.NANOSECONDS.convert(time, TimeUnit.NANOSECONDS));
             if (next != null) {
                 Registered.plugins().executor().execute(next);
             }
