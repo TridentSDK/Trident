@@ -14,7 +14,7 @@ The Trident project, the implementation of the new generation of multi-threaded,
 
 ## Latest Release ##
 
-Not released, however there are methods to retrieve the jar as a development preview.
+- [0.3-alpha DP](https://github.com/TridentSDK/Trident/releases/tag/0.3-alpha-DP)
 
 ## Getting the JAR ##
 
@@ -72,4 +72,7 @@ If we've released a JAR for you to use, it usually comes with a nice read. So if
 
 #### Directions ####
 
-Fortunately, because there are no releases yet, you don't need to do that quite yet.
+1. Nagigate to [tridentsdk.net](https://tridentsdk.net)
+2. Scroll down the News list to the first release post
+3. Find the download link
+4. Click the download link
