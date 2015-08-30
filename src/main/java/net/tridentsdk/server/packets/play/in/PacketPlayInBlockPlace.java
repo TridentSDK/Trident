@@ -94,33 +94,34 @@ public class PacketPlayInBlockPlace extends InPacket {
         TridentPlayer player = ((PlayerConnection) connection).player();
         location.setWorld(player.world());
 
-        Block clickAt = location.block();
-        if(location.y() < 255 && location.block() != null && clickAt.substance().isFunctional() && !player.isCrouching()){
-            switch(clickAt.substance()) {
+        Substance substance = player.heldItem().type();
+        Vector vector = determineOffset();
+        if (!substance.isBlock()) {
+            // TODO eat food or pull bow or release/obtain water in a bucket, etc
+            return;
+        }
+
+        if (location.y() + vector.y() > 255 || location.y() + vector.y() < 0) {
+            // Illegal block position
+            return;
+        }
+
+        Position position = location.block().substance().canBeReplaced() ? location : location.relative(vector);
+        Block block = new OwnedTridentBlock(player, position.block());
+
+        if (location.y() < 255 && location.block() != null && block.substance().isFunctional() && !player.isCrouching()) {
+            switch (block.substance()) {
                 case FURNACE:
                 case BURNING_FURNACE:
-                    ((FurnaceMetaImpl) clickAt.obtainMeta(FurnaceMeta.class)).furnaceInventory().sendTo(player);
+                    ((FurnaceMetaImpl) block.obtainMeta(FurnaceMeta.class)).furnaceInventory().sendTo(player);
                     break;
                 case CHEST:
-                    ((TridentInventory) clickAt.obtainMeta(ChestMeta.class).inventory()).sendTo(player);
+                    ((TridentInventory) block.obtainMeta(ChestMeta.class).inventory()).sendTo(player);
                     break;
             }
             // TODO Add all functional blocks (workbench, furnace, anvil, etc)
         } else if (player.heldItem() != null && player.heldItem().type() != Substance.AIR) {
-            Substance substance = player.heldItem().type();
-            Vector vector = determineOffset();
-            if (!substance.isBlock()) {
-                // TODO eat food or pull bow or release/obtain water in a bucket, etc
-                return;
-            }
-
-            if (location.y() + vector.y() > 255 || location.y() + vector.y() < 0) {
-                // Illegal block position
-                return;
-            }
-
-            Position position = clickAt.substance().canBeReplaced() ? location : location.relative(vector);
-            Block block = new OwnedTridentBlock(player, position.block());
+            System.out.println(position);
 
             short yaw = (short) (player.position().yaw() * 10);
             short meta = player.heldItem().damageValue();
@@ -137,7 +138,7 @@ public class PacketPlayInBlockPlace extends InPacket {
                 block.setSubstanceAndMeta(substanceValue.get(), result.get());
 
                 SoundEffectType soundEffectType = substanceValue.get().placeSound();
-                if(soundEffectType != null) {
+                if (soundEffectType != null) {
                     SoundEffect sound = location.world().playSound(soundEffectType);
                     sound.setPosition(location);
                     sound.apply();

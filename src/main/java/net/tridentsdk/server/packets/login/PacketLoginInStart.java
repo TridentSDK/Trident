@@ -77,6 +77,7 @@ public class PacketLoginInStart extends InPacket {
 
     @Override
     public void handleReceived(ClientConnection connection) {
+        // TODO login throttling
         boolean allow = LoginHandler.getInstance().initLogin(connection.address(), this.name());
         if (!allow) {
             connection.sendPacket(new PacketLoginOutDisconnect().setJsonMessage("Server is full"));

@@ -634,9 +634,9 @@ public class TridentWorld implements World {
         if (!location.world().name().equals(this.name()))
             throw new IllegalArgumentException("Provided location does not have the same world!");
 
-        int x = (int) Math.round(location.x());
-        int y = (int) Math.round(location.y());
-        int z = (int) Math.round(location.z());
+        int x = (int) Math.floor(location.x());
+        int y = (int) Math.floor(location.y());
+        int z = (int) Math.floor(location.z());
 
         return this.chunkAt(WorldUtils.chunkLocation(x, z), true).blockAt(x & 15, y, z & 15);
     }

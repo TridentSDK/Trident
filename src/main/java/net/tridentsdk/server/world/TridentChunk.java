@@ -97,6 +97,10 @@ public class TridentChunk implements Chunk {
         this.lastFileAccess = last;
     }
 
+    public boolean isGen() {
+        return lightPopulated.get() == 0x01 && terrainPopulated.get() == 0x01;
+    }
+
     @Override
     public Set<Entity> entities() {
         return ImmutableSet.copyOf(entities);
@@ -295,7 +299,7 @@ public class TridentChunk implements Chunk {
             world.addChunkAt(location, chunk);
         }
 
-        while (chunk.lightPopulated.get() != 0x01) chunk.generate();
+        chunk.generate();
 
         return chunk;
     }

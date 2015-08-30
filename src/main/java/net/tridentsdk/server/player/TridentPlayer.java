@@ -254,8 +254,11 @@ public class TridentPlayer extends OfflinePlayer {
                 }
             });
 
+        if (ticksExisted.get() % 20 == 0) {
+            System.out.println(position().block().substance());
+        }
+
         connection.tick();
-        ticksExisted.incrementAndGet();
     }
 
     private final AtomicInteger counter = new AtomicInteger();
@@ -351,9 +354,9 @@ public class TridentPlayer extends OfflinePlayer {
     }
 
     /*
-         * @NotJavaDoc
-         * TODO: Create Message API and utilize it
-         */
+     * @NotJavaDoc
+     * TODO: Create Message API and utilize it
+     */
     public void kickPlayer(String reason) {
         connection.sendPacket(new PacketPlayOutDisconnect().set("reason", new MessageBuilder(reason).build().asJson()));
         TridentLogger.get().log(name + " was kicked for " + reason);
@@ -453,16 +456,32 @@ public class TridentPlayer extends OfflinePlayer {
         int centZ = ((int) Math.floor(loc.z())) >> 4;
 
         PacketPlayOutMapChunkBulk bulk = new PacketPlayOutMapChunkBulk();
+        HashSet<TridentChunk> set = new HashSet<>();
         for (int x = (centX - viewDistance / 2); x <= (centX + viewDistance / 2); x += 1) {
             for (int z = (centZ - viewDistance / 2); z <= (centZ + viewDistance / 2); z += 1) {
                 ChunkLocation location = ChunkLocation.create(x, z);
                 if (!knownChunks.add(location)) continue;
-                bulk.addEntry(((TridentChunk) world().chunkAt(location, true)).asPacket());
-
-                if (bulk.size() >= 1845152) {
-                    connection().sendPacket(bulk);
-                    bulk = new PacketPlayOutMapChunkBulk();
+                for (int i = x - 1; i <= x + 1; i++) {
+                    for (int j = z - 1; j <= z + 1; j++) {
+                        if (knownChunks.add(location)) {
+                            set.add(((TridentChunk) world().chunkAt(i, j, true)));
+                        }
+                    }
                 }
+                set.add(((TridentChunk) world().chunkAt(location, true)));
+            }
+        }
+
+        for (TridentChunk chunk : set) {
+            while (!chunk.isGen()) ;
+        }
+
+        for (TridentChunk chunk : set) {
+            bulk.addEntry(chunk.asPacket());
+
+            if (bulk.size() >= 1845152) {
+                connection().sendPacket(bulk);
+                bulk = new PacketPlayOutMapChunkBulk();
             }
         }
 

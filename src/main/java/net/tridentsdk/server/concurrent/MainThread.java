@@ -21,6 +21,7 @@ import net.tridentsdk.config.Config;
 import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.util.ConcurrentCircularArray;
 import net.tridentsdk.server.world.TridentWorld;
+import net.tridentsdk.server.world.TridentWorldLoader;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.World;
 
@@ -91,7 +92,7 @@ public class MainThread extends Thread {
         this.notLostTicksElapsed.getAndIncrement();
 
         // Entities are ticked by the world
-        for (World world : Registered.worlds().values()) {
+        for (World world : TridentWorldLoader.WORLDS.values()) {
             TickSync.increment("WORLD: " + world.name());
             ((TridentWorld) world).tick();
         }
