@@ -17,6 +17,7 @@
 
 package net.tridentsdk.server.concurrent;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.tridentsdk.concurrent.SelectableThread;
@@ -127,6 +128,8 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements S
     }
 
     private ConcurrentTaskExecutor(int startingThreadCount, String name) {
+        Preconditions.checkArgument(startingThreadCount > 0);
+
         this.name = name;
         this.core = startingThreadCount;
 
@@ -408,12 +411,12 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements S
 
         @Override
         Runnable nextTask() {
-            long stamp = lock.readLock();
+            long stamp = lock.writeLock();
             Runnable runnable;
             try {
                 runnable = tasks.pollLast();
             } finally {
-                lock.unlockRead(stamp);
+                lock.unlockWrite(stamp);
             }
 
             if (runnable == null) {
