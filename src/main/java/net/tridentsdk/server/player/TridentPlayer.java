@@ -254,10 +254,6 @@ public class TridentPlayer extends OfflinePlayer {
                 }
             });
 
-        if (ticksExisted.get() % 20 == 0) {
-            System.out.println(position().block().substance());
-        }
-
         connection.tick();
     }
 
