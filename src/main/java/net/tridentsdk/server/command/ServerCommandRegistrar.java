@@ -37,5 +37,6 @@ public class ServerCommandRegistrar {
         Registered.commands().register(null, new HelpCommand());
         Registered.commands().register(null, new OpCommand());
         Registered.commands().register(null, new TeleportCommand());
+        Registered.commands().register(null, new SendCommand());
     }
 }

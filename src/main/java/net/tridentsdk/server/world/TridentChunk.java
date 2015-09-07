@@ -26,14 +26,18 @@ import net.tridentsdk.base.BoundingBox;
 import net.tridentsdk.base.Position;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.concurrent.Joiner;
+import net.tridentsdk.concurrent.ScheduledRunnable;
 import net.tridentsdk.concurrent.SelectableThread;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.meta.block.BlockMeta;
 import net.tridentsdk.meta.block.Tile;
 import net.tridentsdk.meta.nbt.*;
+import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.concurrent.ThreadsHandler;
 import net.tridentsdk.server.entity.TridentEntity;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutChunkData;
+import net.tridentsdk.server.packets.play.out.PacketPlayOutMapChunkBulk;
+import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.util.NibbleArray;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.util.Vector;
@@ -69,6 +73,8 @@ public class TridentChunk implements Chunk {
     private volatile long inhabitedTime;
     private final AtomicInteger lightPopulated = new AtomicInteger();
     private final AtomicInteger terrainPopulated = new AtomicInteger();
+
+    private final HashSet<ChunkLocation> manipulatedChunks = new HashSet<>();
 
     protected TridentChunk(TridentWorld world, int x, int z) {
         this(world, ChunkLocation.create(x, z));
@@ -199,6 +205,7 @@ public class TridentChunk implements Chunk {
             @Override
             public void manipulate(int relX, int y, int relZ, Substance substance, byte data) {
                 if (relX >= 0 && relX <= 15 && relZ >= 0 && relZ <= 15) {
+                    manipulatedChunks.add(location);
                     setAt(relX, y, relZ, substance, data, (byte) 255, (byte) 15);
                     return;
                 }
@@ -234,6 +241,9 @@ public class TridentChunk implements Chunk {
 
                 ChunkLocation loc = ChunkLocation.create(chunkX, chunkZ);
                 TridentChunk chunk = rawChunk(loc);
+                if(chunk.isGen()){
+                    manipulatedChunks.add(loc);
+                }
                 chunk.setAt(newX, y, newZ, substance, data, (byte) 255, (byte) 15);
             }
 
@@ -279,6 +289,7 @@ public class TridentChunk implements Chunk {
         };
 
         executor.execute(() -> {
+            manipulatedChunks.clear();
             for (int i = 0; i < 16; i++) {
                 for (int j = 0; j < 16; j++) {
                     for (AbstractOverlayBrush brush : brushes) {
@@ -289,6 +300,33 @@ public class TridentChunk implements Chunk {
 
             // Label as populated, so the chunk is not repopulated
             terrainPopulated.set(0x01);
+
+            /*if(manipulatedChunks.size() > 0) {
+                PacketPlayOutMapChunkBulk packet = new PacketPlayOutMapChunkBulk();
+                manipulatedChunks.stream().forEach(c -> packet.addEntry(rawChunk(c).asPacket()));
+                Position thisChunk = new Position(null, location.x() * 16, 64, location.z() * 16);
+                TridentPlayer.sendFiltered(packet, player -> {
+                    if(player.position().distanceSquared(thisChunk) < 240){
+                        System.out.println("Sending " + manipulatedChunks.size() + " chunks to " + player.name());
+                        return true;
+                    }
+
+                    return false;
+                });
+            }*/
+
+            if(manipulatedChunks.size() > 0) {
+                HashSet<ChunkLocation> toUpdate = new HashSet<>(manipulatedChunks);
+                Registered.tasks().asyncLater(null, new ScheduledRunnable() {
+                    @Override
+                    public void run() {
+                        PacketPlayOutMapChunkBulk packet = new PacketPlayOutMapChunkBulk();
+                        toUpdate.stream().forEach(c -> packet.addEntry(rawChunk(c).asPacket()));
+                        Position thisChunk = new Position(null, location.x() * 16, 64, location.z() * 16);
+                        TridentPlayer.sendFiltered(packet, player -> player.position().distanceSquared(thisChunk) < 240);
+                    }
+                }, 20L);
+            }
         });
     }
 
