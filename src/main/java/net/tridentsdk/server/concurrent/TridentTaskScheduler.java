@@ -113,8 +113,8 @@ public class TridentTaskScheduler extends ForwardingCollection<ScheduledTask> im
     }
 
     public void shutdown() {
-        taskExecutor.shutdown();
         taskList.clear();
+        taskExecutor.shutdown();
     }
 
     @Override

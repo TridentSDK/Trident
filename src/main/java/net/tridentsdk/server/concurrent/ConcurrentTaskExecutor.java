@@ -163,7 +163,7 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements S
             workerSet.add(worker);
             worker.start();
         } else {
-            worker = (ConcurrentWorker) selectNext();
+            worker = (ConcurrentWorker) workerSet.get(ThreadLocalRandom.current().nextInt(workerSet.size()));
         }
 
         return worker;
@@ -202,6 +202,8 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements S
         return workerSet.get(count);
     }
 
+    // TODO HOT CONCURRENT METHOD NOT INLINEABLE: TOO LARGE
+    // 150 bytes
     @Override
     public SelectableThread selectNext() {
         int count;
@@ -301,6 +303,8 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements S
         return future;
     }
 
+    // TODO HOT CONCURRENT METHOD NOT INLINEABLE: CODE CACHE TOO SMALL
+    // 65 bytes
     @Override
     public void execute(@Nonnull Runnable runnable) {
         for (SelectableThread ex : workerSet) {
@@ -362,6 +366,7 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements S
         public void execute(Runnable task) {
             if (Thread.currentThread().equals(asThread())) {
                 task.run();
+                return;
             }
 
             long stamp = lock.writeLock();
@@ -448,6 +453,8 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements S
             }
         }
 
+        // TODO HOT CONCURRENT METHOD NOT INLINEABLE: TOO LARGE
+        // 79 bytes
         @Override
         public void interrupt() {
             // Most important thing: don't allow new tasks to be submitted
@@ -463,7 +470,7 @@ public class ConcurrentTaskExecutor extends AbstractExecutorService implements S
             }
 
             // in case I dun goofed
-            left.forEach(r -> selectNext().execute(r));
+            left.forEach(r -> selectCore().execute(r));
 
             super.interrupt();
         }

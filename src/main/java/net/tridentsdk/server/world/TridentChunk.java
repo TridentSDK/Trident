@@ -25,19 +25,14 @@ import net.tridentsdk.base.Block;
 import net.tridentsdk.base.BoundingBox;
 import net.tridentsdk.base.Position;
 import net.tridentsdk.base.Substance;
-import net.tridentsdk.concurrent.Joiner;
-import net.tridentsdk.concurrent.ScheduledRunnable;
 import net.tridentsdk.concurrent.SelectableThread;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.meta.block.BlockMeta;
 import net.tridentsdk.meta.block.Tile;
 import net.tridentsdk.meta.nbt.*;
-import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.concurrent.ThreadsHandler;
 import net.tridentsdk.server.entity.TridentEntity;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutChunkData;
-import net.tridentsdk.server.packets.play.out.PacketPlayOutMapChunkBulk;
-import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.util.NibbleArray;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.util.Vector;
@@ -51,6 +46,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReferenceArray;
@@ -74,8 +70,6 @@ public class TridentChunk implements Chunk {
     private final AtomicInteger lightPopulated = new AtomicInteger();
     private final AtomicInteger terrainPopulated = new AtomicInteger();
 
-    private final HashSet<ChunkLocation> manipulatedChunks = new HashSet<>();
-
     protected TridentChunk(TridentWorld world, int x, int z) {
         this(world, ChunkLocation.create(x, z));
     }
@@ -85,6 +79,9 @@ public class TridentChunk implements Chunk {
         this.location = coord;
         this.lastFileAccess = 0;
         sections = new ChunkSection[16];
+        for (int i = 0; i < 256; i++) {
+            heights.set(i, 0);
+        }
         /*for (int i = 0; i < 16; i ++) {
             sections[i] = new ChunkSection();
         }*/
@@ -141,7 +138,6 @@ public class TridentChunk implements Chunk {
             return;
         }
 
-        Joiner joiner = new Joiner();
         executor.execute(() -> {
             // Don't call mapSections, as this generates them
             ChunkSection[] sections = this.sections;
@@ -188,10 +184,12 @@ public class TridentChunk implements Chunk {
             // =====
 
             lightPopulated.set(0x01);
-            joiner.doJoin();
+
+            for (QueuedEdit edit : edits) {
+                edit.apply(TridentChunk.this);
+            }
             //TODO lighting
         });
-        joiner.await();
     }
 
     public void paint() {
@@ -201,11 +199,11 @@ public class TridentChunk implements Chunk {
         }
 
         List<AbstractOverlayBrush> brushes = world.loader().brushes();
+        Map<ChunkLocation, TridentChunk> localCache = new ConcurrentHashMap<>();
         AbstractOverlayBrush.ChunkManipulator manipulator = new AbstractOverlayBrush.ChunkManipulator() {
             @Override
             public void manipulate(int relX, int y, int relZ, Substance substance, byte data) {
                 if (relX >= 0 && relX <= 15 && relZ >= 0 && relZ <= 15) {
-                    manipulatedChunks.add(location);
                     setAt(relX, y, relZ, substance, data, (byte) 255, (byte) 15);
                     return;
                 }
@@ -240,10 +238,7 @@ public class TridentChunk implements Chunk {
                 }
 
                 ChunkLocation loc = ChunkLocation.create(chunkX, chunkZ);
-                TridentChunk chunk = rawChunk(loc);
-                if(chunk.isGen()){
-                    manipulatedChunks.add(loc);
-                }
+                TridentChunk chunk = localCache.computeIfAbsent(loc, (k) -> rawChunk(loc));
                 chunk.setAt(newX, y, newZ, substance, data, (byte) 255, (byte) 15);
             }
 
@@ -283,62 +278,25 @@ public class TridentChunk implements Chunk {
                 }
 
                 ChunkLocation loc = ChunkLocation.create(chunkX, chunkZ);
-                TridentChunk chunk = rawChunk(loc);
+                TridentChunk chunk = localCache.computeIfAbsent(loc, (k) -> rawChunk(loc));
                 return chunk.blockAt(newX, y, newZ);
             }
         };
 
-        executor.execute(() -> {
-            manipulatedChunks.clear();
-            for (int i = 0; i < 16; i++) {
-                for (int j = 0; j < 16; j++) {
-                    for (AbstractOverlayBrush brush : brushes) {
-                        brush.brush(location, i, j, world.random(), heights, manipulator);
-                    }
+        for (int i = 0; i < 16; i++) {
+            for (int j = 0; j < 16; j++) {
+                for (AbstractOverlayBrush brush : brushes) {
+                    brush.brush(location, i, j, world.random(), heights, manipulator);
                 }
             }
+        }
 
-            // Label as populated, so the chunk is not repopulated
-            terrainPopulated.set(0x01);
-
-            /*if(manipulatedChunks.size() > 0) {
-                PacketPlayOutMapChunkBulk packet = new PacketPlayOutMapChunkBulk();
-                manipulatedChunks.stream().forEach(c -> packet.addEntry(rawChunk(c).asPacket()));
-                Position thisChunk = new Position(null, location.x() * 16, 64, location.z() * 16);
-                TridentPlayer.sendFiltered(packet, player -> {
-                    if(player.position().distanceSquared(thisChunk) < 240){
-                        System.out.println("Sending " + manipulatedChunks.size() + " chunks to " + player.name());
-                        return true;
-                    }
-
-                    return false;
-                });
-            }*/
-
-            if(manipulatedChunks.size() > 0) {
-                HashSet<ChunkLocation> toUpdate = new HashSet<>(manipulatedChunks);
-                Registered.tasks().asyncLater(null, new ScheduledRunnable() {
-                    @Override
-                    public void run() {
-                        PacketPlayOutMapChunkBulk packet = new PacketPlayOutMapChunkBulk();
-                        toUpdate.stream().forEach(c -> packet.addEntry(rawChunk(c).asPacket()));
-                        Position thisChunk = new Position(null, location.x() * 16, 64, location.z() * 16);
-                        TridentPlayer.sendFiltered(packet, player -> player.position().distanceSquared(thisChunk) < 240);
-                    }
-                }, 20L);
-            }
-        });
+        // Label as populated, so the chunk is not repopulated
+        terrainPopulated.set(0x01);
     }
 
     private TridentChunk rawChunk(ChunkLocation location) {
-        TridentChunk chunk = world.chunkAt(location, false);
-        if (chunk == null) {
-            chunk = new TridentChunk(world, location);
-            world.addChunkAt(location, chunk);
-        }
-
-        chunk.generate();
-
+        TridentChunk chunk = world.chunkAt(location, true);
         return chunk;
     }
 
@@ -588,17 +546,47 @@ public class TridentChunk implements Chunk {
         setAt((int) p.x(), (int) p.y(), (int) p.z(), type, metaData, skyLight, blockLight);
     }
 
+    private final HashSet<QueuedEdit> edits = new HashSet<>();
+    class QueuedEdit {
+        private final int x;
+        private final int y;
+        private final int z;
+        private final Substance type;
+        private final byte metaData;
+        private final byte skyLight;
+        private final byte blockLight;
+
+        public QueuedEdit(int x, final int y, int z, final Substance type, final byte metaData, final byte skyLight,
+                          final byte blockLight) {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+            this.type = type;
+            this.metaData = metaData;
+            this.skyLight = skyLight;
+            this.blockLight = blockLight;
+        }
+
+        public void apply(TridentChunk chunk) {
+            chunk.setAt(x, y, z, type, metaData, skyLight, blockLight);
+        }
+    }
+
     public void setAt(int x, final int y, int z, final Substance type, final byte metaData, final byte skyLight,
                       final byte blockLight) {
         final int index = WorldUtils.blockArrayIndex(x & 15, y & 15, z & 15);
         executor.execute(() -> {
-            ChunkSection[] sections = mapSections();
-            ChunkSection section = sections[WorldUtils.section(y)];
+            if (lightPopulated.get() != 0x01) {
+                edits.add(new QueuedEdit(x, y, z, type, metaData, skyLight,blockLight));
+            } else {
+                ChunkSection[] sections = mapSections();
+                ChunkSection section = sections[WorldUtils.section(y)];
 
-            section.types[index] = (char) ((type.asExtended() & 0xfff0) | metaData);
-            NibbleArray.set(section.data, index, metaData);
-            NibbleArray.set(section.skyLight, index, skyLight);
-            NibbleArray.set(section.blockLight, index, blockLight);
+                section.types[index] = (char) ((type.asExtended() & 0xfff0) | metaData);
+                NibbleArray.set(section.data, index, metaData);
+                NibbleArray.set(section.skyLight, index, skyLight);
+                NibbleArray.set(section.blockLight, index, blockLight);
+            }
         });
     }
 

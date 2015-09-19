@@ -394,7 +394,7 @@ public class TridentWorld implements World {
     }
 
     public void tick() {
-        ThreadsHandler.worldExecutor().selectNext().execute(() -> {
+        ThreadsHandler.worldExecutor().execute(() -> {
             redstoneTick = !redstoneTick;
 
             if (time.get() >= 24000)

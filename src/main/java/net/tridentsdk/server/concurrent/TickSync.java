@@ -116,6 +116,8 @@ public final class TickSync {
     /**
      * Blocks the thread until this method is called again by a {@link #complete(String)} method
      */
+    // TODO HOT CONCURRENT METHOD NOT INLINEABLE: TOO LARGE
+    // 215 bytes
     public static void awaitSync() {
         boolean b = canProceed();
         if (b) return;
@@ -145,6 +147,8 @@ public final class TickSync {
     /**
      * Resets the counters and the blocking mechanisms for the next tick iteration
      */
+    // TODO HOT CONCURRENT METHOD NOT INLINEABLE: TOO LARGE
+    // 40 bytes
     public static void reset() {
         expected.reset();
         complete.reset();
@@ -158,6 +162,8 @@ public final class TickSync {
      *
      * @param pluginTask the task
      */
+    // TODO HOT CONCURRENT METHOD NOT INLINEABLE: MAIN THREAD METHOD TOO LARGE
+    // ?? bytes
     public static void sync(Runnable pluginTask) {
         synchronized (TickSync.class) {
             pluginTasks.add(pluginTask);
@@ -176,6 +182,8 @@ public final class TickSync {
      * @return a task, or {@code null} if there were none
      * @throws InterruptedException if the current thread was interrupted in waiting for a task
      */
+    // TODO HOT CONCURRENT METHOD NOT INLINEABLE: TOO LARGE
+    // 48 bytes
     public static Runnable waitForTask(long waitNanos) throws InterruptedException {
         synchronized (TickSync.class) {
             Runnable task;

@@ -170,6 +170,8 @@ public class MainThread extends Thread {
         }
     }
 
+    // TODO HOT CONCURRENT METHOD NOT INLINEABLE: TOO LARGE
+    // 54 bytes
     private void correctTiming() {
         long expectedTime = (long) ((this.ticksElapsed.get() - 1) * this.tickLength);
         long actualTime = System.currentTimeMillis() - this.zeroBase;
