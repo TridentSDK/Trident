@@ -244,15 +244,15 @@ public class TridentPlayer extends OfflinePlayer {
     @Override
     protected void doTick() {
         int distance = viewDistance();
-        if (!loggingIn)
+        if (!loggingIn) {
             ThreadsHandler.chunkExecutor().execute(() -> {
-                sendChunks(distance);
-
                 for (int i = 0; i < CLEAN_ITERATIONS; i++) {
                     if (knownChunks.size() > MAX_CHUNKS)
                         cleanChunks(distance - i);
                 }
             });
+            ThreadsHandler.chunkExecutor().execute(() -> sendChunks(distance));
+        }
 
         connection.tick();
     }
@@ -457,14 +457,18 @@ public class TridentPlayer extends OfflinePlayer {
             for (int z = (centZ - viewDistance / 2); z <= (centZ + viewDistance / 2); z += 1) {
                 ChunkLocation location = ChunkLocation.create(x, z);
                 if (knownChunks.contains(location)) continue;
-                set.add(((TridentChunk) world().chunkAt(location, true)));
+                for (int i = x - 1; i <= x + 1; i++) {
+                    for (int j = z - 1; j <= z + 1; j++) {
+                        set.add(((TridentChunk) world().chunkAt(location, true)));
+                    }
+                }
             }
         }
 
         for (TridentChunk chunk : set) {
-            if (chunk.isGen() && knownChunks.add(chunk.location())) {
-                bulk.addEntry(chunk.asPacket());
-            }
+            if (chunk.isGen())
+                if (knownChunks.add(chunk.location()))
+                    bulk.addEntry(chunk.asPacket());
 
             if (bulk.size() >= 1845152) {
                 connection().sendPacket(bulk);

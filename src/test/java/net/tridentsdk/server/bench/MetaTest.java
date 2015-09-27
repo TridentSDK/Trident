@@ -12,7 +12,6 @@ import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 import org.openjdk.jmh.runner.options.TimeValue;
-import org.openjdk.jmh.runner.options.VerboseMode;
 
 import java.util.Collections;
 import java.util.Map;
@@ -21,14 +20,12 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
-import static net.tridentsdk.server.bench.Benchmarks.*;
-
 /*
 http://bit.ly/1Pl7Mwi
  */
 @State(Scope.Benchmark)
 public class MetaTest {
-    @Param({ "1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024" })
+    //@Param({ "1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024" })
     private int cpuTokens;
 
     public static void main(String[] args) throws RunnerException {
@@ -40,11 +37,11 @@ public class MetaTest {
                 .measurementIterations(5)
                 .measurementTime(TimeValue.milliseconds(1))
                 .forks(1)
-                .threads(4)
-                .verbosity(VerboseMode.SILENT)
+                        //.threads(4)
+                        //.verbosity(VerboseMode.SILENT)
                 .build();
 
-        chart(parse(new Runner(opt).run()), "Meta storage Map vs Set - 4 threads");
+        new Runner(opt).run();
     }
 
     public static class MapMeta {
@@ -84,6 +81,10 @@ public class MetaTest {
         }
     }
 
+    public static class InheritMeta {
+        private final ColorMeta meta = new ColorMetaImpl();
+    }
+
     private final MapMeta map = new MapMeta();
     private final SetMeta array = new SetMeta();
     private final Random random = new Random();
@@ -100,14 +101,14 @@ public class MetaTest {
         value = SubstanceColor.values()[random.nextInt(SubstanceColor.values().length)];
     }
 
-    @Benchmark
+    //@Benchmark
     public void control() {
         Blackhole.consumeCPU(cpuTokens);
     }
 
     @Benchmark
     public SubstanceColor map() {
-        Blackhole.consumeCPU(cpuTokens);
+        //Blackhole.consumeCPU(cpuTokens);
 
         ColorMeta meta = map.getMeta(ColorMeta.class);
         meta.setColor(value);
@@ -117,7 +118,7 @@ public class MetaTest {
 
     @Benchmark
     public SubstanceColor set() {
-        Blackhole.consumeCPU(cpuTokens);
+        //Blackhole.consumeCPU(cpuTokens);
 
         ColorMeta meta = array.getMeta(ColorMeta.class);
         meta.setColor(value);

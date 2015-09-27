@@ -1,4 +1,4 @@
-TridentSDK [![Build Status](https://travis-ci.org/TridentSDK/Trident.svg?branch=bleeding-edge)](https://travis-ci.org/TridentSDK/Trident)
+Trident [![Build Status](https://travis-ci.org/TridentSDK/Trident.svg?branch=bleeding-edge)](https://travis-ci.org/TridentSDK/Trident)
 =========
 
 The Trident project, the implementation of the new generation of multi-threaded, high-performance, and cleanroom Minecraft servers.

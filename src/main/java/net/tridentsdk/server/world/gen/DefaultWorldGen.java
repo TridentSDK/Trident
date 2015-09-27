@@ -44,7 +44,7 @@ public class DefaultWorldGen extends AbstractGenerator {
 
     @Override
     public char[][] generateChunkBlocks(final ChunkLocation location, AtomicReferenceArray<Integer> heights) {
-        final char[][] data = new char[15][ChunkSection.LENGTH];
+        final char[][] data = new char[16][ChunkSection.LENGTH];
         final CountDownLatch release = new CountDownLatch(16);
 
         for (int x = 0; x < 16; x++) {

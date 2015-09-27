@@ -25,12 +25,10 @@ import net.tridentsdk.base.Block;
 import net.tridentsdk.base.BoundingBox;
 import net.tridentsdk.base.Position;
 import net.tridentsdk.base.Substance;
-import net.tridentsdk.concurrent.SelectableThread;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.meta.block.BlockMeta;
 import net.tridentsdk.meta.block.Tile;
 import net.tridentsdk.meta.nbt.*;
-import net.tridentsdk.server.concurrent.ThreadsHandler;
 import net.tridentsdk.server.entity.TridentEntity;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutChunkData;
 import net.tridentsdk.util.NibbleArray;
@@ -45,9 +43,7 @@ import net.tridentsdk.world.gen.AbstractOverlayBrush;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.function.Predicate;
@@ -56,12 +52,10 @@ import java.util.stream.Collectors;
 public class TridentChunk implements Chunk {
     private final TridentWorld world;
     private final ChunkLocation location;
-    final SelectableThread executor = ThreadsHandler.chunkExecutor().selectCore();
 
+    public final ConcurrentSectionTable sections = new ConcurrentSectionTable();
     private final Set<Entity> entities = Sets.newConcurrentHashSet();
     private final Map<Vector, List<BlockMeta>> blockMeta = Maps.newConcurrentMap();
-
-    public ChunkSection[] sections;
     private final AtomicReferenceArray<Integer> heights = new AtomicReferenceArray<>(256);
 
     private volatile int lastFileAccess;
@@ -78,18 +72,9 @@ public class TridentChunk implements Chunk {
         this.world = world;
         this.location = coord;
         this.lastFileAccess = 0;
-        sections = new ChunkSection[16];
         for (int i = 0; i < 256; i++) {
             heights.set(i, 0);
         }
-        /*for (int i = 0; i < 16; i ++) {
-            sections[i] = new ChunkSection();
-        }*/
-    }
-
-    // IMPORTANT: MUST BE CALLED FROM executor
-    private ChunkSection[] mapSections() {
-        return sections;
     }
 
     protected int lastFileAccess() {
@@ -138,58 +123,39 @@ public class TridentChunk implements Chunk {
             return;
         }
 
-        executor.execute(() -> {
-            // Don't call mapSections, as this generates them
-            ChunkSection[] sections = this.sections;
-
-            for (int i = 0; i < 16; i++) {
-                if (sections[i] == null) {
-                    sections[i] = new ChunkSection((byte) i);
-                }
-            }
-
+        sections.writeLockFully();
+        try {
             AbstractGenerator generator = world.loader().generator();
-            int i = 0;
+            char[][] blocks = generator.generateChunkBlocks(location, heights);
+            byte[][] data = generator.generateBlockData(location);
+            for (int i = 0; i < 16; i++) {
+                ChunkSection section = sections.get(i);
 
-            for (char[] blockData : generator.generateChunkBlocks(location, heights)) {
-                sections[i].setBlocks(blockData);
-                i++;
-            }
-
-            i = 0;
-
-            for (byte[] dataValues : generator.generateBlockData(location)) {
-                sections[i].setData(dataValues);
-                i++;
-            }
-
-            for (ChunkSection section : sections) {
-                if (section.blockLight == null) {
-                    section.blockLight = new byte[ChunkSection.LENGTH / 2];
+                if (blocks != null && blocks.length > 0) {
+                    char[] sector = blocks[i];
+                    if (sector != null && sector.length > 0) {
+                        section.setBlocks(sector);
+                    }
                 }
 
-                if (section.skyLight == null) {
-                    section.skyLight = new byte[ChunkSection.LENGTH / 2];
+                if (data != null && data.length > 0) {
+                    byte[] sector = data[i];
+                    if (sector != null && sector.length > 0) {
+                        section.setData(sector);
+                    }
                 }
 
-                if (section.types == null) {
-                    section.types = new char[ChunkSection.LENGTH];
-                }
+                // DEBUG ===== makes the entire chunk completely lit, not ideal for production
+                Arrays.fill(section.skyLight, (byte) 255);
+                // =====
+                section.updateRaw();
             }
+        } finally {
+            sections.releaseWrite();
+        }
 
-            // DEBUG ===== Makes the entire chunk full brightness, not exactly ideal
-            for (i = 0; i < 16; i++) {
-                Arrays.fill(sections[i].skyLight, (byte) 255);
-            }
-            // =====
-
-            lightPopulated.set(0x01);
-
-            for (QueuedEdit edit : edits) {
-                edit.apply(TridentChunk.this);
-            }
-            //TODO lighting
-        });
+        lightPopulated.set(0x01);
+        //TODO lighting
     }
 
     public void paint() {
@@ -332,45 +298,31 @@ public class TridentChunk implements Chunk {
 
     @Override
     public Block blockAt(final int relX, final int y, final int relZ) {
-        final int index = WorldUtils.blockArrayIndex(relX, y & 15, relZ);
+        int index = WorldUtils.blockArrayIndex(relX, y & 15, relZ);
+        int sectionIndex = WorldUtils.section(y);
+        return sections.read(sectionIndex, (section) -> {
+            /* Get block data; use extras accordingly */
+            byte b = (byte) (section.types[index] >> 4);
+            byte meta = (byte) (section.types[index] & 0xF);
 
-        try {
-            //noinspection Convert2Lambda Because lamdbda doesn't carry over generic type of method
-            return executor.submitTask(new Callable<Block>() {
-                @Override
-                public Block call() throws Exception{
-                    ChunkSection[] sections = mapSections();
+            Substance material = Substance.fromId(b);
 
-                    int sectionIndex = WorldUtils.section(y);
-                    ChunkSection section = sections[sectionIndex];
+            if (material == null) {
+                material = Substance.AIR; // check if valid
+            }
 
-                    /* Get block data; use extras accordingly */
-                    byte b = (byte) (section.types[index] >> 4);
-                    byte meta = (byte) (section.types[index] & 0xF);
-
-                    Substance material = Substance.fromId(b);
-
-                    if (material == null) {
-                        material = Substance.AIR; // check if valid
-                    }
-
-                    TridentBlock block = new TridentBlock(Position.create(world, relX + x() * 16, y, relZ + z() * 16),
-                            material, meta);
-                    Vector key = new Vector(relX, y, relZ);
-                    List<BlockMeta> metas = blockMeta.get(key);
-                    if (metas != null) {
-                        for (BlockMeta m : metas) {
-                            block.applyMeta(m);
-                        }
-                    }
-
-                    return block;
+            TridentBlock block = new TridentBlock(Position.create(world, relX + x() * 16, y, relZ + z() * 16),
+                    material, meta);
+            Vector key = new Vector(relX, y, relZ);
+            List<BlockMeta> metas = blockMeta.get(key);
+            if (metas != null) {
+                for (BlockMeta m : metas) {
+                    block.applyMeta(m);
                 }
-            }).get();
-        } catch (InterruptedException | ExecutionException e) {
-            TridentLogger.get().error(e);
-            return null;
-        }
+            }
+
+            return block;
+        });
     }
 
     @Override
@@ -379,58 +331,56 @@ public class TridentChunk implements Chunk {
     }
 
     public PacketPlayOutChunkData asPacket() {
+        sections.readLockFully();
         try {
-            return executor.submitTask(() -> {
-                ChunkSection[] sections = mapSections();
+            int bitmask = 65535;
+            ByteArrayOutputStream data = new ByteArrayOutputStream();
 
-                int bitmask = (1 << sections.length) - 1;
-                ByteArrayOutputStream data = new ByteArrayOutputStream();
+            for (int i = 0; i < 16; i++) {
+                ChunkSection section = sections.get(i);
+                if (section == null) {
+                    continue;
+                }
 
-                for (ChunkSection section : sections) {
-                    if (section == null)
+                for (char c : section.types()) {
+                    data.write(c & 0xff);
+                    data.write(c >> 8);
+                }
+            }
+
+            for (int i = 0; i < 16; i++) {
+                ChunkSection section = sections.get(i);
+                try {
+                    if (section == null) {
                         continue;
-
-                    for (char c : section.types()) {
-                        data.write(c & 0xff);
-                        data.write(c >> 8);
                     }
+
+                    data.write(section.blockLight);
+                } catch (IOException e) {
+                    TridentLogger.get().error(e);
                 }
+            }
 
-                for (ChunkSection section : sections) {
-                    try {
-                        if (section == null) {
-                            data.write(0);
-                            continue;
-                        }
-
-                        data.write(section.blockLight);
-                    } catch (IOException e) {
-                        TridentLogger.get().error(e);
+            for (int i = 0; i < 16; i++) {
+                ChunkSection section = sections.get(i);
+                try {
+                    if (section == null) {
+                        continue;
                     }
+
+                    data.write(section.skyLight);
+                } catch (IOException e) {
+                    TridentLogger.get().error(e);
                 }
+            }
 
-                for (ChunkSection section : sections) {
-                    try {
-                        if (section == null) {
-                            data.write(0);
-                            continue;
-                        }
+            for (int i = 0; i < 256; i += 1) {
+                data.write(0);
+            }
 
-                        data.write(section.skyLight);
-                    } catch (IOException e) {
-                        TridentLogger.get().error(e);
-                    }
-                }
-
-                for (int i = 0; i < 256; i += 1) {
-                    data.write(0);
-                }
-
-                return new PacketPlayOutChunkData(data.toByteArray(), location, false, (short) bitmask);
-            }).get();
-        } catch (InterruptedException | ExecutionException e) {
-            TridentLogger.get().error(e);
-            return null;
+            return new PacketPlayOutChunkData(data.toByteArray(), location, false, (short) bitmask);
+        } finally {
+            sections.releaseRead();
         }
     }
 
@@ -457,23 +407,23 @@ public class TridentChunk implements Chunk {
                 "TileTicks", TagType.COMPOUND);
         final List<NBTTag> sectionsList = sectionTags.listTags();
 
-        final ChunkSection[] sections = new ChunkSection[sectionsList.size()];
-
         /* Load sections */
-        for (int i = 0; i < sectionsList.size(); i += 1) {
-            NBTTag t = sectionTags.getTag(i);
+        sections.writeLockFully();
+        try {
+            for (int i = 0; i < sectionsList.size(); i += 1) {
+                NBTTag t = sectionTags.getTag(i);
 
-            if (t instanceof CompoundTag) {
-                CompoundTag ct = (CompoundTag) t;
+                if (t instanceof CompoundTag) {
+                    CompoundTag ct = (CompoundTag) t;
 
-                ChunkSection section = NBTSerializer.deserialize(ChunkSection.class, ct);
-
-                section.loadBlocks();
-                sections[section.y()] = section;
+                    ChunkSection section = NBTSerializer.deserialize(ChunkSection.class, ct);
+                    section.loadBlocks();
+                    sections.set(section.y(), section);
+                }
             }
+        } finally {
+            sections.releaseWrite();
         }
-
-        executor.execute(() -> this.sections = sections);
 
         for (NBTTag t : entities.listTags()) {
             //TridentEntity entity = EntityBuilder.create().build(TridentEntity.class);
@@ -492,10 +442,8 @@ public class TridentChunk implements Chunk {
 
     @Override
     public void unload() {
-        executor.execute(() -> {
-            world.loader().saveChunk(this);
-            world.loadedChunks.remove(location);
-        });
+        world.loader().saveChunk(this);
+        world.loadedChunks.remove(location);
     }
 
     public CompoundTag asNbt() {
@@ -517,16 +465,11 @@ public class TridentChunk implements Chunk {
 
         final ListTag sectionTags = new ListTag("Sections", TagType.COMPOUND);
 
-        ChunkSection[] sectionCopy = new ChunkSection[0];
-        try {
-            sectionCopy = executor.submitTask(this::mapSections).get();
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-        }
-
-        for (ChunkSection section : sectionCopy) {
-            section.updateRaw();
-            sectionTags.addTag(NBTSerializer.serialize(section));
+        for (int i = 0; i < 16; i++) {
+            sections.write(i, (section) -> {
+                section.updateRaw();
+                sectionTags.addTag(NBTSerializer.serialize(section));
+            });
         }
 
         level.addTag(sectionTags);
@@ -546,47 +489,14 @@ public class TridentChunk implements Chunk {
         setAt((int) p.x(), (int) p.y(), (int) p.z(), type, metaData, skyLight, blockLight);
     }
 
-    private final HashSet<QueuedEdit> edits = new HashSet<>();
-    class QueuedEdit {
-        private final int x;
-        private final int y;
-        private final int z;
-        private final Substance type;
-        private final byte metaData;
-        private final byte skyLight;
-        private final byte blockLight;
-
-        public QueuedEdit(int x, final int y, int z, final Substance type, final byte metaData, final byte skyLight,
-                          final byte blockLight) {
-            this.x = x;
-            this.y = y;
-            this.z = z;
-            this.type = type;
-            this.metaData = metaData;
-            this.skyLight = skyLight;
-            this.blockLight = blockLight;
-        }
-
-        public void apply(TridentChunk chunk) {
-            chunk.setAt(x, y, z, type, metaData, skyLight, blockLight);
-        }
-    }
-
     public void setAt(int x, final int y, int z, final Substance type, final byte metaData, final byte skyLight,
                       final byte blockLight) {
         final int index = WorldUtils.blockArrayIndex(x & 15, y & 15, z & 15);
-        executor.execute(() -> {
-            if (lightPopulated.get() != 0x01) {
-                edits.add(new QueuedEdit(x, y, z, type, metaData, skyLight,blockLight));
-            } else {
-                ChunkSection[] sections = mapSections();
-                ChunkSection section = sections[WorldUtils.section(y)];
-
-                section.types[index] = (char) ((type.asExtended() & 0xfff0) | metaData);
-                NibbleArray.set(section.data, index, metaData);
-                NibbleArray.set(section.skyLight, index, skyLight);
-                NibbleArray.set(section.blockLight, index, blockLight);
-            }
+        sections.write(WorldUtils.section(y), (section) -> {
+            section.types[index] = (char) ((type.asExtended() & 0xfff0) | metaData);
+            NibbleArray.set(section.data, index, metaData);
+            NibbleArray.set(section.skyLight, index, skyLight);
+            NibbleArray.set(section.blockLight, index, blockLight);
         });
     }
 

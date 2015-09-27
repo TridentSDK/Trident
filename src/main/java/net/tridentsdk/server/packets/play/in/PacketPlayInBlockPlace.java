@@ -121,8 +121,6 @@ public class PacketPlayInBlockPlace extends InPacket {
             }
             // TODO Add all functional blocks (workbench, furnace, anvil, etc)
         } else if (player.heldItem() != null && player.heldItem().type() != Substance.AIR) {
-            System.out.println(position);
-
             short yaw = (short) (player.position().yaw() * 10);
             short meta = player.heldItem().damageValue();
             Value<Byte> result = Value.of((byte) 0);
