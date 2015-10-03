@@ -45,7 +45,7 @@ public class GenTest {
         Registered.setProvider(trident);
     }
 
-    public static void main(String[] args) throws RunnerException {
+    public static void main0(String[] args) throws RunnerException {
         Options opt = new OptionsBuilder()
                 .include(".*" + GenTest.class.getSimpleName() + ".*")
                 .mode(Mode.AverageTime)
@@ -61,7 +61,7 @@ public class GenTest {
         new Runner(opt).run();
     }
 
-    public static void main0(String[] args) {
+    public static void main(String[] args) {
         GenTest test = new GenTest();
         test.setup0();
         while (true) {

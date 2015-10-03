@@ -116,8 +116,7 @@ public class TridentChunk implements Chunk {
         return blockMeta;
     }
 
-    @Override
-    public void generate() {
+    public void gen(boolean bool) {
         // Has or is generated already if the state is not 0x00
         if (!lightPopulated.compareAndSet(0x00, 0xFFFFFFFF)) {
             return;
@@ -150,12 +149,19 @@ public class TridentChunk implements Chunk {
                 // =====
                 section.updateRaw();
             }
+
+            if (bool) paint();
         } finally {
             sections.releaseWrite();
         }
 
         lightPopulated.set(0x01);
         //TODO lighting
+    }
+
+    @Override
+    public void generate() {
+        gen(true);
     }
 
     public void paint() {
@@ -165,12 +171,17 @@ public class TridentChunk implements Chunk {
         }
 
         List<AbstractOverlayBrush> brushes = world.loader().brushes();
-        Map<ChunkLocation, TridentChunk> localCache = new ConcurrentHashMap<>();
+        ConcurrentHashMap<ChunkLocation, TridentChunk> localCache = new ConcurrentHashMap<>();
         AbstractOverlayBrush.ChunkManipulator manipulator = new AbstractOverlayBrush.ChunkManipulator() {
             @Override
             public void manipulate(int relX, int y, int relZ, Substance substance, byte data) {
                 if (relX >= 0 && relX <= 15 && relZ >= 0 && relZ <= 15) {
-                    setAt(relX, y, relZ, substance, data, (byte) 255, (byte) 15);
+                    final int index = WorldUtils.blockArrayIndex(relX & 15, y & 15, relZ & 15);
+                    ChunkSection section = sections.get(WorldUtils.section(y));
+                    section.types[index] = (char) ((substance.asExtended() & 0xfff0) | data);
+                    NibbleArray.set(section.data, index, data);
+                    NibbleArray.set(section.skyLight, index, (byte) 255);
+                    NibbleArray.set(section.blockLight, index, (byte) 255);
                     return;
                 }
 
@@ -211,7 +222,28 @@ public class TridentChunk implements Chunk {
             @Override
             public Block blockAt(int relX, int y, int relZ) {
                 if (relX >= 0 && relX <= 15 && relZ >= 0 && relZ <= 15) {
-                    return TridentChunk.this.blockAt(relX, y, relZ);
+                    ChunkSection section = sections.get(WorldUtils.section(y));
+                    int index = WorldUtils.blockArrayIndex(relX, y & 15, relZ);
+                    byte b = (byte) (section.types[index] >> 4);
+                    byte meta = (byte) (section.types[index] & 0xF);
+
+                    Substance material = Substance.fromId(b);
+
+                    if (material == null) {
+                        material = Substance.AIR; // check if valid
+                    }
+
+                    TridentBlock block = new TridentBlock(Position.create(world, relX + x() * 16, y, relZ + z() * 16),
+                            material, meta);
+                    Vector key = new Vector(relX, y, relZ);
+                    List<BlockMeta> metas = blockMeta.get(key);
+                    if (metas != null) {
+                        for (BlockMeta m : metas) {
+                            block.applyMeta(m);
+                        }
+                    }
+
+                    return block;
                 }
 
                 int cx = location.x();
@@ -262,7 +294,12 @@ public class TridentChunk implements Chunk {
     }
 
     private TridentChunk rawChunk(ChunkLocation location) {
-        TridentChunk chunk = world.chunkAt(location, true);
+        TridentChunk chunk = world.chunkAt(location, false);
+        if (chunk == null) {
+            chunk = new TridentChunk(world, location);
+            world.addChunkAt(location, chunk);
+        }
+        chunk.gen(false);
         return chunk;
     }
 

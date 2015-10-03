@@ -80,7 +80,7 @@ public class ChunkCache {
 
     public boolean tryRemove(ChunkLocation location) {
         if (location.x() < 7 && location.z() < 7) {
-            // Spawn chunk
+            // Spawn chunk TODO spawn radius
             return true;
         }
 

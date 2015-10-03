@@ -177,7 +177,8 @@ public final class TridentStart {
             String ip = config.getString("address", Defaults.ADDRESS);
             int port = config.getInt("port", Defaults.PORT);
 
-            Runtime.getRuntime().addShutdownHook(new Thread(() -> TridentServer.instance().shutdown()));
+            // FIXME double shutdown for no reason...
+            // Runtime.getRuntime().addShutdownHook(new Thread(() -> TridentServer.instance().shutdown()));
 
             TridentLogger.get().log("Binding socket to server address, using address:port " + ip + ":" + port);
 

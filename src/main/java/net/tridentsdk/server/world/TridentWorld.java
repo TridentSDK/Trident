@@ -566,10 +566,7 @@ public class TridentWorld implements World {
             return null;
         }
 
-        TridentChunk chunk = this.loadedChunks.get(location, generateIfNotFound);
-        if (chunk != null && generateIfNotFound) chunk.paint();
-
-        return chunk;
+        return this.loadedChunks.get(location, generateIfNotFound);
     }
 
     @Override

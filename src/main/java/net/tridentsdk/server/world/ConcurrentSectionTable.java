@@ -72,21 +72,21 @@ public class ConcurrentSectionTable {
         }
     }
 
-    public <T> T read(int i, Function<ChunkSection, T> consumer) {
+    public <T> T read(int i, Function<ChunkSection, T> func) {
         StampedLock lock = locks[i];
         long stamp = lock.readLock();
         try {
-            return consumer.apply(sections[i]);
+            return func.apply(sections[i]);
         } finally {
             lock.unlockRead(stamp);
         }
     }
 
-    public void write(int i, Consumer<ChunkSection> consumer) {
+    public void write(int i, Consumer<ChunkSection> func) {
         StampedLock lock = locks[i];
         long stamp = lock.writeLock();
         try {
-            consumer.accept(sections[i]);
+            func.accept(sections[i]);
         } finally {
             lock.unlockWrite(stamp);
         }
