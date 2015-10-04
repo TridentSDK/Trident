@@ -1,8 +1,21 @@
+/*
+ * Trident - A Multithreaded Server Alternative
+ * Copyright 2014 The TridentSDK Team
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package net.tridentsdk.server.world;
 
-import com.google.common.collect.Sets;
-
-import java.util.Set;
 import java.util.concurrent.locks.StampedLock;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -15,59 +28,11 @@ import java.util.function.Function;
 public class ConcurrentSectionTable {
     private final ChunkSection[] sections = new ChunkSection[16];
     private final StampedLock[] locks = new StampedLock[16];
-    private final Set<Thread> threads = Sets.newConcurrentHashSet();
 
     public ConcurrentSectionTable() {
         for (int i = 0; i < 16; i++) {
             sections[i] = new ChunkSection((byte) i);
-            locks[i] = new StampedLock() {
-                @Override
-                public long writeLock() {
-                    threads.add(Thread.currentThread());
-                    return super.writeLock();
-                }
-
-                @Override
-                public long readLock() {
-                    threads.add(Thread.currentThread());
-                    return super.readLock();
-                }
-
-                @Override
-                public boolean tryUnlockRead() {
-                    threads.remove(Thread.currentThread());
-                    return super.tryUnlockRead();
-                }
-
-                @Override
-                public boolean tryUnlockWrite() {
-                    threads.remove(Thread.currentThread());
-                    return super.tryUnlockWrite();
-                }
-
-                @Override
-                public void unlockRead(long stamp) {
-                    threads.remove(Thread.currentThread());
-                    super.unlockRead(stamp);
-                }
-
-                @Override
-                public void unlock(long stamp) {
-                    super.unlock(stamp);
-                }
-
-                @Override
-                public void unlockWrite(long stamp) {
-                    threads.remove(Thread.currentThread());
-                    super.unlockWrite(stamp);
-                }
-            };
-        }
-    }
-
-    public void printHeld() {
-        for (Thread thread : threads) {
-            System.out.println(thread.getName());
+            locks[i] = new StampedLock();
         }
     }
 

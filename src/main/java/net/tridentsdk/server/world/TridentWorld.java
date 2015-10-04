@@ -381,7 +381,7 @@ public class TridentWorld implements World {
             world.spawnPosition.setX(0);
             world.spawnPosition.setZ(0);
             int y = ((TridentChunk) world.spawnPosition.chunk()).maxHeightAt(0, 0);
-            world.spawnPosition().setY(y + 3);
+            world.spawnPosition().setY(y);
 
             world.save();
 

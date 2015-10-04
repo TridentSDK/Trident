@@ -85,13 +85,6 @@ public class TridentChunk implements Chunk {
         this.lastFileAccess = last;
     }
 
-    public void printHeld() {
-        System.out.println("Is " + ((world.loadedChunks.keys().contains(location) ? "contained" : "not contained") + " in world"));
-        System.out.println("Genned: " + lightPopulated.get());
-        System.out.println("Painted: " + terrainPopulated.get());
-        sections.printHeld();
-    }
-
     public boolean isGen() {
         return lightPopulated.get() == 0x01 && terrainPopulated.get() == 0x01;
     }
@@ -175,7 +168,6 @@ public class TridentChunk implements Chunk {
     }
 
     public void paint() {
-        System.out.println("Painting " + location);
         // If the state is not 0x00 it is either generating (-1) or has already been
         if (!terrainPopulated.compareAndSet(0x00, 0xFFFFFFFF)) {
             return;
@@ -293,7 +285,6 @@ public class TridentChunk implements Chunk {
             }
         };
 
-        System.out.println("Beginning cycle " + location + " on thread " + Thread.currentThread().getName());
         for (int i = 0; i < 16; i++) {
             for (int j = 0; j < 16; j++) {
                 for (AbstractOverlayBrush brush : brushes) {
@@ -304,7 +295,6 @@ public class TridentChunk implements Chunk {
 
         // Label as populated, so the chunk is not repopulated
         terrainPopulated.set(0x01);
-        System.out.println(location + " status set to " + terrainPopulated.get());
     }
 
     private TridentChunk rawChunk(ChunkLocation location) {

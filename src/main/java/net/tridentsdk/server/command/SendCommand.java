@@ -40,7 +40,6 @@ public class SendCommand extends Command {
             public void run() {
                 player.world().chunkAt(chunk.location(), true);
                 tell(player, chunk);
-                ((TridentChunk) chunk).printHeld();
 
                 if (((TridentChunk) chunk).isGen()) {
                     player.sendMessage("CHUNK " + chunk.location() + " IS GENERATED");

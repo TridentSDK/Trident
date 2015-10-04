@@ -251,7 +251,7 @@ public class TridentPlayer extends OfflinePlayer {
                         cleanChunks(distance - i);
                 }
             });
-            ThreadsHandler.chunkExecutor().execute(() -> sendChunks(distance));
+            sendChunks(distance);
         }
 
         connection.tick();
