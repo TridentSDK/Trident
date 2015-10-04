@@ -77,6 +77,18 @@ public class TridentChunk implements Chunk {
         }
     }
 
+    volatile boolean printed = false;
+
+    public void print() {
+        if (printed) {
+            return;
+        }
+        System.out.println("For chunk: " + location);
+        System.out.println("Chunk populated: " + lightPopulated.get());
+        System.out.println("Chunk features:" + terrainPopulated.get());
+        printed = true;
+    }
+
     protected int lastFileAccess() {
         return this.lastFileAccess;
     }

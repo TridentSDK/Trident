@@ -39,6 +39,8 @@ public class SendCommand extends Command {
             public void run() {
                 player.world().chunkAt(chunk.location(), true);
                 tell(player, chunk);
+
+                if (((TridentChunk) chunk).isGen()) cancel();
             }
         }, 0L, 20L);
     }
