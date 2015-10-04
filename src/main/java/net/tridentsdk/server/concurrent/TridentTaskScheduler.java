@@ -183,22 +183,23 @@ public class TridentTaskScheduler extends ForwardingCollection<ScheduledTask> im
             this.runnable = runnable;
             this.interval = step;
 
+            if (!type.name().contains("REPEAT")) {
+                this.runner = () -> {
+                    runnable.beforeRun();
+                    runnable.run();
+                    runnable.afterAsyncRun();
+                    cancel();
+                };
+            } else {
+                this.runner = () -> {
+                    runnable.beforeRun();
+                    runnable.run();
+                    runnable.afterAsyncRun();
+                };
+            }
+
             if (type.name().contains("ASYNC")) {
                 this.executor = taskExecutor.selectCore();
-                if (!type.name().contains("REPEAT")) {
-                    this.runner = () -> {
-                        runnable.beforeRun();
-                        runnable.run();
-                        runnable.afterAsyncRun();
-                        cancel();
-                    };
-                } else {
-                    this.runner = () -> {
-                        runnable.beforeRun();
-                        runnable.run();
-                        runnable.afterAsyncRun();
-                    };
-                }
             } else {
                 this.executor = new SelectableThread() {
                     @Override public void execute(Runnable task) { TickSync.sync(task); }
@@ -206,21 +207,6 @@ public class TridentTaskScheduler extends ForwardingCollection<ScheduledTask> im
                     @Override public void interrupt() {}
                     @Override public Thread asThread() { return null; }
                 };
-
-                if (!type.name().contains("REPEAT")) {
-                    this.runner = () -> {
-                        runnable.beforeRun();
-                        runnable.run();
-                        runnable.afterSyncRun();
-                        cancel();
-                    };
-                } else {
-                    this.runner = () -> {
-                        runnable.beforeRun();
-                        runnable.run();
-                        runnable.afterSyncRun();
-                    };
-                }
             }
         }
 
@@ -258,42 +244,27 @@ public class TridentTaskScheduler extends ForwardingCollection<ScheduledTask> im
         public void run() {
             switch (type) {
                 case ASYNC_RUN:
-                    this.executor.execute(this.runner);
-                    break;
-
-                case ASYNC_LATER:
-                    // Maybe over if the interval set lower
-                    if (run >= interval)
-                        this.executor.execute(this.runner);
-                    ++run;
-                    break;
-
-                case ASYNC_REPEAT:
-                    // Maybe over if the interval set lower
-                    if (run >= interval)
-                        this.executor.execute(this.runner);
-                    ++run;
-                    break;
-
                 case SYNC_RUN:
                     this.executor.execute(this.runner);
                     break;
 
+                case ASYNC_LATER:
                 case SYNC_LATER:
                     // May be over if the interval set lower
-                    if (run >= interval)
+                    if (++run >= interval)
                         this.executor.execute(this.runner);
-                    ++run;
                     break;
 
+                case ASYNC_REPEAT:
                 case SYNC_REPEAT:
                     // May be over if the interval set lower
-                    if (run >= interval)
+                    if (++run >= interval) {
                         this.executor.execute(this.runner);
-                    ++run;
+                        run = 0;
+                    }
                     break;
                 default:
-                    throw new IllegalStateException("How did this happen?");
+                    throw new IllegalStateException();
             }
         }
     }

@@ -17,17 +17,41 @@
 
 package net.tridentsdk.server.command;
 
+import net.tridentsdk.concurrent.ScheduledRunnable;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.plugin.annotation.CommandDesc;
 import net.tridentsdk.plugin.cmd.Command;
+import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.world.TridentChunk;
+import net.tridentsdk.world.Chunk;
 
 @CommandDesc(name = "send", permission = "trident.send", aliases = "")
 public class SendCommand extends Command {
 
     @Override
     public void handlePlayer(Player player, String arguments, String alias) {
-        ((TridentPlayer) player).connection().sendPacket(((TridentChunk) player.position().chunk()).asPacket());
+        Chunk chunk = player.position().chunk();
+        chunk.generate();
+        tell(player, chunk);
+
+        Registered.tasks().asyncRepeat(null, new ScheduledRunnable() {
+            @Override
+            public void run() {
+                player.world().chunkAt(chunk.location(), true);
+                tell(player, chunk);
+                ((TridentChunk) chunk).printHeld();
+
+                if (((TridentChunk) chunk).isGen()) {
+                    player.sendMessage("CHUNK " + chunk.location() + " IS GENERATED");
+                    ((TridentPlayer) player).sendChunks(7);
+                    cancel();
+                }
+            }
+        }, 0L, 20L);
+    }
+
+    void tell(Player player, Chunk chunk) {
+        player.sendMessage(chunk.location() + " is " + ((TridentChunk) chunk).isGen());
     }
 }

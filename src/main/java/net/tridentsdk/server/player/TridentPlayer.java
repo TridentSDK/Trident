@@ -457,11 +457,8 @@ public class TridentPlayer extends OfflinePlayer {
             for (int z = (centZ - viewDistance / 2); z <= (centZ + viewDistance / 2); z += 1) {
                 ChunkLocation location = ChunkLocation.create(x, z);
                 if (knownChunks.contains(location)) continue;
-                for (int i = x - 1; i <= x + 1; i++) {
-                    for (int j = z - 1; j <= z + 1; j++) {
-                        set.add(((TridentChunk) world().chunkAt(location, true)));
-                    }
-                }
+                TridentChunk chunk = (TridentChunk) world().chunkAt(location, true);
+                set.add(chunk);
             }
         }
 

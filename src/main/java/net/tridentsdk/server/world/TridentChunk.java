@@ -85,6 +85,13 @@ public class TridentChunk implements Chunk {
         this.lastFileAccess = last;
     }
 
+    public void printHeld() {
+        System.out.println("Is " + ((world.loadedChunks.keys().contains(location) ? "contained" : "not contained") + " in world"));
+        System.out.println("Genned: " + lightPopulated.get());
+        System.out.println("Painted: " + terrainPopulated.get());
+        sections.printHeld();
+    }
+
     public boolean isGen() {
         return lightPopulated.get() == 0x01 && terrainPopulated.get() == 0x01;
     }
@@ -116,10 +123,10 @@ public class TridentChunk implements Chunk {
         return blockMeta;
     }
 
-    public void gen(boolean bool) {
+    public boolean gen(boolean bool) {
         // Has or is generated already if the state is not 0x00
         if (!lightPopulated.compareAndSet(0x00, 0xFFFFFFFF)) {
-            return;
+            return false;
         }
 
         sections.writeLockFully();
@@ -157,20 +164,25 @@ public class TridentChunk implements Chunk {
 
         lightPopulated.set(0x01);
         //TODO lighting
+        return true;
     }
 
     @Override
     public void generate() {
-        gen(true);
+        if (!gen(true)) {
+            paint();
+        }
     }
 
     public void paint() {
+        System.out.println("Painting " + location);
         // If the state is not 0x00 it is either generating (-1) or has already been
         if (!terrainPopulated.compareAndSet(0x00, 0xFFFFFFFF)) {
             return;
         }
 
         List<AbstractOverlayBrush> brushes = world.loader().brushes();
+        // init chunk event
         ConcurrentHashMap<ChunkLocation, TridentChunk> localCache = new ConcurrentHashMap<>();
         AbstractOverlayBrush.ChunkManipulator manipulator = new AbstractOverlayBrush.ChunkManipulator() {
             @Override
@@ -281,6 +293,7 @@ public class TridentChunk implements Chunk {
             }
         };
 
+        System.out.println("Beginning cycle " + location + " on thread " + Thread.currentThread().getName());
         for (int i = 0; i < 16; i++) {
             for (int j = 0; j < 16; j++) {
                 for (AbstractOverlayBrush brush : brushes) {
@@ -291,6 +304,7 @@ public class TridentChunk implements Chunk {
 
         // Label as populated, so the chunk is not repopulated
         terrainPopulated.set(0x01);
+        System.out.println(location + " status set to " + terrainPopulated.get());
     }
 
     private TridentChunk rawChunk(ChunkLocation location) {
@@ -389,6 +403,7 @@ public class TridentChunk implements Chunk {
                 ChunkSection section = sections.get(i);
                 try {
                     if (section == null) {
+                        data.write(0);
                         continue;
                     }
 
@@ -402,6 +417,7 @@ public class TridentChunk implements Chunk {
                 ChunkSection section = sections.get(i);
                 try {
                     if (section == null) {
+                        data.write(0);
                         continue;
                     }
 
