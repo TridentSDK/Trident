@@ -65,6 +65,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -251,7 +252,7 @@ public class TridentPlayer extends OfflinePlayer {
                         cleanChunks(distance - i);
                 }
             });
-            sendChunks(distance);
+            ThreadsHandler.chunkExecutor().execute(() -> sendChunks(distance));
         }
 
         connection.tick();
@@ -452,20 +453,43 @@ public class TridentPlayer extends OfflinePlayer {
         int centZ = ((int) Math.floor(loc.z())) >> 4;
 
         PacketPlayOutMapChunkBulk bulk = new PacketPlayOutMapChunkBulk();
-        HashSet<TridentChunk> set = new HashSet<>();
+
+        Set<TridentChunk> set = Sets.newConcurrentHashSet();
+        Semaphore sem = new Semaphore(0);
+
         for (int x = (centX - viewDistance / 2); x <= (centX + viewDistance / 2); x += 1) {
             for (int z = (centZ - viewDistance / 2); z <= (centZ + viewDistance / 2); z += 1) {
                 ChunkLocation location = ChunkLocation.create(x, z);
                 if (knownChunks.contains(location)) continue;
-                TridentChunk chunk = (TridentChunk) world().chunkAt(location, true);
-                set.add(chunk);
+
+                sem.release();
+                ThreadsHandler.chunkExecutor().execute(() -> {
+                    TridentChunk chunk = (TridentChunk) world().chunkAt(location, true);
+                    set.add(chunk);
+
+                    try {
+                        sem.acquire();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                });
             }
         }
 
+        try {
+            sem.acquire();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         for (TridentChunk chunk : set) {
-            if (chunk.isGen())
+            if (chunk.isGen()) {
                 if (knownChunks.add(chunk.location()))
                     bulk.addEntry(chunk.asPacket());
+            } else {
+
+            }
+
 
             if (bulk.size() >= 1845152) {
                 connection().sendPacket(bulk);

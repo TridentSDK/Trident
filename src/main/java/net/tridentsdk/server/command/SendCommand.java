@@ -22,7 +22,6 @@ import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.plugin.annotation.CommandDesc;
 import net.tridentsdk.plugin.cmd.Command;
 import net.tridentsdk.registry.Registered;
-import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.world.TridentChunk;
 import net.tridentsdk.world.Chunk;
 
@@ -40,12 +39,6 @@ public class SendCommand extends Command {
             public void run() {
                 player.world().chunkAt(chunk.location(), true);
                 tell(player, chunk);
-
-                if (((TridentChunk) chunk).isGen()) {
-                    player.sendMessage("CHUNK " + chunk.location() + " IS GENERATED");
-                    ((TridentPlayer) player).sendChunks(7);
-                    cancel();
-                }
             }
         }, 0L, 20L);
     }
