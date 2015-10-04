@@ -28,7 +28,6 @@ import net.tridentsdk.world.Chunk;
 
 @CommandDesc(name = "send", permission = "trident.send", aliases = "")
 public class SendCommand extends Command {
-
     @Override
     public void handlePlayer(Player player, String arguments, String alias) {
         Chunk chunk = player.position().chunk();
@@ -37,11 +36,8 @@ public class SendCommand extends Command {
         Registered.tasks().asyncRepeat(null, new ScheduledRunnable() {
             @Override
             public void run() {
-                tell(player, chunk);
-                chunk.generate();
-                tell(player, chunk);
-
-                ((TridentPlayer) player).sendChunks(7);
+                ((TridentPlayer) player).knownChunks.remove(chunk.location());
+                player.sendMessage(chunk.location() + " is still being removed");
                 if (((TridentChunk) chunk).isGen()) cancel();
             }
         }, 0L, 20L);

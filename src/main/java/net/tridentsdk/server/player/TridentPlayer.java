@@ -81,7 +81,7 @@ public class TridentPlayer extends OfflinePlayer {
     private static final int MAX_PARTITION_SIZE = 49;
 
     private final PlayerConnection connection;
-    private final Set<ChunkLocation> knownChunks = Sets.newConcurrentHashSet();
+    public final Set<ChunkLocation> knownChunks = Sets.newConcurrentHashSet();
     private final LinkedHashSet<Integer> dragSlots = new LinkedHashSet<>();
     private volatile PacketPlayInPlayerClickWindow.ClickAction drag;
     private volatile boolean loggingIn = true;
@@ -251,7 +251,8 @@ public class TridentPlayer extends OfflinePlayer {
                         cleanChunks(distance - i);
                 }
             });
-            ThreadsHandler.chunkExecutor().execute(() -> sendChunks(distance));
+
+            if (ticksExisted.get() % 20 == 0) ThreadsHandler.chunkExecutor().execute(() -> sendChunks(distance));
         }
 
         connection.tick();
