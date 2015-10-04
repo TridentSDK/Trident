@@ -19,7 +19,7 @@ package net.tridentsdk.server.data;
 
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.docs.Volatile;
+import net.tridentsdk.docs.Policy;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.util.ArrayTool;
 
@@ -33,7 +33,7 @@ import java.util.Collection;
 public class PropertyBuilder implements Writable {
     private String key;
     private double value;
-    @Volatile(policy = "Do not write individual elements", reason = "Thread safe array", fix = "See Line 114")
+    @Policy(Policy.VOLATILE_ARRAY)
     private volatile String[] modifiers;
 
     /**

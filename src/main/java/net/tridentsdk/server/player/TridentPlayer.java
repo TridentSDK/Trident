@@ -457,10 +457,15 @@ public class TridentPlayer extends OfflinePlayer {
 
         for (int x = (centX - viewDistance / 2); x <= (centX + viewDistance / 2); x += 1) {
             for (int z = (centZ - viewDistance / 2); z <= (centZ + viewDistance / 2); z += 1) {
-                ChunkLocation location = ChunkLocation.create(x, z);
-                if (knownChunks.contains(location)) continue;
-                TridentChunk chunk = (TridentChunk) world().chunkAt(location, true);
-                set.add(chunk);
+                for (int i = x - 1; i <= x + 1; i++) {
+                    for (int j = z - 1; j <= z + 1; j++) {
+                        ChunkLocation loc = ChunkLocation.create(i, j);
+                        if (knownChunks.contains(loc)) continue;
+
+                        TridentChunk chunk = (TridentChunk) world().chunkAt(loc, true);
+                        set.add(chunk);
+                    }
+                }
             }
         }
 
@@ -468,8 +473,6 @@ public class TridentPlayer extends OfflinePlayer {
             if (chunk.isGen()) {
                 if (knownChunks.add(chunk.location()))
                     bulk.addEntry(chunk.asPacket());
-            } else {
-                chunk.print();
             }
 
 
@@ -510,9 +513,33 @@ public class TridentPlayer extends OfflinePlayer {
     }
 
     private void removeChunk(ChunkLocation location) {
-        ((TridentWorld) world()).loadedChunks.tryRemove(location);
+        tryRemove(location);
         connection.sendPacket(new PacketPlayOutChunkData(new byte[0], location, true, (short) 0));
         knownChunks.remove(location);
+    }
+
+    private boolean tryRemove(ChunkLocation location) {
+        if (location.x() < 7 && location.z() < 7) {
+            // Spawn chunk TODO spawn radius
+            return true;
+        }
+
+        TridentWorld world = (TridentWorld) world();
+        TridentChunk c = world.chunkAt(location, false);
+
+        if (c == null) return false;
+
+        if (c.entities()         // Ensure there are no players
+                .stream()
+                .filter(e -> e.type().equals(EntityType.PLAYER))
+                .count() == 0) {
+            world.loadedChunks.remove(location);
+            c.unload();
+
+            return true;
+        }
+
+        return false;
     }
 
     @Override

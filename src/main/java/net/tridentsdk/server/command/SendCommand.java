@@ -22,6 +22,7 @@ import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.plugin.annotation.CommandDesc;
 import net.tridentsdk.plugin.cmd.Command;
 import net.tridentsdk.registry.Registered;
+import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.world.TridentChunk;
 import net.tridentsdk.world.Chunk;
 
@@ -31,15 +32,16 @@ public class SendCommand extends Command {
     @Override
     public void handlePlayer(Player player, String arguments, String alias) {
         Chunk chunk = player.position().chunk();
-        chunk.generate();
-        tell(player, chunk);
+        player.world().chunkAt(chunk.location(), true);
 
         Registered.tasks().asyncRepeat(null, new ScheduledRunnable() {
             @Override
             public void run() {
-                player.world().chunkAt(chunk.location(), true);
+                tell(player, chunk);
+                chunk.generate();
                 tell(player, chunk);
 
+                ((TridentPlayer) player).sendChunks(7);
                 if (((TridentChunk) chunk).isGen()) cancel();
             }
         }, 0L, 20L);
@@ -47,5 +49,6 @@ public class SendCommand extends Command {
 
     void tell(Player player, Chunk chunk) {
         player.sendMessage(chunk.location() + " is " + ((TridentChunk) chunk).isGen());
+        // player.sendMessage("Does have " + ((TridentPlayer) player).knownChunks.contains(chunk.location()));
     }
 }

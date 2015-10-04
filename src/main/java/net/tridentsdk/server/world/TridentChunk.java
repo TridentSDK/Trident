@@ -40,6 +40,7 @@ import net.tridentsdk.world.ChunkSnapshot;
 import net.tridentsdk.world.gen.AbstractGenerator;
 import net.tridentsdk.world.gen.AbstractOverlayBrush;
 
+import javax.annotation.concurrent.GuardedBy;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.*;
@@ -53,6 +54,7 @@ public class TridentChunk implements Chunk {
     private final TridentWorld world;
     private final ChunkLocation location;
 
+    @GuardedBy("sections")
     public final ConcurrentSectionTable sections = new ConcurrentSectionTable();
     private final Set<Entity> entities = Sets.newConcurrentHashSet();
     private final Map<Vector, List<BlockMeta>> blockMeta = Maps.newConcurrentMap();
@@ -77,18 +79,6 @@ public class TridentChunk implements Chunk {
         }
     }
 
-    volatile boolean printed = false;
-
-    public void print() {
-        if (printed) {
-            return;
-        }
-        System.out.println("For chunk: " + location);
-        System.out.println("Chunk populated: " + lightPopulated.get());
-        System.out.println("Chunk features:" + terrainPopulated.get());
-        printed = true;
-    }
-
     protected int lastFileAccess() {
         return this.lastFileAccess;
     }
@@ -98,7 +88,7 @@ public class TridentChunk implements Chunk {
     }
 
     public boolean isGen() {
-        return lightPopulated.get() == 0x01 && terrainPopulated.get() == 0x01;
+        return terrainPopulated.get() == 0x01;
     }
 
     @Override
@@ -128,10 +118,11 @@ public class TridentChunk implements Chunk {
         return blockMeta;
     }
 
-    public boolean gen(boolean bool) {
+    public void gen(boolean withPaint) {
         // Has or is generated already if the state is not 0x00
         if (!lightPopulated.compareAndSet(0x00, 0xFFFFFFFF)) {
-            return false;
+            paint(true);
+            return;
         }
 
         sections.writeLockFully();
@@ -162,24 +153,23 @@ public class TridentChunk implements Chunk {
                 section.updateRaw();
             }
 
-            if (bool) paint();
+            if (withPaint) {
+                paint(false);
+            }
         } finally {
             sections.releaseWrite();
         }
 
         lightPopulated.set(0x01);
         //TODO lighting
-        return true;
     }
 
     @Override
     public void generate() {
-        if (!gen(true)) {
-            paint();
-        }
+        gen(true);
     }
 
-    public void paint() {
+    public void paint(boolean withLock) {
         // If the state is not 0x00 it is either generating (-1) or has already been
         if (!terrainPopulated.compareAndSet(0x00, 0xFFFFFFFF)) {
             return;
@@ -297,12 +287,17 @@ public class TridentChunk implements Chunk {
             }
         };
 
-        for (int i = 0; i < 16; i++) {
-            for (int j = 0; j < 16; j++) {
-                for (AbstractOverlayBrush brush : brushes) {
-                    brush.brush(location, i, j, world.random(), heights, manipulator);
+        if (withLock) sections.writeLockFully();
+        try {
+            for (int i = 0; i < 16; i++) {
+                for (int j = 0; j < 16; j++) {
+                    for (AbstractOverlayBrush brush : brushes) {
+                        brush.brush(location, i, j, world.random(), heights, manipulator);
+                    }
                 }
             }
+        } finally {
+            if (withLock) sections.releaseWrite();
         }
 
         // Label as populated, so the chunk is not repopulated
@@ -310,13 +305,23 @@ public class TridentChunk implements Chunk {
     }
 
     private TridentChunk rawChunk(ChunkLocation location) {
-        TridentChunk chunk = world.chunkAt(location, false);
-        if (chunk == null) {
-            chunk = new TridentChunk(world, location);
-            world.addChunkAt(location, chunk);
+        TridentChunk tChunk = world.chunkAt(location, false);
+
+        if (tChunk == null) {
+            if (world.loader().chunkExists(location)) {
+                TridentChunk c = (TridentChunk) world.loader().loadChunk(location);
+                if (c != null) {
+                    return c;
+                }
+            }
+
+            TridentChunk chunk = new TridentChunk(world, location);
+            chunk.gen(false);
+
+            return chunk;
         }
-        chunk.gen(false);
-        return chunk;
+
+        return tChunk;
     }
 
     private int up(double d) {

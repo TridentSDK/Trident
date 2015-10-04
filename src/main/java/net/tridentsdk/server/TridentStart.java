@@ -29,7 +29,7 @@ import joptsimple.OptionSpec;
 import net.tridentsdk.Defaults;
 import net.tridentsdk.Trident;
 import net.tridentsdk.config.Config;
-import net.tridentsdk.docs.Volatile;
+import net.tridentsdk.docs.Policy;
 import net.tridentsdk.plugin.Plugins;
 import net.tridentsdk.registry.Implementation;
 import net.tridentsdk.registry.Registered;
@@ -75,6 +75,7 @@ public final class TridentStart {
      *
      * @param args the command line arguments
      */
+    @Policy("Do not throw exceptions in this method")
     public static void main(String... args) throws Exception {
         OptionParser parser = new OptionParser();
         parser.acceptsAll(newArrayList("h", "help"), "Show this help dialog.").forHelp();
@@ -131,9 +132,6 @@ public final class TridentStart {
      *
      * @param config the configuration to use for option lookup
      */
-    @Volatile(policy = "Do not throw exceptions before",
-            reason = "Init begins here",
-            fix = "Just don't do it")
     private static void init(final Config config) throws InterruptedException {
         bossGroup = new NioEventLoopGroup(4, Defaults.ERROR_HANDLED);
         workerGroup = new NioEventLoopGroup(4, Defaults.ERROR_HANDLED);
@@ -202,6 +200,7 @@ public final class TridentStart {
                     Trident.console().invokeCommand(command);
                 }
             });
+            thread.setName("Trident - Console");
             thread.setDaemon(true);
             thread.start();
         } catch (InterruptedException e) {

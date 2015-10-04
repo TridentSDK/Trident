@@ -94,7 +94,7 @@ public class GenTest {
 
     @TearDown(Level.Invocation)
     public void teardown() {
-        while (!world.loadedChunks.tryRemove(location)) ;
+        world.loadedChunks.remove(location);
     }
 
     @Param({"1", "2", "4", "8", "16", "32", "64"})
