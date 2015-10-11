@@ -41,7 +41,7 @@ public class OakTreeBrush extends AbstractOverlayBrush {
         int heightIndex = WorldUtils.heightIndex(relX, relZ);
         int top = heights.get(heightIndex);
         Substance substance = manipulator.blockAt(relX, top, relZ).substance();
-        if (random.under(100) < 1 && (substance == Substance.GRASS || substance == Substance.DIRT)) {
+        if (random.under(230) < 4 && (substance == Substance.GRASS || substance == Substance.DIRT)) {
             for (int i = 1; i < 7; i++) {
                 if (i <= 2) {
                     manipulator.manipulate(relX, top + i, relZ, Substance.LOG, (byte) 0x00);
