@@ -161,7 +161,7 @@ public class TridentChunk implements Chunk {
     public void gen(boolean withPaint) {
         // Has or is generated already if the state is not 0x00
         if (!lightPopulated.compareAndSet(0x00, 0xFFFFFFFF)) {
-            if (withPaint) paint(true, GenerationState.CORE);
+            if (withPaint) paint(true);
             return;
         }
 
@@ -194,7 +194,7 @@ public class TridentChunk implements Chunk {
             }
 
             if (withPaint) {
-                paint(false, GenerationState.CORE);
+                paint(false);
             }
         } finally {
             sections.release();
@@ -209,7 +209,7 @@ public class TridentChunk implements Chunk {
         gen(true);
     }
 
-    public void paint(boolean withLock, GenerationState state) {
+    public void paint(boolean withLock) {
         // If the state is not 0x00 it is either generating (-1) or has already been
         if (!terrainPopulated.compareAndSet(0x00, 0xFFFFFFFF)) {
             return;
@@ -261,7 +261,7 @@ public class TridentChunk implements Chunk {
                 }
 
                 ChunkLocation loc = ChunkLocation.create(chunkX, chunkZ);
-                TridentChunk chunk = localCache.computeIfAbsent(loc, (k) -> rawChunk(loc, state));
+                TridentChunk chunk = localCache.computeIfAbsent(loc, (k) -> rawChunk(loc));
                 chunk.setAt(newX, y, newZ, substance, data, (byte) 255, (byte) 15);
             }
 
@@ -322,7 +322,7 @@ public class TridentChunk implements Chunk {
                 }
 
                 ChunkLocation loc = ChunkLocation.create(chunkX, chunkZ);
-                TridentChunk chunk = localCache.computeIfAbsent(loc, (k) -> rawChunk(loc, state));
+                TridentChunk chunk = localCache.computeIfAbsent(loc, (k) -> rawChunk(loc));
                 return chunk.blockAt(newX, y, newZ);
             }
         };
@@ -344,7 +344,7 @@ public class TridentChunk implements Chunk {
         terrainPopulated.set(0x01);
     }
 
-    private TridentChunk rawChunk(ChunkLocation location, GenerationState state) {
+    private TridentChunk rawChunk(ChunkLocation location) {
         TridentChunk tChunk = world.chunkAt(location, false);
 
         if (tChunk == null) {
@@ -357,7 +357,7 @@ public class TridentChunk implements Chunk {
 
             TridentChunk chunk = new TridentChunk(world, location);
             chunk.gen(false);
-            chunk.paint(true, state);
+            chunk.paint(true);
 
             return chunk;
         }
