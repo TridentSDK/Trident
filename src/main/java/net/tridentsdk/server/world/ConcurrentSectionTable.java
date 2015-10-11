@@ -16,7 +16,8 @@
  */
 package net.tridentsdk.server.world;
 
-import java.util.concurrent.locks.StampedLock;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -27,36 +28,24 @@ import java.util.function.Function;
  */
 public class ConcurrentSectionTable {
     private final ChunkSection[] sections = new ChunkSection[16];
-    private final StampedLock[] locks = new StampedLock[16];
+    private final Lock[] locks = new Lock[16];
 
     public ConcurrentSectionTable() {
         for (int i = 0; i < 16; i++) {
             sections[i] = new ChunkSection((byte) i);
-            locks[i] = new StampedLock();
+            locks[i] = new ReentrantLock();
         }
     }
 
-    public void readLockFully() {
-        for (StampedLock lock : locks) {
-            lock.readLock();
+    public void lockFully() {
+        for (Lock lock : locks) {
+            lock.lock();
         }
     }
 
-    public void releaseRead() {
-        for (StampedLock lock : locks) {
-            lock.tryUnlockRead();
-        }
-    }
-
-    public void writeLockFully() {
-        for (StampedLock lock : locks) {
-            lock.writeLock();
-        }
-    }
-
-    public void releaseWrite() {
-        for (StampedLock lock : locks) {
-            lock.tryUnlockWrite();
+    public void release() {
+        for (Lock lock : locks) {
+            lock.unlock();
         }
     }
 
@@ -68,53 +57,23 @@ public class ConcurrentSectionTable {
         sections[i] = section;
     }
 
-    public ChunkSection acquire(int i) {
-        StampedLock lock = locks[i];
-        long stamp = lock.readLock();
-        try {
-            return sections[i];
-        } finally {
-            lock.unlockRead(stamp);
-        }
-    }
-
-    public void read(int i, Consumer<ChunkSection> consumer) {
-        StampedLock lock = locks[i];
-        long stamp = lock.readLock();
+    public void modify(int i, Consumer<ChunkSection> consumer) {
+        Lock lock = locks[i];
+        lock.lock();
         try {
             consumer.accept(sections[i]);
         } finally {
-            lock.unlockRead(stamp);
+            lock.unlock();
         }
     }
 
-    public <T> T read(int i, Function<ChunkSection, T> func) {
-        StampedLock lock = locks[i];
-        long stamp = lock.readLock();
+    public <T> T modify(int i, Function<ChunkSection, T> function) {
+        Lock lock = locks[i];
+        lock.lock();
         try {
-            return func.apply(sections[i]);
+            return function.apply(sections[i]);
         } finally {
-            lock.unlockRead(stamp);
-        }
-    }
-
-    public void write(int i, Consumer<ChunkSection> func) {
-        StampedLock lock = locks[i];
-        long stamp = lock.writeLock();
-        try {
-            func.accept(sections[i]);
-        } finally {
-            lock.unlockWrite(stamp);
-        }
-    }
-
-    public <T> T write(int i, Function<ChunkSection, T> consumer) {
-        StampedLock lock = locks[i];
-        long stamp = lock.writeLock();
-        try {
-            return consumer.apply(sections[i]);
-        } finally {
-            lock.unlockWrite(stamp);
+            lock.unlock();
         }
     }
 }

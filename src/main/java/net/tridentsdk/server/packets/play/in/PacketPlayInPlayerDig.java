@@ -188,6 +188,8 @@ public class PacketPlayInPlayerDig extends InPacket {
                 block.ownedMeta().iterate(e -> {
                     if (e.getValue() instanceof Tile) {
                         ((TridentWorld) location.world()).tilesInternal().remove(e.getValue());
+                        Position pos = block.position();
+                        ((TridentChunk) pos.chunk()).tilesInternal().remove(new Vector(pos.x(), pos.y(), pos.z()));
                     }
                 });
 

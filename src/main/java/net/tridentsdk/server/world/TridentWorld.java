@@ -381,7 +381,7 @@ public class TridentWorld implements World {
             world.spawnPosition.setX(0);
             world.spawnPosition.setZ(0);
             int y = ((TridentChunk) world.spawnPosition.chunk()).maxHeightAt(0, 0);
-            world.spawnPosition().setY(y);
+            world.spawnPosition().setY(y + 3);
 
             world.save();
 
@@ -443,9 +443,12 @@ public class TridentWorld implements World {
             for (Entity entity : entities) {
                 TickSync.increment("ENTITY: uuid-" + entity.uniqueId().toString() + " id-" + entity.entityId() + " type-" + entity.type());
                 ((TridentEntity) entity).tick();
-                if (entity instanceof Player && updateTime) {
-                    ((TridentPlayer) entity).connection().sendPacket
-                            (new PacketPlayOutTimeUpdate().set("worldAge", existed.get()).set("time", time.get()));
+                if (entity instanceof Player) {
+                    TridentPlayer player = (TridentPlayer) entity;
+
+                    if (updateTime) {
+                        player.connection().sendPacket(new PacketPlayOutTimeUpdate().set("worldAge", existed.get()).set("time", time.get()));
+                    }
                 }
             }
 

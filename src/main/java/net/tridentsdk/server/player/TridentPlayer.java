@@ -252,7 +252,9 @@ public class TridentPlayer extends OfflinePlayer {
                 }
             });
 
-            if (ticksExisted.get() % 20 == 0) ThreadsHandler.chunkExecutor().execute(() -> sendChunks(distance));
+            if (ticksExisted.get() % 20 == 0) {
+                ThreadsHandler.chunkExecutor().execute(() -> sendChunks(distance));
+            }
         }
 
         connection.tick();
@@ -263,7 +265,7 @@ public class TridentPlayer extends OfflinePlayer {
     @Override
     protected void doRemove() {
         ONLINE_PLAYERS.remove(this.uniqueId());
-        knownChunks.forEach(this::removeChunk);
+        knownChunks.forEach((c) -> removeChunk(c, true));
 
         PacketPlayOutPlayerListItem item = new PacketPlayOutPlayerListItem();
         item.set("action", 4).set("playerListData", new PlayerListDataBuilder[]{
@@ -464,16 +466,28 @@ public class TridentPlayer extends OfflinePlayer {
                         if (knownChunks.contains(loc)) continue;
 
                         TridentChunk chunk = (TridentChunk) world().chunkAt(loc, true);
-                        set.add(chunk);
+                        if (i == x && j == z) {
+                            set.add(chunk);
+                        }
                     }
                 }
             }
         }
 
         for (TridentChunk chunk : set) {
-            if (chunk.isGen()) {
-                if (knownChunks.add(chunk.location()))
-                    bulk.addEntry(chunk.asPacket());
+            int x = chunk.x();
+            int z = chunk.z();
+            boolean proceed = true;
+            for (int i = x - 1; i <= x + 1; i++) {
+                for (int j = z - 1; j <= z + 1; j++) {
+                    proceed = ((TridentWorld) world()).loadedChunks.keys().contains(chunk.location())
+                            && world().chunkAt(i, j, false) != null
+                            && ((TridentChunk) world().chunkAt(i, j, false)).isGen();
+                }
+            }
+
+            if (proceed && knownChunks.add(chunk.location())) {
+                bulk.addEntry(chunk.asPacket());
             }
 
 
@@ -508,13 +522,13 @@ public class TridentPlayer extends OfflinePlayer {
             int abs1 = Math.max(cz, z) - Math.min(cz, z);
 
             if (abs >= viewDist || abs1 >= viewDist) {
-                removeChunk(location);
+                removeChunk(location, true);
             }
         }
     }
 
-    private void removeChunk(ChunkLocation location) {
-        tryRemove(location);
+    public void removeChunk(ChunkLocation location, boolean cleanUp) {
+        if (cleanUp) tryRemove(location);
         connection.sendPacket(new PacketPlayOutChunkData(new byte[0], location, true, (short) 0));
         knownChunks.remove(location);
     }

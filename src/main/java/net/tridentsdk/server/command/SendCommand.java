@@ -17,12 +17,9 @@
 
 package net.tridentsdk.server.command;
 
-import net.tridentsdk.concurrent.ScheduledRunnable;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.plugin.annotation.CommandDesc;
 import net.tridentsdk.plugin.cmd.Command;
-import net.tridentsdk.registry.Registered;
-import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.world.TridentChunk;
 import net.tridentsdk.world.Chunk;
 
@@ -31,16 +28,7 @@ public class SendCommand extends Command {
     @Override
     public void handlePlayer(Player player, String arguments, String alias) {
         Chunk chunk = player.position().chunk();
-        player.world().chunkAt(chunk.location(), true);
-
-        Registered.tasks().asyncRepeat(null, new ScheduledRunnable() {
-            @Override
-            public void run() {
-                ((TridentPlayer) player).knownChunks.remove(chunk.location());
-                player.sendMessage(chunk.location() + " is still being removed");
-                if (((TridentChunk) chunk).isGen()) cancel();
-            }
-        }, 0L, 20L);
+        tell(player, chunk);
     }
 
     void tell(Player player, Chunk chunk) {

@@ -36,6 +36,8 @@ public class OakTreeBrush extends AbstractOverlayBrush {
 
     @Override
     public void brush(ChunkLocation location, int relX, int relZ, GeneratorRandom random, AtomicReferenceArray<Integer> heights, ChunkManipulator manipulator) {
+        if (!manipulator.nodeFits(relX, relZ, 2)) return;
+
         int heightIndex = WorldUtils.heightIndex(relX, relZ);
         int top = heights.get(heightIndex);
         Substance substance = manipulator.blockAt(relX, top, relZ).substance();

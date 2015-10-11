@@ -118,14 +118,54 @@ public class TridentChunk implements Chunk {
         return blockMeta;
     }
 
+    private enum GenerationState {
+        CORE {
+            @Override
+            public GenerationState next() {
+                return SUPPORT;
+            }
+        }, SURROUND {
+            @Override
+            public GenerationState next() {
+                return SUPPORT;
+            }
+        }, SUPPORT {
+            @Override
+            public GenerationState next() {
+                return TERMINATE;
+            }
+        }, TERMINATE(true) {
+            @Override
+            public GenerationState next() {
+                return GenerationState.TERMINATE;
+            }
+        };
+
+        private final boolean terminated;
+
+        GenerationState(boolean terminated) {
+            this.terminated = terminated;
+        }
+
+        GenerationState() {
+            this(false);
+        }
+
+        public boolean hasTerminated() {
+            return terminated;
+        }
+
+        public abstract GenerationState next();
+    }
+
     public void gen(boolean withPaint) {
         // Has or is generated already if the state is not 0x00
         if (!lightPopulated.compareAndSet(0x00, 0xFFFFFFFF)) {
-            paint(true);
+            if (withPaint) paint(true, GenerationState.CORE);
             return;
         }
 
-        sections.writeLockFully();
+        sections.lockFully();
         try {
             AbstractGenerator generator = world.loader().generator();
             char[][] blocks = generator.generateChunkBlocks(location, heights);
@@ -154,10 +194,10 @@ public class TridentChunk implements Chunk {
             }
 
             if (withPaint) {
-                paint(false);
+                paint(false, GenerationState.CORE);
             }
         } finally {
-            sections.releaseWrite();
+            sections.release();
         }
 
         lightPopulated.set(0x01);
@@ -169,7 +209,7 @@ public class TridentChunk implements Chunk {
         gen(true);
     }
 
-    public void paint(boolean withLock) {
+    public void paint(boolean withLock, GenerationState state) {
         // If the state is not 0x00 it is either generating (-1) or has already been
         if (!terrainPopulated.compareAndSet(0x00, 0xFFFFFFFF)) {
             return;
@@ -221,7 +261,7 @@ public class TridentChunk implements Chunk {
                 }
 
                 ChunkLocation loc = ChunkLocation.create(chunkX, chunkZ);
-                TridentChunk chunk = localCache.computeIfAbsent(loc, (k) -> rawChunk(loc));
+                TridentChunk chunk = localCache.computeIfAbsent(loc, (k) -> rawChunk(loc, state));
                 chunk.setAt(newX, y, newZ, substance, data, (byte) 255, (byte) 15);
             }
 
@@ -282,12 +322,12 @@ public class TridentChunk implements Chunk {
                 }
 
                 ChunkLocation loc = ChunkLocation.create(chunkX, chunkZ);
-                TridentChunk chunk = localCache.computeIfAbsent(loc, (k) -> rawChunk(loc));
+                TridentChunk chunk = localCache.computeIfAbsent(loc, (k) -> rawChunk(loc, state));
                 return chunk.blockAt(newX, y, newZ);
             }
         };
 
-        if (withLock) sections.writeLockFully();
+        if (withLock) sections.lockFully();
         try {
             for (int i = 0; i < 16; i++) {
                 for (int j = 0; j < 16; j++) {
@@ -297,14 +337,14 @@ public class TridentChunk implements Chunk {
                 }
             }
         } finally {
-            if (withLock) sections.releaseWrite();
+            if (withLock) sections.release();
         }
 
         // Label as populated, so the chunk is not repopulated
         terrainPopulated.set(0x01);
     }
 
-    private TridentChunk rawChunk(ChunkLocation location) {
+    private TridentChunk rawChunk(ChunkLocation location, GenerationState state) {
         TridentChunk tChunk = world.chunkAt(location, false);
 
         if (tChunk == null) {
@@ -317,6 +357,7 @@ public class TridentChunk implements Chunk {
 
             TridentChunk chunk = new TridentChunk(world, location);
             chunk.gen(false);
+            chunk.paint(true, state);
 
             return chunk;
         }
@@ -358,7 +399,7 @@ public class TridentChunk implements Chunk {
     public Block blockAt(final int relX, final int y, final int relZ) {
         int index = WorldUtils.blockArrayIndex(relX, y & 15, relZ);
         int sectionIndex = WorldUtils.section(y);
-        return sections.read(sectionIndex, (section) -> {
+        return sections.modify(sectionIndex, (section) -> {
             /* Get block data; use extras accordingly */
             byte b = (byte) (section.types[index] >> 4);
             byte meta = (byte) (section.types[index] & 0xF);
@@ -389,7 +430,7 @@ public class TridentChunk implements Chunk {
     }
 
     public PacketPlayOutChunkData asPacket() {
-        sections.readLockFully();
+        sections.lockFully();
         try {
             int bitmask = 65535;
             ByteArrayOutputStream data = new ByteArrayOutputStream();
@@ -440,7 +481,7 @@ public class TridentChunk implements Chunk {
 
             return new PacketPlayOutChunkData(data.toByteArray(), location, false, (short) bitmask);
         } finally {
-            sections.releaseRead();
+            sections.release();
         }
     }
 
@@ -468,7 +509,7 @@ public class TridentChunk implements Chunk {
         final List<NBTTag> sectionsList = sectionTags.listTags();
 
         /* Load sections */
-        sections.writeLockFully();
+        sections.lockFully();
         try {
             for (int i = 0; i < sectionsList.size(); i += 1) {
                 NBTTag t = sectionTags.getTag(i);
@@ -482,7 +523,7 @@ public class TridentChunk implements Chunk {
                 }
             }
         } finally {
-            sections.releaseWrite();
+            sections.release();
         }
 
         for (NBTTag t : entities.listTags()) {
@@ -526,7 +567,7 @@ public class TridentChunk implements Chunk {
         final ListTag sectionTags = new ListTag("Sections", TagType.COMPOUND);
 
         for (int i = 0; i < 16; i++) {
-            sections.write(i, (section) -> {
+            sections.modify(i, (section) -> {
                 section.updateRaw();
                 sectionTags.addTag(NBTSerializer.serialize(section));
             });
@@ -552,7 +593,7 @@ public class TridentChunk implements Chunk {
     public void setAt(int x, final int y, int z, final Substance type, final byte metaData, final byte skyLight,
                       final byte blockLight) {
         final int index = WorldUtils.blockArrayIndex(x & 15, y & 15, z & 15);
-        sections.write(WorldUtils.section(y), (section) -> {
+        sections.modify(WorldUtils.section(y), (section) -> {
             section.types[index] = (char) ((type.asExtended() & 0xfff0) | metaData);
             NibbleArray.set(section.data, index, metaData);
             NibbleArray.set(section.skyLight, index, skyLight);

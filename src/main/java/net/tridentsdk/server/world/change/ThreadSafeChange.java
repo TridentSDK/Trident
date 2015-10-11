@@ -123,7 +123,7 @@ public class ThreadSafeChange implements MassChange {
             List<BlockChange> changes = entry.getValue();
             PacketPlayOutMultiBlockChange packet = new PacketPlayOutMultiBlockChange();
             RecordBuilder[] records = new RecordBuilder[changes.size()];
-            TridentChunk chunk = (TridentChunk) world.chunkAt(entry.getKey(), false);
+            TridentChunk chunk = (TridentChunk) world.chunkAt(entry.getKey(), true);
 
             for (int i = 0; i < records.length; i++) {
                 BlockChange change = changes.get(i);
