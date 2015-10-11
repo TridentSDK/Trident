@@ -475,18 +475,7 @@ public class TridentPlayer extends OfflinePlayer {
         }
 
         for (TridentChunk chunk : set) {
-            int x = chunk.x();
-            int z = chunk.z();
-            boolean proceed = true;
-            for (int i = x - 1; i <= x + 1; i++) {
-                for (int j = z - 1; j <= z + 1; j++) {
-                    proceed = ((TridentWorld) world()).loadedChunks.keys().contains(chunk.location())
-                            && world().chunkAt(i, j, false) != null
-                            && ((TridentChunk) world().chunkAt(i, j, false)).isGen();
-                }
-            }
-
-            if (proceed && knownChunks.add(chunk.location())) {
+            if (knownChunks.add(chunk.location())) {
                 bulk.addEntry(chunk.asPacket());
             }
 
@@ -508,12 +497,15 @@ public class TridentPlayer extends OfflinePlayer {
         int z = (int) pos.z() / 16;
 
         int count = counter.getAndIncrement();
-        if (count >= knownChunks.size() / MAX_PARTITION_SIZE) {
+        int size = knownChunks.size();
+        if (count >= size / MAX_PARTITION_SIZE) {
             count = 0;
             counter.set(0);
         }
 
-        List<ChunkLocation> partition = Iterators.get(Iterators.partition(knownChunks.iterator(), 49), count);
+        // Add one to prevent 0 sized partitions in the case that the chunk value is less than 65
+        // 65 is an arbitrary number; works well for unloading chunks when flying at default speed
+        List<ChunkLocation> partition = Iterators.get(Iterators.partition(knownChunks.iterator(), (size / 65) + 1), count);
         for (ChunkLocation location : partition) {
             int cx = location.x();
             int cz = location.z();
