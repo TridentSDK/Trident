@@ -20,19 +20,23 @@ package net.tridentsdk.server.command;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.plugin.annotation.CommandDesc;
 import net.tridentsdk.plugin.cmd.Command;
+import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.world.TridentChunk;
 import net.tridentsdk.world.Chunk;
+import net.tridentsdk.world.ChunkLocation;
 
 @CommandDesc(name = "send", permission = "trident.send", aliases = "")
 public class SendCommand extends Command {
     @Override
     public void handlePlayer(Player player, String arguments, String alias) {
-        Chunk chunk = player.position().chunk();
-        tell(player, chunk);
-    }
-
-    void tell(Player player, Chunk chunk) {
-        player.sendMessage(chunk.location() + " is " + ((TridentChunk) chunk).isGen());
-        // player.sendMessage("Does have " + ((TridentPlayer) player).knownChunks.contains(chunk.location()));
+        ChunkLocation location = ChunkLocation.create(((int) player.position().x()) >> 4, ((int) player.position().z()) >> 4);
+        Chunk chunk = player.world().chunkAt(location, false);
+        if (chunk == null) {
+            throw new IllegalStateException(location.toString());
+        } else {
+            ((TridentChunk) chunk).print();
+            chunk.generate();
+            ((TridentPlayer) player).knownChunks.remove(location);
+        }
     }
 }

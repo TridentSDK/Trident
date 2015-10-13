@@ -25,7 +25,6 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 
 @Policy("No instantiation; Use Inventory only to correctly handle")
 public class PacketPlayOutOpenWindow extends OutPacket {
-
     protected int windowId;
     protected InventoryType inventoryType;
     protected String windowTitle;

@@ -43,6 +43,7 @@ import net.tridentsdk.world.gen.AbstractOverlayBrush;
 import javax.annotation.concurrent.GuardedBy;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -88,12 +89,20 @@ public class TridentChunk implements Chunk {
     }
 
     public boolean isGen() {
-        return terrainPopulated.get() == 0x01;
+        return lightPopulated.get() == 0x01 && terrainPopulated.get() == 0x01;
     }
 
     public void print() {
         System.out.println("For chunk " + location + ": ");
-        System.out.println("Has terrain: " + (lightPopulated.get() == 0x01) + " and has features: " + (terrainPopulated.get() == 0x01));
+        for (Field field : getClass().getDeclaredFields()) {
+            field.setAccessible(true);
+            try {
+                System.out.print(field.get(this) + "; ");
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+        System.out.println();
     }
 
     @Override
@@ -350,23 +359,7 @@ public class TridentChunk implements Chunk {
     }
 
     private TridentChunk rawChunk(ChunkLocation location) {
-        TridentChunk tChunk = world.chunkAt(location, false);
-
-        if (tChunk == null) {
-            if (world.loader().chunkExists(location)) {
-                TridentChunk c = (TridentChunk) world.loader().loadChunk(location);
-                if (c != null) {
-                    return c;
-                }
-            }
-
-            TridentChunk chunk = new TridentChunk(world, location);
-            chunk.gen(false);
-            chunk.paint(true);
-
-            return chunk;
-        }
-
+        TridentChunk tChunk = world.chunkAt(location, true);
         return tChunk;
     }
 

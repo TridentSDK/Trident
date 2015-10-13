@@ -99,6 +99,7 @@ public class TridentWorld implements World {
     private static final int SIZE = 1;
     private static final int MAX_HEIGHT = 255;
     private static final int MAX_CHUNKS = 30_000_000;
+    private static final int CHUNK_EVICTION_TIME = 20 * 60 * 5;
 
     public final ChunkCache loadedChunks = new ChunkCache(this);
     private final Set<Entity> entities = Sets.newConcurrentHashSet();
@@ -397,8 +398,7 @@ public class TridentWorld implements World {
         ThreadsHandler.worldExecutor().execute(() -> {
             redstoneTick = !redstoneTick;
 
-            if (time.get() >= 24000)
-                time.set(0);
+            long currentTime = time.get();
 
             rainTime.getAndDecrement();
             thunderTime.getAndDecrement();
@@ -438,7 +438,7 @@ public class TridentWorld implements World {
                 thunderTime.set(ThreadLocalRandom.current().nextInt());
             }
 
-            boolean updateTime = time.get() % 40 == 0;
+            boolean updateTime = (currentTime & 40) == 0;
 
             for (Entity entity : entities) {
                 TickSync.increment("ENTITY: uuid-" + entity.uniqueId().toString() + " id-" + entity.entityId() + " type-" + entity.type());
@@ -447,12 +447,20 @@ public class TridentWorld implements World {
                     TridentPlayer player = (TridentPlayer) entity;
 
                     if (updateTime) {
-                        player.connection().sendPacket(new PacketPlayOutTimeUpdate().set("worldAge", existed.get()).set("time", time.get()));
+                        player.connection().sendPacket(new PacketPlayOutTimeUpdate().set("worldAge", existed.get()).set("time", currentTime));
                     }
                 }
             }
 
-            time.getAndIncrement();
+            if ((currentTime & CHUNK_EVICTION_TIME) == 0) {
+                for (ChunkLocation chunk : loadedChunks.keys()) {
+                    loadedChunks.tryRemove(chunk);
+                }
+            }
+
+            if (currentTime >= 24000)
+                time.set(0);
+            else time.getAndIncrement();
             existed.getAndIncrement();
             TickSync.complete("WORLD: " + name());
         });
