@@ -4,7 +4,7 @@ Trident [![Build Status](https://travis-ci.org/TridentSDK/Trident.svg?branch=ble
 The Trident project, the implementation of the new generation of multi-threaded, high-performance, and cleanroom Minecraft servers.
 
 * [Website](https://tridentsdk.net)
-* [Chat](https://tridentsdk.net/chat)
+* [Chat](https://www.hipchat.com/g20bt22H2?v=2)
 * [Issues](https://tridentsdk.atlassian.net/projects/TRD/issues)
 * [Tech Document](https://tridentsdk.net/techdoc/)
 * [Wiki](https://tridentsdkwiki.atlassian.net/wiki/dashboard.action)
