@@ -128,4 +128,8 @@ public class ChunkCache {
 
         return chunks;
     }
+
+    public int size() {
+        return cachedChunks.size();
+    }
 }

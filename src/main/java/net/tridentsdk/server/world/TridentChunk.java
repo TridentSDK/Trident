@@ -132,46 +132,6 @@ public class TridentChunk implements Chunk {
         return blockMeta;
     }
 
-    private enum GenerationState {
-        CORE {
-            @Override
-            public GenerationState next() {
-                return SUPPORT;
-            }
-        }, SURROUND {
-            @Override
-            public GenerationState next() {
-                return SUPPORT;
-            }
-        }, SUPPORT {
-            @Override
-            public GenerationState next() {
-                return TERMINATE;
-            }
-        }, TERMINATE(true) {
-            @Override
-            public GenerationState next() {
-                return GenerationState.TERMINATE;
-            }
-        };
-
-        private final boolean terminated;
-
-        GenerationState(boolean terminated) {
-            this.terminated = terminated;
-        }
-
-        GenerationState() {
-            this(false);
-        }
-
-        public boolean hasTerminated() {
-            return terminated;
-        }
-
-        public abstract GenerationState next();
-    }
-
     public void gen(boolean withPaint) {
         // Has or is generated already if the state is not 0x00
         if (!lightPopulated.compareAndSet(0x00, 0xFFFFFFFF)) {

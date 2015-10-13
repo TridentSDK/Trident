@@ -17,9 +17,7 @@
 
 package net.tridentsdk.server.world;
 
-import com.google.common.collect.Collections2;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
+import com.google.common.collect.*;
 import com.google.common.io.ByteStreams;
 import net.tridentsdk.base.Block;
 import net.tridentsdk.base.BoundingBox;
@@ -78,10 +76,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -453,8 +448,11 @@ public class TridentWorld implements World {
             }
 
             if ((currentTime & CHUNK_EVICTION_TIME) == 0) {
-                for (ChunkLocation chunk : loadedChunks.keys()) {
-                    loadedChunks.tryRemove(chunk);
+                UnmodifiableIterator<List<ChunkLocation>> list = Iterators.partition(loadedChunks.keys().iterator(),
+                        Math.max(TridentPlayer.players().size(), 1));
+                for (; list.hasNext(); ) {
+                    List<ChunkLocation> chunks = list.next();
+                    ThreadsHandler.chunkExecutor().execute(() -> chunks.forEach(loadedChunks::tryRemove));
                 }
             }
 
