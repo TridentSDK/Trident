@@ -455,7 +455,6 @@ public class TridentPlayer extends OfflinePlayer {
         int centZ = ((int) Math.floor(loc.z())) >> 4;
 
         PacketPlayOutMapChunkBulk bulk = new PacketPlayOutMapChunkBulk();
-
         HashSet<TridentChunk> set = new HashSet<>();
 
         for (int x = (centX - viewDistance / 2); x <= (centX + viewDistance / 2); x += 1) {
@@ -475,10 +474,10 @@ public class TridentPlayer extends OfflinePlayer {
         }
 
         for (TridentChunk chunk : set) {
+            chunk.print();
             if (knownChunks.add(chunk.location())) {
                 bulk.addEntry(chunk.asPacket());
             }
-
 
             if (bulk.size() >= 1845152) {
                 connection().sendPacket(bulk);
@@ -503,9 +502,7 @@ public class TridentPlayer extends OfflinePlayer {
             counter.set(0);
         }
 
-        // Add one to prevent 0 sized partitions in the case that the chunk value is less than 65
-        // 65 is an arbitrary number; works well for unloading chunks when flying at default speed
-        List<ChunkLocation> partition = Iterators.get(Iterators.partition(knownChunks.iterator(), (size / 65) + 1), count);
+        List<ChunkLocation> partition = Iterators.get(Iterators.partition(knownChunks.iterator(), MAX_PARTITION_SIZE), count);
         for (ChunkLocation location : partition) {
             int cx = location.x();
             int cz = location.z();

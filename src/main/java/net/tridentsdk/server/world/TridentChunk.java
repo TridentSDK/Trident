@@ -91,6 +91,11 @@ public class TridentChunk implements Chunk {
         return terrainPopulated.get() == 0x01;
     }
 
+    public void print() {
+        System.out.println("For chunk " + location + ": ");
+        System.out.println("Has terrain: " + (lightPopulated.get() == 0x01) + " and has features: " + (terrainPopulated.get() == 0x01));
+    }
+
     @Override
     public Set<Entity> entities() {
         return ImmutableSet.copyOf(entities);
