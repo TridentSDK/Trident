@@ -52,28 +52,27 @@ public class DefaultWorldGen extends AbstractGenerator {
 
             executor.execute(() -> {
                 for (int z = 0; z < 16; z++) {
-                    final int i = WorldUtils.intScale(0, 140, generator.noise(finalX + (location.x() << 4), z +
-                            (location.z() << 4))) - 20;
-                    heights.set(WorldUtils.heightIndex(finalX, z), i - 1);
+                    final int i = WorldUtils.intScale(0, 140, generator.noise(finalX + (location.x() << 4), z + (location.z() << 4))) - 20;
+                    heights.set(WorldUtils.heightIndex(finalX, z), i);
 
-                    for (int y = 0; y < i; y++) {
-                        if (i < 40 && y == (i - 1)) {
-                            for (int rev = 40; rev > i; rev--) {
-                                data[rev / 16][WorldUtils.blockArrayIndex(finalX, rev % 16, z)] =
-                                        Substance.WATER.asExtended();
+                    if (i < 40) {
+                        for (int j = i; j <= 40; j++) {
+                            data[j / 16][WorldUtils.blockArrayIndex(finalX, j % 16, z)] = Substance.WATER.asExtended();
+                        }
+                    }
+
+                    for (int y = 0; y <= i; y++) {
+                        if (i < 40) {
+                            if (y == i) {
+                                data[y / 16][WorldUtils.blockArrayIndex(finalX, y % 16, z)] = Substance.SAND.asExtended();
+                                continue;
                             }
-                            data[i / 16][WorldUtils.blockArrayIndex(finalX, i % 16, z)] =
-                                    Substance.CLAY.asExtended();
-                            continue;
                         }
 
-                        if (y < i - 1) {
-                            data[y / 16][WorldUtils.blockArrayIndex(finalX, y % 16, z)] =
-                                    Substance.DIRT.asExtended();
-                        } else {
-                            data[y / 16][WorldUtils.blockArrayIndex(finalX, y % 16, z)] =
-                                    Substance.GRASS.asExtended();
-                        }
+                        if (y == i) {
+                            data[y / 16][WorldUtils.blockArrayIndex(finalX, i % 16, z)] = Substance.GRASS.asExtended();
+                        } else
+                            data[y / 16][WorldUtils.blockArrayIndex(finalX, y % 16, z)] = Substance.DIRT.asExtended();
                     }
                 }
 

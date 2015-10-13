@@ -17,7 +17,6 @@
 
 package net.tridentsdk.server.player;
 
-import com.google.common.collect.Iterators;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -65,7 +64,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -78,7 +76,6 @@ public class TridentPlayer extends OfflinePlayer {
     private static final ConfigSection tridentCfg = Trident.config().getConfigSection("performance");
     private static final int MAX_CHUNKS = tridentCfg.getInt("max-chunks-player", 441);
     private static final int CLEAN_ITERATIONS = tridentCfg.getInt("chunk-clean-iterations-player", 2);
-    private static final int MAX_PARTITION_SIZE = 49;
 
     private final PlayerConnection connection;
     public final Set<ChunkLocation> knownChunks = Sets.newConcurrentHashSet();
@@ -247,8 +244,9 @@ public class TridentPlayer extends OfflinePlayer {
         if (!loggingIn) {
             ThreadsHandler.chunkExecutor().execute(() -> {
                 for (int i = 0; i < CLEAN_ITERATIONS; i++) {
-                    if (knownChunks.size() > MAX_CHUNKS)
-                        cleanChunks(distance - i);
+                    int size = knownChunks.size();
+                    if (size > MAX_CHUNKS)
+                        cleanChunks(distance - i, size);
                 }
             });
 
@@ -259,8 +257,6 @@ public class TridentPlayer extends OfflinePlayer {
 
         connection.tick();
     }
-
-    private final AtomicInteger counter = new AtomicInteger();
 
     @Override
     protected void doRemove() {
@@ -490,20 +486,15 @@ public class TridentPlayer extends OfflinePlayer {
         }
     }
 
-    public void cleanChunks(int viewDist) {
+    public void cleanChunks(int viewDist, int size) {
         Position pos = position();
         int x = (int) pos.x() / 16;
         int z = (int) pos.z() / 16;
 
-        int count = counter.getAndIncrement();
-        int size = knownChunks.size();
-        if (count >= size / MAX_PARTITION_SIZE) {
-            count = 0;
-            counter.set(0);
-        }
+        int removed = 0;
+        for (ChunkLocation location : knownChunks) {
+            if (MAX_CHUNKS > (size - removed)) return;
 
-        List<ChunkLocation> partition = Iterators.get(Iterators.partition(knownChunks.iterator(), MAX_PARTITION_SIZE), count);
-        for (ChunkLocation location : partition) {
             int cx = location.x();
             int cz = location.z();
 
@@ -512,6 +503,7 @@ public class TridentPlayer extends OfflinePlayer {
 
             if (abs >= viewDist || abs1 >= viewDist) {
                 removeChunk(location, true);
+                removed++;
             }
         }
     }
