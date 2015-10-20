@@ -14,14 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.tridentsdk.server.world;
+package net.tridentsdk.server.chunk;
 
-import net.tridentsdk.meta.nbt.NBTEncoder;
-import net.tridentsdk.meta.nbt.NBTException;
-import net.tridentsdk.meta.nbt.NBTSerializer;
+import net.tridentsdk.server.world.ChunkSection;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
@@ -81,27 +77,5 @@ public class ConcurrentSectionTable {
         } finally {
             lock.unlock();
         }
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        lockFully();
-        try {
-            for (ChunkSection section : sections) {
-                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                try {
-                    new NBTEncoder(new DataOutputStream(stream)).encode(NBTSerializer.serialize(section));
-                } catch (NBTException e) {
-                    e.printStackTrace();
-                }
-                byte[] bytes = stream.toByteArray();
-                builder.append(bytes[0]).append("-").append(bytes[1]).append("-").append(bytes[bytes.length / 2]).append("-").append(bytes[bytes.length - 2]).append("-").append(bytes[bytes.length - 1]).append(" [").append("s/").append(bytes.length).append(" h/").append(section.y).append("]==> ");
-            }
-        } finally {
-            release();
-        }
-
-        return builder.toString();
     }
 }

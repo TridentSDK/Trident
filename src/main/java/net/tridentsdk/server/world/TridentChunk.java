@@ -29,6 +29,7 @@ import net.tridentsdk.entity.Entity;
 import net.tridentsdk.meta.block.BlockMeta;
 import net.tridentsdk.meta.block.Tile;
 import net.tridentsdk.meta.nbt.*;
+import net.tridentsdk.server.chunk.ConcurrentSectionTable;
 import net.tridentsdk.server.entity.TridentEntity;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutChunkData;
 import net.tridentsdk.util.NibbleArray;
@@ -43,7 +44,6 @@ import net.tridentsdk.world.gen.AbstractOverlayBrush;
 import javax.annotation.concurrent.GuardedBy;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -90,19 +90,6 @@ public class TridentChunk implements Chunk {
 
     public boolean isGen() {
         return lightPopulated.get() == 0x01 && terrainPopulated.get() == 0x01;
-    }
-
-    public void print() {
-        System.out.println("For chunk " + location + ": ");
-        for (Field field : getClass().getDeclaredFields()) {
-            field.setAccessible(true);
-            try {
-                System.out.print(field.get(this) + "; ");
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            }
-        }
-        System.out.println();
     }
 
     @Override
@@ -501,8 +488,13 @@ public class TridentChunk implements Chunk {
 
     @Override
     public void unload() {
-        world.loader().saveChunk(this);
-        world.loadedChunks.remove(location);
+        sections.lockFully();
+        try {
+            world.loader().saveChunk(this);
+            world.chunkHandler.remove(location);
+        } finally {
+            sections.release();
+        }
     }
 
     public CompoundTag asNbt() {

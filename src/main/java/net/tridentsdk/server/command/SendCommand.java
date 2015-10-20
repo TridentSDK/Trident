@@ -20,8 +20,6 @@ package net.tridentsdk.server.command;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.plugin.annotation.CommandDesc;
 import net.tridentsdk.plugin.cmd.Command;
-import net.tridentsdk.server.player.TridentPlayer;
-import net.tridentsdk.server.world.TridentChunk;
 import net.tridentsdk.world.Chunk;
 import net.tridentsdk.world.ChunkLocation;
 
@@ -34,9 +32,7 @@ public class SendCommand extends Command {
         if (chunk == null) {
             throw new IllegalStateException(location.toString());
         } else {
-            ((TridentChunk) chunk).print();
             chunk.generate();
-            ((TridentPlayer) player).knownChunks.remove(location);
         }
     }
 }

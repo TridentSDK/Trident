@@ -45,6 +45,7 @@ import net.tridentsdk.event.weather.ThunderEvent;
 import net.tridentsdk.inventory.Item;
 import net.tridentsdk.meta.block.Tile;
 import net.tridentsdk.meta.nbt.*;
+import net.tridentsdk.server.chunk.ChunkHandler;
 import net.tridentsdk.server.concurrent.ThreadsHandler;
 import net.tridentsdk.server.concurrent.TickSync;
 import net.tridentsdk.server.effect.particle.TridentParticleEffect;
@@ -96,7 +97,7 @@ public class TridentWorld implements World {
     private static final int MAX_CHUNKS = 30_000_000;
     private static final int CHUNK_EVICTION_TIME = 20 * 60 * 5;
 
-    public final ChunkCache loadedChunks = new ChunkCache(this);
+    private final ChunkHandler chunkHandler = new ChunkHandler(this);
     private final Set<Entity> entities = Sets.newConcurrentHashSet();
     private final Set<Tile> tiles = Sets.newConcurrentHashSet();
 
@@ -448,11 +449,11 @@ public class TridentWorld implements World {
             }
 
             if ((currentTime & CHUNK_EVICTION_TIME) == 0) {
-                UnmodifiableIterator<List<ChunkLocation>> list = Iterators.partition(loadedChunks.keys().iterator(),
+                UnmodifiableIterator<List<ChunkLocation>> list = Iterators.partition(chunkHandler.keys().iterator(),
                         Math.max(TridentPlayer.players().size(), 1));
                 for (; list.hasNext(); ) {
                     List<ChunkLocation> chunks = list.next();
-                    ThreadsHandler.chunkExecutor().execute(() -> chunks.forEach(loadedChunks::tryRemove));
+                    ThreadsHandler.chunkExecutor().execute(() -> chunks.forEach(chunkHandler::tryRemove));
                 }
             }
 
@@ -469,11 +470,7 @@ public class TridentWorld implements World {
             TridentLogger.get().error(new NullPointerException("Location cannot be null"));
         }
 
-        this.loadedChunks.put(location, (TridentChunk) chunk);
-    }
-
-    public Collection<TridentChunk> loadedChunks() {
-        return loadedChunks.values();
+        this.chunkHandler.put((TridentChunk) chunk);
     }
 
     public GeneratorRandom random() {
@@ -546,11 +543,15 @@ public class TridentWorld implements World {
 
         TridentChunk c = (TridentChunk) entity.position().chunk();
         if (!c.entitiesInternal().remove(entity)) {
-            for (Chunk chunk : loadedChunks.values()) {
+            for (Chunk chunk : chunkHandler.values()) {
                 // If we don't do this a simple concurrency miss
                 // can lead to a memory leak
                 if (((TridentChunk) chunk).entitiesInternal().remove(entity)) return;
             }
+
+            throw new IllegalStateException("Entity " + entity.entityId() +
+                    " type " + entity.type() +
+                    " could not be removed from " + entity.position());
         }
     }
 
@@ -561,7 +562,15 @@ public class TridentWorld implements World {
 
     @Override
     public Collection<Chunk> chunks() {
-        return Collections2.transform(loadedChunks.values(), c -> (Chunk) c);
+        return Collections2.transform(chunkHandler.values(), c -> (Chunk) c);
+    }
+
+    public Collection<TridentChunk> loadedChunks() {
+        return chunkHandler.values();
+    }
+
+    public ChunkHandler chunkHandler() {
+        return chunkHandler;
     }
 
     @Override
@@ -575,7 +584,7 @@ public class TridentWorld implements World {
             return null;
         }
 
-        return this.loadedChunks.get(location, generateIfNotFound);
+        return this.chunkHandler.get(location, generateIfNotFound);
     }
 
     @Override

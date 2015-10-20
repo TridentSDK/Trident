@@ -17,7 +17,6 @@
 
 package net.tridentsdk.server.player;
 
-import com.google.common.collect.Sets;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -25,7 +24,6 @@ import com.google.gson.JsonParser;
 import net.tridentsdk.Trident;
 import net.tridentsdk.base.BoundingBox;
 import net.tridentsdk.base.Position;
-import net.tridentsdk.config.ConfigSection;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.effect.sound.SoundEffect;
 import net.tridentsdk.effect.sound.SoundEffectType;
@@ -40,6 +38,7 @@ import net.tridentsdk.meta.MessageBuilder;
 import net.tridentsdk.meta.block.Tile;
 import net.tridentsdk.meta.nbt.CompoundTag;
 import net.tridentsdk.server.TridentServer;
+import net.tridentsdk.server.chunk.ChunkLocationSet;
 import net.tridentsdk.server.concurrent.ThreadsHandler;
 import net.tridentsdk.server.data.MetadataType;
 import net.tridentsdk.server.data.ProtocolMetadata;
@@ -49,11 +48,9 @@ import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.packets.play.in.PacketPlayInPlayerClickWindow;
 import net.tridentsdk.server.packets.play.out.*;
-import net.tridentsdk.server.world.TridentChunk;
 import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.util.Vector;
-import net.tridentsdk.world.ChunkLocation;
 import net.tridentsdk.world.settings.GameMode;
 import net.tridentsdk.world.settings.LevelType;
 
@@ -73,12 +70,9 @@ import static net.tridentsdk.server.packets.play.out.PacketPlayOutPlayerListItem
 public class TridentPlayer extends OfflinePlayer {
     private static final Map<UUID, Player> ONLINE_PLAYERS = new ConcurrentHashMap<>();
     private static final int MAX_VIEW = Trident.config().getInt("view-distance", 15);
-    private static final ConfigSection tridentCfg = Trident.config().getConfigSection("performance");
-    private static final int MAX_CHUNKS = tridentCfg.getInt("max-chunks-player", 441);
-    private static final int CLEAN_ITERATIONS = tridentCfg.getInt("chunk-clean-iterations-player", 2);
 
     private final PlayerConnection connection;
-    public final Set<ChunkLocation> knownChunks = Sets.newConcurrentHashSet();
+    public final ChunkLocationSet knownChunks = new ChunkLocationSet(this);
     private final LinkedHashSet<Integer> dragSlots = new LinkedHashSet<>();
     private volatile PacketPlayInPlayerClickWindow.ClickAction drag;
     private volatile boolean loggingIn = true;
@@ -162,7 +156,7 @@ public class TridentPlayer extends OfflinePlayer {
 
             p.connection.sendPacket(new PacketPlayOutPlayerListItem()
                     .set("action", 0)
-                    .set("playerListData", builders.stream().toArray(PlayerListDataBuilder[]::new)));
+                    .set("playerListData", builders.stream().toArray(value -> new PlayerListDataBuilder[value])));
         });
 
         return p;
@@ -195,7 +189,7 @@ public class TridentPlayer extends OfflinePlayer {
         if (!loggingIn)
             return;
 
-        sendChunks(7);
+        knownChunks.update(7);
         connection.sendPacket(PacketPlayOutStatistics.DEFAULT_STATISTIC);
 
         // Wait for response
@@ -243,16 +237,9 @@ public class TridentPlayer extends OfflinePlayer {
         int distance = viewDistance();
         if (!loggingIn) {
             ThreadsHandler.chunkExecutor().execute(() -> {
-                for (int i = 0; i < CLEAN_ITERATIONS; i++) {
-                    int size = knownChunks.size();
-                    if (size > MAX_CHUNKS)
-                        cleanChunks(distance - i, size);
-                }
+                knownChunks.clean(distance);
+                knownChunks.update(distance);
             });
-
-            if (ticksExisted.get() % 20 == 0) {
-                ThreadsHandler.chunkExecutor().execute(() -> sendChunks(distance));
-            }
         }
 
         connection.tick();
@@ -261,7 +248,7 @@ public class TridentPlayer extends OfflinePlayer {
     @Override
     protected void doRemove() {
         ONLINE_PLAYERS.remove(this.uniqueId());
-        knownChunks.forEach((c) -> removeChunk(c, true));
+        knownChunks.clear();
 
         PacketPlayOutPlayerListItem item = new PacketPlayOutPlayerListItem();
         item.set("action", 4).set("playerListData", new PlayerListDataBuilder[]{
@@ -446,98 +433,6 @@ public class TridentPlayer extends OfflinePlayer {
                         .set("position", PacketPlayOutChat.ChatPosition.CHAT)));
     }
 
-    public void sendChunks(int viewDistance) {
-        int centX = ((int) Math.floor(loc.x())) >> 4;
-        int centZ = ((int) Math.floor(loc.z())) >> 4;
-
-        PacketPlayOutMapChunkBulk bulk = new PacketPlayOutMapChunkBulk();
-        HashSet<TridentChunk> set = new HashSet<>();
-
-        for (int x = (centX - viewDistance / 2); x <= (centX + viewDistance / 2); x += 1) {
-            for (int z = (centZ - viewDistance / 2); z <= (centZ + viewDistance / 2); z += 1) {
-                for (int i = x - 1; i <= x + 1; i++) {
-                    for (int j = z - 1; j <= z + 1; j++) {
-                        ChunkLocation loc = ChunkLocation.create(i, j);
-                        if (knownChunks.contains(loc)) continue;
-
-                        TridentChunk chunk = (TridentChunk) world().chunkAt(loc, true);
-                        if (i == x && j == z) {
-                            set.add(chunk);
-                        }
-                    }
-                }
-            }
-        }
-
-        for (TridentChunk chunk : set) {
-            chunk.print();
-            if (knownChunks.add(chunk.location())) {
-                bulk.addEntry(chunk.asPacket());
-            }
-
-            if (bulk.size() >= 1845152) {
-                connection().sendPacket(bulk);
-                bulk = new PacketPlayOutMapChunkBulk();
-            }
-        }
-
-        if (bulk.hasEntries()) {
-            connection().sendPacket(bulk);
-        }
-    }
-
-    public void cleanChunks(int viewDist, int size) {
-        Position pos = position();
-        int x = (int) pos.x() / 16;
-        int z = (int) pos.z() / 16;
-
-        int removed = 0;
-        for (ChunkLocation location : knownChunks) {
-            if (MAX_CHUNKS > (size - removed)) return;
-
-            int cx = location.x();
-            int cz = location.z();
-
-            int abs = Math.max(cx, x) - Math.min(cx, x);
-            int abs1 = Math.max(cz, z) - Math.min(cz, z);
-
-            if (abs >= viewDist || abs1 >= viewDist) {
-                removeChunk(location, true);
-                removed++;
-            }
-        }
-    }
-
-    public void removeChunk(ChunkLocation location, boolean cleanUp) {
-        if (cleanUp) tryRemove(location);
-        connection.sendPacket(new PacketPlayOutChunkData(new byte[0], location, true, (short) 0));
-        knownChunks.remove(location);
-    }
-
-    private boolean tryRemove(ChunkLocation location) {
-        if (location.x() < 7 && location.z() < 7) {
-            // Spawn chunk TODO spawn radius
-            return true;
-        }
-
-        TridentWorld world = (TridentWorld) world();
-        TridentChunk c = world.chunkAt(location, false);
-
-        if (c == null) return false;
-
-        if (c.entities()         // Ensure there are no players
-                .stream()
-                .filter(e -> e.type().equals(EntityType.PLAYER))
-                .count() == 0) {
-            world.loadedChunks.remove(location);
-            c.unload();
-
-            return true;
-        }
-
-        return false;
-    }
-
     @Override
     public void setGameMode(GameMode mode) {
         super.setGameMode(mode);
@@ -553,7 +448,6 @@ public class TridentPlayer extends OfflinePlayer {
         this.flying = flying;
 
         abilities.flying = (flying) ? (byte) 1 : (byte) 0;
-
         connection.sendPacket(abilities.asPacket());
     }
 
