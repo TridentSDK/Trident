@@ -21,25 +21,48 @@ import net.tridentsdk.server.world.TridentChunk;
 import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.world.ChunkLocation;
 
+import javax.annotation.concurrent.ThreadSafe;
 import java.util.Collection;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Consumer;
 
-
+/**
+ * Manages the chunks stored in memory per world
+ *
+ * @author The TridentSDK Team
+ */
+@ThreadSafe
 public class ChunkHandler {
     private final ConcurrentMap<ChunkLocation, CRefCounter> counters = new ConcurrentHashMap<>();
     private final TridentWorld world;
 
+    /**
+     * Creates a new chunk handler to manage the chunks of the provided world
+     *
+     * @param world the world to manage chunks for
+     */
     public ChunkHandler(TridentWorld world) {
         this.world = world;
     }
 
+    /**
+     * Places a chunk into the collection of in-memory chunks
+     *
+     * @param chunk the chunk to add
+     */
     public void put(TridentChunk chunk) {
         counters.put(chunk.location(), CRefCounter.wrap(chunk));
     }
 
+    /**
+     * Obtains the chunk at the given location in the world, generating if given to do so
+     *
+     * @param location the location to obtain the chunk
+     * @param gen      {@code true} to generate a new chunk if no chunk exists
+     * @return the chunk at the given location, or {@code null} if it doesn't exist and {@code gen} is false
+     */
     public TridentChunk get(ChunkLocation location, boolean gen) {
         if (gen) {
             return counters.computeIfAbsent(location, k -> CRefCounter.wrap(world.generateChunk(k))).unwrap();
@@ -49,6 +72,13 @@ public class ChunkHandler {
         }
     }
 
+    /**
+     * Obtains the chunk reference counter and applies a transformation function
+     *
+     * @param location the location or obtain the chunk reference counter
+     * @param consumer the transformation function
+     * @return {@code true} to indicate that the chunk was successfully retrieved and transformed
+     */
     public boolean apply(ChunkLocation location, Consumer<CRefCounter> consumer) {
         CRefCounter chunk = counters.get(location);
         if (chunk != null) {
@@ -59,6 +89,18 @@ public class ChunkHandler {
         return false;
     }
 
+    /**
+     * Attempts to remove the chunk from memory and save it
+     *
+     * <p>This method returns {@code false} if:
+     * <ul>
+     *     <li>The chunk is not loaded</li>
+     *     <li>The chunk still has strong references</li>
+     * </ul></p>
+     *
+     * @param location the location to remove the chunk
+     * @return {@code true} to signify that the collection was modified as a result of this operation
+     */
     public boolean tryRemove(ChunkLocation location) {
         if (location.x() < 7 && location.z() < 7) {
             // Spawn chunk TODO spawn radius
@@ -73,30 +115,51 @@ public class ChunkHandler {
         if (!chunk.hasStrongRefs()) {
             TridentChunk c = chunk.unwrap();
             if (chunk.hasWeakRefs()) {
-
+                // TODO remove weak referencing items
             }
 
             remove(location);
             c.unload();
+            return true;
         }
 
         return false;
     }
 
+    /**
+     * Manually removes the chunk from the collection without running any cleanup code
+     *
+     * @param location the location to remove the chunk from
+     */
     public void remove(ChunkLocation location) {
         counters.remove(location);
     }
 
+    /**
+     * Obtains the set of chunk locations that have already been loaded
+     *
+     * @return the set of loaded chunk locations
+     */
     public Set<ChunkLocation> keys() {
         return counters.keySet();
     }
 
+    /**
+     * Obtains the chunks that have been loaded into memory
+     *
+     * @return the collection of loaded in-memory chunks
+     */
     public Collection<TridentChunk> values() {
         Collection<TridentChunk> chunks = Lists.newArrayList();
         counters.values().stream().forEach(c -> chunks.add(c.unwrap()));
         return chunks;
     }
 
+    /**
+     * Obtains the amount of loaded chunks
+     *
+     * @return the amount of loaded chunks
+     */
     public int size() {
         return counters.size();
     }

@@ -46,8 +46,10 @@ import net.tridentsdk.server.entity.TridentDroppedItem;
 import net.tridentsdk.server.event.EventProcessor;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.Packet;
-import net.tridentsdk.server.packets.play.in.PacketPlayInPlayerClickWindow;
+import net.tridentsdk.server.packets.play.in.PacketPlayInPlayerClickWindow.ClickAction;
 import net.tridentsdk.server.packets.play.out.*;
+import net.tridentsdk.server.packets.play.out.PacketPlayOutChat.ChatPosition;
+import net.tridentsdk.server.packets.play.out.PacketPlayOutPlayerListItem.PlayerListDataBuilder;
 import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.util.Vector;
@@ -64,8 +66,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import static net.tridentsdk.server.packets.play.out.PacketPlayOutPlayerListItem.PlayerListDataBuilder;
-
 @ThreadSafe
 public class TridentPlayer extends OfflinePlayer {
     private static final Map<UUID, Player> ONLINE_PLAYERS = new ConcurrentHashMap<>();
@@ -74,7 +74,7 @@ public class TridentPlayer extends OfflinePlayer {
     private final PlayerConnection connection;
     public final ChunkLocationSet knownChunks = new ChunkLocationSet(this);
     private final LinkedHashSet<Integer> dragSlots = new LinkedHashSet<>();
-    private volatile PacketPlayInPlayerClickWindow.ClickAction drag;
+    private volatile ClickAction drag;
     private volatile boolean loggingIn = true;
     private volatile boolean sprinting;
     private volatile boolean crouching;
@@ -94,26 +94,26 @@ public class TridentPlayer extends OfflinePlayer {
     }
 
     public static void sendAll(Packet packet) {
-        players().stream().forEach((p) -> ((TridentPlayer) p).connection.sendPacket(packet));
+        players().stream().forEach(p -> ((TridentPlayer) p).connection.sendPacket(packet));
     }
 
     public static void sendFiltered(Packet packet, Predicate<Player> predicate) {
         players().stream()
                 .filter(predicate)
-                .forEach((p) -> ((TridentPlayer) p).connection.sendPacket(packet));
+                .forEach(p -> ((TridentPlayer) p).connection.sendPacket(packet));
     }
 
     public static TridentPlayer spawnPlayer(ClientConnection connection, UUID id, String name) {
         // determine if this player has logged in before
-        CompoundTag playerTag = (OfflinePlayer.getOfflinePlayer(
-                id) == null) ? null : OfflinePlayer.getOfflinePlayer(id).asNbt();
+        CompoundTag playerTag = OfflinePlayer.getOfflinePlayer(
+                id) == null ? null : OfflinePlayer.getOfflinePlayer(id).asNbt();
 
         // if this player is new
         if (playerTag == null) {
             playerTag = OfflinePlayer.generatePlayer(id);
         }
 
-        final TridentPlayer p = new TridentPlayer(id, playerTag, TridentServer.WORLD, connection);
+        TridentPlayer p = new TridentPlayer(id, playerTag, TridentServer.WORLD, connection);
         p.executor = ThreadsHandler.playerExecutor();
 
         OfflinePlayer.OFFLINE_PLAYERS.put(id, p);
@@ -150,8 +150,8 @@ public class TridentPlayer extends OfflinePlayer {
 
             List<PlayerListDataBuilder> builders = new ArrayList<>();
 
-            players().stream().filter((player) -> !player.equals(p))
-                    .forEach((player) -> builders.add(((TridentPlayer) player).listData()));
+            players().stream().filter(player -> !player.equals(p))
+                    .forEach(player -> builders.add(((TridentPlayer) player).listData()));
             TridentLogger.get().log(p.name + " has joined the server");
 
             p.connection.sendPacket(new PacketPlayOutPlayerListItem()
@@ -172,7 +172,7 @@ public class TridentPlayer extends OfflinePlayer {
 
     @Override
     protected void doEncodeMeta(ProtocolMetadata protocolMeta) {
-        protocolMeta.setMeta(0, MetadataType.BYTE, (byte) (((fireTicks.intValue() == 0) ? 1 : 0) | (isCrouching() ? 2 : 0)
+        protocolMeta.setMeta(0, MetadataType.BYTE, (byte) ((fireTicks.intValue() == 0 ? 1 : 0) | (isCrouching() ? 2 : 0)
                 | (isSprinting() ? 8 : 0))); // TODO invisibility & blocking/eating
         protocolMeta.setMeta(10, MetadataType.BYTE, skinFlags);
         protocolMeta.setMeta(16, MetadataType.BYTE, (byte) 0); // hide cape, might need changing
@@ -209,9 +209,10 @@ public class TridentPlayer extends OfflinePlayer {
 
         EventProcessor.fire(new PlayerJoinEvent(this));
 
+        MessageBuilder builder = new MessageBuilder(name + " has joined the server").color(ChatColor.YELLOW).build();
         for (Player player : players()) {
             TridentPlayer p = (TridentPlayer) player;
-            new MessageBuilder(name + " has joined the server").color(ChatColor.YELLOW).build().sendTo(player);
+            builder.sendTo(player);
 
             if (!p.equals(this)) {
                 ProtocolMetadata metadata = new ProtocolMetadata();
@@ -247,12 +248,12 @@ public class TridentPlayer extends OfflinePlayer {
 
     @Override
     protected void doRemove() {
-        ONLINE_PLAYERS.remove(this.uniqueId());
+        ONLINE_PLAYERS.remove(uniqueId());
         knownChunks.clear();
 
         PacketPlayOutPlayerListItem item = new PacketPlayOutPlayerListItem();
         item.set("action", 4).set("playerListData", new PlayerListDataBuilder[]{
-                new PacketPlayOutPlayerListItem.PlayerListDataBuilder().id(uniqueId).values(new Object[0])});
+                new PlayerListDataBuilder().id(uniqueId).values(new Object[0])});
         sendAll(item);
 
         players().forEach(p ->
@@ -266,14 +267,14 @@ public class TridentPlayer extends OfflinePlayer {
         double dY = loc.y() - position().y();
         double dZ = loc.z() - position().z();
 
-        PlayerMoveEvent event = EventProcessor.fire(new PlayerMoveEvent(this, this.position(), loc));
+        PlayerMoveEvent event = EventProcessor.fire(new PlayerMoveEvent(this, position(), loc));
 
         if (event.isIgnored()) {
             PacketPlayOutEntityTeleport packet = new PacketPlayOutEntityTeleport();
 
-            packet.set("entityId", this.entityId());
-            packet.set("location", this.position());
-            packet.set("onGround", this.onGround());
+            packet.set("entityId", entityId());
+            packet.set("location", position());
+            packet.set("onGround", onGround());
 
             connection.sendPacket(packet);
             return;
@@ -298,16 +299,17 @@ public class TridentPlayer extends OfflinePlayer {
                     PacketPlayOutCollectItem collectItem = new PacketPlayOutCollectItem();
                     collectItem.set("collectedId", item.entityId());
                     collectItem.set("collectorId", entityId());
-                    TridentPlayer.sendAll(collectItem);
+                    sendAll(collectItem);
                     item.remove();
                 }
             });
 
-            if(items.size() > 0){
+            if (!items.isEmpty()) {
                 window().sendTo(this);
             }
         }
 
+        // fixme floating point comparison
         if (dX == 0 && dY == 0 && dZ == 0) {
             sendFiltered(new PacketPlayOutEntityLook().set("entityId", entityId())
                             .set("location", loc).set("onGround", onGround), player -> !player.equals(this)
@@ -316,7 +318,7 @@ public class TridentPlayer extends OfflinePlayer {
             return;
         }
 
-        if ((dX > 4 || dY > 4 || dZ > 4) || (ticksExisted.get() & 1) == 0) {
+        if (dX > 4 || dY > 4 || dZ > 4 || (ticksExisted.get() & 1) == 0) {
             sendFiltered(new PacketPlayOutEntityTeleport()
                     .set("entityId", entityId())
                     .set("location", loc)
@@ -347,7 +349,7 @@ public class TridentPlayer extends OfflinePlayer {
     private static final Map<UUID, String> textures = new ConcurrentHashMap<>();
     public PlayerListDataBuilder listData() {
         String[] texture = texture().split("#");
-        return new PacketPlayOutPlayerListItem.PlayerListDataBuilder()
+        return new PlayerListDataBuilder()
                 .id(uniqueId)
                 .values(name,
                         1, new Object[]{"textures", texture[0], true, texture[1]},
@@ -399,7 +401,7 @@ public class TridentPlayer extends OfflinePlayer {
     }
 
     public PlayerConnection connection() {
-        return this.connection;
+        return connection;
     }
 
     public static final int SLOT_OFFSET = 36;
@@ -425,19 +427,19 @@ public class TridentPlayer extends OfflinePlayer {
     }
 
     @Override
-    public void sendRaw(final String... messages) {
+    public void sendRaw(String... messages) {
         Stream.of(messages)
-                .filter((m) -> m != null)
-                .forEach((message) -> connection.sendPacket(new PacketPlayOutChat()
+                .filter(m -> m != null)
+                .forEach(message -> connection.sendPacket(new PacketPlayOutChat()
                         .set("jsonMessage", message)
-                        .set("position", PacketPlayOutChat.ChatPosition.CHAT)));
+                        .set("position", ChatPosition.CHAT)));
     }
 
     @Override
     public void setGameMode(GameMode mode) {
         super.setGameMode(mode);
 
-        this.connection.sendPacket(this.abilities.asPacket());
+        connection.sendPacket(abilities.asPacket());
     }
 
     public boolean isFlying() {
@@ -447,7 +449,7 @@ public class TridentPlayer extends OfflinePlayer {
     public void setFlying(boolean flying) {
         this.flying = flying;
 
-        abilities.flying = (flying) ? (byte) 1 : (byte) 0;
+        abilities.flying = flying ? (byte) 1 : (byte) 0;
         connection.sendPacket(abilities.asPacket());
     }
 
@@ -456,7 +458,7 @@ public class TridentPlayer extends OfflinePlayer {
     }
 
     public void setFlyMode(boolean flying) {
-        abilities.canFly = (flying) ? (byte) 1 : (byte) 0;
+        abilities.canFly = flying ? (byte) 1 : (byte) 0;
     }
 
     public boolean isSprinting() {
@@ -565,11 +567,11 @@ public class TridentPlayer extends OfflinePlayer {
         return dragSlots;
     }
 
-    public PacketPlayInPlayerClickWindow.ClickAction drag(){
+    public ClickAction drag() {
         return drag;
     }
 
-    public void setDrag(PacketPlayInPlayerClickWindow.ClickAction drag){
+    public void setDrag(ClickAction drag) {
         this.drag = drag;
     }
 }

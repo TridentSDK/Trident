@@ -35,6 +35,7 @@ import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 import org.openjdk.jmh.runner.options.TimeValue;
 
+import java.io.File;
 import java.util.concurrent.TimeUnit;
 
 @State(Scope.Benchmark)
@@ -87,6 +88,11 @@ public class GenTest {
         TridentServer.createServer(new Config("server.json"));
     }
 
+    @TearDown
+    public void teardown0() {
+        new File("world").delete();
+    }
+
     @Setup(Level.Invocation)
     public void setup() {
         location = ChunkLocation.create((int) FastRandom.random(50), (int) FastRandom.random(50));
@@ -94,7 +100,7 @@ public class GenTest {
 
     @TearDown(Level.Invocation)
     public void teardown() {
-        world.chunkHandler.remove(location);
+        world.chunkHandler().remove(location);
     }
 
     @Param({"1", "2", "4", "8", "16", "32", "64"})

@@ -46,7 +46,7 @@ public class ChunkLocationSet {
 
     public ChunkLocationSet(TridentPlayer player) {
         this.player = player;
-        this.world = ((TridentWorld) player.world());
+        this.world = (TridentWorld) player.world();
     }
 
     public void clean(int distance) {
@@ -68,7 +68,7 @@ public class ChunkLocationSet {
 
         int removed = 0;
         for (ChunkLocation location : knownChunks) {
-            if (MAX_CHUNKS > (size - removed)) return;
+            if (MAX_CHUNKS > size - removed) return;
 
             int cx = location.x();
             int cz = location.z();
@@ -85,15 +85,15 @@ public class ChunkLocationSet {
     }
 
     public void update(int viewDistance) {
-        int centX = ((int) Math.floor(player.position().x())) >> 4;
-        int centZ = ((int) Math.floor(player.position().z())) >> 4;
+        int centX = (int) Math.floor(player.position().x()) >> 4;
+        int centZ = (int) Math.floor(player.position().z()) >> 4;
 
         PacketPlayOutMapChunkBulk bulk = new PacketPlayOutMapChunkBulk();
         HashSet<TridentChunk> set = new HashSet<>();
 
         synchronized (knownChunks) {
-            for (int x = (centX - viewDistance / 2); x <= (centX + viewDistance / 2); x += 1) {
-                for (int z = (centZ - viewDistance / 2); z <= (centZ + viewDistance / 2); z += 1) {
+            for (int x = centX - viewDistance / 2; x <= centX + viewDistance / 2; x += 1) {
+                for (int z = centZ - viewDistance / 2; z <= centZ + viewDistance / 2; z += 1) {
                     for (int i = x - 1; i <= x + 1; i++) {
                         for (int j = z - 1; j <= z + 1; j++) {
                             ChunkLocation loc = ChunkLocation.create(i, j);
