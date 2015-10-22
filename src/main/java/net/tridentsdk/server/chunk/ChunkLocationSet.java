@@ -30,6 +30,7 @@ import net.tridentsdk.world.ChunkLocation;
 
 import javax.annotation.concurrent.GuardedBy;
 import java.util.HashSet;
+import java.util.Iterator;
 
 /**
  *
@@ -54,22 +55,20 @@ public class ChunkLocationSet {
             for (int i = 0; i < CLEAN_ITERATIONS; i++) {
                 int size = knownChunks.size();
                 if (size > MAX_CHUNKS) {
-                    clean0(distance, size);
+                    clean0(distance);
                 }
             }
         }
     }
 
     @Policy("holds knownChunks")
-    private void clean0(int viewDist, int size) {
+    private void clean0(int viewDist) {
         Position pos = player.position();
         int x = (int) pos.x() / 16;
         int z = (int) pos.z() / 16;
 
-        int removed = 0;
-        for (ChunkLocation location : knownChunks) {
-            if (MAX_CHUNKS > size - removed) return;
-
+        for (Iterator<ChunkLocation> locs = knownChunks.iterator(); locs.hasNext(); ) {
+            ChunkLocation location = locs.next();
             int cx = location.x();
             int cz = location.z();
 
@@ -78,8 +77,8 @@ public class ChunkLocationSet {
 
             if (abs >= viewDist || abs1 >= viewDist) {
                 player.connection().sendPacket(new PacketPlayOutChunkData(new byte[0], location, true, (short) 0));
-                knownChunks.remove(location);
-                removed++;
+                locs.remove();
+                world.chunkHandler().apply(location, CRefCounter::releaseStrong);
             }
         }
     }
@@ -89,11 +88,11 @@ public class ChunkLocationSet {
         int centZ = (int) Math.floor(player.position().z()) >> 4;
 
         PacketPlayOutMapChunkBulk bulk = new PacketPlayOutMapChunkBulk();
-        HashSet<TridentChunk> set = new HashSet<>();
 
         synchronized (knownChunks) {
             for (int x = centX - viewDistance / 2; x <= centX + viewDistance / 2; x += 1) {
                 for (int z = centZ - viewDistance / 2; z <= centZ + viewDistance / 2; z += 1) {
+                    TridentChunk center = null;
                     for (int i = x - 1; i <= x + 1; i++) {
                         for (int j = z - 1; j <= z + 1; j++) {
                             ChunkLocation loc = ChunkLocation.create(i, j);
@@ -101,21 +100,23 @@ public class ChunkLocationSet {
 
                             TridentChunk chunk = world.chunkAt(loc, true);
                             if (i == x && j == z) {
-                                set.add(chunk);
+                                center = chunk;
                             }
                         }
                     }
-                }
-            }
 
-            for (TridentChunk chunk : set) {
-                if (knownChunks.add(chunk.location())) {
-                    bulk.addEntry(chunk.asPacket());
-                }
+                    // if the player doesn't already know this chunk
+                    if (center != null) {
+                        ChunkLocation location = center.location();
+                        if (!knownChunks.add(location)) continue;
+                        world.chunkHandler().apply(location, CRefCounter::refStrong);
 
-                if (bulk.size() >= 1845152) {
-                    player.connection().sendPacket(bulk);
-                    bulk = new PacketPlayOutMapChunkBulk();
+                        bulk.addEntry(center.asPacket());
+                        if (bulk.size() >= 1845152) {
+                            player.connection().sendPacket(bulk);
+                            bulk = new PacketPlayOutMapChunkBulk();
+                        }
+                    }
                 }
             }
 

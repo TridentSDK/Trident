@@ -238,6 +238,11 @@ public class TridentPlayer extends OfflinePlayer {
         int distance = viewDistance();
         if (!loggingIn) {
             ThreadsHandler.chunkExecutor().execute(() -> {
+                if (ticksExisted.get() % 20 == 0) {
+                    knownChunks.update(distance);
+                    return;
+                }
+
                 knownChunks.clean(distance);
                 knownChunks.update(distance);
             });

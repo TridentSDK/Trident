@@ -29,6 +29,7 @@ import net.tridentsdk.entity.Entity;
 import net.tridentsdk.meta.block.BlockMeta;
 import net.tridentsdk.meta.block.Tile;
 import net.tridentsdk.meta.nbt.*;
+import net.tridentsdk.server.chunk.ChunkHandler;
 import net.tridentsdk.server.chunk.ConcurrentSectionTable;
 import net.tridentsdk.server.entity.TridentEntity;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutChunkData;
@@ -488,14 +489,20 @@ public class TridentChunk implements Chunk {
     }
 
     @Override
+    // todo refactor to boolean
     public void unload() {
         sections.lockFully();
         try {
-            world.loader().saveChunk(this);
+            ChunkHandler chunkHandler = world.chunkHandler();
 
             // slight inefficacy here - redundant operation when called with
             // ChunkHandler#tryRemove(...)
-            world.chunkHandler().remove(location);
+            if (chunkHandler.get(location).hasStrongRefs()) {
+                return;
+            }
+
+            world.loader().saveChunk(this);
+            chunkHandler.remove(location);
         } finally {
             sections.release();
         }

@@ -22,6 +22,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import java.util.concurrent.atomic.LongAdder;
 
 @ThreadSafe
+// TODO add reference to avoid lookup each call
 public class CRefCounter {
     private final TridentChunk wrapped;
     private final LongAdder strongRefs = new LongAdder();
@@ -41,6 +42,7 @@ public class CRefCounter {
 
     public void releaseStrong() {
         strongRefs.decrement();
+        wrapped.world().chunkHandler().tryRemove(wrapped.location());
 
         if (strongRefs.sum() < 0L) throw new IllegalStateException("Sub-zero strongrefs");
     }
