@@ -128,23 +128,41 @@ public class ChunkHandler {
             return true;
         }
 
-        CRefCounter chunk = get(location);
-        if (chunk == null) {
-            return false;
-        }
-
-        if (!chunk.hasStrongRefs()) {
-            TridentChunk c = chunk.unwrap();
-            if (chunk.hasWeakRefs()) {
-                // TODO remove weak referencing items
+        synchronized (counters) {
+            CRefCounter chunk = get(location);
+            if (chunk == null) {
+                return false;
             }
 
-            c.unload();
-            remove(location);
-            return true;
+            if (!chunk.hasStrongRefs()) {
+                TridentChunk c = chunk.unwrap();
+                if (chunk.hasWeakRefs()) {
+                    // TODO remove weak referencing items
+                }
+
+                c.unload();
+                remove(location);
+                return true;
+            }
         }
 
         return false;
+    }
+
+    /**
+     * Releases the reference counters associated with the chunks that are specified in the set given
+     *
+     * @param chunkSet the set of chunks to release references to, given that they exist in this cache
+     */
+    public void releaseReferences(ChunkLocationSet chunkSet) {
+        synchronized (counters) {
+            for (ChunkLocation location : chunkSet.locations()) {
+                CRefCounter counter = get(location);
+                if (counter != null) {
+                    counter.releaseStrong();
+                }
+            }
+        }
     }
 
     /**

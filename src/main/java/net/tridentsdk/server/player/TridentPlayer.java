@@ -30,6 +30,7 @@ import net.tridentsdk.effect.sound.SoundEffectType;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.entity.types.EntityType;
+import net.tridentsdk.event.player.PlayerDisconnectEvent;
 import net.tridentsdk.event.player.PlayerJoinEvent;
 import net.tridentsdk.event.player.PlayerMoveEvent;
 import net.tridentsdk.inventory.Item;
@@ -116,7 +117,7 @@ public class TridentPlayer extends OfflinePlayer {
         TridentPlayer p = new TridentPlayer(id, playerTag, TridentServer.WORLD, connection);
         p.executor = ThreadsHandler.playerExecutor();
 
-        OfflinePlayer.OFFLINE_PLAYERS.put(id, p);
+        // fixeme ?? OfflinePlayer.OFFLINE_PLAYERS.put(id, p);
         ONLINE_PLAYERS.put(id, p);
 
         p.name = name;
@@ -238,11 +239,6 @@ public class TridentPlayer extends OfflinePlayer {
         int distance = viewDistance();
         if (!loggingIn) {
             ThreadsHandler.chunkExecutor().execute(() -> {
-                if (ticksExisted.get() % 20 == 0) {
-                    knownChunks.update(distance);
-                    return;
-                }
-
                 knownChunks.clean(distance);
                 knownChunks.update(distance);
             });
@@ -253,7 +249,6 @@ public class TridentPlayer extends OfflinePlayer {
 
     @Override
     protected void doRemove() {
-        ONLINE_PLAYERS.remove(uniqueId());
         knownChunks.clear();
 
         PacketPlayOutPlayerListItem item = new PacketPlayOutPlayerListItem();
@@ -264,6 +259,8 @@ public class TridentPlayer extends OfflinePlayer {
         players().forEach(p ->
                 new MessageBuilder(name + " has left the server").color(ChatColor.YELLOW).build().sendTo(p));
         TridentLogger.get().log(name + " has left the server");
+        ONLINE_PLAYERS.remove(uniqueId());
+        EventProcessor.fire(new PlayerDisconnectEvent(this));
     }
 
     @Override

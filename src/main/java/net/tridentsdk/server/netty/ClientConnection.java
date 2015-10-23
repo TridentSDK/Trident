@@ -24,8 +24,6 @@ import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.entity.living.Player;
-import net.tridentsdk.event.player.PlayerDisconnectEvent;
-import net.tridentsdk.server.event.EventProcessor;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.protocol.Protocol;
 import net.tridentsdk.server.packets.login.LoginHandler;
@@ -307,7 +305,7 @@ public class ClientConnection {
      * @param uuid the uuid of the connection
      */
     @InternalUseOnly
-    public void setUuid(UUID uuid) {        
+    public void setUuid(UUID uuid) {
         this.uuid = uuid;
     }
 
@@ -417,7 +415,6 @@ public class ClientConnection {
             return;
         }
 
-        EventProcessor.fire(new PlayerDisconnectEvent(p));
         this.channel.close();
 
         p.remove();

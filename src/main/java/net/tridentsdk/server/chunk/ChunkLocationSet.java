@@ -31,9 +31,12 @@ import net.tridentsdk.world.ChunkLocation;
 import javax.annotation.concurrent.GuardedBy;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 /**
+ * The set of chunk locations and management methods for a player connected to the server
  *
+ * @author The TridentSDK Team
  */
 public class ChunkLocationSet {
     private static final ConfigSection tridentCfg = Trident.config().getConfigSection("performance");
@@ -45,11 +48,21 @@ public class ChunkLocationSet {
     private final TridentPlayer player;
     private final TridentWorld world;
 
+    /**
+     * Creates a new chunk set for the given player
+     *
+     * @param player the player to associate the chunks with
+     */
     public ChunkLocationSet(TridentPlayer player) {
         this.player = player;
         this.world = (TridentWorld) player.world();
     }
 
+    /**
+     * Clears the chunks that are not used within the specified view distance
+     *
+     * @param distance the distance of chunks of which to retain
+     */
     public void clean(int distance) {
         synchronized (knownChunks) {
             for (int i = 0; i < CLEAN_ITERATIONS; i++) {
@@ -83,6 +96,12 @@ public class ChunkLocationSet {
         }
     }
 
+    /**
+     * Updates the chunks the player does not currently have within the given view distance
+     *
+     * @param viewDistance the diameter of the circle which to send chunks that the player currently does not possess as
+     *                     listed in this set
+     */
     public void update(int viewDistance) {
         int centX = (int) Math.floor(player.position().x()) >> 4;
         int centZ = (int) Math.floor(player.position().z()) >> 4;
@@ -126,14 +145,25 @@ public class ChunkLocationSet {
         }
     }
 
+    /**
+     * Correctly clears and releases the chunk references held by this set
+     */
     public void clear() {
         ChunkHandler handler = world.chunkHandler();
         synchronized (knownChunks) {
-            for (ChunkLocation location : knownChunks) {
-                handler.apply(location, CRefCounter::releaseStrong);
-            }
-
+            clean0(0);
+            handler.releaseReferences(this);
             knownChunks.clear();
         }
+    }
+
+    /**
+     * Obtains the chunks that are held in this location set
+     *
+     * @return the raw location set
+     */
+    @Policy("holds knownChunks")
+    public Set<ChunkLocation> locations() {
+        return this.knownChunks;
     }
 }
