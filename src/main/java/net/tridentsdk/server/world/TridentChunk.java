@@ -29,6 +29,7 @@ import net.tridentsdk.entity.Entity;
 import net.tridentsdk.meta.block.BlockMeta;
 import net.tridentsdk.meta.block.Tile;
 import net.tridentsdk.meta.nbt.*;
+import net.tridentsdk.server.chunk.CRefCounter;
 import net.tridentsdk.server.chunk.ChunkHandler;
 import net.tridentsdk.server.chunk.ConcurrentSectionTable;
 import net.tridentsdk.server.entity.TridentEntity;
@@ -497,8 +498,11 @@ public class TridentChunk implements Chunk {
 
             // slight inefficacy here - redundant operation when called with
             // ChunkHandler#tryRemove(...)
-            if (chunkHandler.get(location).hasStrongRefs()) {
-                return;
+            CRefCounter refCounter = chunkHandler.get(location);
+            if (refCounter != null) {
+                if (refCounter.hasStrongRefs()) {
+                    return;
+                }
             }
 
             world.loader().saveChunk(this);

@@ -18,6 +18,7 @@ package net.tridentsdk.server.chunk;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import net.tridentsdk.server.concurrent.ThreadsHandler;
 import net.tridentsdk.server.world.TridentChunk;
 import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.world.ChunkLocation;
@@ -135,7 +136,7 @@ public class ChunkHandler {
                     // TODO remove weak referencing items
                 }
 
-                c.unload();
+                ThreadsHandler.chunkExecutor().execute(c::unload);
                 remove(location);
                 return true;
             }

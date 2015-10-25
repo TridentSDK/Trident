@@ -66,7 +66,7 @@ public class ChunkLocationSet {
             for (int i = 0; i < CLEAN_ITERATIONS; i++) {
                 int size = knownChunks.size();
                 if (size > MAX_CHUNKS) {
-                    clean0(distance);
+                    clean0(distance - i);
                 }
             }
         }
