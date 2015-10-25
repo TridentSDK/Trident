@@ -68,4 +68,8 @@ public class CRefCounter {
     public TridentChunk unwrap() {
         return wrapped;
     }
+
+    public long list() {
+        return strongRefs.sum();
+    }
 }

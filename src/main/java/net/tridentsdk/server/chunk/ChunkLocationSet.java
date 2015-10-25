@@ -46,7 +46,6 @@ public class ChunkLocationSet {
     @GuardedBy("knownChunks")
     private final HashSet<ChunkLocation> knownChunks = Sets.newHashSet();
     private final TridentPlayer player;
-    private final TridentWorld world;
 
     /**
      * Creates a new chunk set for the given player
@@ -55,7 +54,6 @@ public class ChunkLocationSet {
      */
     public ChunkLocationSet(TridentPlayer player) {
         this.player = player;
-        this.world = (TridentWorld) player.world();
     }
 
     /**
@@ -75,7 +73,7 @@ public class ChunkLocationSet {
     }
 
     @Policy("holds knownChunks")
-    private void clean0(int viewDist) {
+    public void clean0(int viewDist) {
         Position pos = player.position();
         int x = (int) pos.x() / 16;
         int z = (int) pos.z() / 16;
@@ -91,7 +89,7 @@ public class ChunkLocationSet {
             if (abs >= viewDist || abs1 >= viewDist) {
                 player.connection().sendPacket(new PacketPlayOutChunkData(new byte[0], location, true, (short) 0));
                 locs.remove();
-                world.chunkHandler().apply(location, CRefCounter::releaseStrong);
+                world().chunkHandler().apply(location, CRefCounter::releaseStrong);
             }
         }
     }
@@ -117,7 +115,7 @@ public class ChunkLocationSet {
                             ChunkLocation loc = ChunkLocation.create(i, j);
                             if (knownChunks.contains(loc)) continue;
 
-                            TridentChunk chunk = world.chunkAt(loc, true);
+                            TridentChunk chunk = world().chunkAt(loc, true);
                             if (i == x && j == z) {
                                 center = chunk;
                             }
@@ -128,7 +126,7 @@ public class ChunkLocationSet {
                     if (center != null) {
                         ChunkLocation location = center.location();
                         if (!knownChunks.add(location)) continue;
-                        world.chunkHandler().apply(location, CRefCounter::refStrong);
+                        world().chunkHandler().apply(location, CRefCounter::refStrong);
 
                         bulk.addEntry(center.asPacket());
                         if (bulk.size() >= 1845152) {
@@ -149,9 +147,8 @@ public class ChunkLocationSet {
      * Correctly clears and releases the chunk references held by this set
      */
     public void clear() {
-        ChunkHandler handler = world.chunkHandler();
+        ChunkHandler handler = world().chunkHandler();
         synchronized (knownChunks) {
-            clean0(0);
             handler.releaseReferences(this);
             knownChunks.clear();
         }
@@ -165,5 +162,10 @@ public class ChunkLocationSet {
     @Policy("holds knownChunks")
     public Set<ChunkLocation> locations() {
         return this.knownChunks;
+    }
+
+    @Policy("world can change, do not cache")
+    private TridentWorld world() {
+        return (TridentWorld) player.world();
     }
 }

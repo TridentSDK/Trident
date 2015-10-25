@@ -454,7 +454,7 @@ public class TridentWorld implements World {
             }
 
             /* if ((existed.get() & CHUNK_EVICTION_TIME) == 0) {
-                UnmodifiableIterator<List<ChunkLocation>> list = Iterators.partition(chunkHandler.keys().iterator(),
+                UnmodifiableIterator<List<ChunkLocation>> list = Iterators.partition(Sets.newHashSet(chunkHandler.keys()).iterator(),
                         Math.max(TridentPlayer.players().size(), 1));
                 for (; list.hasNext(); ) {
                     List<ChunkLocation> chunks = list.next();

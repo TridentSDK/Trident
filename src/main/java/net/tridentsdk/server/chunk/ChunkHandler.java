@@ -123,11 +123,6 @@ public class ChunkHandler {
      * @return {@code true} to signify that the collection was modified as a result of this operation
      */
     public boolean tryRemove(ChunkLocation location) {
-        if (location.x() < 7 && location.z() < 7) {
-            // Spawn chunk TODO spawn radius
-            return true;
-        }
-
         synchronized (counters) {
             CRefCounter chunk = get(location);
             if (chunk == null) {
