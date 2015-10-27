@@ -44,12 +44,12 @@ public class TridentChunkSnapshot implements ChunkSnapshot {
     }
 
     @Override
-    public void load(Chunk chunk) {
+    public void apply(Chunk chunk) {
         ((TridentChunk) chunk).load(tag);
     }
 
     @Override
-    public void load() {
+    public void apply() {
         ((TridentChunk) world().chunkAt(location(), true)).load(tag);
     }
 
@@ -69,7 +69,17 @@ public class TridentChunkSnapshot implements ChunkSnapshot {
 
     @Override
     public void generate() {
-        load();
+        apply();
+    }
+
+    @Override
+    public boolean load() {
+        return false;
+    }
+
+    @Override
+    public boolean isLoaded() {
+        return false;
     }
 
     @Override
