@@ -66,6 +66,7 @@ import net.tridentsdk.server.packets.play.out.PacketPlayOutGameStateChange;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutServerDifficulty;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutTimeUpdate;
 import net.tridentsdk.server.player.TridentPlayer;
+import net.tridentsdk.util.Pair;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.*;
 import net.tridentsdk.world.gen.ChunkAxisAlignedBoundingBox;
@@ -99,21 +100,23 @@ import java.util.zip.GZIPOutputStream;
 public class TridentWorld implements World {
     private static final int SIZE = 1;
     private static final int MAX_HEIGHT = 255;
-    private static final int MAX_CHUNKS = 30_000_000;
+    private static final int MAX_CHUNKS = 3_750_000; // 60 million blocks
     private static final int CHUNK_EVICTION_TIME = 20 * 60 * 5;
-
-    private final ChunkHandler chunkHandler = new ChunkHandler(this);
-    private final Set<Entity> entities = Sets.newConcurrentHashSet();
-    private final Set<Tile> tiles = Sets.newConcurrentHashSet();
 
     private final String name;
     private final WorldLoader loader;
     private final Position spawnPosition;
 
+    private final ChunkHandler chunkHandler = new ChunkHandler(this);
+    private final Set<Entity> entities = Sets.newConcurrentHashSet();
+    private final Set<Tile> tiles = Sets.newConcurrentHashSet();
+    private final Set<String> gameRules = Sets.newConcurrentHashSet();
+
     private final AtomicLong time = new AtomicLong();
     private final AtomicLong existed = new AtomicLong();
     private final AtomicInteger rainTime = new AtomicInteger();
     private final AtomicInteger thunderTime = new AtomicInteger();
+
     private volatile double borderSize;
     private volatile long seed; // TODO prevent seeds == 0
     private volatile GeneratorRandom random;
@@ -121,28 +124,58 @@ public class TridentWorld implements World {
     private volatile Difficulty difficulty;
     private volatile GameMode defaultGamemode;
     private volatile LevelType type;
-
     private volatile boolean difficultyLocked;
     private volatile boolean redstoneTick;
     private volatile boolean raining;
     private volatile boolean thundering;
+    private volatile boolean generateStructures = true;
 
-    private boolean generateStructures = true;
-    private Set<String> gameRules = Sets.newConcurrentHashSet();
+    private final WorldBorder border = new WorldBorder() {
+        private volatile Pair<Integer, Integer> center = Pair.immutable(0, 0);
+        private volatile int mod = 60000000;
+        private volatile int time = 0;
+
+        @Override
+        public int size() {
+            return 0; // todo calculate size of border?
+        }
+
+        @Override // usually modified by plugins atomically relative to the server
+        public void modify(int mod, int time) {
+            this.mod = mod;
+            if (time != 0) this.time = time;
+            apply();
+        }
+
+        @Override
+        public Pair<Integer, Integer> center() {
+            return center;
+        }
+
+        @Override
+        public void setCenter(int x, int z) {
+            center = Pair.immutable(x, z);
+            apply();
+        }
+
+        @Override
+        public int sizeContraction() {
+            return mod;
+        }
+
+        @Override
+        public int contractionTime() {
+            return time;
+        }
+
+        private void apply() {
+
+        }
+    };
     private final WeatherConditions conditions = new WeatherConditions() {
         @Override
         public boolean isRaining() {
             return raining;
-        }
-
-        @Override
-        public int rainTime() {
-            return rainTime.get();
-        }
-
-        @Override
-        public void toggleRain(int ticks) {
-            rainTime.set(ticks);
         }
 
         @Override
@@ -159,18 +192,18 @@ public class TridentWorld implements World {
         }
 
         @Override
+        public int rainTime() {
+            return rainTime.get();
+        }
+
+        @Override
+        public void toggleRain(int ticks) {
+            rainTime.set(ticks);
+        }
+
+        @Override
         public boolean isThundering() {
             return thundering;
-        }
-
-        @Override
-        public int thunderTime() {
-            return thunderTime.get();
-        }
-
-        @Override
-        public void toggleThunder(int ticks) {
-            thunderTime.set(ticks);
         }
 
         @Override
@@ -187,6 +220,16 @@ public class TridentWorld implements World {
         }
 
         @Override
+        public int thunderTime() {
+            return thunderTime.get();
+        }
+
+        @Override
+        public void toggleThunder(int ticks) {
+            thunderTime.set(ticks);
+        }
+
+        @Override
         public boolean isSunny() {
             return !raining && !thundering;
         }
@@ -195,27 +238,6 @@ public class TridentWorld implements World {
         public void setSunny() {
             setRaining(false);
             setThundering(false);
-        }
-    };
-    private final WorldBorder border = new WorldBorder() {
-        @Override
-        public double size() {
-            return 0;
-        }
-
-        @Override
-        public Position center() {
-            return spawnPosition;
-        }
-
-        @Override
-        public int sizeContraction() {
-            return 0;
-        }
-
-        @Override
-        public int contractionTime() {
-            return 0;
         }
     };
 
@@ -840,11 +862,11 @@ public class TridentWorld implements World {
             case FIREBALL:
                 return internalSpawn(new TridentFireball(UUID.randomUUID(), spawnPosition,
                         new ProjectileLauncher() {
-                    @Override
-                    public <T extends Projectile> T launchProjectile(EntityProperties properties) {
-                        return null;
-                    }
-                }));
+                            @Override
+                            public <T extends Projectile> T launchProjectile(EntityProperties properties) {
+                                return null;
+                            }
+                        }));
             case FISH_HOOK:
                 return internalSpawn(new TridentFishHook(UUID.randomUUID(), spawnPosition, new ProjectileLauncher() {
                     @Override
@@ -862,11 +884,11 @@ public class TridentWorld implements World {
             case SMALL_FIREBALL:
                 return internalSpawn(new TridentSmallFireball(UUID.randomUUID(), spawnPosition,
                         new ProjectileLauncher() {
-                    @Override
-                    public <T extends Projectile> T launchProjectile(EntityProperties properties) {
-                        return null;
-                    }
-                }));
+                            @Override
+                            public <T extends Projectile> T launchProjectile(EntityProperties properties) {
+                                return null;
+                            }
+                        }));
             case SNOWBALL:
                 return internalSpawn(new TridentSnowball(UUID.randomUUID(), spawnPosition, new ProjectileLauncher() {
                     @Override
@@ -921,30 +943,30 @@ public class TridentWorld implements World {
     }
 
     @Override
-    public ParticleEffect spawnParticle(ParticleEffectType particle){
+    public ParticleEffect spawnParticle(ParticleEffectType particle) {
         return new TridentParticleEffect(this, particle);
     }
 
     @Override
-    public VisualEffect spawnVisual(VisualEffectType visual){
+    public VisualEffect spawnVisual(VisualEffectType visual) {
         return new TridentVisualEffect(this, visual);
     }
 
     @Override
-    public SoundEffect playSound(SoundEffectType sound){
+    public SoundEffect playSound(SoundEffectType sound) {
         return new TridentSoundEffect(this, sound);
     }
 
-    public ArrayList<Entity> getEntities(Entity exclude, BoundingBox boundingBox, Predicate<? super Entity> predicate){
+    public ArrayList<Entity> getEntities(Entity exclude, BoundingBox boundingBox, Predicate<? super Entity> predicate) {
         ArrayList<Entity> list = new ArrayList<>();
-        int minX = (int) Math.floor((boundingBox.minX - 2.0D) / 16.0D);
-        int maxX = (int) Math.floor((boundingBox.maxX + 2.0D) / 16.0D);
-        int minZ = (int) Math.floor((boundingBox.minZ - 2.0D) / 16.0D);
-        int maxZ = (int) Math.floor((boundingBox.maxZ + 2.0D) / 16.0D);
-        for(int x = minX; x <= maxX; x++){
-            for(int z = minZ; z <= maxZ; z++){
+        int minX = (int) Math.floor((boundingBox.minX() - 2.0D) / 16.0D);
+        int maxX = (int) Math.floor((boundingBox.maxX() + 2.0D) / 16.0D);
+        int minZ = (int) Math.floor((boundingBox.minZ() - 2.0D) / 16.0D);
+        int maxZ = (int) Math.floor((boundingBox.maxZ() + 2.0D) / 16.0D);
+        for (int x = minX; x <= maxX; x++) {
+            for (int z = minZ; z <= maxZ; z++) {
                 Chunk chunk = chunkAt(x, z, false);
-                if(chunk != null){
+                if (chunk != null) {
                     list.addAll(chunk.getEntities(exclude, boundingBox, predicate));
                 }
             }

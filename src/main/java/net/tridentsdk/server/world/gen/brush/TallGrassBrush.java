@@ -19,7 +19,7 @@ package net.tridentsdk.server.world.gen.brush;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.server.world.WorldUtils;
 import net.tridentsdk.world.ChunkLocation;
-import net.tridentsdk.world.gen.AbstractOverlayBrush;
+import net.tridentsdk.world.gen.FeatureGenerator;
 import net.tridentsdk.world.gen.GeneratorRandom;
 
 import java.util.concurrent.atomic.AtomicReferenceArray;
@@ -29,13 +29,13 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
  *
  * @author The TridentSDK Team
  */
-public class TallGrassBrush extends AbstractOverlayBrush {
+public class TallGrassBrush extends FeatureGenerator {
     public TallGrassBrush(long seed) {
         super(seed);
     }
 
     @Override
-    public void brush(ChunkLocation location, int relX, int relZ, GeneratorRandom random, AtomicReferenceArray<Integer> heights, ChunkManipulator manipulator) {
+    public void generate(ChunkLocation location, int relX, int relZ, GeneratorRandom random, AtomicReferenceArray<Integer> heights, ChunkManipulator manipulator) {
         int i = WorldUtils.heightIndex(relX, relZ);
         int top = heights.get(i);
         if (random.under(99) < 40 && manipulator.blockAt(relX, top, relZ).substance() == Substance.GRASS) {

@@ -15,6 +15,6 @@
  * limitations under the License.
  */
 /**
- * Classes that brush the world with extra features such as trees
+ * Classes that generate the world with extra features such as trees
  */
 package net.tridentsdk.server.world.gen.brush;

@@ -40,9 +40,9 @@ import net.tridentsdk.util.Vector;
 import net.tridentsdk.world.Chunk;
 import net.tridentsdk.world.ChunkLocation;
 import net.tridentsdk.world.ChunkSnapshot;
-import net.tridentsdk.world.gen.AbstractGenerator;
-import net.tridentsdk.world.gen.AbstractOverlayBrush;
-import net.tridentsdk.world.gen.AbstractOverlayBrush.ChunkManipulator;
+import net.tridentsdk.world.gen.ChunkGenerator;
+import net.tridentsdk.world.gen.FeatureGenerator;
+import net.tridentsdk.world.gen.FeatureGenerator.ChunkManipulator;
 
 import javax.annotation.concurrent.GuardedBy;
 import java.io.ByteArrayOutputStream;
@@ -91,7 +91,8 @@ public class TridentChunk implements Chunk {
         lastFileAccess = last;
     }
 
-    public boolean isGen() {
+    @Override
+    public boolean isLoaded() {
         return lightPopulated.get() == 0x01 && terrainPopulated.get() == 0x01;
     }
 
@@ -131,9 +132,9 @@ public class TridentChunk implements Chunk {
 
         sections.lockFully();
         try {
-            AbstractGenerator generator = world.loader().generator();
-            char[][] blocks = generator.generateChunkBlocks(location, heights);
-            byte[][] data = generator.generateBlockData(location);
+            ChunkGenerator generator = world.loader().generator();
+            char[][] blocks = generator.generateBlocks(location, heights);
+            byte[][] data = generator.generateData(location);
             for (int i = 0; i < 16; i++) {
                 ChunkSection section = sections.get(i);
 
@@ -173,13 +174,28 @@ public class TridentChunk implements Chunk {
         gen(true);
     }
 
+    @Override
+    public boolean load() {
+        if (isLoaded()) {
+            return false;
+        }
+
+        CompoundTag tag = RegionFile.fromPath(world.name(), location).decode(location);
+        if (tag == null) {
+            return false;
+        }
+
+        load(tag);
+        return true;
+    }
+
     public void paint(boolean withLock) {
         // If the state is not 0x00 it is either generating (-1) or has already been
         if (!terrainPopulated.compareAndSet(0x00, 0xFFFFFFFF)) {
             return;
         }
 
-        List<AbstractOverlayBrush> brushes = world.loader().brushes();
+        List<FeatureGenerator> brushes = world.loader().brushes();
         // init chunk event
         ConcurrentHashMap<ChunkLocation, TridentChunk> localCache = new ConcurrentHashMap<>();
         ChunkManipulator manipulator = new ChunkManipulator() {
@@ -295,8 +311,8 @@ public class TridentChunk implements Chunk {
         try {
             for (int i = 0; i < 16; i++) {
                 for (int j = 0; j < 16; j++) {
-                    for (AbstractOverlayBrush brush : brushes) {
-                        brush.brush(location, i, j, world.random(), heights, manipulator);
+                    for (FeatureGenerator brush : brushes) {
+                        brush.generate(location, i, j, world.random(), heights, manipulator);
                     }
                 }
             }

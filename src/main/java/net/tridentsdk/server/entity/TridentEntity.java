@@ -497,7 +497,7 @@ public class TridentEntity implements Entity {
         if (width != this.width || height != this.height){
             this.width = width;
             this.height = height;
-            this.boundingBox = new BoundingBox(boundingBox.minX, boundingBox.minY, boundingBox.minZ, boundingBox.minX + (double) width, boundingBox.minY + (double) height, boundingBox.minZ + (double) width);
+            this.boundingBox = new BoundingBox(boundingBox.minX(), boundingBox.minY(), boundingBox.minZ(), boundingBox.minX() + (double) width, boundingBox.minY() + (double) height, boundingBox.minZ() + (double) width);
         }
     }
 

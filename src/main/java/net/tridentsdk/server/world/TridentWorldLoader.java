@@ -31,8 +31,8 @@ import net.tridentsdk.world.Chunk;
 import net.tridentsdk.world.ChunkLocation;
 import net.tridentsdk.world.World;
 import net.tridentsdk.world.WorldLoader;
-import net.tridentsdk.world.gen.AbstractGenerator;
-import net.tridentsdk.world.gen.AbstractOverlayBrush;
+import net.tridentsdk.world.gen.ChunkGenerator;
+import net.tridentsdk.world.gen.FeatureGenerator;
 import net.tridentsdk.world.settings.Difficulty;
 import net.tridentsdk.world.settings.Dimension;
 import net.tridentsdk.world.settings.GameMode;
@@ -56,15 +56,15 @@ import java.util.concurrent.ThreadLocalRandom;
  * @author The TridentSDK Team
  */
 public class TridentWorldLoader implements WorldLoader {
-    private static final AbstractGenerator DEFAULT_GEN = new DefaultWorldGen(ThreadLocalRandom.current().nextLong());
+    private static final ChunkGenerator DEFAULT_GEN = new DefaultWorldGen(ThreadLocalRandom.current().nextLong());
     public static final Map<String, TridentWorld> WORLDS = new ConcurrentHashMap<>();
 
-    private final Class<? extends AbstractGenerator> generatorClass;
-    private final List<AbstractOverlayBrush> brushes = new CopyOnWriteArrayList<>();
-    private volatile AbstractGenerator generator;
+    private final Class<? extends ChunkGenerator> generatorClass;
+    private final List<FeatureGenerator> brushes = new CopyOnWriteArrayList<>();
+    private volatile ChunkGenerator generator;
     volatile TridentWorld world;
 
-    public TridentWorldLoader(Class<? extends AbstractGenerator> generator) {
+    public TridentWorldLoader(Class<? extends ChunkGenerator> generator) {
         this.generatorClass = generator;
     }
 
@@ -103,7 +103,7 @@ public class TridentWorldLoader implements WorldLoader {
                         className = new String(sig);
                         if (!className.equals(DEFAULT_GEN.getClass().getName())) {
                             // Create a new loader with that class, don't load it with this one
-                            new TridentWorldLoader(Class.forName(className).asSubclass(AbstractGenerator.class))
+                            new TridentWorldLoader(Class.forName(className).asSubclass(ChunkGenerator.class))
                                     .load(file.getName());
                             isWorld = false;
                         }
@@ -203,9 +203,9 @@ public class TridentWorldLoader implements WorldLoader {
     }
 
     public void setGenerator(long seed) {
-        AbstractGenerator gen;
+        ChunkGenerator gen;
         try {
-            Constructor<? extends AbstractGenerator> g = generatorClass.getDeclaredConstructor(long.class);
+            Constructor<? extends ChunkGenerator> g = generatorClass.getDeclaredConstructor(long.class);
             gen = g.newInstance(seed);
             Collections.addAll(brushes, new TallGrassBrush(seed), new OakTreeBrush(seed));
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
@@ -224,12 +224,12 @@ public class TridentWorldLoader implements WorldLoader {
     }
 
     @Override
-    public AbstractGenerator generator() {
+    public ChunkGenerator generator() {
         return generator;
     }
 
     @Override
-    public List<AbstractOverlayBrush> brushes() {
+    public List<FeatureGenerator> brushes() {
         return brushes;
     }
 

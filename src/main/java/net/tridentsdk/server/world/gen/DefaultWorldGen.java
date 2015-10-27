@@ -24,7 +24,7 @@ import net.tridentsdk.server.world.ChunkSection;
 import net.tridentsdk.server.world.WorldUtils;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.ChunkLocation;
-import net.tridentsdk.world.gen.AbstractGenerator;
+import net.tridentsdk.world.gen.ChunkGenerator;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReferenceArray;
@@ -34,7 +34,7 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
  *
  * @author The TridentSDK Team
  */
-public class DefaultWorldGen extends AbstractGenerator {
+public class DefaultWorldGen extends ChunkGenerator {
     private final SimplexOctaveGenerator generator = new SimplexOctaveGenerator(12, 0.5, (int) seed);
     private final SelectableThreadPool executor = ThreadsHandler.genExecutor();
 
@@ -43,7 +43,7 @@ public class DefaultWorldGen extends AbstractGenerator {
     }
 
     @Override
-    public char[][] generateChunkBlocks(final ChunkLocation location, AtomicReferenceArray<Integer> heights) {
+    public char[][] generateBlocks(final ChunkLocation location, AtomicReferenceArray<Integer> heights) {
         final char[][] data = new char[16][ChunkSection.LENGTH];
         final CountDownLatch release = new CountDownLatch(16);
 
@@ -91,7 +91,7 @@ public class DefaultWorldGen extends AbstractGenerator {
     }
 
     @Override
-    public byte[][] generateBlockData(ChunkLocation location) {
+    public byte[][] generateData(ChunkLocation location) {
         return new byte[0][];
     }
 }

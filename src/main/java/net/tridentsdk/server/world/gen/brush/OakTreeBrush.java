@@ -19,7 +19,7 @@ package net.tridentsdk.server.world.gen.brush;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.server.world.WorldUtils;
 import net.tridentsdk.world.ChunkLocation;
-import net.tridentsdk.world.gen.AbstractOverlayBrush;
+import net.tridentsdk.world.gen.FeatureGenerator;
 import net.tridentsdk.world.gen.GeneratorRandom;
 
 import java.util.concurrent.atomic.AtomicReferenceArray;
@@ -29,13 +29,13 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
  *
  * @author The TridentSDK Team
  */
-public class OakTreeBrush extends AbstractOverlayBrush {
+public class OakTreeBrush extends FeatureGenerator {
     public OakTreeBrush(long seed) {
         super(seed);
     }
 
     @Override
-    public void brush(ChunkLocation location, int relX, int relZ, GeneratorRandom random, AtomicReferenceArray<Integer> heights, ChunkManipulator manipulator) {
+    public void generate(ChunkLocation location, int relX, int relZ, GeneratorRandom random, AtomicReferenceArray<Integer> heights, ChunkManipulator manipulator) {
         if (!manipulator.nodeFits(relX, relZ, 2)) return;
 
         int heightIndex = WorldUtils.heightIndex(relX, relZ);

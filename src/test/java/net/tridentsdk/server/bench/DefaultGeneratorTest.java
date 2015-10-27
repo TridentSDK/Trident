@@ -89,12 +89,12 @@ public class DefaultGeneratorTest {
     
     /*@Benchmark
     public char[][] testGen () {
-        return generator.generateChunkBlocks(toGen);
+        return generator.generateBlocks(toGen);
     }
     
     @Benchmark
     public char[][] testFlatGen () {
-        return flatGenerator.generateChunkBlocks(toGen);
+        return flatGenerator.generateBlocks(toGen);
     }*/
     
     @Benchmark

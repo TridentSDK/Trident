@@ -49,7 +49,7 @@ import net.tridentsdk.service.Transactions;
 import net.tridentsdk.world.MassChange;
 import net.tridentsdk.world.World;
 import net.tridentsdk.world.WorldLoader;
-import net.tridentsdk.world.gen.AbstractGenerator;
+import net.tridentsdk.world.gen.ChunkGenerator;
 
 import java.util.Collection;
 import java.util.Map;
@@ -103,7 +103,7 @@ public class TridentImpl implements Implementation {
     }
 
     @Override
-    public WorldLoader newLoader(Class<? extends AbstractGenerator> g) {
+    public WorldLoader newLoader(Class<? extends ChunkGenerator> g) {
         if (g == null) {
             return new TridentWorldLoader();
         }
