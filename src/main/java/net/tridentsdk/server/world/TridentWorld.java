@@ -71,10 +71,7 @@ import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.*;
 import net.tridentsdk.world.gen.ChunkAxisAlignedBoundingBox;
 import net.tridentsdk.world.gen.GeneratorRandom;
-import net.tridentsdk.world.settings.Difficulty;
-import net.tridentsdk.world.settings.Dimension;
-import net.tridentsdk.world.settings.GameMode;
-import net.tridentsdk.world.settings.LevelType;
+import net.tridentsdk.world.settings.*;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.io.*;
@@ -244,17 +241,20 @@ public class TridentWorld implements World {
     private TridentWorld(String name, WorldLoader loader, boolean throwaway) {
         ((TridentWorldLoader) loader).world = this;
         this.name = name;
-        this.seed = loader.seed();
+
+
+        WorldCreateOptions options = loader.options();
+        this.seed = options.seed();
         this.random = new GeneratorRandom(seed);
         this.loader = loader;
         this.spawnPosition = Position.create(this, 0, 0, 0);
 
-        this.dimension = loader.dimension();
-        this.difficulty = loader.difficulty();
-        this.defaultGamemode = loader.defaultGameMode();
+        this.dimension = options.dimension();
+        this.difficulty = options.difficulty();
+        this.defaultGamemode = options.defaultGameMode();
         // level
-        this.gameRules.addAll(loader.gameRules());
-        this.generateStructures = loader.generateStructures();
+        this.gameRules.addAll(options.gameRules());
+        this.generateStructures = options.generateStructures();
     }
 
     TridentWorld(String name, WorldLoader loader) {
@@ -305,6 +305,17 @@ public class TridentWorld implements World {
             thunderTime.set(((IntTag) level.getTag("thunderTime")).value());
             difficultyLocked = level.containsTag("DifficultyLocked") &&
                     ((ByteTag) level.getTag("DifficultyLocked")).value() == 1;
+
+            WorldCreateOptions options = loader.options();
+            options.dimension(dimension)
+                    .difficulty(difficulty)
+                    .gameMode(defaultGamemode)
+                    .level(type)
+                    .rule(gameRules)
+                    .generator(null) // todo
+                    .structures(generateStructures)
+                    .pvp(true) // todo
+                    .seed(String.valueOf(seed));
             TridentLogger.get().success("Loaded level.dat successfully. Moving on to region files...");
         } catch (FileNotFoundException ignored) {
             TridentLogger.get().error(new IllegalArgumentException("Could not find world " + name));
@@ -394,7 +405,7 @@ public class TridentWorld implements World {
             int centX = ((int) Math.floor(world.spawnPosition.x())) >> 4;
             int centZ = ((int) Math.floor(world.spawnPosition.z())) >> 4;
 
-            ((TridentWorldLoader) loader).setGenerator(loader.seed());
+            ((TridentWorldLoader) loader).setGenerator(loader.options().seed());
 
             for (ChunkLocation location :
                     new ChunkAxisAlignedBoundingBox(ChunkLocation.create(centX - 3, centZ - 3),

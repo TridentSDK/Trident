@@ -143,7 +143,7 @@ public class TridentWorldLoader implements WorldLoader {
 
     @Override
     public World load(String world) {
-        checkNull();
+        Preconditions.checkArgument(this.world == null, "This WorldLoader has already loadd a world");
         TridentWorld w = new TridentWorld(world, this);
         WORLDS.put(world, w);
 
@@ -153,19 +153,19 @@ public class TridentWorldLoader implements WorldLoader {
     @Override
     public void save() {
         checkNotNull();
-        world.loadedChunks().forEach(this::saveChunk);
+        world.save();
         // TODO save player and entity data
         // consider saving the STATE instead
     }
 
     @Override
     public World createWorld(String name) {
+        Preconditions.checkArgument(world == null, "This WorldLoader has already loaded a world");
+
         if (WorldLoader.worldExists(name)) {
             TridentLogger.get().error(new IllegalArgumentException("Cannot create a duplicate world name"));
             return null;
         }
-
-        checkNull();
 
         // TODO load world settings
         TridentWorld world = TridentWorld.createWorld(name, this);
@@ -233,130 +233,7 @@ public class TridentWorldLoader implements WorldLoader {
         return brushes;
     }
 
-    Dimension dimension = Dimension.OVERWORLD;
-    Difficulty difficulty = Difficulty.PEACEFUL;
-    GameMode gameMode = GameMode.SURVIVAL;
-    LevelType levelType = LevelType.DEFAULT;
-    Set<String> rules = Sets.newHashSet();
-    boolean structures = true;
-    long seed = FastRandom.random();
-
-    @Override
-    public WorldLoader seed(long seed) {
-        checkNull();
-        this.seed = seed;
-        return this;
-    }
-
-    @Override
-    public WorldLoader dimension(Dimension dimension) {
-        checkNull();
-        this.dimension = dimension;
-        return this;
-    }
-
-    @Override
-    public WorldLoader difficulty(Difficulty difficulty) {
-        checkNull();
-        this.difficulty = difficulty;
-        return this;
-    }
-
-    @Override
-    public WorldLoader gameMode(GameMode gameMode) {
-        checkNull();
-        this.gameMode = gameMode;
-        return this;
-    }
-
-    @Override
-    public WorldLoader level(LevelType levelType) {
-        checkNull();
-        this.levelType = levelType;
-        return this;
-    }
-
-    @Override
-    public WorldLoader rule(String... rules) {
-        checkNull();
-        for (String s : rules) this.rules.add(s);
-        return this;
-    }
-
-    @Override
-    public WorldLoader structures(boolean gen) {
-        checkNull();
-        this.structures = gen;
-        return this;
-    }
-
-    //////////////////////////////// DELEGATES
-
-    @Override
-    public long seed() {
-        checkNotNull();
-        return seed;
-    }
-
-    @Override
-    public Dimension dimension() {
-        checkNotNull();
-        return dimension;
-    }
-
-    @Override
-    public Difficulty difficulty() {
-        checkNotNull();
-        return difficulty;
-    }
-
-    @Override
-    public void setDifficulty(Difficulty difficulty) {
-        checkNotNull();
-        world.setDifficulty(difficulty);
-    }
-
-    @Override
-    public GameMode defaultGameMode() {
-        checkNotNull();
-        return gameMode;
-    }
-
-    @Override
-    public void setGameMode(GameMode gameMode) {
-        checkNotNull();
-        world.setGameMode(gameMode);
-    }
-
-    @Override
-    public LevelType levelType() {
-        checkNotNull();
-        return levelType;
-    }
-
-    @Override
-    public boolean isRule(String rule) {
-        checkNotNull();
-        return rules.contains(rule);
-    }
-
-    @Override
-    public Set<String> gameRules() {
-        checkNotNull();
-        return rules;
-    }
-
-    @Override
-    public boolean generateStructures() {
-        checkNotNull();
-        return structures;
-    }
-
     private void checkNotNull() {
-        Preconditions.checkNotNull(world, "This world loader does not have a loaded world");
-    }
-
-    private void checkNull() {
-        Preconditions.checkArgument(world == null, "The current world must be null");
+        Preconditions.checkArgument(world != null, "The current world must not be null");
     }
 }
