@@ -50,6 +50,7 @@ import net.tridentsdk.world.MassChange;
 import net.tridentsdk.world.World;
 import net.tridentsdk.world.WorldLoader;
 import net.tridentsdk.world.gen.ChunkGenerator;
+import net.tridentsdk.world.settings.WorldCreateOptions;
 
 import java.util.Collection;
 import java.util.Map;
@@ -108,7 +109,7 @@ public class TridentImpl implements Implementation {
             return new TridentWorldLoader();
         }
 
-        return new TridentWorldLoader(g);
+        return new TridentWorldLoader(new WorldCreateOptions().generator(g));
     }
 
     @Override

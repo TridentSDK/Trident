@@ -17,15 +17,12 @@
 
 package net.tridentsdk.server.world;
 
-
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Sets;
 import net.tridentsdk.Trident;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.server.world.gen.DefaultWorldGen;
 import net.tridentsdk.server.world.gen.brush.OakTreeBrush;
 import net.tridentsdk.server.world.gen.brush.TallGrassBrush;
-import net.tridentsdk.util.FastRandom;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.Chunk;
 import net.tridentsdk.world.ChunkLocation;
@@ -33,10 +30,7 @@ import net.tridentsdk.world.World;
 import net.tridentsdk.world.WorldLoader;
 import net.tridentsdk.world.gen.ChunkGenerator;
 import net.tridentsdk.world.gen.FeatureGenerator;
-import net.tridentsdk.world.settings.Difficulty;
-import net.tridentsdk.world.settings.Dimension;
-import net.tridentsdk.world.settings.GameMode;
-import net.tridentsdk.world.settings.LevelType;
+import net.tridentsdk.world.settings.WorldCreateOptions;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,7 +39,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ThreadLocalRandom;
@@ -59,17 +56,17 @@ public class TridentWorldLoader implements WorldLoader {
     private static final ChunkGenerator DEFAULT_GEN = new DefaultWorldGen(ThreadLocalRandom.current().nextLong());
     public static final Map<String, TridentWorld> WORLDS = new ConcurrentHashMap<>();
 
-    private final Class<? extends ChunkGenerator> generatorClass;
+    private final WorldCreateOptions opt;
     private final List<FeatureGenerator> brushes = new CopyOnWriteArrayList<>();
     private volatile ChunkGenerator generator;
     volatile TridentWorld world;
 
-    public TridentWorldLoader(Class<? extends ChunkGenerator> generator) {
-        this.generatorClass = generator;
+    public TridentWorldLoader(WorldCreateOptions opt) {
+        this.opt = opt;
     }
 
     public TridentWorldLoader() {
-        this(DEFAULT_GEN.getClass());
+        this.opt = new WorldCreateOptions();
     }
 
     public Collection<TridentWorld> worlds() {
@@ -103,7 +100,7 @@ public class TridentWorldLoader implements WorldLoader {
                         className = new String(sig);
                         if (!className.equals(DEFAULT_GEN.getClass().getName())) {
                             // Create a new loader with that class, don't load it with this one
-                            new TridentWorldLoader(Class.forName(className).asSubclass(ChunkGenerator.class))
+                            new TridentWorldLoader(Class.forName(className).asSubclass(WorldCreateOptions.class).newInstance())
                                     .load(file.getName());
                             isWorld = false;
                         }
@@ -116,6 +113,10 @@ public class TridentWorldLoader implements WorldLoader {
 
                         // Nevermind, load with this one anyways
                         isWorld = true;
+                    } catch (InstantiationException e) {
+                        e.printStackTrace();
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
                     }
                 }
             }
@@ -202,8 +203,14 @@ public class TridentWorldLoader implements WorldLoader {
                 .saveChunkData((TridentChunk) chunk);
     }
 
+    @Override
+    public WorldCreateOptions options() {
+        return null;
+    }
+
     public void setGenerator(long seed) {
         ChunkGenerator gen;
+        Class<? extends ChunkGenerator> generatorClass = opt.generator();
         try {
             Constructor<? extends ChunkGenerator> g = generatorClass.getDeclaredConstructor(long.class);
             gen = g.newInstance(seed);

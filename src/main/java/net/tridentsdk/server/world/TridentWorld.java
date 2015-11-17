@@ -62,8 +62,6 @@ import net.tridentsdk.server.entity.living.*;
 import net.tridentsdk.server.entity.projectile.*;
 import net.tridentsdk.server.entity.vehicle.*;
 import net.tridentsdk.server.event.EventProcessor;
-import net.tridentsdk.server.packets.play.out.PacketPlayOutGameStateChange;
-import net.tridentsdk.server.packets.play.out.PacketPlayOutServerDifficulty;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutTimeUpdate;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.util.Pair;
@@ -127,6 +125,7 @@ public class TridentWorld implements World {
     private volatile boolean thundering;
     private volatile boolean generateStructures = true;
 
+    private final WorldSettings settings;
     private final WorldBorder border = new WorldBorder() {
         private volatile Pair<Integer, Integer> center = Pair.immutable(0, 0);
         private volatile int mod = 60000000;
@@ -138,7 +137,7 @@ public class TridentWorld implements World {
         }
 
         @Override // usually modified by plugins atomically relative to the server
-        public void modify(int mod, int time) {
+        public void modifyBorder(int mod, int time) {
             this.mod = mod;
             if (time != 0) this.time = time;
             apply();
@@ -242,7 +241,6 @@ public class TridentWorld implements World {
         ((TridentWorldLoader) loader).world = this;
         this.name = name;
 
-
         WorldCreateOptions options = loader.options();
         this.seed = options.seed();
         this.random = new GeneratorRandom(seed);
@@ -255,6 +253,7 @@ public class TridentWorld implements World {
         // level
         this.gameRules.addAll(options.gameRules());
         this.generateStructures = options.generateStructures();
+        this.settings = TridentWorldSettings.load(this, options);
     }
 
     TridentWorld(String name, WorldLoader loader) {
@@ -325,6 +324,7 @@ public class TridentWorld implements World {
             TridentLogger.get().error(ex);
             return;
         } finally {
+            settings = TridentWorldSettings.load(this, loader.options());
             try {
                 if (fis != null) {
                     fis.close();
@@ -695,41 +695,8 @@ public class TridentWorld implements World {
     }
 
     @Override
-    public Difficulty difficulty() {
-        return difficulty;
-    }
-
-    @Override
-    public void setDifficulty(Difficulty difficulty) {
-        this.difficulty = difficulty;
-
-        PacketPlayOutServerDifficulty d = new PacketPlayOutServerDifficulty();
-        d.set("difficulty", d);
-        TridentPlayer.sendFiltered(d, p -> p.world().equals(this));
-    }
-
-    @Override
-    public GameMode defaultGameMode() {
-        return defaultGamemode;
-    }
-
-    @Override
-    public void setGameMode(GameMode gameMode) {
-        this.defaultGamemode = gameMode;
-
-        PacketPlayOutGameStateChange change = new PacketPlayOutGameStateChange();
-        change.set("reason", 3).set("value", (float) gameMode.asByte());
-        TridentPlayer.sendFiltered(change, p -> p.world().equals(this));
-    }
-
-    @Override
     public WorldLoader loader() {
         return loader;
-    }
-
-    @Override
-    public LevelType levelType() {
-        return type;
     }
 
     @Override
@@ -743,33 +710,13 @@ public class TridentWorld implements World {
     }
 
     @Override
+    public WorldSettings settings() {
+        return this.settings;
+    }
+
+    @Override
     public WorldBorder border() {
         return border;
-    }
-
-    @Override
-    public long seed() {
-        return 0;
-    }
-
-    @Override
-    public Dimension dimension() {
-        return dimension;
-    }
-
-    @Override
-    public boolean isRule(String rule) {
-        return gameRules.contains(rule);
-    }
-
-    @Override
-    public Set<String> gameRules() {
-        return gameRules;
-    }
-
-    @Override
-    public boolean generateStructures() {
-        return generateStructures;
     }
 
     @Override
