@@ -127,8 +127,8 @@ public class TridentPlayer extends OfflinePlayer {
         p.executor.execute(() -> {
             p.connection.sendPacket(new PacketPlayOutJoinGame().set("entityId", p.entityId())
                     .set("gamemode", p.gameMode)
-                    .set("dimension", p.world().dimension())
-                    .set("difficulty", p.world().difficulty())
+                    .set("dimension", p.world().settings().dimension())
+                    .set("difficulty", p.world().settings().difficulty())
                     .set("maxPlayers", (short) Trident.config().getInt("max-players"))
                     .set("levelType", LevelType.DEFAULT));
 
@@ -139,7 +139,7 @@ public class TridentPlayer extends OfflinePlayer {
             p.spawnPosition = TridentServer.WORLD.spawnPosition();
 
             p.connection.sendPacket(PacketPlayOutPluginMessage.VANILLA_CHANNEL);
-            p.connection.sendPacket(new PacketPlayOutServerDifficulty().set("difficulty", p.world().difficulty()));
+            p.connection.sendPacket(new PacketPlayOutServerDifficulty().set("difficulty", p.world().settings().difficulty()));
             p.connection.sendPacket(new PacketPlayOutSpawnPosition().set("location", p.spawnLocation()));
             p.connection.sendPacket(p.abilities.asPacket());
             p.connection.sendPacket(new PacketPlayOutPlayerCompleteMove().set("location",

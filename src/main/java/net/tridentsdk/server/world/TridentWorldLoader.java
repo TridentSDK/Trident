@@ -67,6 +67,7 @@ public class TridentWorldLoader implements WorldLoader {
 
     public TridentWorldLoader() {
         this.opt = new WorldCreateOptions();
+        this.opt.generator(DefaultWorldGen.class);
     }
 
     public Collection<TridentWorld> worlds() {
@@ -205,7 +206,7 @@ public class TridentWorldLoader implements WorldLoader {
 
     @Override
     public WorldCreateOptions options() {
-        return null;
+        return opt;
     }
 
     public void setGenerator(long seed) {

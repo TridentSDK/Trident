@@ -19,6 +19,7 @@ package net.tridentsdk.server.world;
 
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.io.ByteStreams;
 import net.tridentsdk.base.Block;
@@ -75,10 +76,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -105,7 +103,7 @@ public class TridentWorld implements World {
     private final ChunkHandler chunkHandler = new ChunkHandler(this);
     private final Set<Entity> entities = Sets.newConcurrentHashSet();
     private final Set<Tile> tiles = Sets.newConcurrentHashSet();
-    private final Set<String> gameRules = Sets.newConcurrentHashSet();
+    private final Map<GameRule, GameRule.Value> gameRules = Maps.newHashMap();
 
     private final AtomicLong time = new AtomicLong();
     private final AtomicLong existed = new AtomicLong();
@@ -137,7 +135,7 @@ public class TridentWorld implements World {
         }
 
         @Override // usually modified by plugins atomically relative to the server
-        public void modifyBorder(int mod, int time) {
+        public void modify(int mod, int time) {
             this.mod = mod;
             if (time != 0) this.time = time;
             apply();
@@ -251,7 +249,8 @@ public class TridentWorld implements World {
         this.difficulty = options.difficulty();
         this.defaultGamemode = options.defaultGameMode();
         // level
-        this.gameRules.addAll(options.gameRules());
+        this.gameRules.clear();
+        this.gameRules.putAll(options.gameRules());
         this.generateStructures = options.generateStructures();
         this.settings = TridentWorldSettings.load(this, options);
     }
@@ -310,11 +309,13 @@ public class TridentWorld implements World {
                     .difficulty(difficulty)
                     .gameMode(defaultGamemode)
                     .level(type)
-                    .rule(gameRules)
                     .generator(null) // todo
                     .structures(generateStructures)
                     .pvp(true) // todo
                     .seed(String.valueOf(seed));
+
+            gameRules.forEach(options::rule);
+
             TridentLogger.get().success("Loaded level.dat successfully. Moving on to region files...");
         } catch (FileNotFoundException ignored) {
             TridentLogger.get().error(new IllegalArgumentException("Could not find world " + name));
