@@ -34,6 +34,7 @@ import net.tridentsdk.event.player.PlayerDisconnectEvent;
 import net.tridentsdk.event.player.PlayerJoinEvent;
 import net.tridentsdk.event.player.PlayerMoveEvent;
 import net.tridentsdk.inventory.Item;
+import net.tridentsdk.meta.BarType;
 import net.tridentsdk.meta.ChatColor;
 import net.tridentsdk.meta.MessageBuilder;
 import net.tridentsdk.meta.block.Tile;
@@ -52,6 +53,7 @@ import net.tridentsdk.server.packets.play.out.*;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutChat.ChatPosition;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutPlayerListItem.PlayerListDataBuilder;
 import net.tridentsdk.server.world.TridentWorld;
+import net.tridentsdk.title.TitleTransition;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.util.Vector;
 import net.tridentsdk.world.settings.GameMode;
@@ -575,5 +577,51 @@ public class TridentPlayer extends OfflinePlayer {
 
     public void setDrag(ClickAction drag) {
         this.drag = drag;
+    }
+
+    @Override
+    public void sendBar(BarType barType, String s) {
+        if(barType == BarType.ACTION_BAR) {
+            PacketPlayOutChat actionBarPacket = new PacketPlayOutChat();
+            actionBarPacket.set("jsonMessage", "{\"text\": \"" + s +"\"}");
+            actionBarPacket.set("position", ChatPosition.ABOVE_BAR);
+            connection.sendPacket(actionBarPacket);
+            return;
+        }
+    }
+
+    @Override
+    public void sendTitle(String s) {
+        PacketPlayOutTitle titlePacket = new PacketPlayOutTitle();
+        titlePacket.set("action", PacketPlayOutTitle.TitleAction.TITLE.id());
+        titlePacket.set("values", new Object[]{ "{\"text\": \"" + s +"\"}" });
+        connection.sendPacket(titlePacket);
+    }
+
+    @Override
+    public void sendTitle(String s, String s1) {
+        PacketPlayOutTitle subtitlePacket = new PacketPlayOutTitle();
+        subtitlePacket.set("action", PacketPlayOutTitle.TitleAction.SUBTITLE.id());
+        subtitlePacket.set("values", new Object[] { "{\"text\": \"" + s1 +"\"}" });
+        sendTitle(s);
+        connection.sendPacket(subtitlePacket);
+    }
+
+    @Override
+    public void sendTitle(String s, TitleTransition titleTransition) {
+        PacketPlayOutTitle transitionPacket = new PacketPlayOutTitle();
+        transitionPacket.set("action", PacketPlayOutTitle.TitleAction.TIMES_AND_DISPLAY.id());
+        transitionPacket.set("values", new Object[] { titleTransition.getFadeInTime(), titleTransition.getTitleTime(), titleTransition.getFadeOutTime() });
+        sendTitle(s);
+        connection.sendPacket(transitionPacket);
+    }
+
+    @Override
+    public void sendTitle(String s, String s1, TitleTransition titleTransition) {
+        sendTitle(s, s1);
+        PacketPlayOutTitle transitionPacket = new PacketPlayOutTitle();
+        transitionPacket.set("action", PacketPlayOutTitle.TitleAction.TIMES_AND_DISPLAY.id());
+        transitionPacket.set("values", new Object[] { titleTransition.getFadeInTime(), titleTransition.getTitleTime(), titleTransition.getFadeOutTime() });
+        connection.sendPacket(transitionPacket);
     }
 }
