@@ -29,6 +29,7 @@ import net.tridentsdk.entity.traits.PlayerSpeed;
 import net.tridentsdk.event.entity.EntityDamageEvent;
 import net.tridentsdk.inventory.Inventory;
 import net.tridentsdk.inventory.Item;
+import net.tridentsdk.meta.BarType;
 import net.tridentsdk.meta.MessageBuilder;
 import net.tridentsdk.meta.nbt.*;
 import net.tridentsdk.registry.Registered;
@@ -37,6 +38,7 @@ import net.tridentsdk.server.data.Slot;
 import net.tridentsdk.server.entity.TridentInventoryHolder;
 import net.tridentsdk.server.inventory.TridentInventory;
 import net.tridentsdk.server.world.TridentWorld;
+import net.tridentsdk.title.TitleTransition;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.World;
 import net.tridentsdk.world.settings.Dimension;
@@ -425,6 +427,31 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     @Override
     public boolean opped() {
         return Registered.statuses().isOpped(uniqueId());
+    }
+
+    @Override
+    public void sendBar(BarType barType, String s) {
+        TridentLogger.get().error(new UnsupportedOperationException("You may not send a bar to an OfflinePlayer!"));
+    }
+
+    @Override
+    public void sendTitle(String s) {
+        TridentLogger.get().error(new UnsupportedOperationException("You may not send a title to an OfflinePlayer!"));
+    }
+
+    @Override
+    public void sendTitle(String s, String s1) {
+        TridentLogger.get().error(new UnsupportedOperationException("You may not send a title to an OfflinePlayer!"));
+    }
+
+    @Override
+    public void sendTitle(String s, TitleTransition titleTransition) {
+        TridentLogger.get().error(new UnsupportedOperationException("You may not send a title to an OfflinePlayer!"));
+    }
+
+    @Override
+    public void sendTitle(String s, String s1, TitleTransition titleTransition) {
+        TridentLogger.get().error(new UnsupportedOperationException("You may not send a title to an OfflinePlayer!"));
     }
 
     class PlayerSpeedImpl implements PlayerSpeed {
