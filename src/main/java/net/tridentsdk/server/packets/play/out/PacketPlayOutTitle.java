@@ -62,19 +62,19 @@ public class PacketPlayOutTitle extends OutPacket {
 
     public enum TitleAction {
         TITLE(0) {
-            public String toString() { return "0"; }
+            public String valueOf() { return "0"; }
         },
         SUBTITLE(1) {
-            public String toString() { return "1"; }
+            public String valueOf() { return "1"; }
         },
         TIMES_AND_DISPLAY(2) {
-            public String toString() { return "2"; }
+            public String valueOf() { return "2"; }
         },
         HIDE(3) {
-            public String toString() { return "3"; }
+            public String valueOf() { return "3"; }
         },
         RESET(4) {
-            public String toString() { return "4"; }
+            public String valueOf() { return "4"; }
         };
 
         private int id;
