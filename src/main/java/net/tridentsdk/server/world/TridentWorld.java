@@ -63,6 +63,7 @@ import net.tridentsdk.server.entity.living.*;
 import net.tridentsdk.server.entity.projectile.*;
 import net.tridentsdk.server.entity.vehicle.*;
 import net.tridentsdk.server.event.EventProcessor;
+import net.tridentsdk.server.packets.play.out.PacketPlayOutSpawnGlobalEntity;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutTimeUpdate;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.util.Pair;
@@ -914,6 +915,23 @@ public class TridentWorld implements World {
     @Override
     public SoundEffect playSound(SoundEffectType sound) {
         return new TridentSoundEffect(this, sound);
+    }
+
+    @Override
+    public void lightning(Position position, boolean b) {
+        PacketPlayOutSpawnGlobalEntity lightningPacket = new PacketPlayOutSpawnGlobalEntity();
+        lightningPacket.set("loc", position);
+        for (Entity entity : entities) {
+            if (entity instanceof Player) {
+                TridentPlayer player = (TridentPlayer) entity;
+                player.connection().sendPacket(lightningPacket);
+            }
+        }
+    }
+
+    @Override
+    public void setTime(long l) {
+        time.set(l);
     }
 
     public ArrayList<Entity> getEntities(Entity exclude, BoundingBox boundingBox, Predicate<? super Entity> predicate) {
