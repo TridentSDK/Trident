@@ -919,6 +919,7 @@ public class TridentWorld implements World {
 
     @Override
     public void lightning(Position position, boolean b) {
+        //TODO implement lightning effect and test this
         PacketPlayOutSpawnGlobalEntity lightningPacket = new PacketPlayOutSpawnGlobalEntity();
         lightningPacket.set("loc", position);
         for (Entity entity : entities) {
