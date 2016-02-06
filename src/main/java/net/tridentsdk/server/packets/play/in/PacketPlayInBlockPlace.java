@@ -94,6 +94,11 @@ public class PacketPlayInBlockPlace extends InPacket {
         TridentPlayer player = ((PlayerConnection) connection).player();
         location.setWorld(player.world());
 
+        if(player.heldItem() == null) {
+        	//TODO: add a check where this packet is called from if the heldItem() is not null
+        	return;
+        }
+        
         Substance substance = player.heldItem().type();
         Vector vector = determineOffset();
         if (!substance.isBlock()) {
