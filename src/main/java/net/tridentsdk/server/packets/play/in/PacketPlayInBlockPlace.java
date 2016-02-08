@@ -18,6 +18,7 @@
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.Trident;
 import net.tridentsdk.base.Block;
 import net.tridentsdk.base.Position;
 import net.tridentsdk.base.Substance;
@@ -94,6 +95,11 @@ public class PacketPlayInBlockPlace extends InPacket {
         TridentPlayer player = ((PlayerConnection) connection).player();
         location.setWorld(player.world());
 
+        if(player.heldItem() == null) {
+        	//TODO: add a check where this packet is called from if the heldItem() is not null
+        	return;
+        }
+        
         Substance substance = player.heldItem().type();
         Vector vector = determineOffset();
         if (!substance.isBlock()) {
