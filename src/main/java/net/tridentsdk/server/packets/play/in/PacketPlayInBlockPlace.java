@@ -94,6 +94,11 @@ public class PacketPlayInBlockPlace extends InPacket {
         TridentPlayer player = ((PlayerConnection) connection).player();
         location.setWorld(player.world());
 
+        if(player.heldItem() == null) {
+            //TODO: add a check where this is called from so it will not be null while a player interacts with the item slots containing air while placing blocks.
+            return;
+        }
+        
         Substance substance = player.heldItem().type();
         Vector vector = determineOffset();
         if (!substance.isBlock()) {
