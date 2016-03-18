@@ -362,7 +362,7 @@ public class TridentChunk implements Chunk {
     public Block blockAt(int relX, int y, int relZ) {
         int index = WorldUtils.blockArrayIndex(relX, y & 15, relZ);
         int sectionIndex = WorldUtils.section(y);
-        return sections.modify(sectionIndex, section -> {
+        return sections.modifyAndReturn(sectionIndex, section -> {
             /* Get block data; use extras accordingly */
             byte b = (byte) (section.types[index] >> 4);
             byte meta = (byte) (section.types[index] & 0xF);

@@ -24,11 +24,10 @@ import net.tridentsdk.server.data.block.*;
 import net.tridentsdk.util.Value;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.stream.Collectors;
 
 /**
@@ -100,30 +99,29 @@ public class MetaProviderFactory implements MetaProvider {
     }
 
     private class MetaCompiler {
-        private final List<Meta> metas = new CopyOnWriteArrayList<>();
+        private final Set<Meta> metas = new ConcurrentSkipListSet<>((m1, m2) -> {
+            if (m1 instanceof BlockMeta && m2 instanceof BlockMeta) {
+                BlockMeta<?> b1 = ((BlockMeta) m1);
+                BlockMeta<?> b2 = ((BlockMeta) m2);
 
-        public void add(Meta meta) {
-            metas.add(meta);
-            Collections.sort(metas, (o1, o2) -> {
-                if (o1 instanceof BlockMeta && o2 instanceof BlockMeta) {
-                    BlockMeta<?> b1 = ((BlockMeta) o1);
-                    BlockMeta<?> b2 = ((BlockMeta) o2);
-
-                    for (Class c : b1.dependencies()) {
-                        if (c.isInstance(b2)) {
-                            return 1;
-                        }
-                    }
-
-                    for (Class c : b2.dependencies()) {
-                        if (c.isInstance(b1)) {
-                            return -1;
-                        }
+                for (Class c : b1.dependencies()) {
+                    if (c.isInstance(b2)) {
+                        return 1;
                     }
                 }
 
-                return 0;
-            });
+                for (Class c : b2.dependencies()) {
+                    if (c.isInstance(b1)) {
+                        return -1;
+                    }
+                }
+            }
+
+            return 0;
+        });
+
+        public void add(Meta meta) {
+            metas.add(meta);
         }
 
         public Collection<Meta> compileBlock(Block block, byte[] data) {

@@ -20,6 +20,7 @@ package net.tridentsdk.server.player;
 
 import com.google.common.collect.Sets;
 import net.tridentsdk.Trident;
+import net.tridentsdk.bar.BarType;
 import net.tridentsdk.base.Position;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.Projectile;
@@ -29,7 +30,6 @@ import net.tridentsdk.entity.traits.PlayerSpeed;
 import net.tridentsdk.event.entity.EntityDamageEvent;
 import net.tridentsdk.inventory.Inventory;
 import net.tridentsdk.inventory.Item;
-import net.tridentsdk.meta.BarType;
 import net.tridentsdk.meta.MessageBuilder;
 import net.tridentsdk.meta.nbt.*;
 import net.tridentsdk.registry.Registered;

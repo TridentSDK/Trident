@@ -20,7 +20,7 @@ package net.tridentsdk.server.packets.status;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.DisplayInfo;
+import net.tridentsdk.PingInfo;
 import net.tridentsdk.Trident;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
@@ -35,7 +35,7 @@ public class PacketStatusOutResponse extends OutPacket {
     /**
      * The actual response, represented in JSON in the protocol
      */
-    DisplayInfo info;
+    PingInfo info;
 
     public PacketStatusOutResponse() {
         this.info = Trident.server().info();
@@ -46,7 +46,7 @@ public class PacketStatusOutResponse extends OutPacket {
         return 0x00;
     }
 
-    public DisplayInfo info() {
+    public PingInfo info() {
         return info;
     }
 
@@ -63,7 +63,7 @@ public class PacketStatusOutResponse extends OutPacket {
         players.add("online", new JsonPrimitive(info.playerCount()));
 
         version.add("name", new JsonPrimitive(info.version()));
-        version.add("protocol", new JsonPrimitive(47));
+        version.add("protocol", new JsonPrimitive(107));
 
         motd.add("text", new JsonPrimitive(info.motd()));
 

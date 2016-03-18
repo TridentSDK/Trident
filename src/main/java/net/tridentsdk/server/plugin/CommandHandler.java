@@ -21,7 +21,7 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.ForwardingCollection;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import net.tridentsdk.ServerConsole;
+import net.tridentsdk.Console;
 import net.tridentsdk.Trident;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.meta.MessageBuilder;
@@ -108,8 +108,8 @@ public class CommandHandler extends ForwardingCollection<Command> implements Com
 
         if (issuer instanceof Player)
             cmd.handlePlayer((Player) issuer, args, contents[0]);
-        else if (issuer instanceof ServerConsole)
-            cmd.handleConsole((ServerConsole) issuer, args, contents[0]);
+        else if (issuer instanceof Console)
+            cmd.handleConsole((Console) issuer, args, contents[0]);
 
         cmd.handle(issuer, args, contents[0]);
     }

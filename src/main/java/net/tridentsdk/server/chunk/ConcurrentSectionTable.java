@@ -69,7 +69,7 @@ public class ConcurrentSectionTable {
         }
     }
 
-    public <T> T modify(int i, Function<ChunkSection, T> function) {
+    public <T> T modifyAndReturn(int i, Function<ChunkSection, T> function) {
         Lock lock = locks[i];
         lock.lock();
         try {

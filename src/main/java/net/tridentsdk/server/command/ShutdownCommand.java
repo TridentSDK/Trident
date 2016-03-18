@@ -17,7 +17,7 @@
 
 package net.tridentsdk.server.command;
 
-import net.tridentsdk.ServerConsole;
+import net.tridentsdk.Console;
 import net.tridentsdk.Trident;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.plugin.annotation.CommandDesc;
@@ -31,7 +31,7 @@ class ShutdownCommand extends Command {
     }
 
     @Override
-    public void handleConsole(ServerConsole sender, String arguments, String alias) {
+    public void handleConsole(Console sender, String arguments, String alias) {
         Trident.shutdown();
     }
 }

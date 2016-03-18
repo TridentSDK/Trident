@@ -16,7 +16,7 @@
  */
 package net.tridentsdk.server.command;
 
-import net.tridentsdk.ServerConsole;
+import net.tridentsdk.Console;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.meta.ChatColor;
 import net.tridentsdk.meta.MessageBuilder;
@@ -54,7 +54,7 @@ public class OpCommand extends Command {
     }
 
     @Override
-    public void handleConsole(ServerConsole sender, String arguments, String alias) {
+    public void handleConsole(Console sender, String arguments, String alias) {
         String[] args = arguments.split(" ");
         if (args.length != 1) {
             sender.sendRaw(ChatColor.RED + "Those are the wrong arguments");

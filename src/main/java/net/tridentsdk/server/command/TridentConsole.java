@@ -17,12 +17,12 @@
 
 package net.tridentsdk.server.command;
 
-import net.tridentsdk.ServerConsole;
+import net.tridentsdk.Console;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.registry.Registered;
 import net.tridentsdk.util.TridentLogger;
 
-public class TridentConsole implements ServerConsole {
+public class TridentConsole implements Console {
     private volatile String lastCommand;
     private volatile String lastMessage;
 

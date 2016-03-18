@@ -17,14 +17,14 @@
 
 package net.tridentsdk.server.command;
 
-import net.tridentsdk.ServerConsole;
+import net.tridentsdk.Console;
 import net.tridentsdk.plugin.annotation.CommandDesc;
 import net.tridentsdk.plugin.cmd.Command;
 
 @CommandDesc(name = "help", permission = "trident.help", aliases = "")
 public class HelpCommand extends Command {
     @Override
-    public void handleConsole(ServerConsole sender, String arguments, String alias) {
+    public void handleConsole(Console sender, String arguments, String alias) {
 
     }
 }

@@ -57,7 +57,7 @@ public final class TridentServer implements Server {
     private final TridentConsole console;
 
     final TridentWorldLoader rootWorldLoader;
-    private volatile DisplayInfo displayInfo;
+    private volatile PingInfo pingInfo;
 
     private TridentServer(Config config) {
         this.config = config;
@@ -66,7 +66,7 @@ public final class TridentServer implements Server {
         this.mainThread = new MainThread(20);
         this.rootWorldLoader = new TridentWorldLoader();
         this.console = new TridentConsole();
-        this.displayInfo = new DisplayInfo();
+        this.pingInfo = new PingInfo();
     }
 
     /**
@@ -109,7 +109,7 @@ public final class TridentServer implements Server {
     }
 
     @Override
-    public ServerConsole console() {
+    public Console console() {
         return console;
     }
 
@@ -188,8 +188,8 @@ public final class TridentServer implements Server {
     }
 
     @Override
-    public DisplayInfo info() {
-        return displayInfo;
+    public PingInfo info() {
+        return pingInfo;
     }
 
     @Override
