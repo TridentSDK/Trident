@@ -47,7 +47,7 @@ public class PacketPlayInUpdateSign extends InPacket {
 
     @Override
     public int id() {
-        return 0x12;
+        return 0x2A;
     }
 
     @Override

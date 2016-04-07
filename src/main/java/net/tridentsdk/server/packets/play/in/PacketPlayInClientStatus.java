@@ -40,7 +40,7 @@ public class PacketPlayInClientStatus extends InPacket {
 
     @Override
     public int id() {
-        return 0x16;
+        return 0x03;
     }
 
     public short actionId() {

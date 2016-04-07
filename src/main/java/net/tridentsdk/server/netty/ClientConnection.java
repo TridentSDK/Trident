@@ -293,6 +293,7 @@ public class ClientConnection {
 
         if (stage != Protocol.ClientStage.LOGIN) {
             TridentLogger.get().error(new UnsupportedOperationException());
+            return;
         }
 
         sendPacket(new PacketLoginOutSetCompression());

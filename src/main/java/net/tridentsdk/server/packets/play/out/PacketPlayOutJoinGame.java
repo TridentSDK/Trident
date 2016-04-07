@@ -36,7 +36,7 @@ public class PacketPlayOutJoinGame extends OutPacket {
 
     @Override
     public int id() {
-        return 0x01;
+        return 0x23;
     }
 
     public int entityId() {
@@ -68,7 +68,7 @@ public class PacketPlayOutJoinGame extends OutPacket {
         buf.writeInt(this.entityId);
 
         buf.writeByte((int) this.gamemode.asByte());
-        buf.writeByte((int) this.dimension.asByte());
+        buf.writeInt((int) this.dimension.asByte());
         buf.writeByte((int) this.difficulty.asByte());
         buf.writeByte((int) this.maxPlayers);
 

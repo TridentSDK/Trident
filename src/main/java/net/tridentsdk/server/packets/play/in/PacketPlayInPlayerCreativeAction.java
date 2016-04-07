@@ -44,7 +44,7 @@ public class PacketPlayInPlayerCreativeAction extends InPacket {
 
     @Override
     public int id() {
-        return 0x10;
+        return 0x06;
     }
 
     public Slot item() {

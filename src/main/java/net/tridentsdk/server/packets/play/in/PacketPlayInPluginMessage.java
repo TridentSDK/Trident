@@ -42,7 +42,7 @@ public class PacketPlayInPluginMessage extends InPacket {
 
     @Override
     public int id() {
-        return 0x17;
+        return 0x09;
     }
 
     public String channel() {

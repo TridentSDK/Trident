@@ -93,7 +93,7 @@ public class TridentPlayer extends OfflinePlayer {
         super(uuid, tag, world);
 
         this.connection = PlayerConnection.createPlayerConnection(connection, this);
-        inventory.sendTo(this);
+        // inventory.sendTo(this);
     }
 
     public static void sendAll(Packet packet) {
@@ -159,7 +159,7 @@ public class TridentPlayer extends OfflinePlayer {
 
             p.connection.sendPacket(new PacketPlayOutPlayerListItem()
                     .set("action", 0)
-                    .set("playerListData", builders.stream().toArray(value -> new PlayerListDataBuilder[value])));
+                    .set("playerListData", builders.stream().toArray(PlayerListDataBuilder[]::new)));
         });
 
         return p;

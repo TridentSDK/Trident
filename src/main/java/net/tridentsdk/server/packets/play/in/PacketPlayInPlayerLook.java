@@ -45,7 +45,7 @@ public class PacketPlayInPlayerLook extends InPacket {
 
     @Override
     public int id() {
-        return 0x05;
+        return 0x0E;
     }
 
     @Override

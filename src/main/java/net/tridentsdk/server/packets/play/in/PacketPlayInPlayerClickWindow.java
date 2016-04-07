@@ -67,7 +67,7 @@ public class PacketPlayInPlayerClickWindow extends InPacket {
 
     @Override
     public int id() {
-        return 0x0E;
+        return 0x07;
     }
 
     public int windowId() {
@@ -239,7 +239,7 @@ public class PacketPlayInPlayerClickWindow extends InPacket {
                     }
                 }
 
-                player.dragSlots().add((int) originalSlot);
+                player.dragSlots().add(originalSlot);
                 break;
             case END_LEFT_CLICK_DRAG:
                 if(player.drag() == null){

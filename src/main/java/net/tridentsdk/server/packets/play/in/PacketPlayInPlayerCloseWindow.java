@@ -39,7 +39,7 @@ public class PacketPlayInPlayerCloseWindow extends InPacket {
 
     @Override
     public int id() {
-        return 0x0D;
+        return 0x08;
     }
 
     @Override

@@ -31,7 +31,7 @@ public class PacketPlayInPlayerCompleteMove extends PacketPlayInPlayerMove {
 
     @Override
     public int id() {
-        return 0x06;
+        return 0x0D;
     }
 
     @Override

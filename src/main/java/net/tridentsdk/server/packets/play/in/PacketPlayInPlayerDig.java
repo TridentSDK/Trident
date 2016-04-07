@@ -55,7 +55,7 @@ public class PacketPlayInPlayerDig extends InPacket {
 
     @Override
     public int id() {
-        return 0x07;
+        return 0x13;
     }
 
     public short status() {

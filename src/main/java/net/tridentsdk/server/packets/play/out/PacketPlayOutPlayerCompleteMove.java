@@ -27,7 +27,7 @@ public class PacketPlayOutPlayerCompleteMove extends OutPacket {
 
     @Override
     public int id() {
-        return 0x08;
+        return 0x2E;
     }
 
     public Position location() {

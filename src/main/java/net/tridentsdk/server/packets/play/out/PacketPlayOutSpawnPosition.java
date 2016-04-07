@@ -26,7 +26,7 @@ public class PacketPlayOutSpawnPosition extends OutPacket {
 
     @Override
     public int id() {
-        return 0x05;
+        return 0x43;
     }
 
     public Position location() {

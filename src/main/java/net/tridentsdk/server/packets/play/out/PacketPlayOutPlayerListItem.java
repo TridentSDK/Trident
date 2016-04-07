@@ -30,7 +30,7 @@ public class PacketPlayOutPlayerListItem extends OutPacket {
 
     @Override
     public int id() {
-        return 0x38;
+        return 0x2D;
     }
 
     public int action() {

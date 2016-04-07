@@ -951,4 +951,9 @@ public class TridentWorld implements World {
         }
         return list;
     }
+
+    @Override
+    public String toString() {
+        return name + "@" + hashCode();
+    }
 }

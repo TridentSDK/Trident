@@ -48,7 +48,7 @@ public class PacketPlayInEntityInteract extends InPacket {
 
     @Override
     public int id() {
-        return 0x02;
+        return 0x0A;
     }
 
     @Override

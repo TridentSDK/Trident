@@ -36,7 +36,7 @@ public class PacketPlayInPlayerConfirmTransaction extends InPacket {
 
     @Override
     public int id() {
-        return 0x0F;
+        return 0x05;
     }
 
     @Override

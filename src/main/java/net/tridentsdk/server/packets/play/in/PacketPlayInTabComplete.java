@@ -46,7 +46,7 @@ public class PacketPlayInTabComplete extends InPacket {
 
     @Override
     public int id() {
-        return 0x14;
+        return 0x01;
     }
 
     @Override

@@ -63,7 +63,7 @@ public class PacketStatusOutResponse extends OutPacket {
         players.add("online", new JsonPrimitive(info.playerCount()));
 
         version.add("name", new JsonPrimitive(info.version()));
-        version.add("protocol", new JsonPrimitive(107));
+        version.add("protocol", new JsonPrimitive(109));
 
         motd.add("text", new JsonPrimitive(info.motd()));
 

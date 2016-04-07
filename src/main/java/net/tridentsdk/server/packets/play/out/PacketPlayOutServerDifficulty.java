@@ -26,7 +26,7 @@ public class PacketPlayOutServerDifficulty extends OutPacket {
 
     @Override
     public int id() {
-        return 0x41;
+        return 0x0D;
     }
 
     public Difficulty difficulty() {

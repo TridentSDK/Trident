@@ -40,7 +40,7 @@ public class PacketPlayInPlayerMove extends InPacket {
 
     @Override
     public int id() {
-        return 0x04;
+        return 0x0C;
     }
 
     @Override

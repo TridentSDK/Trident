@@ -32,7 +32,7 @@ public class PacketPlayInAnimation extends InPacket {
 
     @Override
     public int id() {
-        return 0x0A;
+        return 0x1A;
     }
 
     @Override

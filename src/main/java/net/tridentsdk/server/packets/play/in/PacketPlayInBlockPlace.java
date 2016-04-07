@@ -53,7 +53,7 @@ public class PacketPlayInBlockPlace extends InPacket {
 
     @Override
     public int id() {
-        return 0x08;
+        return 0x1C;
     }
 
     @Override

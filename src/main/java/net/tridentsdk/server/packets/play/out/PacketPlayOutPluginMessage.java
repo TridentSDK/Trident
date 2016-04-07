@@ -30,7 +30,7 @@ public class PacketPlayOutPluginMessage extends OutPacket {
 
     @Override
     public int id() {
-        return 0x3F;
+        return 0x18;
     }
 
     public String channel() {
