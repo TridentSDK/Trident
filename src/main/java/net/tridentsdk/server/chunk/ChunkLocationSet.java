@@ -22,7 +22,7 @@ import net.tridentsdk.base.Position;
 import net.tridentsdk.config.ConfigSection;
 import net.tridentsdk.docs.Policy;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutChunkData;
-import net.tridentsdk.server.packets.play.out.PacketPlayOutMapChunkBulk;
+import net.tridentsdk.server.player.PlayerConnection;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.world.TridentChunk;
 import net.tridentsdk.server.world.TridentWorld;
@@ -31,6 +31,7 @@ import net.tridentsdk.world.ChunkLocation;
 import javax.annotation.concurrent.GuardedBy;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Set;
 
 /**
@@ -104,7 +105,8 @@ public class ChunkLocationSet {
         int centX = (int) Math.floor(player.position().x()) >> 4;
         int centZ = (int) Math.floor(player.position().z()) >> 4;
 
-        PacketPlayOutMapChunkBulk bulk = new PacketPlayOutMapChunkBulk();
+        LinkedList<PacketPlayOutChunkData> chunks = new LinkedList<>();
+        PlayerConnection connection = player.connection();
 
         synchronized (knownChunks) {
             for (int x = centX - viewDistance / 2; x <= centX + viewDistance / 2; x += 1) {
@@ -128,18 +130,12 @@ public class ChunkLocationSet {
                         if (!knownChunks.add(location)) continue;
                         world().chunkHandler().apply(location, CRefCounter::refStrong);
 
-                        bulk.addEntry(center.asPacket());
-                        if (bulk.size() >= 1845152) {
-                            player.connection().sendPacket(bulk);
-                            bulk = new PacketPlayOutMapChunkBulk();
-                        }
+                        chunks.addLast(center.asPacket());
                     }
                 }
             }
 
-            if (bulk.hasEntries()) {
-                player.connection().sendPacket(bulk);
-            }
+            chunks.forEach(connection::sendPacket);
         }
     }
 

@@ -25,13 +25,14 @@ import net.tridentsdk.server.packets.play.out.*;
 class Play extends ProtocolHandler {
 
     Play() {
+        super.inPackets.put(0x00, PacketPlayInTeleportConfirm.class);
         super.inPackets.put(0x0B, PacketPlayInKeepAlive.class);
         super.inPackets.put(0x02, PacketPlayInChat.class);
         super.inPackets.put(0x0A, PacketPlayInEntityInteract.class);
         super.inPackets.put(0x0F, PacketPlayInPlayerFall.class);
         super.inPackets.put(0x0C, PacketPlayInPlayerMove.class);
         super.inPackets.put(0x0E, PacketPlayInPlayerLook.class);
-        super.inPackets.put(0x2E, PacketPlayInPlayerCompleteMove.class);
+        super.inPackets.put(0x0D, PacketPlayInPlayerCompleteMove.class);
         super.inPackets.put(0x13, PacketPlayInPlayerDig.class);
         super.inPackets.put(0x1C, PacketPlayInBlockPlace.class);
         super.inPackets.put(0x17, PacketPlayInPlayerHeldItemChange.class);
@@ -84,13 +85,12 @@ class Play extends ProtocolHandler {
         super.outPackets.put(0x1D, PacketPlayOutEntityEffect.class);
         super.outPackets.put(0x1E, PacketPlayOutRemoveEffect.class);
         super.outPackets.put(0x1F, PacketPlayOutSetExperience.class);
-        super.outPackets.put(0x20, PacketPlayOutEntityProperties.class);
-        super.outPackets.put(0x21, PacketPlayOutChunkData.class);
+        super.outPackets.put(0x4B, PacketPlayOutEntityProperties.class);
+        super.outPackets.put(0x20, PacketPlayOutChunkData.class);
         super.outPackets.put(0x22, PacketPlayOutMultiBlockChange.class);
         super.outPackets.put(0x23, PacketPlayOutBlockChange.class);
         super.outPackets.put(0x24, PacketPlayOutBlockAction.class);
         super.outPackets.put(0x25, PacketPlayOutBlockBreakAnimation.class);
-        super.outPackets.put(0x26, PacketPlayOutMapChunkBulk.class);
         super.outPackets.put(0x27, PacketPlayOutExplosion.class);
         super.outPackets.put(0x28, PacketPlayOutEffect.class);
         super.outPackets.put(0x29, PacketPlayOutSoundEffect.class);

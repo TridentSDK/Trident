@@ -147,6 +147,7 @@ public class TridentPlayer extends OfflinePlayer {
             p.connection.sendPacket(new PacketPlayOutPlayerCompleteMove().set("location",
                     p.spawnLocation()).set("flags", (byte) 0));
 
+            /*
             sendAll(new PacketPlayOutPlayerListItem()
                     .set("action", 0)
                     .set("playerListData", new PlayerListDataBuilder[]{p.listData()}));
@@ -155,11 +156,11 @@ public class TridentPlayer extends OfflinePlayer {
 
             players().stream().filter(player -> !player.equals(p))
                     .forEach(player -> builders.add(((TridentPlayer) player).listData()));
-            TridentLogger.get().log(p.name + " has joined the server");
+                    */
 
-            p.connection.sendPacket(new PacketPlayOutPlayerListItem()
-                    .set("action", 0)
-                    .set("playerListData", builders.stream().toArray(PlayerListDataBuilder[]::new)));
+            // p.connection.sendPacket(new PacketPlayOutPlayerListItem()
+            //         .set("action", 0)
+            //         .set("playerListData", builders.stream().toArray(PlayerListDataBuilder[]::new)));
         });
 
         return p;
@@ -212,6 +213,7 @@ public class TridentPlayer extends OfflinePlayer {
 
         EventProcessor.fire(new PlayerJoinEvent(this));
 
+        TridentLogger.get().log(name + " has joined the server");
         MessageBuilder builder = new MessageBuilder(name + " has joined the server").color(ChatColor.YELLOW).build();
         for (Player player : players()) {
             TridentPlayer p = (TridentPlayer) player;
@@ -228,10 +230,10 @@ public class TridentPlayer extends OfflinePlayer {
 
                 metadata = new ProtocolMetadata();
                 p.encodeMetadata(metadata);
-                connection.sendPacket(new PacketPlayOutSpawnPlayer()
-                        .set("entityId", p.id)
-                        .set("player", p)
-                        .set("metadata", metadata));
+                // connection.sendPacket(new PacketPlayOutSpawnPlayer()
+                //         .set("entityId", p.id)
+                //         .set("player", p)
+                //         .set("metadata", metadata));
             }
         }
     }

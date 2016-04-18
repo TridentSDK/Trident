@@ -45,7 +45,7 @@ public class PacketPlayOutChunkData extends OutPacket {
 
     @Override
     public int id() {
-        return 0x21;
+        return 0x20;
     }
 
     public ChunkLocation chunkLocation() {
