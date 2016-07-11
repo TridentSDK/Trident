@@ -53,13 +53,14 @@ public class PacketPlayOutSoundEffect extends OutPacket {
 
     @Override
     public void encode(ByteBuf buf) {
-        Codec.writeString(buf, this.sound.toString());
+        Codec.writeVarInt32(buf, sound.getId());
+        Codec.writeVarInt32(buf, sound.getCategory().ordinal());
 
-        buf.writeInt((int) this.loc.x());
-        buf.writeInt((int) this.loc.y());
-        buf.writeInt((int) this.loc.z());
+        buf.writeInt((int) this.loc.x() * 8);
+        buf.writeInt((int) this.loc.y() * 8);
+        buf.writeInt((int) this.loc.z() * 8);
 
         buf.writeFloat(this.volume);
-        buf.writeByte(this.pitch);
+        buf.writeFloat(this.pitch);
     }
 }

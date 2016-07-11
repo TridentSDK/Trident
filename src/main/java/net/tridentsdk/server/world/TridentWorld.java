@@ -474,7 +474,7 @@ public class TridentWorld implements World {
                 thunderTime.set(ThreadLocalRandom.current().nextInt());
             }
 
-            boolean updateTime = (currentTime & 40) == 0;
+            boolean updateTime = (currentTime % 20) == 0;
 
             for (Entity entity : entities) {
                 TickSync.increment("ENTITY: uuid-" + entity.uniqueId().toString() + " id-" + entity.entityId() + " type-" + entity.type());

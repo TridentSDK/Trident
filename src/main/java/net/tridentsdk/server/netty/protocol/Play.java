@@ -52,6 +52,7 @@ class Play extends ProtocolHandler {
         super.inPackets.put(0x09, PacketPlayInPluginMessage.class);
         super.inPackets.put(0x1B, PacketPlayInPlayerSpectate.class);
         super.inPackets.put(0x16, PacketPlayInPackStatus.class);
+        super.inPackets.put(0x1D, PacketPlayInUseItem.class);
 
         super.outPackets.put(0x1F, PacketPlayOutKeepAlive.class);
         super.outPackets.put(0x23, PacketPlayOutJoinGame.class);

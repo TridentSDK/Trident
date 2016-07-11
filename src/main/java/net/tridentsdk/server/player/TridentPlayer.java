@@ -296,7 +296,7 @@ public class TridentPlayer extends OfflinePlayer {
                 window().putItem(((TridentDroppedItem) item).item());
 
                 if(started > ((TridentDroppedItem) item).item().quantity()){
-                    SoundEffect soundEffect = loc.world().playSound(SoundEffectType.RANDOM_POP);
+                    SoundEffect soundEffect = loc.world().playSound(SoundEffectType.ENTITY_ITEM_PICKUP);
                     soundEffect.setPosition(position().asVector());
                     soundEffect.apply(this);
                 }
