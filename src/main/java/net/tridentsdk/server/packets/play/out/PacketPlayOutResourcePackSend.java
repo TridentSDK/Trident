@@ -27,7 +27,7 @@ public class PacketPlayOutResourcePackSend extends OutPacket {
 
     @Override
     public int id() {
-        return 0x48;
+        return 0x32;
     }
 
     public String url() {

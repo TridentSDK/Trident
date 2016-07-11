@@ -29,7 +29,7 @@ public class PacketPlayOutUseBed extends OutPacket {
 
     @Override
     public int id() {
-        return 0x0A;
+        return 0x2F;
     }
 
     public int entityId() {

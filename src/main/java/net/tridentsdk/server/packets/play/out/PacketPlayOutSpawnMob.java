@@ -32,7 +32,7 @@ public class PacketPlayOutSpawnMob extends OutPacket {
 
     @Override
     public int id() {
-        return 0x0F;
+        return 0x03;
     }
 
     public int getEntityId() {

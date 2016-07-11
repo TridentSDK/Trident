@@ -29,7 +29,7 @@ public class PacketPlayOutEntityLook extends OutPacket {
 
     @Override
     public int id() {
-        return 0x16;
+        return 0x27;
     }
 
     public int entityId() {

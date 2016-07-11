@@ -18,29 +18,27 @@
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
+import net.tridentsdk.server.world.NewChunkSection;
 import net.tridentsdk.world.ChunkLocation;
 
 public class PacketPlayOutChunkData extends OutPacket {
-    // Do not read this
-    private final Object barrier;
-    protected byte[] data;
+
+    protected NewChunkSection[] chunkSections;
     protected ChunkLocation chunkLocation;
     protected boolean continuous;
-    protected short bitmask;
+    protected int bitmask;
 
     public PacketPlayOutChunkData() {
-        barrier = this;
     }
 
-    public PacketPlayOutChunkData(byte[] data, ChunkLocation chunkLocation, boolean continuous, short bitmask) {
-        this.data = data;
+    public PacketPlayOutChunkData(NewChunkSection[] chunkSections, ChunkLocation chunkLocation, boolean continuous, int bitmask) {
+        this.chunkSections = chunkSections;
         this.chunkLocation = chunkLocation;
         this.continuous = continuous;
         this.bitmask = bitmask;
-
-        barrier = this;
     }
 
     @Override
@@ -56,23 +54,47 @@ public class PacketPlayOutChunkData extends OutPacket {
         return this.continuous;
     }
 
-    public short bitmask() {
+    public int bitmask() {
         return this.bitmask;
     }
 
-    public byte[] data() {
-        return this.data;
-    }
-
     @Override
-    public void encode(ByteBuf buf) {
-        buf.writeInt(this.chunkLocation.x());
-        buf.writeInt(this.chunkLocation.z());
+    public void encode(ByteBuf output) {
+        try {
+            output.writeInt(chunkLocation.x());
+            output.writeInt(chunkLocation.z());
+            output.writeBoolean(continuous);
+            Codec.writeVarInt32(output, bitmask);
 
-        buf.writeBoolean(this.continuous);
-        buf.writeShort(this.bitmask);
+            ByteBuf buf = Unpooled.buffer();
+            for (NewChunkSection section : chunkSections) {
+                if(section == null) {
+                    continue;
+                }
 
-        Codec.writeVarInt32(buf, data.length);
-        buf.writeBytes(data);
+                section.writeBlocks(buf);
+                section.writeBlockLight(buf);
+
+                if(section.hasSkyLight()) {
+                    section.writeSkyLight(buf);
+                }
+            }
+
+            buf.readerIndex(0);
+            Codec.writeVarInt32(output, buf.readableBytes() + (continuous ? 256 : 0));
+            output.writeBytes(buf);
+            buf.release();
+
+            if(continuous) {
+                // TODO Write biome data
+                for (int i = 0; i < 256; i++) {
+                    output.writeByte(1);
+                }
+            }
+
+            Codec.writeVarInt32(output, 0);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 }

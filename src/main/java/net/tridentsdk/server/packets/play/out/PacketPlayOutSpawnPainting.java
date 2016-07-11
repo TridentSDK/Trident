@@ -31,7 +31,7 @@ public class PacketPlayOutSpawnPainting extends OutPacket {
 
     @Override
     public int id() {
-        return 0x10;
+        return 0x04;
     }
 
     public int entityId() {

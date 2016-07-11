@@ -27,7 +27,7 @@ public class PacketPlayOutSignEditorOpen extends OutPacket {
 
     @Override
     public int id() {
-        return 0x36;
+        return 0x2A;
     }
 
     @Override

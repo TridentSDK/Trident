@@ -29,7 +29,7 @@ public class PacketPlayOutSetExperience extends OutPacket {
 
     @Override
     public int id() {
-        return 0x1F;
+        return 0x3D;
     }
 
     public float experienceBar() {

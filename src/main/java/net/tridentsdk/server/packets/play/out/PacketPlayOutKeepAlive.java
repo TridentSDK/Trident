@@ -27,7 +27,7 @@ public class PacketPlayOutKeepAlive extends OutPacket {
 
     @Override
     public int id() {
-        return 0x00;
+        return 0x1F;
     }
 
     public int keepAliveId() {

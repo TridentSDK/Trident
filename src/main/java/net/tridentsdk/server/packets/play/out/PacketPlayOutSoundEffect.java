@@ -32,7 +32,7 @@ public class PacketPlayOutSoundEffect extends OutPacket {
 
     @Override
     public int id() {
-        return 0x29;
+        return 0x46;
     }
 
     public SoundEffectType sound() {

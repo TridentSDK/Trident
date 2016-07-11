@@ -31,7 +31,7 @@ public class PacketPlayOutExplosion extends OutPacket {
 
     @Override
     public int id() {
-        return 0x27;
+        return 0x1C;
     }
 
     public Position location() {

@@ -29,7 +29,7 @@ public class PacketPlayOutSpawnExperienceOrb extends OutPacket {
 
     @Override
     public int id() {
-        return 0x11;
+        return 0x01;
     }
 
     public int entityId() {

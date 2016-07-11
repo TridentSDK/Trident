@@ -29,7 +29,7 @@ public class PacketPlayOutSpawnObject extends OutPacket {
 
     @Override
     public int id() {
-        return 0x0E;
+        return 0x00;
     }
 
     @Override

@@ -29,7 +29,7 @@ public class PacketPlayOutEntityRelativeMove extends OutPacket {
 
     @Override
     public int id() {
-        return 0x15;
+        return 0x25;
     }
 
     public int entityId() {

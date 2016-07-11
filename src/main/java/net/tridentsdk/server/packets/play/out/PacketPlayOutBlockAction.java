@@ -31,7 +31,7 @@ public class PacketPlayOutBlockAction extends OutPacket {
 
     @Override
     public int id() {
-        return 0x24;
+        return 0x0A;
     }
 
     public Position location() {

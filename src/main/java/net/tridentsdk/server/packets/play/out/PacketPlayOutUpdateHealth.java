@@ -29,7 +29,7 @@ public class PacketPlayOutUpdateHealth extends OutPacket {
 
     @Override
     public int id() {
-        return 0x06;
+        return 0x3E;
     }
 
     public float health() {

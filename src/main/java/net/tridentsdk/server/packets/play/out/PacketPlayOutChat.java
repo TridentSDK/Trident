@@ -28,7 +28,7 @@ public class PacketPlayOutChat extends OutPacket {
 
     @Override
     public int id() {
-        return 0x02;
+        return 0x0F;
     }
 
     @Override

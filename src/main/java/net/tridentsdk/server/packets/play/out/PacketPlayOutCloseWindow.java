@@ -26,7 +26,7 @@ public class PacketPlayOutCloseWindow extends OutPacket {
 
     @Override
     public int id() {
-        return 0x2E;
+        return 0x12;
     }
 
     public int windowId() {

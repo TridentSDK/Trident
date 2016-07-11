@@ -243,8 +243,8 @@ public class TridentPlayer extends OfflinePlayer {
         int distance = viewDistance();
         if (!loggingIn) {
             ThreadsHandler.chunkExecutor().execute(() -> {
-                knownChunks.clean(distance);
-                knownChunks.update(distance);
+                //knownChunks.clean(distance);
+                //knownChunks.update(distance);
             });
         }
 
@@ -547,7 +547,7 @@ public class TridentPlayer extends OfflinePlayer {
         }
 
         header = builder.asJson();
-        connection.sendPacket(new PacketPlayOutPlayerListUpdate()
+        connection.sendPacket(new PacketPlayOutPlayerListHeaderFooter()
                 .set("header", header)
                 .set("footer", footer == null ? "{\"text\": \"\"}" : footer));
     }
@@ -564,7 +564,7 @@ public class TridentPlayer extends OfflinePlayer {
         }
 
         footer = builder.asJson();
-        connection.sendPacket(new PacketPlayOutPlayerListUpdate()
+        connection.sendPacket(new PacketPlayOutPlayerListHeaderFooter()
                 .set("header", header == null ? "{\"text\": \"\"}" : header)
                 .set("footer", footer));
     }

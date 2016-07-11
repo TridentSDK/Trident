@@ -27,7 +27,7 @@ public class PacketPlayOutTimeUpdate extends OutPacket {
 
     @Override
     public int id() {
-        return 0x03;
+        return 0x44;
     }
 
     public long worldAge() {

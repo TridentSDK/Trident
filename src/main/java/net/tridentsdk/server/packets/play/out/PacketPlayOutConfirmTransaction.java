@@ -28,7 +28,7 @@ public class PacketPlayOutConfirmTransaction extends OutPacket {
 
     @Override
     public int id() {
-        return 0x32;
+        return 0x11;
     }
 
     public int windowId() {

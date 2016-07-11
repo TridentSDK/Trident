@@ -29,7 +29,7 @@ public class PacketPlayOutEntityTeleport extends OutPacket {
 
     @Override
     public int id() {
-        return 0x18;
+        return 0x49;
     }
 
     public int entityId() {

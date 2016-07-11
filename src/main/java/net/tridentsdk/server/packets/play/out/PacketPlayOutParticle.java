@@ -35,7 +35,7 @@ public class PacketPlayOutParticle extends OutPacket {
 
     @Override
     public int id() {
-        return 0x2A;
+        return 0x22;
     }
 
     public ParticleEffectType particle() {

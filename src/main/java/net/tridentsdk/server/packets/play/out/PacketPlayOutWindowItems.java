@@ -36,7 +36,7 @@ public class PacketPlayOutWindowItems extends OutPacket {
 
     @Override
     public int id() {
-        return 0x30;
+        return 0x14;
     }
 
     public int windowId() {

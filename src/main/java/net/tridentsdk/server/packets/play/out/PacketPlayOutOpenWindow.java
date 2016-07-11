@@ -33,7 +33,7 @@ public class PacketPlayOutOpenWindow extends OutPacket {
 
     @Override
     public int id() {
-        return 0x2D;
+        return 0x13;
     }
 
     public int windowId() {

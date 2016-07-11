@@ -28,7 +28,7 @@ public class PacketPlayOutRemoveEffect extends OutPacket {
 
     @Override
     public int id() {
-        return 0x1E;
+        return 0x31;
     }
 
     public int entityId() {

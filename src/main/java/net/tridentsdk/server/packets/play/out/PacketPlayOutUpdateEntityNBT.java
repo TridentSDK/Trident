@@ -27,7 +27,7 @@ public class PacketPlayOutUpdateEntityNBT extends OutPacket {
 
     @Override
     public int id() {
-        return 0x49;
+        return 0x49; // TODO Find ID
     }
 
     public int entityId() {

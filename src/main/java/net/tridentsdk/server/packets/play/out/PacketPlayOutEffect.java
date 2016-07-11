@@ -30,7 +30,7 @@ public class PacketPlayOutEffect extends OutPacket {
 
     @Override
     public int id() {
-        return 0x28;
+        return 0x21;
     }
 
     public int effectId() {

@@ -35,7 +35,6 @@ import net.tridentsdk.server.chunk.ConcurrentSectionTable;
 import net.tridentsdk.server.entity.TridentEntity;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutChunkData;
 import net.tridentsdk.util.NibbleArray;
-import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.util.Vector;
 import net.tridentsdk.world.Chunk;
 import net.tridentsdk.world.ChunkLocation;
@@ -46,7 +45,6 @@ import net.tridentsdk.world.gen.FeatureGenerator.ChunkManipulator;
 
 import javax.annotation.concurrent.GuardedBy;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -397,53 +395,24 @@ public class TridentChunk implements Chunk {
         try {
             ByteArrayOutputStream data = new ByteArrayOutputStream();
 
+            NewChunkSection[] newChunkSections = new NewChunkSection[16];
             for (int i = 0; i < 16; i++) {
-                ChunkSection section = sections.get(i);
-                if (section == null) {
-                    continue;
-                }
+                NewChunkSection newChunkSection = new NewChunkSection();
 
-                for (char c : section.types()) {
-                    data.write(c & 0xff);
-                    data.write(c >> 8);
-                }
-            }
-
-            for (int i = 0; i < 16; i++) {
-                ChunkSection section = sections.get(i);
-                try {
-                    if (section == null) {
-                        data.write(0);
-                        continue;
+                for (int x = 0; x < 16; x++) {
+                    for (int y = 0; y < 16; y++) {
+                        for (int z = 0; z < 16; z++) {
+                            newChunkSection.setBlock(x, y, z, 1, 3);
+                        }
                     }
-
-                    data.write(section.blockLight);
-                } catch (IOException e) {
-                    TridentLogger.get().error(e);
                 }
-            }
 
-            for (int i = 0; i < 16; i++) {
-                ChunkSection section = sections.get(i);
-                try {
-                    if (section == null) {
-                        data.write(0);
-                        continue;
-                    }
-
-                    data.write(section.skyLight);
-                } catch (IOException e) {
-                    TridentLogger.get().error(e);
-                }
-            }
-
-            for (int i = 0; i < 256; i += 1) {
-                data.write(0);
+                newChunkSections[i] = newChunkSection;
             }
 
             // fixme unused value
-            int bitmask = 65535;
-            return new PacketPlayOutChunkData(data.toByteArray(), location, false, (short) bitmask);
+            int bitmask = 0xFFFF;
+            return new PacketPlayOutChunkData(newChunkSections, location, true, bitmask);
         } finally {
             sections.release();
         }

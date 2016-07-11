@@ -30,7 +30,7 @@ public class PacketPlayOutBlockBreakAnimation extends OutPacket {
 
     @Override
     public int id() {
-        return 0x25;
+        return 0x08;
     }
 
     public int entityId() {

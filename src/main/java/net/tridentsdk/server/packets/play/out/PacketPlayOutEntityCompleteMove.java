@@ -31,7 +31,7 @@ public class PacketPlayOutEntityCompleteMove extends OutPacket {
 
     @Override
     public int id() {
-        return 0x17;
+        return 0x26;
     }
 
     public int entityId() {

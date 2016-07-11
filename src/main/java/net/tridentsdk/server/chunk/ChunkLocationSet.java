@@ -24,6 +24,7 @@ import net.tridentsdk.docs.Policy;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutChunkData;
 import net.tridentsdk.server.player.PlayerConnection;
 import net.tridentsdk.server.player.TridentPlayer;
+import net.tridentsdk.server.world.NewChunkSection;
 import net.tridentsdk.server.world.TridentChunk;
 import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.world.ChunkLocation;
@@ -88,7 +89,7 @@ public class ChunkLocationSet {
             int abs1 = Math.max(cz, z) - Math.min(cz, z);
 
             if (abs >= viewDist || abs1 >= viewDist) {
-                player.connection().sendPacket(new PacketPlayOutChunkData(new byte[0], location, true, (short) 0));
+                player.connection().sendPacket(new PacketPlayOutChunkData(new NewChunkSection[]{}, location, true, (short) 0));
                 locs.remove();
                 world().chunkHandler().apply(location, CRefCounter::releaseStrong);
             }

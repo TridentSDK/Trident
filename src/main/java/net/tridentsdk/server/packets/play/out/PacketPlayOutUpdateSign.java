@@ -29,7 +29,7 @@ public class PacketPlayOutUpdateSign extends OutPacket {
 
     @Override
     public int id() {
-        return 0x33;
+        return 0x19;
     }
 
     public Position location() {

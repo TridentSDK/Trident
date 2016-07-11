@@ -29,7 +29,7 @@ public class PacketPlayOutEntityProperties extends OutPacket {
 
     @Override
     public int id() {
-        return 0x4B;
+        return 0x4A;
     }
 
     public int entityId() {

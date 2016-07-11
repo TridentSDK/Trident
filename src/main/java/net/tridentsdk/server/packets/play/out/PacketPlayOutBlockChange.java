@@ -29,7 +29,7 @@ public class PacketPlayOutBlockChange extends OutPacket {
 
     @Override
     public int id() {
-        return 0x23;
+        return 0x0B;
     }
 
     public Position location() {

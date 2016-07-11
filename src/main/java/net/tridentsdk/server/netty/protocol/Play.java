@@ -123,7 +123,7 @@ class Play extends ProtocolHandler {
         super.outPackets.put(0x44, PacketPlayOutWorldBorder.class);
         super.outPackets.put(0x45, PacketPlayOutTitle.class);
         super.outPackets.put(0x46, PacketPlayOutSetCompression.class);
-        super.outPackets.put(0x47, PacketPlayOutPlayerListUpdate.class);
+        super.outPackets.put(0x47, PacketPlayOutPlayerListHeaderFooter.class);
         super.outPackets.put(0x48, PacketPlayOutResourcePackSend.class);
         super.outPackets.put(0x49, PacketPlayOutUpdateEntityNBT.class);
     }

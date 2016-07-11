@@ -21,7 +21,7 @@ import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
-public class PacketPlayOutPlayerListUpdate extends OutPacket {
+public class PacketPlayOutPlayerListHeaderFooter extends OutPacket {
     protected String header;
     protected String footer;
 

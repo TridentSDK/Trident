@@ -32,7 +32,7 @@ public class PacketPlayOutSpawnGlobalEntity extends OutPacket {
 
     @Override
     public int id() {
-        return 0x2C;
+        return 0x02;
     }
 
     public int entityId() {

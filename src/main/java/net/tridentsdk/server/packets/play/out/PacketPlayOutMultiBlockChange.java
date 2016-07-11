@@ -30,7 +30,7 @@ public class PacketPlayOutMultiBlockChange extends OutPacket {
 
     @Override
     public int id() {
-        return 0x22;
+        return 0x10;
     }
 
     public ChunkLocation chunkLocation() {

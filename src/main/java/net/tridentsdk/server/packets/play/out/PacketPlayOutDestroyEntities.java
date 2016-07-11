@@ -27,7 +27,7 @@ public class PacketPlayOutDestroyEntities extends OutPacket {
 
     @Override
     public int id() {
-        return 0x13;
+        return 0x30;
     }
 
     public int[] destroyedEntities() {

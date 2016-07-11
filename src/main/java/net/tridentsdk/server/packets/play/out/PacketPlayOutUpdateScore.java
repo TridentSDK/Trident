@@ -30,7 +30,7 @@ public class PacketPlayOutUpdateScore extends OutPacket {
 
     @Override
     public int id() {
-        return 0x3C;
+        return 0x42;
     }
 
     public String itemName() {

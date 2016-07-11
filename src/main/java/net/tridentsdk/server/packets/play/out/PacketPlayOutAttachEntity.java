@@ -28,7 +28,7 @@ public class PacketPlayOutAttachEntity extends OutPacket {
 
     @Override
     public int id() {
-        return 0x1B;
+        return 0x3A;
     }
 
     public int entityId() {

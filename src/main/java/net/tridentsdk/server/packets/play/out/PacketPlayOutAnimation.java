@@ -28,7 +28,7 @@ public class PacketPlayOutAnimation extends OutPacket {
 
     @Override
     public int id() {
-        return 0x0B;
+        return 0x06;
     }
 
     public int entityId() {

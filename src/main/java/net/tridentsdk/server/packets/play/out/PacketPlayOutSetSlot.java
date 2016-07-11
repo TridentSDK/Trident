@@ -29,7 +29,7 @@ public class PacketPlayOutSetSlot extends OutPacket {
 
     @Override
     public int id() {
-        return 0x2F;
+        return 0x16;
     }
 
     public int windowId() {

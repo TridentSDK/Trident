@@ -39,7 +39,7 @@ public class PacketPlayOutTeams extends OutPacket {
 
     @Override
     public int id() {
-        return 0x3E;
+        return 0x41;
     }
 
     public String team() {
