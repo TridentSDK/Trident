@@ -26,6 +26,8 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 public class PacketPlayOutBlockChange extends OutPacket {
     protected Position location;
     protected int blockId;
+    protected int type;
+    protected int meta;
 
     @Override
     public int id() {
@@ -44,6 +46,7 @@ public class PacketPlayOutBlockChange extends OutPacket {
     public void encode(ByteBuf buf) {
         new PositionWritable(this.location).write(buf);
 
-        Codec.writeVarInt32(buf, this.blockId);
+        int id = type << 4 | (meta & 15);
+        Codec.writeVarInt32(buf, id);
     }
 }
