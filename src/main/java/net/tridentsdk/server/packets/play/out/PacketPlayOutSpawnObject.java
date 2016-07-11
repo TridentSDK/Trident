@@ -23,6 +23,8 @@ import net.tridentsdk.entity.Entity;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
+import java.util.UUID;
+
 public class PacketPlayOutSpawnObject extends OutPacket {
     protected int entityId;
     protected Entity entity;
@@ -37,16 +39,26 @@ public class PacketPlayOutSpawnObject extends OutPacket {
         Position l = this.entity.position();
 
         Codec.writeVarInt32(buf, this.entityId);
+
+        UUID id = UUID.randomUUID(); // TODO What????
+
+        buf.writeLong(id.getMostSignificantBits());
+        buf.writeLong(id.getLeastSignificantBits());
+
         buf.writeByte(entity.type().asByte());
 
-        buf.writeInt((int) (l.x() * 32));
-        buf.writeInt((int) (l.y() * 32));
-        buf.writeInt((int) (l.z() * 32));
+        buf.writeDouble((int) (l.x() * 32));
+        buf.writeDouble((int) (l.y() * 32));
+        buf.writeDouble((int) (l.z() * 32));
 
         buf.writeByte((int) (byte) l.pitch());
         buf.writeByte((int) (byte) l.yaw());
 
         // TODO object data
         buf.writeInt(0);
+
+        buf.writeShort((int) (entity.velocity().x() * 8000));
+        buf.writeShort((int) (entity.velocity().y() * 8000));
+        buf.writeShort((int) (entity.velocity().z() * 8000));
     }
 }

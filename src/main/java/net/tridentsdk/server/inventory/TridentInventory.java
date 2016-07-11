@@ -230,6 +230,7 @@ public class TridentInventory implements Inventory {
                 .set("entityId", -1);
         player.connection().sendPacket(window);
 
+        // TODO Send a single 0x14 packet with window items
         for (int i = 0; i < length(); i++) {
             PacketPlayOutSetSlot setSlot = new PacketPlayOutSetSlot();
             setSlot.set("windowId", id()).set("slot", (short) i).set("item", new Slot(items()[i]));

@@ -112,7 +112,7 @@ public class TridentDroppedItem extends TridentEntity implements DroppedItem {
         meta.set("metadata", metadata);
 
         TridentPlayer.sendAll(object);
-        TridentPlayer.sendAll(meta);
+        //TridentPlayer.sendAll(meta);
         return this;
     }
 

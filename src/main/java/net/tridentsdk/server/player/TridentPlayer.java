@@ -310,7 +310,7 @@ public class TridentPlayer extends OfflinePlayer {
                 }
             });
 
-            if (!items.isEmpty()) {
+            if (items.stream().filter(item -> ((TridentDroppedItem) item).canPickupItem()).findAny().isPresent()) {
                 window().sendTo(this);
             }
         }
