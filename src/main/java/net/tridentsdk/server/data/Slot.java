@@ -134,18 +134,16 @@ public class Slot implements Writable, NBTSerializable {
     public void write(ByteBuf buf) {
         if(id <= 0) {
             buf.writeShort(-1);
-            return;
         } else {
             buf.writeShort(id);
-        }
+            buf.writeByte((int) this.quantity);
+            buf.writeShort((int) this.damageValue);
 
-        buf.writeByte((int) this.quantity);
-        buf.writeShort((int) this.damageValue);
-
-        if (this.compoundTag != null) {
-            // TODO: toPacket compound tag
-        } else {
-            buf.writeByte(0); // No NBT
+            if (this.compoundTag != null) {
+                // TODO: toPacket compound tag
+            } else {
+                buf.writeByte(0); // No NBT
+            }
         }
     }
 

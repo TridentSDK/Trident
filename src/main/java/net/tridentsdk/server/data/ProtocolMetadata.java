@@ -20,7 +20,7 @@ import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.netty.Codec;
-import net.tridentsdk.util.Vector;
+import net.tridentsdk.server.util.BufferUtils;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
@@ -67,19 +67,17 @@ public class ProtocolMetadata implements Writable {
                 continue;
             }
 
-            buf.writeByte((value.type().id() << 5 | value.index & 0x1F) & 0xFF);
+            System.out.println("START:" + BufferUtils.debugBuffer(buf, true));
+            buf.writeByte(value.index);
+            buf.writeByte(value.type().id());
 
             switch(value.type) {
                 case BYTE:
                     buf.writeByte((byte) value.value);
                     break;
 
-                case SHORT:
-                    buf.writeShort((short) value.value);
-                    break;
-
-                case INT:
-                    buf.writeInt((int) value.value);
+                case VARINT:
+                    Codec.writeVarInt32(buf, (Integer) value.value);
                     break;
 
                 case FLOAT:
@@ -94,26 +92,29 @@ public class ProtocolMetadata implements Writable {
                     ((Slot) value.value).write(buf);
                     break;
 
-                case XYZ:
-                    Vector vector = (Vector) value.value;
-
-                    buf.writeInt((int) vector.x());
-                    buf.writeInt((int) vector.y());
-                    buf.writeInt((int) vector.z());
+                case BOOLEAN:
+                    buf.writeBoolean((Boolean) value.value);
                     break;
 
-                case PYR:
-                    Vector v = (Vector) value.value;
-
-                    buf.writeFloat((float) v.x());
-                    buf.writeFloat((float) v.y());
-                    buf.writeFloat((float) v.z());
-
+                // TODO Implement the rest
+                case CHAT:
+                    break;
+                case ROTATION:
+                    break;
+                case POSITION:
+                    break;
+                case OPTPOSITION:
+                    break;
+                case DIRECTION:
+                    break;
+                case OPTUUID:
+                    break;
+                case BLOCKID:
                     break;
             }
         }
 
-        buf.writeByte(0x7F); // terminate array
+        buf.writeByte(0xFF); // terminate array
     }
 
     public static class MetadataValue {

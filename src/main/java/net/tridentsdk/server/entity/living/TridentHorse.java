@@ -53,12 +53,12 @@ public class TridentHorse extends TridentBreedable implements Horse {
 
     @Override
     protected void doEncodeMeta(ProtocolMetadata protocolMeta) {
-        protocolMeta.setMeta(16, MetadataType.INT, data);
+        //protocolMeta.setMeta(16, MetadataType.INT, data); TODO Fix
         protocolMeta.setMeta(19, MetadataType.BYTE, (byte) breed.id());
-        protocolMeta.setMeta(20, MetadataType.INT, colorData);
+        //protocolMeta.setMeta(20, MetadataType.INT, colorData); TODO Fix
         protocolMeta.setMeta(21, MetadataType.STRING,
                 (owner == null) ? "" : TridentPlayer.getPlayer(owner).name());
-        protocolMeta.setMeta(22, MetadataType.INT, armorType);
+        //protocolMeta.setMeta(22, MetadataType.INT, armorType); TODO Fix
     }
 
     @Override

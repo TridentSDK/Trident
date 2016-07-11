@@ -92,7 +92,7 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
         protocolMeta.setMeta(2, MetadataType.STRING, displayName);
         protocolMeta.setMeta(3, MetadataType.BYTE, nameVisible ? (byte) 1 : (byte) 0);
         protocolMeta.setMeta(6, MetadataType.FLOAT, health.floatValue());
-        protocolMeta.setMeta(7, MetadataType.INT, 0);
+        //protocolMeta.setMeta(7, MetadataType.INT, 0); TODO Fix
         protocolMeta.setMeta(8, MetadataType.BYTE, (byte) 1); // TODO (potion effects)
         protocolMeta.setMeta(9, MetadataType.BYTE, (byte) 0); // TODO (arrows in entity)
         protocolMeta.setMeta(15, MetadataType.BYTE, (ai == null) ? (byte) 1 : (byte) 0);

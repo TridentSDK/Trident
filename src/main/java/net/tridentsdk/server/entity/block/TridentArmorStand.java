@@ -60,7 +60,7 @@ public class TridentArmorStand extends TridentLivingEntity implements ArmorStand
         protocolMeta.setMeta(10, MetadataType.BYTE, data);
 
         for (int i = 1; i <= 6; i++) {
-            protocolMeta.setMeta(10 + i, MetadataType.PYR, pose[i - 1].asVector());
+            //protocolMeta.setMeta(10 + i, MetadataType.PYR, pose[i - 1].asVector());
         }
     }
 

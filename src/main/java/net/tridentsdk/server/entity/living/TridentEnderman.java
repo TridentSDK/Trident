@@ -52,7 +52,7 @@ public class TridentEnderman extends TridentLivingEntity implements Enderman {
 
     @Override
     protected void doEncodeMeta(ProtocolMetadata protocolMeta) {
-        protocolMeta.setMeta(16, MetadataType.SHORT, (short) carryingBlock.type().id());
+        protocolMeta.setMeta(16, MetadataType.VARINT, (short) carryingBlock.type().id());
         protocolMeta.setMeta(17, MetadataType.BYTE, carryingBlock.meta());
         protocolMeta.setMeta(18, MetadataType.BYTE, hostile ? (byte) 1 : (byte) 0);
     }

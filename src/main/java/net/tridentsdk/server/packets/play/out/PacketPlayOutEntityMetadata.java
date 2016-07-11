@@ -21,6 +21,7 @@ import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.data.ProtocolMetadata;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
+import net.tridentsdk.server.util.BufferUtils;
 
 public class PacketPlayOutEntityMetadata extends OutPacket {
 
@@ -35,6 +36,8 @@ public class PacketPlayOutEntityMetadata extends OutPacket {
     @Override
     public void encode(ByteBuf buf) {
         Codec.writeVarInt32(buf, this.entityId);
+        System.out.println(BufferUtils.debugBuffer(buf, true));
         metadata.write(buf);
+        System.out.println(BufferUtils.debugBuffer(buf, true));
     }
 }
