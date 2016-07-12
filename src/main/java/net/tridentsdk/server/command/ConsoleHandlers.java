@@ -14,47 +14,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.tridentsdk.server;
+package net.tridentsdk.server.command;
 
-import net.tridentsdk.Server;
 import net.tridentsdk.command.Console;
-import net.tridentsdk.config.Config;
-import net.tridentsdk.server.config.ServerConfig;
 
-import java.net.InetSocketAddress;
+/**
+ * This class contains the handlers that plugins may use to
+ * change the output of the console or their loggers.
+ */
+public class ConsoleHandlers implements Console {
+    private final Console next;
 
-public class TridentServer implements Server {
-    private final Config config;
-    private final Console console;
-    private final InetSocketAddress address;
-
-    public TridentServer(ServerConfig config, Console console) {
-        this.config = config;
-        this.console = console;
-
-        this.address = new InetSocketAddress(config.address(), config.port());
+    public ConsoleHandlers(Console next) {
+        this.next = next;
     }
 
     @Override
-    public InetSocketAddress address() {
-        return this.address;
+    public void log(String s) {
+        next.log(s);
     }
 
     @Override
-    public Console console() {
-        return this.console;
+    public void success(String s) {
+        next.success(s);
     }
 
     @Override
-    public String version() {
-        return "0.5-alpha";
+    public void warn(String s) {
+        next.warn(s);
     }
 
     @Override
-    public void reload() {
+    public void error(String s) {
+        next.error(s);
     }
 
     @Override
-    public void shutdown() {
+    public void debug(String s) {
+        next.debug(s);
     }
 }
