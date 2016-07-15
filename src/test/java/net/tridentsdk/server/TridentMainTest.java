@@ -14,12 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.tridentsdk.server.net;
+package net.tridentsdk.server;
 
-/**
- * This class handles the network connections for the server
- * and manages the netty channels, packets, pipelines, etc.
- */
-public class NetServer {
-    // TODO implement
+public class TridentMainTest {
+    // TODO produce coverage
 }

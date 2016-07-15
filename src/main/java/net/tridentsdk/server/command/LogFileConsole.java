@@ -21,16 +21,16 @@ import net.tridentsdk.command.Console;
 /**
  * This class represents the file logger which writes the
  * messages sent by loggers to the log file.
- * <p>
+ *
  * <p>In addition, this class also manages the log files,
  * moving them to appropriate directories when they fill to
  * the text editor limits.</p>
- * <p>
+ *
  * <p>This class is also the first logger in the server
  * logger pipeline, because plugins must call to this logger
  * in order for it to log plugin messages to the file as
  * well.</p>
- * <p>
+ *
  * <p>The server pipeline usually looks something like this:
  * <pre>{@code
  *              [Plugin Loggers]
@@ -50,8 +50,19 @@ import net.tridentsdk.command.Console;
  * }</pre></p>
  */
 public class LogFileConsole implements Console {
+    // TODO implement file handling logic
+
+    /**
+     * The next console in the pipeline
+     */
     private final Console next;
 
+    /**
+     * Creates a new log file console, which logs items to
+     * a file before being sent to the underlying console.
+     *
+     * @param next the next console in the pipeline
+     */
     public LogFileConsole(Console next) {
         this.next = next;
     }

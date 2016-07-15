@@ -17,8 +17,9 @@
 package net.tridentsdk.server.config;
 
 
+import com.google.gson.JsonObject;
 import net.tridentsdk.config.Config;
-import net.tridentsdk.config.IoResponse;
+import net.tridentsdk.config.ConfigSection;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,35 +33,55 @@ import java.nio.file.Path;
  * @since 0.5-alpha
  */
 public class TridentConfig extends TridentConfigSection implements Config {
+    /**
+     * The path to the config file
+     */
     private final Path path;
 
+    /**
+     * Creates a new config from the given path
+     *
+     * @param path the path to the config file
+     */
     public TridentConfig(Path path) {
         this.path = path;
-        this.load();
+
+        try {
+            this.load();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
-    public File asFile() {
-        return null;
+    public File file() {
+        return path.toFile();
     }
 
     @Override
-    public Path asPath() {
-        return null;
+    public Path path() {
+        return this.path;
     }
 
     @Override
     public File directory() {
-        return null;
+        return path.getParent().toFile();
     }
 
     @Override
-    public IoResponse load() {
-        return null;
+    public void load() throws IOException {
+        JsonObject object = ConfigIo.readConfig(this.path);
+        read(object);
     }
 
     @Override
-    public IoResponse save() throws IOException {
-        return null;
+    public void save() throws IOException {
+        JsonObject object = new JsonObject();
+        for (ConfigSection section : children(true)) {
+            TridentConfigSection tSec = (TridentConfigSection) section;
+            tSec.write(object);
+        }
+
+        ConfigIo.writeConfig(this.path, object);
     }
 }

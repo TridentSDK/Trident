@@ -25,9 +25,12 @@ import net.tridentsdk.server.command.ConsoleHandlers;
 import net.tridentsdk.server.command.DebugConsole;
 import net.tridentsdk.server.command.DefaultConsole;
 import net.tridentsdk.server.command.LogFileConsole;
+import net.tridentsdk.server.config.ConfigIo;
 import net.tridentsdk.server.config.ServerConfig;
 import net.tridentsdk.server.config.TridentConfig;
 
+import java.io.PrintStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -41,6 +44,25 @@ public class TridentMain {
     private static final String VERBOSE = "-v";
 
     public static void main(String[] args) {
+        try {
+            start(args);
+        } catch (Exception e) {
+            PrintStream o = System.out;
+            o.println("Unhandled exception occurred while starting the server.");
+            o.println("This was not intended to happen.");
+            o.println("Please report this on https://tridentsdk.atlassian.net/secure/CreateIssue!default.jspa");
+            e.printStackTrace();
+
+            System.exit(1);
+        }
+    }
+
+    /**
+     * Move out the method into here because we don't want
+     * everything shifted to the right as a result of the
+     * error handling
+     */
+    private static void start(String[] args) throws Exception {
         // Parse args --------------------------------------
         List<String> argList = Lists.newArrayList(args);
         boolean verbose = argList.contains(VERBOSE);
@@ -54,14 +76,26 @@ public class TridentMain {
 
         console.log("Server software by TridentSDK - https://tridentsdk.net");
 
-        console.log("Reading the config...");
+        // Setup the config file ---------------------------
+        console.log("Checking for server files: server.json");
+        if (!Files.exists(ServerConfig.PATH)) {
+            console.warn("server.json not present");
+            console.warn("Creating one for you...");
+            ConfigIo.exportResource(ServerConfig.PATH, "/server.json");
+            console.success("server.json created!");
+        }
+
+        console.log("Reading server.json...");
         ServerConfig config = new ServerConfig();
+        // -------------------------------------------------
+
         console.log("Setting up the server...");
         TridentServer server = new TridentServer(config, console);
 
         // Setup netty and other network crap --------------
         String address = config.address();
         int port = config.port();
+        console.log(String.format("Server will be opened on %s:%s", address, port));
         // NetServer server = NetsServer.setup(address, port);
         // -------------------------------------------------
 

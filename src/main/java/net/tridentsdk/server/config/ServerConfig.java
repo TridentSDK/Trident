@@ -16,9 +16,10 @@
  */
 package net.tridentsdk.server.config;
 
-import net.tridentsdk.config.IoResponse;
 import net.tridentsdk.util.Misc;
 
+import java.io.IOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
@@ -27,6 +28,11 @@ import java.nio.file.Paths;
  * access to each of the values.
  */
 public class ServerConfig extends TridentConfig {
+    /**
+     * The path to the server configuration file
+     */
+    public static final Path PATH = Paths.get(Misc.HOME, "server.json");
+
     /**
      * The internal server address to which the socket
      * will be bound
@@ -42,15 +48,14 @@ public class ServerConfig extends TridentConfig {
      * predefined fields into memory
      */
     public ServerConfig() {
-        super(Paths.get(Misc.HOME, "server.json"));
+        super(PATH);
     }
 
     /**
      * Obtains the internal address to which the server will
      * bind the socket.
-     * <p>
-     * <p>By default, this needs to be
-     * {@code 0.0.0.0}</p>
+     *
+     * <p>By default, this needs to be {@code 0.0.0.0}</p>
      *
      * @return the internal address
      */
@@ -62,6 +67,8 @@ public class ServerConfig extends TridentConfig {
      * Obtains the port that the connection will use to
      * transport packets over the socket.
      *
+     * <p>By default, this needs to be {@code 25565}</p>
+     *
      * @return the port
      */
     public int port() {
@@ -69,13 +76,9 @@ public class ServerConfig extends TridentConfig {
     }
 
     @Override
-    public IoResponse load() {
-        IoResponse response = super.load();
-        if (response == IoResponse.SUCCESS) {
-            this.address = getString("address");
-            this.port = getInt("port");
-        }
-
-        return response;
+    public void load() throws IOException {
+        super.load();
+        this.address = getString("address");
+        this.port = getInt("port");
     }
 }

@@ -16,22 +16,70 @@
  */
 package net.tridentsdk.server.config;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import net.tridentsdk.config.ConfigSection;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Collection;
+import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListMap;
 
 /**
  * Implementation of a configuration section
  */
 public class TridentConfigSection implements ConfigSection {
+    private final Map<String, JsonElement> elements = new ConcurrentSkipListMap<>((o1, o2) -> 0);
+
+    public void write(JsonObject object) {
+        elements.forEach(object::add);
+    }
+
+    public void read(JsonObject object) {
+        object.entrySet().stream().forEach((e) -> elements.put(e.getKey(), e.getValue()));
+    }
+
     @Override
-    public Set<String> keys() {
+    public ConfigSection rootSection() {
         return null;
     }
 
     @Override
-    public Collection<Object> values() {
+    public ConfigSection parent() {
+        return null;
+    }
+
+    @Override
+    public void createChild(String name) {
+
+    }
+
+    @Nullable
+    @Override
+    public ConfigSection getChild(String name) {
+        return null;
+    }
+
+    @Override
+    public Collection<ConfigSection> children(boolean deep) {
+        return null;
+    }
+
+    @Override
+    public Set<String> keys(boolean deep) {
+        return null;
+    }
+
+    @Override
+    public Collection<Object> values(boolean deep) {
+        return null;
+    }
+
+    @Override
+    public Set<Map.Entry<String, Object>> entries(boolean deep) {
         return null;
     }
 
@@ -52,7 +100,7 @@ public class TridentConfigSection implements ConfigSection {
 
     @Override
     public int getInt(String key) {
-        return 0;
+        return getElement(key).getAsInt();
     }
 
     @Override
@@ -132,7 +180,7 @@ public class TridentConfigSection implements ConfigSection {
 
     @Override
     public String getString(String key) {
-        return null;
+        return getElement(key).getAsString();
     }
 
     @Override
@@ -140,38 +188,36 @@ public class TridentConfigSection implements ConfigSection {
 
     }
 
+    @Nonnull
     @Override
     public Collection<?> getCollection(String key) {
         return null;
     }
 
+    @Nonnull
     @Override
     public <T> Collection<T> getCollection(String key, Class<T> type) {
         return null;
     }
 
-    @Override
-    public void createSection(String name) {
+    private JsonElement getElement(String key) {
+        String[] split = key.split(".");
+        TridentConfigSection section = this;
+        for (String s : split) {
+            section = (TridentConfigSection) section.getChild(s);
+            if (section == null) {
+                throw new RuntimeException(new NoSuchElementException(
+                        String.format("Section \"%s\" in your key \"%s\" cannot be found", s, key)));
+            }
+        }
 
-    }
+        String finalKey = split[split.length - 1];
+        JsonElement element = section.elements.get(finalKey);
+        if (element == null) {
+            throw new RuntimeException(new NoSuchElementException(
+                    String.format("Key \"%s\" in your key \"%s\" cannot be found", finalKey, key)));
+        }
 
-    @Override
-    public ConfigSection getSection(String name) {
-        return null;
-    }
-
-    @Override
-    public Collection<ConfigSection> children() {
-        return null;
-    }
-
-    @Override
-    public ConfigSection rootSection() {
-        return null;
-    }
-
-    @Override
-    public ConfigSection parent() {
-        return null;
+        return element;
     }
 }
