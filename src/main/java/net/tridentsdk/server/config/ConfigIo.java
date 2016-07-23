@@ -16,13 +16,11 @@
  */
 package net.tridentsdk.server.config;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 
-import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import javax.annotation.concurrent.Immutable;
+import java.io.*;
+import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -30,7 +28,23 @@ import java.nio.file.Path;
  * This class is a config writer that centralizes logic
  * regarding output from memory to file
  */
-public class ConfigIo {
+@Immutable
+public final class ConfigIo {
+    // TODO handle IO or json errors
+
+    /**
+     * Gson object using readability settings
+     */
+    private static final Gson GSON = new GsonBuilder()
+            .registerTypeAdapterFactory(TridentAdapter.FACTORY)
+            .setPrettyPrinting()
+            .disableHtmlEscaping()
+            .create();
+    /**
+     * JsonParser for straight reading the configs
+     */
+    private static final JsonParser PARSER = new JsonParser();
+
     /**
      * Exports the given resource and copies it into the
      * given destination path.
@@ -47,8 +61,14 @@ public class ConfigIo {
         }
     }
 
+    /**
+     * Reads the config file located at the given path into
+     * memory.
+     *
+     * @param path the config file location
+     * @return the in-memory representation of the config
+     */
     public static JsonObject readConfig(Path path) {
-        // TODO handle not json?
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try {
             FileInputStream stream = new FileInputStream(path.toFile());
@@ -64,11 +84,52 @@ public class ConfigIo {
         }
 
         String json = new String(out.toByteArray()).trim();
-        JsonParser parser = new JsonParser();
-        return parser.parse(json).getAsJsonObject();
+        return PARSER.parse(json).getAsJsonObject();
     }
 
+    /**
+     * Writes the memory configuration object to the config
+     * located at the given path.
+     *
+     * @param path   the config to write
+     * @param object the memory representation of the config
+     */
     public static void writeConfig(Path path, JsonObject object) {
-        // TODO implement
+        String json = GSON.toJson(object);
+
+        try {
+            if (!Files.exists(path)) {
+                Files.createFile(path);
+            }
+
+            FileOutputStream stream = new FileOutputStream(path.toFile());
+            stream.write(json.getBytes());
+
+            stream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Converts the element to an object
+     *
+     * @param element the element to convert
+     * @param cls     the type to which this method will convert
+     * @param <T>     the type
+     * @return the object
+     */
+    public static <T> T asObj(JsonElement element, Class<T> cls) {
+        return GSON.fromJson(element, (Type) cls);
+    }
+
+    /**
+     * Converts the object to a json object
+     *
+     * @param o the object to convert
+     * @return the json object
+     */
+    public static JsonElement asJson(Object o) {
+        return GSON.toJsonTree(o);
     }
 }

@@ -87,6 +87,8 @@ public class TridentMain {
 
         console.log("Reading server.json...");
         ServerConfig config = new ServerConfig();
+        config.load();
+        console.success("server.json successfully loaded into memory");
         // -------------------------------------------------
 
         console.log("Setting up the server...");
@@ -110,7 +112,7 @@ public class TridentMain {
 
             @Override
             public Config newCfg(Path p) {
-                return new TridentConfig(p);
+                return TridentConfig.load(p);
             }
         });
         // -------------------------------------------------

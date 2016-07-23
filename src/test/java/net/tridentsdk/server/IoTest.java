@@ -440,7 +440,7 @@ class FreqMap {
 }
 
 public class IoTest {
-    public static final int TEST_TRIALS = 100;
+    public static final int TEST_TRIALS = 5;
     public static final int MAX_SANITY_SIZE = 4096;
     public static final int WARM_TRIALS = 100;
 
@@ -687,6 +687,7 @@ public class IoTest {
             garbage = generateGarbage(fileLength);
             Map<Long, String> time = Maps.newTreeMap();
             for (IoStrat strat : unit) {
+                Thread.sleep(1000);
                 // 1 setup
                 String name = strat.name() + " (write)";
                 Object resource = strat.setupWrite();
@@ -718,6 +719,7 @@ public class IoTest {
             garbage = generateGarbage(fileLength);
             Map<Long, String> time = Maps.newTreeMap();
             for (IoStrat strat : unit) {
+                Thread.sleep(1000);
                 // 1 setup
                 String name = strat.name() + " (write - force buffer)";
                 Object resource = strat.setupWrite();
@@ -748,6 +750,7 @@ public class IoTest {
         for (int i = 0; i < TEST_TRIALS; i++) {
             Map<Long, String> time = Maps.newTreeMap();
             for (IoStrat strat : unit) {
+                Thread.sleep(1000);
                 // 1 setup
                 String name = strat.name() + " (read)";
                 Object resource = strat.setupRead();
@@ -799,6 +802,7 @@ public class IoTest {
             garbage = generateGarbage(fileLength);
 
             for (IoStrat strat : unit1024) {
+                Thread.sleep(1000);
                 // 1 setup
                 String name = strat.name() + " (write buffer 1024)";
                 Object resource = strat.setupWrite();
@@ -821,6 +825,7 @@ public class IoTest {
             runGc();
 
             for (IoStrat strat : unit4096) {
+                Thread.sleep(1000);
                 // 1 setup
                 String name = strat.name() + " (write buffer 4096)";
                 Object resource = strat.setupWrite();
@@ -843,6 +848,7 @@ public class IoTest {
             runGc();
 
             for (IoStrat strat : unit8192) {
+                Thread.sleep(1000);
                 // 1 setup
                 String name = strat.name() + " (write buffer 8192)";
                 Object resource = strat.setupWrite();
@@ -875,6 +881,7 @@ public class IoTest {
             Map<Long, String> time = Maps.newTreeMap();
 
             for (IoStrat strat : unit1024) {
+                Thread.sleep(1000);
                 // 1 setup
                 String name = strat.name() + " (read buffer 1024)";
                 Object resource = strat.setupRead();
@@ -898,6 +905,7 @@ public class IoTest {
             runGc();
 
             for (IoStrat strat : unit4096) {
+                Thread.sleep(1000);
                 // 1 setup
                 String name = strat.name() + " (read buffer 4096)";
                 Object resource = strat.setupRead();
@@ -921,6 +929,7 @@ public class IoTest {
             runGc();
 
             for (IoStrat strat : unit8192) {
+                Thread.sleep(1000);
                 // 1 setup
                 String name = strat.name() + " (read buffer 8192)";
                 Object resource = strat.setupRead();
@@ -960,6 +969,7 @@ public class IoTest {
             Map<Long, String> time = Maps.newTreeMap();
 
             for (IoStrat strat : unit) {
+                Thread.sleep(1000);
                 // 1 setup
                 String name = strat.name() + " (read BAOS buffer)";
                 Object resource = strat.setupRead();
@@ -983,6 +993,7 @@ public class IoTest {
             runGc();
 
             for (IoStrat strat : unit) {
+                Thread.sleep(1000);
                 // 1 setup
                 String name = strat.name() + " (read ByteBuffer buffer)";
                 Object resource = strat.setupRead();
@@ -1006,6 +1017,7 @@ public class IoTest {
             runGc();
 
             for (IoStrat strat : unit) {
+                Thread.sleep(1000);
                 // 1 setup
                 String name = strat.name() + " (read byte[] buffer)";
                 Object resource = strat.setupRead();
@@ -1059,6 +1071,7 @@ public class IoTest {
             Map<Long, String> time = Maps.newTreeMap();
 
             for (IoStrat strat : unit1) {
+                Thread.sleep(1000);
                 // 1 setup
                 String name = strat.name() + " (size 1kb)";
                 Object resource = strat.setupWrite();
@@ -1081,6 +1094,7 @@ public class IoTest {
             runGc();
 
             for (IoStrat strat : unit2) {
+                Thread.sleep(1000);
                 // 1 setup
                 String name = strat.name() + " (size 500mb)";
                 Object resource = strat.setupWrite();
@@ -1103,6 +1117,7 @@ public class IoTest {
             runGc();
 
             for (IoStrat strat : unit3) {
+                Thread.sleep(1000);
                 // 1 setup
                 String name = strat.name() + " (size 1gb)";
                 Object resource = strat.setupWrite();
@@ -1134,6 +1149,7 @@ public class IoTest {
             Map<Long, String> time = Maps.newTreeMap();
 
             for (IoStrat strat : unit1) {
+                Thread.sleep(1000);
                 // 1 setup
                 String name = strat.name() + " (read size 1kb)";
                 Object resource = strat.setupRead();
@@ -1157,6 +1173,7 @@ public class IoTest {
             runGc();
 
             for (IoStrat strat : unit2) {
+                Thread.sleep(1000);
                 // 1 setup
                 String name = strat.name() + " (read size 500mb)";
                 Object resource = strat.setupRead();
@@ -1180,6 +1197,7 @@ public class IoTest {
             runGc();
 
             for (IoStrat strat : unit3) {
+                Thread.sleep(1000);
                 // 1 setup
                 String name = strat.name() + " (read size 1gb)";
                 Object resource = strat.setupRead();

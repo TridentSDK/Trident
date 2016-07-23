@@ -43,14 +43,25 @@ public class TridentConfig extends TridentConfigSection implements Config {
      *
      * @param path the path to the config file
      */
-    public TridentConfig(Path path) {
+    protected TridentConfig(Path path) {
+        super("", null, null);
         this.path = path;
+    }
 
+    /**
+     * Init safety static factory method; instance of this
+     * class is published when creating new config sections
+     * via the load method in TridentConfigSection
+     */
+    public static TridentConfig load(Path path) {
+        TridentConfig config = new TridentConfig(path);
         try {
-            this.load();
+            config.load();
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        return config;
     }
 
     @Override
@@ -69,6 +80,16 @@ public class TridentConfig extends TridentConfigSection implements Config {
     }
 
     @Override
+    public ConfigSection root() {
+        return this;
+    }
+
+    @Override
+    public ConfigSection parent() {
+        return this;
+    }
+
+    @Override
     public void load() throws IOException {
         JsonObject object = ConfigIo.readConfig(this.path);
         read(object);
@@ -76,12 +97,7 @@ public class TridentConfig extends TridentConfigSection implements Config {
 
     @Override
     public void save() throws IOException {
-        JsonObject object = new JsonObject();
-        for (ConfigSection section : children(true)) {
-            TridentConfigSection tSec = (TridentConfigSection) section;
-            tSec.write(object);
-        }
-
+        JsonObject object = write();
         ConfigIo.writeConfig(this.path, object);
     }
 }

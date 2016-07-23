@@ -46,6 +46,9 @@ import net.tridentsdk.command.Console;
  *                    \  /
  *                     ||
  *                     \/
+ *               ColorizerConsole
+ *                     ||
+ *                     \/
  *                DefaultConsole
  * }</pre></p>
  */

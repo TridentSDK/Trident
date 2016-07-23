@@ -18,6 +18,8 @@ package net.tridentsdk.server.command;
 
 import net.tridentsdk.command.Console;
 
+import java.io.PrintStream;
+
 /**
  * This console is normally regarded as the underlying
  * console as it is designed to be the final console in the
@@ -29,29 +31,31 @@ import net.tridentsdk.command.Console;
  */
 public class DefaultConsole implements Console {
     // TODO use system.out
+    // also system.err
+    private final PrintStream stream = System.out;
 
     @Override
     public void log(String s) {
-
+        stream.println(s);
     }
 
     @Override
     public void success(String s) {
-
+        stream.println(s);
     }
 
     @Override
     public void warn(String s) {
-
+        stream.println(s);
     }
 
     @Override
     public void error(String s) {
-
+        stream.println(s);
     }
 
     @Override
     public void debug(String s) {
-
+        stream.println(s);
     }
 }
