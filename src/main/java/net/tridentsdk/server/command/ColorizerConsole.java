@@ -39,10 +39,6 @@ public class ColorizerConsole implements Logger {
     public static final String CYAN = "\u001B[36m";
     public static final String WHITE = "\u001B[37m";
 
-    public static void main(String[] args) {
-        System.out.println(RED + "lol" + RESET);
-    }
-
     /**
      * The next console in the pipeline
      */
