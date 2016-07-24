@@ -52,6 +52,15 @@ public class ServerConfig extends TridentConfig {
     }
 
     /**
+     * Init code for server startup
+     */
+    public static ServerConfig init() throws IOException {
+        ServerConfig config = new ServerConfig();
+        config.load();
+        return config;
+    }
+
+    /**
      * Obtains the internal address to which the server will
      * bind the socket.
      *

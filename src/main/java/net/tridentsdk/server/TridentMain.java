@@ -18,20 +18,14 @@ package net.tridentsdk.server;
 
 import com.google.common.collect.Lists;
 import net.tridentsdk.Impl;
-import net.tridentsdk.Server;
-import net.tridentsdk.command.Console;
-import net.tridentsdk.config.Config;
-import net.tridentsdk.server.command.ConsoleHandlers;
-import net.tridentsdk.server.command.DebugConsole;
+import net.tridentsdk.command.logger.Logger;
 import net.tridentsdk.server.command.DefaultConsole;
-import net.tridentsdk.server.command.LogFileConsole;
 import net.tridentsdk.server.config.ConfigIo;
 import net.tridentsdk.server.config.ServerConfig;
-import net.tridentsdk.server.config.TridentConfig;
+import net.tridentsdk.server.net.NetServer;
 
 import java.io.PrintStream;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 
 /**
@@ -69,9 +63,7 @@ public class TridentMain {
         // -------------------------------------------------
 
         // Setup logging facilities ------------------------
-        Console underlying = new DefaultConsole();
-        Console debugger = verbose ? DebugConsole.verbose(underlying) : DebugConsole.noop(underlying);
-        LogFileConsole console = new LogFileConsole(new ConsoleHandlers(debugger));
+        Logger console = DefaultConsole.init(verbose);
         // -------------------------------------------------
 
         console.log("Server software by TridentSDK - https://tridentsdk.net");
@@ -79,42 +71,33 @@ public class TridentMain {
         // Setup the config file ---------------------------
         console.log("Checking for server files: server.json");
         if (!Files.exists(ServerConfig.PATH)) {
-            console.warn("server.json not present");
-            console.warn("Creating one for you...");
+            console.warn("File \"server.json\" not present");
+            console.warnp("Creating one for you... ");
             ConfigIo.exportResource(ServerConfig.PATH, "/server.json");
-            console.success("server.json created!");
+            console.success("Done.");
         }
 
-        console.log("Reading server.json...");
-        ServerConfig config = new ServerConfig();
-        config.load();
-        console.success("server.json successfully loaded into memory");
+        console.logp("Reading server.json... ");
+        ServerConfig config = ServerConfig.init();
+        console.success("Done.");
         // -------------------------------------------------
 
-        console.log("Setting up the server...");
-        TridentServer server = new TridentServer(config, console);
+        console.logp("Setting up the server... ");
+        TridentServer.init(config, console);
+        console.success("Done.");
 
         // Setup netty and other network crap --------------
         String address = config.address();
         int port = config.port();
         console.log(String.format("Server will be opened on %s:%s", address, port));
-        // NetServer server = NetsServer.setup(address, port);
+        NetServer server = NetServer.init(address, port);
+
         // -------------------------------------------------
 
         // Setup API implementations -----------------------
-        // TODO put this somewhere less retarded
-        console.log("Setting up API implementation providers");
-        Impl.setImpl(new Impl.ImplementationProvider() {
-            @Override
-            public Server svr() {
-                return server;
-            }
-
-            @Override
-            public Config newCfg(Path p) {
-                return TridentConfig.load(p);
-            }
-        });
+        console.logp("Setting up API implementation providers... ");
+        Impl.setImpl(new ImplementationProvider());
+        console.success("Done.");
         // -------------------------------------------------
     }
 }

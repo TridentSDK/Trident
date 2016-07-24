@@ -16,16 +16,28 @@
  */
 package net.tridentsdk.server.command;
 
-import net.tridentsdk.command.Console;
+import net.tridentsdk.command.logger.Logger;
+
+import java.io.OutputStream;
 
 /**
  * This class contains the handlers that plugins may use to
  * change the output of the console or their loggers.
  */
-public class ConsoleHandlers implements Console {
-    private final Console next;
+public class ConsoleHandlers implements Logger {
+    // TODO implement
+    /**
+     * The next logger in the pipeline
+     */
+    private final Logger next;
 
-    public ConsoleHandlers(Console next) {
+    /**
+     * Creates a new console handler interceptor with the
+     * given console next in the pipeline.
+     *
+     * @param next the next logger
+     */
+    public ConsoleHandlers(Logger next) {
         this.next = next;
     }
 
@@ -35,8 +47,18 @@ public class ConsoleHandlers implements Console {
     }
 
     @Override
+    public void logp(String s) {
+        next.logp(s);
+    }
+
+    @Override
     public void success(String s) {
         next.success(s);
+    }
+
+    @Override
+    public void successp(String s) {
+        next.successp(s);
     }
 
     @Override
@@ -45,12 +67,27 @@ public class ConsoleHandlers implements Console {
     }
 
     @Override
+    public void warnp(String s) {
+        next.warnp(s);
+    }
+
+    @Override
     public void error(String s) {
         next.error(s);
     }
 
     @Override
+    public void errorp(String s) {
+        next.errorp(s);
+    }
+
+    @Override
     public void debug(String s) {
         next.debug(s);
+    }
+
+    @Override
+    public OutputStream out() {
+        return next.out();
     }
 }

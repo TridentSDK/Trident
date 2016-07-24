@@ -14,14 +14,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.tridentsdk.server.net;
+package net.tridentsdk.server;
+
+import net.tridentsdk.Impl;
+import net.tridentsdk.Server;
+import net.tridentsdk.config.Config;
+import net.tridentsdk.server.config.TridentConfig;
+
+import java.nio.file.Path;
 
 /**
- * This class handles the network connections for the server
- * and manages the netty channels, packets, pipelines, etc.
+ * This class is the bridge between the server and the API,
+ * and provides the implementation classes for the API via
+ * {@link Impl}.
  */
-public class NetServer {
-    public static NetServer init(String ip, int port) {
-        return null; // TODO
+public class ImplementationProvider implements Impl.ImplementationProvider {
+    @Override
+    public Server svr() {
+        return TridentServer.instance();
+    }
+
+    @Override
+    public Config newCfg(Path p) {
+        return TridentConfig.load(p);
     }
 }

@@ -16,14 +16,16 @@
  */
 package net.tridentsdk.server.command;
 
-import net.tridentsdk.command.Console;
+import net.tridentsdk.command.logger.Logger;
+
+import java.io.OutputStream;
 
 /**
- * Console filter which prevents debug messages from being
+ * Logger filter which prevents debug messages from being
  * passed on.
  */
 class NoDebugConsole extends DebugConsole {
-    public NoDebugConsole(Console underlying) {
+    public NoDebugConsole(Logger underlying) {
         super(underlying);
     }
 
@@ -37,31 +39,31 @@ class NoDebugConsole extends DebugConsole {
  * A debug filter console which allows debug messages to be
  * passed along the pipeline, useful for verbose mode.
  */
-public class DebugConsole implements Console {
+public class DebugConsole implements Logger {
     /**
-     * The underlying console which logs the messages given
+     * The next console which logs the messages given
      * by the (no)debug console to the shell
      */
-    private final Console underlying;
+    private final Logger next;
 
     /**
-     * Create a new console which logs to the underlying
+     * Create a new console which logs to the next
      * system specific console.
      *
      * @param underlying the next console in the pipeline
      */
-    protected DebugConsole(Console underlying) {
-        this.underlying = underlying;
+    protected DebugConsole(Logger underlying) {
+        this.next = underlying;
     }
 
     /**
      * Creates a verbose console filter
      *
-     * @param underlying the underlying console to which
+     * @param underlying the next console to which
      *                   the filter will pass messages
      * @return a new instance of the console filter
      */
-    public static Console verbose(Console underlying) {
+    public static Logger verbose(Logger underlying) {
         return new DebugConsole(underlying);
     }
 
@@ -69,36 +71,61 @@ public class DebugConsole implements Console {
      * Creates a non-verbose console filter which removes
      * debug messages from the pipeline
      *
-     * @param underlying the underlying console to which
+     * @param underlying the next console to which
      *                   the filter will pass messages
      * @return a new instance of the console filter
      */
-    public static Console noop(Console underlying) {
+    public static Logger noop(Logger underlying) {
         return new NoDebugConsole(underlying);
     }
 
     @Override
     public void log(String s) {
-        underlying.log(s);
+        next.log(s);
+    }
+
+    @Override
+    public void logp(String s) {
+        next.logp(s);
     }
 
     @Override
     public void success(String s) {
-        underlying.success(s);
+        next.success(s);
+    }
+
+    @Override
+    public void successp(String s) {
+        next.successp(s);
     }
 
     @Override
     public void warn(String s) {
-        underlying.warn(s);
+        next.warn(s);
+    }
+
+    @Override
+    public void warnp(String s) {
+        next.warnp(s);
     }
 
     @Override
     public void error(String s) {
-        underlying.error(s);
+        next.error(s);
+    }
+
+    @Override
+    public void errorp(String s) {
+        next.errorp(s);
     }
 
     @Override
     public void debug(String s) {
-        underlying.debug(s);
+        next.debug(s);
+    }
+
+    @Override
+    public OutputStream out() {
+        return next.out();
     }
 }

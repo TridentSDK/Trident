@@ -16,7 +16,9 @@
  */
 package net.tridentsdk.server.command;
 
-import net.tridentsdk.command.Console;
+import net.tridentsdk.command.logger.Logger;
+
+import java.io.OutputStream;
 
 /**
  * This class represents the file logger which writes the
@@ -39,7 +41,7 @@ import net.tridentsdk.command.Console;
  *               LogFileConsole
  *                     ||
  *                     \/
- *             [Console handlers]
+ *             [Logger handlers]
  *                     ||
  *                    /  \
  *      NoDebugConsole ?? DebugConsole
@@ -52,13 +54,13 @@ import net.tridentsdk.command.Console;
  *                DefaultConsole
  * }</pre></p>
  */
-public class LogFileConsole implements Console {
+public class LogFileConsole implements Logger {
     // TODO implement file handling logic
 
     /**
      * The next console in the pipeline
      */
-    private final Console next;
+    private final Logger next;
 
     /**
      * Creates a new log file console, which logs items to
@@ -66,7 +68,7 @@ public class LogFileConsole implements Console {
      *
      * @param next the next console in the pipeline
      */
-    public LogFileConsole(Console next) {
+    public LogFileConsole(Logger next) {
         this.next = next;
     }
 
@@ -76,8 +78,18 @@ public class LogFileConsole implements Console {
     }
 
     @Override
+    public void logp(String s) {
+        next.logp(s);
+    }
+
+    @Override
     public void success(String s) {
         next.success(s);
+    }
+
+    @Override
+    public void successp(String s) {
+        next.successp(s);
     }
 
     @Override
@@ -86,12 +98,27 @@ public class LogFileConsole implements Console {
     }
 
     @Override
+    public void warnp(String s) {
+        next.warnp(s);
+    }
+
+    @Override
     public void error(String s) {
         next.error(s);
     }
 
     @Override
+    public void errorp(String s) {
+        next.errorp(s);
+    }
+
+    @Override
     public void debug(String s) {
         next.debug(s);
+    }
+
+    @Override
+    public OutputStream out() {
+        return next.out();
     }
 }
