@@ -123,7 +123,7 @@ public class FileLogger implements Logger {
 
         File[] files = DIR.toFile().listFiles();
         if (files != null && files.length > 0) {
-            int idx = 0;
+            int idx = -1;
             File f = null;
             for (File file : files) {
                 String[] split = file.getName().split(IDX_SEPARATOR);

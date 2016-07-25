@@ -16,6 +16,8 @@
  */
 package net.tridentsdk.server.config;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.tridentsdk.config.ConfigSection;
@@ -72,8 +74,6 @@ public class TridentConfigSection implements ConfigSection {
         object.entrySet().stream().forEach(e -> {
             String key = e.getKey();
             JsonElement value = e.getValue();
-
-            // TODO entrySet returns all elements deep
 
             // special handling for json objects which are
             // config sections
@@ -186,11 +186,17 @@ public class TridentConfigSection implements ConfigSection {
 
     @Override
     public Set<ConfigSection> children(boolean deep) {
-        // TODO handle deepness
-        return elements.values().stream()
+        HashSet<ConfigSection> set = Sets.newLinkedHashSet();
+        elements.values().stream()
                 .filter(o -> o instanceof ConfigSection)
-                .map(o -> (ConfigSection) o)
-                .collect(Collectors.toSet());
+                .map(o -> (TridentConfigSection) o)
+                .forEach(cs -> {
+                    set.add(cs);
+                    if (deep) {
+                        set.addAll(cs.children(true));
+                    }
+                });
+        return set;
     }
 
     @Override
@@ -201,10 +207,18 @@ public class TridentConfigSection implements ConfigSection {
 
     @Override
     public Collection<Object> values(boolean deep) {
-        // TODO handle deepness
-        return elements.values().stream()
-                .filter(o -> !(o instanceof ConfigSection))
-                .collect(Collectors.toList());
+        LinkedList<Object> set = Lists.newLinkedList();
+        elements.values().stream()
+                .forEach(o -> {
+                    if (deep) {
+                        if (o instanceof ConfigSection) {
+                            ConfigSection section = (ConfigSection) o;
+                            set.addAll(section.values(true));
+                        }
+                    }
+                    set.add(o);
+                });
+        return set;
     }
 
     @Override
