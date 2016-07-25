@@ -80,7 +80,6 @@ public class TridentMain {
         }
 
         logger.logp("Reading server.json... ");
-        new InfoLogger(internal, "Interrupt").log("KEK");
         ServerConfig config = ServerConfig.init();
         logger.success("Done.");
         // -------------------------------------------------
