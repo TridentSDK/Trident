@@ -17,77 +17,89 @@
 package net.tridentsdk.server.command;
 
 import net.tridentsdk.command.logger.Logger;
+import org.fusesource.jansi.AnsiConsole;
 
 import java.io.OutputStream;
+import java.io.PrintStream;
 
 /**
- * This class contains the handlers that plugins may use to
- * change the output of the console or their loggers.
+ * This logger is normally regarded as the underlying
+ * logger as it is designed to be the final logger in the
+ * pipeline; it does not pass the logger messages any
+ * further and logs its output directly to the output.
+ *
+ * <p>Thus such, this class contains the init code required
+ * to setup the loggers.</p>
  */
-public class ConsoleHandlers implements Logger {
-    // TODO implement
-    /**
-     * The next logger in the pipeline
-     */
-    private final Logger next;
+public class DefaultLogger implements Logger {
+    // also system.err
 
     /**
-     * Creates a new console handler interceptor with the
-     * given console next in the pipeline.
-     *
-     * @param next the next logger
+     * The underlying stream that to which output is passed
      */
-    public ConsoleHandlers(Logger next) {
-        this.next = next;
+    private final PrintStream stream = System.out;
+
+    /**
+     * Initialization code
+     */
+    public static Logger init(boolean verbose) throws Exception {
+        AnsiConsole.systemInstall();
+
+        // bottom of pipeline
+        Logger underlying = new DefaultLogger();
+        Logger colorizer = new ColorizerLogger(underlying);
+        Logger debugger = verbose ? DebugLogger.verbose(colorizer) : DebugLogger.noop(colorizer);
+        LoggerHandlers handler = new LoggerHandlers(debugger);
+        return FileLogger.init(handler); // top of pipeline
     }
 
     @Override
     public void log(String s) {
-        next.log(s);
+        stream.println(s);
     }
 
     @Override
     public void logp(String s) {
-        next.logp(s);
+        stream.print(s);
     }
 
     @Override
     public void success(String s) {
-        next.success(s);
+        stream.println(s);
     }
 
     @Override
     public void successp(String s) {
-        next.successp(s);
+        stream.print(s);
     }
 
     @Override
     public void warn(String s) {
-        next.warn(s);
+        stream.println(s);
     }
 
     @Override
     public void warnp(String s) {
-        next.warnp(s);
+        stream.print(s);
     }
 
     @Override
     public void error(String s) {
-        next.error(s);
+        stream.println(s);
     }
 
     @Override
     public void errorp(String s) {
-        next.errorp(s);
+        stream.print(s);
     }
 
     @Override
     public void debug(String s) {
-        next.debug(s);
+        stream.println(s);
     }
 
     @Override
     public OutputStream out() {
-        return next.out();
+        return stream;
     }
 }

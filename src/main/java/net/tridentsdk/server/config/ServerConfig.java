@@ -34,14 +34,18 @@ public class ServerConfig extends TridentConfig {
     public static final Path PATH = Paths.get(Misc.HOME, "server.json");
 
     /**
-     * The internal server address to which the socket
+     * The internal server ip to which the socket
      * will be bound
      */
-    private volatile String address;
+    private volatile String ip;
     /**
      * The server port to use
      */
     private volatile int port;
+    /**
+     * Whether or not to use native transport (epoll)
+     */
+    private volatile boolean useNative;
 
     /**
      * Initializes the server file and load all the
@@ -61,15 +65,15 @@ public class ServerConfig extends TridentConfig {
     }
 
     /**
-     * Obtains the internal address to which the server will
+     * Obtains the internal ip to which the server will
      * bind the socket.
      *
      * <p>By default, this needs to be {@code 0.0.0.0}</p>
      *
-     * @return the internal address
+     * @return the internal ip
      */
-    public String address() {
-        return this.address;
+    public String ip() {
+        return this.ip;
     }
 
     /**
@@ -84,10 +88,25 @@ public class ServerConfig extends TridentConfig {
         return this.port;
     }
 
+    /**
+     * Obtains whether or not the server will use native
+     * transport sockets for handling connections on linux
+     * machines.
+     *
+     * <p>By default, thi sneeds to be {@code true}</p>
+     *
+     * @return {@code true} to use native transport if
+     * possible
+     */
+    public boolean useNative() {
+        return this.useNative;
+    }
+
     @Override
     public void load() throws IOException {
         super.load();
-        this.address = getString("address");
+        this.ip = getString("address");
         this.port = getInt("port");
+        this.useNative = getBoolean("use-native");
     }
 }

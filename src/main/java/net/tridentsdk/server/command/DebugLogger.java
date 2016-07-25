@@ -21,55 +21,62 @@ import net.tridentsdk.command.logger.Logger;
 import java.io.OutputStream;
 
 /**
- * This class represents the file logger which writes the
- * messages sent by loggers to the log file.
- *
- * <p>In addition, this class also manages the log files,
- * moving them to appropriate directories when they fill to
- * the text editor limits.</p>
- *
- * <p>This class is also the first logger in the server
- * logger pipeline, because plugins must call to this logger
- * in order for it to log plugin messages to the file as
- * well.</p>
- *
- * <p>The server pipeline usually looks something like this:
- * <pre>{@code
- *              [Plugin Loggers]
- *                     ||
- *                     \/
- *               LogFileConsole
- *                     ||
- *                     \/
- *             [Logger handlers]
- *                     ||
- *                    /  \
- *      NoDebugConsole ?? DebugConsole
- *                    \  /
- *                     ||
- *                     \/
- *               ColorizerConsole
- *                     ||
- *                     \/
- *                DefaultConsole
- * }</pre></p>
+ * Logger filter which prevents debug messages from being
+ * passed on.
  */
-public class LogFileConsole implements Logger {
-    // TODO implement file handling logic
+class NoDebugLogger extends DebugLogger {
+    public NoDebugLogger(Logger underlying) {
+        super(underlying);
+    }
 
+    @Override
+    public void debug(String s) {
+        // No op
+    }
+}
+
+/**
+ * A debug filter logger which allows debug messages to be
+ * passed along the pipeline, useful for verbose mode.
+ */
+public class DebugLogger implements Logger {
     /**
-     * The next console in the pipeline
+     * The next logger which logs the messages given
+     * by the (no)debug logger to the shell
      */
     private final Logger next;
 
     /**
-     * Creates a new log file console, which logs items to
-     * a file before being sent to the underlying console.
+     * Create a new logger which logs to the next
+     * system specific logger.
      *
-     * @param next the next console in the pipeline
+     * @param underlying the next logger in the pipeline
      */
-    public LogFileConsole(Logger next) {
-        this.next = next;
+    protected DebugLogger(Logger underlying) {
+        this.next = underlying;
+    }
+
+    /**
+     * Creates a verbose logger filter
+     *
+     * @param underlying the next logger to which
+     *                   the filter will pass messages
+     * @return a new instance of the logger filter
+     */
+    public static Logger verbose(Logger underlying) {
+        return new DebugLogger(underlying);
+    }
+
+    /**
+     * Creates a non-verbose logger filter which removes
+     * debug messages from the pipeline
+     *
+     * @param underlying the next logger to which
+     *                   the filter will pass messages
+     * @return a new instance of the logger filter
+     */
+    public static Logger noop(Logger underlying) {
+        return new NoDebugLogger(underlying);
     }
 
     @Override

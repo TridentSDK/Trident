@@ -19,6 +19,7 @@ package net.tridentsdk.server;
 import net.tridentsdk.Server;
 import net.tridentsdk.command.logger.Logger;
 import net.tridentsdk.server.config.ServerConfig;
+import net.tridentsdk.server.net.NetServer;
 
 import java.io.IOException;
 
@@ -36,6 +37,10 @@ public class TridentServer implements Server {
      * The logger to which the server logs
      */
     private final Logger logger;
+    /**
+     * The socket channel handler instance
+     */
+    private final NetServer server;
 
     /**
      * Creates a new server instance
@@ -43,16 +48,20 @@ public class TridentServer implements Server {
      * @param config the config to initialize the server
      * @param console the logger to which the server logs
      */
-    private TridentServer(ServerConfig config, Logger console) {
+    private TridentServer(ServerConfig config,
+                          Logger console,
+                          NetServer server) {
         this.config = config;
         this.logger = console;
+        this.server = server;
     }
 
     /**
      * Init code for server startup
      */
-    public static TridentServer init(ServerConfig config, Logger console) throws IllegalStateException {
-        TridentServer server = new TridentServer(config, console);
+    public static TridentServer init(ServerConfig config, Logger console,
+                                     NetServer net) throws IllegalStateException {
+        TridentServer server = new TridentServer(config, console, net);
         if (TridentServer.instance == null) {
             TridentServer.instance = server;
             return server;
@@ -73,7 +82,7 @@ public class TridentServer implements Server {
 
     @Override
     public String ip() {
-        return config.address();
+        return config.ip();
     }
 
     @Override
@@ -82,7 +91,7 @@ public class TridentServer implements Server {
     }
 
     @Override
-    public Logger console() {
+    public Logger logger() {
         return this.logger;
     }
 
@@ -90,8 +99,6 @@ public class TridentServer implements Server {
     public String version() {
         return "0.5-alpha";
     }
-
-    // TODO lifecycle
 
     @Override
     public void reload() {
@@ -104,10 +111,17 @@ public class TridentServer implements Server {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         logger.success("Server has reloaded successfully.");
     }
 
     @Override
     public void shutdown() {
+        logger.warn("SERVER SHUTTING DOWN");
+        try {
+            server.shutdown();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }

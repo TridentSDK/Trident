@@ -21,12 +21,11 @@ import net.tridentsdk.command.logger.Logger;
 import java.io.OutputStream;
 
 /**
- * Colorizer console is a pipeline console which replaces
+ * Colorizer logger is a pipeline logger which replaces
  * color codes with the ANSI equivalents before passing to
- * the next console.
+ * the next logger.
  */
-public class ColorizerConsole implements Logger {
-    // TODO ansi
+public class ColorizerLogger implements Logger {
     // TODO chat color
 
     public static final String RESET = "\u001B[0m";
@@ -40,16 +39,16 @@ public class ColorizerConsole implements Logger {
     public static final String WHITE = "\u001B[37m";
 
     /**
-     * The next console in the pipeline
+     * The next logger in the pipeline
      */
     private final Logger next;
 
     /**
-     * Creates a new console that colorizes the output
+     * Creates a new logger that colorizes the output
      *
-     * @param next the next console in the pipeline
+     * @param next the next logger in the pipeline
      */
-    public ColorizerConsole(Logger next) {
+    public ColorizerLogger(Logger next) {
         this.next = next;
     }
 
@@ -57,7 +56,6 @@ public class ColorizerConsole implements Logger {
      * Shorthand method for handling the input message to
      * log.
      */
-    // TODO interpret chatcolors when they are added
     private String handle(String color, String msg) {
         return color + msg + RESET;
     }

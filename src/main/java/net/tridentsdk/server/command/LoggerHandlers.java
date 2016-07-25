@@ -21,62 +21,24 @@ import net.tridentsdk.command.logger.Logger;
 import java.io.OutputStream;
 
 /**
- * Logger filter which prevents debug messages from being
- * passed on.
+ * This class contains the handlers that plugins may use to
+ * change the output of the logger or their loggers.
  */
-class NoDebugConsole extends DebugConsole {
-    public NoDebugConsole(Logger underlying) {
-        super(underlying);
-    }
-
-    @Override
-    public void debug(String s) {
-        // No op
-    }
-}
-
-/**
- * A debug filter console which allows debug messages to be
- * passed along the pipeline, useful for verbose mode.
- */
-public class DebugConsole implements Logger {
+public class LoggerHandlers implements Logger {
+    // TODO implement
     /**
-     * The next console which logs the messages given
-     * by the (no)debug console to the shell
+     * The next logger in the pipeline
      */
     private final Logger next;
 
     /**
-     * Create a new console which logs to the next
-     * system specific console.
+     * Creates a new logger handler interceptor with the
+     * given logger next in the pipeline.
      *
-     * @param underlying the next console in the pipeline
+     * @param next the next logger
      */
-    protected DebugConsole(Logger underlying) {
-        this.next = underlying;
-    }
-
-    /**
-     * Creates a verbose console filter
-     *
-     * @param underlying the next console to which
-     *                   the filter will pass messages
-     * @return a new instance of the console filter
-     */
-    public static Logger verbose(Logger underlying) {
-        return new DebugConsole(underlying);
-    }
-
-    /**
-     * Creates a non-verbose console filter which removes
-     * debug messages from the pipeline
-     *
-     * @param underlying the next console to which
-     *                   the filter will pass messages
-     * @return a new instance of the console filter
-     */
-    public static Logger noop(Logger underlying) {
-        return new NoDebugConsole(underlying);
+    public LoggerHandlers(Logger next) {
+        this.next = next;
     }
 
     @Override

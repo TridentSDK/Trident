@@ -18,10 +18,13 @@ package net.tridentsdk.server;
 
 import net.tridentsdk.Impl;
 import net.tridentsdk.Server;
+import net.tridentsdk.command.logger.Logger;
 import net.tridentsdk.config.Config;
+import net.tridentsdk.server.command.InfoLogger;
 import net.tridentsdk.server.config.TridentConfig;
 
 import java.nio.file.Path;
+import java.util.concurrent.ExecutionException;
 
 /**
  * This class is the bridge between the server and the API,
@@ -29,13 +32,26 @@ import java.nio.file.Path;
  * {@link Impl}.
  */
 public class ImplementationProvider implements Impl.ImplementationProvider {
+    // class is initialized after server is created
+    // safe to call this method
+    private static final TridentServer inst = TridentServer.instance();
+
     @Override
     public Server svr() {
-        return TridentServer.instance();
+        return inst;
     }
 
     @Override
     public Config newCfg(Path p) {
         return TridentConfig.load(p);
+    }
+
+    @Override
+    public Logger newLogger(String s) {
+        try {
+            return InfoLogger.get(inst.logger(), s);
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

@@ -30,8 +30,6 @@ import java.nio.file.Path;
  */
 @Immutable
 public final class ConfigIo {
-    // TODO handle IO or json errors
-
     /**
      * Gson object using readability settings
      */

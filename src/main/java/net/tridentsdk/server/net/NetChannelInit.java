@@ -14,8 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.tridentsdk.server;
+package net.tridentsdk.server.net;
 
-public class TridentMainTest {
-    // TODO produce coverage
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelPipeline;
+import io.netty.channel.socket.SocketChannel;
+
+/**
+ * Channel initializers register channel handlers to handle
+ * incoming connections and packets, as well as handle
+ * output.
+ */
+public class NetChannelInit extends ChannelInitializer<SocketChannel> {
+    @Override
+    protected void initChannel(SocketChannel socketChannel) throws Exception {
+        ChannelPipeline pipe = socketChannel.pipeline();
+
+        // TODO
+    }
 }

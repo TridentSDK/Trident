@@ -19,7 +19,6 @@ package net.tridentsdk.server.config;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.tridentsdk.config.ConfigSection;
-import net.tridentsdk.util.Misc;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
@@ -379,7 +378,7 @@ public class TridentConfigSection implements ConfigSection {
                 String sectionName = split[i];
                 Object o = section.elements.get(sectionName);
                 if (!(o instanceof ConfigSection)) {
-                    Misc.ex(new NoSuchElementException(String.format(
+                    throw new RuntimeException(new NoSuchElementException(String.format(
                             "Section \"%s\" cannot be found in \"%s\"", sectionName, Arrays.toString(split))));
                 }
 

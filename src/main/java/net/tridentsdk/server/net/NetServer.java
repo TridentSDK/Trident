@@ -16,12 +16,39 @@
  */
 package net.tridentsdk.server.net;
 
+import net.tridentsdk.server.config.ServerConfig;
+
 /**
  * This class handles the network connections for the server
  * and manages the netty channels, packets, pipelines, etc.
  */
-public class NetServer {
-    public static NetServer init(String ip, int port) {
-        return null; // TODO
+public abstract class NetServer {
+    private final String ip;
+    private final int port;
+
+    NetServer(String ip, int port) {
+        this.ip = ip;
+        this.port = port;
+    }
+
+    public static NetServer init(ServerConfig config) throws InterruptedException {
+        boolean nativeCompat = System.getProperty("os.name").toLowerCase().contains("linux");
+        String ip = config.ip();
+        int port = config.port();
+
+        return nativeCompat && config.useNative() ?
+                new NetEpollServer(ip, port) : new NetNioServer(ip, port);
+    }
+
+    public abstract void setup() throws InterruptedException;
+
+    public abstract void shutdown() throws InterruptedException;
+
+    public int port() {
+        return port;
+    }
+
+    public String ip() {
+        return ip;
     }
 }
