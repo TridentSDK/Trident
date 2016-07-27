@@ -19,8 +19,8 @@ package net.tridentsdk.server;
 import com.google.common.collect.Lists;
 import net.tridentsdk.Impl;
 import net.tridentsdk.command.logger.Logger;
-import net.tridentsdk.server.command.DefaultLogger;
 import net.tridentsdk.server.command.InfoLogger;
+import net.tridentsdk.server.command.PipelinedLogger;
 import net.tridentsdk.server.config.ConfigIo;
 import net.tridentsdk.server.config.ServerConfig;
 import net.tridentsdk.server.net.NetServer;
@@ -64,8 +64,8 @@ public class TridentMain {
         // -------------------------------------------------
 
         // Setup logging facilities ------------------------
-        Logger internal = DefaultLogger.init(verbose);
-        Logger logger = new InfoLogger(internal, "Server");
+        PipelinedLogger internal = PipelinedLogger.init(verbose);
+        Logger logger = InfoLogger.get(internal, "Server");
         // -------------------------------------------------
 
         logger.log("Server software by TridentSDK - https://tridentsdk.net");
@@ -94,7 +94,7 @@ public class TridentMain {
 
         // Setup API implementations -----------------------
         logger.logp("Setting up API implementation providers... ");
-        Impl.setImpl(new ImplementationProvider());
+        Impl.setImpl(new ImplementationProvider(internal));
         logger.success("Done.");
         // -------------------------------------------------
 

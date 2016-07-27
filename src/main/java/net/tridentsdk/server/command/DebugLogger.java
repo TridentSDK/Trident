@@ -16,22 +16,34 @@
  */
 package net.tridentsdk.server.command;
 
-import net.tridentsdk.command.logger.Logger;
-
-import java.io.OutputStream;
-
 /**
  * Logger filter which prevents debug messages from being
  * passed on.
  */
-class NoDebugLogger extends DebugLogger {
-    public NoDebugLogger(Logger underlying) {
-        super(underlying);
+class NoDebugLogger extends PipelinedLogger {
+    /**
+     * Creates a new logger that handles debug messages
+     * without printing it.
+     *
+     * @param next the next logger in the pipeline
+     */
+    public NoDebugLogger(PipelinedLogger next) {
+        super(next);
     }
 
     @Override
-    public void debug(String s) {
-        // No op
+    public LogMessageImpl handle(LogMessageImpl msg) {
+        return msg;
+    }
+
+    @Override
+    public LogMessageImpl handlep(LogMessageImpl msg) {
+        return msg;
+    }
+
+    @Override
+    public void debug(LogMessageImpl msg) {
+        // No-op
     }
 }
 
@@ -39,93 +51,47 @@ class NoDebugLogger extends DebugLogger {
  * A debug filter logger which allows debug messages to be
  * passed along the pipeline, useful for verbose mode.
  */
-public class DebugLogger implements Logger {
-    /**
-     * The next logger which logs the messages given
-     * by the (no)debug logger to the shell
-     */
-    private final Logger next;
-
+public class DebugLogger extends PipelinedLogger {
     /**
      * Create a new logger which logs to the next
      * system specific logger.
      *
-     * @param underlying the next logger in the pipeline
+     * @param next the next logger in the pipeline
      */
-    protected DebugLogger(Logger underlying) {
-        this.next = underlying;
+    protected DebugLogger(PipelinedLogger next) {
+        super(next);
     }
 
     /**
      * Creates a verbose logger filter
      *
-     * @param underlying the next logger to which
+     * @param next the next logger to which
      *                   the filter will pass messages
      * @return a new instance of the logger filter
      */
-    public static Logger verbose(Logger underlying) {
-        return new DebugLogger(underlying);
+    public static PipelinedLogger verbose(PipelinedLogger next) {
+        return new DebugLogger(next);
     }
 
     /**
      * Creates a non-verbose logger filter which removes
      * debug messages from the pipeline
      *
-     * @param underlying the next logger to which
+     * @param next the next logger to which
      *                   the filter will pass messages
      * @return a new instance of the logger filter
      */
-    public static Logger noop(Logger underlying) {
-        return new NoDebugLogger(underlying);
+    public static PipelinedLogger noop(PipelinedLogger next) {
+        return new NoDebugLogger(next);
     }
 
     @Override
-    public void log(String s) {
-        next.log(s);
+    public LogMessageImpl handle(LogMessageImpl msg) {
+        return msg;
     }
 
     @Override
-    public void logp(String s) {
-        next.logp(s);
-    }
-
-    @Override
-    public void success(String s) {
-        next.success(s);
-    }
-
-    @Override
-    public void successp(String s) {
-        next.successp(s);
-    }
-
-    @Override
-    public void warn(String s) {
-        next.warn(s);
-    }
-
-    @Override
-    public void warnp(String s) {
-        next.warnp(s);
-    }
-
-    @Override
-    public void error(String s) {
-        next.error(s);
-    }
-
-    @Override
-    public void errorp(String s) {
-        next.errorp(s);
-    }
-
-    @Override
-    public void debug(String s) {
-        next.debug(s);
-    }
-
-    @Override
-    public OutputStream out() {
-        return next.out();
+    public LogMessageImpl handlep(LogMessageImpl msg) {
+        return msg;
     }
 }

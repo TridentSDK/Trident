@@ -35,6 +35,7 @@ public final class ConfigIo {
      */
     private static final Gson GSON = new GsonBuilder()
             .registerTypeAdapterFactory(TridentAdapter.FACTORY)
+            .serializeNulls()
             .setPrettyPrinting()
             .disableHtmlEscaping()
             .create();

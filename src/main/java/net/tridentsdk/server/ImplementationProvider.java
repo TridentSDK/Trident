@@ -18,9 +18,12 @@ package net.tridentsdk.server;
 
 import net.tridentsdk.Impl;
 import net.tridentsdk.Server;
+import net.tridentsdk.command.logger.LogHandler;
 import net.tridentsdk.command.logger.Logger;
 import net.tridentsdk.config.Config;
 import net.tridentsdk.server.command.InfoLogger;
+import net.tridentsdk.server.command.LoggerHandlers;
+import net.tridentsdk.server.command.PipelinedLogger;
 import net.tridentsdk.server.config.TridentConfig;
 
 import java.nio.file.Path;
@@ -35,6 +38,21 @@ public class ImplementationProvider implements Impl.ImplementationProvider {
     // class is initialized after server is created
     // safe to call this method
     private static final TridentServer inst = TridentServer.instance();
+    // head of the logger pipeline
+    private final PipelinedLogger head;
+    private final LoggerHandlers handlers;
+
+    public ImplementationProvider(PipelinedLogger head) {
+        this.head = head;
+
+        for (PipelinedLogger logger = head; logger.next() != null; logger = logger.next()) {
+            if (logger instanceof LoggerHandlers) {
+                this.handlers = (LoggerHandlers) logger;
+                return;
+            }
+        }
+        handlers = null;
+    }
 
     @Override
     public Server svr() {
@@ -49,9 +67,28 @@ public class ImplementationProvider implements Impl.ImplementationProvider {
     @Override
     public Logger newLogger(String s) {
         try {
-            return InfoLogger.get(inst.logger(), s);
+            return InfoLogger.get(head, s);
         } catch (ExecutionException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void attachHandler(Logger logger, LogHandler handler) {
+        if (logger == null) {
+            handlers.handlers().add(handler);
+        } else {
+            ((InfoLogger) logger).handlers().add(handler);
+        }
+    }
+
+    @Override
+    public boolean removeHandler(Logger logger, LogHandler handler) {
+        if (logger == null) {
+            return handlers.handlers().remove(handler);
+        } else {
+            InfoLogger info = (InfoLogger) logger;
+            return info.handlers().remove(handler);
         }
     }
 }

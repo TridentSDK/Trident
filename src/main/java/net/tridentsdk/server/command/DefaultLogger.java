@@ -16,9 +16,6 @@
  */
 package net.tridentsdk.server.command;
 
-import net.tridentsdk.command.logger.Logger;
-import org.fusesource.jansi.AnsiConsole;
-
 import java.io.OutputStream;
 import java.io.PrintStream;
 
@@ -31,71 +28,73 @@ import java.io.PrintStream;
  * <p>Thus such, this class contains the init code required
  * to setup the loggers.</p>
  */
-public class DefaultLogger implements Logger {
-    // also system.err
-
+public class DefaultLogger extends PipelinedLogger {
     /**
      * The underlying stream that to which output is passed
      */
     private final PrintStream stream = System.out;
 
     /**
-     * Initialization code
+     * Creates a new logger that prints messages to the out
+     * stream at the bottom of the pipeline.
      */
-    public static Logger init(boolean verbose) throws Exception {
-        AnsiConsole.systemInstall();
-
-        // bottom of pipeline
-        Logger underlying = new DefaultLogger();
-        Logger colorizer = new ColorizerLogger(underlying);
-        Logger debugger = verbose ? DebugLogger.verbose(colorizer) : DebugLogger.noop(colorizer);
-        LoggerHandlers handler = new LoggerHandlers(debugger);
-        return FileLogger.init(handler); // top of pipeline
+    public DefaultLogger() {
+        super(null);
     }
 
     @Override
-    public void log(String s) {
-        stream.println(s);
+    public LogMessageImpl handle(LogMessageImpl msg) {
+        return null;
     }
 
     @Override
-    public void logp(String s) {
-        stream.print(s);
+    public LogMessageImpl handlep(LogMessageImpl msg) {
+        return null;
     }
 
     @Override
-    public void success(String s) {
-        stream.println(s);
+    public void log(LogMessageImpl msg) {
+        System.out.println(msg.format(1));
     }
 
     @Override
-    public void successp(String s) {
-        stream.print(s);
+    public void logp(LogMessageImpl msg) {
+        System.out.print(msg.format(1));
     }
 
     @Override
-    public void warn(String s) {
-        stream.println(s);
+    public void success(LogMessageImpl msg) {
+        System.out.println(msg.format(1));
     }
 
     @Override
-    public void warnp(String s) {
-        stream.print(s);
+    public void successp(LogMessageImpl msg) {
+        System.out.print(msg.format(1));
     }
 
     @Override
-    public void error(String s) {
-        stream.println(s);
+    public void warn(LogMessageImpl msg) {
+        System.out.println(msg.format(1));
     }
 
     @Override
-    public void errorp(String s) {
-        stream.print(s);
+    public void warnp(LogMessageImpl msg) {
+        System.out.print(msg.format(1));
     }
 
     @Override
-    public void debug(String s) {
-        stream.println(s);
+    public void error(LogMessageImpl msg) {
+        System.out.println(msg.format(1));
+    }
+
+    @Override
+    public void errorp(LogMessageImpl msg) {
+        System.out.print(msg.format(1));
+    }
+
+    @Override
+    public void debug(LogMessageImpl msg) {
+        System.out.println(msg.format(1));
     }
 
     @Override

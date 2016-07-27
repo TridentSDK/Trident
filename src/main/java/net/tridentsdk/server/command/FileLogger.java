@@ -16,19 +16,15 @@
  */
 package net.tridentsdk.server.command;
 
-import net.tridentsdk.command.logger.Logger;
 import net.tridentsdk.util.Misc;
 
 import javax.annotation.concurrent.GuardedBy;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Pattern;
 
@@ -39,34 +35,8 @@ import java.util.regex.Pattern;
  * <p>In addition, this class also manages the log files,
  * moving them to appropriate directories when they fill to
  * the text editor limits.</p>
- *
- * <p>This class is also the first logger in the server
- * logger pipeline, because plugins must call to this logger
- * in order for it to log plugin messages to the file as
- * well.</p>
- *
- * <p>The server pipeline usually looks something like this:
- * <pre>{@code
- *              [Plugin Loggers]
- *                     ||
- *                     \/
- *               FileLogger
- *                     ||
- *                     \/
- *             [Logger handlers]
- *                     ||
- *                    /  \
- *      NoDebugLogger ?? DebugLogger
- *                    \  /
- *                     ||
- *                     \/
- *               ColorizerLogger
- *                     ||
- *                     \/
- *                DefaultLogger
- * }</pre></p>
  */
-public class FileLogger implements Logger {
+public class FileLogger extends PipelinedLogger {
     /**
      * The directory to the log files
      */
@@ -79,11 +49,6 @@ public class FileLogger implements Logger {
      * The index separator for the
      */
     public static final String IDX_SEPARATOR = Pattern.quote(".");
-
-    /**
-     * The next logger in the pipeline
-     */
-    private final Logger next;
 
     /**
      * The file writer
@@ -106,15 +71,15 @@ public class FileLogger implements Logger {
      *
      * @param next the next logger in the pipeline
      */
-    private FileLogger(Logger next) {
-        this.next = next;
+    private FileLogger(PipelinedLogger next) {
+        super(next);
     }
 
     /**
      * Initializes the files and directories, attempts to
      * find the last log file.
      */
-    public static FileLogger init(Logger next) throws Exception {
+    public static FileLogger init(PipelinedLogger next) throws Exception {
         FileLogger logger = new FileLogger(next);
 
         if (!Files.exists(DIR)) {
@@ -148,67 +113,55 @@ public class FileLogger implements Logger {
         return logger;
     }
 
-    /**
-     * Handles normal messages.
-     *
-     * @param s the message
-     * @return the same message
-     */
-    public String handle(String s) {
-        check();
-        BufferedWriter out;
-        synchronized (lock) {
-            out = this.out;
-        }
+    @Override
+    public LogMessageImpl handle(LogMessageImpl msg) {
+        BufferedWriter out = check();
 
-        String time = ZonedDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
         try {
-            out.write(time + " " + s);
+            out.write(msg.format(0));
             out.newLine();
             out.flush();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return s;
+        return msg;
     }
 
-    /**
-     * Handles partial messages.
-     *
-     * @param s the message
-     * @return the same partial message
-     */
-    public String handlep(String s) {
-        check();
-        BufferedWriter out;
-        synchronized (lock) {
-            out = this.out;
-        }
+    @Override
+    public LogMessageImpl handlep(LogMessageImpl msg) {
+        BufferedWriter out = check();
 
-        String time = ZonedDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
         try {
-            out.write(time + " " + s);
+            out.write(msg.format(0));
             out.newLine();
             out.flush();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return s;
+        return msg;
     }
 
     /**
      * Checks if the file needs to be truncated
+     *
+     * @return the writer, including if it was updated
      */
-    public void check() {
+    public BufferedWriter check() {
         if (ThreadLocalRandom.current().nextInt(20) == 1) {
             synchronized (lock) {
                 try {
                     if (Files.size(current) > MAX_LEN) {
                         makeNewLog(current);
                     }
+
+                    return out;
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
+            }
+        } else {
+            synchronized (lock) {
+                return out;
             }
         }
     }
@@ -235,57 +188,11 @@ public class FileLogger implements Logger {
         Path path = DIR.resolve("log." + idx + ".log");
         Files.createFile(path);
 
+        if (out != null) {
+            out.close();
+        }
+
         current = path;
         out = Files.newBufferedWriter(path);
-    }
-    
-    @Override
-    public void log(String s) {
-        next.log(handle(s));
-    }
-
-    @Override
-    public void logp(String s) {
-        next.logp(handlep(s));
-    }
-
-    @Override
-    public void success(String s) {
-        next.success(handle(s));
-    }
-
-    @Override
-    public void successp(String s) {
-        next.successp(handlep(s));
-    }
-
-    @Override
-    public void warn(String s) {
-        next.warn(handle(s));
-    }
-
-    @Override
-    public void warnp(String s) {
-        next.warnp(handlep(s));
-    }
-
-    @Override
-    public void error(String s) {
-        next.error(handle(s));
-    }
-
-    @Override
-    public void errorp(String s) {
-        next.errorp(handlep(s));
-    }
-
-    @Override
-    public void debug(String s) {
-        next.debug(handle(s));
-    }
-
-    @Override
-    public OutputStream out() {
-        return next.out();
     }
 }

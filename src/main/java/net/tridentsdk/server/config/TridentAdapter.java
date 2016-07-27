@@ -81,7 +81,7 @@ public class TridentAdapter extends TypeAdapter<Object> {
         JsonToken token = in.peek();
         switch (token) {
             case BEGIN_ARRAY:
-                List<Object> list = new ArrayList<Object>();
+                List<Object> list = new ArrayList<>();
                 in.beginArray();
                 while (in.hasNext()) {
                     list.add(read(in));
@@ -90,10 +90,19 @@ public class TridentAdapter extends TypeAdapter<Object> {
                 return list;
 
             case BEGIN_OBJECT:
-                Map<String, Object> map = new LinkedTreeMap<String, Object>();
+                Map<String, Object> map = new LinkedTreeMap<>();
                 in.beginObject();
                 while (in.hasNext()) {
-                    map.put(in.nextName(), read(in));
+                    String key = in.nextName();
+                    Object value = read(in);
+                    if (key.equals("$T_INTERNAL_DECODER$")) {
+                        try {
+                            return gson.getAdapter(Class.forName((String) value)).read(in);
+                        } catch (ClassNotFoundException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                    map.put(key, value);
                 }
                 in.endObject();
                 return map;

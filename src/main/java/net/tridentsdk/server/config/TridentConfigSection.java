@@ -25,8 +25,8 @@ import net.tridentsdk.config.ConfigSection;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * Implementation of a configuration section
@@ -34,9 +34,15 @@ import java.util.stream.Collectors;
 @ThreadSafe
 public class TridentConfigSection implements ConfigSection {
     /**
-     * The separator which splits section name keys
+     * The string literal for the separator
      */
-    public static final String SECTION_SEPARATOR = Pattern.quote(".");
+    private static final String SEPARATOR_LITERAL = ".";
+    /**
+     * The separator which splits section name keys
+     *
+     * <p>Use this for regex splits only</p>
+     */
+    private static final String SECTION_SEPARATOR = Pattern.quote(".");
 
     // One map holds the elements of this section, while the
     // other holds references to the children of this
@@ -78,9 +84,8 @@ public class TridentConfigSection implements ConfigSection {
             // special handling for json objects which are
             // config sections
             if (value.isJsonObject()) {
-                TridentConfigSection section = (TridentConfigSection) createChild(key);
+                TridentConfigSection section = createChild0(key, object);
                 section.read(value.getAsJsonObject());
-                elements.put(key, section);
             } else {
                 elements.put(key, ConfigIo.asObj(value, TridentAdapter.class));
             }
@@ -99,18 +104,23 @@ public class TridentConfigSection implements ConfigSection {
      * The root config section, or null if root
      */
     private final ConfigSection root;
+    /**
+     * This object is represented by this config section
+     */
+    private final JsonObject object;
 
     /**
      * Creates a new config section.
-     *
-     * @param name   the name of the new config section
+     *  @param name   the name of the new config section
      * @param parent the parent of the child section
      * @param root   the root section
+     * @param object the
      */
-    public TridentConfigSection(String name, ConfigSection parent, ConfigSection root) {
+    public TridentConfigSection(String name, ConfigSection parent, ConfigSection root, JsonObject object) {
         this.name = name;
         this.parent = parent;
         this.root = root;
+        this.object = object;
     }
 
     @Override
@@ -135,25 +145,10 @@ public class TridentConfigSection implements ConfigSection {
         TridentConfigSection section = this;
         if (split.length > 0) {
             for (String aSplit : split) {
-                section = section.createChild0(aSplit);
+                section = section.createChild0(aSplit, null);
             }
         }
 
-        return section;
-    }
-
-    /**
-     * Internal child config section creation method,
-     * useful
-     * for bypassing the . key based key creation when we
-     * know that the name is not . separated.
-     *
-     * @param name the name of the new child
-     * @return the created section
-     */
-    TridentConfigSection createChild0(String name) {
-        TridentConfigSection section = new TridentConfigSection(name, this, root());
-        elements.put(name, section);
         return section;
     }
 
@@ -172,6 +167,7 @@ public class TridentConfigSection implements ConfigSection {
         return parent.elements.remove(finalKey) != null;
     }
 
+    // TODO
     // Since these methods here are basically provided for
     // convenience, and 90% of the time they are used only
     // for iteration, my idea is to convert the returned
@@ -186,47 +182,30 @@ public class TridentConfigSection implements ConfigSection {
 
     @Override
     public Set<ConfigSection> children(boolean deep) {
-        HashSet<ConfigSection> set = Sets.newLinkedHashSet();
-        elements.values().stream()
-                .filter(o -> o instanceof ConfigSection)
-                .map(o -> (TridentConfigSection) o)
-                .forEach(cs -> {
-                    set.add(cs);
-                    if (deep) {
-                        set.addAll(cs.children(true));
-                    }
-                });
+        Set<ConfigSection> set = Sets.newLinkedHashSet();
+        children0(set, deep);
         return set;
     }
 
     @Override
     public Set<String> keys(boolean deep) {
-        // TODO handle deepness and config sections
-        return elements.keySet();
-    }
-
-    @Override
-    public Collection<Object> values(boolean deep) {
-        LinkedList<Object> set = Lists.newLinkedList();
-        elements.values().stream()
-                .forEach(o -> {
-                    if (deep) {
-                        if (o instanceof ConfigSection) {
-                            ConfigSection section = (ConfigSection) o;
-                            set.addAll(section.values(true));
-                        }
-                    }
-                    set.add(o);
-                });
+        Set<String> set = Sets.newLinkedHashSet();
+        iterate("", set, (s, e) -> handlePath(s, e.getKey()), deep);
         return set;
     }
 
     @Override
+    public Collection<Object> values(boolean deep) {
+        LinkedList<Object> list = Lists.newLinkedList();
+        iterate("", list, (s, e) -> e.getValue(), deep);
+        return list;
+    }
+
+    @Override
     public Set<Map.Entry<String, Object>> entries(boolean deep) {
-        // TODO handle deepness
-        return elements.entrySet().stream()
-                .filter(e -> !(e.getValue() instanceof ConfigSection))
-                .collect(Collectors.toSet());
+        Set<Map.Entry<String, Object>> set = Sets.newLinkedHashSet();
+        iterate("", set, this::concatKey, deep);
+        return set;
     }
 
     @Override
@@ -236,12 +215,19 @@ public class TridentConfigSection implements ConfigSection {
 
     @Override
     public <T> T get(String key, Class<T> type) {
-        return (T) getElement(key);
+        Object element = getElement(key);
+        // fast path return for types that don't need
+        // special handling
+        if (!(element instanceof ConfigSection)) {
+            return (T) element;
+        }
+
+        // TODO config serialization - get to this later
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void set(String key, Object value) {
-        // TODO handle types
         String[] split = key.split(SECTION_SEPARATOR);
         String finalKey = key;
 
@@ -253,7 +239,7 @@ public class TridentConfigSection implements ConfigSection {
             }
         }
 
-        section.elements.put(finalKey, ConfigIo.asJson(value));
+        section.elements.put(finalKey, value);
     }
 
     @Override
@@ -360,44 +346,116 @@ public class TridentConfigSection implements ConfigSection {
         set(key, value);
     }
 
-    // TODO collections
-    // TODO hashmaps
-
-    @Nonnull
     @Override
-    public Collection<?> getCollection(String key) {
-        return null;
+    public <T, C extends Collection<T>> void getCollection(String key, C collection) {
+        Object o = getElement(key);
+        if (o instanceof Collection) {
+            collection.addAll((Collection) o);
+            return;
+        }
+
+        throw new NoSuchElementException(String.format("%s is not a collection (%s)", key, o.getClass()));
     }
 
-    @Nonnull
-    @Override
-    public <T> Collection<T> getCollection(String key, Class<T> type) {
-        return null;
+    // The following two methods are necessary in order to
+    // prevent recursing over the same method which creates
+    // a collection each time
+    // Instead, only the first collection will collect all
+    // of the elements instead of creating a new collection
+    // each time and copying
+
+    /**
+     * Gets all the children config sections.
+     *
+     * @param col the collection to append
+     * @param deep {@code true} to get the children
+     * children
+     */
+    private void children0(Collection<ConfigSection> col, boolean deep) {
+        elements.values().stream()
+                .filter(o -> o instanceof ConfigSection)
+                .map(o -> (TridentConfigSection) o)
+                .forEach(cs -> {
+                    if (deep) {
+                        cs.children0(col, true);
+                    }
+                    col.add(cs);
+                });
+    }
+
+    /**
+     * Iterates over the elements in this config section,
+     * performing the given operations in order to append
+     * the elements to the given collection.
+     *
+     * @param base the base string key
+     * @param col the collection to append entries
+     * @param function extracts the entry value
+     * @param deep {@code true} to get children elements
+     * @param <T> the type appended to the collection
+     */
+    private <T> void iterate(String base, Collection<T> col, BiFunction<String, Map.Entry<String, Object>, T> function, boolean deep) {
+        elements.entrySet().stream()
+                .forEach(e -> {
+                    Object val = e.getValue();
+                    if (deep) {
+                        if (val instanceof ConfigSection) {
+                            TridentConfigSection section = (TridentConfigSection) val;
+                            section.iterate(handlePath(base, section.name), col, function, true);
+                            return;
+                        }
+                    }
+
+                    col.add(function.apply(base, e));
+                });
+    }
+
+    /**
+     * Internal child config section creation method,
+     * useful for bypassing the . key based key creation
+     * when we know that the name is not . separated.
+     *
+     * @param name the name of the new child
+     * @param object the json object that makes the
+     * section,
+     * or {@code null} if it is just created
+     * @return the created section
+     */
+    private TridentConfigSection createChild0(String name, JsonObject object) {
+        TridentConfigSection section = new TridentConfigSection(name, this, root(), object);
+        elements.put(name, section);
+        return section;
+    }
+
+    private String handlePath(String path, String cur) {
+        if (path.isEmpty()) return cur;
+        return path + SEPARATOR_LITERAL + cur;
     }
 
     /**
      * Obtains a config section with a key split with .
      *
      * @param split the split key
-     * @param full {@code true} if the key contains a value,
-     *             {@code false} if the key contains only
-     *             config sections
+     * @param hasValue {@code true} if the key contains a
+     * value, {@code false} if the key contains only config
+     * sections
      * @return the config section
      */
     @Nonnull
-    private TridentConfigSection findSection(String[] split, boolean full) {
+    private TridentConfigSection findSection(String[] split, boolean hasValue) {
         TridentConfigSection section = this;
-        if (split.length > 0) {
-            for (int i = 0; i < (full ? split.length - 1 : split.length); i++) {
+        if (split.length > 1) {
+            for (int i = 0; i < (hasValue ? split.length - 1 : split.length); i++) {
                 String sectionName = split[i];
                 Object o = section.elements.get(sectionName);
                 if (!(o instanceof ConfigSection)) {
-                    throw new RuntimeException(new NoSuchElementException(String.format(
-                            "Section \"%s\" cannot be found in \"%s\"", sectionName, Arrays.toString(split))));
+                    throw new NoSuchElementException(String.format("Section \"%s\" cannot be found in \"%s\"", sectionName, Arrays.toString(split)));
                 }
 
                 section = (TridentConfigSection) o;
             }
+        } else if (!hasValue) {
+            return (TridentConfigSection) elements.get(split[0]);
         }
 
         return section;
@@ -426,10 +484,46 @@ public class TridentConfigSection implements ConfigSection {
         // if null, throw exception
         Object element = section.elements.get(finalKey);
         if (element == null) {
-            throw new RuntimeException(new NoSuchElementException(
-                    String.format("Key \"%s\" in your key \"%s\" cannot be found", finalKey, key)));
+            throw new NoSuchElementException(String.format("Key \"%s\" in your key \"%s\" cannot be found", finalKey, key));
         }
 
         return element;
+    }
+
+    /**
+     * Concats the key to the given string from the given
+     * entry.
+     *
+     * @param s the base string
+     * @param entry the entry to concat
+     * @return the entry with the concatenated key
+     */
+    private Map.Entry<String, Object> concatKey(String s, Map.Entry<String, Object> entry) {
+        return new Map.Entry<String, Object>() {
+            @Override
+            public String getKey() {
+                return handlePath(s, entry.getKey());
+            }
+
+            @Override
+            public Object getValue() {
+                return entry.getValue();
+            }
+
+            @Override
+            public Object setValue(Object value) {
+                return entry.setValue(value);
+            }
+
+            @Override
+            public boolean equals(Object o) {
+                return entry.equals(o);
+            }
+
+            @Override
+            public int hashCode() {
+                return entry.hashCode();
+            }
+        };
     }
 }

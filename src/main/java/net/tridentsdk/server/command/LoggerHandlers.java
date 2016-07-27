@@ -16,78 +16,55 @@
  */
 package net.tridentsdk.server.command;
 
-import net.tridentsdk.command.logger.Logger;
+import com.google.common.collect.Sets;
+import net.tridentsdk.command.logger.LogHandler;
 
-import java.io.OutputStream;
+import java.util.Set;
 
 /**
  * This class contains the handlers that plugins may use to
  * change the output of the logger or their loggers.
  */
-public class LoggerHandlers implements Logger {
-    // TODO implement
+public class LoggerHandlers extends PipelinedLogger {
     /**
-     * The next logger in the pipeline
+     * The set of handlers that intercept all output
      */
-    private final Logger next;
+    private final Set<LogHandler> handlers = Sets.newConcurrentHashSet();
 
     /**
-     * Creates a new logger handler interceptor with the
-     * given logger next in the pipeline.
+     * Creates a new handler class for the all messages log
+     * interceptors.
      *
-     * @param next the next logger
+     * @param next the next logger in the pipeline
      */
-    public LoggerHandlers(Logger next) {
-        this.next = next;
+    public LoggerHandlers(PipelinedLogger next) {
+        super(next);
     }
 
     @Override
-    public void log(String s) {
-        next.log(s);
+    public LogMessageImpl handle(LogMessageImpl msg) {
+        boolean doLog = true;
+        for (LogHandler handler : handlers) {
+            if (!handler.handle(msg)) {
+                doLog = false;
+            }
+        }
+        return doLog ? msg : null;
     }
 
     @Override
-    public void logp(String s) {
-        next.logp(s);
+    public LogMessageImpl handlep(LogMessageImpl msg) {
+        return handle(msg);
     }
 
-    @Override
-    public void success(String s) {
-        next.success(s);
-    }
-
-    @Override
-    public void successp(String s) {
-        next.successp(s);
-    }
-
-    @Override
-    public void warn(String s) {
-        next.warn(s);
-    }
-
-    @Override
-    public void warnp(String s) {
-        next.warnp(s);
-    }
-
-    @Override
-    public void error(String s) {
-        next.error(s);
-    }
-
-    @Override
-    public void errorp(String s) {
-        next.errorp(s);
-    }
-
-    @Override
-    public void debug(String s) {
-        next.debug(s);
-    }
-
-    @Override
-    public OutputStream out() {
-        return next.out();
+    /**
+     * Obtains the all the handlers that are attached to
+     * the
+     * output.
+     *
+     * @return the logger handlers
+     */
+    public Set<LogHandler> handlers() {
+        return handlers;
     }
 }

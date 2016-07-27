@@ -18,6 +18,8 @@ package net.tridentsdk.server.command;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.collect.Sets;
+import net.tridentsdk.command.logger.LogHandler;
 import net.tridentsdk.command.logger.Logger;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -26,6 +28,8 @@ import java.io.PrintStream;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
+import java.time.format.TextStyle;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 import static java.time.temporal.ChronoField.*;
@@ -40,7 +44,7 @@ public class InfoLogger implements Logger {
     /**
      * The time, using standard 24-hour format
      */
-    private static final DateTimeFormatter FORMAT = new DateTimeFormatterBuilder()
+    private static final DateTimeFormatter TIME_FORMAT = new DateTimeFormatterBuilder()
             .appendValue(HOUR_OF_DAY, 2)
             .appendLiteral(':')
             .appendValue(MINUTE_OF_HOUR, 2)
@@ -48,9 +52,19 @@ public class InfoLogger implements Logger {
             .appendValue(SECOND_OF_MINUTE, 2)
             .toFormatter();
     /**
+     * The date, using MMM DD YYYY
+     */
+    private static final DateTimeFormatter DATE_FORMAT = new DateTimeFormatterBuilder()
+            .appendText(MONTH_OF_YEAR, TextStyle.SHORT)
+            .appendLiteral(' ')
+            .appendValue(DAY_OF_MONTH, 2)
+            .appendLiteral(' ')
+            .appendValue(YEAR, 4)
+            .toFormatter();
+    /**
      * The logger cache
      */
-    private static final Cache<String, Logger> CACHE =
+    private static final Cache<String, InfoLogger> CACHE =
             CacheBuilder.newBuilder().build();
 
     // logger level constants
@@ -60,19 +74,19 @@ public class InfoLogger implements Logger {
     private static final String DEBUG = "DEBUG";
 
     /**
+     * The lock that guards the given last partial write
+     */
+    private static final Object pLock = new Object();
+    /**
      * The last logger to use the partial write method
      */
     @GuardedBy("pLock")
     private static Logger p = null;
-    /**
-     * The lock that guards the given last partial write
-     */
-    private static final Object pLock = new Object();
 
     /**
      * The top logger in the pipeline
      */
-    private final Logger next;
+    private final PipelinedLogger next;
     /**
      * The name of this logger
      */
@@ -81,6 +95,10 @@ public class InfoLogger implements Logger {
      * Underlying stream prevents a full pipeline read
      */
     private final PrintStream underlying;
+    /**
+     * The set of logger handlers attached to this logger
+     */
+    private final Set<LogHandler> handlers = Sets.newConcurrentHashSet();
 
     /**
      * Creates a new logger handler interceptor with the
@@ -88,7 +106,7 @@ public class InfoLogger implements Logger {
      *
      * @param name the name
      */
-    public InfoLogger(Logger next, String name) {
+    public InfoLogger(PipelinedLogger next, String name) {
         this.next = next;
         this.name = name;
         this.underlying = (PrintStream) next.out();
@@ -103,43 +121,70 @@ public class InfoLogger implements Logger {
      * @throws ExecutionException if something dumb
      * happened
      */
-    public static Logger get(Logger next, String name) throws ExecutionException {
+    public static Logger get(PipelinedLogger next, String name) throws ExecutionException {
         return CACHE.get(name, () -> new InfoLogger(next, name));
     }
 
     /**
      * Handles normal messages
      */
-    private String handle(String level, String s) {
+    private LogMessageImpl handle(String level, String s) {
+        ZonedDateTime time = ZonedDateTime.now();
+        String[] components = new String[]{time.format(DATE_FORMAT),
+                time.format(TIME_FORMAT),
+                "[" + name + "/" + level + "]"};
+        LogMessageImpl message = null;
+
         synchronized (pLock) {
             if (p == this) {
                 p = null;
-                return s;
-            }
-
-            if (p != null) {
+                message = new LogMessageImpl(this, components, s, time, true);
+            } else if (p != null) {
+                p = null;
                 underlying.println();
+            } else {
+                p = null;
             }
-
-            p = null;
         }
 
-        String time = ZonedDateTime.now().format(FORMAT);
-        return time + " [" + name + "/" + level + "] " + s;
+        message = message == null ? new LogMessageImpl(this, components, s, time, false) : message;
+
+        for (LogHandler handler : handlers) {
+            if (!handler.handle(message)) {
+                message = null;
+            }
+        }
+
+        return message;
     }
 
     /**
      * Handles partial messages
      */
-    private String handlep(String level, String s) {
+    private LogMessageImpl handlep(String level, String s) {
         synchronized (pLock) {
             if (p != null && p != this) {
                 underlying.println();
             }
             p = this;
         }
-        String time = ZonedDateTime.now().format(FORMAT);
-        return time + " [" + name + "/" + level + "] " + s;
+
+        ZonedDateTime time = ZonedDateTime.now();
+        String[] components = new String[]{time.format(DATE_FORMAT),
+                time.format(TIME_FORMAT),
+                "[" + name + "/" + level + "]"};
+        LogMessageImpl message = new LogMessageImpl(this, components, s, time, false);
+        for (LogHandler handler : handlers) {
+            if (!handler.handle(message)) {
+                message = null;
+            }
+        }
+        return message;
+    }
+
+    @Override
+    public String name() {
+        return name;
     }
 
     @Override
@@ -190,5 +235,14 @@ public class InfoLogger implements Logger {
     @Override
     public OutputStream out() {
         return next.out();
+    }
+
+    /**
+     * Obtains the handlers in this logger.
+     *
+     * @return the logger handlers
+     */
+    public Set<LogHandler> handlers() {
+        return handlers;
     }
 }

@@ -16,18 +16,15 @@
  */
 package net.tridentsdk.server.command;
 
-import net.tridentsdk.command.logger.Logger;
-
-import java.io.OutputStream;
-
 /**
  * Colorizer logger is a pipeline logger which replaces
  * color codes with the ANSI equivalents before passing to
  * the next logger.
  */
-public class ColorizerLogger implements Logger {
+public class ColorizerLogger extends PipelinedLogger {
     // TODO chat color
 
+    // Console colors
     public static final String RESET = "\u001B[0m";
     public static final String BLACK = "\u001B[30m";
     public static final String RED = "\u001B[31m";
@@ -39,74 +36,78 @@ public class ColorizerLogger implements Logger {
     public static final String WHITE = "\u001B[37m";
 
     /**
-     * The next logger in the pipeline
-     */
-    private final Logger next;
-
-    /**
      * Creates a new logger that colorizes the output
      *
      * @param next the next logger in the pipeline
      */
-    public ColorizerLogger(Logger next) {
-        this.next = next;
+    public ColorizerLogger(PipelinedLogger next) {
+        super(next);
+    }
+
+    @Override
+    public LogMessageImpl handle(LogMessageImpl msg) {
+        return null;
+    }
+
+    @Override
+    public LogMessageImpl handlep(LogMessageImpl msg) {
+        return null;
     }
 
     /**
      * Shorthand method for handling the input message to
      * log.
      */
-    private String handle(String color, String msg) {
-        return color + msg + RESET;
+    private LogMessageImpl handle(String color, LogMessageImpl msg) {
+        return new LogMessageImpl(msg.source(),
+                msg.components(),
+                color + msg.message() + RESET,
+                msg.time(),
+                msg.noInfo());
     }
 
     @Override
-    public void log(String s) {
-        next.log(s);
+    public void log(LogMessageImpl msg) {
+        next.log(msg);
     }
 
     @Override
-    public void logp(String s) {
-        next.logp(s);
+    public void logp(LogMessageImpl msg) {
+        next.logp(msg);
     }
 
     @Override
-    public void success(String s) {
-        next.success(handle(GREEN, s));
+    public void success(LogMessageImpl msg) {
+        next.success(handle(GREEN, msg));
     }
 
     @Override
-    public void successp(String s) {
-        next.successp(handle(GREEN, s));
+    public void successp(LogMessageImpl msg) {
+        next.successp(handle(GREEN, msg));
     }
 
     @Override
-    public void warn(String s) {
-        next.warn(handle(YELLOW, s));
+    public void warn(LogMessageImpl msg) {
+        next.warn(handle(YELLOW, msg));
     }
 
     @Override
-    public void warnp(String s) {
-        next.warnp(handle(YELLOW, s));
+    public void warnp(LogMessageImpl msg) {
+        next.warnp(handle(YELLOW, msg));
     }
 
     @Override
-    public void error(String s) {
-        next.error(handle(RED, s));
+    public void error(LogMessageImpl msg) {
+        next.error(handle(RED, msg));
     }
 
     @Override
-    public void errorp(String s) {
-        next.errorp(handle(RED, s));
+    public void errorp(LogMessageImpl msg) {
+        next.errorp(handle(RED, msg));
     }
 
     @Override
-    public void debug(String s) {
-        next.debug(handle(WHITE, s));
-    }
-
-    @Override
-    public OutputStream out() {
-        return next.out();
+    public void debug(LogMessageImpl msg) {
+        next.debug(handle(WHITE, msg));
     }
 }
