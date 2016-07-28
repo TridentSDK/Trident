@@ -18,6 +18,7 @@ package net.tridentsdk.server.config;
 
 import com.google.common.collect.Maps;
 
+import javax.annotation.concurrent.ThreadSafe;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -38,6 +39,7 @@ import java.util.function.BiConsumer;
  * all these methods are self-explanatory, there is no use
  * for documenting them
  */
+@ThreadSafe
 public class ConcurrentLinkedStringMap<V> {
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
     private final LinkedHashMap<String, V> map = Maps.newLinkedHashMap();

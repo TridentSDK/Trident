@@ -23,10 +23,13 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollServerSocketChannel;
 
+import javax.annotation.concurrent.Immutable;
+
 /**
  * Netty native-transport (linux) over JNI implemented
  * sockets.
  */
+@Immutable
 public class NetEpollServer extends NetServer {
     private final EventLoopGroup bossGroup = new EpollEventLoopGroup(8);
     private final EventLoopGroup workerGroup = new EpollEventLoopGroup(8);

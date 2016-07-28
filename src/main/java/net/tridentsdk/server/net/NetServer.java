@@ -18,11 +18,16 @@ package net.tridentsdk.server.net;
 
 import net.tridentsdk.server.config.ServerConfig;
 
+import javax.annotation.concurrent.Immutable;
+
 /**
  * This class handles the network connections for the server
  * and manages the netty channels, packets, pipelines, etc.
  */
+@Immutable
 public abstract class NetServer {
+    // TODO configure boss/worker threads for netserver
+
     private final String ip;
     private final int port;
 

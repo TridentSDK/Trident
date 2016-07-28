@@ -18,18 +18,16 @@ package net.tridentsdk.server.command;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.google.common.collect.Sets;
-import net.tridentsdk.command.logger.LogHandler;
 import net.tridentsdk.command.logger.Logger;
 
 import javax.annotation.concurrent.GuardedBy;
+import javax.annotation.concurrent.ThreadSafe;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.TextStyle;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 import static java.time.temporal.ChronoField.*;
@@ -40,7 +38,8 @@ import static java.time.temporal.ChronoField.*;
  * information such as date and time and the logger name to
  * the message logged to the logger.
  */
-public class InfoLogger implements Logger {
+@ThreadSafe
+public class InfoLogger extends LoggerHandlers implements Logger {
     /**
      * The time, using standard 24-hour format
      */
@@ -76,11 +75,11 @@ public class InfoLogger implements Logger {
     /**
      * The lock that guards the given last partial write
      */
-    private static final Object pLock = new Object();
+    private static final Object lock = new Object();
     /**
      * The last logger to use the partial write method
      */
-    @GuardedBy("pLock")
+    @GuardedBy("lock")
     private static Logger p = null;
 
     /**
@@ -95,10 +94,6 @@ public class InfoLogger implements Logger {
      * Underlying stream prevents a full pipeline read
      */
     private final PrintStream underlying;
-    /**
-     * The set of logger handlers attached to this logger
-     */
-    private final Set<LogHandler> handlers = Sets.newConcurrentHashSet();
 
     /**
      * Creates a new logger handler interceptor with the
@@ -107,6 +102,7 @@ public class InfoLogger implements Logger {
      * @param name the name
      */
     public InfoLogger(PipelinedLogger next, String name) {
+        super(null);
         this.next = next;
         this.name = name;
         this.underlying = (PrintStream) next.out();
@@ -118,11 +114,13 @@ public class InfoLogger implements Logger {
      * @param next the next logger
      * @param name the name of the logger from the cache
      * @return a cached logger, or a new one
-     * @throws ExecutionException if something dumb
-     * happened
      */
-    public static Logger get(PipelinedLogger next, String name) throws ExecutionException {
-        return CACHE.get(name, () -> new InfoLogger(next, name));
+    public static Logger get(PipelinedLogger next, String name) {
+        try {
+            return CACHE.get(name, () -> new InfoLogger(next, name));
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -133,39 +131,42 @@ public class InfoLogger implements Logger {
         String[] components = new String[]{time.format(DATE_FORMAT),
                 time.format(TIME_FORMAT),
                 "[" + name + "/" + level + "]"};
-        LogMessageImpl message = null;
+        boolean noInfo = false;
 
-        synchronized (pLock) {
+        synchronized (lock) {
+            // if the last partial output was this, then it
+            // will be printed on the same line
             if (p == this) {
-                p = null;
-                message = new LogMessageImpl(this, components, s, time, true);
+                noInfo = true;
+                // otherwise, if it is another logger, then we
+                // log the message as if the last one wasn't
+                // partial in order to allow server owners to
+                // see what time the operation completed
             } else if (p != null) {
-                p = null;
                 underlying.println();
-            } else {
-                p = null;
             }
+
+            // null the last partial message as this is a
+            // full message
+            p = null;
         }
 
-        message = message == null ? new LogMessageImpl(this, components, s, time, false) : message;
-
-        for (LogHandler handler : handlers) {
-            if (!handler.handle(message)) {
-                message = null;
-            }
-        }
-
-        return message;
+        return super.handle(new LogMessageImpl(this, components, s, time, noInfo));
     }
 
     /**
      * Handles partial messages
      */
     private LogMessageImpl handlep(String level, String s) {
-        synchronized (pLock) {
+        synchronized (lock) {
+            // if the last message was sent by another
+            // logger, then we print this partial one on
+            // another line
             if (p != null && p != this) {
                 underlying.println();
             }
+
+            // set the last partial message to this logger
             p = this;
         }
 
@@ -174,12 +175,7 @@ public class InfoLogger implements Logger {
                 time.format(TIME_FORMAT),
                 "[" + name + "/" + level + "]"};
         LogMessageImpl message = new LogMessageImpl(this, components, s, time, false);
-        for (LogHandler handler : handlers) {
-            if (!handler.handle(message)) {
-                message = null;
-            }
-        }
-        return message;
+        return super.handle(message);
     }
 
     @Override
@@ -235,14 +231,5 @@ public class InfoLogger implements Logger {
     @Override
     public OutputStream out() {
         return next.out();
-    }
-
-    /**
-     * Obtains the handlers in this logger.
-     *
-     * @return the logger handlers
-     */
-    public Set<LogHandler> handlers() {
-        return handlers;
     }
 }

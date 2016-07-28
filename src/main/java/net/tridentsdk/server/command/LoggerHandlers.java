@@ -19,12 +19,14 @@ package net.tridentsdk.server.command;
 import com.google.common.collect.Sets;
 import net.tridentsdk.command.logger.LogHandler;
 
+import javax.annotation.concurrent.ThreadSafe;
 import java.util.Set;
 
 /**
  * This class contains the handlers that plugins may use to
  * change the output of the logger or their loggers.
  */
+@ThreadSafe
 public class LoggerHandlers extends PipelinedLogger {
     /**
      * The set of handlers that intercept all output

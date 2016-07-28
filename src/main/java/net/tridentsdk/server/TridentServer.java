@@ -21,11 +21,13 @@ import net.tridentsdk.command.logger.Logger;
 import net.tridentsdk.server.config.ServerConfig;
 import net.tridentsdk.server.net.NetServer;
 
+import javax.annotation.concurrent.ThreadSafe;
 import java.io.IOException;
 
 /**
  * This class represents the running Minecraft server
  */
+@ThreadSafe
 public class TridentServer implements Server {
     private static volatile TridentServer instance;
 

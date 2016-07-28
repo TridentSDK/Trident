@@ -18,6 +18,7 @@ package net.tridentsdk.server.config;
 
 import net.tridentsdk.util.Misc;
 
+import javax.annotation.concurrent.ThreadSafe;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -27,6 +28,7 @@ import java.nio.file.Paths;
  * server loads the properties file in order to shortcut
  * access to each of the values.
  */
+@ThreadSafe
 public class ServerConfig extends TridentConfig {
     /**
      * The path to the server configuration file

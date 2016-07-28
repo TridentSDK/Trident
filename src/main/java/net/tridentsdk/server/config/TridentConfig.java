@@ -21,6 +21,7 @@ import com.google.gson.JsonObject;
 import net.tridentsdk.config.Config;
 import net.tridentsdk.config.ConfigSection;
 
+import javax.annotation.concurrent.Immutable;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -32,6 +33,7 @@ import java.nio.file.Path;
  * @author TridentSDK
  * @since 0.5-alpha
  */
+@Immutable
 public class TridentConfig extends TridentConfigSection implements Config {
     /**
      * The path to the config file

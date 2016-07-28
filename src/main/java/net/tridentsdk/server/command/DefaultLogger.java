@@ -16,6 +16,7 @@
  */
 package net.tridentsdk.server.command;
 
+import javax.annotation.concurrent.Immutable;
 import java.io.OutputStream;
 import java.io.PrintStream;
 
@@ -28,6 +29,7 @@ import java.io.PrintStream;
  * <p>Thus such, this class contains the init code required
  * to setup the loggers.</p>
  */
+@Immutable
 public class DefaultLogger extends PipelinedLogger {
     /**
      * The underlying stream that to which output is passed

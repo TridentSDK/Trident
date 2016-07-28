@@ -25,6 +25,7 @@ import net.tridentsdk.server.config.ConfigIo;
 import net.tridentsdk.server.config.ServerConfig;
 import net.tridentsdk.server.net.NetServer;
 
+import javax.annotation.concurrent.Immutable;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.util.List;
@@ -32,6 +33,7 @@ import java.util.List;
 /**
  * Trident server startup class
  */
+@Immutable
 public class TridentMain {
     /**
      * Verbose commandline option (print debug or not)

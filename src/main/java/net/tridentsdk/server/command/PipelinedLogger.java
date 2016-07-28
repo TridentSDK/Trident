@@ -18,6 +18,7 @@ package net.tridentsdk.server.command;
 
 import org.fusesource.jansi.AnsiConsole;
 
+import javax.annotation.concurrent.Immutable;
 import java.io.OutputStream;
 
 /**
@@ -46,6 +47,7 @@ import java.io.OutputStream;
  *                DefaultLogger
  * }</pre></p>
  */
+@Immutable
 public abstract class PipelinedLogger {
     /**
      * The next logger in the pipeline

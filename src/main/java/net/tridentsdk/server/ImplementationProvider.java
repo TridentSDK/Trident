@@ -26,27 +26,29 @@ import net.tridentsdk.server.command.LoggerHandlers;
 import net.tridentsdk.server.command.PipelinedLogger;
 import net.tridentsdk.server.config.TridentConfig;
 
+import javax.annotation.concurrent.Immutable;
 import java.nio.file.Path;
-import java.util.concurrent.ExecutionException;
 
 /**
  * This class is the bridge between the server and the API,
  * and provides the implementation classes for the API via
  * {@link Impl}.
  */
+@Immutable
 public class ImplementationProvider implements Impl.ImplementationProvider {
     // class is initialized after server is created
     // safe to call this method
     private static final TridentServer inst = TridentServer.instance();
     // head of the logger pipeline
     private final PipelinedLogger head;
+    // instance of the handlers class
     private final LoggerHandlers handlers;
 
     public ImplementationProvider(PipelinedLogger head) {
         this.head = head;
 
         for (PipelinedLogger logger = head; logger.next() != null; logger = logger.next()) {
-            if (logger instanceof LoggerHandlers) {
+            if (logger.getClass().equals(LoggerHandlers.class)) {
                 this.handlers = (LoggerHandlers) logger;
                 return;
             }
@@ -66,11 +68,7 @@ public class ImplementationProvider implements Impl.ImplementationProvider {
 
     @Override
     public Logger newLogger(String s) {
-        try {
-            return InfoLogger.get(head, s);
-        } catch (ExecutionException e) {
-            throw new RuntimeException(e);
-        }
+        return InfoLogger.get(head, s);
     }
 
     @Override

@@ -16,10 +16,13 @@
  */
 package net.tridentsdk.server.command;
 
+import javax.annotation.concurrent.Immutable;
+
 /**
  * Logger filter which prevents debug messages from being
  * passed on.
  */
+@Immutable
 class NoDebugLogger extends PipelinedLogger {
     /**
      * Creates a new logger that handles debug messages
@@ -51,6 +54,7 @@ class NoDebugLogger extends PipelinedLogger {
  * A debug filter logger which allows debug messages to be
  * passed along the pipeline, useful for verbose mode.
  */
+@Immutable
 public class DebugLogger extends PipelinedLogger {
     /**
      * Create a new logger which logs to the next

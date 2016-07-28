@@ -23,10 +23,13 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 
+import javax.annotation.concurrent.Immutable;
+
 /**
  * The default NetServer implementation that uses NIO
  * multi-threaded server socket handlers
  */
+@Immutable
 public class NetNioServer extends NetServer {
     private final EventLoopGroup bossGroup = new NioEventLoopGroup(8);
     private final EventLoopGroup workerGroup = new NioEventLoopGroup(8);

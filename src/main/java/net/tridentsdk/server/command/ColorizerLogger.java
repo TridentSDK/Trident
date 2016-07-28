@@ -16,11 +16,14 @@
  */
 package net.tridentsdk.server.command;
 
+import javax.annotation.concurrent.Immutable;
+
 /**
  * Colorizer logger is a pipeline logger which replaces
  * color codes with the ANSI equivalents before passing to
  * the next logger.
  */
+@Immutable
 public class ColorizerLogger extends PipelinedLogger {
     // TODO chat color
 

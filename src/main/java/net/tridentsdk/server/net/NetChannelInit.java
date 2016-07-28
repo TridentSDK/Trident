@@ -20,16 +20,18 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 
+import javax.annotation.concurrent.Immutable;
+
 /**
  * Channel initializers register channel handlers to handle
  * incoming connections and packets, as well as handle
  * output.
  */
+@Immutable
 public class NetChannelInit extends ChannelInitializer<SocketChannel> {
     @Override
     protected void initChannel(SocketChannel socketChannel) throws Exception {
         ChannelPipeline pipe = socketChannel.pipeline();
-
         // TODO
     }
 }

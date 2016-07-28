@@ -27,6 +27,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 
+import javax.annotation.concurrent.Immutable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +44,7 @@ import java.util.Map;
  * honestly this is such a stupid class that documentation
  * is really futile so there you go...
  */
+@Immutable
 public class TridentAdapter extends TypeAdapter<Object> {
     public static final TypeAdapterFactory FACTORY = new TypeAdapterFactory() {
         public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {

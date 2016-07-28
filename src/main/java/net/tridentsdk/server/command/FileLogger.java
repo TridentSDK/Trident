@@ -16,12 +16,15 @@
  */
 package net.tridentsdk.server.command;
 
+import net.tridentsdk.doc.Policy;
 import net.tridentsdk.util.Misc;
 
 import javax.annotation.concurrent.GuardedBy;
-import java.io.BufferedWriter;
+import javax.annotation.concurrent.ThreadSafe;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -36,11 +39,16 @@ import java.util.regex.Pattern;
  * moving them to appropriate directories when they fill to
  * the text editor limits.</p>
  */
+@ThreadSafe
 public class FileLogger extends PipelinedLogger {
     /**
      * The directory to the log files
      */
     private static final Path DIR = Paths.get(Misc.HOME, "/logs");
+    /**
+     * The system line separator
+     */
+    private static final String LINE_SEP = System.getProperty("line.separator");
     /**
      * Max file length, 80 mb
      */
@@ -54,7 +62,7 @@ public class FileLogger extends PipelinedLogger {
      * The file writer
      */
     @GuardedBy("lock")
-    private BufferedWriter out;
+    private Writer out;
     /**
      * Current log file
      */
@@ -115,11 +123,11 @@ public class FileLogger extends PipelinedLogger {
 
     @Override
     public LogMessageImpl handle(LogMessageImpl msg) {
-        BufferedWriter out = check();
+        Writer out = check();
 
         try {
             out.write(msg.format(0));
-            out.newLine();
+            out.write(LINE_SEP);
             out.flush();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -129,11 +137,11 @@ public class FileLogger extends PipelinedLogger {
 
     @Override
     public LogMessageImpl handlep(LogMessageImpl msg) {
-        BufferedWriter out = check();
+        Writer out = check();
 
         try {
             out.write(msg.format(0));
-            out.newLine();
+            out.write(LINE_SEP);
             out.flush();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -146,8 +154,8 @@ public class FileLogger extends PipelinedLogger {
      *
      * @return the writer, including if it was updated
      */
-    public BufferedWriter check() {
-        if (ThreadLocalRandom.current().nextInt(20) == 1) {
+    public Writer check() {
+        if (ThreadLocalRandom.current().nextInt(50) == 1) {
             synchronized (lock) {
                 try {
                     if (Files.size(current) > MAX_LEN) {
@@ -172,6 +180,7 @@ public class FileLogger extends PipelinedLogger {
      * @param last the last log file
      * @throws IOException if something dumb went wrong
      */
+    @Policy("holds lock")
     public void makeNewLog(Path last) throws IOException {
         String[] split = last.toFile().getName().split(IDX_SEPARATOR);
         int curIdx = Integer.parseInt(split[1]) + 1;
@@ -184,15 +193,12 @@ public class FileLogger extends PipelinedLogger {
      * @param idx the new index
      * @throws IOException if something dumb went wrong
      */
+    @Policy("holds lock")
     public void makeNewLog(int idx) throws IOException {
         Path path = DIR.resolve("log." + idx + ".log");
         Files.createFile(path);
 
-        if (out != null) {
-            out.close();
-        }
-
         current = path;
-        out = Files.newBufferedWriter(path);
+        out = new FileWriter(path.toFile());
     }
 }
