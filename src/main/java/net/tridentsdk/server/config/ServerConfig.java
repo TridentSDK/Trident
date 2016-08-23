@@ -48,6 +48,23 @@ public class ServerConfig extends TridentConfig {
      * Whether or not to use native transport (epoll)
      */
     private volatile boolean useNative;
+    /**
+     * The minimum packet size before compression
+     */
+    private volatile int compressionThresh;
+
+    /**
+     * Whether or not this server checks auth servers
+     */
+    private volatile boolean useAuth;
+    /**
+     * The maximum players that may be on the server
+     */
+    private volatile int maxPlayers;
+    /**
+     * The Message-Of-The-Day ping response
+     */
+    private volatile String motd;
 
     /**
      * Initializes the server file and load all the
@@ -95,7 +112,7 @@ public class ServerConfig extends TridentConfig {
      * transport sockets for handling connections on linux
      * machines.
      *
-     * <p>By default, thi sneeds to be {@code true}</p>
+     * <p>By default, this needs to be {@code true}</p>
      *
      * @return {@code true} to use native transport if
      * possible
@@ -104,11 +121,55 @@ public class ServerConfig extends TridentConfig {
         return this.useNative;
     }
 
+    /**
+     * Obtains the minimum packet size before compression.
+     *
+     * <p>By default, this needs to be {@link 256}</p>
+     *
+     * @return the minimum packet size
+     */
+    public int compressionThresh() {
+        return this.compressionThresh;
+    }
+
+    /**
+     * Determines whether or not authentication is used
+     * upon login for the server.
+     *
+     * @return {@code true} if yes
+     */
+    public boolean doAuth() {
+        return this.useAuth;
+    }
+
+    /**
+     * Obtains the maximum amount of players that may be on
+     * the server.
+     *
+     * @return the max players
+     */
+    public int maxPlayers() {
+        return this.maxPlayers;
+    }
+
+    /**
+     * Obtains the MOTD of the server.
+     *
+     * @return the server MOTD
+     */
+    public String motd() {
+        return this.motd;
+    }
+
     @Override
     public void load() throws IOException {
         super.load();
-        this.ip = getString("address");
-        this.port = getInt("port");
-        this.useNative = getBoolean("use-native");
+        this.ip = this.getString("address");
+        this.port = this.getInt("port");
+        this.useNative = this.getBoolean("use-native");
+        this.compressionThresh = this.getInt("compression-threshold");
+        this.useAuth = this.getBoolean("online-mode");
+        this.maxPlayers = this.getInt("max-players");
+        this.motd = this.getString("motd");
     }
 }

@@ -46,17 +46,12 @@ public class LoggerHandlers extends PipelinedLogger {
     @Override
     public LogMessageImpl handle(LogMessageImpl msg) {
         boolean doLog = true;
-        for (LogHandler handler : handlers) {
+        for (LogHandler handler : this.handlers) {
             if (!handler.handle(msg)) {
                 doLog = false;
             }
         }
         return doLog ? msg : null;
-    }
-
-    @Override
-    public LogMessageImpl handlep(LogMessageImpl msg) {
-        return handle(msg);
     }
 
     /**
@@ -67,6 +62,6 @@ public class LoggerHandlers extends PipelinedLogger {
      * @return the logger handlers
      */
     public Set<LogHandler> handlers() {
-        return handlers;
+        return this.handlers;
     }
 }

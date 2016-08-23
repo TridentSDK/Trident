@@ -18,6 +18,7 @@ package net.tridentsdk.server;
 
 import net.tridentsdk.Server;
 import net.tridentsdk.command.logger.Logger;
+import net.tridentsdk.config.Config;
 import net.tridentsdk.server.config.ServerConfig;
 import net.tridentsdk.server.net.NetServer;
 
@@ -29,6 +30,9 @@ import java.io.IOException;
  */
 @ThreadSafe
 public class TridentServer implements Server {
+    /**
+     * The instance of the TridentServer, if it exists
+     */
     private static volatile TridentServer instance;
 
     /**
@@ -82,19 +86,33 @@ public class TridentServer implements Server {
         return TridentServer.instance;
     }
 
+    /**
+     * Shortcut method to retrieving the server config.
+     *
+     * @return the server config
+     */
+    public static ServerConfig cfg() {
+        return (ServerConfig) instance().config();
+    }
+
     @Override
     public String ip() {
-        return config.ip();
+        return this.config.ip();
     }
 
     @Override
     public int port() {
-        return config.port();
+        return this.config.port();
     }
 
     @Override
     public Logger logger() {
         return this.logger;
+    }
+
+    @Override
+    public Config config() {
+        return this.config;
     }
 
     @Override
@@ -104,24 +122,24 @@ public class TridentServer implements Server {
 
     @Override
     public void reload() {
-        logger.warn("SERVER RELOADING");
+        this.logger.warn("SERVER RELOADING");
 
         try {
-            logger.logp("Saving config...");
-            config.save();
-            logger.success("Saved.");
+            this.logger.log("Saving config...");
+            this.config.save();
+            this.logger.success("Saved.");
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        logger.success("Server has reloaded successfully.");
+        this.logger.success("Server has reloaded successfully.");
     }
 
     @Override
     public void shutdown() {
-        logger.warn("SERVER SHUTTING DOWN");
+        this.logger.warn("SERVER SHUTTING DOWN");
         try {
-            server.shutdown();
+            this.server.shutdown();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

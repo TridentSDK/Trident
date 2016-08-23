@@ -37,15 +37,11 @@ public class LogMessageImpl implements LogMessage {
     /**
      * The message that was passed to the logger
      */
-    private final String message;
+    private volatile String message;
     /**
      * The time at which this log message was created
      */
     private final ZonedDateTime time;
-    /**
-     * Whether this is printed after a partial line
-     */
-    private final boolean noInfo;
 
     /**
      * Creates a new log message
@@ -56,38 +52,35 @@ public class LogMessageImpl implements LogMessage {
      * @param time the time the message was created
      */
     public LogMessageImpl(InfoLogger source, String[] components,
-                          String message, ZonedDateTime time,
-                          boolean noInfo) {
+                          String message, ZonedDateTime time) {
         this.source = source;
         this.components = components;
         this.message = message;
         this.time = time;
-        this.noInfo = noInfo;
     }
 
     @Override
     public InfoLogger source() {
-        return source;
+        return this.source;
     }
 
     @Override
     public String[] components() {
-        return components;
+        return this.components;
     }
 
     @Override
     public String message() {
-        return message;
+        return this.message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 
     @Override
     public ZonedDateTime time() {
-        return time;
-    }
-
-    @Override
-    public boolean noInfo() {
-        return noInfo;
+        return this.time;
     }
 
     /**
@@ -97,16 +90,12 @@ public class LogMessageImpl implements LogMessage {
      * @return the string
      */
     public String format(int start) {
-        if (noInfo && start != 0) {
-            return message;
-        }
-
         StringBuilder builder = new StringBuilder();
-        for (int i = start; i < components.length; i++) {
-            builder.append(components[i]).append(' ');
+        for (int i = start; i < this.components.length; i++) {
+            builder.append(this.components[i]).append(' ');
         }
 
-        builder.append(message);
+        builder.append(this.message);
         return builder.toString();
     }
 }

@@ -68,7 +68,7 @@ public class TridentConfig extends TridentConfigSection implements Config {
 
     @Override
     public File file() {
-        return path.toFile();
+        return this.path.toFile();
     }
 
     @Override
@@ -78,7 +78,7 @@ public class TridentConfig extends TridentConfigSection implements Config {
 
     @Override
     public File directory() {
-        return path.getParent().toFile();
+        return this.path.getParent().toFile();
     }
 
     @Override
@@ -94,12 +94,12 @@ public class TridentConfig extends TridentConfigSection implements Config {
     @Override
     public void load() throws IOException {
         JsonObject object = ConfigIo.readConfig(this.path);
-        read(object);
+        this.read(object);
     }
 
     @Override
     public void save() throws IOException {
-        JsonObject object = write();
+        JsonObject object = this.write();
         ConfigIo.writeConfig(this.path, object);
     }
 }

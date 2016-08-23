@@ -14,26 +14,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.tridentsdk.server.net;
+package net.tridentsdk.server.packet.status;
 
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelPipeline;
-import io.netty.channel.socket.SocketChannel;
-
-import javax.annotation.concurrent.Immutable;
+import net.tridentsdk.server.net.NetPayload;
+import net.tridentsdk.server.packet.PacketOut;
 
 /**
- * Channel initializers register channel handlers to handle
- * incoming connections and packets, as well as handle
- * output.
+ * Server response to {@link StatusInPing}.
  */
-@Immutable
-public class NetChannelInit extends ChannelInitializer<SocketChannel> {
-    @Override
-    protected void initChannel(SocketChannel socketChannel) throws Exception {
-        ChannelPipeline pipe = socketChannel.pipeline();
+public class StatusOutPong extends PacketOut {
+    /**
+     * The time that was sent by the ping packet
+     */
+    private final long time;
 
-        pipe.addLast(new InDecoder());
-        pipe.addLast(new OutEncoder());
+    public StatusOutPong(long time) {
+        super(StatusOutPong.class);
+        this.time = time;
+    }
+
+    @Override
+    public void write(NetPayload payload) {
+        // Schema:
+        // long:time
+        // fucking mojang won't make up their mind with
+        // varlong and long and bs like that
+        payload.writeLong(this.time);
     }
 }

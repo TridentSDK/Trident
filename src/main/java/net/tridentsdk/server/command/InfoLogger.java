@@ -16,19 +16,17 @@
  */
 package net.tridentsdk.server.command;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import com.google.common.collect.Maps;
 import net.tridentsdk.command.logger.Logger;
+import net.tridentsdk.doc.Policy;
 
-import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 import java.io.OutputStream;
-import java.io.PrintStream;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.TextStyle;
-import java.util.concurrent.ExecutionException;
+import java.util.Map;
 
 import static java.time.temporal.ChronoField.*;
 
@@ -38,6 +36,7 @@ import static java.time.temporal.ChronoField.*;
  * information such as date and time and the logger name to
  * the message logged to the logger.
  */
+@Policy("not pipelined")
 @ThreadSafe
 public class InfoLogger extends LoggerHandlers implements Logger {
     /**
@@ -63,24 +62,14 @@ public class InfoLogger extends LoggerHandlers implements Logger {
     /**
      * The logger cache
      */
-    private static final Cache<String, InfoLogger> CACHE =
-            CacheBuilder.newBuilder().build();
+    private static final Map<String, InfoLogger> CACHE =
+            Maps.newConcurrentMap();
 
     // logger level constants
     private static final String INFO = "INFO";
     private static final String WARN = "WARN";
     private static final String ERROR = "ERROR";
     private static final String DEBUG = "DEBUG";
-
-    /**
-     * The lock that guards the given last partial write
-     */
-    private static final Object lock = new Object();
-    /**
-     * The last logger to use the partial write method
-     */
-    @GuardedBy("lock")
-    private static Logger p = null;
 
     /**
      * The top logger in the pipeline
@@ -90,10 +79,6 @@ public class InfoLogger extends LoggerHandlers implements Logger {
      * The name of this logger
      */
     private final String name;
-    /**
-     * Underlying stream prevents a full pipeline read
-     */
-    private final PrintStream underlying;
 
     /**
      * Creates a new logger handler interceptor with the
@@ -105,7 +90,6 @@ public class InfoLogger extends LoggerHandlers implements Logger {
         super(null);
         this.next = next;
         this.name = name;
-        this.underlying = (PrintStream) next.out();
     }
 
     /**
@@ -116,11 +100,7 @@ public class InfoLogger extends LoggerHandlers implements Logger {
      * @return a cached logger, or a new one
      */
     public static Logger get(PipelinedLogger next, String name) {
-        try {
-            return CACHE.get(name, () -> new InfoLogger(next, name));
-        } catch (ExecutionException e) {
-            throw new RuntimeException(e);
-        }
+        return CACHE.computeIfAbsent(name, (k) -> new InfoLogger(next, name));
     }
 
     /**
@@ -130,106 +110,42 @@ public class InfoLogger extends LoggerHandlers implements Logger {
         ZonedDateTime time = ZonedDateTime.now();
         String[] components = new String[]{time.format(DATE_FORMAT),
                 time.format(TIME_FORMAT),
-                "[" + name + "/" + level + "]"};
-        boolean noInfo = false;
-
-        synchronized (lock) {
-            // if the last partial output was this, then it
-            // will be printed on the same line
-            if (p == this) {
-                noInfo = true;
-                // otherwise, if it is another logger, then we
-                // log the message as if the last one wasn't
-                // partial in order to allow server owners to
-                // see what time the operation completed
-            } else if (p != null) {
-                underlying.println();
-            }
-
-            // null the last partial message as this is a
-            // full message
-            p = null;
-        }
-
-        return super.handle(new LogMessageImpl(this, components, s, time, noInfo));
-    }
-
-    /**
-     * Handles partial messages
-     */
-    private LogMessageImpl handlep(String level, String s) {
-        synchronized (lock) {
-            // if the last message was sent by another
-            // logger, then we print this partial one on
-            // another line
-            if (p != null && p != this) {
-                underlying.println();
-            }
-
-            // set the last partial message to this logger
-            p = this;
-        }
-
-        ZonedDateTime time = ZonedDateTime.now();
-        String[] components = new String[]{time.format(DATE_FORMAT),
-                time.format(TIME_FORMAT),
-                "[" + name + "/" + level + "]"};
-        LogMessageImpl message = new LogMessageImpl(this, components, s, time, false);
-        return super.handle(message);
+                "[" + this.name + "/" + level + "]"};
+        return super.handle(new LogMessageImpl(this, components, s, time));
     }
 
     @Override
     public String name() {
-        return name;
+        return this.name;
     }
 
     @Override
     public void log(String s) {
-        next.log(handle(INFO, s));
-    }
-
-    @Override
-    public void logp(String s) {
-        next.logp(handlep(INFO, s));
+        this.next.log(this.handle(INFO, s));
     }
 
     @Override
     public void success(String s) {
-        next.success(handle(INFO, s));
-    }
-
-    @Override
-    public void successp(String s) {
-        next.successp(handlep(INFO, s));
+        this.next.success(this.handle(INFO, s));
     }
 
     @Override
     public void warn(String s) {
-        next.warn(handle(WARN, s));
-    }
-
-    @Override
-    public void warnp(String s) {
-        next.warnp(handlep(WARN, s));
+        this.next.warn(this.handle(WARN, s));
     }
 
     @Override
     public void error(String s) {
-        next.error(handle(ERROR, s));
-    }
-
-    @Override
-    public void errorp(String s) {
-        next.errorp(handlep(ERROR, s));
+        this.next.error(this.handle(ERROR, s));
     }
 
     @Override
     public void debug(String s) {
-        next.debug(handle(DEBUG, s));
+        this.next.debug(this.handle(DEBUG, s));
     }
 
     @Override
     public OutputStream out() {
-        return next.out();
+        return this.next.out();
     }
 }

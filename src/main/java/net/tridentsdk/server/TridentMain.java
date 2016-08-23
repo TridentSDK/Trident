@@ -76,12 +76,12 @@ public class TridentMain {
         logger.log("Checking for server files: server.json");
         if (!Files.exists(ServerConfig.PATH)) {
             logger.warn("File \"server.json\" not present");
-            logger.logp("Creating one for you... ");
+            logger.log("Creating one for you... ");
             ConfigIo.exportResource(ServerConfig.PATH, "/server.json");
             logger.success("Done.");
         }
 
-        logger.logp("Reading server.json... ");
+        logger.log("Reading server.json... ");
         ServerConfig config = ServerConfig.init();
         logger.success("Done.");
         // -------------------------------------------------
@@ -90,14 +90,18 @@ public class TridentMain {
         NetServer server = NetServer.init(config);
         // -------------------------------------------------
 
-        logger.logp("Setting up the server... ");
+        logger.log("Setting up the server... ");
         TridentServer.init(config, logger, server);
         logger.success("Done.");
 
         // Setup API implementations -----------------------
-        logger.logp("Setting up API implementation providers... ");
+        logger.log("Setting up API implementation providers... ");
         Impl.setImpl(new ImplementationProvider(internal));
         logger.success("Done.");
+        // -------------------------------------------------
+
+        // Load worlds -------------------------------------
+        // TODO figure out what the API looks like
         // -------------------------------------------------
 
         // Setup netty and other network crap --------------

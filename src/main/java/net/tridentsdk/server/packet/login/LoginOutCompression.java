@@ -14,26 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.tridentsdk.server.net;
+package net.tridentsdk.server.packet.login;
 
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelPipeline;
-import io.netty.channel.socket.SocketChannel;
-
-import javax.annotation.concurrent.Immutable;
+import net.tridentsdk.server.TridentServer;
+import net.tridentsdk.server.net.NetPayload;
+import net.tridentsdk.server.packet.PacketOut;
 
 /**
- * Channel initializers register channel handlers to handle
- * incoming connections and packets, as well as handle
- * output.
+ * Indicates to the client that the server requests to
+ * compress packets.
  */
-@Immutable
-public class NetChannelInit extends ChannelInitializer<SocketChannel> {
-    @Override
-    protected void initChannel(SocketChannel socketChannel) throws Exception {
-        ChannelPipeline pipe = socketChannel.pipeline();
+public class LoginOutCompression extends PacketOut {
+    public LoginOutCompression() {
+        super(LoginOutCompression.class);
+    }
 
-        pipe.addLast(new InDecoder());
-        pipe.addLast(new OutEncoder());
+    @Override
+    public void write(NetPayload payload) {
+        payload.writeVInt(TridentServer.cfg().compressionThresh());
     }
 }

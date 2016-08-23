@@ -89,20 +89,12 @@ public abstract class PipelinedLogger {
     public abstract LogMessageImpl handle(LogMessageImpl msg);
 
     /**
-     * Handles partial messages.
-     *
-     * @param msg the message
-     * @return the same partial message
-     */
-    public abstract LogMessageImpl handlep(LogMessageImpl msg);
-
-    /**
      * Obtains the next logger in the pipeline.
      *
      * @return the next logger
      */
     public PipelinedLogger next() {
-        return next;
+        return this.next;
     }
 
     /**
@@ -112,17 +104,7 @@ public abstract class PipelinedLogger {
      */
     public void log(LogMessageImpl msg) {
         if (msg == null) return;
-        next.log(handle(msg));
-    }
-
-    /**
-     * Logs a message without terminating the line
-     *
-     * @param msg the message
-     */
-    public void logp(LogMessageImpl msg) {
-        if (msg == null) return;
-        next.logp(handlep(msg));
+        this.next.log(this.handle(msg));
     }
 
     /**
@@ -132,17 +114,7 @@ public abstract class PipelinedLogger {
      */
     public void success(LogMessageImpl msg) {
         if (msg == null) return;
-        next.success(handle(msg));
-    }
-
-    /**
-     * Logs a message without terminating the line
-     *
-     * @param msg the message
-     */
-    public void successp(LogMessageImpl msg) {
-        if (msg == null) return;
-        next.successp(handlep(msg));
+        this.next.success(this.handle(msg));
     }
 
     /**
@@ -152,17 +124,7 @@ public abstract class PipelinedLogger {
      */
     public void warn(LogMessageImpl msg) {
         if (msg == null) return;
-        next.warn(handle(msg));
-    }
-
-    /**
-     * Logs a message without terminating the line
-     *
-     * @param msg the message
-     */
-    public void warnp(LogMessageImpl msg) {
-        if (msg == null) return;
-        next.warnp(handlep(msg));
+        this.next.warn(this.handle(msg));
     }
 
     /**
@@ -172,17 +134,7 @@ public abstract class PipelinedLogger {
      */
     public void error(LogMessageImpl msg) {
         if (msg == null) return;
-        next.error(handle(msg));
-    }
-
-    /**
-     * Logs a message without terminating the line
-     *
-     * @param msg the message
-     */
-    public void errorp(LogMessageImpl msg) {
-        if (msg == null) return;
-        next.errorp(handlep(msg));
+        this.next.error(this.handle(msg));
     }
 
     /**
@@ -192,7 +144,7 @@ public abstract class PipelinedLogger {
      */
     public void debug(LogMessageImpl msg) {
         if (msg == null) return;
-        next.debug(handle(msg));
+        this.next.debug(this.handle(msg));
     }
 
     /**
@@ -201,6 +153,6 @@ public abstract class PipelinedLogger {
      * @return the output
      */
     public OutputStream out() {
-        return next.out();
+        return this.next.out();
     }
 }

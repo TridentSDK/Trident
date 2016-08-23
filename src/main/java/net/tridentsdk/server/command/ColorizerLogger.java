@@ -52,65 +52,37 @@ public class ColorizerLogger extends PipelinedLogger {
         return null;
     }
 
-    @Override
-    public LogMessageImpl handlep(LogMessageImpl msg) {
-        return null;
-    }
-
     /**
      * Shorthand method for handling the input message to
      * log.
      */
     private LogMessageImpl handle(String color, LogMessageImpl msg) {
-        return new LogMessageImpl(msg.source(),
-                msg.components(),
-                color + msg.message() + RESET,
-                msg.time(),
-                msg.noInfo());
+        msg.setMessage(color + msg.message() + RESET);
+        return msg;
     }
 
     @Override
     public void log(LogMessageImpl msg) {
-        next.log(msg);
-    }
-
-    @Override
-    public void logp(LogMessageImpl msg) {
-        next.logp(msg);
+        this.next.log(msg);
     }
 
     @Override
     public void success(LogMessageImpl msg) {
-        next.success(handle(GREEN, msg));
-    }
-
-    @Override
-    public void successp(LogMessageImpl msg) {
-        next.successp(handle(GREEN, msg));
+        this.next.success(this.handle(GREEN, msg));
     }
 
     @Override
     public void warn(LogMessageImpl msg) {
-        next.warn(handle(YELLOW, msg));
-    }
-
-    @Override
-    public void warnp(LogMessageImpl msg) {
-        next.warnp(handle(YELLOW, msg));
+        this.next.warn(this.handle(YELLOW, msg));
     }
 
     @Override
     public void error(LogMessageImpl msg) {
-        next.error(handle(RED, msg));
-    }
-
-    @Override
-    public void errorp(LogMessageImpl msg) {
-        next.errorp(handle(RED, msg));
+        this.next.error(this.handle(RED, msg));
     }
 
     @Override
     public void debug(LogMessageImpl msg) {
-        next.debug(handle(WHITE, msg));
+        this.next.debug(this.handle(WHITE, msg));
     }
 }

@@ -42,7 +42,7 @@ public class TridentConfigSection implements ConfigSection {
      *
      * <p>Use this for regex splits only</p>
      */
-    private static final String SECTION_SEPARATOR = Pattern.quote(".");
+    private static final String SECTION_SEPARATOR = Pattern.quote(SEPARATOR_LITERAL);
 
     // One map holds the elements of this section, while the
     // other holds references to the children of this
@@ -60,7 +60,7 @@ public class TridentConfigSection implements ConfigSection {
 
         // funky code because we need to make sure all the
         // elements remain in insertion order
-        elements.forEach((k, v) -> {
+        this.elements.forEach((k, v) -> {
             if (v instanceof ConfigSection) {
                 TridentConfigSection section = (TridentConfigSection) v;
                 object.add(k, section.write());
@@ -84,10 +84,10 @@ public class TridentConfigSection implements ConfigSection {
             // special handling for json objects which are
             // config sections
             if (value.isJsonObject()) {
-                TridentConfigSection section = createChild0(key, object);
+                TridentConfigSection section = this.createChild0(key, object);
                 section.read(value.getAsJsonObject());
             } else {
-                elements.put(key, ConfigIo.asObj(value, TridentAdapter.class));
+                this.elements.put(key, ConfigIo.asObj(value, TridentAdapter.class));
             }
         });
     }
@@ -111,7 +111,8 @@ public class TridentConfigSection implements ConfigSection {
 
     /**
      * Creates a new config section.
-     *  @param name   the name of the new config section
+     *
+     * @param name   the name of the new config section
      * @param parent the parent of the child section
      * @param root   the root section
      * @param object the
@@ -155,7 +156,7 @@ public class TridentConfigSection implements ConfigSection {
     @Nonnull
     @Override
     public ConfigSection getChild(String key) {
-        return findSection(key.split(SECTION_SEPARATOR), false);
+        return this.findSection(key.split(SECTION_SEPARATOR), false);
     }
 
     @Override
@@ -163,7 +164,7 @@ public class TridentConfigSection implements ConfigSection {
         String[] split = key.split(SECTION_SEPARATOR);
         String finalKey = split.length > 0 ? split[split.length - 1] : key;
 
-        TridentConfigSection parent = findSection(split, true);
+        TridentConfigSection parent = this.findSection(split, true);
         return parent.elements.remove(finalKey) != null;
     }
 
@@ -183,39 +184,39 @@ public class TridentConfigSection implements ConfigSection {
     @Override
     public Set<ConfigSection> children(boolean deep) {
         Set<ConfigSection> set = Sets.newLinkedHashSet();
-        children0(set, deep);
-        return set;
+        this.children0(set, deep);
+        return Collections.unmodifiableSet(set);
     }
 
     @Override
     public Set<String> keys(boolean deep) {
         Set<String> set = Sets.newLinkedHashSet();
-        iterate("", set, (s, e) -> handlePath(s, e.getKey()), deep);
-        return set;
+        this.iterate("", set, (s, e) -> this.handlePath(s, e.getKey()), deep);
+        return Collections.unmodifiableSet(set);
     }
 
     @Override
     public Collection<Object> values(boolean deep) {
         LinkedList<Object> list = Lists.newLinkedList();
-        iterate("", list, (s, e) -> e.getValue(), deep);
-        return list;
+        this.iterate("", list, (s, e) -> e.getValue(), deep);
+        return Collections.unmodifiableCollection(list);
     }
 
     @Override
     public Set<Map.Entry<String, Object>> entries(boolean deep) {
         Set<Map.Entry<String, Object>> set = Sets.newLinkedHashSet();
-        iterate("", set, this::concatKey, deep);
-        return set;
+        this.iterate("", set, this::concatKey, deep);
+        return Collections.unmodifiableSet(set);
     }
 
     @Override
     public Object get(String key) {
-        return getElement(key);
+        return this.getElement(key);
     }
 
     @Override
     public <T> T get(String key, Class<T> type) {
-        Object element = getElement(key);
+        Object element = this.getElement(key);
         // fast path return for types that don't need
         // special handling
         if (!(element instanceof ConfigSection)) {
@@ -246,109 +247,109 @@ public class TridentConfigSection implements ConfigSection {
     public boolean remove(String key) {
         String[] split = key.split(SECTION_SEPARATOR);
         String finalKey = split.length == 0 ? key : split[split.length - 1];
-        TridentConfigSection section = findSection(split, true);
+        TridentConfigSection section = this.findSection(split, true);
         return section.elements.remove(finalKey) != null;
     }
 
     @Override
     public boolean has(String key) {
-        return elements.containsKey(key);
+        return this.elements.containsKey(key);
     }
 
     @Override
     public int getInt(String key) {
-        return get(key, Number.class).intValue();
+        return this.get(key, Number.class).intValue();
     }
 
     @Override
     public void setInt(String key, int value) {
-        set(key, value);
+        this.set(key, value);
     }
 
     @Override
     public short getShort(String key) {
-        return get(key, Number.class).shortValue();
+        return this.get(key, Number.class).shortValue();
     }
 
     @Override
     public void setShort(String key, short value) {
-        set(key, value);
+        this.set(key, value);
     }
 
     @Override
     public long getLong(String key) {
-        return get(key, Number.class).longValue();
+        return this.get(key, Number.class).longValue();
     }
 
     @Override
     public void setLong(String key, long value) {
-        set(key, value);
+        this.set(key, value);
     }
 
     @Override
     public byte getByte(String key) {
-        return get(key, Number.class).byteValue();
+        return this.get(key, Number.class).byteValue();
     }
 
     @Override
     public void setByte(String key, byte value) {
-        set(key, value);
+        this.set(key, value);
     }
 
     @Override
     public float getFloat(String key) {
-        return get(key, Number.class).floatValue();
+        return this.get(key, Number.class).floatValue();
     }
 
     @Override
     public void setFloat(String key, float value) {
-        set(key, value);
+        this.set(key, value);
     }
 
     @Override
     public double getDouble(String key) {
-        return get(key, Number.class).doubleValue();
+        return this.get(key, Number.class).doubleValue();
     }
 
     @Override
     public void setDouble(String key, double value) {
-        set(key, value);
+        this.set(key, value);
     }
 
     @Override
     public char getChar(String key) {
-        return (char) getElement(key);
+        return (char) this.getElement(key);
     }
 
     @Override
     public void setChar(String key, char value) {
-        set(key, value);
+        this.set(key, value);
     }
 
     @Override
     public boolean getBoolean(String key) {
-        return (boolean) getElement(key);
+        return (boolean) this.getElement(key);
     }
 
     @Override
     public void setBoolean(String key, boolean value) {
-        set(key, value);
+        this.set(key, value);
     }
 
     @Nonnull
     @Override
     public String getString(String key) {
-        return (String) getElement(key);
+        return (String) this.getElement(key);
     }
 
     @Override
     public void setString(String key, String value) {
-        set(key, value);
+        this.set(key, value);
     }
 
     @Override
     public <T, C extends Collection<T>> void getCollection(String key, C collection) {
-        Object o = getElement(key);
+        Object o = this.getElement(key);
         if (o instanceof Collection) {
             collection.addAll((Collection) o);
             return;
@@ -372,7 +373,7 @@ public class TridentConfigSection implements ConfigSection {
      * children
      */
     private void children0(Collection<ConfigSection> col, boolean deep) {
-        elements.values().stream()
+        this.elements.values().stream()
                 .filter(o -> o instanceof ConfigSection)
                 .map(o -> (TridentConfigSection) o)
                 .forEach(cs -> {
@@ -395,13 +396,13 @@ public class TridentConfigSection implements ConfigSection {
      * @param <T> the type appended to the collection
      */
     private <T> void iterate(String base, Collection<T> col, BiFunction<String, Map.Entry<String, Object>, T> function, boolean deep) {
-        elements.entrySet().stream()
+        this.elements.entrySet().stream()
                 .forEach(e -> {
                     Object val = e.getValue();
                     if (deep) {
                         if (val instanceof ConfigSection) {
                             TridentConfigSection section = (TridentConfigSection) val;
-                            section.iterate(handlePath(base, section.name), col, function, true);
+                            section.iterate(this.handlePath(base, section.name), col, function, true);
                             return;
                         }
                     }
@@ -422,11 +423,19 @@ public class TridentConfigSection implements ConfigSection {
      * @return the created section
      */
     private TridentConfigSection createChild0(String name, JsonObject object) {
-        TridentConfigSection section = new TridentConfigSection(name, this, root(), object);
-        elements.put(name, section);
+        TridentConfigSection section = new TridentConfigSection(name, this, this.root(), object);
+        this.elements.put(name, section);
         return section;
     }
 
+    /**
+     * Handles whether or not to append the current path to
+     * the base path for relative keys.
+     *
+     * @param path the base path
+     * @param cur the current path
+     * @return the path
+     */
     private String handlePath(String path, String cur) {
         if (path.isEmpty()) return cur;
         return path + SEPARATOR_LITERAL + cur;
@@ -455,7 +464,7 @@ public class TridentConfigSection implements ConfigSection {
                 section = (TridentConfigSection) o;
             }
         } else if (!hasValue) {
-            return (TridentConfigSection) elements.get(split[0]);
+            return (TridentConfigSection) this.elements.get(split[0]);
         }
 
         return section;
@@ -472,7 +481,7 @@ public class TridentConfigSection implements ConfigSection {
         String[] split = key.split(SECTION_SEPARATOR);
         String finalKey = key;
 
-        TridentConfigSection section = findSection(split, true);
+        TridentConfigSection section = this.findSection(split, true);
         if (section != this) {
             finalKey = split[split.length - 1];
         }
@@ -502,7 +511,7 @@ public class TridentConfigSection implements ConfigSection {
         return new Map.Entry<String, Object>() {
             @Override
             public String getKey() {
-                return handlePath(s, entry.getKey());
+                return TridentConfigSection.this.handlePath(s, entry.getKey());
             }
 
             @Override

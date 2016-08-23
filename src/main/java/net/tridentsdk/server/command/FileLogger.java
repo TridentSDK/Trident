@@ -56,7 +56,7 @@ public class FileLogger extends PipelinedLogger {
     /**
      * The index separator for the
      */
-    public static final String IDX_SEPARATOR = Pattern.quote(".");
+    private static final String IDX_SEPARATOR = Pattern.quote(".");
 
     /**
      * The file writer
@@ -123,21 +123,7 @@ public class FileLogger extends PipelinedLogger {
 
     @Override
     public LogMessageImpl handle(LogMessageImpl msg) {
-        Writer out = check();
-
-        try {
-            out.write(msg.format(0));
-            out.write(LINE_SEP);
-            out.flush();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        return msg;
-    }
-
-    @Override
-    public LogMessageImpl handlep(LogMessageImpl msg) {
-        Writer out = check();
+        Writer out = this.check();
 
         try {
             out.write(msg.format(0));
@@ -154,22 +140,22 @@ public class FileLogger extends PipelinedLogger {
      *
      * @return the writer, including if it was updated
      */
-    public Writer check() {
+    private Writer check() {
         if (ThreadLocalRandom.current().nextInt(50) == 1) {
-            synchronized (lock) {
+            synchronized (this.lock) {
                 try {
-                    if (Files.size(current) > MAX_LEN) {
-                        makeNewLog(current);
+                    if (Files.size(this.current) > MAX_LEN) {
+                        this.makeNewLog(this.current);
                     }
 
-                    return out;
+                    return this.out;
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
             }
         } else {
-            synchronized (lock) {
-                return out;
+            synchronized (this.lock) {
+                return this.out;
             }
         }
     }
@@ -181,10 +167,10 @@ public class FileLogger extends PipelinedLogger {
      * @throws IOException if something dumb went wrong
      */
     @Policy("holds lock")
-    public void makeNewLog(Path last) throws IOException {
+    private void makeNewLog(Path last) throws IOException {
         String[] split = last.toFile().getName().split(IDX_SEPARATOR);
         int curIdx = Integer.parseInt(split[1]) + 1;
-        makeNewLog(curIdx);
+        this.makeNewLog(curIdx);
     }
 
     /**
@@ -194,11 +180,11 @@ public class FileLogger extends PipelinedLogger {
      * @throws IOException if something dumb went wrong
      */
     @Policy("holds lock")
-    public void makeNewLog(int idx) throws IOException {
+    private void makeNewLog(int idx) throws IOException {
         Path path = DIR.resolve("log." + idx + ".log");
         Files.createFile(path);
 
-        current = path;
-        out = new FileWriter(path.toFile());
+        this.current = path;
+        this.out = new FileWriter(path.toFile());
     }
 }

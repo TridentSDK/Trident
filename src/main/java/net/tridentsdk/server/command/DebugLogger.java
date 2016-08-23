@@ -40,11 +40,6 @@ class NoDebugLogger extends PipelinedLogger {
     }
 
     @Override
-    public LogMessageImpl handlep(LogMessageImpl msg) {
-        return msg;
-    }
-
-    @Override
     public void debug(LogMessageImpl msg) {
         // No-op
     }
@@ -91,11 +86,6 @@ public class DebugLogger extends PipelinedLogger {
 
     @Override
     public LogMessageImpl handle(LogMessageImpl msg) {
-        return msg;
-    }
-
-    @Override
-    public LogMessageImpl handlep(LogMessageImpl msg) {
         return msg;
     }
 }

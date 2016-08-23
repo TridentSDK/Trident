@@ -68,7 +68,7 @@ public class TridentAdapter extends TypeAdapter<Object> {
             return;
         }
 
-        TypeAdapter<Object> typeAdapter = (TypeAdapter<Object>) gson.getAdapter(value.getClass());
+        TypeAdapter<Object> typeAdapter = (TypeAdapter<Object>) this.gson.getAdapter(value.getClass());
         if (typeAdapter instanceof ObjectTypeAdapter) {
             out.beginObject();
             out.endObject();
@@ -86,7 +86,7 @@ public class TridentAdapter extends TypeAdapter<Object> {
                 List<Object> list = new ArrayList<>();
                 in.beginArray();
                 while (in.hasNext()) {
-                    list.add(read(in));
+                    list.add(this.read(in));
                 }
                 in.endArray();
                 return list;
@@ -96,10 +96,10 @@ public class TridentAdapter extends TypeAdapter<Object> {
                 in.beginObject();
                 while (in.hasNext()) {
                     String key = in.nextName();
-                    Object value = read(in);
+                    Object value = this.read(in);
                     if (key.equals("$T_INTERNAL_DECODER$")) {
                         try {
-                            return gson.getAdapter(Class.forName((String) value)).read(in);
+                            return this.gson.getAdapter(Class.forName((String) value)).read(in);
                         } catch (ClassNotFoundException e) {
                             throw new RuntimeException(e);
                         }

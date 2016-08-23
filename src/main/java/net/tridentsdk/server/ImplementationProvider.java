@@ -53,7 +53,7 @@ public class ImplementationProvider implements Impl.ImplementationProvider {
                 return;
             }
         }
-        handlers = null;
+        this.handlers = null;
     }
 
     @Override
@@ -68,13 +68,13 @@ public class ImplementationProvider implements Impl.ImplementationProvider {
 
     @Override
     public Logger newLogger(String s) {
-        return InfoLogger.get(head, s);
+        return InfoLogger.get(this.head, s);
     }
 
     @Override
     public void attachHandler(Logger logger, LogHandler handler) {
         if (logger == null) {
-            handlers.handlers().add(handler);
+            this.handlers.handlers().add(handler);
         } else {
             ((InfoLogger) logger).handlers().add(handler);
         }
@@ -83,7 +83,7 @@ public class ImplementationProvider implements Impl.ImplementationProvider {
     @Override
     public boolean removeHandler(Logger logger, LogHandler handler) {
         if (logger == null) {
-            return handlers.handlers().remove(handler);
+            return this.handlers.handlers().remove(handler);
         } else {
             InfoLogger info = (InfoLogger) logger;
             return info.handlers().remove(handler);

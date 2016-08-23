@@ -33,7 +33,7 @@ public final class ConfigIo {
     /**
      * Gson object using readability settings
      */
-    private static final Gson GSON = new GsonBuilder()
+    public static final Gson GSON = new GsonBuilder()
             .registerTypeAdapterFactory(TridentAdapter.FACTORY)
             .serializeNulls()
             .setPrettyPrinting()
@@ -42,7 +42,7 @@ public final class ConfigIo {
     /**
      * JsonParser for straight reading the configs
      */
-    private static final JsonParser PARSER = new JsonParser();
+    public static final JsonParser PARSER = new JsonParser();
 
     /**
      * Exports the given resource and copies it into the

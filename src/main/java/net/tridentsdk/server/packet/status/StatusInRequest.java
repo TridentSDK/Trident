@@ -14,26 +14,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.tridentsdk.server.net;
+package net.tridentsdk.server.packet.status;
 
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelPipeline;
-import io.netty.channel.socket.SocketChannel;
-
-import javax.annotation.concurrent.Immutable;
+import net.tridentsdk.server.net.NetClient;
+import net.tridentsdk.server.net.NetPayload;
+import net.tridentsdk.server.packet.PacketIn;
 
 /**
- * Channel initializers register channel handlers to handle
- * incoming connections and packets, as well as handle
- * output.
+ * This packet represents a status request that is sent
+ * when
+ * the server is pinged and after the server receives a
+ * handshake packet with a next status set to 1.
  */
-@Immutable
-public class NetChannelInit extends ChannelInitializer<SocketChannel> {
-    @Override
-    protected void initChannel(SocketChannel socketChannel) throws Exception {
-        ChannelPipeline pipe = socketChannel.pipeline();
+public class StatusInRequest extends PacketIn {
+    public StatusInRequest() {
+        super(StatusInRequest.class);
+    }
 
-        pipe.addLast(new InDecoder());
-        pipe.addLast(new OutEncoder());
+    @Override
+    public void read(NetPayload payload, NetClient sender) {
+        // Schema: nothing
+        sender.sendPacket(new StatusOutResponse());
     }
 }

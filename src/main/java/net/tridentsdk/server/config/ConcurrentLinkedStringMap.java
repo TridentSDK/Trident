@@ -41,14 +41,20 @@ import java.util.function.BiConsumer;
  */
 @ThreadSafe
 public class ConcurrentLinkedStringMap<V> {
+    /**
+     * The lock which protects the map
+     */
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
+    /**
+     * The underlying map
+     */
     private final LinkedHashMap<String, V> map = Maps.newLinkedHashMap();
 
     public void put(String key, V value) {
         Lock lock = this.lock.writeLock();
         lock.lock();
         try {
-            map.put(key, value);
+            this.map.put(key, value);
         } finally {
             lock.unlock();
         }
@@ -58,7 +64,7 @@ public class ConcurrentLinkedStringMap<V> {
         Lock lock = this.lock.writeLock();
         lock.lock();
         try {
-            return map.remove(key);
+            return this.map.remove(key);
         } finally {
             lock.unlock();
         }
@@ -68,7 +74,7 @@ public class ConcurrentLinkedStringMap<V> {
         Lock lock = this.lock.readLock();
         lock.lock();
         try {
-            return map.get(key);
+            return this.map.get(key);
         } finally {
             lock.unlock();
         }
@@ -78,7 +84,7 @@ public class ConcurrentLinkedStringMap<V> {
         Lock lock = this.lock.readLock();
         lock.lock();
         try {
-            return map.containsKey(key);
+            return this.map.containsKey(key);
         } finally {
             lock.unlock();
         }
@@ -88,7 +94,7 @@ public class ConcurrentLinkedStringMap<V> {
         Lock lock = this.lock.readLock();
         lock.lock();
         try {
-            return map.keySet();
+            return this.map.keySet();
         } finally {
             lock.unlock();
         }
@@ -98,7 +104,7 @@ public class ConcurrentLinkedStringMap<V> {
         Lock lock = this.lock.readLock();
         lock.lock();
         try {
-            return map.values();
+            return this.map.values();
         } finally {
             lock.unlock();
         }
@@ -108,7 +114,7 @@ public class ConcurrentLinkedStringMap<V> {
         Lock lock = this.lock.readLock();
         lock.lock();
         try {
-            map.forEach(consumer);
+            this.map.forEach(consumer);
         } finally {
             lock.unlock();
         }
@@ -118,7 +124,7 @@ public class ConcurrentLinkedStringMap<V> {
         Lock lock = this.lock.readLock();
         lock.lock();
         try {
-            return map.entrySet();
+            return this.map.entrySet();
         } finally {
             lock.unlock();
         }

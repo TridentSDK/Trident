@@ -41,19 +41,19 @@ public class NetNioServer extends NetServer {
     @Override
     public void setup() throws InterruptedException {
         ServerBootstrap b = new ServerBootstrap();
-        b.group(bossGroup, workerGroup)
+        b.group(this.bossGroup, this.workerGroup)
                 .channel(NioServerSocketChannel.class)
                 .childHandler(new NetChannelInit())
                 .option(ChannelOption.SO_BACKLOG, 128)
                 .childOption(ChannelOption.SO_KEEPALIVE, true);
-        ChannelFuture future = b.bind(ip(), port()).sync();
+        ChannelFuture future = b.bind(this.ip(), this.port()).sync();
 
         future.channel().closeFuture().sync();
     }
 
     @Override
     public void shutdown() throws InterruptedException {
-        bossGroup.shutdownGracefully().await();
-        workerGroup.shutdownGracefully().await();
+        this.bossGroup.shutdownGracefully().await();
+        this.workerGroup.shutdownGracefully().await();
     }
 }

@@ -34,7 +34,7 @@ public class DefaultLogger extends PipelinedLogger {
     /**
      * The underlying stream that to which output is passed
      */
-    private final PrintStream stream = System.out;
+    private final PrintStream stream;
 
     /**
      * Creates a new logger that prints messages to the out
@@ -42,6 +42,13 @@ public class DefaultLogger extends PipelinedLogger {
      */
     public DefaultLogger() {
         super(null);
+        this.stream = new PrintStream(System.out) {
+            @Override
+            public void println(String line) {
+                super.println("\r" + line);
+                super.print("$ ");
+            }
+        };
     }
 
     @Override
@@ -50,57 +57,32 @@ public class DefaultLogger extends PipelinedLogger {
     }
 
     @Override
-    public LogMessageImpl handlep(LogMessageImpl msg) {
-        return null;
-    }
-
-    @Override
     public void log(LogMessageImpl msg) {
-        System.out.println(msg.format(1));
-    }
-
-    @Override
-    public void logp(LogMessageImpl msg) {
-        System.out.print(msg.format(1));
+        this.stream.println(msg.format(1));
     }
 
     @Override
     public void success(LogMessageImpl msg) {
-        System.out.println(msg.format(1));
-    }
-
-    @Override
-    public void successp(LogMessageImpl msg) {
-        System.out.print(msg.format(1));
+        this.stream.println(msg.format(1));
     }
 
     @Override
     public void warn(LogMessageImpl msg) {
-        System.out.println(msg.format(1));
-    }
-
-    @Override
-    public void warnp(LogMessageImpl msg) {
-        System.out.print(msg.format(1));
+        this.stream.println(msg.format(1));
     }
 
     @Override
     public void error(LogMessageImpl msg) {
-        System.out.println(msg.format(1));
-    }
-
-    @Override
-    public void errorp(LogMessageImpl msg) {
-        System.out.print(msg.format(1));
+        this.stream.println(msg.format(1));
     }
 
     @Override
     public void debug(LogMessageImpl msg) {
-        System.out.println(msg.format(1));
+        this.stream.println(msg.format(1));
     }
 
     @Override
     public OutputStream out() {
-        return stream;
+        return this.stream;
     }
 }

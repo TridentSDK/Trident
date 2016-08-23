@@ -27,15 +27,33 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 public abstract class NetServer {
     // TODO configure boss/worker threads for netserver
+    // TODO what the fuck should we use for channel opts
 
+    /**
+     * The server IP
+     */
     private final String ip;
+    /**
+     * The server port
+     */
     private final int port;
 
+    /**
+     * The net server superconstructor
+     */
     NetServer(String ip, int port) {
         this.ip = ip;
         this.port = port;
     }
 
+    /**
+     * Initializer code for server startup.
+     *
+     * @param config the config which to pull information
+     * @return the new server net handler
+     * @throws InterruptedException if something went
+     * horribly wrong
+     */
     public static NetServer init(ServerConfig config) throws InterruptedException {
         boolean nativeCompat = System.getProperty("os.name").toLowerCase().contains("linux");
         String ip = config.ip();
@@ -45,15 +63,35 @@ public abstract class NetServer {
                 new NetEpollServer(ip, port) : new NetNioServer(ip, port);
     }
 
+    /**
+     * Sets up the server.
+     *
+     * @throws InterruptedException no
+     */
     public abstract void setup() throws InterruptedException;
 
+    /**
+     * Shuts down the server.
+     *
+     * @throws InterruptedException no
+     */
     public abstract void shutdown() throws InterruptedException;
 
-    public int port() {
-        return port;
+    /**
+     * Obtains the address used to initialize the server.
+     *
+     * @return the server address
+     */
+    public String ip() {
+        return this.ip;
     }
 
-    public String ip() {
-        return ip;
+    /**
+     * Obtains the port used to initialize the server.
+     *
+     * @return the server port
+     */
+    public int port() {
+        return this.port;
     }
 }
