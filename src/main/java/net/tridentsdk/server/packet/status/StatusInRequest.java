@@ -16,9 +16,11 @@
  */
 package net.tridentsdk.server.packet.status;
 
+import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.net.NetClient;
-import net.tridentsdk.server.net.NetPayload;
 import net.tridentsdk.server.packet.PacketIn;
+
+import javax.annotation.concurrent.Immutable;
 
 /**
  * This packet represents a status request that is sent
@@ -26,14 +28,14 @@ import net.tridentsdk.server.packet.PacketIn;
  * the server is pinged and after the server receives a
  * handshake packet with a next status set to 1.
  */
-public class StatusInRequest extends PacketIn {
+@Immutable
+public final class StatusInRequest extends PacketIn {
     public StatusInRequest() {
         super(StatusInRequest.class);
     }
 
     @Override
-    public void read(NetPayload payload, NetClient sender) {
-        // Schema: nothing
-        sender.sendPacket(new StatusOutResponse());
+    public void read(ByteBuf buf, NetClient client) {
+        client.sendPacket(new StatusOutResponse());
     }
 }

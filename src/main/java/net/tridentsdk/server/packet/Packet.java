@@ -18,12 +18,15 @@ package net.tridentsdk.server.packet;
 
 import net.tridentsdk.server.net.NetClient;
 
+import javax.annotation.concurrent.Immutable;
+
 /**
  * This class represents an abstraction of a data packet
  * that is used by the Minecraft protocol to communicate
  * units of information between the client(s) and the
  * server.
  */
+@Immutable
 public class Packet {
     /**
      * The direction which a packet is sent towards.

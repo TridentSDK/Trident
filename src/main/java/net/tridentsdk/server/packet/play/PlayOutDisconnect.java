@@ -14,35 +14,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.tridentsdk.server.packet;
+package net.tridentsdk.server.packet.play;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.server.net.NetClient;
+import net.tridentsdk.chat.Chat;
+import net.tridentsdk.server.packet.PacketOut;
 
 import javax.annotation.concurrent.Immutable;
 
+import static net.tridentsdk.server.net.NetData.wstr;
+
 /**
- * Represents a server-bound packet that a Minecraft client
- * sends to the server.
+ * Disconnect packet for PLAY.
  */
 @Immutable
-public abstract class PacketIn extends Packet {
+public final class PlayOutDisconnect extends PacketOut {
     /**
-     * The constructor which polls the packet registry in
-     * order to setup the initializing fields.
-     *
-     * @param cls the class of the packet to be registered
+     * The reason why the player is disconnected
      */
-    public PacketIn(Class<? extends Packet> cls) {
-        super(cls);
+    private final Chat reason;
+
+    public PlayOutDisconnect(Chat reason) {
+        super(PlayOutDisconnect.class);
+        this.reason = reason;
     }
 
-    /**
-     * Reads the buf data that was sent by the injected
-     * client.
-     *
-     * @param buf the buf of the packet
-     * @param client the client
-     */
-    public abstract void read(ByteBuf buf, NetClient client);
+    @Override
+    public void write(ByteBuf buf) {
+        wstr(buf, this.reason.asJson());
+    }
 }

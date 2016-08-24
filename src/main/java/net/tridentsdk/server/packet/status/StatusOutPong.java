@@ -16,13 +16,13 @@
  */
 package net.tridentsdk.server.packet.status;
 
-import net.tridentsdk.server.net.NetPayload;
+import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.packet.PacketOut;
 
 /**
  * Server response to {@link StatusInPing}.
  */
-public class StatusOutPong extends PacketOut {
+public final class StatusOutPong extends PacketOut {
     /**
      * The time that was sent by the ping packet
      */
@@ -34,11 +34,11 @@ public class StatusOutPong extends PacketOut {
     }
 
     @Override
-    public void write(NetPayload payload) {
+    public void write(ByteBuf buf) {
         // Schema:
         // long:time
         // fucking mojang won't make up their mind with
         // varlong and long and bs like that
-        payload.writeLong(this.time);
+        buf.writeLong(this.time);
     }
 }

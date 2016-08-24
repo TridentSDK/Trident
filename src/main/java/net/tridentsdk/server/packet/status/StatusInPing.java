@@ -16,24 +16,25 @@
  */
 package net.tridentsdk.server.packet.status;
 
+import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.net.NetClient;
-import net.tridentsdk.server.net.NetPayload;
 import net.tridentsdk.server.packet.PacketIn;
+
+import javax.annotation.concurrent.Immutable;
 
 /**
  * Ping packet sent by the client in order to determine the
  * server latency (if needed).
  */
-public class StatusInPing extends PacketIn {
+@Immutable
+public final class StatusInPing extends PacketIn {
     public StatusInPing() {
         super(StatusInPing.class);
     }
 
     @Override
-    public void read(NetPayload payload, NetClient sender) {
-        // Schema:
-        // long:time
-        long time = payload.readLong();
-        sender.sendPacket(new StatusOutPong(time));
+    public void read(ByteBuf buf, NetClient client) {
+        long time = buf.readLong();
+        client.sendPacket(new StatusOutPong(time));
     }
 }

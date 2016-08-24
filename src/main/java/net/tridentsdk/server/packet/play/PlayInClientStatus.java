@@ -14,35 +14,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.tridentsdk.server.packet;
+package net.tridentsdk.server.packet.play;
 
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.net.NetClient;
+import net.tridentsdk.server.packet.PacketIn;
 
 import javax.annotation.concurrent.Immutable;
 
+import static net.tridentsdk.server.net.NetData.rvint;
+
 /**
- * Represents a server-bound packet that a Minecraft client
- * sends to the server.
+ * Sent by the client to indicate status update (such as
+ * finding stats or respawning).
  */
 @Immutable
-public abstract class PacketIn extends Packet {
-    /**
-     * The constructor which polls the packet registry in
-     * order to setup the initializing fields.
-     *
-     * @param cls the class of the packet to be registered
-     */
-    public PacketIn(Class<? extends Packet> cls) {
-        super(cls);
+public final class PlayInClientStatus extends PacketIn {
+    public PlayInClientStatus() {
+        super(PlayInClientStatus.class);
     }
 
-    /**
-     * Reads the buf data that was sent by the injected
-     * client.
-     *
-     * @param buf the buf of the packet
-     * @param client the client
-     */
-    public abstract void read(ByteBuf buf, NetClient client);
+    @Override
+    public void read(ByteBuf buf, NetClient client) {
+        int status = rvint(buf);
+    }
 }

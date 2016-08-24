@@ -17,18 +17,25 @@
 package net.tridentsdk.server.packet.login;
 
 import com.google.gson.JsonObject;
+import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.net.NetClient;
-import net.tridentsdk.server.net.NetPayload;
 import net.tridentsdk.server.packet.PacketIn;
+import net.tridentsdk.server.player.TridentPlayer;
 
+import javax.annotation.concurrent.Immutable;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.UUID;
+
+import static net.tridentsdk.server.net.NetData.arr;
+import static net.tridentsdk.server.net.NetData.rvint;
 
 /**
  * Response to {@link LoginOutEncryptionRequest} sent by
  * the client.
  */
-public class LoginInEncryptionResponse extends PacketIn {
+@Immutable
+public final class LoginInEncryptionResponse extends PacketIn {
     /**
      * Hex values
      */
@@ -44,15 +51,15 @@ public class LoginInEncryptionResponse extends PacketIn {
     }
 
     @Override
-    public void read(NetPayload payload, NetClient sender) {
-        int secretLen = payload.readVInt();
-        byte[] encryptedSecret = payload.readBytes(secretLen);
-        int tokenLen = payload.readVInt();
-        byte[] encryptedToken = payload.readBytes(tokenLen);
+    public void read(ByteBuf buf, NetClient client) {
+        int secretLen = rvint(buf);
+        byte[] encryptedSecret = arr(buf, secretLen);
+        int tokenLen = rvint(buf);
+        byte[] encryptedToken = arr(buf, tokenLen);
 
         byte[] sharedSecret;
-        if ((sharedSecret = sender.cryptoModule().begin(encryptedSecret, encryptedToken)) == null) {
-            sender.disconnect("Crypto error");
+        if ((sharedSecret = client.cryptoModule().begin(encryptedSecret, encryptedToken)) == null) {
+            client.disconnect("Crypto error");
             return;
         }
 
@@ -64,12 +71,12 @@ public class LoginInEncryptionResponse extends PacketIn {
         }
 
         md.update(sharedSecret);
-        md.update(sender.cryptoModule().kp().getPublic().getEncoded());
+        md.update(client.cryptoModule().kp().getPublic().getEncoded());
 
         String hash = toHexStringTwosComplement(md.digest());
-        Mojang.req(MOJANG_SERVER, sender.name(), hash).callback((resp) -> {
+        Mojang.req(MOJANG_SERVER, client.name(), hash).callback((resp) -> {
             if (resp == null) {
-                sender.disconnect("Auth error");
+                client.disconnect("Auth error");
                 return;
             }
 
@@ -81,8 +88,12 @@ public class LoginInEncryptionResponse extends PacketIn {
                     .get(0).getAsJsonObject()
                     .get("value").getAsString();
 
-            LoginOutSuccess success = new LoginOutSuccess(sender, Login.convert(name, id), name);
-            sender.sendPacket(success);
+            UUID uuid = Login.convert(name, id);
+            LoginOutSuccess success = new LoginOutSuccess(client, uuid, name);
+            client.sendPacket(success).addListener(future -> {
+                TridentPlayer.spawn(client, name, uuid);
+                Login.finish();
+            });
         }).get();
     }
 

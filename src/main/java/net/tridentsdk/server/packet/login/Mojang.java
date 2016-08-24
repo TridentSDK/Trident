@@ -18,8 +18,9 @@ package net.tridentsdk.server.packet.login;
 
 import com.google.gson.JsonElement;
 import net.tridentsdk.server.config.ConfigIo;
-import net.tridentsdk.server.net.NetPayload;
+import net.tridentsdk.server.net.NetData;
 
+import javax.annotation.concurrent.ThreadSafe;
 import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -36,11 +37,13 @@ import java.util.function.Function;
 /**
  * Helper class for initiating requests to Mojang servers.
  */
+@ThreadSafe
 public final class Mojang<T> {
     /**
      * The executor for performing mojang requests
      */
-    private static final ExecutorService EXECUTOR_SERVICE = Executors.newFixedThreadPool(4);
+    private static final ExecutorService EXECUTOR_SERVICE =
+            Executors.newFixedThreadPool(4, (r) -> new Thread(r, "TRD-Mojang"));
     /**
      * The connection to the Mojang server
      */
@@ -113,7 +116,7 @@ public final class Mojang<T> {
                 this.c.setDoOutput(true);
                 this.c.setDoInput(true);
 
-                this.c.getOutputStream().write(ConfigIo.GSON.toJson(element).getBytes(NetPayload.NET_CHARSET));
+                this.c.getOutputStream().write(ConfigIo.GSON.toJson(element).getBytes(NetData.NET_CHARSET));
                 this.c.getOutputStream().close();
 
                 int code = this.c.getResponseCode();

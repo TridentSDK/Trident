@@ -17,16 +17,22 @@
 package net.tridentsdk.server.packet.status;
 
 import com.google.gson.JsonObject;
+import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.config.ConfigIo;
 import net.tridentsdk.server.config.ServerConfig;
-import net.tridentsdk.server.net.NetPayload;
 import net.tridentsdk.server.packet.PacketOut;
+import net.tridentsdk.server.player.TridentPlayer;
+
+import javax.annotation.concurrent.Immutable;
+
+import static net.tridentsdk.server.net.NetData.wstr;
 
 /**
  * The response to a client ping request.
  */
-public class StatusOutResponse extends PacketOut {
+@Immutable
+public final class StatusOutResponse extends PacketOut {
     /**
      * The current Minecraft version implemented by the
      * server
@@ -43,10 +49,7 @@ public class StatusOutResponse extends PacketOut {
     }
 
     @Override
-    public void write(NetPayload payload) {
-        // Schema
-        // String:jsonMessage
-        // TODO once we implement players, update this
+    public void write(ByteBuf buf) {
         ServerConfig cfg = TridentServer.cfg();
         JsonObject resp = new JsonObject();
 
@@ -57,7 +60,7 @@ public class StatusOutResponse extends PacketOut {
 
         JsonObject players = new JsonObject();
         players.addProperty("max", cfg.maxPlayers());
-        players.addProperty("online", 1);
+        players.addProperty("online", TridentPlayer.PLAYERS.size());
         // players.add("sample", new JsonArray());
         resp.add("players", players);
 
@@ -67,6 +70,6 @@ public class StatusOutResponse extends PacketOut {
 
         // resp.addProperty("favicon", "data:image/png;base64,<data>");
         String toString = ConfigIo.GSON.toJson(resp);
-        payload.writeString(toString);
+        wstr(buf, toString);
     }
 }

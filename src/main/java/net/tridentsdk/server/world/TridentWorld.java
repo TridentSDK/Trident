@@ -17,14 +17,14 @@
 package net.tridentsdk.server.world;
 
 import net.tridentsdk.base.Block;
+import net.tridentsdk.server.world.opt.GenOptImpl;
+import net.tridentsdk.server.world.opt.WorldOptImpl;
 import net.tridentsdk.world.Chunk;
 import net.tridentsdk.world.World;
-import net.tridentsdk.world.opt.GenOpts;
-import net.tridentsdk.world.opt.Weather;
-import net.tridentsdk.world.opt.WorldBorder;
-import net.tridentsdk.world.opt.WorldOpts;
+import net.tridentsdk.world.opt.*;
 
 import javax.annotation.concurrent.ThreadSafe;
+import java.nio.file.Path;
 
 /**
  * Implementation class for
@@ -36,14 +36,47 @@ public class TridentWorld implements World {
      * Name of the world
      */
     private final String name;
+    /**
+     * The enclosing folder of the world directory
+     */
+    private final Path dir;
+    /**
+     * The implementation world options
+     */
+    private final WorldOptImpl worldOpts;
+    /**
+     * The implementation generator options
+     */
+    private final GenOptImpl genOpts;
 
     /**
-     * Creates a new world with the given name.
+     * Creates a new world with the given name, folder, and
+     * creation options.
      *
      * @param name the name of the new world
      */
-    private TridentWorld(String name) {
+    public TridentWorld(String name, Path enclosing, WorldCreateSpec spec) {
         this.name = name;
+        this.dir = enclosing;
+        // this is only ok because we aren't passing the
+        // instance to another thread viewable object
+        this.worldOpts = new WorldOptImpl(this, spec);
+        this.genOpts = spec.isDefault() ? new GenOptImpl() : new GenOptImpl(spec);
+    }
+
+    /**
+     * Loads a new world with the given name and folder.
+     *
+     * @param name the name of the world
+     * @param enclosing the enclosing folder
+     */
+    public TridentWorld(String name, Path enclosing) {
+        this.name = name;
+        this.dir = enclosing;
+        // this is only ok because we aren't passing the
+        // instance to another thread viewable object
+        this.worldOpts = new WorldOptImpl(this, WorldCreateSpec.defaultOpts());
+        this.genOpts = new GenOptImpl(new Object());
     }
 
     @Override
@@ -58,7 +91,7 @@ public class TridentWorld implements World {
 
     @Override
     public WorldOpts opts() {
-        return null;
+        return this.worldOpts;
     }
 
     @Override
@@ -68,7 +101,7 @@ public class TridentWorld implements World {
 
     @Override
     public GenOpts genOpts() {
-        return null;
+        return this.genOpts;
     }
 
     @Override
@@ -87,5 +120,24 @@ public class TridentWorld implements World {
         // using MOD is because chunk-rel coordinates are
         // never negative
         return this.chunkAt(x % 16, z % 16).blockAt(x & 15, y, z & 15);
+    }
+
+    @Override
+    public Path dir() {
+        return this.dir;
+    }
+
+    /**
+     * Loads the world from the NBT level.dat format and
+     * loads the appropriate spawn chunks.
+     */
+    public void load() {
+        this.worldOpts.load();
+    }
+
+    @Override
+    public void save() {
+        this.worldOpts.save();
+        this.genOpts.save();
     }
 }

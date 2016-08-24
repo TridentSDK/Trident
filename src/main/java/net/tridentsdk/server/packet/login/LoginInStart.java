@@ -16,33 +16,49 @@
  */
 package net.tridentsdk.server.packet.login;
 
+import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.net.NetCrypto;
-import net.tridentsdk.server.net.NetPayload;
 import net.tridentsdk.server.packet.PacketIn;
+import net.tridentsdk.server.player.TridentPlayer;
+
+import javax.annotation.concurrent.Immutable;
+
+import static net.tridentsdk.server.net.NetData.rstr;
 
 /**
  * Login start request made after status switch to 2 due to
  * handshake request.
  */
-public class LoginInStart extends PacketIn {
+@Immutable
+public final class LoginInStart extends PacketIn {
     public LoginInStart() {
         super(LoginInStart.class);
     }
 
     @Override
-    public void read(NetPayload payload, NetClient sender) {
-        String name = payload.readString();
-        sender.setName(name);
+    public void read(ByteBuf buf, NetClient client) {
+        if (!Login.canLogin(client)) {
+            client.disconnect("Server is full");
+            return;
+        }
+
+        String name = rstr(buf);
+        client.setName(name);
         // TODO check join parameters
         // TODO player join event
 
         if (TridentServer.cfg().doAuth()) {
-            NetCrypto crypto = sender.initCrypto();
-            sender.sendPacket(crypto.reqCrypto());
+            NetCrypto crypto = client.initCrypto();
+            client.sendPacket(crypto.reqCrypto());
         } else {
-            sender.sendPacket(new LoginOutSuccess(sender));
+            LoginOutSuccess packet = new LoginOutSuccess(client);
+            client.sendPacket(packet).addListener(
+                    future -> {
+                        TridentPlayer.spawn(client, name, packet.uuid());
+                        Login.finish();
+                    });
         }
     }
 }

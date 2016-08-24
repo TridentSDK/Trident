@@ -29,6 +29,9 @@ import javax.annotation.concurrent.ThreadSafe;
 import java.util.List;
 import java.util.zip.Inflater;
 
+import static net.tridentsdk.server.net.NetData.arr;
+import static net.tridentsdk.server.net.NetData.rvint;
+
 /**
  * This is the first decoder in the pipeline. Incoming
  * packets are read and decompressed through this decoder.
@@ -61,42 +64,45 @@ public class InDecoder extends ByteToMessageDecoder {
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf buf, List<Object> list) throws Exception {
+        // Step 1: Decrypt if enabled
+        // If not, use the raw buffer
         NetCrypto crypto = this.client.cryptoModule();
-        NetPayload payload;
+        ByteBuf decrypt = buf;
         if (crypto != null) {
-            ByteBuf decrypt = ctx.alloc().buffer();
+            decrypt = ctx.alloc().buffer();
             crypto.decrypt(buf, decrypt);
-            payload = new NetPayload(decrypt);
-        } else {
-            payload = new NetPayload(buf);
         }
 
+        // Step 2: Decompress if enabled
+        // If not, compressed, use raw buffer
+        // Toss appropriate header fields
+        ByteBuf decompressed = decrypt;
         if (this.client.doCompression()) {
-            payload.readVInt(); // toss
-            int compressedLen = payload.readVInt();
-            if (buf.readableBytes() > COMPRESSION_THRESH) {
-                byte[] in = payload.readBytes(compressedLen);
+            rvint(decrypt); // toss full packet length
+            int compressedLen = rvint(decrypt);
+            if (compressedLen > COMPRESSION_THRESH) {
+                decompressed = ctx.alloc().buffer();
+                byte[] in = arr(decrypt);
 
                 Inflater inflater = new Inflater();
                 inflater.setInput(in);
 
-                byte[] buffer = new byte[8192];
-                while (inflater.inflate(buffer) > -1) {
-                    payload.writeBytes(buffer);
+                byte[] buffer = new byte[NetClient.BUFFER_SIZE];
+                while (inflater.inflate(buffer) > 0) {
+                    decompressed.writeBytes(buffer);
                 }
-            } else {
-                payload.writeBytes(buf);
             }
         } else {
-            payload.readVInt(); // toss
+            rvint(decompressed); // toss full packet length
         }
 
-        int id = payload.readVInt();
+        // Step 3: Decode packet
+        int id = rvint(decompressed);
 
         Class<? extends Packet> cls = PacketRegistry.byId(this.client.state(), Packet.Bound.SERVER, id);
         PacketIn packet = PacketRegistry.make(cls);
 
         LOGGER.debug("RECV: " + packet.getClass().getSimpleName());
-        packet.read(payload, this.client);
+        packet.read(decompressed, this.client);
     }
 }

@@ -23,14 +23,18 @@ import net.tridentsdk.command.logger.Logger;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.packet.PacketOut;
 
+import javax.annotation.concurrent.ThreadSafe;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.zip.Deflater;
 
+import static net.tridentsdk.server.net.NetData.arr;
+import static net.tridentsdk.server.net.NetData.wvint;
+
 /**
  * The encoder which writes packet messages to the stream.
  */
-// TODO use one instance only
+@ThreadSafe
 public class OutEncoder extends MessageToByteEncoder<PacketOut> {
     /**
      * The logger used for debugging packets
@@ -38,10 +42,9 @@ public class OutEncoder extends MessageToByteEncoder<PacketOut> {
     private static final Logger LOGGER = Logger.get(OutEncoder.class);
     /**
      * Length of an uncompressed packet using the
-     * compressed
-     * transport.
+     * compressed transport.
      */
-    private static final int VINT_LEN = BigInteger.valueOf(0).toByteArray().length;
+    private static final int VINT_LEN = BigInteger.ZERO.toByteArray().length;
     /**
      * Obtains the configured compression threshold.
      */
@@ -59,28 +62,27 @@ public class OutEncoder extends MessageToByteEncoder<PacketOut> {
 
     @Override
     protected void encode(ChannelHandlerContext ctx, PacketOut msg, ByteBuf out) throws Exception {
-        ByteBuf payloadBuf = ctx.alloc().buffer();
-        NetPayload payload = new NetPayload(payloadBuf);
-
-        // Write packet ID + data
-        // -> payload
-        payload.writeVInt(msg.id());
+        // Step 1: Encode packet
+        ByteBuf payload = ctx.alloc().buffer();
+        wvint(payload, msg.id());
         msg.write(payload);
 
+        // Step 2: Compress if enabled
+        // If not, write headers to new buffer
         ByteBuf buf = ctx.alloc().buffer();
-        // -> buf
         if (this.client.doCompression()) {
-            int len = buf.readableBytes();
+            int len = payload.readableBytes();
             if (len > COMPRESSION_THRESH) {
-                this.writeDeflated(buf, len, payloadBuf);
+                this.writeDeflated(payload, buf, len);
             } else {
-                this.writeCompressed(buf, payloadBuf);
+                this.writeCompressed(payload, buf);
             }
         } else {
-            this.writeUncompressed(buf, payloadBuf);
+            this.writeUncompressed(payload, buf);
         }
 
-        // -> out
+        // Step 3: Encrypt if enabled
+        // If not, write raw bytes
         NetCrypto crypto = this.client.cryptoModule();
         if (crypto != null) {
             crypto.encrypt(buf, out);
@@ -95,33 +97,37 @@ public class OutEncoder extends MessageToByteEncoder<PacketOut> {
      * Writes a compressed packet that is deflated using
      * zlib.
      *
+     * @param payload the payload to write
      * @param out the output buffer
      * @param len the length
-     * @param payload the payload to write
      * @throws IOException if something goes wrong
      */
-    private void writeDeflated(ByteBuf out, int len, ByteBuf payload) throws IOException {
-        byte[] bytes = new byte[len];
-        payload.readBytes(bytes);
+    private void writeDeflated(ByteBuf payload, ByteBuf out, int len) throws IOException {
+        payload.markReaderIndex();
+        byte[] input = arr(payload, len);
 
         Deflater deflater = new Deflater(Deflater.BEST_SPEED);
-        deflater.setInput(bytes);
+        deflater.setInput(input);
         deflater.finish();
 
-        byte[] buffer = new byte[8192];
-        while (deflater.deflate(buffer) > -1) {
-            payload.writeBytes(buffer);
+        byte[] buffer = new byte[NetClient.BUFFER_SIZE];
+        ByteBuf result = payload.alloc().buffer();
+        while (deflater.deflate(buffer) > 0) {
+            result.writeBytes(buffer);
         }
 
         deflater.end();
-        int resultLen = payload.readableBytes();
 
+        int resultLen = result.readableBytes();
         if (resultLen >= len) {
-            this.writeCompressed(out, payload);
+            // if no compression happened, write the same
+            // uncompressed payload
+            payload.resetReaderIndex();
+            this.writeCompressed(payload, out);
         } else {
-            NetPayload.writeVInt(out, VINT_LEN + BigInteger.valueOf(resultLen).toByteArray().length);
-            NetPayload.writeVInt(out, resultLen);
-            out.writeBytes(payload);
+            wvint(out, VINT_LEN + BigInteger.valueOf(resultLen).toByteArray().length);
+            wvint(out, resultLen);
+            out.writeBytes(result);
         }
     }
 
@@ -129,23 +135,23 @@ public class OutEncoder extends MessageToByteEncoder<PacketOut> {
      * Writes an uncompressed packet using the compressed
      * protocol format.
      *
-     * @param out the output buffer
      * @param payload the payload to write
+     * @param out the output buffer
      */
-    private void writeCompressed(ByteBuf out, ByteBuf payload) {
-        NetPayload.writeVInt(out, VINT_LEN + payload.readableBytes());
-        NetPayload.writeVInt(out, 0);
+    private void writeCompressed(ByteBuf payload, ByteBuf out) {
+        wvint(out, VINT_LEN + payload.readableBytes());
+        wvint(out, 0);
         out.writeBytes(payload);
     }
 
     /**
      * Writes an uncompressed packet.
      *
-     * @param out the output buffer
      * @param payload the payload to write
+     * @param out the output buffer
      */
-    private void writeUncompressed(ByteBuf out, ByteBuf payload) {
-        NetPayload.writeVInt(out, payload.readableBytes());
+    private void writeUncompressed(ByteBuf payload, ByteBuf out) {
+        wvint(out, payload.readableBytes());
         out.writeBytes(payload);
     }
 }

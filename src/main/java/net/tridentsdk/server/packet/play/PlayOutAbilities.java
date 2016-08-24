@@ -14,35 +14,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.tridentsdk.server.packet;
+package net.tridentsdk.server.packet.play;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.server.net.NetClient;
+import net.tridentsdk.server.packet.PacketOut;
 
 import javax.annotation.concurrent.Immutable;
 
 /**
- * Represents a server-bound packet that a Minecraft client
- * sends to the server.
+ * Sent after {@link PlayOutSpawnPos} to communicate to the
+ * client their abilities once joined.
  */
 @Immutable
-public abstract class PacketIn extends Packet {
-    /**
-     * The constructor which polls the packet registry in
-     * order to setup the initializing fields.
-     *
-     * @param cls the class of the packet to be registered
-     */
-    public PacketIn(Class<? extends Packet> cls) {
-        super(cls);
+public final class PlayOutAbilities extends PacketOut {
+    public PlayOutAbilities() {
+        super(PlayOutAbilities.class);
     }
 
-    /**
-     * Reads the buf data that was sent by the injected
-     * client.
-     *
-     * @param buf the buf of the packet
-     * @param client the client
-     */
-    public abstract void read(ByteBuf buf, NetClient client);
+    @Override
+    public void write(ByteBuf buf) {
+        byte abilities = 0x00;
+        abilities |= 0x00; // invuln
+        abilities |= 0x00 << 1; // flying
+        abilities |= 0x00 << 2; // allow fly
+        abilities |= 0x00 << 3; // creative mode
+
+        buf.writeByte(abilities);
+        buf.writeFloat(1.659F);
+        buf.writeFloat(0.699999988079071F);
+    }
 }

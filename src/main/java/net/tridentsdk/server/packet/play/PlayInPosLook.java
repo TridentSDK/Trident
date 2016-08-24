@@ -14,35 +14,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.tridentsdk.server.packet;
+package net.tridentsdk.server.packet.play;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.base.Position;
 import net.tridentsdk.server.net.NetClient;
+import net.tridentsdk.server.packet.PacketIn;
+import net.tridentsdk.server.player.TridentPlayer;
 
 import javax.annotation.concurrent.Immutable;
 
 /**
- * Represents a server-bound packet that a Minecraft client
- * sends to the server.
+ * Client confirmation of the player's current position and
+ * look direction prior to spawning.
  */
 @Immutable
-public abstract class PacketIn extends Packet {
-    /**
-     * The constructor which polls the packet registry in
-     * order to setup the initializing fields.
-     *
-     * @param cls the class of the packet to be registered
-     */
-    public PacketIn(Class<? extends Packet> cls) {
-        super(cls);
+public final class PlayInPosLook extends PacketIn {
+    public PlayInPosLook() {
+        super(PlayInPosLook.class);
     }
 
-    /**
-     * Reads the buf data that was sent by the injected
-     * client.
-     *
-     * @param buf the buf of the packet
-     * @param client the client
-     */
-    public abstract void read(ByteBuf buf, NetClient client);
+    @Override
+    public void read(ByteBuf buf, NetClient client) {
+        TridentPlayer player = client.player();
+        Position pos = player.position();
+
+        pos.setX(buf.readDouble());
+        pos.setY(buf.readDouble());
+        pos.setZ(buf.readDouble());
+        pos.setYaw(buf.readFloat());
+        pos.setPitch(buf.readFloat());
+        buf.readBoolean(); // TODO onground
+    }
 }

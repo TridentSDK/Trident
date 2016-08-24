@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Pattern;
 
@@ -44,7 +43,7 @@ public class FileLogger extends PipelinedLogger {
     /**
      * The directory to the log files
      */
-    private static final Path DIR = Paths.get(Misc.HOME, "/logs");
+    private static final Path DIR = Misc.HOME_PATH.resolve("logs");
     /**
      * The system line separator
      */

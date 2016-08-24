@@ -16,21 +16,26 @@
  */
 package net.tridentsdk.server.packet.login;
 
+import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.TridentServer;
-import net.tridentsdk.server.net.NetPayload;
 import net.tridentsdk.server.packet.PacketOut;
+
+import javax.annotation.concurrent.Immutable;
+
+import static net.tridentsdk.server.net.NetData.wvint;
 
 /**
  * Indicates to the client that the server requests to
  * compress packets.
  */
-public class LoginOutCompression extends PacketOut {
+@Immutable
+public final class LoginOutCompression extends PacketOut {
     public LoginOutCompression() {
         super(LoginOutCompression.class);
     }
 
     @Override
-    public void write(NetPayload payload) {
-        payload.writeVInt(TridentServer.cfg().compressionThresh());
+    public void write(ByteBuf buf) {
+        wvint(buf, TridentServer.cfg().compressionThresh());
     }
 }

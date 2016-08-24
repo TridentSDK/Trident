@@ -22,7 +22,7 @@ import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Maps;
 import net.tridentsdk.server.packet.handshake.HandshakeIn;
 import net.tridentsdk.server.packet.login.*;
-import net.tridentsdk.server.packet.play.PlayOutJoinGame;
+import net.tridentsdk.server.packet.play.*;
 import net.tridentsdk.server.packet.status.StatusInPing;
 import net.tridentsdk.server.packet.status.StatusInRequest;
 import net.tridentsdk.server.packet.status.StatusOutPong;
@@ -72,6 +72,19 @@ public final class PacketRegistry {
         put(LoginOutCompression.class, NetState.LOGIN, Bound.CLIENT, 0x03);
 
         put(PlayOutJoinGame.class, NetState.PLAY, Bound.CLIENT, 0x23);
+        put(PlayOutPluginMsg.class, NetState.PLAY, Bound.CLIENT, 0x18);
+        put(PlayOutDifficulty.class, NetState.PLAY, Bound.CLIENT, 0x0D);
+        put(PlayOutSpawnPos.class, NetState.PLAY, Bound.CLIENT, 0x43);
+        put(PlayOutAbilities.class, NetState.PLAY, Bound.CLIENT, 0x2B);
+        put(PlayInPluginMsg.class, NetState.PLAY, Bound.SERVER, 0x09);
+        put(PlayInSettings.class, NetState.PLAY, Bound.SERVER, 0x04);
+        put(PlayOutPosLook.class, NetState.PLAY, Bound.CLIENT, 0x2E);
+        put(PlayInTeleportConfirm.class, NetState.PLAY, Bound.SERVER, 0x00);
+        put(PlayInPosLook.class, NetState.PLAY, Bound.SERVER, 0x0D);
+        put(PlayInClientStatus.class, NetState.PLAY, Bound.SERVER, 0x03);
+        put(PlayOutKeepAlive.class, NetState.PLAY, Bound.CLIENT, 0x1F);
+        put(PlayInKeepAlive.class, NetState.PLAY, Bound.SERVER, 0x0B);
+        put(PlayOutDisconnect.class, NetState.PLAY, Bound.CLIENT, 0x1A);
     }
 
     /**

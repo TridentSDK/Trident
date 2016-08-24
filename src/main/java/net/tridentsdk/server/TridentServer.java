@@ -19,11 +19,15 @@ package net.tridentsdk.server;
 import net.tridentsdk.Server;
 import net.tridentsdk.command.logger.Logger;
 import net.tridentsdk.config.Config;
+import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.server.config.ServerConfig;
 import net.tridentsdk.server.net.NetServer;
+import net.tridentsdk.server.player.TridentPlayer;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
 
 /**
  * This class represents the running Minecraft server
@@ -118,6 +122,11 @@ public class TridentServer implements Server {
     @Override
     public String version() {
         return "0.5-alpha";
+    }
+
+    @Override
+    public Collection<Player> players() {
+        return Collections.unmodifiableCollection(TridentPlayer.PLAYERS.values());
     }
 
     @Override

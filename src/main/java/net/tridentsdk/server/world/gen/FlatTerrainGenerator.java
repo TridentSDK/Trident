@@ -19,10 +19,13 @@ package net.tridentsdk.server.world.gen;
 import net.tridentsdk.world.gen.GeneratorContext;
 import net.tridentsdk.world.gen.TerrainGenerator;
 
+import javax.annotation.concurrent.Immutable;
+
 /**
  * This generator generates the base chunk layer used for
  * generating flat worlds.
  */
+@Immutable
 public class FlatTerrainGenerator implements TerrainGenerator {
     @Override
     public void generate(int chunkX, int chunkZ, GeneratorContext context) {

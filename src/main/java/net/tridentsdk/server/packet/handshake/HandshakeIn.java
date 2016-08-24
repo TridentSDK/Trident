@@ -16,9 +16,14 @@
  */
 package net.tridentsdk.server.packet.handshake;
 
+import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.net.NetClient;
-import net.tridentsdk.server.net.NetPayload;
 import net.tridentsdk.server.packet.PacketIn;
+
+import javax.annotation.concurrent.Immutable;
+
+import static net.tridentsdk.server.net.NetData.rstr;
+import static net.tridentsdk.server.net.NetData.rvint;
 
 /**
  * Handshake packet. Sent for both ping and as a state
@@ -26,7 +31,8 @@ import net.tridentsdk.server.packet.PacketIn;
  *
  * <p>Packet is serverbound only</p>
  */
-public class HandshakeIn extends PacketIn {
+@Immutable
+public final class HandshakeIn extends PacketIn {
     /**
      * Constructor which sets up the packet header details.
      */
@@ -35,15 +41,15 @@ public class HandshakeIn extends PacketIn {
     }
 
     @Override
-    public void read(NetPayload payload, NetClient sender) {
+    public void read(ByteBuf buf, NetClient client) {
         // Schema:
         // VarInt:version, String:address, VarInt:port,
         // VarInt:nextState
-        int version = payload.readVInt();
-        String address = payload.readString();
-        int port = payload.readUnsignedShort();
-        int nextState = payload.readVInt();
+        int version = rvint(buf);
+        String address = rstr(buf);
+        int port = buf.readUnsignedShort();
+        int nextState = rvint(buf);
 
-        sender.setState(NetClient.NetState.values()[nextState]);
+        client.setState(NetClient.NetState.values()[nextState]);
     }
 }

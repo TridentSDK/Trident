@@ -19,17 +19,22 @@ package net.tridentsdk.server.net;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.packet.login.LoginOutEncryptionRequest;
 
+import javax.annotation.concurrent.ThreadSafe;
 import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.*;
 import java.util.Arrays;
+import java.util.function.Function;
+
+import static net.tridentsdk.server.net.NetData.arr;
 
 /**
  * This class is a handler for packet encryption and
  * decryption, and holds the keys and security accessors to
  * the client crypt.
  */
+@ThreadSafe
 public class NetCrypto {
     /**
      * Length of the shared token used for verification
@@ -74,15 +79,15 @@ public class NetCrypto {
     /**
      * The encryption cipher
      */
-    private final Cipher encrypt;
+    private final ThreadLocal<Cipher> encrypt = new ThreadLocal<>();
     /**
      * The decryption cipher
      */
-    private final Cipher decrypt;
+    private final ThreadLocal<Cipher> decrypt = new ThreadLocal<>();
     /**
      * Whether or not the crypto is ready
      */
-    private volatile boolean ready;
+    private volatile Function<Integer, Cipher> cipherInit;
 
     /**
      * Constructs a new crypto module.
@@ -93,10 +98,7 @@ public class NetCrypto {
             KeyPairGenerator generator = KeyPairGenerator.getInstance(KEY_PAIR_ALGO);
             generator.initialize(KEY_PAIR_BITS);
             localPair = generator.generateKeyPair();
-
-            this.encrypt = Cipher.getInstance(CIPHER_NAME);
-            this.decrypt = Cipher.getInstance(CIPHER_NAME);
-        } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
+        } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
         this.kp = localPair;
@@ -146,12 +148,36 @@ public class NetCrypto {
                 SecretKey sharedSecret = new SecretKeySpec(decryptedSecret, SECRET_ALGO);
                 IvParameterSpec iv = new IvParameterSpec(sharedSecret.getEncoded());
 
-                this.decrypt.init(Cipher.DECRYPT_MODE, sharedSecret, iv);
-                this.encrypt.init(Cipher.DECRYPT_MODE, sharedSecret, iv);
-                this.ready = true;
+                this.cipherInit = mode -> {
+                    try {
+                        if (mode == Cipher.DECRYPT_MODE) {
+                            Cipher instance = this.decrypt.get();
+                            if (instance == null) {
+                                instance = Cipher.getInstance(CIPHER_NAME);
+                                instance.init(mode, sharedSecret, iv);
+                                this.decrypt.set(instance);
+                            }
+
+                            return instance;
+                        } else {
+                            Cipher instance = this.encrypt.get();
+                            if (instance == null) {
+                                instance = Cipher.getInstance(CIPHER_NAME);
+                                instance.init(mode, sharedSecret, iv);
+                                this.encrypt.set(instance);
+                            }
+
+                            return instance;
+                        }
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                };
                 return decryptedSecret;
             }
-        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | BadPaddingException | IllegalBlockSizeException | InvalidAlgorithmParameterException e) {
+            // rofl @ 6 exceptions
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException
+                | BadPaddingException | IllegalBlockSizeException e) {
             throw new RuntimeException(e);
         }
 
@@ -163,22 +189,18 @@ public class NetCrypto {
      * provided by this crypto module.
      *
      * @param buf the buffer
-     * @param dest the desination
+     * @param dest the destination
      */
     public void encrypt(ByteBuf buf, ByteBuf dest) {
-        if (!this.ready) {
+        Function<Integer, Cipher> init = this.cipherInit;
+        if (init == null) {
             dest.writeBytes(buf);
             return;
         }
 
-        byte[] bytes = new byte[buf.readableBytes()];
-        buf.readBytes(bytes);
-
-        try {
-            dest.writeBytes(this.encrypt.doFinal(bytes));
-        } catch (IllegalBlockSizeException | BadPaddingException e) {
-            throw new RuntimeException(e);
-        }
+        byte[] bytes = arr(buf);
+        Cipher cipher = init.apply(Cipher.ENCRYPT_MODE);
+        dest.writeBytes(cipher.update(bytes));
     }
 
     /**
@@ -186,21 +208,17 @@ public class NetCrypto {
      * provided by this crypto module.
      *
      * @param buf the buffer
-     * @param dest the desination
+     * @param dest the destination
      */
     public void decrypt(ByteBuf buf, ByteBuf dest) {
-        if (!this.ready) {
+        Function<Integer, Cipher> init = this.cipherInit;
+        if (init == null) {
             dest.writeBytes(buf);
             return;
         }
 
-        byte[] bytes = new byte[buf.readableBytes()];
-        buf.readBytes(bytes);
-
-        try {
-            dest.writeBytes(this.decrypt.doFinal(bytes));
-        } catch (IllegalBlockSizeException | BadPaddingException e) {
-            throw new RuntimeException(e);
-        }
+        byte[] bytes = arr(buf);
+        Cipher cipher = init.apply(Cipher.DECRYPT_MODE);
+        dest.writeBytes(cipher.update(bytes));
     }
 }

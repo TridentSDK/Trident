@@ -18,13 +18,13 @@ package net.tridentsdk.server.command;
 
 import net.tridentsdk.command.logger.LogMessage;
 
-import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
 import java.time.ZonedDateTime;
 
 /**
  * This class represents a message sent by a logger
  */
-@Immutable
+@ThreadSafe
 public class LogMessageImpl implements LogMessage {
     /**
      * The logger that sent the message

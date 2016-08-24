@@ -14,35 +14,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.tridentsdk.server.packet;
+package net.tridentsdk.server.packet.play;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.server.net.NetClient;
+import net.tridentsdk.server.packet.PacketOut;
+import net.tridentsdk.world.World;
+import net.tridentsdk.world.opt.Difficulty;
 
 import javax.annotation.concurrent.Immutable;
 
 /**
- * Represents a server-bound packet that a Minecraft client
- * sends to the server.
+ * This packet is sent after {@link PlayOutPluginMsg} to
+ * communicate the current difficulty on the player's
+ * world.
  */
 @Immutable
-public abstract class PacketIn extends Packet {
+public final class PlayOutDifficulty extends PacketOut {
     /**
-     * The constructor which polls the packet registry in
-     * order to setup the initializing fields.
-     *
-     * @param cls the class of the packet to be registered
+     * The world difficulty
      */
-    public PacketIn(Class<? extends Packet> cls) {
-        super(cls);
+    private final Difficulty difficulty;
+
+    public PlayOutDifficulty(World world) {
+        super(PlayOutDifficulty.class);
+        this.difficulty = world.opts().difficulty();
     }
 
-    /**
-     * Reads the buf data that was sent by the injected
-     * client.
-     *
-     * @param buf the buf of the packet
-     * @param client the client
-     */
-    public abstract void read(ByteBuf buf, NetClient client);
+    @Override
+    public void write(ByteBuf buf) {
+        buf.writeByte(this.difficulty.asByte());
+    }
 }

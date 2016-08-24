@@ -23,6 +23,7 @@ import net.tridentsdk.world.gen.PropGenerator;
 import net.tridentsdk.world.gen.TerrainGenerator;
 
 import javax.annotation.Nonnull;
+import javax.annotation.concurrent.Immutable;
 import java.util.Collections;
 import java.util.Set;
 
@@ -30,7 +31,13 @@ import java.util.Set;
  * A generator provider that provides the proper generators
  * for a flat world level type.
  */
+@Immutable
 public class FlatGeneratorProvider implements GeneratorProvider {
+    /**
+     * The singleton instance of this provider
+     */
+    public static final FlatGeneratorProvider INSTANCE = new FlatGeneratorProvider();
+
     @Override
     public TerrainGenerator terrain(World world) {
         return new FlatTerrainGenerator();

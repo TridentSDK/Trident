@@ -21,6 +21,7 @@ import net.tridentsdk.Impl;
 import net.tridentsdk.command.logger.Logger;
 import net.tridentsdk.server.command.InfoLogger;
 import net.tridentsdk.server.command.PipelinedLogger;
+import net.tridentsdk.server.concurrent.ServerTick;
 import net.tridentsdk.server.config.ConfigIo;
 import net.tridentsdk.server.config.ServerConfig;
 import net.tridentsdk.server.net.NetServer;
@@ -91,17 +92,23 @@ public class TridentMain {
         // -------------------------------------------------
 
         logger.log("Setting up the server... ");
-        TridentServer.init(config, logger, server);
+        TridentServer tridentServer = TridentServer.init(config, logger, server);
         logger.success("Done.");
+
+        // Setup ticking/heartbeat -------------------------
+        ServerTick ticker = new ServerTick(tridentServer);
+        ticker.start();
+        // -------------------------------------------------
 
         // Setup API implementations -----------------------
         logger.log("Setting up API implementation providers... ");
-        Impl.setImpl(new ImplementationProvider(internal));
+        ImplementationProvider impl = new ImplementationProvider(internal);
+        Impl.setImpl(impl);
         logger.success("Done.");
         // -------------------------------------------------
 
         // Load worlds -------------------------------------
-        // TODO figure out what the API looks like
+        impl.wrlds().loadAll();
         // -------------------------------------------------
 
         // Setup netty and other network crap --------------

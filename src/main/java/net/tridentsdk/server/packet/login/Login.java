@@ -20,16 +20,26 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonPrimitive;
+import net.tridentsdk.server.TridentServer;
+import net.tridentsdk.server.net.NetClient;
+import net.tridentsdk.server.player.TridentPlayer;
 
+import javax.annotation.concurrent.ThreadSafe;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
 /**
  * Login utilities.
  */
+@ThreadSafe
 public final class Login {
+    /**
+     * The amount of players that are queued to login
+     */
+    public static final AtomicInteger LOGGING_IN = new AtomicInteger();
     /**
      * Cache of UUIDs as Mojang doesn't like it when you
      * push the rate limit.
@@ -47,6 +57,31 @@ public final class Login {
 
     // Prevent instantiation
     private Login() {
+    }
+
+    /**
+     * Ensures that the given network connection is able to
+     * login to the server.
+     *
+     * @param client the client to test
+     * @return {@code true} if the client may login
+     */
+    public static boolean canLogin(NetClient client) {
+        if (LOGGING_IN.get() + TridentPlayer.PLAYERS.size() >
+                TridentServer.cfg().maxPlayers()) {
+            client.disconnect("Server is full");
+            return false;
+        }
+
+        LOGGING_IN.incrementAndGet();
+        return true;
+    }
+
+    /**
+     * Finishes a player login and removes a login spot.
+     */
+    public static void finish() {
+        LOGGING_IN.decrementAndGet();
     }
 
     /**

@@ -18,22 +18,19 @@ package net.tridentsdk.server.world.gen;
 
 import net.tridentsdk.world.gen.GeneratorContext;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 /**
  * Implementation of a generator context
  */
+@ThreadSafe
 public class GeneratorContextImpl implements GeneratorContext {
+    /**
+     * The seed to be used for generation
+     */
     private long seed;
 
-    public GeneratorContextImpl() {
-        this(System.nanoTime());
-    }
-
     public GeneratorContextImpl(long seed) {
-        // TODO 48 bit seed???
-        if (seed == 0) {
-            seed = System.nanoTime();
-        }
-
         this.seed = seed;
     }
 

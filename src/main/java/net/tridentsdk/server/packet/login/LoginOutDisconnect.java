@@ -16,34 +16,31 @@
  */
 package net.tridentsdk.server.packet.login;
 
-import com.google.gson.JsonObject;
-import net.tridentsdk.server.config.ConfigIo;
-import net.tridentsdk.server.net.NetPayload;
+import io.netty.buffer.ByteBuf;
+import net.tridentsdk.chat.Chat;
 import net.tridentsdk.server.packet.PacketOut;
+
+import static net.tridentsdk.server.net.NetData.wstr;
 
 /**
  * This packet is sent to the client in states LOGIN, PLAY
  * to indicate that the player will be disconnected from
  * the server.
  */
-public class LoginOutDisconnect extends PacketOut {
+public final class LoginOutDisconnect extends PacketOut {
     /**
      * The message displayed on the screen once the player
      * is disconnected
-     * TODO chat
      */
-    private final String reason;
+    private final Chat reason;
 
-    public LoginOutDisconnect(String reason) {
+    public LoginOutDisconnect(Chat reason) {
         super(LoginOutDisconnect.class);
         this.reason = reason;
     }
 
     @Override
-    public void write(NetPayload payload) {
-        JsonObject object = new JsonObject();
-        object.addProperty("text", this.reason);
-        payload.writeString(ConfigIo.GSON.toJson(object));
-        System.out.println("DISCONNECT: " + this.reason);
+    public void write(ByteBuf buf) {
+        wstr(buf, this.reason.asJson());
     }
 }

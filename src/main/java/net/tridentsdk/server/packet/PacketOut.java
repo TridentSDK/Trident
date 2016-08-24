@@ -16,12 +16,15 @@
  */
 package net.tridentsdk.server.packet;
 
-import net.tridentsdk.server.net.NetPayload;
+import io.netty.buffer.ByteBuf;
+
+import javax.annotation.concurrent.Immutable;
 
 /**
  * Represents a client-bound packet that is sent by the
  * server.
  */
+@Immutable
 public abstract class PacketOut extends Packet {
     /**
      * The constructor which polls the packet registry in
@@ -34,13 +37,13 @@ public abstract class PacketOut extends Packet {
     }
 
     /**
-     * Writes the payload of a client-bound packet.
+     * Writes the buf of a client-bound packet.
      *
      * <p>Packet headers and compression are automatically
      * handled when the packet is encoded to the pipeline.
      * </p>
      *
-     * @param payload the payload to be written
+     * @param buf the buf to be written
      */
-    public abstract void write(NetPayload payload);
+    public abstract void write(ByteBuf buf);
 }

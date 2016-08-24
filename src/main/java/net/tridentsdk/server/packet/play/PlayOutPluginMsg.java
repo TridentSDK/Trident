@@ -14,43 +14,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.tridentsdk.server.packet.login;
+package net.tridentsdk.server.packet.play;
 
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.packet.PacketOut;
 
 import javax.annotation.concurrent.Immutable;
 
-import static net.tridentsdk.server.net.NetData.wvint;
+import static net.tridentsdk.server.net.NetData.NET_CHARSET;
+import static net.tridentsdk.server.net.NetData.wstr;
 
 /**
- * Packet sent by the server after {@link LoginInStart} to
- * attempt to request the client to use packet encryption.
+ * Plugin message packet, used to send the brand after the
+ * {@link PlayOutJoinGame} packet has been sent.
  */
 @Immutable
-public final class LoginOutEncryptionRequest extends PacketOut {
+public final class PlayOutPluginMsg extends PacketOut {
     /**
-     * The encoded public key
+     * The branding packet
      */
-    private final byte[] publicKey;
+    public static final PlayOutPluginMsg BRAND =
+            new PlayOutPluginMsg("MC|Brand", "tridentsdk".getBytes(NET_CHARSET));
     /**
-     * The token
+     * The channel name
      */
-    private final byte[] token;
+    private final String channel;
+    /**
+     * The message payload
+     */
+    private final byte[] data;
 
-    public LoginOutEncryptionRequest(byte[] publicKey, byte[] token) {
-        super(LoginOutEncryptionRequest.class);
-        this.publicKey = publicKey;
-        this.token = token;
+    public PlayOutPluginMsg(String channel, byte[] data) {
+        super(PlayOutPluginMsg.class);
+        this.channel = channel;
+        this.data = data;
     }
 
     @Override
     public void write(ByteBuf buf) {
-        wvint(buf, 0); // empty string
-
-        wvint(buf, this.publicKey.length);
-        buf.writeBytes(this.publicKey);
-        wvint(buf, this.token.length);
-        buf.writeBytes(this.token);
+        wstr(buf, this.channel);
+        buf.writeBytes(this.data);
     }
 }

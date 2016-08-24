@@ -16,18 +16,23 @@
  */
 package net.tridentsdk.server.packet.play;
 
-import net.tridentsdk.server.net.NetPayload;
+import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.packet.PacketOut;
 import net.tridentsdk.world.World;
 import net.tridentsdk.world.opt.LevelType;
 import net.tridentsdk.world.opt.WorldOpts;
+
+import javax.annotation.concurrent.Immutable;
+
+import static net.tridentsdk.server.net.NetData.wstr;
 
 /**
  * Sent directly after login success, this provides the
  * player with information about the world they are
  * joining.
  */
-public class PlayOutJoinGame extends PacketOut {
+@Immutable
+public final class PlayOutJoinGame extends PacketOut {
     /**
      * World data that is sent to the player
      */
@@ -44,13 +49,13 @@ public class PlayOutJoinGame extends PacketOut {
     }
 
     @Override
-    public void write(NetPayload payload) {
-        payload.writeInt(100);
-        payload.writeUnsignedByte(this.opts.gameMode().asByte());
-        payload.writeInt(this.opts.dimension().asByte());
-        payload.writeUnsignedByte(this.opts.difficulty().asByte());
-        payload.writeUnsignedByte(0); // ignored by client
-        payload.writeString(this.type.toString());
-        payload.writeBoolean(false); // disable reduce debug
+    public void write(ByteBuf buf) {
+        buf.writeInt(100);
+        buf.writeByte(this.opts.gameMode().asByte());
+        buf.writeInt(this.opts.dimension().asByte());
+        buf.writeByte(this.opts.difficulty().asByte());
+        buf.writeByte(0); // ignored by client
+        wstr(buf, this.type.toString());
+        buf.writeBoolean(false); // disable reduce debug
     }
 }

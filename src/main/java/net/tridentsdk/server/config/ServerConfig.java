@@ -21,7 +21,6 @@ import net.tridentsdk.util.Misc;
 import javax.annotation.concurrent.ThreadSafe;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * This class contains the constant values whenever the
@@ -33,7 +32,7 @@ public class ServerConfig extends TridentConfig {
     /**
      * The path to the server configuration file
      */
-    public static final Path PATH = Paths.get(Misc.HOME, "server.json");
+    public static final Path PATH = Misc.HOME_PATH.resolve("server.json");
 
     /**
      * The internal server ip to which the socket

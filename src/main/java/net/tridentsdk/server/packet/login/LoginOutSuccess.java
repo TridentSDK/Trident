@@ -16,18 +16,21 @@
  */
 package net.tridentsdk.server.packet.login;
 
+import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.net.NetClient;
-import net.tridentsdk.server.net.NetPayload;
 import net.tridentsdk.server.packet.PacketOut;
-import net.tridentsdk.server.player.TridentPlayer;
 
+import javax.annotation.concurrent.Immutable;
 import java.util.UUID;
+
+import static net.tridentsdk.server.net.NetData.wstr;
 
 /**
  * This packet is sent by the server to indicate to the
  * Minecraft client that login has sucessfully completed.
  */
-public class LoginOutSuccess extends PacketOut {
+@Immutable
+public final class LoginOutSuccess extends PacketOut {
     /**
      * The client that is successfully logging in
      */
@@ -62,12 +65,17 @@ public class LoginOutSuccess extends PacketOut {
         client.enableCompression();
     }
 
-    @Override
-    public void write(NetPayload payload) {
-        payload.writeString(this.uuid.toString());
-        payload.writeString(this.name);
-        this.client.setState(NetClient.NetState.PLAY);
+    /**
+     * Obtains the UUID that will be used for login.
+     */
+    public UUID uuid() {
+        return this.uuid;
+    }
 
-        TridentPlayer.spawn(this.client, this.name, this.uuid);
+    @Override
+    public void write(ByteBuf buf) {
+        wstr(buf, this.uuid.toString());
+        wstr(buf, this.name);
+        this.client.setState(NetClient.NetState.PLAY);
     }
 }
