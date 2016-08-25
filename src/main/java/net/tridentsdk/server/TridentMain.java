@@ -77,7 +77,7 @@ public class TridentMain {
             logger.success("Done.");
         }
 
-        logger.log("Reading server.json... ");
+        logger.log("Reading server.json...");
         ServerConfig config = ServerConfig.init();
         logger.success("Done.");
         // -------------------------------------------------
@@ -86,7 +86,7 @@ public class TridentMain {
         NetServer server = NetServer.init(config);
         // -------------------------------------------------
 
-        logger.log("Setting up the server... ");
+        logger.log("Setting up the server...");
         TridentServer tridentServer = TridentServer.init(config, logger, server);
         logger.success("Done.");
 
@@ -96,14 +96,16 @@ public class TridentMain {
         // -------------------------------------------------
 
         // Setup API implementations -----------------------
-        logger.log("Setting up API implementation providers... ");
+        logger.log("Setting up API implementation providers...");
         ImplementationProvider impl = new ImplementationProvider(internal);
         Impl.setImpl(impl);
         logger.success("Done.");
         // -------------------------------------------------
 
         // Load worlds -------------------------------------
+        logger.log("Loading worlds...");
         impl.wrlds().loadAll();
+        logger.log("Done.");
         // -------------------------------------------------
 
         // Setup netty and other network crap --------------

@@ -17,10 +17,7 @@
 package net.tridentsdk.server.world.gen;
 
 import net.tridentsdk.world.World;
-import net.tridentsdk.world.gen.FeatureGenerator;
-import net.tridentsdk.world.gen.GeneratorProvider;
-import net.tridentsdk.world.gen.PropGenerator;
-import net.tridentsdk.world.gen.TerrainGenerator;
+import net.tridentsdk.world.gen.*;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
@@ -53,5 +50,10 @@ public class FlatGeneratorProvider implements GeneratorProvider {
     @Override
     public Set<PropGenerator> propSet(World world) {
         return Collections.emptySet();
+    }
+
+    @Override
+    public GenContainer container() {
+        return GenContainer.ARBITRARY;
     }
 }

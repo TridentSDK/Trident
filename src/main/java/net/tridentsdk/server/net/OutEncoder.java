@@ -112,8 +112,9 @@ public class OutEncoder extends MessageToByteEncoder<PacketOut> {
 
         byte[] buffer = new byte[NetClient.BUFFER_SIZE];
         ByteBuf result = payload.alloc().buffer();
-        while (deflater.deflate(buffer) > 0) {
-            result.writeBytes(buffer);
+        while (!deflater.finished()) {
+            int deflated = deflater.deflate(buffer);
+            result.writeBytes(buffer, 0, deflated);
         }
 
         deflater.end();

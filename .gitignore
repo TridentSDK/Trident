@@ -99,19 +99,3 @@ MANIFEST.MF
 dependency-reduced-pom.xml
 
 Thumbs.db
-
-### Trident files ###
-/world/
-bans.txt
-ops.txt
-server.json
-trident.log
-whitelist.txt
-
-src/test/jcstress/.*
-src/test/jcstress/jcstress-core/
-src/test/jcstress/jcstress-test-gen/
-src/test/jcstress/src/
-src/test/jcstress/jcstress.*
-src/test/jcstress/ROADMAP
-src/test/jcstress/LICENSE

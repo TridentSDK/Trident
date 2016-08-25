@@ -294,18 +294,12 @@ public class NetClient {
         NetState state = this.currentState;
         if (state == NetState.LOGIN) {
             this.sendPacket(new LoginOutDisconnect(reason))
-                    .addListener(future -> this.close());
+                    .addListener(future -> this.channel.close());
         } else if (state == NetState.PLAY) {
             this.sendPacket(new PlayOutDisconnect(reason))
-                    .addListener(future -> this.close());
-            this.player.doRemove();
+                    .addListener(future -> this.channel.close());
+            this.player.remove();
         } else {
-            this.channel.close();
-        }
-    }
-
-    private void close() {
-        if (this.channel.isOpen()) {
             this.channel.close();
         }
     }

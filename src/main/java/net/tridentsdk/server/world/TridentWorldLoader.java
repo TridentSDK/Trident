@@ -17,6 +17,7 @@
 package net.tridentsdk.server.world;
 
 import com.google.common.collect.Maps;
+import net.tridentsdk.command.logger.Logger;
 import net.tridentsdk.doc.Policy;
 import net.tridentsdk.util.Misc;
 import net.tridentsdk.world.World;
@@ -107,9 +108,11 @@ public class TridentWorldLoader implements WorldLoader {
      */
     @Nonnull
     private TridentWorld load(String name, Path enclosing, Path levelDat) {
+        Logger.get(this.getClass()).log("Loading world \"" + name + "\"...");
         TridentWorld world = new TridentWorld(name, enclosing);
         world.load();
         this.worlds.put(name, world);
+        Logger.get(this.getClass()).log("Finished loading \"" + name + "\".");
         return world;
     }
 
@@ -148,9 +151,11 @@ public class TridentWorldLoader implements WorldLoader {
             throw new IllegalArgumentException("World \"" + name + "\" already exists");
         }
 
-        TridentWorld world = new TridentWorld(name, Misc.HOME_PATH.resolve(name));
+        Logger.get(this.getClass()).log("Creating world \"" + name + "\"...");
+        TridentWorld world = new TridentWorld(name, Misc.HOME_PATH.resolve(name), spec);
         world.save();
         this.worlds.put(name, world);
+        Logger.get(this.getClass()).log("Finished creating \"" + name + "\".");
         return world;
     }
 

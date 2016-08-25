@@ -23,8 +23,12 @@ import net.tridentsdk.world.Chunk;
 import net.tridentsdk.world.World;
 import net.tridentsdk.world.opt.*;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 import java.nio.file.Path;
+import java.util.Collection;
+import java.util.Collections;
 
 /**
  * Implementation class for
@@ -32,6 +36,14 @@ import java.nio.file.Path;
  */
 @ThreadSafe
 public class TridentWorld implements World {
+    /**
+     * The chunk collection
+     */
+    // again this state is only ok to init before proper
+    // construction because the way we generate worlds is
+    // ensuring that the entire world has loaded (read:
+    // all chunks) before it is returned in WorldLoader
+    private final ChunkMap chunks = new ChunkMap(this);
     /**
      * Name of the world
      */
@@ -79,6 +91,12 @@ public class TridentWorld implements World {
         this.genOpts = new GenOptImpl(new Object());
     }
 
+    /**
+     * The world ticking method.
+     */
+    public void tick() {
+    }
+
     @Override
     public String name() {
         return this.name;
@@ -109,9 +127,21 @@ public class TridentWorld implements World {
         return null;
     }
 
+    @Nonnull
     @Override
-    public Chunk chunkAt(int x, int z) {
-        return null;
+    public TridentChunk chunkAt(int x, int z) {
+        return this.chunks.get(x, z, true);
+    }
+
+    @Nullable
+    @Override
+    public TridentChunk chunkAt(int x, int z, boolean gen) {
+        return this.chunks.get(x, z, gen);
+    }
+
+    @Override
+    public Collection<? extends Chunk> loadedChunks() {
+        return Collections.unmodifiableCollection(this.chunks.values());
     }
 
     @Override

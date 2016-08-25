@@ -17,11 +17,12 @@
 package net.tridentsdk.server.player;
 
 import com.google.common.collect.Maps;
-import net.tridentsdk.base.Position;
 import net.tridentsdk.chat.Chat;
 import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.server.entity.TridentEntity;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.packet.play.*;
+import net.tridentsdk.server.world.TridentChunk;
 import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.world.World;
 import net.tridentsdk.world.WorldLoader;
@@ -35,7 +36,7 @@ import java.util.UUID;
  * that is represented by a physical entity in a world.
  */
 @ThreadSafe
-public class TridentPlayer implements Player {
+public class TridentPlayer extends TridentEntity implements Player {
     // TODO player abilities
     // TODO client setting
     // TODO chunks
@@ -58,26 +59,15 @@ public class TridentPlayer implements Player {
      * The player's UUID
      */
     private final UUID uuid;
-    /**
-     * The player's current position in the world
-     */
-    private final Position position;
 
     /**
      * Constructs a new player.
      */
     private TridentPlayer(NetClient client, World world, String name, UUID uuid) {
+        super(world);
         this.client = client;
         this.name = name;
         this.uuid = uuid;
-        this.position = new Position(world);
-    }
-
-    /**
-     * Ticks the player.
-     */
-    public void tick() {
-        this.client.tick();
     }
 
     /**
@@ -93,11 +83,17 @@ public class TridentPlayer implements Player {
         PLAYERS.put(uuid, player);
         client.setPlayer(player);
 
-        client.sendPacket(new PlayOutJoinGame(world));
+        client.sendPacket(new PlayOutJoinGame(player, world));
         client.sendPacket(PlayOutPluginMsg.BRAND);
         client.sendPacket(new PlayOutDifficulty(world));
         client.sendPacket(new PlayOutSpawnPos());
         client.sendPacket(new PlayOutPosLook(player));
+        for (int i = -7; i < 7; i++) {
+            for (int j = -7; j < 7; j++) {
+                TridentChunk chunk = world.chunkAt(i, j);
+                client.sendPacket(new PlayOutChunk(chunk));
+            }
+        }
     }
 
     /**
@@ -116,24 +112,12 @@ public class TridentPlayer implements Player {
         return this.client;
     }
 
-    /**
-     * Obtains the player's current position in the world.
-     *
-     * @return the player position
-     */
     @Override
-    public Position position() {
-        return this.position;
+    public void doTick() {
+        this.client.tick();
     }
 
     @Override
-    public void remove() {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Helper method to prevent recursion
-     */
     public void doRemove() {
         PLAYERS.remove(this.uuid);
     }

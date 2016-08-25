@@ -17,6 +17,7 @@
 package net.tridentsdk.server.packet.play;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.server.packet.PacketOut;
 import net.tridentsdk.world.World;
 import net.tridentsdk.world.opt.LevelType;
@@ -41,16 +42,21 @@ public final class PlayOutJoinGame extends PacketOut {
      * The level type
      */
     private final LevelType type;
+    /**
+     * The player that is joining the game
+     */
+    private final Player player;
 
-    public PlayOutJoinGame(World world) {
+    public PlayOutJoinGame(Player player, World world) {
         super(PlayOutJoinGame.class);
+        this.player = player;
         this.opts = world.opts();
         this.type = world.genOpts().levelType();
     }
 
     @Override
     public void write(ByteBuf buf) {
-        buf.writeInt(100);
+        buf.writeInt(this.player.id());
         buf.writeByte(this.opts.gameMode().asByte());
         buf.writeInt(this.opts.dimension().asByte());
         buf.writeByte(this.opts.difficulty().asByte());
