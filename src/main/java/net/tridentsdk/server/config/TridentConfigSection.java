@@ -490,7 +490,7 @@ public class TridentConfigSection implements ConfigSection {
         // last element
         // try to get the value from the last child section
         // before the final key
-        // if null, throw exception
+        // if null, throw serverException
         Object element = section.elements.get(finalKey);
         if (element == null) {
             throw new NoSuchElementException(String.format("Key \"%s\" in your key \"%s\" cannot be found", finalKey, key));

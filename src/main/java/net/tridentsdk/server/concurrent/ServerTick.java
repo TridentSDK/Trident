@@ -17,6 +17,7 @@
 package net.tridentsdk.server.concurrent;
 
 import net.tridentsdk.server.TridentServer;
+import net.tridentsdk.server.exceptions.JiraExceptionCatcher;
 import net.tridentsdk.server.player.TridentPlayer;
 
 import java.util.Collection;
@@ -66,6 +67,7 @@ public class ServerTick extends Thread {
                     Thread.sleep(waitTime);
                 }
             } catch (Exception e) {
+                JiraExceptionCatcher.serverException(e);
                 break;
             }
         }
