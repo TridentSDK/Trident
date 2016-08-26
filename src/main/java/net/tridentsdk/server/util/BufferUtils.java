@@ -18,12 +18,32 @@ package net.tridentsdk.server.util;
 
 import io.netty.buffer.ByteBuf;
 
-public class BufferUtils {
+import javax.annotation.concurrent.Immutable;
 
+/**
+ * Utilities for debugging byte buffers and byte streams.
+ */
+@Immutable
+public final class BufferUtils {
+    /**
+     * Hexdumps the contents of the given buffer.
+     *
+     * @param buf the buffer to dump
+     * @return the hex dump
+     */
     public static String debugBuffer(ByteBuf buf) {
         return debugBuffer(buf, false);
     }
 
+    /**
+     * Dumps the contents of the given buffer, with the
+     * option to convert the dump to decimal instead of
+     * hex.
+     *
+     * @param buf the buffer to dump
+     * @param decimal {@code true} for decimal dump
+     * @return the content dump
+     */
     public static String debugBuffer(ByteBuf buf, boolean decimal) {
         int index = buf.readerIndex();
         int readableBytes = buf.readableBytes();
@@ -45,5 +65,4 @@ public class BufferUtils {
         buf.readerIndex(index);
         return response + "]";
     }
-
 }

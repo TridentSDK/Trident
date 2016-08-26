@@ -121,6 +121,13 @@ public class TridentChunk implements Chunk {
         return mask;
     }
 
+    /**
+     * Write the chunk data to the given buffer.
+     *
+     * @param buf the buffer to write the chunk data
+     * @param continuous {@code true} if the entire chunk
+     * is sent bottom to top
+     */
     public void write(ByteBuf buf, boolean continuous) {
         short mask = this.mask();
         wvint(buf, mask);

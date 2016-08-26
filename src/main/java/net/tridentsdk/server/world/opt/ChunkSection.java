@@ -17,10 +17,9 @@
 package net.tridentsdk.server.world.opt;
 
 import gnu.trove.TCollections;
-import gnu.trove.list.TCharList;
-import gnu.trove.list.array.TCharArrayList;
+import gnu.trove.list.TShortList;
+import gnu.trove.list.array.TShortArrayList;
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.world.opt.BlockState;
 
 import java.util.Arrays;
 
@@ -32,24 +31,24 @@ import static net.tridentsdk.server.net.NetData.wvint;
 public class ChunkSection {
     private int BITS_PER_BLOCK = 4;
     private final int secY;
-    private final TCharList palette = TCollections.synchronizedList(new TCharArrayList());
+    private final TShortList palette = TCollections.synchronizedList(new TShortArrayList());
     private final long[] data = new long[4096 >> this.BITS_PER_BLOCK];
     private final byte[] blockLight = new byte[2048];
     private final byte[] skyLight = new byte[2048];
 
     public ChunkSection(int secY) {
         this.secY = secY;
-        this.palette.add((char) 0);
+        this.palette.add((short) 0);
         Arrays.fill(this.data, 0L);
         Arrays.fill(this.blockLight, (byte) 0xFF);
         Arrays.fill(this.skyLight, (byte) 0xFF);
     }
 
-    public void set(int idx, BlockState state) {
-        int paletteIdx = this.palette.indexOf(state.toChar());
+    public void set(int idx, short state) {
+        int paletteIdx = this.palette.indexOf(state);
 
         if (paletteIdx == -1) {
-            this.palette.add(state.toChar());
+            this.palette.add(state);
             paletteIdx = this.palette.size() - 1;
 
             if (this.palette.size() > 1 << this.BITS_PER_BLOCK) {
