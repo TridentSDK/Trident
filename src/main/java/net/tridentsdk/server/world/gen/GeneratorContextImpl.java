@@ -16,6 +16,7 @@
  */
 package net.tridentsdk.server.world.gen;
 
+import net.tridentsdk.world.opt.BlockState;
 import net.tridentsdk.server.world.opt.ChunkSection;
 import net.tridentsdk.world.gen.GeneratorContext;
 
@@ -89,8 +90,8 @@ public class GeneratorContextImpl implements GeneratorContext {
     // 16 bits
 
     @Override
-    public char build(int id, byte meta) {
-        return (char) (id << 4 | meta);
+    public BlockState build(int id, byte meta) {
+        return new BlockState(id, meta);
     }
 
     /**
@@ -115,7 +116,7 @@ public class GeneratorContextImpl implements GeneratorContext {
     }
 
     @Override
-    public void set(int x, int y, int z, char block) {
+    public void set(int x, int y, int z, BlockState state) {
         int secY = this.section(y);
         ChunkSection section;
         synchronized (this.sections) {
@@ -127,7 +128,7 @@ public class GeneratorContextImpl implements GeneratorContext {
         }
 
         int idx = this.idx(x, y & 15, z);
-        section.set(idx, block);
+        section.set(idx, state);
     }
 
     @Override
