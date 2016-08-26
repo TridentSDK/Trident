@@ -39,7 +39,7 @@ public class WorldOptImpl implements WorldOpts {
     private volatile Dimension dimension = Dimension.OVERWORLD;
     private volatile boolean difficultyLocked = false;
     private volatile int spawnProtection = 5;
-    private volatile Vector spawn = new Vector();
+    private volatile Vector spawn = new Vector(0, 4, 0);
     private final GameRuleMap map = new GameRuleMap();
 
     private final TridentWorld world;

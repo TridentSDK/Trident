@@ -65,7 +65,8 @@ public class NetClient {
     }
 
     /**
-     * The buffer size used for compressed and decompression
+     * The buffer size used for compressed and
+     * decompression
      * buffering
      */
     public static final int BUFFER_SIZE = 8192;
@@ -134,7 +135,8 @@ public class NetClient {
     }
 
     /**
-     * Obtains an instance of a net client from the cache of
+     * Obtains an instance of a net client from the cache
+     * of
      * currently connected clients, or creates a new one if
      * it doesn't exist.
      *
@@ -209,7 +211,8 @@ public class NetClient {
     }
 
     /**
-     * Obtains the crypto module that is used for encryption
+     * Obtains the crypto module that is used for
+     * encryption
      * and decryption of packets.
      *
      * @return the crypto module
@@ -276,7 +279,8 @@ public class NetClient {
     }
 
     /**
-     * Overload method of {@link #disconnect(Chat)} but uses
+     * Overload method of {@link #disconnect(Chat)} but
+     * uses
      * shortcut String.
      *
      * @param reason the string reason

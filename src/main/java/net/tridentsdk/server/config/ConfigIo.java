@@ -48,7 +48,7 @@ public final class ConfigIo {
      * Exports the given resource and copies it into the
      * given destination path.
      *
-     * @param dest     the destination
+     * @param dest the destination
      * @param resource the resource to copy
      */
     public static void exportResource(Path dest, String resource) {
@@ -90,8 +90,9 @@ public final class ConfigIo {
      * Writes the memory configuration object to the config
      * located at the given path.
      *
-     * @param path   the config to write
-     * @param object the memory representation of the config
+     * @param path the config to write
+     * @param object the memory representation of the
+     * config
      */
     public static void writeConfig(Path path, JsonObject object) {
         String json = GSON.toJson(object);
@@ -114,8 +115,9 @@ public final class ConfigIo {
      * Converts the element to an object
      *
      * @param element the element to convert
-     * @param cls     the type to which this method will convert
-     * @param <T>     the type
+     * @param cls the type to which this method will
+     * convert
+     * @param <T> the type
      * @return the object
      */
     public static <T> T asObj(JsonElement element, Class<T> cls) {

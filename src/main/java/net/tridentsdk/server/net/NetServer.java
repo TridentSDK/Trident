@@ -21,7 +21,8 @@ import net.tridentsdk.server.config.ServerConfig;
 import javax.annotation.concurrent.Immutable;
 
 /**
- * This class handles the network connections for the server
+ * This class handles the network connections for the
+ * server
  * and manages the netty channels, packets, pipelines, etc.
  */
 @Immutable

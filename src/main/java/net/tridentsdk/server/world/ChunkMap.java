@@ -21,7 +21,6 @@ import gnu.trove.map.hash.TLongObjectHashMap;
 
 import javax.annotation.concurrent.GuardedBy;
 import java.util.Collection;
-import java.util.concurrent.locks.StampedLock;
 
 /**
  * Map of loaded chunks.
@@ -33,7 +32,7 @@ public class ChunkMap {
     /**
      * The lock guarding the chunk map
      */
-    private final StampedLock lock = new StampedLock();
+    private final Object lock = new Object();
     /**
      * The actual map of chunks
      */
@@ -43,7 +42,6 @@ public class ChunkMap {
         public TridentChunk get(long key) {
             TridentChunk chunk = super.get(key);
             if (chunk != null) {
-                ChunkMap.this.lock.tryUnlockRead();
                 return chunk.waitReady();
             }
 
@@ -75,29 +73,17 @@ public class ChunkMap {
      * @return the chunk, or {@code null}
      */
     public TridentChunk get(int x, int z, boolean gen) {
-        long key = (long) x | (long) z << 32;
-        long stamp = this.lock.readLock();
-        try {
+        System.out.printf("x:%s z:%s%n", x, z);
+        long key = (long) x << 32 | (long) z;
+        synchronized (this.lock) {
             TridentChunk chunk = this.chunks.get(key);
             if (chunk == null && gen) {
                 chunk = new TridentChunk(this.world, x, z);
                 chunk.generate();
-
-                stamp = this.lock.tryConvertToWriteLock(stamp);
-                if (stamp == 0) {
-                    stamp = this.lock.writeLock();
-                }
-
-                try {
-                    this.chunks.put(key, chunk);
-                } finally {
-                    this.lock.unlockWrite(stamp);
-                }
+                this.chunks.put(key, chunk);
             }
 
             return chunk;
-        } finally {
-            this.lock.tryUnlockRead();
         }
     }
 
@@ -107,11 +93,8 @@ public class ChunkMap {
      * @return the values of the chunk map
      */
     public Collection<TridentChunk> values() {
-        long stamp = this.lock.readLock();
-        try {
+        synchronized (this.lock) {
             return this.chunks.valueCollection();
-        } finally {
-            this.lock.unlockRead(stamp);
         }
     }
 }

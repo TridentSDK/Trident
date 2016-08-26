@@ -96,6 +96,7 @@ public final class PacketRegistry {
         put(PlayInClientStatus.class, NetState.PLAY, Bound.SERVER, 0x03);
         put(PlayOutKeepAlive.class, NetState.PLAY, Bound.CLIENT, 0x1F);
         put(PlayInKeepAlive.class, NetState.PLAY, Bound.SERVER, 0x0B);
+        put(PlayInPos.class, NetState.PLAY, Bound.SERVER, 0x0C);
         put(PlayOutChunk.class, NetState.PLAY, Bound.CLIENT, 0x20);
         put(PlayOutDisconnect.class, NetState.PLAY, Bound.CLIENT, 0x1A);
     }

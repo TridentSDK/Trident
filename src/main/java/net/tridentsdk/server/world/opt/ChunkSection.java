@@ -30,11 +30,10 @@ import static net.tridentsdk.server.net.NetData.wvint;
  * Represents a 16x16x16 horizontal slab in a chunk column.
  */
 public class ChunkSection {
-
     private int BITS_PER_BLOCK = 4;
     private final int secY;
     private final TCharList palette = TCollections.synchronizedList(new TCharArrayList());
-    private final long[] data = new long[4096 >> BITS_PER_BLOCK];
+    private final long[] data = new long[4096 >> this.BITS_PER_BLOCK];
     private final byte[] blockLight = new byte[2048];
     private final byte[] skyLight = new byte[2048];
 
@@ -53,20 +52,20 @@ public class ChunkSection {
             this.palette.add(state.toChar());
             paletteIdx = this.palette.size() - 1;
 
-            if(this.palette.size() > 1 << BITS_PER_BLOCK){
+            if (this.palette.size() > 1 << this.BITS_PER_BLOCK) {
                 // TODO Increase bits per block
             }
         }
 
-        int dataIdx = idx >> BITS_PER_BLOCK;
-        int shift = (idx & 15) * BITS_PER_BLOCK;
+        int dataIdx = idx >> this.BITS_PER_BLOCK;
+        int shift = (idx & 15) * this.BITS_PER_BLOCK;
         long or = ((long) paletteIdx) << shift;
         this.data[dataIdx] = this.data[dataIdx] | or;
     }
 
     public void write(ByteBuf buf) {
         // Write Bits per block
-        buf.writeByte(BITS_PER_BLOCK);
+        buf.writeByte(this.BITS_PER_BLOCK);
 
         // Write the palette size
         wvint(buf, this.palette.size());

@@ -29,8 +29,6 @@ import net.tridentsdk.world.gen.TerrainGenerator;
 import net.tridentsdk.world.opt.GenOpts;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 import static net.tridentsdk.server.net.NetData.wvint;
@@ -123,33 +121,22 @@ public class TridentChunk implements Chunk {
         return mask;
     }
 
-    public List<ChunkSection> getSectionsBasedOnMask(short mask){
-        List<ChunkSection> sections = new ArrayList<>();
+    public void write(ByteBuf buf, boolean continuous) {
+        short mask = this.mask();
+        wvint(buf, mask);
 
+        ByteBuf chunkData = Unpooled.buffer();
         for (int i = 0; i < this.sections.length; i++) {
-            if((mask & 1 << i) == 1){
-                if(this.sections[i] != null){
-                    sections.add(this.sections[i]);
-                }else{
-                    sections.add(EMPTY_SECTION);
+            if ((mask & 1 << i) == 1) {
+                if (this.sections[i] != null) {
+                    this.sections[i].write(chunkData);
+                } else {
+                    EMPTY_SECTION.write(chunkData);
                 }
             }
         }
 
-        return sections;
-    }
-
-    public void write(ByteBuf buf, boolean continuous) {
-        short mask = mask();
-
-        wvint(buf, mask);
-
-        ByteBuf chunkData = Unpooled.buffer();
-
-        getSectionsBasedOnMask(mask).forEach(section -> section.write(chunkData));
-
         wvint(buf, chunkData.readableBytes() + (continuous ? 256 : 0));
-
         buf.writeBytes(chunkData);
         chunkData.release();
 

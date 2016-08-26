@@ -40,7 +40,16 @@ public abstract class TridentEntity implements Entity {
      * The position at which this entity is located
      */
     private volatile Position position;
+    /**
+     * Whether or not this entity is on the ground
+     */
+    private volatile boolean onGround;
 
+    /**
+     * Entity superconstructor.
+     *
+     * @param world the world which the entity is located
+     */
     public TridentEntity(World world) {
         this.id = EID_COUNTER.incrementAndGet();
         this.position = new Position(world);
@@ -54,6 +63,26 @@ public abstract class TridentEntity implements Entity {
     @Override
     public Position position() {
         return this.position;
+    }
+
+    @Override
+    public void setPosition(Position position) {
+        this.position = position;
+        // TODO move packet
+    }
+
+    @Override
+    public boolean onGround() {
+        return this.onGround;
+    }
+
+    /**
+     * Sets the on ground status of the entity.
+     *
+     * @param onGround {@code true} if on ground
+     */
+    public void setOnGround(boolean onGround) {
+        this.onGround = onGround;
     }
 
     @Override
