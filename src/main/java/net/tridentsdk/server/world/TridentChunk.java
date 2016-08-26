@@ -29,6 +29,8 @@ import net.tridentsdk.world.gen.TerrainGenerator;
 import net.tridentsdk.world.opt.GenOpts;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 import static net.tridentsdk.server.net.NetData.wvint;
@@ -37,6 +39,9 @@ import static net.tridentsdk.server.net.NetData.wvint;
  * Represents a chunk column.
  */
 public class TridentChunk implements Chunk {
+
+    private static final ChunkSection EMPTY_SECTION = new ChunkSection(-1);
+
     /**
      * The ready state for this chunk, whether it has fully
      * generated yet.
@@ -108,8 +113,8 @@ public class TridentChunk implements Chunk {
      *
      * @return the chunk bitmask
      */
-    public int mask() {
-        int mask = 0;
+    public short mask() {
+        short mask = 0;
         for (int i = 0; i < this.sections.length; i++) {
             if (this.sections[i] == null) break;
             mask |= 1 << i;
@@ -118,15 +123,30 @@ public class TridentChunk implements Chunk {
         return mask;
     }
 
+    public List<ChunkSection> getSectionsBasedOnMask(short mask){
+        List<ChunkSection> sections = new ArrayList<>();
+
+        for (int i = 0; i < this.sections.length; i++) {
+            if((mask & 1 << i) == 1){
+                if(this.sections[i] != null){
+                    sections.add(this.sections[i]);
+                }else{
+                    sections.add(EMPTY_SECTION);
+                }
+            }
+        }
+
+        return sections;
+    }
+
     public void write(ByteBuf buf, boolean continuous) {
-        wvint(buf, mask());
+        short mask = mask();
+
+        wvint(buf, mask);
 
         ByteBuf chunkData = Unpooled.buffer();
 
-        for (ChunkSection section : this.sections) {
-            if (section == null) break;
-            section.write(chunkData);
-        }
+        getSectionsBasedOnMask(mask).forEach(section -> section.write(chunkData));
 
         wvint(buf, chunkData.readableBytes() + (continuous ? 256 : 0));
 

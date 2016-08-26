@@ -34,7 +34,7 @@ public class WorldOptImpl implements WorldOpts {
     private volatile boolean allowPortals = true;
     private volatile boolean forceGamemode = false;
 
-    private volatile GameMode gameMode = GameMode.SURVIVAL;
+    private volatile GameMode gameMode = GameMode.CREATIVE; // TODO Remove once in production
     private volatile Difficulty difficulty = Difficulty.NORMAL;
     private volatile Dimension dimension = Dimension.OVERWORLD;
     private volatile boolean difficultyLocked = false;

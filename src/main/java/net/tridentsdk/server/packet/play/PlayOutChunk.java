@@ -33,7 +33,7 @@ public class PlayOutChunk extends PacketOut {
 
     @Override
     public void write(ByteBuf buf) {
-        boolean doGUContinuous = false;
+        boolean doGUContinuous = true;
 
         buf.writeInt(this.chunk.x());
         buf.writeInt(this.chunk.z());
