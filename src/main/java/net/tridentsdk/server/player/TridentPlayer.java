@@ -17,6 +17,7 @@
 package net.tridentsdk.server.player;
 
 import com.google.common.collect.Maps;
+import net.tridentsdk.base.Position;
 import net.tridentsdk.chat.Chat;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.server.entity.TridentEntity;
@@ -80,7 +81,10 @@ public class TridentPlayer extends TridentEntity implements Player {
         TridentWorld world = (TridentWorld) WorldLoader.instance().getDefault();
         TridentPlayer player = new TridentPlayer(client, world, name, uuid);
         PLAYERS.put(uuid, player);
-        player.position().setY(4);
+
+        Position playerPosition = player.position();
+        playerPosition.setY(4);
+
         client.setPlayer(player);
 
         client.sendPacket(new PlayOutJoinGame(player, world));
@@ -91,9 +95,9 @@ public class TridentPlayer extends TridentEntity implements Player {
 
         int chunkLoadRadius = 7;
 
-        for (int i = -chunkLoadRadius; i < chunkLoadRadius; i++) {
-            for (int j = -chunkLoadRadius; j < chunkLoadRadius; j++) {
-                TridentChunk chunk = world.chunkAt(i, j);
+        for (int x = playerPosition.getChunkX() - chunkLoadRadius; x < playerPosition.getChunkX() + chunkLoadRadius; x++) {
+            for (int z = playerPosition.getChunkZ() - chunkLoadRadius; z < playerPosition.getChunkZ() + chunkLoadRadius; z++) {
+                TridentChunk chunk = world.chunkAt(x, z);
                 client.sendPacket(new PlayOutChunk(chunk));
             }
         }
