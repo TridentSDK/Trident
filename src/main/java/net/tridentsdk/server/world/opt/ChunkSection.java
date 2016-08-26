@@ -42,8 +42,8 @@ public class ChunkSection {
         this.secY = secY;
         this.palette.add((char) 0);
         Arrays.fill(this.data, 0L);
-        Arrays.fill(this.blockLight, (byte) 0x00);
-        Arrays.fill(this.skyLight, (byte) 0x00);
+        Arrays.fill(this.blockLight, (byte) 0xFF);
+        Arrays.fill(this.skyLight, (byte) 0xFF);
     }
 
     public void set(int idx, BlockState state) {
@@ -52,7 +52,6 @@ public class ChunkSection {
         if (paletteIdx == -1) {
             this.palette.add(state.toChar());
             paletteIdx = this.palette.size() - 1;
-            System.out.println(state + " NOT IN PALETTE, INSERTED AT " + paletteIdx);
 
             if(this.palette.size() > 1 << BITS_PER_BLOCK){
                 // TODO Increase bits per block
@@ -90,6 +89,6 @@ public class ChunkSection {
         buf.writeBytes(this.blockLight);
 
         // Write skylight (only written if overworld)
-        //buf.writeBytes(this.skyLight); // TODO overworld
+        buf.writeBytes(this.skyLight); // TODO overworld
     }
 }

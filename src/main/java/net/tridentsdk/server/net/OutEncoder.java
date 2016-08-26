@@ -126,8 +126,8 @@ public class OutEncoder extends MessageToByteEncoder<PacketOut> {
             payload.resetReaderIndex();
             this.writeCompressed(payload, out);
         } else {
-            wvint(out, VINT_LEN + BigInteger.valueOf(resultLen).toByteArray().length);
-            wvint(out, resultLen);
+            wvint(out, resultLen + BigInteger.valueOf(len).toByteArray().length);
+            wvint(out, len);
             out.writeBytes(result);
         }
     }
