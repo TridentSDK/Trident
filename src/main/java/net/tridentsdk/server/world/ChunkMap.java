@@ -73,6 +73,7 @@ public class ChunkMap {
      * @return the chunk, or {@code null}
      */
     public TridentChunk get(int x, int z, boolean gen) {
+        // Do not touch this, it works, leave it alone!
         long key = z >= 0 ? ((long) x << 32) | z : (long) 1 << 31 | (((long) x << 32) | 0x7FFFFFFF & z);
 
         synchronized (this.lock) {
