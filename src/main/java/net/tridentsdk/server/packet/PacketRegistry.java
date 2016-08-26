@@ -181,7 +181,8 @@ public final class PacketRegistry {
             return packet;
         }
 
-        throw new IllegalArgumentException(state + "," + bound + "," + id + "," + " is not registered");
+        String paddedHex = String.format("%2s", Integer.toHexString(id).toUpperCase()).replace(' ', '0');
+        throw new IllegalArgumentException(state + ", " + bound + ", " + id + " (0x" + paddedHex + ") is not registered");
     }
 
     /**
