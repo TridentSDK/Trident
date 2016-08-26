@@ -20,7 +20,6 @@ import gnu.trove.TCollections;
 import gnu.trove.list.TCharList;
 import gnu.trove.list.array.TCharArrayList;
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.server.util.BufferUtils;
 import net.tridentsdk.world.opt.BlockState;
 
 import java.util.Arrays;
@@ -43,8 +42,8 @@ public class ChunkSection {
         this.secY = secY;
         this.palette.add((char) 0);
         Arrays.fill(this.data, 0L);
-        Arrays.fill(this.blockLight, (byte) 0xFF);
-        Arrays.fill(this.skyLight, (byte) 0xFF);
+        Arrays.fill(this.blockLight, (byte) 0x00);
+        Arrays.fill(this.skyLight, (byte) 0x00);
     }
 
     public void set(int idx, BlockState state) {
@@ -73,36 +72,24 @@ public class ChunkSection {
         // Write the palette size
         wvint(buf, this.palette.size());
 
-        System.out.println(BufferUtils.debugBuffer(buf, true));
-
         // Write the palette itself
         this.palette.forEach(value -> {
             wvint(buf, value);
             return true;
         });
 
-        System.out.println(BufferUtils.debugBuffer(buf, true));
-
         // Write the section data length
         wvint(buf, this.data.length);
-
-        System.out.println(BufferUtils.debugBuffer(buf, true));
 
         // Write the actual data
         for (long l : this.data) {
             buf.writeLong(l);
         }
 
-        System.out.println(BufferUtils.debugBuffer(buf, true));
-
         // Write block light
         buf.writeBytes(this.blockLight);
 
-        System.out.println(BufferUtils.debugBuffer(buf, true));
-
         // Write skylight (only written if overworld)
-        buf.writeBytes(this.skyLight); // TODO overworld
-
-        System.out.println(BufferUtils.debugBuffer(buf, true));
+        //buf.writeBytes(this.skyLight); // TODO overworld
     }
 }

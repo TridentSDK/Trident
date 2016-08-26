@@ -19,6 +19,7 @@ package net.tridentsdk.server.world;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.tridentsdk.base.Block;
+import net.tridentsdk.server.util.BufferUtils;
 import net.tridentsdk.server.world.gen.GeneratorContextImpl;
 import net.tridentsdk.server.world.opt.ChunkSection;
 import net.tridentsdk.world.Chunk;
@@ -129,6 +130,7 @@ public class TridentChunk implements Chunk {
         }
 
         wvint(buf, chunkData.readableBytes() + (continuous ? 256 : 0));
+        System.out.println(BufferUtils.debugBuffer(buf, true));
         buf.writeBytes(chunkData);
         chunkData.release();
 
@@ -139,6 +141,8 @@ public class TridentChunk implements Chunk {
         }
 
         wvint(buf, 0);
+
+        System.out.println(BufferUtils.debugBuffer(buf, true));
     }
 
     @Override
