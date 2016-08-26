@@ -65,7 +65,7 @@ public class DebugLogger extends PipelinedLogger {
      * Creates a verbose logger filter
      *
      * @param next the next logger to which
-     *                   the filter will pass messages
+     * the filter will pass messages
      * @return a new instance of the logger filter
      */
     public static PipelinedLogger verbose(PipelinedLogger next) {
@@ -77,7 +77,7 @@ public class DebugLogger extends PipelinedLogger {
      * debug messages from the pipeline
      *
      * @param next the next logger to which
-     *                   the filter will pass messages
+     * the filter will pass messages
      * @return a new instance of the logger filter
      */
     public static PipelinedLogger noop(PipelinedLogger next) {

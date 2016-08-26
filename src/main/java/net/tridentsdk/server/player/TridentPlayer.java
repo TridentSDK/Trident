@@ -38,9 +38,8 @@ import java.util.UUID;
 @ThreadSafe
 public class TridentPlayer extends TridentEntity implements Player {
     // TODO player abilities
-    // TODO client setting
+    // TODO client settings
     // TODO chunks
-    // TODO account for login count
 
     /**
      * The players on the server
@@ -81,6 +80,7 @@ public class TridentPlayer extends TridentEntity implements Player {
         TridentWorld world = (TridentWorld) WorldLoader.instance().getDefault();
         TridentPlayer player = new TridentPlayer(client, world, name, uuid);
         PLAYERS.put(uuid, player);
+        player.position().setY(4);
         client.setPlayer(player);
 
         client.sendPacket(new PlayOutJoinGame(player, world));

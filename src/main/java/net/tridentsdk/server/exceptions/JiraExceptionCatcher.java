@@ -28,7 +28,7 @@ public class JiraExceptionCatcher {
         try {
             StackTraceElement element = e.getStackTrace()[0];
             int pos = 0;
-            while(element.getClassName().startsWith("java")){
+            while (element.getClassName().startsWith("java")) {
                 element = e.getStackTrace()[pos++];
             }
 
@@ -56,7 +56,7 @@ public class JiraExceptionCatcher {
             URL shortened = new URL("http://tsdk.xyz/api/v2/action/shorten?url=" + URLEncoder.encode(longUrl, "UTF-8"));
             BufferedReader in = new BufferedReader(new InputStreamReader(shortened.openStream()));
             url = in.readLine();
-        }catch (Exception ignored){
+        } catch (Exception ignored) {
         }
 
 

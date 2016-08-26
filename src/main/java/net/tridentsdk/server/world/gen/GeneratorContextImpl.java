@@ -16,9 +16,9 @@
  */
 package net.tridentsdk.server.world.gen;
 
-import net.tridentsdk.world.opt.BlockState;
 import net.tridentsdk.server.world.opt.ChunkSection;
 import net.tridentsdk.world.gen.GeneratorContext;
+import net.tridentsdk.world.opt.BlockState;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
@@ -81,8 +81,8 @@ public class GeneratorContextImpl implements GeneratorContext {
         return 0;
     }
 
-    // char is perfect for storing block data because
-    // char = 2 bytes = 16 bits
+    // short is perfect for storing block data because
+    // short = 2 bytes = 16 bits
     // 8 bit block id
     // 4 bit meta
     // 4 bit add (unused)
@@ -129,10 +129,5 @@ public class GeneratorContextImpl implements GeneratorContext {
 
         int idx = this.idx(x, y & 15, z);
         section.set(idx, state);
-    }
-
-    @Override
-    public char[][] data() {
-        return new char[0][];
     }
 }

@@ -112,9 +112,9 @@ public class TridentConfigSection implements ConfigSection {
     /**
      * Creates a new config section.
      *
-     * @param name   the name of the new config section
+     * @param name the name of the new config section
      * @param parent the parent of the child section
-     * @param root   the root section
+     * @param root the root section
      * @param object the
      */
     public TridentConfigSection(String name, ConfigSection parent, ConfigSection root, JsonObject object) {
