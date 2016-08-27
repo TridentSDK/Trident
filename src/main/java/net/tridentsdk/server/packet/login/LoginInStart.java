@@ -46,7 +46,6 @@ public final class LoginInStart extends PacketIn {
 
         String name = rstr(buf);
         client.setName(name);
-        // TODO check join parameters
         // TODO player join event
 
         if (TridentServer.cfg().doAuth()) {

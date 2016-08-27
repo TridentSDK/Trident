@@ -20,10 +20,13 @@ import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.packet.PacketOut;
 import net.tridentsdk.server.world.TridentChunk;
 
+import javax.annotation.concurrent.Immutable;
+
 /**
  * Sends the client the data contained by the chunk.
  */
-public class PlayOutChunk extends PacketOut {
+@Immutable
+public final class PlayOutChunk extends PacketOut {
     private final TridentChunk chunk;
 
     public PlayOutChunk(TridentChunk chunk) {

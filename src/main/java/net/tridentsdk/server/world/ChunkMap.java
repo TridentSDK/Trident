@@ -16,8 +16,7 @@
  */
 package net.tridentsdk.server.world;
 
-import gnu.trove.map.TLongObjectMap;
-import gnu.trove.map.hash.TLongObjectHashMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 
 import javax.annotation.concurrent.GuardedBy;
 import java.util.Collection;
@@ -37,10 +36,10 @@ public class ChunkMap {
      * The actual map of chunks
      */
     @GuardedBy("lock")
-    private final TLongObjectMap<TridentChunk> chunks = new TLongObjectHashMap<TridentChunk>() {
+    private final Long2ObjectOpenHashMap<TridentChunk> chunks = new Long2ObjectOpenHashMap<TridentChunk>() {
         @Override
-        public TridentChunk get(long key) {
-            TridentChunk chunk = super.get(key);
+        public TridentChunk get(long k) {
+            TridentChunk chunk = super.get(k);
             if (chunk != null) {
                 return chunk.waitReady();
             }
@@ -94,7 +93,7 @@ public class ChunkMap {
      */
     public Collection<TridentChunk> values() {
         synchronized (this.lock) {
-            return this.chunks.valueCollection();
+            return this.chunks.values();
         }
     }
 }

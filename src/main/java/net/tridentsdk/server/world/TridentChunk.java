@@ -20,7 +20,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.tridentsdk.base.Block;
 import net.tridentsdk.server.world.gen.GeneratorContextImpl;
-import net.tridentsdk.server.world.opt.ChunkSection;
 import net.tridentsdk.world.Chunk;
 import net.tridentsdk.world.World;
 import net.tridentsdk.world.gen.*;

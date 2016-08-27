@@ -16,8 +16,6 @@
  */
 package net.tridentsdk.server.packet;
 
-import net.tridentsdk.server.net.NetClient;
-
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -62,18 +60,6 @@ public class Packet {
      * The packet ID
      */
     private final int id;
-    /**
-     * The packet bound
-     */
-    private final Bound bound;
-    /**
-     * The client state
-     */
-    private final NetClient.NetState state;
-    /**
-     * The packet class
-     */
-    private final Class<? extends Packet> cls;
 
     /**
      * The constructor which polls the packet registry in
@@ -84,10 +70,6 @@ public class Packet {
     public Packet(Class<? extends Packet> cls) {
         int info = PacketRegistry.packetInfo(cls);
         this.id = PacketRegistry.idOf(info);
-        this.bound = PacketRegistry.boundOf(info);
-        this.state = PacketRegistry.stateOf(info);
-
-        this.cls = cls;
     }
 
     /**
@@ -98,33 +80,5 @@ public class Packet {
      */
     public int id() {
         return this.id;
-    }
-
-    /**
-     * Obtains the destination of this packet.
-     *
-     * @return the bound
-     */
-    public Bound bound() {
-        return this.bound;
-    }
-
-    /**
-     * Obtains the client state which the packet should be
-     * sent.
-     *
-     * @return the net state
-     */
-    public NetClient.NetState state() {
-        return this.state;
-    }
-
-    /**
-     * Obtains the class that this packet uses.
-     *
-     * @return the packet class
-     */
-    public Class<? extends Packet> packetClass() {
-        return this.cls;
     }
 }

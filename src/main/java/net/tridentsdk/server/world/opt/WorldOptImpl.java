@@ -17,6 +17,7 @@
 package net.tridentsdk.server.world.opt;
 
 import net.tridentsdk.base.Vector;
+import net.tridentsdk.doc.Debug;
 import net.tridentsdk.doc.Internal;
 import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.world.opt.*;
@@ -34,7 +35,8 @@ public class WorldOptImpl implements WorldOpts {
     private volatile boolean allowPortals = true;
     private volatile boolean forceGamemode = false;
 
-    private volatile GameMode gameMode = GameMode.CREATIVE; // TODO Remove once in production
+    @Debug("SURVIVAL")
+    private volatile GameMode gameMode = GameMode.CREATIVE;
     private volatile Difficulty difficulty = Difficulty.NORMAL;
     private volatile Dimension dimension = Dimension.OVERWORLD;
     private volatile boolean difficultyLocked = false;

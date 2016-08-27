@@ -25,27 +25,25 @@ import net.tridentsdk.server.player.TridentPlayer;
 import javax.annotation.concurrent.Immutable;
 
 /**
- * Packet received by the server upon the client requesting
- * the player entity to move.
+ * Sent by the player whenever the player turns or looks
+ * up and down without moving.
  */
 @Immutable
-public final class PlayInPos extends PacketIn {
-    public PlayInPos() {
-        super(PlayInPos.class);
+public final class PlayInLook extends PacketIn {
+    public PlayInLook() {
+        super(PlayInLook.class);
     }
 
     @Override
     public void read(ByteBuf buf, NetClient client) {
-        double x = buf.readDouble();
-        double feetY = buf.readDouble();
-        double z = buf.readDouble();
+        float yaw = buf.readFloat();
+        float pitch = buf.readFloat();
         boolean onGround = buf.readBoolean();
 
         TridentPlayer player = client.player();
         Position position = player.position();
-        position.setX(x);
-        position.setY(feetY);
-        position.setZ(z);
+        position.setYaw(yaw);
+        position.setPitch(pitch);
         player.setOnGround(onGround);
     }
 }

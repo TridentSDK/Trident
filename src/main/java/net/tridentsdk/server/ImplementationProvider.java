@@ -44,12 +44,9 @@ public class ImplementationProvider implements Impl.ImplementationProvider {
     private final PipelinedLogger head;
     // instance of the handlers class
     private final LoggerHandlers handlers;
-    // the world registry
-    private final TridentWorldLoader worldLoader;
 
     public ImplementationProvider(PipelinedLogger head) {
         this.head = head;
-        this.worldLoader = new TridentWorldLoader();
 
         for (PipelinedLogger logger = head; logger.next() != null; logger = logger.next()) {
             if (logger.getClass().equals(LoggerHandlers.class)) {
@@ -96,6 +93,6 @@ public class ImplementationProvider implements Impl.ImplementationProvider {
 
     @Override
     public TridentWorldLoader wrlds() {
-        return this.worldLoader;
+        return TridentWorldLoader.getInstance();
     }
 }

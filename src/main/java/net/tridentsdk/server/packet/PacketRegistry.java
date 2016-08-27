@@ -39,7 +39,7 @@ import static net.tridentsdk.server.packet.Packet.Bound;
  * This class holds packets registered by their identifying
  * packet ID as specified in the Minecraft protocol.
  */
-// TODO consider using Trove
+// TODO consider using fastutil
 @Immutable
 public final class PacketRegistry {
     /**
@@ -97,6 +97,8 @@ public final class PacketRegistry {
         put(PlayOutKeepAlive.class, NetState.PLAY, Bound.CLIENT, 0x1F);
         put(PlayInKeepAlive.class, NetState.PLAY, Bound.SERVER, 0x0B);
         put(PlayInPos.class, NetState.PLAY, Bound.SERVER, 0x0C);
+        put(PlayInPlayer.class, NetState.PLAY, Bound.SERVER, 0x0F);
+        put(PlayInLook.class, NetState.PLAY, Bound.SERVER, 0x0E);
         put(PlayOutChunk.class, NetState.PLAY, Bound.CLIENT, 0x20);
         put(PlayOutDisconnect.class, NetState.PLAY, Bound.CLIENT, 0x1A);
     }

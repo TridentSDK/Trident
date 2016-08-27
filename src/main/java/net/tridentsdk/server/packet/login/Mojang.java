@@ -43,7 +43,7 @@ public final class Mojang<T> {
      * The executor for performing mojang requests
      */
     private static final ExecutorService EXECUTOR_SERVICE =
-            Executors.newFixedThreadPool(4, (r) -> new Thread(r, "TRD-Mojang"));
+            Executors.newFixedThreadPool(4, (r) -> new Thread(r, "TRD - Mojang"));
     /**
      * The connection to the Mojang server
      */

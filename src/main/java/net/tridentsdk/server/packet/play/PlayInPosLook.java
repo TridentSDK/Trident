@@ -44,6 +44,6 @@ public final class PlayInPosLook extends PacketIn {
         pos.setZ(buf.readDouble());
         pos.setYaw(buf.readFloat());
         pos.setPitch(buf.readFloat());
-        buf.readBoolean(); // TODO onground
+        player.setOnGround(buf.readBoolean());
     }
 }

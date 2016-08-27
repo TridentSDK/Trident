@@ -71,6 +71,7 @@ public class TridentServer implements Server {
         this.logger = console;
         this.server = server;
         this.tick = new TridentTick(console);
+        this.tick.start();
     }
 
     /**

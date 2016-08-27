@@ -43,6 +43,15 @@ public class InDecoder extends ByteToMessageDecoder {
      */
     private static final Logger LOGGER = Logger.get(InDecoder.class);
     /**
+     * The packet inflater used for uncompressing packets
+     */
+    private static final ThreadLocal<Inflater> INFLATER = new ThreadLocal<Inflater>() {
+        @Override
+        protected Inflater initialValue() {
+            return new Inflater();
+        }
+    };
+    /**
      * Obtains the configured compression threshold.
      */
     public static final int COMPRESSION_THRESH = TridentServer.cfg().compressionThresh();
@@ -77,20 +86,25 @@ public class InDecoder extends ByteToMessageDecoder {
         // If not, compressed, use raw buffer
         // Toss appropriate header fields
         ByteBuf decompressed = decrypt;
+        boolean deflated = false;
         if (this.client.doCompression()) {
             rvint(decrypt); // toss full packet length
             int compressedLen = rvint(decrypt);
             if (compressedLen > COMPRESSION_THRESH) {
                 decompressed = ctx.alloc().buffer();
+                deflated = true;
                 byte[] in = arr(decrypt);
 
-                Inflater inflater = new Inflater();
+                Inflater inflater = INFLATER.get();
                 inflater.setInput(in);
 
                 byte[] buffer = new byte[NetClient.BUFFER_SIZE];
-                while (inflater.inflate(buffer) > 0) {
-                    decompressed.writeBytes(buffer);
+                while (!inflater.finished()) {
+                    int bytes = inflater.inflate(buffer);
+                    decompressed.writeBytes(buffer, 0, bytes);
                 }
+
+                inflater.reset();
             }
         } else {
             rvint(decompressed); // toss full packet length
@@ -104,5 +118,10 @@ public class InDecoder extends ByteToMessageDecoder {
 
         LOGGER.debug("RECV: " + packet.getClass().getSimpleName());
         packet.read(decompressed, this.client);
+
+        // If we created a new buffer, release it here
+        if (deflated) {
+            decompressed.release();
+        }
     }
 }

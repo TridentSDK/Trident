@@ -93,10 +93,10 @@ public class TridentPlayer extends TridentEntity implements Player {
         client.sendPacket(new PlayOutSpawnPos());
         client.sendPacket(new PlayOutPosLook(player));
 
-        int chunkLoadRadius = 7;
+        int chunkLoadRadius = 3;
 
-        for (int x = playerPosition.getChunkX() - chunkLoadRadius; x < playerPosition.getChunkX() + chunkLoadRadius; x++) {
-            for (int z = playerPosition.getChunkZ() - chunkLoadRadius; z < playerPosition.getChunkZ() + chunkLoadRadius; z++) {
+        for (int x = playerPosition.getChunkX() - chunkLoadRadius; x <= playerPosition.getChunkX() + chunkLoadRadius; x++) {
+            for (int z = playerPosition.getChunkZ() - chunkLoadRadius; z <= playerPosition.getChunkZ() + chunkLoadRadius; z++) {
                 TridentChunk chunk = world.chunkAt(x, z);
                 client.sendPacket(new PlayOutChunk(chunk));
             }

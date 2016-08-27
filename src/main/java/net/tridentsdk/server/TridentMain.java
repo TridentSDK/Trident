@@ -17,14 +17,17 @@
 package net.tridentsdk.server;
 
 import com.google.common.collect.Lists;
+import io.netty.util.ResourceLeakDetector;
 import net.tridentsdk.Impl;
 import net.tridentsdk.command.logger.Logger;
+import net.tridentsdk.doc.Debug;
 import net.tridentsdk.server.command.InfoLogger;
 import net.tridentsdk.server.command.PipelinedLogger;
 import net.tridentsdk.server.config.ConfigIo;
 import net.tridentsdk.server.config.ServerConfig;
 import net.tridentsdk.server.net.NetServer;
 import net.tridentsdk.server.util.JiraExceptionCatcher;
+import net.tridentsdk.server.world.TridentWorldLoader;
 
 import javax.annotation.concurrent.Immutable;
 import java.nio.file.Files;
@@ -54,6 +57,7 @@ public class TridentMain {
      * everything shifted to the right as a result of the
      * error handling
      */
+    @Debug("Leak detector")
     private static void start(String[] args) throws Exception {
         // Parse args --------------------------------------
         List<String> argList = Lists.newArrayList(args);
@@ -85,10 +89,6 @@ public class TridentMain {
         NetServer server = NetServer.init(config);
         // -------------------------------------------------
 
-        logger.log("Setting up the server...");
-        TridentServer.init(config, logger, server);
-        logger.success("Done.");
-
         // Setup API implementations -----------------------
         logger.log("Setting up API implementation providers...");
         ImplementationProvider impl = new ImplementationProvider(internal);
@@ -98,8 +98,14 @@ public class TridentMain {
 
         // Load worlds -------------------------------------
         logger.log("Loading worlds...");
-        impl.wrlds().loadAll();
+        TridentWorldLoader.getInstance().loadAll();
         logger.log("Done.");
+        // -------------------------------------------------
+
+        // Setup server ------------------------------------
+        logger.log("Setting up the server...");
+        TridentServer.init(config, logger, server);
+        logger.success("Done.");
         // -------------------------------------------------
 
         // Setup netty and other network crap --------------
@@ -108,5 +114,7 @@ public class TridentMain {
         logger.log(String.format("Server will be opened on %s:%s", address, port));
         server.setup();
         // -------------------------------------------------
+
+        ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.PARANOID);
     }
 }

@@ -20,6 +20,8 @@ import com.google.common.collect.Maps;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.GenericFutureListener;
 import net.tridentsdk.chat.Chat;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.packet.PacketOut;
@@ -29,10 +31,10 @@ import net.tridentsdk.server.packet.play.PlayOutDisconnect;
 import net.tridentsdk.server.packet.play.PlayOutKeepAlive;
 import net.tridentsdk.server.player.TridentPlayer;
 
-import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 import java.net.SocketAddress;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * This class represents the connection that a Minecraft
@@ -117,12 +119,7 @@ public class NetClient {
      * The last time which this player was pinged for keep
      * alive
      */
-    @GuardedBy("tickLock")
-    private long lastKeepAlive = System.currentTimeMillis();
-    /**
-     * Locked used to protect ticks from overlapping
-     */
-    private final Object tickLock = new Object();
+    private final AtomicLong lastKeepAlive = new AtomicLong(System.currentTimeMillis());
 
     /**
      * Creates a new netclient that represents a client's
@@ -131,7 +128,13 @@ public class NetClient {
     public NetClient(ChannelHandlerContext ctx) {
         this.channel = ctx.channel();
         this.currentState = NetState.HANDSHAKE;
-        this.channel.closeFuture().addListener(future -> this.disconnect(Chat.empty()));
+        this.channel.closeFuture().addListener(new GenericFutureListener<Future<Void>>() {
+            @Override
+            public void operationComplete(Future<Void> future) throws Exception {
+                NetClient.this.disconnect(Chat.empty());
+                future.removeListener(this);
+            }
+        });
     }
 
     /**
@@ -155,18 +158,21 @@ public class NetClient {
      * @return the last keep alive
      */
     public long lastKeepAlive() {
-        return this.lastKeepAlive;
+        return this.lastKeepAlive.get();
     }
 
     /**
-     * Ticks the client
+     * Ticks the client.
      */
     public void tick() {
-        synchronized (this.tickLock) {
-            long lastKeepAlive = this.lastKeepAlive;
-            long now = System.currentTimeMillis();
-            if ((now - lastKeepAlive) > CLIENT_TICK_INTV) {
-                this.lastKeepAlive = now;
+        long lastKeepAlive = this.lastKeepAlive.get();
+        long now = System.currentTimeMillis();
+        long elapsed = now - lastKeepAlive;
+        if (elapsed > CLIENT_TICK_INTV) {
+            // if we win a race, great
+            // if we lose a race, sucks, but we don't need
+            // to retry because it was too recent
+            if (this.lastKeepAlive.compareAndSet(lastKeepAlive, now)) {
                 this.sendPacket(new PlayOutKeepAlive(this));
             }
         }

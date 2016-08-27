@@ -20,8 +20,7 @@ import net.tridentsdk.command.logger.Logger;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.util.JiraExceptionCatcher;
 import net.tridentsdk.server.world.TridentWorld;
-import net.tridentsdk.world.World;
-import net.tridentsdk.world.WorldLoader;
+import net.tridentsdk.server.world.TridentWorldLoader;
 
 import java.util.concurrent.TimeUnit;
 
@@ -43,6 +42,7 @@ public class TridentTick extends Thread {
      * Creates a new server ticker thread.
      */
     public TridentTick(Logger logger) {
+        super("TRD - Tick");
         this.logger = logger;
     }
 
@@ -53,8 +53,8 @@ public class TridentTick extends Thread {
                 long start = System.currentTimeMillis();
 
                 // Tick worlds
-                for (World world : WorldLoader.instance().all().values()) {
-                    ((TridentWorld) world).tick();
+                for (TridentWorld world : TridentWorldLoader.getInstance().worlds()) {
+                    world.tick();
                 }
 
                 // Tick players

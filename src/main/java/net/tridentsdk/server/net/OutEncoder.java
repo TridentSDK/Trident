@@ -41,6 +41,15 @@ public class OutEncoder extends MessageToByteEncoder<PacketOut> {
      */
     private static final Logger LOGGER = Logger.get(OutEncoder.class);
     /**
+     * The deflater used for compressing packets
+     */
+    private static final ThreadLocal<Deflater> DEFLATER = new ThreadLocal<Deflater>() {
+        @Override
+        protected Deflater initialValue() {
+            return new Deflater(Deflater.BEST_SPEED);
+        }
+    };
+    /**
      * Length of an uncompressed packet using the
      * compressed transport.
      */
@@ -90,6 +99,8 @@ public class OutEncoder extends MessageToByteEncoder<PacketOut> {
             out.writeBytes(buf);
         }
 
+        payload.release();
+        buf.release();
         LOGGER.debug("SEND: " + msg.getClass().getSimpleName());
     }
 
@@ -106,7 +117,7 @@ public class OutEncoder extends MessageToByteEncoder<PacketOut> {
         payload.markReaderIndex();
         byte[] input = arr(payload, len);
 
-        Deflater deflater = new Deflater(Deflater.BEST_SPEED);
+        Deflater deflater = DEFLATER.get();
         deflater.setInput(input);
         deflater.finish();
 
@@ -117,7 +128,7 @@ public class OutEncoder extends MessageToByteEncoder<PacketOut> {
             result.writeBytes(buffer, 0, deflated);
         }
 
-        deflater.end();
+        deflater.reset();
 
         int resultLen = result.readableBytes();
         if (resultLen >= len) {
@@ -130,6 +141,8 @@ public class OutEncoder extends MessageToByteEncoder<PacketOut> {
             wvint(out, len);
             out.writeBytes(result);
         }
+
+        result.release();
     }
 
     /**

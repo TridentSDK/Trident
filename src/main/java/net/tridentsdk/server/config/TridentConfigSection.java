@@ -169,8 +169,6 @@ public class TridentConfigSection implements ConfigSection {
         return parent.elements.remove(finalKey) != null;
     }
 
-    // TODO implement the stream
-
     @Override
     public Stream<ConfigSection> children(boolean deep) {
         Set<ConfigSection> set = Sets.newLinkedHashSet();

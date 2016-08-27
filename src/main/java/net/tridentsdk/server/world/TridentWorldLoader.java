@@ -25,12 +25,14 @@ import net.tridentsdk.world.WorldLoader;
 import net.tridentsdk.world.opt.WorldCreateSpec;
 
 import javax.annotation.Nonnull;
+import javax.annotation.concurrent.ThreadSafe;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
@@ -38,6 +40,7 @@ import java.util.Map;
  * The implementation of the TridentSDK world registry.
  */
 @Policy("singleton")
+@ThreadSafe
 public class TridentWorldLoader implements WorldLoader {
     /**
      * The default world name
@@ -61,11 +64,29 @@ public class TridentWorldLoader implements WorldLoader {
             return FileVisitResult.CONTINUE;
         }
     };
+    /**
+     * The instance of the world loader
+     */
+    private static final TridentWorldLoader LOADER = new TridentWorldLoader();
 
     /**
      * The collection of all the loaded worlds
      */
-    private final Map<String, World> worlds = Maps.newConcurrentMap();
+    private final Map<String, TridentWorld> worlds = Maps.newConcurrentMap();
+
+    // Prevent instantiation
+    private TridentWorldLoader() {
+    }
+
+    /**
+     * Obtains the singleton instance of the world loader
+     * implementation.
+     *
+     * @return the world loader
+     */
+    public static TridentWorldLoader getInstance() {
+        return LOADER;
+    }
 
     /**
      * Initializer method for the registry.
@@ -119,6 +140,16 @@ public class TridentWorldLoader implements WorldLoader {
     @Override
     public Map<String, World> all() {
         return Collections.unmodifiableMap(this.worlds);
+    }
+
+    /**
+     * The raw collection of worlds that are currently
+     * loaded on the server.
+     *
+     * @return the collection of worlds
+     */
+    public Collection<TridentWorld> worlds() {
+        return this.worlds.values();
     }
 
     @Override

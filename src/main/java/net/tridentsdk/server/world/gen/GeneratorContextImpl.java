@@ -17,7 +17,7 @@
 package net.tridentsdk.server.world.gen;
 
 import net.tridentsdk.base.Substance;
-import net.tridentsdk.server.world.opt.ChunkSection;
+import net.tridentsdk.server.world.ChunkSection;
 import net.tridentsdk.world.gen.GeneratorContext;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -42,6 +42,12 @@ public class GeneratorContextImpl implements GeneratorContext {
      */
     private final AtomicReferenceArray<ChunkSection> sections = new AtomicReferenceArray<>(16);
 
+    /**
+     * Creates a new generator context with the given seed
+     * as the starting random.
+     *
+     * @param seed the seed
+     */
     public GeneratorContextImpl(long seed) {
         this.seed = seed;
         this.random = new AtomicLong(seed);

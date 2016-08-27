@@ -17,35 +17,24 @@
 package net.tridentsdk.server.packet.play;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.base.Position;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.packet.PacketIn;
-import net.tridentsdk.server.player.TridentPlayer;
 
 import javax.annotation.concurrent.Immutable;
 
 /**
- * Packet received by the server upon the client requesting
- * the player entity to move.
+ * Sent by the client upon joining the server in order to
+ * update the player.
  */
 @Immutable
-public final class PlayInPos extends PacketIn {
-    public PlayInPos() {
-        super(PlayInPos.class);
+public final class PlayInPlayer extends PacketIn {
+    public PlayInPlayer() {
+        super(PlayInPlayer.class);
     }
 
     @Override
     public void read(ByteBuf buf, NetClient client) {
-        double x = buf.readDouble();
-        double feetY = buf.readDouble();
-        double z = buf.readDouble();
         boolean onGround = buf.readBoolean();
-
-        TridentPlayer player = client.player();
-        Position position = player.position();
-        position.setX(x);
-        position.setY(feetY);
-        position.setZ(z);
-        player.setOnGround(onGround);
+        client.player().setOnGround(onGround);
     }
 }

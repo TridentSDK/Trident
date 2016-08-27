@@ -14,13 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.tridentsdk.server.world.opt;
+package net.tridentsdk.server.world;
 
-import gnu.trove.TCollections;
-import gnu.trove.list.TShortList;
-import gnu.trove.list.array.TShortArrayList;
 import io.netty.buffer.ByteBuf;
+import it.unimi.dsi.fastutil.shorts.ShortArrayList;
+import it.unimi.dsi.fastutil.shorts.ShortList;
 
+import javax.annotation.concurrent.GuardedBy;
+import javax.annotation.concurrent.NotThreadSafe;
 import java.util.Arrays;
 
 import static net.tridentsdk.server.net.NetData.wvint;
@@ -28,16 +29,18 @@ import static net.tridentsdk.server.net.NetData.wvint;
 /**
  * Represents a 16x16x16 horizontal slab in a chunk column.
  */
+@NotThreadSafe // TODO
 public class ChunkSection {
     /**
      * The default amount of bits per palette index
      */
-    private int bitsPerBlock = 4;
+    private final int bitsPerBlock = 4;
     /**
      * The chunk section palette, containing the block
      * states
      */
-    private final TShortList palette = TCollections.synchronizedList(new TShortArrayList());
+    @GuardedBy("palette")
+    private final ShortList palette = new ShortArrayList();
     /**
      * The data array, which contains palette indexes at
      * the XYZ index in the array
@@ -70,19 +73,23 @@ public class ChunkSection {
      * @param state the block state to set
      */
     public void set(int idx, short state) {
-        int paletteIdx = this.palette.indexOf(state);
+        int bitsPerBlock = this.bitsPerBlock;
+        int paletteIdx;
+        synchronized (this.palette) {
+            paletteIdx = this.palette.indexOf(state);
 
-        if (paletteIdx == -1) {
-            this.palette.add(state);
-            paletteIdx = this.palette.size() - 1;
+            if (paletteIdx == -1) {
+                this.palette.add(state);
+                paletteIdx = this.palette.size() - 1;
 
-            if (this.palette.size() > 1 << this.bitsPerBlock) {
-                // TODO Increase bits per block
+                if (this.palette.size() > 1 << bitsPerBlock) {
+                    // TODO Increase bits per block
+                }
             }
         }
 
-        int dataIdx = idx >> this.bitsPerBlock;
-        int shift = (idx & 15) * this.bitsPerBlock;
+        int dataIdx = idx >> bitsPerBlock;
+        int shift = (idx & 15) * bitsPerBlock;
         long or = ((long) paletteIdx) << shift;
         this.data[dataIdx] = this.data[dataIdx] | or;
     }
@@ -100,10 +107,9 @@ public class ChunkSection {
         wvint(buf, this.palette.size());
 
         // Write the palette itself
-        this.palette.forEach(value -> {
-            wvint(buf, value);
-            return true;
-        });
+        for (short s : this.palette) {
+            wvint(buf, s);
+        }
 
         // Write the section data length
         wvint(buf, this.data.length);
