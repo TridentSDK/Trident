@@ -18,9 +18,8 @@ package net.tridentsdk.server.packet;
 
 import com.esotericsoftware.reflectasm.ConstructorAccess;
 import com.google.common.collect.Maps;
-import gnu.trove.impl.Constants;
-import gnu.trove.map.hash.TIntObjectHashMap;
-import gnu.trove.map.hash.TObjectIntHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.tridentsdk.server.packet.handshake.HandshakeIn;
 import net.tridentsdk.server.packet.login.*;
 import net.tridentsdk.server.packet.play.*;
@@ -56,13 +55,13 @@ public final class PacketRegistry {
     /**
      * Packet registry
      */
-    private static final TObjectIntHashMap<Class<? extends Packet>> PACKETS =
-            new TObjectIntHashMap<>(Constants.DEFAULT_CAPACITY, Constants.DEFAULT_LOAD_FACTOR, -1);
+    private static final Object2IntOpenHashMap<Class<? extends Packet>> PACKET_IDS =
+            new Object2IntOpenHashMap<>();
     /**
      * Inverse packet registry
      */
-    private static final TIntObjectHashMap<Class<? extends Packet>> PACKET_IDS =
-            new TIntObjectHashMap<>(Constants.DEFAULT_CAPACITY, Constants.DEFAULT_LOAD_FACTOR, -1);
+    private static final Int2ObjectOpenHashMap<Class<? extends Packet>> PACKETS =
+            new Int2ObjectOpenHashMap<>();
 
     // Initialization done in static initializer performed
     // whilst under lock during class initialization, thus
@@ -101,6 +100,8 @@ public final class PacketRegistry {
         put(PlayInLook.class, NetState.PLAY, Bound.SERVER, 0x0E);
         put(PlayOutChunk.class, NetState.PLAY, Bound.CLIENT, 0x20);
         put(PlayOutDisconnect.class, NetState.PLAY, Bound.CLIENT, 0x1A);
+
+        PACKET_IDS.defaultReturnValue(-1);
     }
 
     /**
@@ -138,11 +139,11 @@ public final class PacketRegistry {
     private static void put(Class<? extends Packet> cls,
                             NetState state, Bound bound, int id) {
         int identifier = shift(state, bound, id);
-        PACKETS.put(cls, identifier);
-        PACKET_IDS.put(identifier, cls);
+        PACKET_IDS.put(cls, identifier);
 
         // Only in packets will need reflection inst
         if (bound == Bound.SERVER) {
+            PACKETS.put(identifier, cls);
             CTORS.put(cls, ConstructorAccess.get(cls));
         }
     }
@@ -178,7 +179,7 @@ public final class PacketRegistry {
      */
     public static Class<? extends Packet> byId(NetState state, Bound bound, int id) {
         int identifier = shift(state, bound, id);
-        Class<? extends Packet> packet = PACKET_IDS.get(identifier);
+        Class<? extends Packet> packet = PACKETS.get(identifier);
         if (packet != null) {
             return packet;
         }
@@ -195,7 +196,7 @@ public final class PacketRegistry {
      * @return the state of the packet
      */
     public static int packetInfo(Class<? extends Packet> cls) {
-        int identifier = PACKETS.get(cls);
+        int identifier = PACKET_IDS.getInt(cls);
         if (identifier != -1) {
             return identifier;
         }
