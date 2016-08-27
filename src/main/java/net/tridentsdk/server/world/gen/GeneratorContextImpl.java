@@ -16,11 +16,13 @@
  */
 package net.tridentsdk.server.world.gen;
 
+import net.tridentsdk.base.Substance;
 import net.tridentsdk.server.world.opt.ChunkSection;
 import net.tridentsdk.world.gen.GeneratorContext;
 
-import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReferenceArray;
 
 /**
  * Implementation of a generator context.
@@ -30,15 +32,19 @@ public class GeneratorContextImpl implements GeneratorContext {
     /**
      * The seed to be used for generation
      */
-    private long seed;
+    private final long seed;
+    /**
+     * The last random value, used for the PRNG generator
+     */
+    private final AtomicLong random;
     /**
      * List of chunk sections
      */
-    @GuardedBy("list")
-    private final ChunkSection[] sections = new ChunkSection[16];
+    private final AtomicReferenceArray<ChunkSection> sections = new AtomicReferenceArray<>(16);
 
     public GeneratorContextImpl(long seed) {
         this.seed = seed;
+        this.random = new AtomicLong(seed);
     }
 
     /**
@@ -47,17 +53,24 @@ public class GeneratorContextImpl implements GeneratorContext {
      *
      * @return the section list
      */
-    public ChunkSection[] sections() {
+    public AtomicReferenceArray<ChunkSection> sections() {
         return this.sections;
     }
 
     @Override
     public long nextLong() {
-        long x = this.seed;
-        x ^= (x << 21);
-        x ^= (x >>> 35);
-        x ^= (x << 4);
-        return x;
+        while (true) {
+            long l = this.random.get();
+
+            long x = l;
+            x ^= (x << 21);
+            x ^= (x >>> 35);
+            x ^= (x << 4);
+
+            if (x != 0 && this.random.compareAndSet(l, x)) {
+                return x;
+            }
+        }
     }
 
     @Override
@@ -67,19 +80,71 @@ public class GeneratorContextImpl implements GeneratorContext {
 
     @Override
     public int nextInt() {
-        return 0;
+        return this.nextInt(Integer.MAX_VALUE);
     }
 
     @Override
     public int nextInt(int max) {
-        return 0;
+        return (int) this.nextLong() % max;
     }
 
     @Override
     public long seed() {
-        return 0;
+        return this.seed;
     }
 
+    @Override
+    public void set(int x, int y, int z, Substance substance, byte meta) {
+        this.set(x, y, z, build(substance.id(), meta));
+    }
+
+    @Override
+    public void set(int x, int y, int z, Substance substance) {
+        this.set(x, y, z, build(substance.id(), (byte) 0));
+    }
+
+    @Override
+    public void set(int x, int y, int z, int id, byte meta) {
+        this.set(x, y, z, build(id, meta));
+    }
+
+    /**
+     * Sets the block at the given coordinates to the given
+     * block state value.
+     *
+     * @param x the x coordinate
+     * @param y the y coordinate
+     * @param z the z coordinate
+     * @param state the block to set
+     */
+    private void set(int x, int y, int z, short state) {
+        int sectionIdx = section(y);
+        ChunkSection section = this.sections.get(sectionIdx);
+        if (section == null) {
+            ChunkSection newSec = new ChunkSection();
+            // if we end up with no chunk section
+            // try to cas null -> newsec
+            if (this.sections.compareAndSet(sectionIdx, null, newSec)) {
+                // if we win the race, we use the same sec
+                section = newSec;
+            } else {
+                // if we lose the race, retry
+                section = this.sections.get(sectionIdx);
+            }
+        }
+
+        int idx = idx(x, y & 15, z);
+        section.set(idx, state);
+    }
+
+    /**
+     * Builds the given block state given the ID number and
+     * the metadata value.
+     *
+     * @param id the block ID
+     * @param meta the block meta
+     * @return the block state
+     */
     // short is perfect for storing block data because
     // short = 2 bytes = 16 bits
     // 8 bit block id
@@ -87,9 +152,7 @@ public class GeneratorContextImpl implements GeneratorContext {
     // 4 bit add (unused)
     // ------------------
     // 16 bits
-
-    @Override
-    public short build(int id, byte meta) {
+    private static short build(int id, byte meta) {
         return (short) (id << 4 | meta);
     }
 
@@ -104,29 +167,17 @@ public class GeneratorContextImpl implements GeneratorContext {
      * max size of this array is blocks in section, 4096
      * 16*16*16
      */
-    @Override
-    public int idx(int x, int y, int z) {
+    private static int idx(int x, int y, int z) {
         return y << 8 | z << 4 | x;
     }
 
-    @Override
-    public int section(int y) {
+    /**
+     * Obtains the section number for the given Y value.
+     *
+     * @param y the y value
+     * @return the section number for that Y value
+     */
+    private static int section(int y) {
         return y / 16;
-    }
-
-    @Override
-    public void set(int x, int y, int z, short state) {
-        int secY = this.section(y);
-        ChunkSection section;
-        synchronized (this.sections) {
-            section = this.sections[secY];
-            if (section == null) {
-                section = new ChunkSection(secY);
-                this.sections[secY] = section;
-            }
-        }
-
-        int idx = this.idx(x, y & 15, z);
-        section.set(idx, state);
     }
 }

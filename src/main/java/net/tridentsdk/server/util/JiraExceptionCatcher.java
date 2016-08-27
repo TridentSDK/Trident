@@ -14,14 +14,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.tridentsdk.server.exceptions;
+package net.tridentsdk.server.util;
+
+import net.tridentsdk.Server;
 
 import java.io.*;
 import java.net.URL;
 import java.net.URLEncoder;
 
-public class JiraExceptionCatcher {
+/**
+ * Catches exceptions in the server process that are
+ * unrecoverable and pastes a link for creating an issue
+ * with details pulled from the environment.
+ */
+public final class JiraExceptionCatcher {
+    // Prevent instantiation
+    private JiraExceptionCatcher() {
+    }
 
+    /**
+     * Catches the given exception and reformats it,
+     * pulling
+     * in the stacktrace information and providing a post
+     * link to the TridentSDK JIRA.
+     *
+     * @param e the exception to catch
+     */
     public static void serverException(Exception e) {
         String url = "https://tridentsdk.atlassian.net/secure/CreateIssue!default.jspa";
 
@@ -41,7 +59,7 @@ public class JiraExceptionCatcher {
 
             String description = "{code:title=StackTrace}" + sw.toString() + "{code}";
 
-            String environment = "Trident Version: " + "0.5-alpha\n" + // TODO Get actual TridentSDK version
+            String environment = "Trident Version: " + Server.VERSION + "\n" +
                     "Operating System: " + System.getProperty("os.name") + " (" + System.getProperty("os.version") + ")\n" +
                     "System Architecture: " + System.getProperty("os.arch") + "\n" +
                     "Java Version: " + System.getProperty("java.version") + " (" + System.getProperty("java.vendor") + ")";
@@ -69,5 +87,4 @@ public class JiraExceptionCatcher {
         o.println();
         e.printStackTrace();
     }
-
 }

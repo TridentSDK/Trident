@@ -31,8 +31,8 @@ import javax.annotation.concurrent.Immutable;
  */
 @Immutable
 public class NetEpollServer extends NetServer {
-    private final EventLoopGroup bossGroup = new EpollEventLoopGroup(8);
-    private final EventLoopGroup workerGroup = new EpollEventLoopGroup(8);
+    private final EventLoopGroup bossGroup = new EpollEventLoopGroup();
+    private final EventLoopGroup workerGroup = new EpollEventLoopGroup();
 
     NetEpollServer(String ip, int port) {
         super(ip, port);

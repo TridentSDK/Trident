@@ -31,8 +31,8 @@ import javax.annotation.concurrent.Immutable;
  */
 @Immutable
 public class NetNioServer extends NetServer {
-    private final EventLoopGroup bossGroup = new NioEventLoopGroup(8);
-    private final EventLoopGroup workerGroup = new NioEventLoopGroup(8);
+    private final EventLoopGroup bossGroup = new NioEventLoopGroup();
+    private final EventLoopGroup workerGroup = new NioEventLoopGroup();
 
     public NetNioServer(String ip, int port) {
         super(ip, port);

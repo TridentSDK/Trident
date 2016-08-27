@@ -20,9 +20,11 @@ import net.tridentsdk.Server;
 import net.tridentsdk.command.logger.Logger;
 import net.tridentsdk.config.Config;
 import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.server.concurrent.TridentTick;
 import net.tridentsdk.server.config.ServerConfig;
 import net.tridentsdk.server.net.NetServer;
 import net.tridentsdk.server.player.TridentPlayer;
+import net.tridentsdk.server.util.JiraExceptionCatcher;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.io.IOException;
@@ -51,6 +53,10 @@ public class TridentServer implements Server {
      * The socket channel handler instance
      */
     private final NetServer server;
+    /**
+     * The ticking thread for the server
+     */
+    private final TridentTick tick;
 
     /**
      * Creates a new server instance
@@ -64,6 +70,7 @@ public class TridentServer implements Server {
         this.config = config;
         this.logger = console;
         this.server = server;
+        this.tick = new TridentTick(console);
     }
 
     /**
@@ -120,25 +127,20 @@ public class TridentServer implements Server {
     }
 
     @Override
-    public String version() {
-        return "0.5-alpha";
-    }
-
-    @Override
     public Collection<Player> players() {
         return Collections.unmodifiableCollection(TridentPlayer.PLAYERS.values());
     }
 
     @Override
     public void reload() {
-        this.logger.warn("SERVER RELOADING");
+        this.logger.warn("SERVER RELOADING...");
 
         try {
             this.logger.log("Saving config...");
             this.config.save();
-            this.logger.success("Saved.");
         } catch (IOException e) {
-            e.printStackTrace();
+            JiraExceptionCatcher.serverException(e);
+            return;
         }
 
         this.logger.success("Server has reloaded successfully.");
@@ -146,11 +148,18 @@ public class TridentServer implements Server {
 
     @Override
     public void shutdown() {
-        this.logger.warn("SERVER SHUTTING DOWN");
+        this.logger.warn("SERVER SHUTTING DOWN...");
         try {
+            this.logger.log("Saving config...");
+            this.config.save();
+            this.tick.interrupt();
+            this.logger.log("Closing network connections...");
             this.server.shutdown();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        } catch (IOException | InterruptedException e) {
+            JiraExceptionCatcher.serverException(e);
+            return;
         }
+
+        this.logger.success("Server has shutdown successfully.");
     }
 }

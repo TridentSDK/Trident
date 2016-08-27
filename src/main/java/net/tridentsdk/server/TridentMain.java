@@ -21,11 +21,10 @@ import net.tridentsdk.Impl;
 import net.tridentsdk.command.logger.Logger;
 import net.tridentsdk.server.command.InfoLogger;
 import net.tridentsdk.server.command.PipelinedLogger;
-import net.tridentsdk.server.concurrent.ServerTick;
 import net.tridentsdk.server.config.ConfigIo;
 import net.tridentsdk.server.config.ServerConfig;
-import net.tridentsdk.server.exceptions.JiraExceptionCatcher;
 import net.tridentsdk.server.net.NetServer;
+import net.tridentsdk.server.util.JiraExceptionCatcher;
 
 import javax.annotation.concurrent.Immutable;
 import java.nio.file.Files;
@@ -87,13 +86,8 @@ public class TridentMain {
         // -------------------------------------------------
 
         logger.log("Setting up the server...");
-        TridentServer tridentServer = TridentServer.init(config, logger, server);
+        TridentServer.init(config, logger, server);
         logger.success("Done.");
-
-        // Setup ticking/heartbeat -------------------------
-        ServerTick ticker = new ServerTick(tridentServer);
-        ticker.start();
-        // -------------------------------------------------
 
         // Setup API implementations -----------------------
         logger.log("Setting up API implementation providers...");

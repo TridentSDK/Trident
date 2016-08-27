@@ -23,12 +23,11 @@ import net.tridentsdk.server.world.gen.GeneratorContextImpl;
 import net.tridentsdk.server.world.opt.ChunkSection;
 import net.tridentsdk.world.Chunk;
 import net.tridentsdk.world.World;
-import net.tridentsdk.world.gen.GenContainer;
-import net.tridentsdk.world.gen.GeneratorProvider;
-import net.tridentsdk.world.gen.TerrainGenerator;
+import net.tridentsdk.world.gen.*;
 import net.tridentsdk.world.opt.GenOpts;
 
 import javax.annotation.Nonnull;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
 import static net.tridentsdk.server.net.NetData.wvint;
@@ -37,8 +36,11 @@ import static net.tridentsdk.server.net.NetData.wvint;
  * Represents a chunk column.
  */
 public class TridentChunk implements Chunk {
-
-    private static final ChunkSection EMPTY_SECTION = new ChunkSection(-1);
+    /**
+     * An empty chunk section, used for ground up
+     * continuous
+     */
+    private static final ChunkSection EMPTY_SECTION = new ChunkSection();
 
     /**
      * The ready state for this chunk, whether it has fully
@@ -78,14 +80,23 @@ public class TridentChunk implements Chunk {
      * Generates the chunk.
      */
     public void generate() {
+        // TODO container + other generators
         GenOpts opts = this.world.genOpts();
         GeneratorProvider provider = opts.provider();
         GenContainer container = provider.container();
 
         TerrainGenerator terrain = provider.terrain(this.world);
+        Set<PropGenerator> props = provider.propSet(this.world);
+        Set<FeatureGenerator> features = provider.featureSet(this.world);
+
         GeneratorContextImpl context = new GeneratorContextImpl(opts.seed());
         terrain.generate(this.x, this.z, context);
-        this.sections = context.sections();
+
+        ChunkSection[] sections = new ChunkSection[16];
+        for (int i = 0; i < 16; i++) {
+            sections[i] = context.sections().get(i);
+        }
+        this.sections = sections;
 
         this.ready.countDown();
     }
@@ -107,21 +118,6 @@ public class TridentChunk implements Chunk {
     }
 
     /**
-     * Calculates the bitmask for this chunk.
-     *
-     * @return the chunk bitmask
-     */
-    public short mask() {
-        short mask = 0;
-        for (int i = 0; i < this.sections.length; i++) {
-            if (this.sections[i] == null) break;
-            mask |= 1 << i;
-        }
-
-        return mask;
-    }
-
-    /**
      * Write the chunk data to the given buffer.
      *
      * @param buf the buffer to write the chunk data
@@ -129,14 +125,20 @@ public class TridentChunk implements Chunk {
      * is sent bottom to top
      */
     public void write(ByteBuf buf, boolean continuous) {
-        short mask = this.mask();
+        ChunkSection[] sections = this.sections;
+
+        short mask = 0;
+        for (int i = 0; i < sections.length; i++) {
+            if (sections[i] == null) break;
+            mask |= 1 << i;
+        }
         wvint(buf, mask);
 
         ByteBuf chunkData = Unpooled.buffer();
-        for (int i = 0; i < this.sections.length; i++) {
+        for (int i = 0; i < sections.length; i++) {
             if ((mask & 1 << i) == 1) {
-                if (this.sections[i] != null) {
-                    this.sections[i].write(chunkData);
+                if (sections[i] != null) {
+                    sections[i].write(chunkData);
                 } else {
                     EMPTY_SECTION.write(chunkData);
                 }

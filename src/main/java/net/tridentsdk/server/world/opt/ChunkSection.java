@@ -29,21 +29,46 @@ import static net.tridentsdk.server.net.NetData.wvint;
  * Represents a 16x16x16 horizontal slab in a chunk column.
  */
 public class ChunkSection {
-    private int BITS_PER_BLOCK = 4;
-    private final int secY;
+    /**
+     * The default amount of bits per palette index
+     */
+    private int bitsPerBlock = 4;
+    /**
+     * The chunk section palette, containing the block
+     * states
+     */
     private final TShortList palette = TCollections.synchronizedList(new TShortArrayList());
-    private final long[] data = new long[4096 >> this.BITS_PER_BLOCK];
+    /**
+     * The data array, which contains palette indexes at
+     * the XYZ index in the array
+     */
+    private final long[] data = new long[4096 >> this.bitsPerBlock];
+    /**
+     * The nibble array of light emitted from blocks
+     */
     private final byte[] blockLight = new byte[2048];
+    /**
+     * The nibble array of light reaching from the sky
+     */
     private final byte[] skyLight = new byte[2048];
 
-    public ChunkSection(int secY) {
-        this.secY = secY;
+    /**
+     * Creates a new chunk section.
+     */
+    public ChunkSection() {
         this.palette.add((short) 0);
         Arrays.fill(this.data, 0L);
         Arrays.fill(this.blockLight, (byte) 0xFF);
         Arrays.fill(this.skyLight, (byte) 0xFF);
     }
 
+    /**
+     * Sets the block at the given position in the chunk
+     * section to the given block state.
+     *
+     * @param idx the XYZ index
+     * @param state the block state to set
+     */
     public void set(int idx, short state) {
         int paletteIdx = this.palette.indexOf(state);
 
@@ -51,20 +76,25 @@ public class ChunkSection {
             this.palette.add(state);
             paletteIdx = this.palette.size() - 1;
 
-            if (this.palette.size() > 1 << this.BITS_PER_BLOCK) {
+            if (this.palette.size() > 1 << this.bitsPerBlock) {
                 // TODO Increase bits per block
             }
         }
 
-        int dataIdx = idx >> this.BITS_PER_BLOCK;
-        int shift = (idx & 15) * this.BITS_PER_BLOCK;
+        int dataIdx = idx >> this.bitsPerBlock;
+        int shift = (idx & 15) * this.bitsPerBlock;
         long or = ((long) paletteIdx) << shift;
         this.data[dataIdx] = this.data[dataIdx] | or;
     }
 
+    /**
+     * Writes the section data to the given byte stream.
+     *
+     * @param buf the buffer to write the section data
+     */
     public void write(ByteBuf buf) {
         // Write Bits per block
-        buf.writeByte(this.BITS_PER_BLOCK);
+        buf.writeByte(this.bitsPerBlock);
 
         // Write the palette size
         wvint(buf, this.palette.size());

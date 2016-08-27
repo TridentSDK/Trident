@@ -27,8 +27,6 @@ import javax.annotation.concurrent.Immutable;
  */
 @Immutable
 public abstract class NetServer {
-    // TODO configure boss/worker threads for netserver
-
     /**
      * The server IP
      */

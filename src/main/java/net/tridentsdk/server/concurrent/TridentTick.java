@@ -16,34 +16,34 @@
  */
 package net.tridentsdk.server.concurrent;
 
-import net.tridentsdk.server.TridentServer;
-import net.tridentsdk.server.exceptions.JiraExceptionCatcher;
+import net.tridentsdk.command.logger.Logger;
 import net.tridentsdk.server.player.TridentPlayer;
+import net.tridentsdk.server.util.JiraExceptionCatcher;
+import net.tridentsdk.server.world.TridentWorld;
+import net.tridentsdk.world.World;
+import net.tridentsdk.world.WorldLoader;
 
-import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 
 /**
  * This class represents the server heartbeat pulse called
  * "tick" which occurs every 1/20th of a second.
  */
-public class ServerTick extends Thread {
+public class TridentTick extends Thread {
     /**
      * The amount of time taken by a single tick
      */
     private static final long TICK_MILLIS = TimeUnit.SECONDS.toMillis(1) / 20;
     /**
-     * The server which the this thread ticks
+     * The logger for this server tick thread
      */
-    private final TridentServer server;
+    private final Logger logger;
 
     /**
      * Creates a new server ticker thread.
-     *
-     * @param server the server to tick
      */
-    public ServerTick(TridentServer server) {
-        this.server = server;
+    public TridentTick(Logger logger) {
+        this.logger = logger;
     }
 
     @Override
@@ -52,8 +52,13 @@ public class ServerTick extends Thread {
             try {
                 long start = System.currentTimeMillis();
 
-                Collection<TridentPlayer> players = TridentPlayer.PLAYERS.values();
-                for (TridentPlayer player : players) {
+                // Tick worlds
+                for (World world : WorldLoader.instance().all().values()) {
+                    ((TridentWorld) world).tick();
+                }
+
+                // Tick players
+                for (TridentPlayer player : TridentPlayer.PLAYERS.values()) {
                     player.tick();
                 }
 
@@ -61,11 +66,14 @@ public class ServerTick extends Thread {
                 long elapsed = end - start;
                 long waitTime = TICK_MILLIS - elapsed;
                 if (waitTime <= 0) {
-                    this.server.logger().debug("Server running behind " +
+                    this.logger.debug("Server running behind " +
                             -waitTime + "ms, skipped " + (-waitTime / TICK_MILLIS) + " ticks");
                 } else {
                     Thread.sleep(waitTime);
                 }
+            } catch (InterruptedException e) {
+                break; // Thread interrupted by server,
+                // server must be shutting down
             } catch (Exception e) {
                 JiraExceptionCatcher.serverException(e);
                 break;

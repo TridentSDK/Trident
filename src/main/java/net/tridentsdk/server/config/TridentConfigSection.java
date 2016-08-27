@@ -27,6 +27,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 /**
  * Implementation of a configuration section
@@ -168,45 +169,34 @@ public class TridentConfigSection implements ConfigSection {
         return parent.elements.remove(finalKey) != null;
     }
 
-    // TODO
-    // Since these methods here are basically provided for
-    // convenience, and 90% of the time they are used only
-    // for iteration, my idea is to convert the returned
-    // object to Stream to help performance so we aren't
-    // prematurely collecting to a collection when it is not
-    // necessary for the 90% of people who use these methods
-    // exclusively for iteration
-    // Then again, we must also consider the fact that most
-    // configs are not very large, and that the amount of
-    // time it takes to perform these filter and map
-    // operations take basically no time at all
+    // TODO implement the stream
 
     @Override
-    public Set<ConfigSection> children(boolean deep) {
+    public Stream<ConfigSection> children(boolean deep) {
         Set<ConfigSection> set = Sets.newLinkedHashSet();
         this.children0(set, deep);
-        return Collections.unmodifiableSet(set);
+        return Collections.unmodifiableSet(set).stream();
     }
 
     @Override
-    public Set<String> keys(boolean deep) {
+    public Stream<String> keys(boolean deep) {
         Set<String> set = Sets.newLinkedHashSet();
         this.iterate("", set, (s, e) -> this.handlePath(s, e.getKey()), deep);
-        return Collections.unmodifiableSet(set);
+        return Collections.unmodifiableSet(set).stream();
     }
 
     @Override
-    public Collection<Object> values(boolean deep) {
+    public Stream<Object> values(boolean deep) {
         LinkedList<Object> list = Lists.newLinkedList();
         this.iterate("", list, (s, e) -> e.getValue(), deep);
-        return Collections.unmodifiableCollection(list);
+        return Collections.unmodifiableCollection(list).stream();
     }
 
     @Override
-    public Set<Map.Entry<String, Object>> entries(boolean deep) {
+    public Stream<Map.Entry<String, Object>> entries(boolean deep) {
         Set<Map.Entry<String, Object>> set = Sets.newLinkedHashSet();
         this.iterate("", set, this::concatKey, deep);
-        return Collections.unmodifiableSet(set);
+        return Collections.unmodifiableSet(set).stream();
     }
 
     @Override
@@ -217,14 +207,11 @@ public class TridentConfigSection implements ConfigSection {
     @Override
     public <T> T get(String key, Class<T> type) {
         Object element = this.getElement(key);
-        // fast path return for types that don't need
-        // special handling
         if (!(element instanceof ConfigSection)) {
             return (T) element;
         }
 
-        // TODO config serialization - get to this later
-        throw new UnsupportedOperationException();
+        throw new IllegalArgumentException(key + " is a config section");
     }
 
     @Override
