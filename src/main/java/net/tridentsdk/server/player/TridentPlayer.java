@@ -18,7 +18,8 @@ package net.tridentsdk.server.player;
 
 import com.google.common.collect.Maps;
 import net.tridentsdk.base.Position;
-import net.tridentsdk.chat.Chat;
+import net.tridentsdk.chat.ChatComponent;
+import net.tridentsdk.chat.ChatType;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.server.entity.TridentEntity;
 import net.tridentsdk.server.net.NetClient;
@@ -140,7 +141,12 @@ public class TridentPlayer extends TridentEntity implements Player {
     }
 
     @Override
-    public void kick(Chat reason) {
+    public void sendMessage(ChatComponent chat, ChatType type) {
+        this.net().sendPacket(new PlayOutChat(chat, type));
+    }
+
+    @Override
+    public void kick(ChatComponent reason) {
         this.client.disconnect(reason);
     }
 }

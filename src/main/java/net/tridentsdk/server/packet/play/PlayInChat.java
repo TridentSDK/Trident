@@ -18,29 +18,30 @@ package net.tridentsdk.server.packet.play;
 
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.chat.ChatComponent;
-import net.tridentsdk.server.packet.PacketOut;
+import net.tridentsdk.chat.ChatType;
+import net.tridentsdk.server.TridentServer;
+import net.tridentsdk.server.net.NetClient;
+import net.tridentsdk.server.packet.PacketIn;
+import net.tridentsdk.server.player.TridentPlayer;
 
-import javax.annotation.concurrent.Immutable;
+import static net.tridentsdk.server.net.NetData.rstr;
 
-import static net.tridentsdk.server.net.NetData.wstr;
+public class PlayInChat extends PacketIn {
 
-/**
- * Disconnect packet for PLAY.
- */
-@Immutable
-public final class PlayOutDisconnect extends PacketOut {
-    /**
-     * The reason why the player is disconnected
-     */
-    private final ChatComponent reason;
-
-    public PlayOutDisconnect(ChatComponent reason) {
-        super(PlayOutDisconnect.class);
-        this.reason = reason;
+    public PlayInChat() {
+        super(PlayInChat.class);
     }
 
     @Override
-    public void write(ByteBuf buf) {
-        wstr(buf, this.reason.toString());
+    public void read(ByteBuf buf, NetClient client) {
+        TridentPlayer player = client.player();
+        String msg = rstr(buf);
+
+        ChatComponent chat = ChatComponent.create()
+                .setTranslate("chat.type.text")
+                .addWith(player.name())
+                .addWith(msg);
+        TridentServer.instance().players().forEach(p -> p.sendMessage(chat, ChatType.CHAT));
     }
+
 }

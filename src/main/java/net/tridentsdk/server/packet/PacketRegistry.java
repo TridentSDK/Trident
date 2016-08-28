@@ -82,6 +82,8 @@ public final class PacketRegistry {
         put(LoginOutSuccess.class, NetState.LOGIN, Bound.CLIENT, 0x02);
         put(LoginOutCompression.class, NetState.LOGIN, Bound.CLIENT, 0x03);
 
+        put(PlayInChat.class, NetState.PLAY, Bound.SERVER, 0x02);
+        put(PlayOutChat.class, NetState.PLAY, Bound.CLIENT, 0x0F);
         put(PlayOutJoinGame.class, NetState.PLAY, Bound.CLIENT, 0x23);
         put(PlayOutPluginMsg.class, NetState.PLAY, Bound.CLIENT, 0x18);
         put(PlayOutDifficulty.class, NetState.PLAY, Bound.CLIENT, 0x0D);
