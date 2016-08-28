@@ -18,7 +18,6 @@ package net.tridentsdk.server.world;
 
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.shorts.ShortArrayList;
-import it.unimi.dsi.fastutil.shorts.ShortList;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.NotThreadSafe;
@@ -40,7 +39,7 @@ public class ChunkSection {
      * states
      */
     @GuardedBy("palette")
-    private final ShortList palette = new ShortArrayList();
+    private final ShortArrayList palette = new ShortArrayList();
     /**
      * The data array, which contains palette indexes at
      * the XYZ index in the array
@@ -107,8 +106,13 @@ public class ChunkSection {
         wvint(buf, this.palette.size());
 
         // Write the palette itself
-        for (short s : this.palette) {
-            wvint(buf, s);
+        ShortArrayList palette;
+        synchronized (this.palette) {
+            palette = this.palette;
+        }
+
+        for (int i = 0; i < palette.size(); i++) {
+            wvint(buf, palette.getShort(i));
         }
 
         // Write the section data length

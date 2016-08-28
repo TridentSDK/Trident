@@ -101,6 +101,8 @@ public final class PacketRegistry {
         put(PlayOutChunk.class, NetState.PLAY, Bound.CLIENT, 0x20);
         put(PlayOutDisconnect.class, NetState.PLAY, Bound.CLIENT, 0x1A);
 
+        PACKETS.trim();
+        PACKET_IDS.trim();
         PACKET_IDS.defaultReturnValue(-1);
     }
 

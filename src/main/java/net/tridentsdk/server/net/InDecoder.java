@@ -123,5 +123,9 @@ public class InDecoder extends ByteToMessageDecoder {
         if (deflated) {
             decompressed.release();
         }
+
+        if (crypto != null) {
+            decrypt.release();
+        }
     }
 }
