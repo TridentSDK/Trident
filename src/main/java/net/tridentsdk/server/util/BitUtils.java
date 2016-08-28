@@ -144,7 +144,7 @@ public final class BitUtils {
     /**
      * Sets the bit in the given value to the given state.
      *
-     * @param b the value to set
+     * @param s the value to set
      * @param bit the bit to set
      * @param state the state to set at the bit in the value
      * @return the value after setting the bit
@@ -156,7 +156,7 @@ public final class BitUtils {
     /**
      * Sets the bit in the given value to the given state.
      *
-     * @param b the value to set
+     * @param i the value to set
      * @param bit the bit to set
      * @param state the state to set at the bit in the value
      * @return the value after setting the bit

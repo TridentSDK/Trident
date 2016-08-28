@@ -44,6 +44,10 @@ public final class ConfigIo {
      */
     public static final JsonParser PARSER = new JsonParser();
 
+    // Prevent instantiation
+    private ConfigIo() {
+    }
+
     /**
      * Exports the given resource and copies it into the
      * given destination path.

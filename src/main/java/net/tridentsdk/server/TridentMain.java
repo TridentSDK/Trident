@@ -37,11 +37,15 @@ import java.util.List;
  * Trident server startup class
  */
 @Immutable
-public class TridentMain {
+public final class TridentMain {
     /**
      * Verbose commandline option (print debug or not)
      */
     private static final String VERBOSE = "-v";
+
+    // Prevent instantiation
+    private TridentMain() {
+    }
 
     public static void main(String[] args) {
         try {

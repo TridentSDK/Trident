@@ -25,6 +25,10 @@ import javax.annotation.concurrent.Immutable;
  */
 @Immutable
 public final class BufferUtils {
+    // Prevent instantiation
+    private BufferUtils() {
+    }
+
     /**
      * Hexdumps the contents of the given buffer.
      *
