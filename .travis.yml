@@ -1,5 +1,5 @@
 before_install:
-  - git clone -b travis `git config --get remote.origin.url` target/travis
+  - git clone -b travis `git config --get remote.origin.url` travis
   - chmod 777 "scripts/build.sh"
   - chmod 777 "scripts/javadoc.sh"
   - sleep 60
