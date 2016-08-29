@@ -18,8 +18,11 @@ package net.tridentsdk.server.player;
 
 import com.google.common.collect.Maps;
 import net.tridentsdk.base.Position;
-import net.tridentsdk.chat.Chat;
+import net.tridentsdk.chat.ChatColor;
+import net.tridentsdk.chat.ChatComponent;
+import net.tridentsdk.chat.ChatType;
 import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.entity.TridentEntity;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.packet.play.*;
@@ -127,6 +130,12 @@ public class TridentPlayer extends TridentEntity implements Player {
     @Override
     public void doRemove() {
         PLAYERS.remove(this.uuid);
+
+        ChatComponent chat = ChatComponent.create()
+                .setColor(ChatColor.YELLOW)
+                .setTranslate("multiplayer.player.left")
+                .addWith(name);
+        TridentServer.instance().players().forEach(e -> e.sendMessage(chat, ChatType.CHAT));
     }
 
     @Override
@@ -140,7 +149,12 @@ public class TridentPlayer extends TridentEntity implements Player {
     }
 
     @Override
-    public void kick(Chat reason) {
+    public void sendMessage(ChatComponent chat, ChatType type) {
+        this.net().sendPacket(new PlayOutChat(chat, type));
+    }
+
+    @Override
+    public void kick(ChatComponent reason) {
         this.client.disconnect(reason);
     }
 }

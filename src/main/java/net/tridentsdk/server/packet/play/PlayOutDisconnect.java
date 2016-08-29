@@ -17,7 +17,7 @@
 package net.tridentsdk.server.packet.play;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.chat.Chat;
+import net.tridentsdk.chat.ChatComponent;
 import net.tridentsdk.server.packet.PacketOut;
 
 import javax.annotation.concurrent.Immutable;
@@ -32,15 +32,15 @@ public final class PlayOutDisconnect extends PacketOut {
     /**
      * The reason why the player is disconnected
      */
-    private final Chat reason;
+    private final ChatComponent reason;
 
-    public PlayOutDisconnect(Chat reason) {
+    public PlayOutDisconnect(ChatComponent reason) {
         super(PlayOutDisconnect.class);
         this.reason = reason;
     }
 
     @Override
     public void write(ByteBuf buf) {
-        wstr(buf, this.reason.asJson());
+        wstr(buf, this.reason.toString());
     }
 }

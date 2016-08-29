@@ -17,34 +17,31 @@
 package net.tridentsdk.server.packet.play;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.chat.ChatColor;
 import net.tridentsdk.chat.ChatComponent;
 import net.tridentsdk.chat.ChatType;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.packet.PacketIn;
+import net.tridentsdk.server.player.TridentPlayer;
 
-import javax.annotation.concurrent.Immutable;
+import static net.tridentsdk.server.net.NetData.rstr;
 
-/**
- * Sent by the client upon joining the server in order to
- * update the player.
- */
-@Immutable
-public final class PlayInPlayer extends PacketIn {
-    public PlayInPlayer() {
-        super(PlayInPlayer.class);
+public class PlayInChat extends PacketIn {
+
+    public PlayInChat() {
+        super(PlayInChat.class);
     }
 
     @Override
     public void read(ByteBuf buf, NetClient client) {
-        boolean onGround = buf.readBoolean();
-        client.player().setOnGround(onGround);
+        TridentPlayer player = client.player();
+        String msg = rstr(buf);
 
         ChatComponent chat = ChatComponent.create()
-                .setColor(ChatColor.YELLOW)
-                .setTranslate("multiplayer.player.joined")
-                .addWith(client.name());
+                .setTranslate("chat.type.text")
+                .addWith(player.name())
+                .addWith(msg);
         TridentServer.instance().players().forEach(p -> p.sendMessage(chat, ChatType.CHAT));
     }
+
 }

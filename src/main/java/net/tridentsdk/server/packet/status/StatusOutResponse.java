@@ -18,6 +18,7 @@ package net.tridentsdk.server.packet.status;
 
 import com.google.gson.JsonObject;
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.chat.ChatComponent;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.config.ConfigIo;
 import net.tridentsdk.server.config.ServerConfig;
@@ -64,9 +65,7 @@ public final class StatusOutResponse extends PacketOut {
         // players.add("sample", new JsonArray());
         resp.add("players", players);
 
-        JsonObject description = new JsonObject();
-        description.addProperty("text", cfg.motd());
-        resp.add("description", description);
+        resp.add("description", ChatComponent.text(cfg.motd()).asJson());
 
         // resp.addProperty("favicon", "data:image/png;base64,<data>");
         String toString = ConfigIo.GSON.toJson(resp);

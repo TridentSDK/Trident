@@ -14,33 +14,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.tridentsdk.server.packet.login;
+package net.tridentsdk.server.packet.play;
 
 import io.netty.buffer.ByteBuf;
+import lombok.Getter;
 import net.tridentsdk.chat.ChatComponent;
+import net.tridentsdk.chat.ChatType;
 import net.tridentsdk.server.packet.PacketOut;
 
 import static net.tridentsdk.server.net.NetData.wstr;
 
-/**
- * This packet is sent to the client in states LOGIN, PLAY
- * to indicate that the player will be disconnected from
- * the server.
- */
-public final class LoginOutDisconnect extends PacketOut {
-    /**
-     * The message displayed on the screen once the player
-     * is disconnected
-     */
-    private final ChatComponent reason;
+@Getter
+public class PlayOutChat extends PacketOut {
 
-    public LoginOutDisconnect(ChatComponent reason) {
-        super(LoginOutDisconnect.class);
-        this.reason = reason;
+    private ChatComponent chat;
+    private ChatType type;
+
+    public PlayOutChat(ChatComponent chat, ChatType type) {
+        super(PlayOutChat.class);
+        this.chat = chat;
+        this.type = type;
     }
 
     @Override
     public void write(ByteBuf buf) {
-        wstr(buf, this.reason.toString());
+        wstr(buf, chat.toString());
+        buf.writeByte(type.ordinal());
     }
+
 }

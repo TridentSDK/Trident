@@ -22,7 +22,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
-import net.tridentsdk.chat.Chat;
+import net.tridentsdk.chat.ChatComponent;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.packet.PacketOut;
 import net.tridentsdk.server.packet.login.LoginOutCompression;
@@ -122,6 +122,11 @@ public class NetClient {
     private final AtomicLong lastKeepAlive = new AtomicLong(System.currentTimeMillis());
 
     /**
+     * Cached
+     */
+    private static final ChatComponent EMPTY = ChatComponent.empty();
+
+    /**
      * Creates a new netclient that represents a client's
      * connection to the server.
      */
@@ -129,11 +134,13 @@ public class NetClient {
         this.channel = ctx.channel();
         this.currentState = NetState.HANDSHAKE;
         this.channel.closeFuture().addListener(new GenericFutureListener<Future<Void>>() {
+
             @Override
             public void operationComplete(Future<Void> future) throws Exception {
-                NetClient.this.disconnect(Chat.empty());
+                NetClient.this.disconnect(EMPTY);
                 future.removeListener(this);
             }
+
         });
     }
 
@@ -285,14 +292,14 @@ public class NetClient {
     }
 
     /**
-     * Overload method of {@link #disconnect(Chat)} but
+     * Overload method of {@link #disconnect(ChatComponent)} but
      * uses
      * shortcut String.
      *
      * @param reason the string reason
      */
     public void disconnect(String reason) {
-        this.disconnect(Chat.plain(reason));
+        this.disconnect(ChatComponent.text(reason));
     }
 
     /**
@@ -300,7 +307,7 @@ public class NetClient {
      *
      * @param reason the reason for disconnecting
      */
-    public void disconnect(Chat reason) {
+    public void disconnect(ChatComponent reason) {
         NetState state = this.currentState;
         if (state == NetState.LOGIN) {
             this.sendPacket(new LoginOutDisconnect(reason))
