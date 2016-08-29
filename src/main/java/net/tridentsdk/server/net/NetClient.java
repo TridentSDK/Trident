@@ -131,11 +131,15 @@ public class NetClient {
         this.channel = ctx.channel();
         this.currentState = NetState.HANDSHAKE;
         this.channel.closeFuture().addListener(new GenericFutureListener<Future<Void>>() {
+
+            final ChatComponent EMPTY = ChatComponent.empty();
+
             @Override
             public void operationComplete(Future<Void> future) throws Exception {
-                NetClient.this.disconnect(ChatComponent.empty());
+                NetClient.this.disconnect(EMPTY);
                 future.removeListener(this);
             }
+
         });
     }
 
@@ -314,11 +318,11 @@ public class NetClient {
         } else {
             this.channel.close();
         }
-        if (name != null) {
+        if (player != null) {
             ChatComponent chat = ChatComponent.create()
                     .setColor(ChatColor.YELLOW)
                     .setTranslate("multiplayer.player.left")
-                    .addWith(name);
+                    .addWith(player.name());
             TridentServer.instance().players().forEach(e -> e.sendMessage(chat, ChatType.CHAT));
         }
     }
