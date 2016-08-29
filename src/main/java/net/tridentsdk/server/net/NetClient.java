@@ -22,9 +22,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
-import net.tridentsdk.chat.ChatColor;
 import net.tridentsdk.chat.ChatComponent;
-import net.tridentsdk.chat.ChatType;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.packet.PacketOut;
 import net.tridentsdk.server.packet.login.LoginOutCompression;
@@ -126,7 +124,7 @@ public class NetClient {
     /**
      * Cached
      */
-    static final ChatComponent EMPTY = ChatComponent.empty();
+    private static final ChatComponent EMPTY = ChatComponent.empty();
 
     /**
      * Creates a new netclient that represents a client's
@@ -320,13 +318,6 @@ public class NetClient {
             this.player.remove();
         } else {
             this.channel.close();
-        }
-        if (player != null) {
-            ChatComponent chat = ChatComponent.create()
-                    .setColor(ChatColor.YELLOW)
-                    .setTranslate("multiplayer.player.left")
-                    .addWith(player.name());
-            TridentServer.instance().players().forEach(e -> e.sendMessage(chat, ChatType.CHAT));
         }
     }
 }
