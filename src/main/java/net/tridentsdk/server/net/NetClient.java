@@ -124,6 +124,11 @@ public class NetClient {
     private final AtomicLong lastKeepAlive = new AtomicLong(System.currentTimeMillis());
 
     /**
+     * Cached
+     */
+    static final ChatComponent EMPTY = ChatComponent.empty();
+
+    /**
      * Creates a new netclient that represents a client's
      * connection to the server.
      */
@@ -131,8 +136,6 @@ public class NetClient {
         this.channel = ctx.channel();
         this.currentState = NetState.HANDSHAKE;
         this.channel.closeFuture().addListener(new GenericFutureListener<Future<Void>>() {
-
-            final ChatComponent EMPTY = ChatComponent.empty();
 
             @Override
             public void operationComplete(Future<Void> future) throws Exception {
