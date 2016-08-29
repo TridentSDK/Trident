@@ -22,13 +22,26 @@ import net.tridentsdk.chat.ChatComponent;
 import net.tridentsdk.chat.ChatType;
 import net.tridentsdk.server.packet.PacketOut;
 
+import javax.annotation.concurrent.Immutable;
+
 import static net.tridentsdk.server.net.NetData.wstr;
 
+/**
+ * This packet is sent by the server to broadcast an
+ * incoming chat packet to the entire server, or to send
+ * a message to certain players.
+ */
+@Immutable
 @Getter
-public class PlayOutChat extends PacketOut {
-
-    private ChatComponent chat;
-    private ChatType type;
+public final class PlayOutChat extends PacketOut {
+    /**
+     * The chat message being sent
+     */
+    private final ChatComponent chat;
+    /**
+     * The type of chat being sent to the player
+     */
+    private final ChatType type;
 
     public PlayOutChat(ChatComponent chat, ChatType type) {
         super(PlayOutChat.class);
@@ -38,8 +51,7 @@ public class PlayOutChat extends PacketOut {
 
     @Override
     public void write(ByteBuf buf) {
-        wstr(buf, chat.toString());
-        buf.writeByte(type.ordinal());
+        wstr(buf, this.chat.toString());
+        buf.writeByte(this.type.ordinal());
     }
-
 }

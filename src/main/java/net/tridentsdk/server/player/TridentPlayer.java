@@ -22,7 +22,6 @@ import net.tridentsdk.chat.ChatColor;
 import net.tridentsdk.chat.ChatComponent;
 import net.tridentsdk.chat.ChatType;
 import net.tridentsdk.entity.living.Player;
-import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.entity.TridentEntity;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.packet.play.*;
@@ -80,7 +79,7 @@ public class TridentPlayer extends TridentEntity implements Player {
      * @param name the player name
      * @param uuid the player UUID
      */
-    public static void spawn(NetClient client, String name, UUID uuid) {
+    public static void spawn(NetClient client, String name, UUID uuid, String skin) {
         TridentWorld world = (TridentWorld) WorldLoader.instance().getDefault();
         TridentPlayer player = new TridentPlayer(client, world, name, uuid);
         PLAYERS.put(uuid, player);
@@ -134,8 +133,8 @@ public class TridentPlayer extends TridentEntity implements Player {
         ChatComponent chat = ChatComponent.create()
                 .setColor(ChatColor.YELLOW)
                 .setTranslate("multiplayer.player.left")
-                .addWith(name);
-        TridentServer.instance().players().forEach(e -> e.sendMessage(chat, ChatType.CHAT));
+                .addWith(this.name);
+        PLAYERS.values().forEach(e -> e.sendMessage(chat, ChatType.CHAT));
     }
 
     @Override

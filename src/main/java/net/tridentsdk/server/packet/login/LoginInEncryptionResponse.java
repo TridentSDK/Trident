@@ -91,7 +91,7 @@ public final class LoginInEncryptionResponse extends PacketIn {
             UUID uuid = Login.convert(name, id);
             LoginOutSuccess success = new LoginOutSuccess(client, uuid, name);
             client.sendPacket(success).addListener(future -> {
-                TridentPlayer.spawn(client, name, uuid);
+                TridentPlayer.spawn(client, name, uuid, textures);
                 Login.finish();
             });
         }).get();

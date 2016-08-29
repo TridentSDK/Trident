@@ -18,8 +18,6 @@ package net.tridentsdk.server.packet.login;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonPrimitive;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.player.TridentPlayer;
@@ -82,32 +80,6 @@ public final class Login {
      */
     public static void finish() {
         LOGGING_IN.decrementAndGet();
-    }
-
-    /**
-     * Obtains the UUID for the given name by Mojang
-     * lookup.
-     *
-     * @param name the name to find the UUID
-     * @return the UUID
-     */
-    public static UUID uuidFor(String name) {
-        try {
-            return UUID_CACHE.get(name, () -> {
-                JsonArray array = new JsonArray();
-                array.add(new JsonPrimitive(name));
-                UUID uuid = Mojang.<UUID>req("https://api.mojang.com/profiles/minecraft").callback(element -> {
-                    return UUID.fromString(UUID_PATTERN.matcher(
-                            element.getAsJsonArray().get(0).getAsJsonObject().get("id").getAsString()
-                    ).replaceAll("$1-$2-$3-$4-$5"));
-                }).post(array).get();
-
-                if (uuid == null) throw CACHED_EXCEPTION;
-                return uuid;
-            });
-        } catch (ExecutionException e) {
-            return null;
-        }
     }
 
     /**

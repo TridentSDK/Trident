@@ -87,6 +87,11 @@ public class NetClient {
      */
     private static final Map<SocketAddress, NetClient> CLIENTS =
             Maps.newConcurrentMap();
+    /**
+     * Cached empty disconnection message (for channel
+     * closing errors)
+     */
+    private static final ChatComponent EMPTY = ChatComponent.empty();
 
     /**
      * The channel which is the connection that this client
@@ -122,11 +127,6 @@ public class NetClient {
     private final AtomicLong lastKeepAlive = new AtomicLong(System.currentTimeMillis());
 
     /**
-     * Cached
-     */
-    private static final ChatComponent EMPTY = ChatComponent.empty();
-
-    /**
      * Creates a new netclient that represents a client's
      * connection to the server.
      */
@@ -134,13 +134,11 @@ public class NetClient {
         this.channel = ctx.channel();
         this.currentState = NetState.HANDSHAKE;
         this.channel.closeFuture().addListener(new GenericFutureListener<Future<Void>>() {
-
             @Override
             public void operationComplete(Future<Void> future) throws Exception {
                 NetClient.this.disconnect(EMPTY);
                 future.removeListener(this);
             }
-
         });
     }
 

@@ -38,7 +38,6 @@ import static net.tridentsdk.server.packet.Packet.Bound;
  * This class holds packets registered by their identifying
  * packet ID as specified in the Minecraft protocol.
  */
-// TODO consider using fastutil
 @Immutable
 public final class PacketRegistry {
     /**

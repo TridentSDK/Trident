@@ -55,7 +55,7 @@ public final class LoginInStart extends PacketIn {
             LoginOutSuccess packet = new LoginOutSuccess(client);
             client.sendPacket(packet).addListener(
                     future -> {
-                        TridentPlayer.spawn(client, name, packet.uuid());
+                        TridentPlayer.spawn(client, name, packet.getUuid(), packet.getTextures());
                         Login.finish();
                     });
         }

@@ -16,12 +16,17 @@
  */
 package net.tridentsdk.server.packet.login;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
 import io.netty.buffer.ByteBuf;
+import lombok.Getter;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.packet.PacketOut;
 
 import javax.annotation.concurrent.Immutable;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 import static net.tridentsdk.server.net.NetData.wstr;
 
@@ -38,22 +43,48 @@ public final class LoginOutSuccess extends PacketOut {
     /**
      * The UUID of the player to be joined
      */
+    @Getter
     private final UUID uuid;
     /**
      * The name of the player
      */
     private final String name;
+    /**
+     * The player skin/cape
+     */
+    @Getter
+    private final String textures;
 
     public LoginOutSuccess(NetClient client) {
         super(LoginOutSuccess.class);
         this.client = client;
         this.name = client.name();
-        UUID temp = Login.uuidFor(this.name);
-        if (temp == null) {
-            temp = UUID.randomUUID();
+
+        JsonArray array = new JsonArray();
+        array.add(new JsonPrimitive(this.name));
+        String tempUuid;
+        try {
+            tempUuid = Mojang.<String>req("https://api.mojang.com/profiles/minecraft")
+                    .callback((JsonElement element) -> element.getAsJsonArray().get(0).getAsJsonObject().get("id").getAsString())
+                    .post(array).get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
         }
 
-        this.uuid = temp;
+        if (tempUuid == null) {
+            this.uuid = UUID.randomUUID();
+            this.textures = "";
+        } else {
+            this.uuid = Login.convert(this.name, tempUuid);
+            try {
+                this.textures = Mojang.<String>req("https://sessionserver.mojang.com/session/minecraft/profile/%s", tempUuid)
+                        .callback((JsonElement element) -> element.getAsJsonObject().get("properties").getAsJsonArray().get(0).getAsJsonObject().get("value").getAsString())
+                        .get().get();
+            } catch (InterruptedException | ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
         client.enableCompression();
     }
 
@@ -62,14 +93,8 @@ public final class LoginOutSuccess extends PacketOut {
         this.client = client;
         this.uuid = uuid;
         this.name = name;
+        this.textures = "";
         client.enableCompression();
-    }
-
-    /**
-     * Obtains the UUID that will be used for login.
-     */
-    public UUID uuid() {
-        return this.uuid;
     }
 
     @Override

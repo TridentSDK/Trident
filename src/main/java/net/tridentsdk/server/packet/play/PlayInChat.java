@@ -19,15 +19,21 @@ package net.tridentsdk.server.packet.play;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.chat.ChatComponent;
 import net.tridentsdk.chat.ChatType;
-import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.packet.PacketIn;
 import net.tridentsdk.server.player.TridentPlayer;
 
+import javax.annotation.concurrent.Immutable;
+
 import static net.tridentsdk.server.net.NetData.rstr;
 
-public class PlayInChat extends PacketIn {
-
+/**
+ * This packet is received by the server when a player
+ * sends
+ * a chat message.
+ */
+@Immutable
+public final class PlayInChat extends PacketIn {
     public PlayInChat() {
         super(PlayInChat.class);
     }
@@ -41,7 +47,6 @@ public class PlayInChat extends PacketIn {
                 .setTranslate("chat.type.text")
                 .addWith(player.name())
                 .addWith(msg);
-        TridentServer.instance().players().forEach(p -> p.sendMessage(chat, ChatType.CHAT));
+        TridentPlayer.PLAYERS.values().forEach(p -> p.sendMessage(chat, ChatType.CHAT));
     }
-
 }
