@@ -19,6 +19,8 @@ package net.tridentsdk.server.packet.play;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.chat.ChatComponent;
 import net.tridentsdk.chat.ChatType;
+import net.tridentsdk.chat.ClickAction;
+import net.tridentsdk.chat.ClickEvent;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.packet.PacketIn;
 import net.tridentsdk.server.player.TridentPlayer;
@@ -45,7 +47,9 @@ public final class PlayInChat extends PacketIn {
 
         ChatComponent chat = ChatComponent.create()
                 .setTranslate("chat.type.text")
-                .addWith(player.name())
+                .addWith(ChatComponent.create()
+                        .setText(player.name())
+                        .setClickEvent(ClickEvent.of(ClickAction.SUGGEST_COMMAND, "/tell " + player.name() + " ")))
                 .addWith(msg);
         TridentPlayer.PLAYERS.values().forEach(p -> p.sendMessage(chat, ChatType.CHAT));
     }
