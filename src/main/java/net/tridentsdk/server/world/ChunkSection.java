@@ -31,6 +31,11 @@ import static net.tridentsdk.server.net.NetData.wvint;
 @NotThreadSafe // TODO
 public class ChunkSection {
     /**
+     * The amount of blocks in a chunk section
+     */
+    private static final int BLOCKS_PER_SECTION = 4096;
+
+    /**
      * The default amount of bits per palette index
      */
     private final int bitsPerBlock = 4;
@@ -44,15 +49,15 @@ public class ChunkSection {
      * The data array, which contains palette indexes at
      * the XYZ index in the array
      */
-    private final long[] data = new long[4096 >> this.bitsPerBlock];
+    private final long[] data = new long[(BLOCKS_PER_SECTION * this.bitsPerBlock) / 64];
     /**
      * The nibble array of light emitted from blocks
      */
-    private final byte[] blockLight = new byte[2048];
+    private final byte[] blockLight = new byte[BLOCKS_PER_SECTION / 2];
     /**
      * The nibble array of light reaching from the sky
      */
-    private final byte[] skyLight = new byte[2048];
+    private final byte[] skyLight = new byte[BLOCKS_PER_SECTION / 2];
 
     /**
      * Creates a new chunk section.
@@ -87,8 +92,8 @@ public class ChunkSection {
             }
         }
 
-        int dataIdx = idx >> bitsPerBlock;
-        int shift = (idx & 15) * bitsPerBlock;
+        int dataIdx = (idx * bitsPerBlock) / 64;
+        int shift = (idx & ((64 / bitsPerBlock) - 1)) * bitsPerBlock;
         long or = ((long) paletteIdx) << shift;
         this.data[dataIdx] = this.data[dataIdx] | or;
     }
@@ -111,7 +116,10 @@ public class ChunkSection {
             palette = this.palette;
         }
 
-        for (int i = 0; i < palette.size(); i++) {
+        for (int i = 0, lim = palette.size(); i < lim; i++) {
+            // range check is actually simple if statement,
+            // we like that over iterators so this is the
+            // preference iteration method
             wvint(buf, palette.getShort(i));
         }
 

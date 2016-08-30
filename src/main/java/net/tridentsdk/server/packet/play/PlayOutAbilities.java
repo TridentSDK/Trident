@@ -18,6 +18,7 @@ package net.tridentsdk.server.packet.play;
 
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.packet.PacketOut;
+import net.tridentsdk.world.opt.GameMode;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -27,20 +28,29 @@ import javax.annotation.concurrent.Immutable;
  */
 @Immutable
 public final class PlayOutAbilities extends PacketOut {
-    public PlayOutAbilities() {
+    private final boolean isGod;
+    private final boolean isFlying;
+    private final GameMode gameMode;
+
+    public PlayOutAbilities(boolean isGod, boolean isFlying, GameMode gameMode) {
         super(PlayOutAbilities.class);
+        this.isGod = isGod;
+        this.isFlying = isFlying;
+        this.gameMode = gameMode;
     }
 
     @Override
     public void write(ByteBuf buf) {
         byte abilities = 0x00;
-        abilities |= 0x00; // invuln
-        abilities |= 0x00 << 1; // flying
-        abilities |= 0x00 << 2; // allow fly
-        abilities |= 0x00 << 3; // creative mode
+        abilities |= this.isGod ? 0x01 : 0x00; // invuln
+        abilities |= this.isFlying ? 0x01 << 1 : 0; // flying
+
+        boolean creative = this.gameMode == GameMode.CREATIVE;
+        abilities |= creative ? 0x01 << 2 : 0; // allow fly
+        abilities |= creative ? 0x01 << 3 : 0; // creative mode
 
         buf.writeByte(abilities);
-        buf.writeFloat(1.659F);
+        buf.writeFloat(0.159F);
         buf.writeFloat(0.699999988079071F);
     }
 }

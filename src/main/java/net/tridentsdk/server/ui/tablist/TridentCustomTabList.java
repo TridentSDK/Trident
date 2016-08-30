@@ -10,13 +10,28 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+/**
+ * Implementation of a custom tab list that may be added to
+ * a player to be customized.
+ */
 public class TridentCustomTabList extends TridentTabList {
+    /**
+     * The maximum length of a player name
+     */
+    private static final int MAX_NAME_LENGTH = 16;
+    /**
+     * The alphabet
+     */
+    private static final String ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-    private static final int maxNameLength = 16;
-    private static final String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    /**
+     * The list of tab list elements
+     */
+    private final List<TabListElement> elements;
 
-    private CopyOnWriteArrayList<TabListElement> elements;
-
+    /**
+     * Create and initialize a new custom tab list.
+     */
     public TridentCustomTabList() {
         this.elements = new CopyOnWriteArrayList<>();
     }
@@ -24,51 +39,51 @@ public class TridentCustomTabList extends TridentTabList {
     @Override
     public void setElement(int slot, ChatComponent value) {
         if(value != null) {
-            if(elements.size() > slot && elements.get(slot) != null) {
-                elements.get(slot).setDisplayName(value);
+            if (this.elements.size() > slot && this.elements.get(slot) != null) {
+                this.elements.get(slot).setDisplayName(value);
 
                 PlayOutTabListItem.PlayOutTabListItemUpdateDisplayName packet = PlayOutTabListItem.updatePlayerPacket();
-                packet.update(elements.get(slot).getUuid(), value);
-                getUserList().forEach(player -> ((TridentPlayer) player).net().sendPacket(packet));
+                packet.update(this.elements.get(slot).getUuid(), value);
+                this.getUserList().forEach(player -> ((TridentPlayer) player).net().sendPacket(packet));
             } else {
                 List<TabListElement> addedElements = new ArrayList<>();
 
                 for (int i = 0; i < slot; i++) {
-                    if(elements.size() == i || elements.get(i) == null) {
+                    if (this.elements.size() == i || this.elements.get(i) == null) {
                         TabListElement blank = new TabListElement(UUID.randomUUID());
-                        blank.setName(getName(i));
+                        blank.setName(this.getName(i));
                         blank.setBlank(true);
                         blank.setDisplayName(ChatComponent.empty());
-                        elements.add(i, blank);
+                        this.elements.add(i, blank);
                         addedElements.add(blank);
                     }
                 }
 
                 TabListElement element = new TabListElement(UUID.randomUUID());
                 element.setDisplayName(value);
-                element.setName(getName(slot));
+                element.setName(this.getName(slot));
 
-                elements.add(slot, element);
+                this.elements.add(slot, element);
                 addedElements.add(element);
 
                 if(addedElements.size() > 0) {
                     PlayOutTabListItem.PlayOutTabListItemAddPlayer packet = PlayOutTabListItem.addPlayerPacket();
                     addedElements.forEach(e -> packet.addPlayer(e.getUuid(), e.getName(), e.getGameMode(), e.getPing(), e.getDisplayName()));
-                    getUserList().forEach(player -> ((TridentPlayer) player).net().sendPacket(packet));
+                    this.getUserList().forEach(player -> ((TridentPlayer) player).net().sendPacket(packet));
                 }
             }
         } else {
-            if(elements.size() > slot && elements.get(slot) != null) {
-                if(slot == elements.size() - 1) {
+            if (this.elements.size() > slot && this.elements.get(slot) != null) {
+                if (slot == this.elements.size() - 1) {
                     List<TabListElement> removedElements = new ArrayList<>();
 
-                    removedElements.add(elements.get(slot));
-                    elements.remove(slot);
+                    removedElements.add(this.elements.get(slot));
+                    this.elements.remove(slot);
 
-                    for (int i = elements.size() - 1; i >= 0; i--) {
-                        if(elements.get(i).isBlank()) {
-                            removedElements.add(elements.get(i));
-                            elements.remove(i);
+                    for (int i = this.elements.size() - 1; i >= 0; i--) {
+                        if (this.elements.get(i).isBlank()) {
+                            removedElements.add(this.elements.get(i));
+                            this.elements.remove(i);
                         } else {
                             break;
                         }
@@ -76,14 +91,14 @@ public class TridentCustomTabList extends TridentTabList {
 
                     PlayOutTabListItem.PlayOutTabListItemRemovePlayer packet = PlayOutTabListItem.removePlayerPacket();
                     removedElements.forEach(e -> packet.removePlayer(e.getUuid()));
-                    getUserList().forEach(player -> ((TridentPlayer) player).net().sendPacket(packet));
+                    this.getUserList().forEach(player -> ((TridentPlayer) player).net().sendPacket(packet));
                 } else {
-                    elements.get(slot).setDisplayName(ChatComponent.empty());
-                    elements.get(slot).setBlank(true);
+                    this.elements.get(slot).setDisplayName(ChatComponent.empty());
+                    this.elements.get(slot).setBlank(true);
 
                     PlayOutTabListItem.PlayOutTabListItemUpdateDisplayName packet = PlayOutTabListItem.updatePlayerPacket();
-                    packet.update(elements.get(slot).getUuid(), ChatComponent.empty());
-                    getUserList().forEach(player -> ((TridentPlayer) player).net().sendPacket(packet));
+                    packet.update(this.elements.get(slot).getUuid(), ChatComponent.empty());
+                    this.getUserList().forEach(player -> ((TridentPlayer) player).net().sendPacket(packet));
                 }
             }
         }
@@ -91,13 +106,18 @@ public class TridentCustomTabList extends TridentTabList {
 
     @Override
     public ChatComponent getElement(int slot) {
-        return elements.get(slot).getDisplayName();
+        return this.elements.get(slot).getDisplayName();
     }
 
+    /**
+     * Gets a name for a slot.
+     *
+     * @param slot the slot
+     * @return a filler name for the slot
+     */
     private String getName(int slot) {
-        int count = (slot % maxNameLength) + 1;
-        int position = slot / maxNameLength;
-        return Strings.repeat(String.valueOf(alphabet.charAt(position)), count);
+        int count = (slot % MAX_NAME_LENGTH) + 1;
+        int position = slot / MAX_NAME_LENGTH;
+        return Strings.repeat(String.valueOf(ALPHABET.charAt(position)), count);
     }
-
 }

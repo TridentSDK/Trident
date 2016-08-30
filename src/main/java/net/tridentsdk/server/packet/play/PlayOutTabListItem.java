@@ -16,23 +16,32 @@
  */
 package net.tridentsdk.server.packet.play;
 
+import com.google.common.collect.Queues;
 import io.netty.buffer.ByteBuf;
+import lombok.RequiredArgsConstructor;
 import net.tridentsdk.chat.ChatComponent;
 import net.tridentsdk.server.packet.PacketOut;
 import net.tridentsdk.server.ui.tablist.TabListElement;
 import net.tridentsdk.world.opt.GameMode;
 
 import javax.annotation.concurrent.Immutable;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
 import static net.tridentsdk.server.net.NetData.wstr;
 import static net.tridentsdk.server.net.NetData.wvint;
 
+/**
+ * A tab list item update packet, which can perform any of
+ * the operations that are listed in
+ * {@link net.tridentsdk.server.packet.play.PlayOutTabListItem.PlayOutTabListItemActionType}.
+ */
 @Immutable
 public abstract class PlayOutTabListItem extends PacketOut {
-
+    /**
+     * The action type that is occuring
+     */
     private final PlayOutTabListItemActionType action;
 
     private PlayOutTabListItem(PlayOutTabListItemActionType action) {
@@ -42,8 +51,8 @@ public abstract class PlayOutTabListItem extends PacketOut {
 
     @Override
     public void write(ByteBuf buf) {
-        wvint(buf, action.ordinal());
-        wvint(buf, getActionCount());
+        wvint(buf, this.action.ordinal());
+        wvint(buf, this.getActionCount());
     }
 
     protected abstract int getActionCount();
@@ -61,49 +70,42 @@ public abstract class PlayOutTabListItem extends PacketOut {
     }
 
     public static class PlayOutTabListItemAddPlayer extends PlayOutTabListItem {
-
-        private List<PlayerData> additions = new ArrayList<>();
+        private final Collection<PlayerData> additions = Queues.newConcurrentLinkedQueue();
 
         public PlayOutTabListItemAddPlayer() {
             super(PlayOutTabListItemActionType.ADD_PLAYER);
         }
 
         public void addPlayer(UUID uuid, String name, GameMode gameMode, int ping, ChatComponent displayName) {
-            PlayerData playerData = new PlayerData();
-            playerData.uuid = uuid;
-            playerData.name = name;
-            playerData.gameMode = gameMode;
-            playerData.ping = ping;
-            playerData.displayName = displayName;
-            additions.add(playerData);
+            PlayerData playerData = new PlayerData(uuid, name, gameMode, ping, displayName, null);
+            this.additions.add(playerData);
         }
 
         public void addPlayer(TabListElement element) {
-            PlayerData playerData = new PlayerData();
-            playerData.uuid = element.getUuid();
-            playerData.name = element.getName();
-            playerData.gameMode = element.getGameMode();
-            playerData.ping = element.getPing();
-            playerData.displayName = element.getDisplayName();
-            playerData.properties = element.getProperties();
-            additions.add(playerData);
+            PlayerData playerData = new PlayerData(element.getUuid(),
+                    element.getName(),
+                    element.getGameMode(),
+                    element.getPing(),
+                    element.getDisplayName(),
+                    element.getProperties());
+            this.additions.add(playerData);
         }
 
         @Override
         public void write(ByteBuf buf) {
             super.write(buf);
 
-            additions.forEach(data -> {
+            this.additions.forEach(data -> {
                 buf.writeLong(data.uuid.getMostSignificantBits());
                 buf.writeLong(data.uuid.getLeastSignificantBits());
                 wstr(buf, data.name);
                 wvint(buf, data.properties != null ? data.properties.size() : 0);
-                if(data.properties != null){
+                if (data.properties != null) {
                     data.properties.forEach(playerProperty -> {
                         wstr(buf, playerProperty.getName());
                         wstr(buf, playerProperty.getValue());
                         buf.writeBoolean(playerProperty.getSignature() != null);
-                        if(playerProperty.getSignature() != null){
+                        if (playerProperty.getSignature() != null) {
                             wstr(buf, playerProperty.getSignature());
                         }
                     });
@@ -111,7 +113,7 @@ public abstract class PlayOutTabListItem extends PacketOut {
                 wvint(buf, data.gameMode.asInt());
                 wvint(buf, data.ping);
                 buf.writeBoolean(data.displayName != null);
-                if(data.displayName != null){
+                if (data.displayName != null) {
                     wstr(buf, data.displayName.toString());
                 }
             });
@@ -119,37 +121,36 @@ public abstract class PlayOutTabListItem extends PacketOut {
 
         @Override
         protected int getActionCount() {
-            return additions.size();
+            return this.additions.size();
         }
 
+        @RequiredArgsConstructor
         private class PlayerData {
-            private UUID uuid;
-            private String name;
-            private GameMode gameMode;
-            private int ping;
-            private ChatComponent displayName;
-            public List<TabListElement.PlayerProperty> properties;
+            private final UUID uuid;
+            private final String name;
+            private final GameMode gameMode;
+            private final int ping;
+            private final ChatComponent displayName;
+            public final List<TabListElement.PlayerProperty> properties;
         }
-
     }
 
     public static class PlayOutTabListItemRemovePlayer extends PlayOutTabListItem {
-
-        private List<UUID> removals = new ArrayList<>();
+        private final Collection<UUID> removals = Queues.newConcurrentLinkedQueue();
 
         public PlayOutTabListItemRemovePlayer() {
             super(PlayOutTabListItemActionType.REMOVE_PLAYER);
         }
 
         public void removePlayer(UUID uuid) {
-            removals.add(uuid);
+            this.removals.add(uuid);
         }
 
         @Override
         public void write(ByteBuf buf) {
             super.write(buf);
 
-            removals.forEach(uuid -> {
+            this.removals.forEach(uuid -> {
                 buf.writeLong(uuid.getMostSignificantBits());
                 buf.writeLong(uuid.getLeastSignificantBits());
             });
@@ -157,35 +158,31 @@ public abstract class PlayOutTabListItem extends PacketOut {
 
         @Override
         protected int getActionCount() {
-            return removals.size();
+            return this.removals.size();
         }
-
     }
 
     public static class PlayOutTabListItemUpdateDisplayName extends PlayOutTabListItem {
-
-        private List<PlayerData> updates = new ArrayList<>();
+        private final Collection<PlayerData> updates = Queues.newConcurrentLinkedQueue();
 
         public PlayOutTabListItemUpdateDisplayName() {
             super(PlayOutTabListItemActionType.UPDATE_DISPLAY_NAME);
         }
 
         public void update(UUID uuid, ChatComponent displayName) {
-            PlayerData data = new PlayerData();
-            data.uuid = uuid;
-            data.displayName = displayName;
-            updates.add(data);
+            PlayerData data = new PlayerData(uuid, displayName);
+            this.updates.add(data);
         }
 
         @Override
         public void write(ByteBuf buf) {
             super.write(buf);
 
-            updates.forEach(data -> {
+            this.updates.forEach(data -> {
                 buf.writeLong(data.uuid.getMostSignificantBits());
                 buf.writeLong(data.uuid.getLeastSignificantBits());
                 buf.writeBoolean(data.displayName != null);
-                if(data.displayName != null){
+                if (data.displayName != null) {
                     wstr(buf, data.displayName.toString());
                 }
             });
@@ -193,18 +190,17 @@ public abstract class PlayOutTabListItem extends PacketOut {
 
         @Override
         protected int getActionCount() {
-            return updates.size();
+            return this.updates.size();
         }
 
-        private class PlayerData {
-            private UUID uuid;
-            private ChatComponent displayName;
+        @RequiredArgsConstructor
+        private final class PlayerData {
+            private final UUID uuid;
+            private final ChatComponent displayName;
         }
-
     }
 
     public enum PlayOutTabListItemActionType {
         ADD_PLAYER, UPDATE_GAMEMODE, UPDATE_LATENCY, UPDATE_DISPLAY_NAME, REMOVE_PLAYER
     }
-
 }
