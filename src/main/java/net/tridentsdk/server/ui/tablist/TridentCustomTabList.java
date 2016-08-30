@@ -59,8 +59,6 @@ public class TridentCustomTabList extends TridentTabList {
             }
         } else {
             if(elements.size() > slot && elements.get(slot) != null) {
-                System.out.println("REMOVING " + slot + " WITH SIZE " + elements.size());
-
                 if(slot == elements.size() - 1) {
                     List<TabListElement> removedElements = new ArrayList<>();
 
