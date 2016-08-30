@@ -18,9 +18,12 @@ package net.tridentsdk.server.entity;
 
 import net.tridentsdk.base.Position;
 import net.tridentsdk.entity.Entity;
+import net.tridentsdk.server.packet.play.PlayOutDestroyEntities;
+import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.world.World;
 
+import java.util.Collections;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -93,6 +96,9 @@ public abstract class TridentEntity implements Entity {
     @Override
     public final void remove() {
         this.doRemove();
+
+        PlayOutDestroyEntities destroyEntities = new PlayOutDestroyEntities(Collections.singletonList(this));
+        TridentPlayer.PLAYERS.values().stream().filter(player -> !player.equals(this)).forEach(p -> p.net().sendPacket(destroyEntities));
     }
 
     /**

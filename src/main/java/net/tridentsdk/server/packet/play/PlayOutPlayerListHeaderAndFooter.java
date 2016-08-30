@@ -17,24 +17,29 @@
 package net.tridentsdk.server.packet.play;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.server.net.NetClient;
-import net.tridentsdk.server.packet.PacketIn;
+import net.tridentsdk.chat.ChatComponent;
+import net.tridentsdk.server.packet.PacketOut;
 
 import javax.annotation.concurrent.Immutable;
 
-/**
- * Sent by the client upon joining the server in order to
- * update the player.
- */
+import static net.tridentsdk.server.net.NetData.wstr;
+
 @Immutable
-public final class PlayInPlayer extends PacketIn {
-    public PlayInPlayer() {
-        super(PlayInPlayer.class);
+public final class PlayOutPlayerListHeaderAndFooter extends PacketOut {
+
+    private final ChatComponent header;
+    private final ChatComponent footer;
+
+    public PlayOutPlayerListHeaderAndFooter(ChatComponent header, ChatComponent footer) {
+        super(PlayOutPlayerListHeaderAndFooter.class);
+        this.header = header;
+        this.footer = footer;
     }
 
     @Override
-    public void read(ByteBuf buf, NetClient client) {
-        boolean onGround = buf.readBoolean();
-        client.player().setOnGround(onGround);
+    public void write(ByteBuf buf) {
+        wstr(buf, header == null ? ChatComponent.empty().toString() : header.toString());
+        wstr(buf, header == null ? ChatComponent.empty().toString() : footer.toString());
     }
+
 }

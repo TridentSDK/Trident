@@ -18,6 +18,7 @@ package net.tridentsdk.server.packet.play;
 
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.base.Position;
+import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.packet.PacketIn;
 import net.tridentsdk.server.player.TridentPlayer;
@@ -38,6 +39,7 @@ public final class PlayInPosLook extends PacketIn {
     public void read(ByteBuf buf, NetClient client) {
         TridentPlayer player = client.player();
         Position pos = player.position();
+        Position oldPos = pos.clone();
 
         pos.setX(buf.readDouble());
         pos.setY(buf.readDouble());
@@ -45,5 +47,14 @@ public final class PlayInPosLook extends PacketIn {
         pos.setYaw(buf.readFloat());
         pos.setPitch(buf.readFloat());
         player.setOnGround(buf.readBoolean());
+
+        Position delta = pos.clone().subtract(oldPos);
+
+        PlayOutEntityLookAndRelativeMove lookAndRelativeMove = new PlayOutEntityLookAndRelativeMove(player, delta);
+        PlayOutEntityHeadLook headLook = new PlayOutEntityHeadLook(player);
+        TridentServer.instance().players().stream().filter(p -> !p.equals(player)).forEach(p -> {
+            ((TridentPlayer) p).net().sendPacket(lookAndRelativeMove);
+            ((TridentPlayer) p).net().sendPacket(headLook);
+        });
     }
 }

@@ -22,11 +22,15 @@ import net.tridentsdk.chat.ChatColor;
 import net.tridentsdk.chat.ChatComponent;
 import net.tridentsdk.chat.ChatType;
 import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.entity.TridentEntity;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.packet.play.*;
+import net.tridentsdk.server.ui.tablist.TridentTabList;
+import net.tridentsdk.server.ui.tablist.TridentTabListManager;
 import net.tridentsdk.server.world.TridentChunk;
 import net.tridentsdk.server.world.TridentWorld;
+import net.tridentsdk.ui.tablist.TabList;
 import net.tridentsdk.world.World;
 import net.tridentsdk.world.WorldLoader;
 
@@ -62,6 +66,9 @@ public class TridentPlayer extends TridentEntity implements Player {
      */
     private final UUID uuid;
 
+    private TabList tabList;
+    private String textures;
+
     /**
      * Constructs a new player.
      */
@@ -70,6 +77,8 @@ public class TridentPlayer extends TridentEntity implements Player {
         this.client = client;
         this.name = name;
         this.uuid = uuid;
+
+        setTabList(TridentTabListManager.getInstance().getGlobalTabList());
     }
 
     /**
@@ -79,10 +88,24 @@ public class TridentPlayer extends TridentEntity implements Player {
      * @param name the player name
      * @param uuid the player UUID
      */
-    public static void spawn(NetClient client, String name, UUID uuid, String skin) {
+    public static TridentPlayer spawn(NetClient client, String name, UUID uuid) {
+        return spawn(client, name, uuid, null);
+    }
+
+    /**
+     * Spawns a new player.
+     *
+     * @param client the client representing the player
+     * @param name the player name
+     * @param uuid the player UUID
+     * @param textures the player textures
+     */
+    public static TridentPlayer spawn(NetClient client, String name, UUID uuid, String textures) {
         TridentWorld world = (TridentWorld) WorldLoader.instance().getDefault();
         TridentPlayer player = new TridentPlayer(client, world, name, uuid);
+        player.textures = textures;
         PLAYERS.put(uuid, player);
+        TridentTabListManager.getInstance().getGlobalTabList().addPlayer(player);
 
         Position playerPosition = player.position();
         playerPosition.setY(4);
@@ -103,6 +126,26 @@ public class TridentPlayer extends TridentEntity implements Player {
                 client.sendPacket(new PlayOutChunk(chunk));
             }
         }
+
+        ChatComponent chat = ChatComponent.create()
+                .setColor(ChatColor.YELLOW)
+                .setTranslate("multiplayer.player.joined")
+                .addWith(client.name());
+
+        PlayOutSpawnPlayer newPlayerPacket = new PlayOutSpawnPlayer(player);
+
+        TridentServer.instance().players().forEach(p -> {
+            p.sendMessage(chat, ChatType.CHAT);
+
+            if(!p.equals(player)) {
+                ((TridentPlayer) p).net().sendPacket(newPlayerPacket);
+
+                PlayOutSpawnPlayer oldPlayerPacket = new PlayOutSpawnPlayer(p);
+                player.net().sendPacket(oldPlayerPacket);
+            }
+        });
+
+        return player;
     }
 
     /**
@@ -129,6 +172,7 @@ public class TridentPlayer extends TridentEntity implements Player {
     @Override
     public void doRemove() {
         PLAYERS.remove(this.uuid);
+        TridentTabListManager.getInstance().getGlobalTabList().removePlayer(this);
 
         ChatComponent chat = ChatComponent.create()
                 .setColor(ChatColor.YELLOW)
@@ -156,4 +200,26 @@ public class TridentPlayer extends TridentEntity implements Player {
     public void kick(ChatComponent reason) {
         this.client.disconnect(reason);
     }
+
+    @Override
+    public TabList getTabList() {
+        return tabList;
+    }
+
+    @Override
+    public void setTabList(TabList tabList) {
+        TridentTabListManager.getInstance().setTabList(this, this.tabList, tabList);
+        this.tabList = tabList;
+        ((TridentTabList) tabList).sendToPlayer(this);
+    }
+
+    public String getTextures() {
+        return textures;
+    }
+
+    public void setTextures(String textures) {
+        this.textures = textures;
+        // TODO Push update to tablist and other players
+    }
+
 }

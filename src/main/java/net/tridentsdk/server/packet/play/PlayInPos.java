@@ -18,6 +18,7 @@ package net.tridentsdk.server.packet.play;
 
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.base.Position;
+import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.packet.PacketIn;
 import net.tridentsdk.server.player.TridentPlayer;
@@ -43,9 +44,18 @@ public final class PlayInPos extends PacketIn {
 
         TridentPlayer player = client.player();
         Position position = player.position();
+        Position oldPos = position.clone();
+
         position.setX(x);
         position.setY(feetY);
         position.setZ(z);
         player.setOnGround(onGround);
+
+        Position delta = position.clone().subtract(oldPos);
+
+        if(delta.x() != 0 || delta.y() != 0 || delta.z() != 0) {
+            PlayOutEntityRelativeMove packet = new PlayOutEntityRelativeMove(player, delta);
+            TridentServer.instance().players().stream().filter(p -> !p.equals(player)).forEach(p -> ((TridentPlayer) p).net().sendPacket(packet));
+        }
     }
 }

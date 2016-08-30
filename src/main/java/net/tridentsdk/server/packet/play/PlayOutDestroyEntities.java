@@ -17,24 +17,28 @@
 package net.tridentsdk.server.packet.play;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.server.net.NetClient;
-import net.tridentsdk.server.packet.PacketIn;
+import net.tridentsdk.entity.Entity;
+import net.tridentsdk.server.packet.PacketOut;
 
 import javax.annotation.concurrent.Immutable;
+import java.util.List;
 
-/**
- * Sent by the client upon joining the server in order to
- * update the player.
- */
+import static net.tridentsdk.server.net.NetData.wvint;
+
 @Immutable
-public final class PlayInPlayer extends PacketIn {
-    public PlayInPlayer() {
-        super(PlayInPlayer.class);
+public final class PlayOutDestroyEntities extends PacketOut {
+
+    private final List<Entity> entities;
+
+    public PlayOutDestroyEntities(List<Entity> entities) {
+        super(PlayOutDestroyEntities.class);
+        this.entities = entities;
     }
 
     @Override
-    public void read(ByteBuf buf, NetClient client) {
-        boolean onGround = buf.readBoolean();
-        client.player().setOnGround(onGround);
+    public void write(ByteBuf buf) {
+        wvint(buf, entities.size());
+        entities.forEach(entity -> wvint(buf, entity.id()));
     }
+
 }

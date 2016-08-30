@@ -101,6 +101,14 @@ public final class PacketRegistry {
         put(PlayInLook.class, NetState.PLAY, Bound.SERVER, 0x0E);
         put(PlayOutChunk.class, NetState.PLAY, Bound.CLIENT, 0x20);
         put(PlayOutDisconnect.class, NetState.PLAY, Bound.CLIENT, 0x1A);
+        put(PlayOutTabListItem.class, NetState.PLAY, Bound.CLIENT, 0x2D);
+        put(PlayOutSpawnPlayer.class, NetState.PLAY, Bound.CLIENT, 0x05);
+        put(PlayOutEntityRelativeMove.class, NetState.PLAY, Bound.CLIENT, 0x25);
+        put(PlayOutEntityLookAndRelativeMove.class, NetState.PLAY, Bound.CLIENT, 0x26);
+        put(PlayOutEntityLook.class, NetState.PLAY, Bound.CLIENT, 0x27);
+        put(PlayOutEntityHeadLook.class, NetState.PLAY, Bound.CLIENT, 0x34);
+        put(PlayOutPlayerListHeaderAndFooter.class, NetState.PLAY, Bound.CLIENT, 0x47);
+        put(PlayOutDestroyEntities.class, NetState.PLAY, Bound.CLIENT, 0x30);
 
         PACKETS.trim();
         PACKET_IDS.trim();
