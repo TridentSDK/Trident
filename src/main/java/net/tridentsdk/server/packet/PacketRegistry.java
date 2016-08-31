@@ -112,6 +112,8 @@ public final class PacketRegistry {
 
         put(PlayOutEntityMetadata.class, NetState.PLAY, Bound.CLIENT, 0x39);
         put(PlayInEntityAction.class, NetState.PLAY, Bound.SERVER, 0x14);
+        put(PlayOutAnimation.class, NetState.PLAY, Bound.CLIENT, 0x06);
+        put(PlayInAnimation.class, NetState.PLAY, Bound.SERVER, 0x1A);
 
         PACKETS.trim();
         PACKET_IDS.trim();
