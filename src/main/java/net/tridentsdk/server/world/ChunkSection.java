@@ -18,10 +18,10 @@ package net.tridentsdk.server.world;
 
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.shorts.ShortArrayList;
+import net.tridentsdk.server.util.NibbleArray;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.NotThreadSafe;
-import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicLongArray;
 
 import static net.tridentsdk.server.net.NetData.wvint;
@@ -54,22 +54,24 @@ public class ChunkSection {
     /**
      * The nibble array of light emitted from blocks
      */
-    private final byte[] blockLight = new byte[BLOCKS_PER_SECTION / 2];
+    private final NibbleArray blockLight = new NibbleArray(BLOCKS_PER_SECTION / 2);
     /**
      * The nibble array of light reaching from the sky
      */
-    private final byte[] skyLight = new byte[BLOCKS_PER_SECTION / 2];
+    private final NibbleArray skyLight = new NibbleArray(BLOCKS_PER_SECTION / 2);
 
     /**
      * Creates a new chunk section.
      */
     public ChunkSection() {
         this.palette.add((short) 0);
+
         for (int i = 0; i < this.data.length(); i++) {
-            this.data.set(i, 0); // Initialize to air
+            this.data.set(i, 0L);
         }
-        Arrays.fill(this.blockLight, (byte) 0xFF);
-        Arrays.fill(this.skyLight, (byte) 0xFF);
+
+        this.blockLight.fill((byte) 0xF);
+        this.skyLight.fill((byte) 0xF);
     }
 
     /**
@@ -143,9 +145,9 @@ public class ChunkSection {
         }
 
         // Write block light
-        buf.writeBytes(this.blockLight);
+        buf.writeBytes(this.blockLight.getBytes());
 
         // Write skylight (only written if overworld)
-        buf.writeBytes(this.skyLight); // TODO overworld
+        buf.writeBytes(this.skyLight.getBytes()); // TODO overworld
     }
 }
