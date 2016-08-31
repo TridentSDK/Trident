@@ -118,6 +118,8 @@ public class TridentPlayer extends TridentEntity implements Player {
         client.sendPacket(new PlayOutPosLook(player));
         client.sendPacket(new PlayOutAbilities(false, false, player.getGameMode()));
 
+        player.resumeLogin(); // TODO Remove after fixed Teleport Confirmation
+
         return player;
     }
 

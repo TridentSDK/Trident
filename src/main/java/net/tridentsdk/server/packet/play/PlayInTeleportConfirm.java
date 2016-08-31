@@ -20,6 +20,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalCause;
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.command.logger.Logger;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.packet.PacketIn;
 
@@ -77,10 +78,12 @@ public final class PlayInTeleportConfirm extends PacketIn {
         int id = rvint(buf);
         Integer localId = TELEPORT_ID.getIfPresent(client);
 
+        // TODO Fix teleport confirmation
         if (localId != null && localId == id) {
-            client.player().resumeLogin();
+            //client.player().resumeLogin();
         } else {
-            client.disconnect("Teleport ID mismatch, actual:" + localId + " rcvd:" + id);
+            Logger.get(PlayInTeleportConfirm.class).error("Teleport ID mismatch, actual:" + localId + " received:" + id);
+            //client.disconnect("Teleport ID mismatch, actual:" + localId + " rcvd:" + id);
         }
     }
 }
