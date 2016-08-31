@@ -22,14 +22,20 @@ import it.unimi.dsi.fastutil.shorts.ShortArrayList;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.NotThreadSafe;
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicLongArray;
 
 import static net.tridentsdk.server.net.NetData.wvint;
 
 /**
  * Represents a 16x16x16 horizontal slab in a chunk column.
  */
-@NotThreadSafe // TODO
+@NotThreadSafe
 public class ChunkSection {
+    /**
+     * The amount of blocks in a chunk section
+     */
+    private static final int BLOCKS_PER_SECTION = 4096;
+
     /**
      * The default amount of bits per palette index
      */
@@ -44,22 +50,24 @@ public class ChunkSection {
      * The data array, which contains palette indexes at
      * the XYZ index in the array
      */
-    private final long[] data = new long[4096 >> this.bitsPerBlock];
+    private final AtomicLongArray data = new AtomicLongArray((BLOCKS_PER_SECTION * this.bitsPerBlock) / 64);
     /**
      * The nibble array of light emitted from blocks
      */
-    private final byte[] blockLight = new byte[2048];
+    private final byte[] blockLight = new byte[BLOCKS_PER_SECTION / 2];
     /**
      * The nibble array of light reaching from the sky
      */
-    private final byte[] skyLight = new byte[2048];
+    private final byte[] skyLight = new byte[BLOCKS_PER_SECTION / 2];
 
     /**
      * Creates a new chunk section.
      */
     public ChunkSection() {
         this.palette.add((short) 0);
-        Arrays.fill(this.data, 0L);
+        for (int i = 0; i < this.data.length(); i++) {
+            this.data.set(i, 0); // Initialize to air
+        }
         Arrays.fill(this.blockLight, (byte) 0xFF);
         Arrays.fill(this.skyLight, (byte) 0xFF);
     }
@@ -87,10 +95,17 @@ public class ChunkSection {
             }
         }
 
-        int dataIdx = idx >> bitsPerBlock;
-        int shift = (idx & 15) * bitsPerBlock;
+        int dataIdx = (idx * bitsPerBlock) / 64;
+        int shift = (idx & ((64 / bitsPerBlock) - 1)) * bitsPerBlock;
         long or = ((long) paletteIdx) << shift;
-        this.data[dataIdx] = this.data[dataIdx] | or;
+
+        long oldLong;
+        long newLong;
+        do {
+            oldLong = this.data.get(dataIdx);
+            newLong = oldLong | or;
+        }
+        while (!this.data.compareAndSet(dataIdx, oldLong, newLong));
     }
 
     /**
@@ -111,16 +126,20 @@ public class ChunkSection {
             palette = this.palette;
         }
 
-        for (int i = 0; i < palette.size(); i++) {
+        for (int i = 0, lim = palette.size(); i < lim; i++) {
+            // range check is actually simple if statement,
+            // we like that over iterators so this is the
+            // preference iteration method
             wvint(buf, palette.getShort(i));
         }
 
         // Write the section data length
-        wvint(buf, this.data.length);
+        int dataLen = this.data.length();
+        wvint(buf, dataLen);
 
         // Write the actual data
-        for (long l : this.data) {
-            buf.writeLong(l);
+        for (int i = 0; i < dataLen; i++) {
+            buf.writeLong(this.data.get(i));
         }
 
         // Write block light
