@@ -18,6 +18,7 @@ package net.tridentsdk.server.entity;
 
 import net.tridentsdk.base.Position;
 import net.tridentsdk.entity.Entity;
+import net.tridentsdk.server.net.EntityMetadata;
 import net.tridentsdk.server.packet.play.PlayOutDestroyEntities;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.world.TridentWorld;
@@ -47,6 +48,8 @@ public abstract class TridentEntity implements Entity {
      * Whether or not this entity is on the ground
      */
     private volatile boolean onGround;
+
+    private final TridentEntityMeta metadata = new TridentEntityMeta(new EntityMetadata());
 
     /**
      * Entity superconstructor.
@@ -117,4 +120,8 @@ public abstract class TridentEntity implements Entity {
      * Ticking hook.
      */
     public abstract void doTick();
+
+    public TridentEntityMeta getMetadata() {
+        return metadata;
+    }
 }

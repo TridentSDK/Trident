@@ -24,6 +24,7 @@ import net.tridentsdk.chat.ChatType;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.entity.TridentEntity;
+import net.tridentsdk.server.net.EntityMetadata;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.packet.play.*;
 import net.tridentsdk.server.ui.tablist.TridentTabList;
@@ -68,6 +69,8 @@ public class TridentPlayer extends TridentEntity implements Player {
 
     private TabList tabList;
     private String textures;
+
+    private final TridentPlayerMeta metadata = new TridentPlayerMeta(new EntityMetadata());
 
     /**
      * Constructs a new player.
@@ -222,4 +225,8 @@ public class TridentPlayer extends TridentEntity implements Player {
         // TODO Push update to tablist and other players
     }
 
+    @Override
+    public TridentPlayerMeta getMetadata() {
+        return metadata;
+    }
 }

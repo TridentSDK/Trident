@@ -110,6 +110,9 @@ public final class PacketRegistry {
         put(PlayOutPlayerListHeaderAndFooter.class, NetState.PLAY, Bound.CLIENT, 0x47);
         put(PlayOutDestroyEntities.class, NetState.PLAY, Bound.CLIENT, 0x30);
 
+        put(PlayOutEntityMetadata.class, NetState.PLAY, Bound.CLIENT, 0x39);
+        put(PlayInEntityAction.class, NetState.PLAY, Bound.SERVER, 0x14);
+
         PACKETS.trim();
         PACKET_IDS.trim();
         PACKET_IDS.defaultReturnValue(-1);
