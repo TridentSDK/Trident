@@ -17,7 +17,10 @@
 package net.tridentsdk.server.player;
 
 import com.google.common.collect.Maps;
+import lombok.Data;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import net.tridentsdk.base.BlockDirection;
 import net.tridentsdk.base.Position;
 import net.tridentsdk.chat.ChatColor;
 import net.tridentsdk.chat.ChatComponent;
@@ -39,6 +42,7 @@ import net.tridentsdk.world.opt.GameMode;
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This class is the implementation of a Minecraft client
@@ -53,6 +57,10 @@ public class TridentPlayer extends TridentEntity implements Player {
      * The players on the server
      */
     public static final Map<UUID, TridentPlayer> PLAYERS = Maps.newConcurrentMap();
+    /**
+     * The cache time of a chunk
+     */
+    private static final int chunkCacheTime = 1000 * 10; // 10 Seconds
 
     /**
      * The net connection that this player has to the
@@ -82,8 +90,22 @@ public class TridentPlayer extends TridentEntity implements Player {
      */
     @Getter
     private volatile GameMode gameMode;
-
+    /**
+     * The player's render distance
+     */
+    @Getter
+    private volatile int renderDistance;
+    /**
+     * The player's meta data
+     */
+    @Getter
     private final TridentPlayerMeta metadata = new TridentPlayerMeta(new EntityMetadata());
+
+    /**
+     * A map of chunk -> time, storing the last time
+     * the chunk was sent to the client
+     */
+    private final Map<HashedChunkPosition, Long> chunkSentTime = new ConcurrentHashMap<>();
 
     /**
      * Constructs a new player.
@@ -95,6 +117,7 @@ public class TridentPlayer extends TridentEntity implements Player {
         this.uuid = uuid;
         this.gameMode = world.opts().gameMode();
         this.textures = textures;
+        this.renderDistance = 7; // TODO Infer from settings packet
     }
 
     /**
@@ -155,9 +178,9 @@ public class TridentPlayer extends TridentEntity implements Player {
                 });
 
         Position pos = this.position();
-        int chunkLoadRadius = 3;
-        for (int x = pos.getChunkX() - chunkLoadRadius; x <= pos.getChunkX() + chunkLoadRadius; x++) {
-            for (int z = pos.getChunkZ() - chunkLoadRadius; z <= pos.getChunkZ() + chunkLoadRadius; z++) {
+        int initialChunkRadius = 3;
+        for (int x = pos.getChunkX() - initialChunkRadius; x <= pos.getChunkX() + initialChunkRadius; x++) {
+            for (int z = pos.getChunkZ() - initialChunkRadius; z <= pos.getChunkZ() + initialChunkRadius; z++) {
                 TridentChunk chunk = this.world().chunkAt(x, z);
                 this.client.sendPacket(new PlayOutChunk(chunk));
             }
@@ -234,9 +257,56 @@ public class TridentPlayer extends TridentEntity implements Player {
         // TODO Push update to tablist and other players
     }
 
-    @Override
-    public TridentPlayerMeta getMetadata() {
-        return metadata;
+    /**
+     * Send an update to the client with the chunks
+     * If direction is null, chunks around the player will be sent
+     *
+     * @param direction the direction the player moved or null
+     */
+    public void updateChunks(BlockDirection direction) {
+        // TODO Improve this algorithm
+        // For example, send chunks closer to the player first
+
+        int centerX = position().getChunkX();
+        int centerZ = position().getChunkZ();
+
+        int radius = renderDistance / 2;
+
+        if(direction != null) {
+            centerX += (direction.getXDiff() * radius);
+            centerZ += (direction.getZDiff() * radius);
+        }
+
+        chunkSentTime.keySet().iterator().forEachRemaining(chunk -> {
+            /* Should be 16, but renderDistance has to be divided by 2 */
+            if(chunk.distanceTo(position()) > renderDistance * 8 /* == (renderDistance / 2) * 16 */){
+                chunkSentTime.remove(chunk);
+            }
+        });
+
+        for (int x = centerX - radius; x <= centerX + radius; x++) {
+            for (int z = centerZ - radius; z <= centerZ + radius; z++) {
+                HashedChunkPosition position = new HashedChunkPosition(x, z);
+                if(System.currentTimeMillis() - chunkSentTime.getOrDefault(position, 0L) > chunkCacheTime){
+                    TridentChunk chunk = this.world().chunkAt(x, z);
+                    this.client.sendPacket(new PlayOutChunk(chunk));
+                    chunkSentTime.put(position, System.currentTimeMillis());
+                }
+            }
+        }
+    }
+
+    @Data
+    @RequiredArgsConstructor
+    private class HashedChunkPosition {
+
+        private final int x;
+        private final int z;
+
+        public double distanceTo(Position position) {
+            return Math.abs((this.x - position.getChunkX()) + (this.z - position.getChunkZ()));
+        }
+
     }
 
 }

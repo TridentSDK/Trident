@@ -17,6 +17,7 @@
 package net.tridentsdk.server.packet.play;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.base.Position;
 import net.tridentsdk.chat.ChatComponent;
 import net.tridentsdk.chat.ChatType;
 import net.tridentsdk.chat.ClickAction;
@@ -24,6 +25,7 @@ import net.tridentsdk.chat.ClickEvent;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.packet.PacketIn;
 import net.tridentsdk.server.player.TridentPlayer;
+import net.tridentsdk.server.world.TridentChunk;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -52,5 +54,17 @@ public final class PlayInChat extends PacketIn {
                         .setClickEvent(ClickEvent.of(ClickAction.SUGGEST_COMMAND, "/tell " + player.name() + " ")))
                 .addWith(msg);
         TridentPlayer.PLAYERS.values().forEach(p -> p.sendMessage(chat, ChatType.CHAT));
+
+        if(msg.toLowerCase().equals("chunks")){
+            Position playerPosition = player.position();
+            int chunkLoadRadius = 3;
+
+            for (int x = playerPosition.getChunkX() - chunkLoadRadius; x <= playerPosition.getChunkX() + chunkLoadRadius; x++) {
+                for (int z = playerPosition.getChunkZ() - chunkLoadRadius; z <= playerPosition.getChunkZ() + chunkLoadRadius; z++) {
+                    TridentChunk chunk = (TridentChunk) playerPosition.world().chunkAt(x, z);
+                    client.sendPacket(new PlayOutChunk(chunk));
+                }
+            }
+        }
     }
 }

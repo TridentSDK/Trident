@@ -17,6 +17,7 @@
 package net.tridentsdk.server.packet.play;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.base.BlockDirection;
 import net.tridentsdk.base.Position;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.net.NetClient;
@@ -56,5 +57,11 @@ public final class PlayInPosLook extends PacketIn {
             ((TridentPlayer) p).net().sendPacket(lookAndRelativeMove);
             ((TridentPlayer) p).net().sendPacket(headLook);
         });
+
+        if(pos.getChunkX() != oldPos.getChunkX()){
+            player.updateChunks(delta.x() > 0 ? BlockDirection.EAST : BlockDirection.WEST);
+        }else if(pos.getChunkZ() != oldPos.getChunkZ()){
+            player.updateChunks(delta.z() > 0 ? BlockDirection.SOUTH : BlockDirection.NORTH);
+        }
     }
 }

@@ -17,6 +17,7 @@
 package net.tridentsdk.server.packet.play;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.base.BlockDirection;
 import net.tridentsdk.base.Position;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.net.NetClient;
@@ -56,6 +57,12 @@ public final class PlayInPos extends PacketIn {
         if(delta.x() != 0 || delta.y() != 0 || delta.z() != 0) {
             PlayOutEntityRelativeMove packet = new PlayOutEntityRelativeMove(player, delta);
             TridentServer.instance().players().stream().filter(p -> !p.equals(player)).forEach(p -> ((TridentPlayer) p).net().sendPacket(packet));
+        }
+
+        if(position.getChunkX() != oldPos.getChunkX()){
+            player.updateChunks(delta.x() > 0 ? BlockDirection.EAST : BlockDirection.WEST);
+        }else if(position.getChunkZ() != oldPos.getChunkZ()){
+            player.updateChunks(delta.z() > 0 ? BlockDirection.SOUTH : BlockDirection.NORTH);
         }
     }
 }
