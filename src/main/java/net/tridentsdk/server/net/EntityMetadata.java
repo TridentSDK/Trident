@@ -64,8 +64,9 @@ public class EntityMetadata {
                     break;
                 case ROTATION:
                     float[] rd = new float[3];
-                    for (int i = 0; i < 3; i++)
+                    for (int i = 0; i < 3; i++) {
                         rd[i] = buf.readFloat();
+                    }
                     value = new Vector(rd[0], rd[1], rd[2]);
                     break;
                 case POSITION: {
@@ -253,111 +254,85 @@ public class EntityMetadata {
     public enum EntityMetadataType {
 
         BYTE(0) {
-
             @Override
             public Object cast(Object object) {
                 return ((Number) object).byteValue();
             }
-
         },
         VARINT(1) {
-
             @Override
             public Object cast(Object object) {
                 return ((Number) object).intValue();
             }
-
         },
         FLOAT(2) {
-
             @Override
             public Object cast(Object object) {
                 return ((Number) object).floatValue();
             }
-
         },
         STRING(3) {
-
             @Override
             public Object cast(Object object) {
                 return object.toString();
             }
-
         },
         CHAT(4) {
-
             @Override
             public Object cast(Object object) {
                 return object.toString();
             }
-
         },
         SLOT(5) {
-
             @Override
             public Object cast(Object object) {
                 return null;
             }
-
         },
         BOOLEAN(6) {
-
             @Override
             public Object cast(Object object) {
                 return object instanceof Boolean ? (boolean) object : Boolean.parseBoolean(object.toString());
             }
-
         },
         ROTATION(7) {
-
             @Override
             public Object cast(Object object) {
                 return (Vector) object;
             }
-
         },
         POSITION(8) {
-
             @Override
             public Object cast(Object object) {
                 return (Vector) object;
             }
-
         },
         OPTPOSITION(9) {
-
             @Override
             public Object cast(Object object) {
                 return (Vector) object;
             }
-
         },
         DIRECTION(10) {
-
             @Override
             public Object cast(Object object) {
                 return (Direction) object;
             }
-
         },
         OPTUUID(11) {
-
             @Override
             public Object cast(Object object) {
                 return (UUID) object;
             }
-
         },
         BLOCKID(12) {
-
             @Override
             public Object cast(Object object) {
                 return (int[]) object;
             }
-
         };
 
-        private int id;
+        private final int id;
 
         private EntityMetadataType(int id) {
             this.id = id;
