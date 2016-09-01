@@ -89,7 +89,6 @@ public final class PacketRegistry {
         put(PlayOutSpawnPos.class, NetState.PLAY, Bound.CLIENT, 0x43);
         put(PlayOutAbilities.class, NetState.PLAY, Bound.CLIENT, 0x2B);
         put(PlayInPluginMsg.class, NetState.PLAY, Bound.SERVER, 0x09);
-        put(PlayInSettings.class, NetState.PLAY, Bound.SERVER, 0x04);
         put(PlayOutPosLook.class, NetState.PLAY, Bound.CLIENT, 0x2E);
         put(PlayInTeleportConfirm.class, NetState.PLAY, Bound.SERVER, 0x00);
         put(PlayInPosLook.class, NetState.PLAY, Bound.SERVER, 0x0D);
