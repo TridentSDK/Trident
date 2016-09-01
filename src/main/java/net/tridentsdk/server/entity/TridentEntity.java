@@ -18,8 +18,10 @@ package net.tridentsdk.server.entity;
 
 import net.tridentsdk.base.Position;
 import net.tridentsdk.entity.Entity;
+import net.tridentsdk.server.entity.meta.TridentEntityMeta;
 import net.tridentsdk.server.net.EntityMetadata;
 import net.tridentsdk.server.packet.play.PlayOutDestroyEntities;
+import net.tridentsdk.server.packet.play.PlayOutEntityMetadata;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.world.World;
@@ -124,4 +126,11 @@ public abstract class TridentEntity implements Entity {
     public TridentEntityMeta getMetadata() {
         return metadata;
     }
+
+    @Override
+    public void updateMetadata() {
+        PlayOutEntityMetadata packet = new PlayOutEntityMetadata(this);
+        TridentPlayer.PLAYERS.values().forEach(p -> p.net().sendPacket(packet));
+    }
+
 }

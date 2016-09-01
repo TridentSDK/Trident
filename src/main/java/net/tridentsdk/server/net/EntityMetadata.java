@@ -63,16 +63,17 @@ public class EntityMetadata {
                     value = buf.readBoolean();
                     break;
                 case ROTATION:
-                    float[] rotData = new float[3];
+                    float[] rd = new float[3];
                     for (int i = 0; i < 3; i++)
-                        rotData[i] = buf.readFloat();
+                        rd[i] = buf.readFloat();
+                    value = new Vector(rd[0], rd[1], rd[2]);
                     break;
                 case POSITION: {
                     long val = buf.readLong();
                     int x = (int) (val >> 38);
                     int y = (int) ((val >> 26) & 0xFFF);
                     int z = (int) (val << 38 >> 38);
-                    value = new int[]{x, y, z};
+                    value = new Vector(x, y, z);
                     break;
                 }
                 case OPTPOSITION: {
@@ -81,9 +82,9 @@ public class EntityMetadata {
                         int x = (int) (val >> 38);
                         int y = (int) ((val >> 26) & 0xFFF);
                         int z = (int) (val << 38 >> 38);
-                        value = new Object[]{ true, new int[]{x, y, z} };
+                        value = new Vector(x, y, z);
                     } else {
-                        value = new Object[]{ false };
+                        value = null;
                     }
                     break;
                 }
@@ -92,10 +93,9 @@ public class EntityMetadata {
                     break;
                 case OPTUUID:
                     if (buf.readBoolean()) {
-                        UUID uuid = new UUID(buf.readLong(), buf.readLong());
-                        value = new Object[]{ true, uuid };
+                        value = new UUID(buf.readLong(), buf.readLong());
                     } else {
-                        value = new Object[]{ false };
+                        value = null;
                     }
                     break;
                 case BLOCKID:
@@ -138,31 +138,31 @@ public class EntityMetadata {
                     buf.writeBoolean((Boolean) item.value);
                     break;
                 case ROTATION:
-                    float[] rotData = (float[]) item.value;
-                    for (int i = 0; i < 3; i++) {
-                        buf.writeFloat(rotData[i]);
-                    }
+                    Vector rv = (Vector) item.value;
+                    buf.writeFloat((float) rv.x());
+                    buf.writeFloat((float) rv.y());
+                    buf.writeFloat((float) rv.z());
                     break;
                 case POSITION:
-                    int[] posData = (int[]) item.value;
+                    Vector pv = (Vector) item.value;
+                    int[] posData = new int[]{ pv.intX(), pv.intY(), pv.intZ() };
                     long posWrite = ((posData[0] & 0x3FFFFFF) << 38) | ((posData[1] & 0xFFF) << 26) | (posData[2] & 0x3FFFFFF);
                     buf.writeLong(posWrite);
                     break;
                 case OPTPOSITION:
-                    Object[] optPosTotal = (Object[]) item.value;
-                    if ((boolean) optPosTotal[0]) {
-                        int[] optPosData = (int[]) optPosTotal[1];
+                    Vector opv = (Vector) item.value;
+                    if (opv != null) {
+                        int[] optPosData = new int[]{ opv.intX(), opv.intY(), opv.intZ() };
                         long optPosWrite = ((optPosData[0] & 0x3FFFFFF) << 38) | ((optPosData[1] & 0xFFF) << 26) | (optPosData[2] & 0x3FFFFFF);
                         buf.writeLong(optPosWrite);
                     }
                     break;
                 case DIRECTION:
-                    NetData.wvint(buf, ((Direction) item.value).ordinal());
+                    NetData.wvint(buf, ((Direction) item.value).getData());
                     break;
                 case OPTUUID:
-                    Object[] optUuidData = (Object[]) item.value;
-                    if ((boolean) optUuidData[0]) {
-                        UUID uuid = (UUID) optUuidData[1];
+                    UUID uuid = (UUID) item.value;
+                    if (uuid != null) {
                         buf.writeLong(uuid.getMostSignificantBits());
                         buf.writeLong(uuid.getLeastSignificantBits());
                     }
@@ -228,23 +228,12 @@ public class EntityMetadata {
             return (boolean) value;
         }
 
-        public float[] asRotation() {
-            return (float[]) value;
+        public Vector asRotation() {
+            return (Vector) value;
         }
 
         public Vector asPosition() {
-            int[] pos;
-            if (value instanceof int[]) {
-                pos =(int[]) value;
-            } else {
-                Object[] data = (Object[]) value;
-                if ((boolean) data[0]) {
-                    pos = (int[]) data[1];
-                } else {
-                    return null;
-                }
-            }
-            return new Vector(pos[0], pos[1], pos[2]);
+            return (Vector) value;
         }
 
         public Direction asDirection() {
@@ -252,11 +241,7 @@ public class EntityMetadata {
         }
 
         public UUID asUUID() {
-            Object[] data = (Object[]) value;
-            if ((boolean) data[0]) {
-                return (UUID) data[1];
-            }
-            return null;
+            return (UUID) value;
         }
 
         public int[] asBlockId() {
@@ -327,7 +312,7 @@ public class EntityMetadata {
 
             @Override
             public Object cast(Object object) {
-                return (float[]) object;
+                return (Vector) object;
             }
 
         },
@@ -335,7 +320,7 @@ public class EntityMetadata {
 
             @Override
             public Object cast(Object object) {
-                return (int[]) object;
+                return (Vector) object;
             }
 
         },
@@ -343,7 +328,7 @@ public class EntityMetadata {
 
             @Override
             public Object cast(Object object) {
-                return (Object[]) object;
+                return (Vector) object;
             }
 
         },
@@ -359,7 +344,7 @@ public class EntityMetadata {
 
             @Override
             public Object cast(Object object) {
-                return (Object[]) object;
+                return (UUID) object;
             }
 
         },

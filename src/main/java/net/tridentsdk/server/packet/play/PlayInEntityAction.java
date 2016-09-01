@@ -1,11 +1,9 @@
 package net.tridentsdk.server.packet.play;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.net.NetData;
 import net.tridentsdk.server.packet.PacketIn;
-import net.tridentsdk.server.player.TridentPlayer;
 
 /**
  * @author TridentSDK
@@ -51,12 +49,7 @@ public class PlayInEntityAction extends PacketIn {
                 break;
         }
 
-        PlayOutEntityMetadata metadataPacket = new PlayOutEntityMetadata(client.player());
-        TridentServer.instance().players().forEach(p -> {
-            if (p != client.player()) {
-                ((TridentPlayer) p).net().sendPacket(metadataPacket);
-            }
-        });
+        client.player().updateMetadata();
     }
 
 }
