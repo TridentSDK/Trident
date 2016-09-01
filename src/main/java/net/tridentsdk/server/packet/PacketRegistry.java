@@ -89,7 +89,6 @@ public final class PacketRegistry {
         put(PlayOutSpawnPos.class, NetState.PLAY, Bound.CLIENT, 0x43);
         put(PlayOutAbilities.class, NetState.PLAY, Bound.CLIENT, 0x2B);
         put(PlayInPluginMsg.class, NetState.PLAY, Bound.SERVER, 0x09);
-        put(PlayInSettings.class, NetState.PLAY, Bound.SERVER, 0x04);
         put(PlayOutPosLook.class, NetState.PLAY, Bound.CLIENT, 0x2E);
         put(PlayInTeleportConfirm.class, NetState.PLAY, Bound.SERVER, 0x00);
         put(PlayInPosLook.class, NetState.PLAY, Bound.SERVER, 0x0D);
@@ -109,6 +108,12 @@ public final class PacketRegistry {
         put(PlayOutEntityHeadLook.class, NetState.PLAY, Bound.CLIENT, 0x34);
         put(PlayOutPlayerListHeaderAndFooter.class, NetState.PLAY, Bound.CLIENT, 0x47);
         put(PlayOutDestroyEntities.class, NetState.PLAY, Bound.CLIENT, 0x30);
+
+        put(PlayOutEntityMetadata.class, NetState.PLAY, Bound.CLIENT, 0x39);
+        put(PlayInEntityAction.class, NetState.PLAY, Bound.SERVER, 0x14);
+        put(PlayInClientSettings.class, NetState.PLAY, Bound.SERVER, 0x04);
+        put(PlayOutAnimation.class, NetState.PLAY, Bound.CLIENT, 0x06);
+        put(PlayInAnimation.class, NetState.PLAY, Bound.SERVER, 0x1A);
 
         PACKETS.trim();
         PACKET_IDS.trim();

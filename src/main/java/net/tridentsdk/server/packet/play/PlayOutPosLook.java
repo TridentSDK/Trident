@@ -26,7 +26,7 @@ import javax.annotation.concurrent.Immutable;
 import static net.tridentsdk.server.net.NetData.wvint;
 
 /**
- * Sent after receiving {@link PlayInSettings} from the
+ * Sent after receiving {@link PlayInClientSettings} from the
  * client, at which point this packet will be sent with the
  * player's position and the client will leave the login
  * screen.
