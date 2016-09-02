@@ -12,5 +12,7 @@
   // The max players on the server
   "max-players": 20,
   // The server MOTD
-  "motd": "Just another TridentSDK server..."
+  "motd": "Just another TridentSDK server...",
+  // Enable Netty Leak Detector
+  "netty-leak-detector": false
 }

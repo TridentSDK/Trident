@@ -119,6 +119,8 @@ public final class TridentMain {
         server.setup();
         // -------------------------------------------------
 
-        ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.PARANOID);
+        if(config.isNettyLeakDetectorEnabled()) {
+            ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.PARANOID);
+        }
     }
 }

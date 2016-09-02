@@ -16,6 +16,7 @@
  */
 package net.tridentsdk.server.config;
 
+import lombok.Getter;
 import net.tridentsdk.util.Misc;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -64,6 +65,11 @@ public class ServerConfig extends TridentConfig {
      * The Message-Of-The-Day ping response
      */
     private volatile String motd;
+    /**
+     * Whether to enable netty leak detector
+     */
+    @Getter
+    private volatile boolean nettyLeakDetectorEnabled;
 
     /**
      * Initializes the server file and load all the
@@ -170,5 +176,6 @@ public class ServerConfig extends TridentConfig {
         this.useAuth = this.getBoolean("online-mode");
         this.maxPlayers = this.getInt("max-players");
         this.motd = this.getString("motd");
+        this.nettyLeakDetectorEnabled = this.getBoolean("netty-leak-detector");
     }
 }
