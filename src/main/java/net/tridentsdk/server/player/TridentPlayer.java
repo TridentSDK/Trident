@@ -27,6 +27,7 @@ import net.tridentsdk.chat.ChatComponent;
 import net.tridentsdk.chat.ChatType;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.server.entity.TridentEntity;
+import net.tridentsdk.server.entity.meta.EntityMetaType;
 import net.tridentsdk.server.net.EntityMetadata;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.packet.play.*;
@@ -49,10 +50,10 @@ import java.util.concurrent.ConcurrentHashMap;
  * that is represented by a physical entity in a world.
  */
 @ThreadSafe
+@EntityMetaType(TridentPlayerMeta.class)
 public class TridentPlayer extends TridentEntity implements Player {
     // TODO player abilities
     // TODO client settings
-    // TODO chunks
     /**
      * The players on the server
      */

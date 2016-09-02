@@ -18,6 +18,7 @@ package net.tridentsdk.server.entity;
 
 import net.tridentsdk.base.Position;
 import net.tridentsdk.entity.Entity;
+import net.tridentsdk.server.entity.meta.EntityMetaType;
 import net.tridentsdk.server.entity.meta.TridentEntityMeta;
 import net.tridentsdk.server.net.EntityMetadata;
 import net.tridentsdk.server.packet.play.PlayOutDestroyEntities;
@@ -50,8 +51,10 @@ public abstract class TridentEntity implements Entity {
      * Whether or not this entity is on the ground
      */
     private volatile boolean onGround;
-
-    private final TridentEntityMeta metadata = new TridentEntityMeta(new EntityMetadata());
+    /**
+     * Entity Metadata
+     */
+    private final TridentEntityMeta metadata;
 
     /**
      * Entity superconstructor.
@@ -61,6 +64,21 @@ public abstract class TridentEntity implements Entity {
     public TridentEntity(World world) {
         this.id = EID_COUNTER.incrementAndGet();
         this.position = new Position(world);
+
+        EntityMetaType metaType = this.getClass().getAnnotation(EntityMetaType.class);
+        if(metaType == null){
+            throw new RuntimeException(this.getClass() + " doesn't have an EntityMetaType annotation!");
+        }
+
+        TridentEntityMeta metadata = null;
+
+        try {
+            metadata = metaType.value().getConstructor(EntityMetadata.class).newInstance(new EntityMetadata());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        this.metadata = metadata;
     }
 
     @Override
