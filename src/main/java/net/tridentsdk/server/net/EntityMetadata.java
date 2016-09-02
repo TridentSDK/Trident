@@ -5,7 +5,7 @@ import com.google.gson.JsonObject;
 import io.netty.buffer.ByteBuf;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import net.tridentsdk.base.Direction;
+import net.tridentsdk.base.BlockDirection;
 import net.tridentsdk.base.Vector;
 import net.tridentsdk.chat.ChatComponent;
 
@@ -90,7 +90,7 @@ public class EntityMetadata {
                     break;
                 }
                 case DIRECTION:
-                    value = Direction.values()[NetData.rvint(buf)];
+                    value = BlockDirection.fromMinecraftDirection(NetData.rvint(buf));
                     break;
                 case OPTUUID:
                     if (buf.readBoolean()) {
@@ -159,7 +159,7 @@ public class EntityMetadata {
                     }
                     break;
                 case DIRECTION:
-                    NetData.wvint(buf, ((Direction) item.value).getData());
+                    NetData.wvint(buf, ((BlockDirection) item.value).getMinecraftDirection());
                     break;
                 case OPTUUID:
                     UUID uuid = (UUID) item.value;
@@ -237,8 +237,8 @@ public class EntityMetadata {
             return (Vector) value;
         }
 
-        public Direction asDirection() {
-            return (Direction) value;
+        public BlockDirection asDirection() {
+            return (BlockDirection) value;
         }
 
         public UUID asUUID() {
@@ -316,7 +316,7 @@ public class EntityMetadata {
         DIRECTION(10) {
             @Override
             public Object cast(Object object) {
-                return (Direction) object;
+                return (BlockDirection) object;
             }
         },
         OPTUUID(11) {
