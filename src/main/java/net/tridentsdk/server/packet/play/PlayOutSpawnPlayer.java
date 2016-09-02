@@ -36,17 +36,17 @@ public final class PlayOutSpawnPlayer extends PacketOut {
 
     @Override
     public void write(ByteBuf buf) {
-        wvint(buf, player.id());
+        wvint(buf, player.getId());
 
         buf.writeLong(player.uuid().getMostSignificantBits());
         buf.writeLong(player.uuid().getLeastSignificantBits());
 
-        buf.writeDouble(player.position().x());
-        buf.writeDouble(player.position().y());
-        buf.writeDouble(player.position().z());
+        buf.writeDouble(player.getPosition().x());
+        buf.writeDouble(player.getPosition().y());
+        buf.writeDouble(player.getPosition().z());
 
-        buf.writeByte((byte) ((player.position().yaw()) % 360 * (256d / 360d)));
-        buf.writeByte((int) (byte) player.position().pitch());
+        buf.writeByte((byte) ((player.getPosition().yaw()) % 360 * (256d / 360d)));
+        buf.writeByte((int) (byte) player.getPosition().pitch());
 
         buf.writeByte(7);
         buf.writeByte(2);

@@ -39,16 +39,16 @@ public final class PlayOutEntityLookAndRelativeMove extends PacketOut {
 
     @Override
     public void write(ByteBuf buf) {
-        wvint(buf, entity.id());
+        wvint(buf, entity.getId());
 
         buf.writeShort((int) (delta.x()));
         buf.writeShort((int) (delta.y()));
         buf.writeShort((int) (delta.z()));
 
-        buf.writeByte((byte) ((entity.position().yaw()) % 360 * (256d / 360d)));
-        buf.writeByte((int) (((int) (byte) entity.position().pitch()) / 1.4));
+        buf.writeByte((byte) ((entity.getPosition().yaw()) % 360 * (256d / 360d)));
+        buf.writeByte((int) (((int) (byte) entity.getPosition().pitch()) / 1.4));
 
-        buf.writeBoolean(entity.onGround());
+        buf.writeBoolean(entity.isOnGround());
     }
 
 }

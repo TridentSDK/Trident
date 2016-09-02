@@ -56,7 +56,7 @@ public final class PlayInChat extends PacketIn {
         TridentPlayer.PLAYERS.values().forEach(p -> p.sendMessage(chat, ChatType.CHAT));
 
         if(msg.toLowerCase().equals("chunks")){
-            Position playerPosition = player.position();
+            Position playerPosition = player.getPosition();
             int chunkLoadRadius = 3;
 
             for (int x = playerPosition.getChunkX() - chunkLoadRadius; x <= playerPosition.getChunkX() + chunkLoadRadius; x++) {

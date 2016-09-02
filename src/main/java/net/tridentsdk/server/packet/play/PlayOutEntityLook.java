@@ -36,10 +36,10 @@ public final class PlayOutEntityLook extends PacketOut {
 
     @Override
     public void write(ByteBuf buf) {
-        wvint(buf, entity.id());
+        wvint(buf, entity.getId());
 
-        buf.writeByte((int) (byte) entity.position().yaw());
-        buf.writeByte((int) (((int) (byte) entity.position().pitch()) / 1.4));
+        buf.writeByte((int) (byte) entity.getPosition().yaw());
+        buf.writeByte((int) (((int) (byte) entity.getPosition().pitch()) / 1.4));
 
         buf.writeBoolean(true);
     }

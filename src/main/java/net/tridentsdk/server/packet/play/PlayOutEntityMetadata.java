@@ -20,7 +20,7 @@ public class PlayOutEntityMetadata extends PacketOut {
 
     @Override
     public void write(ByteBuf buf) {
-        NetData.wvint(buf, entity.id());
+        NetData.wvint(buf, entity.getId());
         entity.getMetadata().getMetadata().write(buf);
     }
 

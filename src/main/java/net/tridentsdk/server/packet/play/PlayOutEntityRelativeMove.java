@@ -39,13 +39,13 @@ public final class PlayOutEntityRelativeMove extends PacketOut {
 
     @Override
     public void write(ByteBuf buf) {
-        wvint(buf, entity.id());
+        wvint(buf, entity.getId());
 
         buf.writeShort((short) (delta.x()));
         buf.writeShort((short) (delta.y()));
         buf.writeShort((short) (delta.z()));
 
-        buf.writeBoolean(entity.onGround());
+        buf.writeBoolean(entity.isOnGround());
     }
 
 }

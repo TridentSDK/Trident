@@ -42,7 +42,7 @@ public final class PlayInLook extends PacketIn {
         boolean onGround = buf.readBoolean();
 
         TridentPlayer player = client.player();
-        Position position = player.position();
+        Position position = player.getPosition();
         position.setYaw(yaw);
         position.setPitch(pitch);
         player.setOnGround(onGround);

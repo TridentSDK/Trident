@@ -36,8 +36,8 @@ public final class PlayOutEntityHeadLook extends PacketOut {
 
     @Override
     public void write(ByteBuf buf) {
-        wvint(buf, entity.id());
-        buf.writeByte((byte) ((entity.position().yaw()) % 360 * (256d / 360d)));
+        wvint(buf, entity.getId());
+        buf.writeByte((byte) ((entity.getPosition().yaw()) % 360 * (256d / 360d)));
     }
 
 }

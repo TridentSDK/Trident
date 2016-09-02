@@ -45,7 +45,7 @@ public final class PlayOutPosLook extends PacketOut {
     public PlayOutPosLook(TridentPlayer player) {
         super(PlayOutPosLook.class);
         this.player = player;
-        this.pos = player.position();
+        this.pos = player.getPosition();
     }
 
     @Override

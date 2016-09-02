@@ -22,7 +22,7 @@ public class PlayOutAnimation extends PacketOut {
 
     @Override
     public void write(ByteBuf buf) {
-        NetData.wvint(buf, player.id());
+        NetData.wvint(buf, player.getId());
         buf.writeByte(animationType.ordinal());
     }
 

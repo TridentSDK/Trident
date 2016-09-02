@@ -17,9 +17,7 @@
 package net.tridentsdk.server.packet.play;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.base.BlockDirection;
 import net.tridentsdk.base.Position;
-import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.packet.PacketIn;
 import net.tridentsdk.server.player.TridentPlayer;
@@ -39,29 +37,15 @@ public final class PlayInPosLook extends PacketIn {
     @Override
     public void read(ByteBuf buf, NetClient client) {
         TridentPlayer player = client.player();
-        Position pos = player.position();
-        Position oldPos = pos.clone();
+        Position newPosition = player.getPosition().clone();
 
-        pos.setX(buf.readDouble());
-        pos.setY(buf.readDouble());
-        pos.setZ(buf.readDouble());
-        pos.setYaw(buf.readFloat());
-        pos.setPitch(buf.readFloat());
+        newPosition.setX(buf.readDouble());
+        newPosition.setY(buf.readDouble());
+        newPosition.setZ(buf.readDouble());
+        newPosition.setYaw(buf.readFloat());
+        newPosition.setPitch(buf.readFloat());
+
+        player.setPosition(newPosition);
         player.setOnGround(buf.readBoolean());
-
-        Position delta = pos.clone().subtract(oldPos);
-
-        PlayOutEntityLookAndRelativeMove lookAndRelativeMove = new PlayOutEntityLookAndRelativeMove(player, delta);
-        PlayOutEntityHeadLook headLook = new PlayOutEntityHeadLook(player);
-        TridentServer.instance().players().stream().filter(p -> !p.equals(player)).forEach(p -> {
-            ((TridentPlayer) p).net().sendPacket(lookAndRelativeMove);
-            ((TridentPlayer) p).net().sendPacket(headLook);
-        });
-
-        if(pos.getChunkX() != oldPos.getChunkX()){
-            player.updateChunks(delta.x() > 0 ? BlockDirection.EAST : BlockDirection.WEST);
-        }else if(pos.getChunkZ() != oldPos.getChunkZ()){
-            player.updateChunks(delta.z() > 0 ? BlockDirection.SOUTH : BlockDirection.NORTH);
-        }
     }
 }

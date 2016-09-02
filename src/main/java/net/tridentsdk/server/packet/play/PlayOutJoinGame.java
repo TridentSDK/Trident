@@ -56,7 +56,7 @@ public final class PlayOutJoinGame extends PacketOut {
 
     @Override
     public void write(ByteBuf buf) {
-        buf.writeInt(this.player.id());
+        buf.writeInt(this.player.getId());
         buf.writeByte(this.opts.gameMode().asByte());
         buf.writeInt(this.opts.dimension().asByte());
         buf.writeByte(this.opts.difficulty().asByte());

@@ -16,13 +16,15 @@
  */
 package net.tridentsdk.server.entity;
 
+import lombok.Getter;
+import lombok.Setter;
 import net.tridentsdk.base.Position;
 import net.tridentsdk.entity.Entity;
+import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.entity.meta.EntityMetaType;
 import net.tridentsdk.server.entity.meta.TridentEntityMeta;
 import net.tridentsdk.server.net.EntityMetadata;
-import net.tridentsdk.server.packet.play.PlayOutDestroyEntities;
-import net.tridentsdk.server.packet.play.PlayOutEntityMetadata;
+import net.tridentsdk.server.packet.play.*;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.world.World;
@@ -42,18 +44,23 @@ public abstract class TridentEntity implements Entity {
     /**
      * The ID number assigned to this entity
      */
+    @Getter
     private final int id;
     /**
      * The position at which this entity is located
      */
+    @Getter
     private volatile Position position;
     /**
      * Whether or not this entity is on the ground
      */
+    @Getter
+    @Setter
     private volatile boolean onGround;
     /**
      * Entity Metadata
      */
+    @Getter
     private final TridentEntityMeta metadata;
 
     /**
@@ -82,37 +89,28 @@ public abstract class TridentEntity implements Entity {
     }
 
     @Override
-    public int id() {
-        return this.id;
-    }
-
-    @Override
-    public Position position() {
-        return this.position;
-    }
-
-    @Override
     public void setPosition(Position position) {
+        Position delta = position.clone().subtract(this.position);
+
+        if(delta.x() != 0 || delta.y() != 0 || delta.z() != 0) {
+            if(this.position.yaw() != position.yaw() || this.position.pitch() != position.pitch()){
+                PlayOutEntityLookAndRelativeMove lookAndRelativeMove = new PlayOutEntityLookAndRelativeMove(this, delta);
+                PlayOutEntityHeadLook headLook = new PlayOutEntityHeadLook(this);
+                TridentServer.instance().players().stream().filter(p -> !p.equals(this)).forEach(p -> {
+                    ((TridentPlayer) p).net().sendPacket(lookAndRelativeMove);
+                    ((TridentPlayer) p).net().sendPacket(headLook);
+                });
+            }else{
+                PlayOutEntityRelativeMove packet = new PlayOutEntityRelativeMove(this, delta);
+                TridentServer.instance().players().stream().filter(p -> !p.equals(this)).forEach(p -> ((TridentPlayer) p).net().sendPacket(packet));
+            }
+        }
+
         this.position = position;
-        // TODO move packet
     }
 
     @Override
-    public boolean onGround() {
-        return this.onGround;
-    }
-
-    /**
-     * Sets the on ground status of the entity.
-     *
-     * @param onGround {@code true} if on ground
-     */
-    public void setOnGround(boolean onGround) {
-        this.onGround = onGround;
-    }
-
-    @Override
-    public TridentWorld world() {
+    public TridentWorld getWorld() {
         return (TridentWorld) this.position.world();
     }
 
@@ -131,6 +129,12 @@ public abstract class TridentEntity implements Entity {
         this.doTick();
     }
 
+    @Override
+    public void updateMetadata() {
+        PlayOutEntityMetadata packet = new PlayOutEntityMetadata(this);
+        TridentPlayer.PLAYERS.values().forEach(p -> p.net().sendPacket(packet));
+    }
+
     /**
      * Removal hook.
      */
@@ -140,15 +144,5 @@ public abstract class TridentEntity implements Entity {
      * Ticking hook.
      */
     public abstract void doTick();
-
-    public TridentEntityMeta getMetadata() {
-        return metadata;
-    }
-
-    @Override
-    public void updateMetadata() {
-        PlayOutEntityMetadata packet = new PlayOutEntityMetadata(this);
-        TridentPlayer.PLAYERS.values().forEach(p -> p.net().sendPacket(packet));
-    }
 
 }

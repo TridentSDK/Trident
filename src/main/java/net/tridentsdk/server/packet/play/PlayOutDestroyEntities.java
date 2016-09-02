@@ -38,7 +38,7 @@ public final class PlayOutDestroyEntities extends PacketOut {
     @Override
     public void write(ByteBuf buf) {
         wvint(buf, entities.size());
-        entities.forEach(entity -> wvint(buf, entity.id()));
+        entities.forEach(entity -> wvint(buf, entity.getId()));
     }
 
 }
