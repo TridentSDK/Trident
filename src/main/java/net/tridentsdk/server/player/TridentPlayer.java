@@ -117,7 +117,7 @@ public class TridentPlayer extends TridentEntity implements Player {
         this.uuid = uuid;
         this.gameMode = world.opts().gameMode();
         this.textures = textures;
-        this.renderDistance = 7; // TODO Infer from settings packet
+        this.renderDistance = 7;
     }
 
     /**
@@ -294,6 +294,10 @@ public class TridentPlayer extends TridentEntity implements Player {
                 }
             }
         }
+    }
+
+    public void setRenderDistance(byte renderDistance) {
+        this.renderDistance = renderDistance;
     }
 
     @Data
