@@ -66,6 +66,7 @@ public final class LoginOutSuccess extends PacketOut {
         try {
             tempUuid = Mojang.<String>req("https://api.mojang.com/profiles/minecraft")
                     .callback((JsonElement element) -> element.getAsJsonArray().get(0).getAsJsonObject().get("id").getAsString())
+                    .onException(s -> null)
                     .post(array).get();
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
@@ -79,6 +80,7 @@ public final class LoginOutSuccess extends PacketOut {
             try {
                 this.textures = Mojang.<String>req("https://sessionserver.mojang.com/session/minecraft/profile/%s", tempUuid)
                         .callback((JsonElement element) -> element.getAsJsonObject().get("properties").getAsJsonArray().get(0).getAsJsonObject().get("value").getAsString())
+                        .onException(s -> "")
                         .get().get();
             } catch (InterruptedException | ExecutionException e) {
                 throw new RuntimeException(e);

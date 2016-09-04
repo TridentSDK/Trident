@@ -1,3 +1,19 @@
+/*
+ * Trident - A Multithreaded Server Alternative
+ * Copyright 2016 The TridentSDK Team
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package net.tridentsdk.server.net;
 
 import com.google.gson.Gson;
@@ -23,15 +39,15 @@ public class EntityMetadata {
     private List<EntityMetadataItem> items = Collections.synchronizedList(new LinkedList<>());
 
     public EntityMetadataItem get(int x) {
-        return items.get(x);
+        return this.items.get(x);
     }
 
     public void add(EntityMetadataItem item) {
-        items.add(item);
+        this.items.add(item);
     }
 
     public void add(int index, EntityMetadataType type, Object value) {
-        items.add(new EntityMetadataItem(index, type, type.cast(value)));
+        this.items.add(new EntityMetadataItem(index, type, type.cast(value)));
     }
 
     public void read(ByteBuf buf) {
@@ -186,23 +202,23 @@ public class EntityMetadata {
         private Object value;
 
         public void set(Object value) {
-            this.value = type.cast(value);
+            this.value = this.type.cast(value);
         }
 
         public byte asByte() {
-            return (byte) value;
+            return (byte) this.value;
         }
 
         public int asInt() {
-            return (int) value;
+            return (int) this.value;
         }
 
         public boolean asBit(int x) {
-            return (asByte() & (1 << x)) != 0;
+            return (this.asByte() & (1 << x)) != 0;
         }
 
         public void setBit(int x, boolean value) {
-            if (asBit(x) == value)
+            if (this.asBit(x) == value)
                 return;
             byte val = (byte) this.value;
             if (value) {
@@ -214,39 +230,39 @@ public class EntityMetadata {
         }
 
         public float asFloat() {
-            return (float) value;
+            return (float) this.value;
         }
 
         public String asString() {
-            return (String) value;
+            return (String) this.value;
         }
 
         public ChatComponent asChatComponent() {
-            return (ChatComponent) value;
+            return (ChatComponent) this.value;
         }
 
         public boolean asBoolean() {
-            return (boolean) value;
+            return (boolean) this.value;
         }
 
         public Vector asRotation() {
-            return (Vector) value;
+            return (Vector) this.value;
         }
 
         public Vector asPosition() {
-            return (Vector) value;
+            return (Vector) this.value;
         }
 
         public BlockDirection asDirection() {
-            return (BlockDirection) value;
+            return (BlockDirection) this.value;
         }
 
         public UUID asUUID() {
-            return (UUID) value;
+            return (UUID) this.value;
         }
 
         public int[] asBlockId() {
-            return (int[]) value;
+            return (int[]) this.value;
         }
 
     }
@@ -298,43 +314,43 @@ public class EntityMetadata {
         ROTATION(7) {
             @Override
             public Object cast(Object object) {
-                return (Vector) object;
+                return object;
             }
         },
         POSITION(8) {
             @Override
             public Object cast(Object object) {
-                return (Vector) object;
+                return object;
             }
         },
         OPTPOSITION(9) {
             @Override
             public Object cast(Object object) {
-                return (Vector) object;
+                return object;
             }
         },
         DIRECTION(10) {
             @Override
             public Object cast(Object object) {
-                return (BlockDirection) object;
+                return object;
             }
         },
         OPTUUID(11) {
             @Override
             public Object cast(Object object) {
-                return (UUID) object;
+                return object;
             }
         },
         BLOCKID(12) {
             @Override
             public Object cast(Object object) {
-                return (int[]) object;
+                return object;
             }
         };
 
         private final int id;
 
-        private EntityMetadataType(int id) {
+        EntityMetadataType(int id) {
             this.id = id;
         }
 

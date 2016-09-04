@@ -40,7 +40,8 @@ public final class GenContainerImpl {
 
     /**
      * Creates a new generator container implementation
-     * which uses the given runner to execute the generation
+     * which uses the given runner to execute the
+     * generation
      * task.
      *
      * @param runner the generation task runner

@@ -45,10 +45,6 @@ public final class Login {
     private static final Cache<String, UUID> UUID_CACHE =
             CacheBuilder.newBuilder().expireAfterAccess(5, TimeUnit.MINUTES).build();
     /**
-     * Cached exception for escaping UUID lookup
-     */
-    private static final RuntimeException CACHED_EXCEPTION = new RuntimeException();
-    /**
      * The pattern used to add back dashes to the UUID
      */
     private static final Pattern UUID_PATTERN = Pattern.compile("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})");

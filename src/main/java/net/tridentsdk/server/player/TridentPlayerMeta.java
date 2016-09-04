@@ -1,3 +1,19 @@
+/*
+ * Trident - A Multithreaded Server Alternative
+ * Copyright 2016 The TridentSDK Team
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package net.tridentsdk.server.player;
 
 import net.tridentsdk.entity.meta.living.PlayerMeta;
@@ -20,112 +36,112 @@ public class TridentPlayerMeta extends TridentLivingEntityMeta implements Player
 
     @Override
     public float getAdditionalHearts() {
-        return getMetadata().get(11).asFloat();
+        return this.getMetadata().get(11).asFloat();
     }
 
     @Override
     public void setAdditionalHearts(float hearts) {
-        getMetadata().get(11).set(hearts);
+        this.getMetadata().get(11).set(hearts);
     }
 
     @Override
     public int getScore() {
-        return getMetadata().get(12).asInt();
+        return this.getMetadata().get(12).asInt();
     }
 
     @Override
     public void setScore(int score) {
-        getMetadata().get(12).set(score);
+        this.getMetadata().get(12).set(score);
     }
 
     @Override
     public byte getSkinFlags() {
-        return getMetadata().get(13).asByte();
+        return this.getMetadata().get(13).asByte();
     }
 
     @Override
     public void setSkinFlags(byte skinFlags) {
-        getMetadata().get(13).set(skinFlags);
+        this.getMetadata().get(13).set(skinFlags);
     }
 
     @Override
     public boolean isCapeEnabled() {
-        return getMetadata().get(13).asBit(0);
+        return this.getMetadata().get(13).asBit(0);
     }
 
     @Override
     public void setCapeEnabled(boolean enabled) {
-        getMetadata().get(13).setBit(0, enabled);
+        this.getMetadata().get(13).setBit(0, enabled);
     }
 
     @Override
     public boolean isJacketEnabled() {
-        return getMetadata().get(13).asBit(1);
+        return this.getMetadata().get(13).asBit(1);
     }
 
     @Override
     public void setJacketEnabled(boolean enabled) {
-        getMetadata().get(13).setBit(1, enabled);
+        this.getMetadata().get(13).setBit(1, enabled);
     }
 
     @Override
     public boolean isLeftSleeveEnabled() {
-        return getMetadata().get(13).asBit(2);
+        return this.getMetadata().get(13).asBit(2);
     }
 
     @Override
     public void setLeftSleeveEnabled(boolean enabled) {
-        getMetadata().get(13).setBit(2, enabled);
+        this.getMetadata().get(13).setBit(2, enabled);
     }
 
     @Override
     public boolean isRightSleeveEnabled() {
-        return getMetadata().get(13).asBit(3);
+        return this.getMetadata().get(13).asBit(3);
     }
 
     @Override
     public void setRightSleeveEnabled(boolean enabled) {
-        getMetadata().get(13).setBit(3, enabled);
+        this.getMetadata().get(13).setBit(3, enabled);
     }
 
     @Override
     public boolean isLeftLegPantsEnabled() {
-        return getMetadata().get(13).asBit(4);
+        return this.getMetadata().get(13).asBit(4);
     }
 
     @Override
     public void setLeftLegPantsEnabled(boolean enabled) {
-        getMetadata().get(13).setBit(4, enabled);
+        this.getMetadata().get(13).setBit(4, enabled);
     }
 
     @Override
     public boolean isRightLegPantsEnabled() {
-        return getMetadata().get(13).asBit(5);
+        return this.getMetadata().get(13).asBit(5);
     }
 
     @Override
     public void setRightLegPantsEnabled(boolean enabled) {
-        getMetadata().get(13).setBit(5, enabled);
+        this.getMetadata().get(13).setBit(5, enabled);
     }
 
     @Override
     public boolean isHatEnabled() {
-        return getMetadata().get(13).asBit(6);
+        return this.getMetadata().get(13).asBit(6);
     }
 
     @Override
     public void setHatEnabled(boolean enabled) {
-        getMetadata().get(13).setBit(6, enabled);
+        this.getMetadata().get(13).setBit(6, enabled);
     }
 
     @Override
     public boolean isLeftHandMain() {
-        return getMetadata().get(14).asByte() == 0;
+        return this.getMetadata().get(14).asByte() == 0;
     }
 
     @Override
     public void setLeftHandMain(boolean main) {
-        getMetadata().get(14).set(main ? 0 : 1);
+        this.getMetadata().get(14).set(main ? 0 : 1);
     }
 
 }

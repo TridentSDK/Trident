@@ -1,3 +1,19 @@
+/*
+ * Trident - A Multithreaded Server Alternative
+ * Copyright 2016 The TridentSDK Team
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package net.tridentsdk.server.entity.meta;
 
 import net.tridentsdk.entity.meta.living.LivingEntityMeta;
@@ -20,62 +36,62 @@ public class TridentLivingEntityMeta extends TridentEntityMeta implements Living
 
     @Override
     public boolean isHandActive() {
-        return getMetadata().get(6).asBit(0);
+        return this.getMetadata().get(6).asBit(0);
     }
 
     @Override
     public void setHandActive(boolean active) {
-        getMetadata().get(6).setBit(0, active);
+        this.getMetadata().get(6).setBit(0, active);
     }
 
     @Override
     public boolean isMainHandActive() {
-        return !getMetadata().get(6).asBit(1);
+        return !this.getMetadata().get(6).asBit(1);
     }
 
     @Override
     public void setMainHandActive(boolean mainHand) {
-        getMetadata().get(6).setBit(1, !mainHand);
+        this.getMetadata().get(6).setBit(1, !mainHand);
     }
 
     @Override
     public float getHealth() {
-        return getMetadata().get(7).asFloat();
+        return this.getMetadata().get(7).asFloat();
     }
 
     @Override
     public void setHealth(float health) {
-        getMetadata().get(7).set(health);
+        this.getMetadata().get(7).set(health);
     }
 
     @Override
     public int getPotionEffectColor() {
-        return getMetadata().get(8).asInt();
+        return this.getMetadata().get(8).asInt();
     }
 
     @Override
     public void setPotionEffectColor(int potionEffectColor) {
-        getMetadata().get(8).set(potionEffectColor);
+        this.getMetadata().get(8).set(potionEffectColor);
     }
 
     @Override
     public boolean isPotionEffectAmbient() {
-        return getMetadata().get(9).asBoolean();
+        return this.getMetadata().get(9).asBoolean();
     }
 
     @Override
     public void setPotionEffectAmbient(boolean ambient) {
-        getMetadata().get(9).set(ambient);
+        this.getMetadata().get(9).set(ambient);
     }
 
     @Override
     public int getNumberOfArrowsInEntity() {
-        return getMetadata().get(10).asInt();
+        return this.getMetadata().get(10).asInt();
     }
 
     @Override
     public void setNumberOfArrowsInEntity(int arrows) {
-        getMetadata().get(10).set(arrows);
+        this.getMetadata().get(10).set(arrows);
     }
 
 }
