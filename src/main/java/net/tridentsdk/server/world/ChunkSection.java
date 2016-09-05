@@ -21,7 +21,7 @@ import it.unimi.dsi.fastutil.shorts.ShortArrayList;
 import net.tridentsdk.server.util.NibbleArray;
 
 import javax.annotation.concurrent.GuardedBy;
-import javax.annotation.concurrent.NotThreadSafe;
+import javax.annotation.concurrent.ThreadSafe;
 import java.util.concurrent.atomic.AtomicLongArray;
 
 import static net.tridentsdk.server.net.NetData.wvint;
@@ -29,7 +29,7 @@ import static net.tridentsdk.server.net.NetData.wvint;
 /**
  * Represents a 16x16x16 horizontal slab in a chunk column.
  */
-@NotThreadSafe
+@ThreadSafe
 public class ChunkSection {
     /**
      * The amount of blocks in a chunk section
@@ -97,6 +97,7 @@ public class ChunkSection {
             }
         }
 
+        // TODO move bitshift checking to here
         int dataIdx = (idx * bitsPerBlock) / 64;
         int shift = (idx & ((64 / bitsPerBlock) - 1)) * bitsPerBlock;
         long or = ((long) paletteIdx) << shift;
@@ -145,9 +146,9 @@ public class ChunkSection {
         }
 
         // Write block light
-        buf.writeBytes(this.blockLight.getBytes());
+        this.blockLight.write(buf);
 
         // Write skylight (only written if overworld)
-        buf.writeBytes(this.skyLight.getBytes()); // TODO overworld
+        this.skyLight.write(buf); // TODO overworld
     }
 }

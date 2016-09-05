@@ -61,7 +61,7 @@ public class TridentPlayer extends TridentEntity implements Player {
     /**
      * The cache time of a chunk
      */
-    private static final int chunkCacheTime = 1000 * 10; // 10 Seconds
+    private static final int CHUNK_CACHE_MILLIS = 1000 * 10; // 10 Seconds
 
     /**
      * The net connection that this player has to the
@@ -178,11 +178,11 @@ public class TridentPlayer extends TridentEntity implements Player {
                     this.client.sendPacket(oldPlayerPacket);
                 });
 
-        Position pos = getPosition();
+        Position pos = this.getPosition();
         int initialChunkRadius = 3;
         for (int x = pos.getChunkX() - initialChunkRadius; x <= pos.getChunkX() + initialChunkRadius; x++) {
             for (int z = pos.getChunkZ() - initialChunkRadius; z <= pos.getChunkZ() + initialChunkRadius; z++) {
-                TridentChunk chunk = getWorld().chunkAt(x, z);
+                TridentChunk chunk = this.getWorld().chunkAt(x, z);
                 this.client.sendPacket(new PlayOutChunk(chunk));
             }
         }
@@ -250,10 +250,11 @@ public class TridentPlayer extends TridentEntity implements Player {
     @Override
     public void setPosition(Position position) {
         // TODO Async
-        if(position.getChunkX() != getPosition().getChunkX()){
-            updateChunks(position.getChunkX() > getPosition().getChunkX() ? BlockDirection.EAST : BlockDirection.WEST);
-        }else if(position.getChunkZ() != getPosition().getChunkZ()){
-            updateChunks(position.getChunkZ() > getPosition().getChunkZ() ? BlockDirection.SOUTH : BlockDirection.NORTH);
+        Position pos = this.getPosition();
+        if (position.getChunkX() != pos.getChunkX()) {
+            this.updateChunks(position.getChunkX() > pos.getChunkX() ? BlockDirection.EAST : BlockDirection.WEST);
+        } else if (position.getChunkZ() != pos.getChunkZ()) {
+            this.updateChunks(position.getChunkZ() > pos.getChunkZ() ? BlockDirection.SOUTH : BlockDirection.NORTH);
         }
 
         super.setPosition(position);
@@ -280,9 +281,10 @@ public class TridentPlayer extends TridentEntity implements Player {
         // TODO Improve this algorithm
         // For example, send chunks closer to the player first
 
-        int centerX = getPosition().getChunkX();
-        int centerZ = getPosition().getChunkZ();
+        int centerX = this.getPosition().getChunkX();
+        int centerZ = this.getPosition().getChunkZ();
 
+        int renderDistance = this.renderDistance;
         int radius = renderDistance / 2;
 
         if(direction != null) {
@@ -290,20 +292,20 @@ public class TridentPlayer extends TridentEntity implements Player {
             centerZ += (direction.getZDiff() * radius);
         }
 
-        chunkSentTime.keySet().iterator().forEachRemaining(chunk -> {
+        this.chunkSentTime.keySet().iterator().forEachRemaining(chunk -> {
             /* Should be 16, but renderDistance has to be divided by 2 */
-            if(chunk.distanceTo(getPosition()) > renderDistance * 8 /* == (renderDistance / 2) * 16 */){
-                chunkSentTime.remove(chunk);
+            if (chunk.distanceTo(this.getPosition()) > renderDistance * 8 /* == (renderDistance / 2) * 16 */) {
+                this.chunkSentTime.remove(chunk);
             }
         });
 
         for (int x = centerX - radius; x <= centerX + radius; x++) {
             for (int z = centerZ - radius; z <= centerZ + radius; z++) {
                 HashedChunkPosition position = new HashedChunkPosition(x, z);
-                if(System.currentTimeMillis() - chunkSentTime.getOrDefault(position, 0L) > chunkCacheTime){
-                    TridentChunk chunk = getWorld().chunkAt(x, z);
+                if (System.currentTimeMillis() - this.chunkSentTime.getOrDefault(position, 0L) > CHUNK_CACHE_MILLIS) {
+                    TridentChunk chunk = this.getWorld().chunkAt(x, z);
                     this.client.sendPacket(new PlayOutChunk(chunk));
-                    chunkSentTime.put(position, System.currentTimeMillis());
+                    this.chunkSentTime.put(position, System.currentTimeMillis());
                 }
             }
         }
