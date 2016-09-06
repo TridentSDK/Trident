@@ -52,6 +52,10 @@ public final class Mojang<T> {
      * The async callback
      */
     private volatile Function<JsonElement, T> callback;
+    /**
+     * Callback for exceptional requests
+     */
+    private volatile Function<String, T> exception;
 
     // Use static factory
     private Mojang(HttpsURLConnection connection) {
@@ -90,13 +94,13 @@ public final class Mojang<T> {
 
                 int code = this.c.getResponseCode();
                 if (code != 200) {
-                    return this.callback.apply(null);
+                    return this.exception.apply(String.valueOf(code));
                 }
 
                 BufferedReader reader = new BufferedReader(new InputStreamReader(this.c.getInputStream()));
                 return this.callback.apply(ConfigIo.PARSER.parse(reader));
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                return this.exception.apply(e.getMessage());
             }
         };
         return EXECUTOR_SERVICE.submit(get);
@@ -121,13 +125,13 @@ public final class Mojang<T> {
 
                 int code = this.c.getResponseCode();
                 if (code != 200) {
-                    return this.callback.apply(null);
+                    return this.exception.apply(String.valueOf(code));
                 }
 
                 BufferedReader reader = new BufferedReader(new InputStreamReader(this.c.getInputStream()));
                 return this.callback.apply(ConfigIo.PARSER.parse(reader));
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                return this.exception.apply(e.getMessage());
             }
         };
         return EXECUTOR_SERVICE.submit(post);
@@ -154,6 +158,11 @@ public final class Mojang<T> {
      */
     public Mojang<T> callback(Function<JsonElement, T> func) {
         this.callback = func;
+        return this;
+    }
+
+    public Mojang<T> onException(Function<String, T> func) {
+        this.exception = func;
         return this;
     }
 }

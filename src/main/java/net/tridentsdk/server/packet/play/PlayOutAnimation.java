@@ -38,8 +38,8 @@ public class PlayOutAnimation extends PacketOut {
 
     @Override
     public void write(ByteBuf buf) {
-        NetData.wvint(buf, player.getId());
-        buf.writeByte(animationType.ordinal());
+        NetData.wvint(buf, this.player.getId());
+        buf.writeByte(this.animationType.ordinal());
     }
 
     public enum AnimationType {
@@ -49,7 +49,7 @@ public class PlayOutAnimation extends PacketOut {
         LEAVE_BED,
         SWING_OFFHAND,
         CRITICAL_EFFECT,
-        MAGIC_CRITICAL_EFFECT;
+        MAGIC_CRITICAL_EFFECT
 
     }
 

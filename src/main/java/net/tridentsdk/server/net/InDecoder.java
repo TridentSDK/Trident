@@ -86,13 +86,11 @@ public class InDecoder extends ByteToMessageDecoder {
         // If not, compressed, use raw buffer
         // Toss appropriate header fields
         ByteBuf decompressed = decrypt;
-        boolean deflated = false;
         if (this.client.doCompression()) {
             rvint(decrypt); // toss full packet length
             int compressedLen = rvint(decrypt);
             if (compressedLen > COMPRESSION_THRESH) {
                 decompressed = ctx.alloc().buffer();
-                deflated = true;
                 byte[] in = arr(decrypt);
 
                 Inflater inflater = INFLATER.get();
@@ -120,11 +118,11 @@ public class InDecoder extends ByteToMessageDecoder {
         packet.read(decompressed, this.client);
 
         // If we created a new buffer, release it here
-        if (deflated) {
+        if (decompressed != decrypt) {
             decompressed.release();
         }
 
-        if (crypto != null) {
+        if (decrypt != buf) {
             decrypt.release();
         }
     }

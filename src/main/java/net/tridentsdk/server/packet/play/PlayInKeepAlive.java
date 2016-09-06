@@ -75,7 +75,7 @@ public final class PlayInKeepAlive extends PacketIn {
             client.disconnect("Keep alive ID mismatch, actual:" + localId + " rcvd:" + id);
         }
 
-        if ((System.currentTimeMillis() - client.lastKeepAlive()) > NetClient.SERVER_TICK_KICK) {
+        if ((System.nanoTime() - client.lastKeepAlive()) > NetClient.KEEP_ALIVE_KICK_NANOS) {
             client.disconnect("Timed out");
         }
     }

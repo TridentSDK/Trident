@@ -74,14 +74,14 @@ public class NetClient {
     public static final int BUFFER_SIZE = 8192;
     /**
      * Time before the server kicks an inactive client, in
-     * millis.
+     * nanoseconds.
      */
-    public static final int SERVER_TICK_KICK = 30_000;
+    public static final long KEEP_ALIVE_KICK_NANOS = 30_000_000_000L;
     /**
      * The interval between each client tick to ensure that
-     * the client is not disconnected
+     * the client is not disconnected (10 seconds)
      */
-    public static final int CLIENT_TICK_INTV = 10_000;
+    private static final long KEEP_ALIVE_INTERVAL_NANOS = 10_000_000_000L;
     /**
      * The mapping of currently connected clients
      */
@@ -124,7 +124,7 @@ public class NetClient {
      * The last time which this player was pinged for keep
      * alive
      */
-    private final AtomicLong lastKeepAlive = new AtomicLong(System.currentTimeMillis());
+    private final AtomicLong lastKeepAlive = new AtomicLong(System.nanoTime());
 
     /**
      * Creates a new netclient that represents a client's
@@ -157,8 +157,8 @@ public class NetClient {
 
     /**
      * Obtains the last moment (in the time value given by
-     * {@link System#currentTimeMillis()}) since the client
-     * was sent a keep alive packet.
+     * {@link System#nanoTime()}) since the client was sent
+     * a keep alive packet.
      *
      * @return the last keep alive
      */
@@ -171,9 +171,9 @@ public class NetClient {
      */
     public void tick() {
         long lastKeepAlive = this.lastKeepAlive.get();
-        long now = System.currentTimeMillis();
+        long now = System.nanoTime();
         long elapsed = now - lastKeepAlive;
-        if (elapsed > CLIENT_TICK_INTV) {
+        if (elapsed > KEEP_ALIVE_INTERVAL_NANOS) {
             // if we win a race, great
             // if we lose a race, sucks, but we don't need
             // to retry because it was too recent
@@ -317,5 +317,7 @@ public class NetClient {
         } else {
             this.channel.close();
         }
+
+        CLIENTS.remove(this.channel.remoteAddress());
     }
 }

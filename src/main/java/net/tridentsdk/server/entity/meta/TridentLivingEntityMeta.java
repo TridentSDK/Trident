@@ -36,62 +36,62 @@ public class TridentLivingEntityMeta extends TridentEntityMeta implements Living
 
     @Override
     public boolean isHandActive() {
-        return getMetadata().get(6).asBit(0);
+        return this.getMetadata().get(6).asBit(0);
     }
 
     @Override
     public void setHandActive(boolean active) {
-        getMetadata().get(6).setBit(0, active);
+        this.getMetadata().get(6).setBit(0, active);
     }
 
     @Override
     public boolean isMainHandActive() {
-        return !getMetadata().get(6).asBit(1);
+        return !this.getMetadata().get(6).asBit(1);
     }
 
     @Override
     public void setMainHandActive(boolean mainHand) {
-        getMetadata().get(6).setBit(1, !mainHand);
+        this.getMetadata().get(6).setBit(1, !mainHand);
     }
 
     @Override
     public float getHealth() {
-        return getMetadata().get(7).asFloat();
+        return this.getMetadata().get(7).asFloat();
     }
 
     @Override
     public void setHealth(float health) {
-        getMetadata().get(7).set(health);
+        this.getMetadata().get(7).set(health);
     }
 
     @Override
     public int getPotionEffectColor() {
-        return getMetadata().get(8).asInt();
+        return this.getMetadata().get(8).asInt();
     }
 
     @Override
     public void setPotionEffectColor(int potionEffectColor) {
-        getMetadata().get(8).set(potionEffectColor);
+        this.getMetadata().get(8).set(potionEffectColor);
     }
 
     @Override
     public boolean isPotionEffectAmbient() {
-        return getMetadata().get(9).asBoolean();
+        return this.getMetadata().get(9).asBoolean();
     }
 
     @Override
     public void setPotionEffectAmbient(boolean ambient) {
-        getMetadata().get(9).set(ambient);
+        this.getMetadata().get(9).set(ambient);
     }
 
     @Override
     public int getNumberOfArrowsInEntity() {
-        return getMetadata().get(10).asInt();
+        return this.getMetadata().get(10).asInt();
     }
 
     @Override
     public void setNumberOfArrowsInEntity(int arrows) {
-        getMetadata().get(10).set(arrows);
+        this.getMetadata().get(10).set(arrows);
     }
 
 }

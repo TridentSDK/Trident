@@ -91,11 +91,7 @@ public class TridentChunk implements Chunk {
         GeneratorContextImpl context = new GeneratorContextImpl(opts.seed());
         terrain.generate(this.x, this.z, context);
 
-        ChunkSection[] sections = new ChunkSection[16];
-        for (int i = 0; i < 16; i++) {
-            sections[i] = context.sections().get(i);
-        }
-        this.sections = sections;
+        this.sections = context.asArray();
 
         this.ready.countDown();
     }

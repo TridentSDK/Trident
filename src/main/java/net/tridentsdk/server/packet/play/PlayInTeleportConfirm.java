@@ -44,7 +44,7 @@ public final class PlayInTeleportConfirm extends PacketIn {
      * The teleport ID cache
      */
     private static final Cache<NetClient, Integer> TELEPORT_ID = CacheBuilder.newBuilder()
-            .expireAfterWrite(NetClient.SERVER_TICK_KICK, TimeUnit.MILLISECONDS)
+            .expireAfterWrite(NetClient.KEEP_ALIVE_KICK_NANOS, TimeUnit.NANOSECONDS)
             .removalListener(notification -> {
                 if (notification.getCause() == RemovalCause.EXPIRED) {
                     ((NetClient) notification.getKey()).disconnect("No teleport response");
