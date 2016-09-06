@@ -18,14 +18,15 @@ package net.tridentsdk.server.packet.play;
 
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.base.Position;
-import net.tridentsdk.chat.ChatComponent;
-import net.tridentsdk.chat.ChatType;
-import net.tridentsdk.chat.ClickAction;
-import net.tridentsdk.chat.ClickEvent;
+import net.tridentsdk.chat.*;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.packet.PacketIn;
 import net.tridentsdk.server.player.TridentPlayer;
+import net.tridentsdk.server.ui.bossbar.TridentBossBarManager;
 import net.tridentsdk.server.world.TridentChunk;
+import net.tridentsdk.ui.bossbar.BossBar;
+import net.tridentsdk.ui.bossbar.BossBarColor;
+import net.tridentsdk.ui.bossbar.BossBarDivision;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -64,6 +65,22 @@ public final class PlayInChat extends PacketIn {
                     TridentChunk chunk = (TridentChunk) playerPosition.world().chunkAt(x, z);
                     client.sendPacket(new PlayOutChunk(chunk));
                 }
+            }
+        }
+
+        if (msg.toLowerCase().equals("bossbars")) {
+            int i = 0;
+            for (String word : "I hate my life".split(" ")) {
+                BossBar bb = TridentBossBarManager.getInstance().newBossBar();
+
+                bb.setTitle(ChatComponent.text(word).setColor(ChatColor.getColor((char) ('a' + i))));
+                bb.setColor(BossBarColor.values()[i]);
+                bb.setDivision(BossBarDivision.values()[i++]);
+                bb.setHealth(i * .25f);
+                bb.setDarkenSky(false);
+                bb.setDragonBar(false);
+
+                player.addBossBar(bb);
             }
         }
     }

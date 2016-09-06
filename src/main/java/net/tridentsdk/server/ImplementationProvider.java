@@ -25,6 +25,7 @@ import net.tridentsdk.server.command.InfoLogger;
 import net.tridentsdk.server.command.LoggerHandlers;
 import net.tridentsdk.server.command.PipelinedLogger;
 import net.tridentsdk.server.config.TridentConfig;
+import net.tridentsdk.server.ui.bossbar.TridentBossBarManager;
 import net.tridentsdk.server.ui.tablist.TridentTabListManager;
 import net.tridentsdk.server.world.TridentWorldLoader;
 import net.tridentsdk.ui.tablist.TabListManager;
@@ -102,4 +103,10 @@ public class ImplementationProvider implements Impl.ImplementationProvider {
     public TabListManager tabListManager() {
         return TridentTabListManager.getInstance();
     }
+
+    @Override
+    public TridentBossBarManager getBossBarManager() {
+        return TridentBossBarManager.getInstance();
+    }
+
 }

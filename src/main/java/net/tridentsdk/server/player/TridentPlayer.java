@@ -31,19 +31,21 @@ import net.tridentsdk.server.entity.meta.EntityMetaType;
 import net.tridentsdk.server.net.EntityMetadata;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.packet.play.*;
+import net.tridentsdk.server.ui.bossbar.AbstractBossBar;
 import net.tridentsdk.server.ui.tablist.TridentTabList;
 import net.tridentsdk.server.ui.tablist.TridentTabListManager;
 import net.tridentsdk.server.world.TridentChunk;
 import net.tridentsdk.server.world.TridentWorld;
+import net.tridentsdk.ui.bossbar.BossBar;
 import net.tridentsdk.ui.tablist.TabList;
 import net.tridentsdk.world.World;
 import net.tridentsdk.world.WorldLoader;
 import net.tridentsdk.world.opt.GameMode;
 
 import javax.annotation.concurrent.ThreadSafe;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * This class is the implementation of a Minecraft client
@@ -96,6 +98,10 @@ public class TridentPlayer extends TridentEntity implements Player {
      */
     @Getter
     private volatile int renderDistance;
+
+    @Getter
+    private volatile Collection<AbstractBossBar> bossBars = new CopyOnWriteArrayList<>();
+
     /**
      * The player's meta data
      */
@@ -248,11 +254,63 @@ public class TridentPlayer extends TridentEntity implements Player {
     }
 
     @Override
+    public Collection<BossBar> getBossBars() {
+        return Collections.unmodifiableCollection(bossBars);
+    }
+
+    @Override
+    public void addBossBar(BossBar bossBar) {
+        if (bossBar != null) {
+            bossBars.add((AbstractBossBar) bossBar);
+            net().sendPacket(new PlayOutBossBar.Add(bossBar));
+        }
+    }
+
+    @Override
+    public void removeBossBar(BossBar bossBar) {
+        if (bossBar != null && bossBars.contains(bossBar)) {
+            bossBars.remove(bossBar);
+            net().sendPacket(new PlayOutBossBar.Remove(bossBar));
+        }
+    }
+
+    @Override
+    public void updateBossBars() {
+        updateBossBars(false);
+    }
+
+    private void updateBossBars(boolean force) {
+        for (AbstractBossBar bossBar : bossBars) {
+            boolean health, title, style, flags;
+            health = title = style = flags = force;
+            if (!force) {
+                title = bossBar.isChangedTitle();
+                health = bossBar.isChangedHealth();
+                style = bossBar.isChangedStyle();
+                flags = bossBar.isChangedFlags();
+            }
+            if (health) {
+                net().sendPacket(new PlayOutBossBar.UpdateHealth(bossBar));
+            }
+            if (title) {
+                net().sendPacket(new PlayOutBossBar.UpdateTitle(bossBar));
+            }
+            if (style) {
+                net().sendPacket(new PlayOutBossBar.UpdateStyle(bossBar));
+            }
+            if (flags) {
+                net().sendPacket(new PlayOutBossBar.UpdateFlags(bossBar));
+            }
+            bossBar.unsetChanged();
+        }
+    }
+
+    @Override
     public void setPosition(Position position) {
         // TODO Async
         if(position.getChunkX() != getPosition().getChunkX()){
             updateChunks(position.getChunkX() > getPosition().getChunkX() ? BlockDirection.EAST : BlockDirection.WEST);
-        }else if(position.getChunkZ() != getPosition().getChunkZ()){
+        } else if(position.getChunkZ() != getPosition().getChunkZ()){
             updateChunks(position.getChunkZ() > getPosition().getChunkZ() ? BlockDirection.SOUTH : BlockDirection.NORTH);
         }
 

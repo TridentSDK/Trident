@@ -14,30 +14,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.tridentsdk.server.packet.play;
+package net.tridentsdk.server.ui.bossbar;
 
-import io.netty.buffer.ByteBuf;
-import net.tridentsdk.server.entity.TridentEntity;
-import net.tridentsdk.server.net.NetData;
-import net.tridentsdk.server.packet.PacketOut;
+import lombok.Getter;
+import net.tridentsdk.ui.bossbar.BossBar;
+import net.tridentsdk.ui.bossbar.BossBarManager;
 
 /**
  * @author TridentSDK
  * @since 0.5-alpha
  */
-public class PlayOutEntityMetadata extends PacketOut {
+public class TridentBossBarManager implements BossBarManager {
 
-    private final TridentEntity entity;
+    @Getter
+    private static final TridentBossBarManager instance = new TridentBossBarManager();
 
-    public PlayOutEntityMetadata(TridentEntity entity) {
-        super(PlayOutEntityMetadata.class);
-        this.entity = entity;
+    private TridentBossBarManager() {}
+
+    @Override
+    public boolean isDefault(BossBar bar) {
+        return bar instanceof DefaultBossBar;
     }
 
     @Override
-    public void write(ByteBuf buf) {
-        NetData.wvint(buf, entity.getId());
-        entity.getMetadata().getMetadata().write(buf);
+    public BossBar newBossBar() {
+        return new CustomBossBar();
     }
 
 }
