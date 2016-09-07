@@ -16,11 +16,11 @@
  */
 package net.tridentsdk.server.packet.status;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.chat.ChatComponent;
 import net.tridentsdk.server.TridentServer;
-import net.tridentsdk.server.config.ConfigIo;
 import net.tridentsdk.server.config.ServerConfig;
 import net.tridentsdk.server.packet.PacketOut;
 import net.tridentsdk.server.player.TridentPlayer;
@@ -62,13 +62,20 @@ public final class StatusOutResponse extends PacketOut {
         JsonObject players = new JsonObject();
         players.addProperty("max", cfg.maxPlayers());
         players.addProperty("online", TridentPlayer.PLAYERS.size());
-        // players.add("sample", new JsonArray());
+        JsonArray sample = new JsonArray();
+        TridentPlayer.PLAYERS.forEach((u, p) -> {
+            JsonObject o = new JsonObject();
+            o.addProperty("name", p.name());
+            o.addProperty("id", p.uuid().toString());
+            sample.add(o);
+        });
+        players.add("sample", sample);
         resp.add("players", players);
 
         resp.add("description", ChatComponent.text(cfg.motd()).asJson());
 
         // resp.addProperty("favicon", "data:image/png;base64,<data>");
-        String toString = ConfigIo.GSON.toJson(resp);
-        wstr(buf, toString);
+        //String toString = ConfigIo.GSON.toJson(resp);
+        wstr(buf, resp.toString());
     }
 }
