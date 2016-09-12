@@ -19,6 +19,7 @@ package net.tridentsdk.server;
 import com.google.common.collect.Lists;
 import io.netty.util.ResourceLeakDetector;
 import net.tridentsdk.Impl;
+import net.tridentsdk.Server;
 import net.tridentsdk.command.logger.Logger;
 import net.tridentsdk.doc.Debug;
 import net.tridentsdk.server.command.InfoLogger;
@@ -26,6 +27,7 @@ import net.tridentsdk.server.command.PipelinedLogger;
 import net.tridentsdk.server.config.ConfigIo;
 import net.tridentsdk.server.config.ServerConfig;
 import net.tridentsdk.server.net.NetServer;
+import net.tridentsdk.server.packet.status.StatusOutResponse;
 import net.tridentsdk.server.util.JiraExceptionCatcher;
 import net.tridentsdk.server.world.TridentWorldLoader;
 
@@ -74,6 +76,9 @@ public final class TridentMain {
         // -------------------------------------------------
 
         logger.log("Server software by TridentSDK - https://tridentsdk.net");
+
+        logger.log("Server implements API version " + Server.VERSION);
+        logger.log("Server implements Minecraft protocol for " + StatusOutResponse.MC_VERSION);
 
         // Setup the config file ---------------------------
         logger.log("Checking for server files: server.json");
