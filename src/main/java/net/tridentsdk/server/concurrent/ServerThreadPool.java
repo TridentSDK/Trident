@@ -36,9 +36,46 @@ public class ServerThreadPool {
         this.workers = new Worker[cpus];
     }
 
+    public void execute(Runnable runnable) {
+
+    }
+
+    private class StealableDeque {
+        private final Runnable[] array;
+
+        public StealableDeque() {
+            this.array = new Runnable[64];
+        }
+
+        public Runnable poll() {
+            return null;
+        }
+
+        public Runnable pop() {
+            return null;
+        }
+
+        public void push(Runnable runnable) {
+        }
+    }
+
     private class Worker extends Thread {
+        private final StealableDeque deque = new StealableDeque();
+
         public Worker(int idx) {
             super("TRD - Worker - " + idx);
+        }
+
+        @Override
+        public void run() {
+            while (true) {
+                Runnable runnable = this.deque.pop();
+                if (runnable == null) {
+
+                } else {
+                    runnable.run();
+                }
+            }
         }
     }
 }
