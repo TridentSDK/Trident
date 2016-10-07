@@ -25,7 +25,7 @@ import net.tridentsdk.meta.nbt.NBTField;
 import net.tridentsdk.meta.nbt.NBTSerializable;
 import net.tridentsdk.meta.nbt.TagType;
 
-public class MapMetaImpl implements MapMeta, NBTSerializable {
+public class MapMetaImpl extends ItemMetaImpl implements MapMeta, NBTSerializable {
     @NBTField(name = "map_is_scaling", type = TagType.BYTE)
     private boolean scaling;
 

@@ -22,7 +22,7 @@ import net.tridentsdk.meta.nbt.NBTField;
 import net.tridentsdk.meta.nbt.NBTSerializable;
 import net.tridentsdk.meta.nbt.TagType;
 
-public class FireworkStarMetaImpl implements FireworkStarMeta, NBTSerializable {
+public class FireworkStarMetaImpl extends ItemMetaImpl implements FireworkStarMeta, NBTSerializable {
     @NBTField(name = "Explosion", type = TagType.COMPOUND)
     private ExplosionMeta explosion;
 

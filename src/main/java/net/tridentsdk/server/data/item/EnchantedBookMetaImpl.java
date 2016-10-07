@@ -26,8 +26,9 @@ import net.tridentsdk.meta.item.EnchantedBookMeta;
 import net.tridentsdk.meta.nbt.NBTField;
 import net.tridentsdk.meta.nbt.NBTSerializable;
 import net.tridentsdk.meta.nbt.TagType;
+import net.tridentsdk.util.TridentLogger;
 
-public class EnchantedBookMetaImpl implements EnchantedBookMeta, NBTSerializable {
+public class EnchantedBookMetaImpl extends ItemMetaImpl implements EnchantedBookMeta, NBTSerializable {
     @NBTField(name = "StoredEnchantments", type = TagType.LIST)
     private List<NBTEnchantment> enchants;
 
@@ -38,12 +39,31 @@ public class EnchantedBookMetaImpl implements EnchantedBookMeta, NBTSerializable
 
     @Override
     public void process() {
-        enchants.forEach(e -> enchantments.put(Enchantment.fromId(e.id), e.lvl));
+        super.process();
+        enchants.forEach(e -> {
+            Enchantment ench = Enchantment.fromId(e.id);
+            if (ench == null) {
+                TridentLogger.get().warn("Enchantment found with id=" + e.id + " (not found in Trident)");
+            } else {
+                enchantments.put(ench, e.lvl);
+            }
+        });
     }
 
     @Override
     public Map<Enchantment, Short> storedEnchantments() {
         return this.enchantments;
+    }
+
+    @Override
+    public void addStoredEnchantment(Enchantment enchantment, int level) {
+        ItemMetaImpl.checkIntToShort(level);
+        enchantments.put(enchantment, (short) level);
+    }
+
+    @Override
+    public void removeStoredEnchantment(Enchantment enchantment) {
+        enchantments.remove(enchantment);
     }
 
     @Override
