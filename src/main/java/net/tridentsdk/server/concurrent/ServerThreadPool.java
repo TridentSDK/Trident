@@ -16,66 +16,27 @@
  */
 package net.tridentsdk.server.concurrent;
 
+import com.google.common.collect.Maps;
+
+import java.util.Map;
+import java.util.concurrent.Executor;
+
 /**
  * Managed set of threads that can be constrained
  * in CPU resources and performs work stealing when
  * necessary.
  */
 public class ServerThreadPool {
-    private static final int DOUBLING_THRESH = 8;
+    private final Executor delegate;
 
-    private final Worker[] workers;
-
-    public ServerThreadPool() {
-        int cpus = Runtime.getRuntime().availableProcessors();
-        if (cpus < DOUBLING_THRESH) {
-            cpus <<= 1;
-
-        }
-
-        this.workers = new Worker[cpus];
+    private ServerThreadPool(ThreadBlockSpec spec) {
+        this.delegate = null;
     }
 
-    public void execute(Runnable runnable) {
+    private static final Map<ThreadBlockSpec, ServerThreadPool> POOLS =
+            Maps.newConcurrentMap();
 
-    }
-
-    private class StealableDeque {
-        private final Runnable[] array;
-
-        public StealableDeque() {
-            this.array = new Runnable[64];
-        }
-
-        public Runnable poll() {
-            return null;
-        }
-
-        public Runnable pop() {
-            return null;
-        }
-
-        public void push(Runnable runnable) {
-        }
-    }
-
-    private class Worker extends Thread {
-        private final StealableDeque deque = new StealableDeque();
-
-        public Worker(int idx) {
-            super("TRD - Worker - " + idx);
-        }
-
-        @Override
-        public void run() {
-            while (true) {
-                Runnable runnable = this.deque.pop();
-                if (runnable == null) {
-
-                } else {
-                    runnable.run();
-                }
-            }
-        }
+    public static ServerThreadPool forSpec(ThreadBlockSpec spec) {
+        return null;
     }
 }
