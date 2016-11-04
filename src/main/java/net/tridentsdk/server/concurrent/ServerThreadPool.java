@@ -17,9 +17,12 @@
 package net.tridentsdk.server.concurrent;
 
 import com.google.common.collect.Maps;
+import com.google.common.collect.Queues;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executor;
+import java.util.concurrent.*;
 
 /**
  * Managed set of threads that can be constrained
@@ -27,16 +30,90 @@ import java.util.concurrent.Executor;
  * necessary.
  */
 public class ServerThreadPool {
-    private final Executor delegate;
+    /**
+     * Mapping of spec objects to delegate thread pools.
+     */
+    private static final Map<ThreadBlockSpec, ServerThreadPool> pools =
+            Maps.newConcurrentMap();
+    /**
+     * Delegate executor service that is determined via
+     * spec in the {@link #forSpec(ThreadBlockSpec)} method.
+     */
+    private final ExecutorService delegate;
 
-    private ServerThreadPool(ThreadBlockSpec spec) {
-        this.delegate = null;
+    /**
+     * Invoked from the factory method to create a new
+     * delegated thread pool.
+     *
+     * @param executor the delegate
+     */
+    private ServerThreadPool(ExecutorService executor) {
+        this.delegate = executor;
     }
 
-    private static final Map<ThreadBlockSpec, ServerThreadPool> POOLS =
-            Maps.newConcurrentMap();
-
+    /**
+     * Creates a new thread pool for the given spec.
+     *
+     * @param spec the specification for the new thread
+     *             pool.
+     * @return the thread pool that is based on the spec
+     */
     public static ServerThreadPool forSpec(ThreadBlockSpec spec) {
-        return null;
+        return pools.computeIfAbsent(spec, k -> {
+            int config = spec.getMaxThreads();
+            if (spec.isDoStealing()) {
+                return new ServerThreadPool(Executors.newWorkStealingPool(config));
+            } else {
+                return new ServerThreadPool(new ThreadPoolExecutor(1, config, 60L, TimeUnit.SECONDS, Queues.newLinkedBlockingQueue()));
+            }
+        });
+    }
+
+    /**
+     * Attempts to shutdown every thread pool that has been
+     * registered through a spec in the server.
+     */
+    public static void shutdownAll() {
+        for (ServerThreadPool pool : pools.values()) {
+            pool.shutdown();
+        }
+    }
+
+    /**
+     * Attempts to shutdown the thread pool immediately.
+     */
+    public void shutdown() {
+        this.delegate.shutdownNow();
+    }
+
+    public <T> Future<T> submit(Callable<T> task) {
+        return this.delegate.submit(task);
+    }
+
+    public <T> Future<T> submit(Runnable task, T result) {
+        return this.delegate.submit(task, result);
+    }
+
+    public Future<?> submit(Runnable task) {
+        return this.delegate.submit(task);
+    }
+
+    public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks) throws InterruptedException {
+        return this.delegate.invokeAll(tasks);
+    }
+
+    public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit) throws InterruptedException {
+        return this.delegate.invokeAll(tasks);
+    }
+
+    /**
+     * Executes the given runnable command in the thread
+     * pool.
+     *
+     * @param command the command which to schedule for
+     *                running.
+     */
+    public void execute(Runnable command) {
+        this.delegate.execute(command);
     }
 }
