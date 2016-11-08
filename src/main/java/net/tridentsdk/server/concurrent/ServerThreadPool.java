@@ -52,6 +52,18 @@ public class ServerThreadPool {
     }
 
     /**
+     * Initializer for server startup
+     */
+    public static void init() {
+        forSpec(ThreadBlockSpec.BLOCKS);
+        forSpec(ThreadBlockSpec.CHUNKS);
+        forSpec(ThreadBlockSpec.ENTITIES);
+        forSpec(ThreadBlockSpec.PLAYERS);
+        forSpec(ThreadBlockSpec.PLUGINS);
+        forSpec(ThreadBlockSpec.SCHEDULER);
+    }
+
+    /**
      * Creates a new thread pool for the given spec.
      *
      * @param spec the specification for the new thread

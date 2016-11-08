@@ -10,6 +10,14 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public class ThreadBlockSpec {
+    public static final ThreadBlockSpec CHUNKS = new ThreadBlockSpec(4, true);
+    public static final ThreadBlockSpec BLOCKS = new ThreadBlockSpec(2, true);
+    public static final ThreadBlockSpec ENTITIES = new ThreadBlockSpec(4, false);
+    public static final ThreadBlockSpec PLAYERS = new ThreadBlockSpec(4, false);
+
+    public static final ThreadBlockSpec SCHEDULER = new ThreadBlockSpec(3, false);
+    public static final ThreadBlockSpec PLUGINS = new ThreadBlockSpec(1, false);
+
     @Getter
     private final int maxThreads;
     @Getter

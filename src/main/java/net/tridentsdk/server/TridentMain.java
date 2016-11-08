@@ -105,6 +105,10 @@ public final class TridentMain {
         logger.success("Done.");
         // -------------------------------------------------
 
+        // Init thread pools -------------------------------
+
+        // -------------------------------------------------
+
         // Load worlds -------------------------------------
         logger.log("Loading worlds...");
         TridentWorldLoader.getInstance().loadAll();
