@@ -33,11 +33,11 @@ public class ServerThreadPool {
     /**
      * Mapping of spec objects to delegate thread pools.
      */
-    private static final Map<ThreadBlockSpec, ServerThreadPool> pools =
+    private static final Map<PoolSpec, ServerThreadPool> pools =
             Maps.newConcurrentMap();
     /**
      * Delegate executor service that is determined via
-     * spec in the {@link #forSpec(ThreadBlockSpec)} method.
+     * spec in the {@link #forSpec(PoolSpec)} method.
      */
     private final ExecutorService delegate;
 
@@ -55,12 +55,12 @@ public class ServerThreadPool {
      * Initializer for server startup
      */
     public static void init() {
-        forSpec(ThreadBlockSpec.BLOCKS);
-        forSpec(ThreadBlockSpec.CHUNKS);
-        forSpec(ThreadBlockSpec.ENTITIES);
-        forSpec(ThreadBlockSpec.PLAYERS);
-        forSpec(ThreadBlockSpec.PLUGINS);
-        forSpec(ThreadBlockSpec.SCHEDULER);
+        forSpec(PoolSpec.WORLDS);
+        forSpec(PoolSpec.CHUNKS);
+        forSpec(PoolSpec.ENTITIES);
+        forSpec(PoolSpec.PLAYERS);
+        forSpec(PoolSpec.PLUGINS);
+        forSpec(PoolSpec.SCHEDULER);
     }
 
     /**
@@ -70,7 +70,7 @@ public class ServerThreadPool {
      *             pool.
      * @return the thread pool that is based on the spec
      */
-    public static ServerThreadPool forSpec(ThreadBlockSpec spec) {
+    public static ServerThreadPool forSpec(PoolSpec spec) {
         return pools.computeIfAbsent(spec, k -> {
             int config = spec.getMaxThreads();
             if (spec.isDoStealing()) {

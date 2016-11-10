@@ -28,6 +28,7 @@ import net.tridentsdk.world.opt.GenOpts;
 import javax.annotation.Nonnull;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ForkJoinPool;
 
 import static net.tridentsdk.server.net.NetData.wvint;
 
@@ -88,8 +89,30 @@ public class TridentChunk implements Chunk {
         Set<PropGenerator> props = provider.propSet(this.world);
         Set<FeatureGenerator> features = provider.featureSet(this.world);
 
-        GeneratorContextImpl context = new GeneratorContextImpl(opts.seed());
-        terrain.generate(this.x, this.z, context);
+        GeneratorContextImpl context = new GeneratorContextImpl(provider.container(), opts.seed());
+        context.run(new GenTask() {
+            boolean block = true;
+
+            @Override
+            public boolean block() {
+                return this.block;
+            }
+
+            @Override
+            public boolean isReleasable() {
+                return !this.block;
+            }
+
+            @Override
+            public void run() {
+                try {
+                    ForkJoinPool.managedBlock(this);
+                    terrain.generate(x, z, context);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
 
         this.sections = context.asArray();
 

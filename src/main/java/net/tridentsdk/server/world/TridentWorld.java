@@ -17,6 +17,8 @@
 package net.tridentsdk.server.world;
 
 import net.tridentsdk.base.Block;
+import net.tridentsdk.server.concurrent.PoolSpec;
+import net.tridentsdk.server.concurrent.ServerThreadPool;
 import net.tridentsdk.server.world.opt.GenOptImpl;
 import net.tridentsdk.server.world.opt.WorldOptImpl;
 import net.tridentsdk.world.Chunk;
@@ -36,6 +38,17 @@ import java.util.Collections;
  */
 @ThreadSafe
 public class TridentWorld implements World {
+    /**
+     * The global thread pool used for processing ticking
+     * tasks.
+     */
+    private static final ServerThreadPool TP = ServerThreadPool.forSpec(PoolSpec.WORLDS);
+    /**
+     * Ticking task used to prevent initialization on each
+     * call to the ticking handler
+     */
+    private final Runnable tickingTask = this::doTick;
+
     /**
      * The chunk collection
      */
@@ -95,6 +108,12 @@ public class TridentWorld implements World {
      * The world ticking method.
      */
     public void tick() {
+        TP.execute(this.tickingTask);
+    }
+
+    // Ticking implementation
+    private void doTick() {
+
     }
 
     @Override

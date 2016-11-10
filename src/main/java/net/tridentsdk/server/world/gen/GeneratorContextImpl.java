@@ -18,6 +18,7 @@ package net.tridentsdk.server.world.gen;
 
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.server.world.ChunkSection;
+import net.tridentsdk.world.gen.GenContainer;
 import net.tridentsdk.world.gen.GeneratorContext;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -29,6 +30,11 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
  */
 @ThreadSafe
 public class GeneratorContextImpl implements GeneratorContext {
+    /**
+     * The container for running generator tasks in this
+     * context
+     */
+    private GenContainer container;
     /**
      * The seed to be used for generation
      */
@@ -48,7 +54,8 @@ public class GeneratorContextImpl implements GeneratorContext {
      *
      * @param seed the seed
      */
-    public GeneratorContextImpl(long seed) {
+    public GeneratorContextImpl(GenContainer container, long seed) {
+        this.container = container;
         this.seed = seed;
         this.random = new AtomicLong(seed);
     }
@@ -117,6 +124,11 @@ public class GeneratorContextImpl implements GeneratorContext {
     @Override
     public void set(int x, int y, int z, int id, byte meta) {
         this.set(x, y, z, build(id, meta));
+    }
+
+    @Override
+    public void run(Runnable r) {
+        this.container.run(r);
     }
 
     /**

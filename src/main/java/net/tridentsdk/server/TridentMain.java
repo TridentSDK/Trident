@@ -24,6 +24,7 @@ import net.tridentsdk.command.logger.Logger;
 import net.tridentsdk.doc.Debug;
 import net.tridentsdk.server.command.InfoLogger;
 import net.tridentsdk.server.command.PipelinedLogger;
+import net.tridentsdk.server.concurrent.ServerThreadPool;
 import net.tridentsdk.server.config.ConfigIo;
 import net.tridentsdk.server.config.ServerConfig;
 import net.tridentsdk.server.net.NetServer;
@@ -106,7 +107,7 @@ public final class TridentMain {
         // -------------------------------------------------
 
         // Init thread pools -------------------------------
-
+        ServerThreadPool.init();
         // -------------------------------------------------
 
         // Load worlds -------------------------------------

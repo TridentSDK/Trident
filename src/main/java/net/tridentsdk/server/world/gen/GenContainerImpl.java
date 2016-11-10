@@ -16,10 +16,11 @@
  */
 package net.tridentsdk.server.world.gen;
 
+import net.tridentsdk.server.concurrent.PoolSpec;
+import net.tridentsdk.server.concurrent.ServerThreadPool;
 import net.tridentsdk.world.gen.GenContainer;
 
 import javax.annotation.concurrent.Immutable;
-import java.util.function.Supplier;
 
 /**
  * The implementation for a generator container, which is
@@ -28,7 +29,7 @@ import java.util.function.Supplier;
  */
 @Immutable
 public final class GenContainerImpl {
-    // TODO figure this shit out
+    // TODO check this shit out
     private static final ArbitraryRunner ARBITRARY_RUNNER = new ArbitraryRunner();
     private static final DefaultRunner DEFAULT_RUNNER = new DefaultRunner();
 
@@ -74,9 +75,11 @@ public final class GenContainerImpl {
      * Implementation of an arbitrary thread runner.
      */
     private static class ArbitraryRunner implements GenContainer {
+        private static final ServerThreadPool POOL = ServerThreadPool.forSpec(PoolSpec.CHUNKS);
+
         @Override
-        public <R> R run(Supplier<R> supplier) {
-            return null;
+        public void run(Runnable run) {
+            POOL.execute(run);
         }
     }
 
@@ -86,9 +89,11 @@ public final class GenContainerImpl {
      * data consistency.
      */
     private static class DefaultRunner implements GenContainer {
+        private static final ServerThreadPool POOL = ServerThreadPool.forSpec(PoolSpec.PLUGINS);
+
         @Override
-        public <R> R run(Supplier<R> supplier) {
-            return null;
+        public void run(Runnable run) {
+            POOL.execute(run);
         }
     }
 }

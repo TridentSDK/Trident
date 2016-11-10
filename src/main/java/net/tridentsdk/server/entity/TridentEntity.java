@@ -21,6 +21,8 @@ import lombok.Setter;
 import net.tridentsdk.base.Position;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.server.TridentServer;
+import net.tridentsdk.server.concurrent.PoolSpec;
+import net.tridentsdk.server.concurrent.ServerThreadPool;
 import net.tridentsdk.server.entity.meta.EntityMetaType;
 import net.tridentsdk.server.entity.meta.TridentEntityMeta;
 import net.tridentsdk.server.net.EntityMetadata;
@@ -40,6 +42,19 @@ public abstract class TridentEntity implements Entity {
      * The counter which produces the entity ID numbers
      */
     private static final AtomicInteger EID_COUNTER = new AtomicInteger();
+
+    // THREADING MECHANICS
+    /**
+     * Thread pool used to scheduling entity-related tasks
+     * such as ticking.
+     */
+    private final ServerThreadPool pool;
+    /**
+     * Task initialized to execute {@link #doTick()} in
+     * order to prevent initializing of a runnable per
+     * tick.
+     */
+    private final Runnable tickingTask = this::doTick;
 
     /**
      * The ID number assigned to this entity
@@ -68,7 +83,7 @@ public abstract class TridentEntity implements Entity {
      *
      * @param world the world which the entity is located
      */
-    public TridentEntity(World world) {
+    public TridentEntity(World world, PoolSpec spec) {
         this.id = EID_COUNTER.incrementAndGet();
         this.position = new Position(world);
 
@@ -86,6 +101,8 @@ public abstract class TridentEntity implements Entity {
         }
 
         this.metadata = metadata;
+
+        this.pool = ServerThreadPool.forSpec(spec);
     }
 
     @Override
@@ -93,14 +110,14 @@ public abstract class TridentEntity implements Entity {
         Position delta = position.clone().subtract(this.position);
 
         if(delta.x() != 0 || delta.y() != 0 || delta.z() != 0) {
-            if(this.position.yaw() != position.yaw() || this.position.pitch() != position.pitch()){
+            if (this.position.yaw() != position.yaw() || this.position.pitch() != position.pitch()){
                 PlayOutEntityLookAndRelativeMove lookAndRelativeMove = new PlayOutEntityLookAndRelativeMove(this, delta);
                 PlayOutEntityHeadLook headLook = new PlayOutEntityHeadLook(this);
                 TridentServer.instance().players().stream().filter(p -> !p.equals(this)).forEach(p -> {
                     ((TridentPlayer) p).net().sendPacket(lookAndRelativeMove);
                     ((TridentPlayer) p).net().sendPacket(headLook);
                 });
-            }else{
+            } else {
                 PlayOutEntityRelativeMove packet = new PlayOutEntityRelativeMove(this, delta);
                 TridentServer.instance().players().stream().filter(p -> !p.equals(this)).forEach(p -> ((TridentPlayer) p).net().sendPacket(packet));
             }
@@ -126,7 +143,8 @@ public abstract class TridentEntity implements Entity {
      * Ticks the entity.
      */
     public final void tick() {
-        this.doTick();
+        // Performs #doTick()
+        this.pool.execute(this.tickingTask);
     }
 
     @Override
@@ -144,5 +162,4 @@ public abstract class TridentEntity implements Entity {
      * Ticking hook.
      */
     public abstract void doTick();
-
 }
