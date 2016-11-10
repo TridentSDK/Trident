@@ -26,6 +26,7 @@ import net.tridentsdk.chat.ChatColor;
 import net.tridentsdk.chat.ChatComponent;
 import net.tridentsdk.chat.ChatType;
 import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.server.concurrent.PoolSpec;
 import net.tridentsdk.server.entity.TridentEntity;
 import net.tridentsdk.server.entity.meta.EntityMetaType;
 import net.tridentsdk.server.net.EntityMetadata;
@@ -118,7 +119,7 @@ public class TridentPlayer extends TridentEntity implements Player {
      * Constructs a new player.
      */
     private TridentPlayer(NetClient client, World world, String name, UUID uuid, String textures) {
-        super(world);
+        super(world, PoolSpec.PLAYERS);
         this.client = client;
         this.name = name;
         this.uuid = uuid;
