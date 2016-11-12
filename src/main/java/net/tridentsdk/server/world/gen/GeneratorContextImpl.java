@@ -162,7 +162,6 @@ public class GeneratorContextImpl implements GeneratorContext {
      * @return {@code true} if done
      */
     public boolean isDone() {
-        System.out.println("check");
         boolean b = this.firstGo.get();
         int i = this.count.intValue();
 

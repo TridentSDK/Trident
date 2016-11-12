@@ -19,7 +19,6 @@ package net.tridentsdk.server.world;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.tridentsdk.base.Block;
-import net.tridentsdk.doc.Debug;
 import net.tridentsdk.server.world.gen.GenContainerImpl;
 import net.tridentsdk.server.world.gen.GeneratorContextImpl;
 import net.tridentsdk.world.Chunk;
@@ -95,12 +94,9 @@ public class TridentChunk implements Chunk {
         container.run(new GenTask() {
             boolean hasRun = false;
             boolean block = false;
-            int many = 0;
 
-            @Debug("remove counter (used for latency testing)")
             @Override
             public boolean block() {
-                System.out.println(++this.many);
                 if (!this.block && !this.hasRun) {
                     terrain.generate(TridentChunk.this.x, TridentChunk.this.z, context);
                     this.hasRun = true;
