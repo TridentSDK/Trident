@@ -33,22 +33,7 @@ public final class GenContainerImpl {
     private static final ArbitraryRunner ARBITRARY_RUNNER = new ArbitraryRunner();
     private static final DefaultRunner DEFAULT_RUNNER = new DefaultRunner();
 
-    /**
-     * The container which is used to run the generator
-     * methods
-     */
-    private final GenContainer runner;
-
-    /**
-     * Creates a new generator container implementation
-     * which uses the given runner to execute the
-     * generation
-     * task.
-     *
-     * @param runner the generation task runner
-     */
-    private GenContainerImpl(GenContainer runner) {
-        this.runner = runner;
+    private GenContainerImpl() {
     }
 
     /**
@@ -61,13 +46,13 @@ public final class GenContainerImpl {
      * @return the new generator implementation of that
      * runner
      */
-    public static GenContainerImpl of(GenContainer container) {
+    public static GenContainer of(GenContainer container) {
         if (container == GenContainer.ARBITRARY) {
-            return new GenContainerImpl(ARBITRARY_RUNNER);
+            return ARBITRARY_RUNNER;
         } else if (container == GenContainer.DEFAULT) {
-            return new GenContainerImpl(DEFAULT_RUNNER);
+            return DEFAULT_RUNNER;
         } else {
-            return new GenContainerImpl(container);
+            return container;
         }
     }
 

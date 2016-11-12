@@ -19,34 +19,38 @@ package net.tridentsdk.server.concurrent;
 import lombok.Getter;
 
 import javax.annotation.concurrent.ThreadSafe;
+import java.util.concurrent.ThreadFactory;
 
 /**
  * Specifier for creating a block of threads used for
  * managing the server thread pool.
  */
 @ThreadSafe
-public class PoolSpec {
+public class PoolSpec implements ThreadFactory {
     // Actually this is used to execute block related tick
     // methods as well such as sugar cane growing, tree leaf
     // decay, etc...
-    public static final PoolSpec WORLDS = new PoolSpec(4, true);
+    public static final PoolSpec WORLDS = new PoolSpec("TRD - Worlds", 4, true);
     // World gen, chunk unloading and memory management
-    public static final PoolSpec CHUNKS = new PoolSpec(4, true);
+    public static final PoolSpec CHUNKS = new PoolSpec("TRD - Chunks", 4, true);
 
     // Self-explanatory
-    public static final PoolSpec ENTITIES = new PoolSpec(3, false);
-    public static final PoolSpec PLAYERS = new PoolSpec(3, false);
+    public static final PoolSpec ENTITIES = new PoolSpec("TRD - Entities", 3, false);
+    public static final PoolSpec PLAYERS = new PoolSpec("TRD - Players", 3, false);
 
-    public static final PoolSpec SCHEDULER = new PoolSpec(3, false);
-    public static final PoolSpec PLUGINS = new PoolSpec(1, false);
+    public static final PoolSpec SCHEDULER = new PoolSpec("TRD - Scheduler", 3, false);
+    public static final PoolSpec PLUGINS = new PoolSpec("TRD - Plugins", 1, false);
 
+    /**
+     * The name of the pool used to identify its threads
+     */
+    private final String name;
     /**
      * Maximum number of parallelism that should be limited
      * in the given thread pool
      */
     @Getter
     private final int maxThreads;
-
     /**
      * Whether or not the task order is relevant
      */
@@ -56,12 +60,19 @@ public class PoolSpec {
     /**
      * Creates a new thread pool spec.
      *
+     * @param name the name of the pool
      * @param maxThreads the max thread limit
      * @param doStealing whether or not the pool performs
      *                   work steals
      */
-    public PoolSpec(int maxThreads, boolean doStealing) {
+    public PoolSpec(String name, int maxThreads, boolean doStealing) {
+        this.name = name;
         this.maxThreads = maxThreads;
         this.doStealing = doStealing;
+    }
+
+    @Override
+    public Thread newThread(Runnable r) {
+        return new Thread(r, this.name);
     }
 }

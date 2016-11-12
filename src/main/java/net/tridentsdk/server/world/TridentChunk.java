@@ -19,6 +19,8 @@ package net.tridentsdk.server.world;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.tridentsdk.base.Block;
+import net.tridentsdk.doc.Debug;
+import net.tridentsdk.server.world.gen.GenContainerImpl;
 import net.tridentsdk.server.world.gen.GeneratorContextImpl;
 import net.tridentsdk.world.Chunk;
 import net.tridentsdk.world.World;
@@ -83,40 +85,46 @@ public class TridentChunk implements Chunk {
         // TODO container + other generators
         GenOpts opts = this.world.genOpts();
         GeneratorProvider provider = opts.provider();
-        GenContainer container = provider.container();
+        GenContainer container = GenContainerImpl.of(provider.container());
 
         TerrainGenerator terrain = provider.terrain(this.world);
         Set<PropGenerator> props = provider.propSet(this.world);
         Set<FeatureGenerator> features = provider.featureSet(this.world);
 
-        GeneratorContextImpl context = new GeneratorContextImpl(provider.container(), opts.seed());
-        context.run(new GenTask() {
-            boolean block = true;
+        GeneratorContextImpl context = new GeneratorContextImpl(container, opts.seed());
+        container.run(new GenTask() {
+            boolean hasRun = false;
+            boolean block = false;
+            int many = 0;
 
+            @Debug("remove counter (used for latency testing)")
             @Override
             public boolean block() {
-                return this.block;
+                System.out.println(++this.many);
+                if (!this.block && !this.hasRun) {
+                    terrain.generate(TridentChunk.this.x, TridentChunk.this.z, context);
+                    this.hasRun = true;
+                }
+                return this.block = context.isDone();
             }
 
             @Override
             public boolean isReleasable() {
-                return !this.block;
+                return this.block;
             }
 
             @Override
             public void run() {
                 try {
                     ForkJoinPool.managedBlock(this);
-                    terrain.generate(x, z, context);
+                    TridentChunk.this.sections = context.asArray();
+                    TridentChunk.this.ready.countDown();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
         });
-
-        this.sections = context.asArray();
-
-        this.ready.countDown();
+        this.waitReady();
     }
 
     /**

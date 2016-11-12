@@ -22,8 +22,10 @@ import net.tridentsdk.world.gen.GenContainer;
 import net.tridentsdk.world.gen.GeneratorContext;
 
 import javax.annotation.concurrent.ThreadSafe;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReferenceArray;
+import java.util.concurrent.atomic.LongAdder;
 
 /**
  * Implementation of a generator context.
@@ -34,7 +36,19 @@ public class GeneratorContextImpl implements GeneratorContext {
      * The container for running generator tasks in this
      * context
      */
-    private GenContainer container;
+    private final GenContainer container;
+    /**
+     * The count of threads active for termination used
+     * for termination signalling
+     */
+    private final LongAdder count = new LongAdder();
+    /**
+     * Flag for determining the first round in which the
+     * count will be decremented to ensure that the task
+     * completes thoroughly.
+     */
+    private final AtomicBoolean firstGo = new AtomicBoolean(true);
+
     /**
      * The seed to be used for generation
      */
@@ -58,6 +72,7 @@ public class GeneratorContextImpl implements GeneratorContext {
         this.container = container;
         this.seed = seed;
         this.random = new AtomicLong(seed);
+        this.count.increment();
     }
 
     /**
@@ -128,7 +143,30 @@ public class GeneratorContextImpl implements GeneratorContext {
 
     @Override
     public void run(Runnable r) {
-        this.container.run(r);
+        this.count.increment();
+        this.container.run(() -> {
+            r.run();
+
+            if (this.firstGo.compareAndSet(true, false)) {
+                this.count.add(-2);
+            } else {
+                this.count.decrement();
+            }
+        });
+    }
+
+    /**
+     * Checks to see whether all of the tasks submitted to
+     * this context has finished.
+     *
+     * @return {@code true} if done
+     */
+    public boolean isDone() {
+        System.out.println("check");
+        boolean b = this.firstGo.get();
+        int i = this.count.intValue();
+
+        return b ? i == 1 : i == 0;
     }
 
     /**

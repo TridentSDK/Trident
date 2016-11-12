@@ -76,7 +76,10 @@ public class ServerThreadPool {
             if (spec.isDoStealing()) {
                 return new ServerThreadPool(Executors.newWorkStealingPool(config));
             } else {
-                return new ServerThreadPool(new ThreadPoolExecutor(1, config, 60L, TimeUnit.SECONDS, Queues.newLinkedBlockingQueue()));
+                return new ServerThreadPool(new ThreadPoolExecutor(1, config,
+                        60L, TimeUnit.SECONDS,
+                        Queues.newLinkedBlockingQueue(),
+                        spec));
             }
         });
     }

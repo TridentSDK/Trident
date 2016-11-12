@@ -44,7 +44,10 @@ import net.tridentsdk.world.WorldLoader;
 import net.tridentsdk.world.opt.GameMode;
 
 import javax.annotation.concurrent.ThreadSafe;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -100,8 +103,11 @@ public class TridentPlayer extends TridentEntity implements Player {
     @Getter
     private volatile int renderDistance;
 
-    @Getter
-    private volatile Collection<AbstractBossBar> bossBars = new CopyOnWriteArrayList<>();
+    /**
+     * The boss bars that are being displayed to this
+     * player.
+     */
+    private final Collection<AbstractBossBar> bossBars = new CopyOnWriteArrayList<>();
 
     /**
      * The player's meta data
@@ -113,6 +119,7 @@ public class TridentPlayer extends TridentEntity implements Player {
      * A map of chunk -> time, storing the last time
      * the chunk was sent to the client
      */
+    // TODO can we convert this to IntPair
     private final Map<HashedChunkPosition, Long> chunkSentTime = new ConcurrentHashMap<>();
 
     /**
@@ -256,32 +263,33 @@ public class TridentPlayer extends TridentEntity implements Player {
 
     @Override
     public Collection<BossBar> getBossBars() {
-        return Collections.unmodifiableCollection(bossBars);
+        return Collections.unmodifiableCollection(this.bossBars);
     }
 
     @Override
     public void addBossBar(BossBar bossBar) {
         if (bossBar != null) {
-            bossBars.add((AbstractBossBar) bossBar);
-            net().sendPacket(new PlayOutBossBar.Add(bossBar));
+            this.bossBars.add((AbstractBossBar) bossBar);
+            this.net().sendPacket(new PlayOutBossBar.Add(bossBar));
         }
     }
 
     @Override
     public void removeBossBar(BossBar bossBar) {
-        if (bossBar != null && bossBars.contains(bossBar)) {
-            bossBars.remove(bossBar);
-            net().sendPacket(new PlayOutBossBar.Remove(bossBar));
+        if (bossBar != null) {
+            if (this.bossBars.remove(bossBar)) {
+                this.net().sendPacket(new PlayOutBossBar.Remove(bossBar));
+            }
         }
     }
 
     @Override
     public void updateBossBars() {
-        updateBossBars(false);
+        this.updateBossBars(false);
     }
 
     private void updateBossBars(boolean force) {
-        for (AbstractBossBar bossBar : bossBars) {
+        for (AbstractBossBar bossBar : this.bossBars) {
             boolean health, title, style, flags;
             health = title = style = flags = force;
             if (!force) {
@@ -291,16 +299,16 @@ public class TridentPlayer extends TridentEntity implements Player {
                 flags = bossBar.isChangedFlags();
             }
             if (health) {
-                net().sendPacket(new PlayOutBossBar.UpdateHealth(bossBar));
+                this.net().sendPacket(new PlayOutBossBar.UpdateHealth(bossBar));
             }
             if (title) {
-                net().sendPacket(new PlayOutBossBar.UpdateTitle(bossBar));
+                this.net().sendPacket(new PlayOutBossBar.UpdateTitle(bossBar));
             }
             if (style) {
-                net().sendPacket(new PlayOutBossBar.UpdateStyle(bossBar));
+                this.net().sendPacket(new PlayOutBossBar.UpdateStyle(bossBar));
             }
             if (flags) {
-                net().sendPacket(new PlayOutBossBar.UpdateFlags(bossBar));
+                this.net().sendPacket(new PlayOutBossBar.UpdateFlags(bossBar));
             }
             bossBar.unsetChanged();
         }
