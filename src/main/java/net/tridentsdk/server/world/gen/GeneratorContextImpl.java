@@ -16,16 +16,19 @@
  */
 package net.tridentsdk.server.world.gen;
 
+import com.google.common.collect.Queues;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.server.world.ChunkSection;
 import net.tridentsdk.world.gen.GenContainer;
 import net.tridentsdk.world.gen.GeneratorContext;
 
 import javax.annotation.concurrent.ThreadSafe;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.Queue;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.concurrent.atomic.LongAdder;
+import java.util.function.Consumer;
 
 /**
  * Implementation of a generator context.
@@ -43,11 +46,9 @@ public class GeneratorContextImpl implements GeneratorContext {
      */
     private final LongAdder count = new LongAdder();
     /**
-     * Flag for determining the first round in which the
-     * count will be decremented to ensure that the task
-     * completes thoroughly.
+     * Queue of generation tasks to be run upon command
      */
-    private final AtomicBoolean firstGo = new AtomicBoolean(true);
+    private final Queue<Consumer<CountDownLatch>> tasks = Queues.newConcurrentLinkedQueue();
 
     /**
      * The seed to be used for generation
@@ -144,28 +145,35 @@ public class GeneratorContextImpl implements GeneratorContext {
     @Override
     public void run(Runnable r) {
         this.count.increment();
-        this.container.run(() -> {
+        this.tasks.offer((cdl) -> {
             r.run();
-
-            if (this.firstGo.compareAndSet(true, false)) {
-                this.count.add(-2);
-            } else {
-                this.count.decrement();
-            }
+            cdl.countDown();
         });
     }
 
     /**
-     * Checks to see whether all of the tasks submitted to
-     * this context has finished.
+     * Sends the command for the container to run the tasks
+     * that were scheduled by the terrain generator.
      *
-     * @return {@code true} if done
+     * @param latch the count down latch used to await for
+     *              the generation to finish before
+     *              proceeding
      */
-    public boolean isDone() {
-        boolean b = this.firstGo.get();
-        int i = this.count.intValue();
+    public void doRun(CountDownLatch latch) {
+        for (Consumer<CountDownLatch> runnable : this.tasks) {
+            this.container.run(() -> runnable.accept(latch));
+        }
+    }
 
-        return b ? i == 1 : i == 0;
+    /**
+     * Obtains the count for the latch in order to determine
+     * the amount of runs necessary to complete all of the
+     * scheduled generation tasks.
+     *
+     * @return the count down latch argument
+     */
+    public int getCount() {
+        return this.count.intValue() - 1;
     }
 
     /**

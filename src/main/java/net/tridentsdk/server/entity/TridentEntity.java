@@ -48,7 +48,7 @@ public abstract class TridentEntity implements Entity {
      * Thread pool used to scheduling entity-related tasks
      * such as ticking.
      */
-    private final ServerThreadPool pool;
+    protected final ServerThreadPool pool;
     /**
      * Task initialized to execute {@link #doTick()} in
      * order to prevent initializing of a runnable per

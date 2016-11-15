@@ -43,7 +43,7 @@ public final class StatusOutResponse extends PacketOut {
      * The protocol version associated with the Minecraft
      * version
      */
-    private static final int PROTOCOL_VERSION = 210;
+    private static final int PROTOCOL_VERSION = 315;
 
     public StatusOutResponse() {
         super(StatusOutResponse.class);

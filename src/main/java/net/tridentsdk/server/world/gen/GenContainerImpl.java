@@ -59,7 +59,7 @@ public final class GenContainerImpl {
     /**
      * Implementation of an arbitrary thread runner.
      */
-    private static class ArbitraryRunner implements GenContainer {
+    private static class ArbitraryRunner extends GenContainer {
         private static final ServerThreadPool POOL = ServerThreadPool.forSpec(PoolSpec.CHUNKS);
 
         @Override
@@ -73,7 +73,7 @@ public final class GenContainerImpl {
      * ensures that plugins that have not accounted for
      * data consistency.
      */
-    private static class DefaultRunner implements GenContainer {
+    private static class DefaultRunner extends GenContainer {
         private static final ServerThreadPool POOL = ServerThreadPool.forSpec(PoolSpec.PLUGINS);
 
         @Override

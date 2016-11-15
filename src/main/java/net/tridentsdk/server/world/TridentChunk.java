@@ -16,6 +16,7 @@
  */
 package net.tridentsdk.server.world;
 
+import com.google.common.util.concurrent.MoreExecutors;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.tridentsdk.base.Block;
@@ -28,8 +29,8 @@ import net.tridentsdk.world.opt.GenOpts;
 
 import javax.annotation.Nonnull;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ForkJoinPool;
 
 import static net.tridentsdk.server.net.NetData.wvint;
 
@@ -91,36 +92,22 @@ public class TridentChunk implements Chunk {
         Set<FeatureGenerator> features = provider.featureSet(this.world);
 
         GeneratorContextImpl context = new GeneratorContextImpl(container, opts.seed());
-        container.run(new GenTask() {
-            boolean hasRun = false;
-            boolean block = false;
+        container.run(() -> terrain.generate(x, z, context));
 
-            @Override
-            public boolean block() {
-                if (!this.block && !this.hasRun) {
-                    terrain.generate(TridentChunk.this.x, TridentChunk.this.z, context);
-                    this.hasRun = true;
-                }
-                return this.block = context.isDone();
-            }
+        CompletableFuture
+                .runAsync(() -> terrain.generate(x, z, context), container::run)
+                .thenRunAsync(() -> {
+                    CountDownLatch latch = new CountDownLatch(context.getCount());
+                    context.doRun(latch);
 
-            @Override
-            public boolean isReleasable() {
-                return this.block;
-            }
-
-            @Override
-            public void run() {
-                try {
-                    ForkJoinPool.managedBlock(this);
-                    TridentChunk.this.sections = context.asArray();
-                    TridentChunk.this.ready.countDown();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-        this.waitReady();
+                    try {
+                        latch.await();
+                        sections = context.asArray();
+                        ready.countDown();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }, MoreExecutors.directExecutor());
     }
 
     /**
