@@ -92,7 +92,6 @@ public class TridentChunk implements Chunk {
         Set<FeatureGenerator> features = provider.featureSet(this.world);
 
         GeneratorContextImpl context = new GeneratorContextImpl(container, opts.seed());
-        container.run(() -> terrain.generate(x, z, context));
 
         CompletableFuture
                 .runAsync(() -> terrain.generate(x, z, context), container::run)
