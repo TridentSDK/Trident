@@ -17,6 +17,8 @@
 package net.tridentsdk.server.packet.login;
 
 import com.google.gson.JsonElement;
+import net.tridentsdk.server.concurrent.PoolSpec;
+import net.tridentsdk.server.concurrent.ServerThreadPool;
 import net.tridentsdk.server.config.ConfigIo;
 import net.tridentsdk.server.net.NetData;
 
@@ -28,8 +30,6 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -39,11 +39,6 @@ import java.util.function.Function;
  */
 @ThreadSafe
 public final class Mojang<T> {
-    /**
-     * The executor for performing mojang requests
-     */
-    private static final ExecutorService EXECUTOR_SERVICE =
-            Executors.newFixedThreadPool(4, (r) -> new Thread(r, "TRD - Mojang"));
     /**
      * The connection to the Mojang server
      */
@@ -103,7 +98,7 @@ public final class Mojang<T> {
                 return this.exception.apply(e.getMessage());
             }
         };
-        return EXECUTOR_SERVICE.submit(get);
+        return ServerThreadPool.forSpec(PoolSpec.SCHEDULER).submit(get);
     }
 
     /**
@@ -134,7 +129,7 @@ public final class Mojang<T> {
                 return this.exception.apply(e.getMessage());
             }
         };
-        return EXECUTOR_SERVICE.submit(post);
+        return ServerThreadPool.forSpec(PoolSpec.SCHEDULER).submit(post);
     }
 
     /**

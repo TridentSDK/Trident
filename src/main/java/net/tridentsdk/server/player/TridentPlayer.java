@@ -17,9 +17,8 @@
 package net.tridentsdk.server.player;
 
 import com.google.common.collect.Maps;
-import lombok.Data;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import net.tridentsdk.base.BlockDirection;
 import net.tridentsdk.base.Position;
 import net.tridentsdk.chat.ChatColor;
@@ -39,6 +38,7 @@ import net.tridentsdk.server.world.TridentChunk;
 import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.ui.bossbar.BossBar;
 import net.tridentsdk.ui.tablist.TabList;
+import net.tridentsdk.world.IntPair;
 import net.tridentsdk.world.World;
 import net.tridentsdk.world.WorldLoader;
 import net.tridentsdk.world.opt.GameMode;
@@ -48,6 +48,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -101,6 +102,7 @@ public class TridentPlayer extends TridentEntity implements Player {
      * The player's render distance
      */
     @Getter
+    @Setter
     private volatile int renderDistance;
 
     /**
@@ -120,7 +122,7 @@ public class TridentPlayer extends TridentEntity implements Player {
      * the chunk was sent to the client
      */
     // TODO can we convert this to IntPair
-    private final Map<HashedChunkPosition, Long> chunkSentTime = new ConcurrentHashMap<>();
+    private final Map<IntPair, Long> chunkSentTime = new ConcurrentHashMap<>();
 
     /**
      * Constructs a new player.
@@ -318,7 +320,6 @@ public class TridentPlayer extends TridentEntity implements Player {
 
     @Override
     public void setPosition(Position position) {
-        // TODO Async
         Position pos = this.getPosition();
         if (position.getChunkX() != pos.getChunkX()) {
             this.updateChunks(position.getChunkX() > pos.getChunkX() ? BlockDirection.EAST : BlockDirection.WEST);
@@ -350,51 +351,38 @@ public class TridentPlayer extends TridentEntity implements Player {
         // TODO Improve this algorithm
         // For example, send chunks closer to the player first
 
-        int centerX = this.getPosition().getChunkX();
-        int centerZ = this.getPosition().getChunkZ();
+        this.pool.execute(() -> {
+            int centerX = this.getPosition().getChunkX();
+            int centerZ = this.getPosition().getChunkZ();
 
-        int renderDistance = this.renderDistance;
-        int radius = renderDistance / 2;
+            int renderDistance = this.renderDistance;
+            int radius = renderDistance / 2;
 
-        if(direction != null) {
-            centerX += (direction.getXDiff() * radius);
-            centerZ += (direction.getZDiff() * radius);
-        }
-
-        this.chunkSentTime.keySet().iterator().forEachRemaining(chunk -> {
-            /* Should be 16, but renderDistance has to be divided by 2 */
-            if (chunk.distanceTo(this.getPosition()) > renderDistance * 8 /* == (renderDistance / 2) * 16 */) {
-                this.chunkSentTime.remove(chunk);
+            if (direction != null) {
+                centerX += (direction.getXDiff() * radius);
+                centerZ += (direction.getZDiff() * radius);
             }
-        });
 
-        for (int x = centerX - radius; x <= centerX + radius; x++) {
-            for (int z = centerZ - radius; z <= centerZ + radius; z++) {
-                HashedChunkPosition position = new HashedChunkPosition(x, z);
-                if (System.currentTimeMillis() - this.chunkSentTime.getOrDefault(position, 0L) > CHUNK_CACHE_MILLIS) {
-                    TridentChunk chunk = this.getWorld().chunkAt(x, z);
-                    this.client.sendPacket(new PlayOutChunk(chunk));
-                    this.chunkSentTime.put(position, System.currentTimeMillis());
+            this.chunkSentTime.keySet().iterator().forEachRemaining(chunk -> {
+            /* Should be 16, but renderDistance has to be divided by 2 */
+                if (chunk.x() - this.position.getChunkX() + chunk.z() - this.position.getChunkZ() > renderDistance * 8 /* == (renderDistance / 2) * 16 */) {
+                    this.chunkSentTime.remove(chunk);
+                }
+            });
+
+            for (int x = centerX - radius; x <= centerX + radius; x++) {
+                for (int z = centerZ - radius; z <= centerZ + radius; z++) {
+                    IntPair position = IntPair.make(x, z);
+                    if (System.currentTimeMillis() - this.chunkSentTime.getOrDefault(position, 0L) > CHUNK_CACHE_MILLIS) {
+                        CompletableFuture
+                                .supplyAsync(() -> this.getWorld().chunkAt(position), this.pool)
+                                .thenAccept((chunk) -> {
+                                    this.client.sendPacket(new PlayOutChunk(chunk));
+                                    this.chunkSentTime.put(position, System.currentTimeMillis());
+                                });
+                    }
                 }
             }
-        }
+        });
     }
-
-    public void setRenderDistance(byte renderDistance) {
-        this.renderDistance = renderDistance;
-    }
-
-    @Data
-    @RequiredArgsConstructor
-    private class HashedChunkPosition {
-
-        private final int x;
-        private final int z;
-
-        public double distanceTo(Position position) {
-            return Math.abs((this.x - position.getChunkX()) + (this.z - position.getChunkZ()));
-        }
-
-    }
-
 }

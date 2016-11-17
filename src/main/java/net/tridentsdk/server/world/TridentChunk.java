@@ -100,10 +100,14 @@ public class TridentChunk implements Chunk {
         Set<FeatureGenerator> features = provider.featureSet(this.world);
 
         GeneratorContextImpl context = new GeneratorContextImpl(container, opts.seed());
-
         try {
             CountDownLatch latch = CompletableFuture.supplyAsync(() -> {
                 terrain.generate(this.x, this.z, context);
+
+                for (FeatureGenerator generator : features) {
+                    generator.generate(x, z, context);
+                }
+
                 return context.getCount();
             }, container).get();
             context.doRun(latch);

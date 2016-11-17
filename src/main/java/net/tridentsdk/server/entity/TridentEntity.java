@@ -65,7 +65,7 @@ public abstract class TridentEntity implements Entity {
      * The position at which this entity is located
      */
     @Getter
-    private volatile Position position;
+    protected volatile Position position;
     /**
      * Whether or not this entity is on the ground
      */

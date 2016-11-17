@@ -22,6 +22,7 @@ import net.tridentsdk.server.concurrent.ServerThreadPool;
 import net.tridentsdk.server.world.opt.GenOptImpl;
 import net.tridentsdk.server.world.opt.WorldOptImpl;
 import net.tridentsdk.world.Chunk;
+import net.tridentsdk.world.IntPair;
 import net.tridentsdk.world.World;
 import net.tridentsdk.world.opt.*;
 
@@ -107,13 +108,13 @@ public class TridentWorld implements World {
     /**
      * The world ticking method.
      */
-    public void tick() {
+    public final void tick() {
+        // performs #doTick
         TP.execute(this.tickingTask);
     }
 
     // Ticking implementation
     private void doTick() {
-
     }
 
     @Override
@@ -156,6 +157,10 @@ public class TridentWorld implements World {
     @Override
     public TridentChunk chunkAt(int x, int z, boolean gen) {
         return this.chunks.get(x, z, gen);
+    }
+
+    public TridentChunk chunkAt(IntPair pair) {
+        return this.chunkAt(pair.x(), pair.z());
     }
 
     @Override
