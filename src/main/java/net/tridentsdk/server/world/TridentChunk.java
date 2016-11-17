@@ -16,11 +16,11 @@
  */
 package net.tridentsdk.server.world;
 
-import com.google.common.util.concurrent.MoreExecutors;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.tridentsdk.base.Block;
-import net.tridentsdk.server.world.gen.GenContainerImpl;
+import net.tridentsdk.server.concurrent.PoolSpec;
+import net.tridentsdk.server.concurrent.ServerThreadPool;
 import net.tridentsdk.server.world.gen.GeneratorContextImpl;
 import net.tridentsdk.world.Chunk;
 import net.tridentsdk.world.World;
@@ -31,6 +31,8 @@ import javax.annotation.Nonnull;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
 
 import static net.tridentsdk.server.net.NetData.wvint;
 
@@ -85,7 +87,13 @@ public class TridentChunk implements Chunk {
         // TODO container + other generators
         GenOpts opts = this.world.genOpts();
         GeneratorProvider provider = opts.provider();
-        GenContainer container = GenContainerImpl.of(provider.container());
+
+        Executor container = provider.container();
+        if (container == GenContainer.DEFAULT) {
+            container = ServerThreadPool.forSpec(PoolSpec.PLUGINS);
+        } else if (container == GenContainer.ARBITRARY) {
+            container = ServerThreadPool.forSpec(PoolSpec.CHUNKS);
+        }
 
         TerrainGenerator terrain = provider.terrain(this.world);
         Set<PropGenerator> props = provider.propSet(this.world);
@@ -93,20 +101,19 @@ public class TridentChunk implements Chunk {
 
         GeneratorContextImpl context = new GeneratorContextImpl(container, opts.seed());
 
-        CompletableFuture
-                .runAsync(() -> terrain.generate(x, z, context), container::run)
-                .thenRunAsync(() -> {
-                    CountDownLatch latch = new CountDownLatch(context.getCount());
-                    context.doRun(latch);
+        try {
+            CountDownLatch latch = CompletableFuture.supplyAsync(() -> {
+                terrain.generate(this.x, this.z, context);
+                return context.getCount();
+            }, container).get();
+            context.doRun(latch);
 
-                    try {
-                        latch.await();
-                        sections = context.asArray();
-                        ready.countDown();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }, MoreExecutors.directExecutor());
+            latch.await();
+            this.sections = context.asArray();
+            this.ready.countDown();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**

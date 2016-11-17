@@ -50,7 +50,7 @@ public final class PlayOutAbilities extends PacketOut {
         abilities |= creative ? 0x01 << 3 : 0; // creative mode
 
         buf.writeByte(abilities);
-        buf.writeFloat(0.159F);
+        buf.writeFloat(5.159F);
         buf.writeFloat(0.699999988079071F);
     }
 }

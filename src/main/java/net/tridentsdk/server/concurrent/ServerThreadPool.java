@@ -19,6 +19,7 @@ package net.tridentsdk.server.concurrent;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
 
+import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +30,7 @@ import java.util.concurrent.*;
  * in CPU resources and performs work stealing when
  * necessary.
  */
-public class ServerThreadPool {
+public class ServerThreadPool implements Executor {
     /**
      * Mapping of spec objects to delegate thread pools.
      */
@@ -128,7 +129,8 @@ public class ServerThreadPool {
      * @param command the command which to schedule for
      *                running.
      */
-    public void execute(Runnable command) {
+    @Override
+    public void execute(@Nonnull Runnable command) {
         this.delegate.execute(command);
     }
 }

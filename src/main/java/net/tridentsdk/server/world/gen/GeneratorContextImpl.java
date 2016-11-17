@@ -19,12 +19,12 @@ package net.tridentsdk.server.world.gen;
 import com.google.common.collect.Queues;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.server.world.ChunkSection;
-import net.tridentsdk.world.gen.GenContainer;
 import net.tridentsdk.world.gen.GeneratorContext;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Queue;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.concurrent.atomic.LongAdder;
@@ -39,7 +39,7 @@ public class GeneratorContextImpl implements GeneratorContext {
      * The container for running generator tasks in this
      * context
      */
-    private final GenContainer container;
+    private final Executor container;
     /**
      * The count of threads active for termination used
      * for termination signalling
@@ -69,7 +69,7 @@ public class GeneratorContextImpl implements GeneratorContext {
      *
      * @param seed the seed
      */
-    public GeneratorContextImpl(GenContainer container, long seed) {
+    public GeneratorContextImpl(Executor container, long seed) {
         this.container = container;
         this.seed = seed;
         this.random = new AtomicLong(seed);
@@ -161,19 +161,19 @@ public class GeneratorContextImpl implements GeneratorContext {
      */
     public void doRun(CountDownLatch latch) {
         for (Consumer<CountDownLatch> runnable : this.tasks) {
-            this.container.run(() -> runnable.accept(latch));
+            this.container.execute(() -> runnable.accept(latch));
         }
     }
 
     /**
-     * Obtains the count for the latch in order to determine
-     * the amount of runs necessary to complete all of the
-     * scheduled generation tasks.
+     * Obtains the latch in order to determine the amount of
+     * runs necessary to complete all of the scheduled
+     * generation tasks.
      *
      * @return the count down latch argument
      */
-    public int getCount() {
-        return this.count.intValue() - 1;
+    public CountDownLatch getCount() {
+        return new CountDownLatch(this.count.intValue() - 1);
     }
 
     /**
