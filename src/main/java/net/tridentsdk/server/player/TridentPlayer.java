@@ -199,8 +199,11 @@ public class TridentPlayer extends TridentEntity implements Player {
             int initialChunkRadius = 3;
             for (int x = pos.getChunkX() - initialChunkRadius; x <= pos.getChunkX() + initialChunkRadius; x++) {
                 for (int z = pos.getChunkZ() - initialChunkRadius; z <= pos.getChunkZ() + initialChunkRadius; z++) {
-                    TridentChunk chunk = this.getWorld().chunkAt(x, z);
-                    this.client.sendPacket(new PlayOutChunk(chunk));
+                     int finalX = x;
+                     int finalZ = z;
+                     CompletableFuture
+                             .supplyAsync(() -> this.getWorld().chunkAt(finalX, finalZ), this.pool)
+                             .thenAccept(chunk -> this.client.sendPacket(new PlayOutChunk(chunk)));
                 }
             }
         });
@@ -376,7 +379,7 @@ public class TridentPlayer extends TridentEntity implements Player {
                     if (System.currentTimeMillis() - this.chunkSentTime.getOrDefault(position, 0L) > CHUNK_CACHE_MILLIS) {
                         CompletableFuture
                                 .supplyAsync(() -> this.getWorld().chunkAt(position), this.pool)
-                                .thenAccept((chunk) -> {
+                                .thenAccept(chunk -> {
                                     this.client.sendPacket(new PlayOutChunk(chunk));
                                     this.chunkSentTime.put(position, System.currentTimeMillis());
                                 });
