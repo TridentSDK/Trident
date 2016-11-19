@@ -18,6 +18,7 @@ package net.tridentsdk.server.concurrent;
 
 import lombok.Getter;
 
+import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.concurrent.ThreadFactory;
 
@@ -72,7 +73,7 @@ public class PoolSpec implements ThreadFactory {
     }
 
     @Override
-    public Thread newThread(Runnable r) {
+    public Thread newThread(@Nonnull Runnable r) {
         return new Thread(r, this.name);
     }
 }

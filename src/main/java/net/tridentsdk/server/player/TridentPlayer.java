@@ -26,6 +26,7 @@ import net.tridentsdk.chat.ChatComponent;
 import net.tridentsdk.chat.ChatType;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.server.concurrent.PoolSpec;
+import net.tridentsdk.server.concurrent.ServerThreadPool;
 import net.tridentsdk.server.entity.TridentEntity;
 import net.tridentsdk.server.entity.meta.EntityMetaType;
 import net.tridentsdk.server.net.EntityMetadata;
@@ -34,7 +35,6 @@ import net.tridentsdk.server.packet.play.*;
 import net.tridentsdk.server.ui.bossbar.AbstractBossBar;
 import net.tridentsdk.server.ui.tablist.TridentTabList;
 import net.tridentsdk.server.ui.tablist.TridentTabListManager;
-import net.tridentsdk.server.world.TridentChunk;
 import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.ui.bossbar.BossBar;
 import net.tridentsdk.ui.tablist.TabList;
@@ -194,19 +194,17 @@ public class TridentPlayer extends TridentEntity implements Player {
                     this.client.sendPacket(oldPlayerPacket);
                 });
 
-        this.pool.execute(() -> {
-            Position pos = this.getPosition();
-            int initialChunkRadius = 3;
-            for (int x = pos.getChunkX() - initialChunkRadius; x <= pos.getChunkX() + initialChunkRadius; x++) {
-                for (int z = pos.getChunkZ() - initialChunkRadius; z <= pos.getChunkZ() + initialChunkRadius; z++) {
-                     int finalX = x;
-                     int finalZ = z;
-                     CompletableFuture
-                             .supplyAsync(() -> this.getWorld().chunkAt(finalX, finalZ), this.pool)
-                             .thenAccept(chunk -> this.client.sendPacket(new PlayOutChunk(chunk)));
-                }
+        Position pos = this.getPosition();
+        int initialChunkRadius = 3;
+        for (int x = pos.getChunkX() - initialChunkRadius; x <= pos.getChunkX() + initialChunkRadius; x++) {
+            for (int z = pos.getChunkZ() - initialChunkRadius; z <= pos.getChunkZ() + initialChunkRadius; z++) {
+                int finalX = x;
+                int finalZ = z;
+                CompletableFuture
+                        .supplyAsync(() -> this.getWorld().chunkAt(finalX, finalZ), ServerThreadPool.forSpec(PoolSpec.PLUGINS))
+                        .thenAccept(chunk -> this.client.sendPacket(new PlayOutChunk(chunk)));
             }
-        });
+        }
     }
 
     /**
@@ -353,39 +351,38 @@ public class TridentPlayer extends TridentEntity implements Player {
     public void updateChunks(BlockDirection direction) {
         // TODO Improve this algorithm
         // For example, send chunks closer to the player first
+        int centerX = this.getPosition().getChunkX();
+        int centerZ = this.getPosition().getChunkZ();
+
+        int renderDistance = this.renderDistance;
+        int radius = renderDistance / 2;
+
+        if (direction != null) {
+            centerX += (direction.getXDiff() * radius);
+            centerZ += (direction.getZDiff() * radius);
+        }
 
         this.pool.execute(() -> {
-            int centerX = this.getPosition().getChunkX();
-            int centerZ = this.getPosition().getChunkZ();
-
-            int renderDistance = this.renderDistance;
-            int radius = renderDistance / 2;
-
-            if (direction != null) {
-                centerX += (direction.getXDiff() * radius);
-                centerZ += (direction.getZDiff() * radius);
-            }
-
             this.chunkSentTime.keySet().iterator().forEachRemaining(chunk -> {
             /* Should be 16, but renderDistance has to be divided by 2 */
                 if (chunk.x() - this.position.getChunkX() + chunk.z() - this.position.getChunkZ() > renderDistance * 8 /* == (renderDistance / 2) * 16 */) {
                     this.chunkSentTime.remove(chunk);
                 }
             });
+        });
 
-            for (int x = centerX - radius; x <= centerX + radius; x++) {
-                for (int z = centerZ - radius; z <= centerZ + radius; z++) {
-                    IntPair position = IntPair.make(x, z);
-                    if (System.currentTimeMillis() - this.chunkSentTime.getOrDefault(position, 0L) > CHUNK_CACHE_MILLIS) {
-                        CompletableFuture
-                                .supplyAsync(() -> this.getWorld().chunkAt(position), this.pool)
-                                .thenAccept(chunk -> {
-                                    this.client.sendPacket(new PlayOutChunk(chunk));
-                                    this.chunkSentTime.put(position, System.currentTimeMillis());
-                                });
-                    }
+        for (int x = centerX - radius; x <= centerX + radius; x++) {
+            for (int z = centerZ - radius; z <= centerZ + radius; z++) {
+                IntPair position = IntPair.make(x, z);
+                if (System.currentTimeMillis() - this.chunkSentTime.getOrDefault(position, 0L) > CHUNK_CACHE_MILLIS) {
+                    CompletableFuture
+                            .supplyAsync(() -> this.getWorld().chunkAt(position), this.pool)
+                            .thenAccept(chunk -> {
+                                this.client.sendPacket(new PlayOutChunk(chunk));
+                                this.chunkSentTime.put(position, System.currentTimeMillis());
+                            });
                 }
             }
-        });
+        }
     }
 }

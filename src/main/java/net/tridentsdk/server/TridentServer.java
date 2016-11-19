@@ -20,6 +20,7 @@ import net.tridentsdk.Server;
 import net.tridentsdk.command.logger.Logger;
 import net.tridentsdk.config.Config;
 import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.server.concurrent.ServerThreadPool;
 import net.tridentsdk.server.concurrent.TridentTick;
 import net.tridentsdk.server.config.ServerConfig;
 import net.tridentsdk.server.net.NetServer;
@@ -153,7 +154,9 @@ public class TridentServer implements Server {
         try {
             this.logger.log("Saving config...");
             this.config.save();
+            this.logger.log("Shutting down server process...");
             this.tick.interrupt();
+            ServerThreadPool.shutdownAll();
             this.logger.log("Closing network connections...");
             this.server.shutdown();
         } catch (IOException | InterruptedException e) {
