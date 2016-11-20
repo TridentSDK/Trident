@@ -27,8 +27,8 @@ import net.tridentsdk.ui.bossbar.BossBar;
  */
 public abstract class PlayOutBossBar extends PacketOut {
 
-    protected BossBar bossBar;
-    private int action;
+    protected final BossBar bossBar;
+    private final int action;
 
     public PlayOutBossBar(BossBar bossBar, int action) {
         super(PlayOutBossBar.class);
@@ -38,9 +38,9 @@ public abstract class PlayOutBossBar extends PacketOut {
 
     @Override
     public void write(ByteBuf buf) {
-        buf.writeLong(bossBar.getUniqueId().getMostSignificantBits());
-        buf.writeLong(bossBar.getUniqueId().getLeastSignificantBits());
-        NetData.wvint(buf, action);
+        buf.writeLong(this.bossBar.getUuid().getMostSignificantBits());
+        buf.writeLong(this.bossBar.getUuid().getLeastSignificantBits());
+        NetData.wvint(buf, this.action);
     }
 
     public static class Add extends PlayOutBossBar {
@@ -53,15 +53,15 @@ public abstract class PlayOutBossBar extends PacketOut {
         public void write(ByteBuf buf) {
             super.write(buf);
 
-            NetData.wstr(buf, bossBar.getTitle().toString());
-            buf.writeFloat(bossBar.getHealth());
-            NetData.wvint(buf, bossBar.getColor().getId());
-            NetData.wvint(buf, bossBar.getDivision().getId());
+            NetData.wstr(buf, this.bossBar.getTitle().toString());
+            buf.writeFloat(this.bossBar.getHealth());
+            NetData.wvint(buf, this.bossBar.getColor().getId());
+            NetData.wvint(buf, this.bossBar.getDivision().getId());
 
             int flags = 0;
-            if (bossBar.isDarkenSky())
+            if (this.bossBar.isDarkenSky())
                 flags |= 0x1;
-            if (bossBar.isDragonBar())
+            if (this.bossBar.isDragonBar())
                 flags |= 0x2;
             buf.writeByte(flags);
         }
@@ -86,7 +86,7 @@ public abstract class PlayOutBossBar extends PacketOut {
         public void write(ByteBuf buf) {
             super.write(buf);
 
-            buf.writeFloat(bossBar.getHealth());
+            buf.writeFloat(this.bossBar.getHealth());
         }
 
     }
@@ -101,7 +101,7 @@ public abstract class PlayOutBossBar extends PacketOut {
         public void write(ByteBuf buf) {
             super.write(buf);
 
-            NetData.wstr(buf, bossBar.getTitle().toString());
+            NetData.wstr(buf, this.bossBar.getTitle().toString());
         }
 
     }
@@ -116,8 +116,8 @@ public abstract class PlayOutBossBar extends PacketOut {
         public void write(ByteBuf buf) {
             super.write(buf);
 
-            NetData.wvint(buf, bossBar.getColor().getId());
-            NetData.wvint(buf, bossBar.getDivision().getId());
+            NetData.wvint(buf, this.bossBar.getColor().getId());
+            NetData.wvint(buf, this.bossBar.getDivision().getId());
         }
 
     }
@@ -133,9 +133,9 @@ public abstract class PlayOutBossBar extends PacketOut {
             super.write(buf);
 
             int flags = 0;
-            if (bossBar.isDarkenSky())
+            if (this.bossBar.isDarkenSky())
                 flags |= 0x1;
-            if (bossBar.isDragonBar())
+            if (this.bossBar.isDragonBar())
                 flags |= 0x2;
             buf.writeByte(flags);
         }

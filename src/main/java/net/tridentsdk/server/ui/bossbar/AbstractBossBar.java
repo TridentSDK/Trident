@@ -16,43 +16,67 @@
  */
 package net.tridentsdk.server.ui.bossbar;
 
-import lombok.Getter;
+import com.google.common.collect.Sets;
+import net.tridentsdk.doc.Policy;
 import net.tridentsdk.ui.bossbar.BossBar;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 
 /**
  * @author TridentSDK
  * @since 0.5-alpha
  */
 public abstract class AbstractBossBar implements BossBar {
+    /**
+     * Holds the state changes of the boss bar.
+     */
+    public static final AtomicIntegerFieldUpdater<AbstractBossBar> STATE =
+            AtomicIntegerFieldUpdater.newUpdater(AbstractBossBar.class, "b");
+    /**
+     * Set of used UUIDs to prevent conflicts
+     */
+    private static final Set<UUID> uuids = Sets.newConcurrentHashSet();
 
-    private static final Map<UUID, AbstractBossBar> barsByUUID = new HashMap<>();
+    /**
+     * The UUID of the boss bar
+     */
+    private final UUID uuid;
 
-    private volatile UUID uuid;
+    /**
+     * Boss bar state field which holds what options have
+     * been changed
+     */
+    // int holds title, health, style, and flags booleans
+    //             3  |   2   |   1  |   0
+    @Policy("Use STATE field to make changes")
+    protected volatile int b;
 
-    @Getter
-    protected volatile boolean changedTitle, changedHealth, changedStyle, changedFlags;
-
+    /**
+     * Creates a new boss bar and assigns a UUID
+     */
     public AbstractBossBar() {
-        UUID uuid;
-        do {
-            uuid = UUID.randomUUID();
-        } while (barsByUUID.containsKey(uuid));
-        barsByUUID.put(this.uuid = uuid, this);
+        while (true) {
+            UUID uuid = UUID.randomUUID();
+            if (uuids.add(uuid)) {
+                this.uuid = uuid;
+                break;
+            }
+        }
     }
 
     @Override
-    public final UUID getUniqueId() {
-        return uuid;
+    public final UUID getUuid() {
+        return this.uuid;
     }
 
+    /**
+     * Unsets the changed flags of the boss bar
+     */
     public void unsetChanged() {
-        changedTitle = changedHealth = changedStyle = changedFlags = false;
+        STATE.set(this, 0);
     }
 
     public abstract AbstractBossBar clone();
-
 }

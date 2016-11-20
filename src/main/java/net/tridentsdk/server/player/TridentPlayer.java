@@ -16,6 +16,7 @@
  */
 package net.tridentsdk.server.player;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import lombok.Getter;
 import lombok.Setter;
@@ -121,7 +122,6 @@ public class TridentPlayer extends TridentEntity implements Player {
      * A map of chunk -> time, storing the last time
      * the chunk was sent to the client
      */
-    // TODO can we convert this to IntPair
     private final Map<IntPair, Long> chunkSentTime = new ConcurrentHashMap<>();
 
     /**
@@ -273,18 +273,17 @@ public class TridentPlayer extends TridentEntity implements Player {
 
     @Override
     public void addBossBar(BossBar bossBar) {
-        if (bossBar != null) {
-            this.bossBars.add((AbstractBossBar) bossBar);
+        Preconditions.checkNotNull(bossBar);
+        if (this.bossBars.add((AbstractBossBar) bossBar)) {
             this.net().sendPacket(new PlayOutBossBar.Add(bossBar));
         }
     }
 
     @Override
     public void removeBossBar(BossBar bossBar) {
-        if (bossBar != null) {
-            if (this.bossBars.remove(bossBar)) {
-                this.net().sendPacket(new PlayOutBossBar.Remove(bossBar));
-            }
+        Preconditions.checkNotNull(bossBar);
+        if (this.bossBars.remove(bossBar)) {
+            this.net().sendPacket(new PlayOutBossBar.Remove(bossBar));
         }
     }
 
@@ -298,10 +297,11 @@ public class TridentPlayer extends TridentEntity implements Player {
             boolean health, title, style, flags;
             health = title = style = flags = force;
             if (!force) {
-                title = bossBar.isChangedTitle();
-                health = bossBar.isChangedHealth();
-                style = bossBar.isChangedStyle();
-                flags = bossBar.isChangedFlags();
+                int changed = AbstractBossBar.STATE.get(bossBar);
+                title = (changed >>> 3 & 1) == 1;
+                health = (changed >>> 2 & 1) == 1;
+                style = (changed >>> 1 & 1) == 1;
+                flags = (changed & 1) == 1;
             }
             if (health) {
                 this.net().sendPacket(new PlayOutBossBar.UpdateHealth(bossBar));

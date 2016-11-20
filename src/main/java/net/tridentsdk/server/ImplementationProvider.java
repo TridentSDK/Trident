@@ -25,9 +25,10 @@ import net.tridentsdk.server.command.InfoLogger;
 import net.tridentsdk.server.command.LoggerHandlers;
 import net.tridentsdk.server.command.PipelinedLogger;
 import net.tridentsdk.server.config.TridentConfig;
-import net.tridentsdk.server.ui.bossbar.TridentBossBarManager;
+import net.tridentsdk.server.ui.bossbar.CustomBossBar;
 import net.tridentsdk.server.ui.tablist.TridentTabListManager;
 import net.tridentsdk.server.world.TridentWorldLoader;
+import net.tridentsdk.ui.bossbar.BossBar;
 import net.tridentsdk.ui.tablist.TabListManager;
 
 import javax.annotation.concurrent.Immutable;
@@ -105,8 +106,8 @@ public class ImplementationProvider implements Impl.ImplementationProvider {
     }
 
     @Override
-    public TridentBossBarManager getBossBarManager() {
-        return TridentBossBarManager.getInstance();
+    public BossBar newBossBar() {
+        return new CustomBossBar();
     }
 
 }

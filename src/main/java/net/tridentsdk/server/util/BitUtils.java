@@ -70,7 +70,7 @@ public final class BitUtils {
      * @param i the value to count bits
      * @return the amount of set bits
      */
-    public int countSetBits(int i){
+    public static int countSetBits(int i) {
         return countSetBits(i, 32);
     }
 
@@ -80,7 +80,7 @@ public final class BitUtils {
      * @param l the value to count bits
      * @return the amount of set bits
      */
-    public int countSetBits(long l){
+    public static int countSetBits(long l) {
         return countSetBits(l, 64);
     }
 
@@ -91,7 +91,7 @@ public final class BitUtils {
      * @param b the value to count unset bits
      * @return the amount of unset bits
      */
-    public int countUnsetBits(byte b){
+    public static int countUnsetBits(byte b) {
         return 8 - countSetBits(b, 8);
     }
 
@@ -102,7 +102,7 @@ public final class BitUtils {
      * @param s the value to count unset bits
      * @return the amount of unset bits
      */
-    public int countUnsetBits(short s){
+    public static int countUnsetBits(short s) {
         return 16 - countSetBits(s, 16);
     }
 
@@ -113,7 +113,7 @@ public final class BitUtils {
      * @param i the value to count unset bits
      * @return the amount of unset bits
      */
-    public int countUnsetBits(int i){
+    public static int countUnsetBits(int i) {
         return 32 - countSetBits(i, 32);
     }
 
@@ -124,7 +124,7 @@ public final class BitUtils {
      * @param l the value to count unset bits
      * @return the amount of set bits
      */
-    public int countUnsetBits(long l){
+    public static int countUnsetBits(long l) {
         return 64 - countSetBits(l, 64);
     }
 
@@ -137,7 +137,7 @@ public final class BitUtils {
      * value
      * @return the value after setting the bit
      */
-    public byte setBit(byte b, int bit, boolean state){
+    public static byte setBit(byte b, int bit, boolean state) {
         return (byte) (state ? (b | 1 << bit) : (b & ~(1 << bit)));
     }
 
@@ -149,7 +149,7 @@ public final class BitUtils {
      * @param state the state to set at the bit in the value
      * @return the value after setting the bit
      */
-    public short setBit(short s, int bit, boolean state){
+    public static short setBit(short s, int bit, boolean state) {
         return (short) (state ? (s | 1 << bit) : (s & ~(1 << bit)));
     }
 
@@ -161,7 +161,7 @@ public final class BitUtils {
      * @param state the state to set at the bit in the value
      * @return the value after setting the bit
      */
-    public int setBit(int i, int bit, boolean state) {
+    public static int setBit(int i, int bit, boolean state) {
         return state ? (i | 1 << bit) : (i & ~(1 << bit));
     }
 
@@ -173,7 +173,7 @@ public final class BitUtils {
      * @param state the state to set at the bit in the value
      * @return the value after setting the bit
      */
-    public long setBit(long l, int bit, boolean state) {
+    public static long setBit(long l, int bit, boolean state) {
         return state ? (l | 1 << bit) : (l & ~(1 << bit));
     }
 }

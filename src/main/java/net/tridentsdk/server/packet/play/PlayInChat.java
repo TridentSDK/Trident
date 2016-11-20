@@ -22,7 +22,6 @@ import net.tridentsdk.chat.*;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.packet.PacketIn;
 import net.tridentsdk.server.player.TridentPlayer;
-import net.tridentsdk.server.ui.bossbar.TridentBossBarManager;
 import net.tridentsdk.server.world.TridentChunk;
 import net.tridentsdk.ui.bossbar.BossBar;
 import net.tridentsdk.ui.bossbar.BossBarColor;
@@ -71,7 +70,7 @@ public final class PlayInChat extends PacketIn {
         if (msg.toLowerCase().equals("bossbars")) {
             int i = 0;
             for (String word : "I hate my life".split(" ")) {
-                BossBar bb = TridentBossBarManager.getInstance().newBossBar();
+                BossBar bb = BossBar.newBossBar();
 
                 bb.setTitle(ChatComponent.text(word).setColor(ChatColor.getColor((char) ('a' + i))));
                 bb.setColor(BossBarColor.values()[i]);

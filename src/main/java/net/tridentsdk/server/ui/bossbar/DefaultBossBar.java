@@ -35,6 +35,11 @@ public class DefaultBossBar extends AbstractBossBar {
     }
 
     @Override
+    public boolean isDefault() {
+        return true;
+    }
+
+    @Override
     public ChatComponent getTitle() {
         return ChatComponent.create().setText("Just a default boss bar because #yolo");
     }
@@ -57,7 +62,7 @@ public class DefaultBossBar extends AbstractBossBar {
 
     @Override
     public BossBarColor getColor() {
-        return color; // TODO - perhaps this needs to be changed
+        return this.color; // TODO - perhaps this needs to be changed
     }
 
     @Override
@@ -67,7 +72,7 @@ public class DefaultBossBar extends AbstractBossBar {
 
     @Override
     public BossBarDivision getDivision() {
-        return division;
+        return this.division;
     }
 
     @Override
