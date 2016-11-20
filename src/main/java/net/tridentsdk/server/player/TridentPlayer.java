@@ -34,8 +34,8 @@ import net.tridentsdk.server.net.EntityMetadata;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.packet.play.*;
 import net.tridentsdk.server.ui.bossbar.AbstractBossBar;
+import net.tridentsdk.server.ui.tablist.TridentGlobalTabList;
 import net.tridentsdk.server.ui.tablist.TridentTabList;
-import net.tridentsdk.server.ui.tablist.TridentTabListManager;
 import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.ui.bossbar.BossBar;
 import net.tridentsdk.ui.tablist.TabList;
@@ -171,9 +171,8 @@ public class TridentPlayer extends TridentEntity implements Player {
      * confirmed the client spawn position.
      */
     public void resumeLogin() {
-        TridentTabListManager tabList = TridentTabListManager.getInstance();
-        this.setTabList(tabList.getGlobalTabList());
-        tabList.getGlobalTabList().addPlayer(this);
+        this.setTabList(TridentGlobalTabList.GLOBAL);
+        TridentGlobalTabList.GLOBAL.addPlayer(this);
 
         PlayOutSpawnPlayer newPlayerPacket = new PlayOutSpawnPlayer(this);
         ChatComponent chat = ChatComponent.create()
@@ -224,7 +223,7 @@ public class TridentPlayer extends TridentEntity implements Player {
     @Override
     public void doRemove() {
         PLAYERS.remove(this.uuid);
-        TridentTabListManager.getInstance().getGlobalTabList().removePlayer(this);
+        TridentGlobalTabList.GLOBAL.removePlayer(this);
 
         ChatComponent chat = ChatComponent.create()
                 .setColor(ChatColor.YELLOW)
@@ -261,9 +260,16 @@ public class TridentPlayer extends TridentEntity implements Player {
 
     @Override
     public void setTabList(TabList tabList) {
-        TridentTabListManager.getInstance().setTabList(this, this.tabList, tabList);
-        this.tabList = tabList;
-        ((TridentTabList) tabList).sendToPlayer(this);
+        TabList old = this.tabList;
+        if (old != null) {
+            old.removeUser(this);
+        }
+
+        if (tabList != null) {
+            tabList.addUser(this);
+            this.tabList = tabList;
+            ((TridentTabList) tabList).sendToPlayer(this);
+        }
     }
 
     @Override
@@ -362,14 +368,13 @@ public class TridentPlayer extends TridentEntity implements Player {
             centerZ += (direction.getZDiff() * radius);
         }
 
-        this.pool.execute(() -> {
-            this.chunkSentTime.keySet().iterator().forEachRemaining(chunk -> {
-            /* Should be 16, but renderDistance has to be divided by 2 */
-                if (chunk.x() - this.position.getChunkX() + chunk.z() - this.position.getChunkZ() > renderDistance * 8 /* == (renderDistance / 2) * 16 */) {
-                    this.chunkSentTime.remove(chunk);
-                }
-            });
-        });
+        /* Should be 16, but renderDistance has to be divided by 2 */
+        this.pool.execute(() ->
+                this.chunkSentTime.keySet().iterator().forEachRemaining(chunk -> {
+                    if (chunk.x() - this.position.getChunkX() + chunk.z() - this.position.getChunkZ() > renderDistance * 8 /* == (renderDistance / 2) * 16 */) {
+                        this.chunkSentTime.remove(chunk);
+                    }
+                }));
 
         for (int x = centerX - radius; x <= centerX + radius; x++) {
             for (int z = centerZ - radius; z <= centerZ + radius; z++) {

@@ -30,6 +30,11 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class TridentGlobalTabList extends TridentTabList {
     /**
+     * The instance of the global tab list
+     */
+    public static TridentGlobalTabList GLOBAL = new TridentGlobalTabList();
+
+    /**
      * The mapping of players to their own tab list element
      */
     private final Map<Player, TabListElement> players;
@@ -39,6 +44,9 @@ public class TridentGlobalTabList extends TridentTabList {
      */
     public TridentGlobalTabList() {
         this.players = new ConcurrentHashMap<>();
+
+        this.setHeader(ChatComponent.text("HEADAAH"));
+        this.setFooter(ChatComponent.text("FOOTAAH"));
     }
 
     @Override

@@ -157,6 +157,7 @@ public class CustomBossBar extends AbstractBossBar {
             old = this.darkenSky.get();
             if (old != darkenSky) {
                 if (this.darkenSky.compareAndSet(old, darkenSky)) {
+                    // TODO send update packet
                     break;
                 }
             } else {

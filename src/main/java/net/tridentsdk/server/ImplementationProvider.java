@@ -26,10 +26,11 @@ import net.tridentsdk.server.command.LoggerHandlers;
 import net.tridentsdk.server.command.PipelinedLogger;
 import net.tridentsdk.server.config.TridentConfig;
 import net.tridentsdk.server.ui.bossbar.CustomBossBar;
-import net.tridentsdk.server.ui.tablist.TridentTabListManager;
+import net.tridentsdk.server.ui.tablist.TridentCustomTabList;
+import net.tridentsdk.server.ui.tablist.TridentGlobalTabList;
 import net.tridentsdk.server.world.TridentWorldLoader;
 import net.tridentsdk.ui.bossbar.BossBar;
-import net.tridentsdk.ui.tablist.TabListManager;
+import net.tridentsdk.ui.tablist.TabList;
 
 import javax.annotation.concurrent.Immutable;
 import java.nio.file.Path;
@@ -101,8 +102,13 @@ public class ImplementationProvider implements Impl.ImplementationProvider {
     }
 
     @Override
-    public TabListManager tabListManager() {
-        return TridentTabListManager.getInstance();
+    public TabList globalTabList() {
+        return TridentGlobalTabList.GLOBAL;
+    }
+
+    @Override
+    public TabList newTabList() {
+        return new TridentCustomTabList();
     }
 
     @Override
