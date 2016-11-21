@@ -21,6 +21,7 @@ import io.netty.buffer.Unpooled;
 import net.tridentsdk.base.Block;
 import net.tridentsdk.server.concurrent.PoolSpec;
 import net.tridentsdk.server.concurrent.ServerThreadPool;
+import net.tridentsdk.server.util.UncheckedCdl;
 import net.tridentsdk.server.world.gen.GeneratorContextImpl;
 import net.tridentsdk.world.Chunk;
 import net.tridentsdk.world.World;
@@ -30,7 +31,6 @@ import net.tridentsdk.world.opt.GenOpts;
 import javax.annotation.Nonnull;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 
@@ -50,7 +50,7 @@ public class TridentChunk implements Chunk {
      * The ready state for this chunk, whether it has fully
      * generated yet.
      */
-    private final CountDownLatch ready = new CountDownLatch(1);
+    private final UncheckedCdl ready = new UncheckedCdl(1);
     /**
      * The world in which this chunk is located
      */
@@ -88,7 +88,7 @@ public class TridentChunk implements Chunk {
         GenOpts opts = this.world.genOpts();
         GeneratorProvider provider = opts.provider();
 
-        Executor container = provider.container();
+        Executor container = GenContainer.DEFAULT;
         if (container == GenContainer.DEFAULT) {
             container = ServerThreadPool.forSpec(PoolSpec.PLUGINS);
         } else if (container == GenContainer.ARBITRARY) {
@@ -101,18 +101,30 @@ public class TridentChunk implements Chunk {
 
         GeneratorContextImpl context = new GeneratorContextImpl(container, opts.seed());
         try {
-            CountDownLatch latch = CompletableFuture.supplyAsync(() -> {
+            CompletableFuture.runAsync(() -> {
                 terrain.generate(this.x, this.z, context);
-
                 for (FeatureGenerator generator : features) {
                     generator.generate(x, z, context);
                 }
 
-                return context.getCount();
-            }, container).get();
-            context.doRun(latch);
+                UncheckedCdl latch = context.getCount();
+                context.doRun(latch);
 
-            latch.await();
+                latch.await(); // TODO requeue
+            }, container).thenApplyAsync(l -> {
+                context.reset();
+
+                for (PropGenerator generator : props) {
+                    generator.generate(x, z, 0, context);
+                }
+
+                UncheckedCdl latch = context.getCount();
+                context.doRun(latch);
+
+                System.out.println(latch.getCount());
+                return latch;
+            }, container).get().await();
+
             this.sections = context.asArray();
             this.ready.countDown();
         } catch (InterruptedException | ExecutionException e) {
@@ -127,12 +139,7 @@ public class TridentChunk implements Chunk {
      * @return the chunk, when ready
      */
     public TridentChunk waitReady() {
-        try {
-            this.ready.await();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-
+        this.ready.await();
         return this;
     }
 

@@ -18,12 +18,12 @@ package net.tridentsdk.server.world.gen;
 
 import com.google.common.collect.Queues;
 import net.tridentsdk.base.Substance;
+import net.tridentsdk.server.util.UncheckedCdl;
 import net.tridentsdk.server.world.ChunkSection;
 import net.tridentsdk.world.gen.GeneratorContext;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Queue;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReferenceArray;
@@ -48,7 +48,7 @@ public class GeneratorContextImpl implements GeneratorContext {
     /**
      * Queue of generation tasks to be run upon command
      */
-    private final Queue<Consumer<CountDownLatch>> tasks = Queues.newConcurrentLinkedQueue();
+    private final Queue<Consumer<UncheckedCdl>> tasks = Queues.newConcurrentLinkedQueue();
 
     /**
      * The seed to be used for generation
@@ -73,7 +73,6 @@ public class GeneratorContextImpl implements GeneratorContext {
         this.container = container;
         this.seed = seed;
         this.random = new AtomicLong(seed);
-        this.count.increment();
     }
 
     /**
@@ -159,9 +158,9 @@ public class GeneratorContextImpl implements GeneratorContext {
      *              the generation to finish before
      *              proceeding
      */
-    public void doRun(CountDownLatch latch) {
-        for (Consumer<CountDownLatch> runnable : this.tasks) {
-            this.container.execute(() -> runnable.accept(latch));
+    public void doRun(UncheckedCdl latch) {
+        for (Consumer<UncheckedCdl> consumer : this.tasks) {
+            this.container.execute(() -> consumer.accept(latch));
         }
     }
 
@@ -172,8 +171,18 @@ public class GeneratorContextImpl implements GeneratorContext {
      *
      * @return the count down latch argument
      */
-    public CountDownLatch getCount() {
-        return new CountDownLatch(this.count.intValue() - 1);
+    public UncheckedCdl getCount() {
+        return new UncheckedCdl(this.count.intValue());
+    }
+
+    /**
+     * Resets the task runner and the available tasks left
+     * counter in order to reuse the same context for prop
+     * generators.
+     */
+    public void reset() {
+        this.count.reset();
+        this.tasks.clear();
     }
 
     /**
