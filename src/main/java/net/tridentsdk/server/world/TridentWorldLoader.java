@@ -196,7 +196,6 @@ public class TridentWorldLoader implements WorldLoader {
             Path path = world.dir();
             try {
                 Files.walkFileTree(path, DELETE_FILES);
-                Files.delete(path);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

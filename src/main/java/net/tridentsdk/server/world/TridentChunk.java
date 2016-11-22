@@ -41,10 +41,18 @@ import static net.tridentsdk.server.net.NetData.wvint;
  */
 public class TridentChunk implements Chunk {
     /**
-     * An empty chunk section, used for ground up
-     * continuous
+     * An empty chunk section, used for writing ground up
+     * continuous chunk columns
      */
     private static final ChunkSection EMPTY_SECTION = new ChunkSection();
+    /**
+     * Thread pool used for arbitrary container generation
+     */
+    public static final ServerThreadPool ARBITRARY_POOL = ServerThreadPool.forSpec(PoolSpec.CHUNKS);
+    /**
+     * Thread pool used for default container generation
+     */
+    public static final ServerThreadPool DEFAULT_POOL = ServerThreadPool.forSpec(PoolSpec.PLUGINS);
 
     /**
      * The ready state for this chunk, whether it has fully
@@ -63,18 +71,21 @@ public class TridentChunk implements Chunk {
      * The z coordinate
      */
     private final int z;
+
     /**
      * The sections that the chunk has generated
      */
     private volatile ChunkSection[] sections;
     /**
-     * The height map for this chunk
+     * The height map for this chunk, 16x16 indexed by x
+     * across then adding z (x << 4 | z)
      */
     private final AtomicIntegerArray heights = new AtomicIntegerArray(256);
 
     /**
      * Creates a new chunk at the specified coordinates.
      *
+     * @param world the world which contains this chunk
      * @param x the x coordinate
      * @param z the z coordinate
      */
@@ -93,16 +104,16 @@ public class TridentChunk implements Chunk {
 
         Executor container = provider.container();
         if (container == GenContainer.DEFAULT) {
-            container = ServerThreadPool.forSpec(PoolSpec.PLUGINS);
+            container = DEFAULT_POOL;
         } else if (container == GenContainer.ARBITRARY) {
-            container = ServerThreadPool.forSpec(PoolSpec.CHUNKS);
+            container = ARBITRARY_POOL;
         }
 
         TerrainGenerator terrain = provider.terrain(this.world);
         Set<PropGenerator> props = provider.propSet(this.world);
         Set<FeatureGenerator> features = provider.featureSet(this.world);
-
         GeneratorContextImpl context = new GeneratorContextImpl(container, opts.seed());
+
         CompletableFuture.supplyAsync(() -> {
             terrain.generate(this.x, this.z, context);
             for (FeatureGenerator generator : features) {
@@ -147,7 +158,8 @@ public class TridentChunk implements Chunk {
     }
 
     /**
-     * Write the chunk data to the given buffer.
+     * Write the chunk data to the given buffer for sending
+     * to players via the protocol.
      *
      * @param buf the buffer to write the chunk data
      * @param continuous {@code true} if the entire chunk
