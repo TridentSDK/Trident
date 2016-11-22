@@ -27,7 +27,6 @@ import net.tridentsdk.chat.ChatComponent;
 import net.tridentsdk.chat.ChatType;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.server.concurrent.PoolSpec;
-import net.tridentsdk.server.concurrent.ServerThreadPool;
 import net.tridentsdk.server.entity.TridentEntity;
 import net.tridentsdk.server.entity.meta.EntityMetaType;
 import net.tridentsdk.server.net.EntityMetadata;
@@ -200,7 +199,7 @@ public class TridentPlayer extends TridentEntity implements Player {
                 int finalX = x;
                 int finalZ = z;
                 CompletableFuture
-                        .supplyAsync(() -> this.getWorld().chunkAt(finalX, finalZ), ServerThreadPool.forSpec(PoolSpec.PLUGINS))
+                        .supplyAsync(() -> this.getWorld().chunkAt(finalX, finalZ), this.pool)
                         .thenAccept(chunk -> this.client.sendPacket(new PlayOutChunk(chunk)));
             }
         }

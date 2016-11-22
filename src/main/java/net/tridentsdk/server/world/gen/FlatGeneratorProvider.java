@@ -37,7 +37,7 @@ public class FlatGeneratorProvider implements GeneratorProvider {
 
     @Override
     public TerrainGenerator terrain(World world) {
-        return new FlatTerrainGenerator();
+        return FlatTerrainGenerator.INSTANCE;
     }
 
     @Nonnull

@@ -25,6 +25,7 @@ import net.tridentsdk.world.gen.GeneratorContext;
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Queue;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicIntegerArray;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.concurrent.atomic.LongAdder;
@@ -58,10 +59,16 @@ public class GeneratorContextImpl implements GeneratorContext {
      * The last random value, used for the PRNG generator
      */
     private final AtomicLong random;
+
+
     /**
      * List of chunk sections
      */
     private final AtomicReferenceArray<ChunkSection> sections = new AtomicReferenceArray<>(16);
+    /**
+     * Mapping of highest Y
+     */
+    private final AtomicIntegerArray maxY = new AtomicIntegerArray(256);
 
     /**
      * Creates a new generator context with the given seed
@@ -127,6 +134,11 @@ public class GeneratorContextImpl implements GeneratorContext {
     }
 
     @Override
+    public int maxHeight(int x, int z) {
+        return this.maxY.get(x << 4 | z & 0xF);
+    }
+
+    @Override
     public void set(int x, int y, int z, Substance substance, byte meta) {
         this.set(x, y, z, build(substance.id(), meta));
     }
@@ -155,8 +167,8 @@ public class GeneratorContextImpl implements GeneratorContext {
      * that were scheduled by the terrain generator.
      *
      * @param latch the count down latch used to await for
-     *              the generation to finish before
-     *              proceeding
+     * the generation to finish before
+     * proceeding
      */
     public void doRun(UncheckedCdl latch) {
         for (Consumer<UncheckedCdl> consumer : this.tasks) {
@@ -165,7 +177,8 @@ public class GeneratorContextImpl implements GeneratorContext {
     }
 
     /**
-     * Obtains the latch in order to determine the amount of
+     * Obtains the latch in order to determine the amount
+     * of
      * runs necessary to complete all of the scheduled
      * generation tasks.
      *
@@ -186,6 +199,17 @@ public class GeneratorContextImpl implements GeneratorContext {
     }
 
     /**
+     * Copies the height map to the given array.
+     *
+     * @param array the array to copy to
+     */
+    public void copyHeights(AtomicIntegerArray array) {
+        for (int i = 0; i < 64; i++) {
+            array.set(i, this.maxY.get(i));
+        }
+    }
+
+    /**
      * Sets the block at the given coordinates to the given
      * block state value.
      *
@@ -196,6 +220,9 @@ public class GeneratorContextImpl implements GeneratorContext {
      */
     private void set(int x, int y, int z, short state) {
         int sectionIdx = section(y);
+        int idx = idx(x, y & 15, z);
+        int xz = x * 4 | z & 0xF;
+
         ChunkSection section = this.sections.get(sectionIdx);
         if (section == null) {
             ChunkSection newSec = new ChunkSection();
@@ -210,7 +237,14 @@ public class GeneratorContextImpl implements GeneratorContext {
             }
         }
 
-        int idx = idx(x, y & 15, z);
+        int lastMax;
+        do {
+            lastMax = this.maxY.get(xz);
+            if (y <= lastMax) {
+                break;
+            }
+        } while (!this.maxY.compareAndSet(xz, lastMax, y));
+
         section.set(idx, state);
     }
 

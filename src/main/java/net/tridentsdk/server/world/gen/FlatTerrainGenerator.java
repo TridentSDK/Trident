@@ -27,18 +27,19 @@ import javax.annotation.concurrent.Immutable;
  */
 @Immutable
 public class FlatTerrainGenerator implements TerrainGenerator {
+    /**
+     * Instance of this generator
+     */
+    public static FlatTerrainGenerator INSTANCE = new FlatTerrainGenerator();
+
     @Override
     public void generate(int chunkX, int chunkZ, GeneratorContext context) {
         for (int x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++) {
-                final int finalX = x;
-                final int finalZ = z;
-                context.run(() -> {
-                    context.set(finalX, 0, finalZ, 7, (byte) 0);
-                    context.set(finalX, 1, finalZ, 3, (byte) 0);
-                    context.set(finalX, 2, finalZ, 3, (byte) 0);
-                    context.set(finalX, 3, finalZ, 2, (byte) 0);
-                });
+                context.set(x, 0, z, 7, (byte) 0);
+                context.set(x, 1, z, 3, (byte) 0);
+                context.set(x, 2, z, 3, (byte) 0);
+                context.set(x, 3, z, 2, (byte) 0);
             }
         }
     }

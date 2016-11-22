@@ -31,8 +31,8 @@ import net.tridentsdk.world.opt.GenOpts;
 import javax.annotation.Nonnull;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicIntegerArray;
 
 import static net.tridentsdk.server.net.NetData.wvint;
 
@@ -67,6 +67,10 @@ public class TridentChunk implements Chunk {
      * The sections that the chunk has generated
      */
     private volatile ChunkSection[] sections;
+    /**
+     * The height map for this chunk
+     */
+    private final AtomicIntegerArray heights = new AtomicIntegerArray(256);
 
     /**
      * Creates a new chunk at the specified coordinates.
@@ -84,11 +88,10 @@ public class TridentChunk implements Chunk {
      * Generates the chunk.
      */
     public void generate() {
-        // TODO container + other generators
         GenOpts opts = this.world.genOpts();
         GeneratorProvider provider = opts.provider();
 
-        Executor container = GenContainer.DEFAULT;
+        Executor container = provider.container();
         if (container == GenContainer.DEFAULT) {
             container = ServerThreadPool.forSpec(PoolSpec.PLUGINS);
         } else if (container == GenContainer.ARBITRARY) {
@@ -100,36 +103,36 @@ public class TridentChunk implements Chunk {
         Set<FeatureGenerator> features = provider.featureSet(this.world);
 
         GeneratorContextImpl context = new GeneratorContextImpl(container, opts.seed());
-        try {
-            CompletableFuture.runAsync(() -> {
-                terrain.generate(this.x, this.z, context);
-                for (FeatureGenerator generator : features) {
-                    generator.generate(x, z, context);
-                }
+        CompletableFuture.supplyAsync(() -> {
+            terrain.generate(this.x, this.z, context);
+            for (FeatureGenerator generator : features) {
+                generator.generate(this.x, this.z, context);
+            }
 
-                UncheckedCdl latch = context.getCount();
-                context.doRun(latch);
+            UncheckedCdl latch = context.getCount();
+            context.doRun(latch);
+            return latch;
+        }, container).thenApplyAsync(l -> {
+            l.await();
+            context.reset();
 
-                latch.await(); // TODO requeue
-            }, container).thenApplyAsync(l -> {
-                context.reset();
+            for (PropGenerator generator : props) {
+                generator.generate(this.x, this.z, context);
+            }
 
-                for (PropGenerator generator : props) {
-                    generator.generate(x, z, 0, context);
-                }
+            UncheckedCdl latch = context.getCount();
+            context.doRun(latch);
 
-                UncheckedCdl latch = context.getCount();
-                context.doRun(latch);
-
-                System.out.println(latch.getCount());
-                return latch;
-            }, container).get().await();
-
+            return latch;
+        }, container).thenAcceptAsync(l -> {
+            l.await();
             this.sections = context.asArray();
+            context.copyHeights(this.heights);
+
             this.ready.countDown();
-        } catch (InterruptedException | ExecutionException e) {
-            throw new RuntimeException(e);
-        }
+        }, container);
+
+        this.waitReady();
     }
 
     /**

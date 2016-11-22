@@ -17,7 +17,6 @@
 package net.tridentsdk.server;
 
 import com.google.common.collect.Lists;
-import io.netty.util.ResourceLeakDetector;
 import net.tridentsdk.Impl;
 import net.tridentsdk.Server;
 import net.tridentsdk.command.logger.Logger;
@@ -128,9 +127,5 @@ public final class TridentMain {
         logger.log(String.format("Server will be opened on %s:%s", address, port));
         server.setup();
         // -------------------------------------------------
-
-        if(config.isNettyLeakDetectorEnabled()) {
-            ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.PARANOID);
-        }
     }
 }
