@@ -17,7 +17,6 @@
 package net.tridentsdk.server.world;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import net.tridentsdk.base.Block;
 import net.tridentsdk.server.concurrent.PoolSpec;
 import net.tridentsdk.server.concurrent.ServerThreadPool;
@@ -175,7 +174,7 @@ public class TridentChunk implements Chunk {
         }
         wvint(buf, mask);
 
-        ByteBuf chunkData = Unpooled.buffer();
+        ByteBuf chunkData = buf.alloc().buffer();
         for (int i = 0; i < sections.length; i++) {
             if ((mask & 1 << i) == 1) {
                 if (sections[i] != null) {

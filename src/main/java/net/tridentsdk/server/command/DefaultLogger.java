@@ -44,7 +44,7 @@ public class DefaultLogger extends PipelinedLogger {
      */
     public DefaultLogger() {
         super(null);
-        this.stream = new PrintStream(AnsiConsole.system_out) {
+        this.stream = new PrintStream(AnsiConsole.out) {
             @Override
             public void println(String line) {
                 super.println("\r" + line);
