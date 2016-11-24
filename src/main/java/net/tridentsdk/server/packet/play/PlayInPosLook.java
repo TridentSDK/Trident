@@ -36,7 +36,7 @@ public final class PlayInPosLook extends PacketIn {
 
     @Override
     public void read(ByteBuf buf, NetClient client) {
-        TridentPlayer player = client.player();
+        TridentPlayer player = client.getPlayer();
         Position newPosition = player.getPosition().clone();
 
         newPosition.setX(buf.readDouble());

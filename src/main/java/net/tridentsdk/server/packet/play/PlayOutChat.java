@@ -16,6 +16,8 @@
  */
 package net.tridentsdk.server.packet.play;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import net.tridentsdk.chat.ChatComponent;
@@ -42,16 +44,52 @@ public final class PlayOutChat extends PacketOut {
      * The type of chat being sent to the player
      */
     private final ChatType type;
+    /**
+     * Whether or not chat colors is enabled
+     */
+    private final boolean chatColors;
 
-    public PlayOutChat(ChatComponent chat, ChatType type) {
+    public PlayOutChat(ChatComponent chat, ChatType type, boolean chatColors) {
         super(PlayOutChat.class);
         this.chat = chat;
         this.type = type;
+        this.chatColors = chatColors;
     }
 
     @Override
     public void write(ByteBuf buf) {
-        wstr(buf, this.chat.toString());
+        if (!this.chatColors) {
+            JsonElement element = this.chat.asJson();
+            this.decolorfy(element);
+
+            ChatComponent chatComponent = ChatComponent.fromJson(element.getAsJsonObject());
+            wstr(buf, chatComponent.toString());
+        } else {
+            wstr(buf, this.chat.toString());
+        }
+
         buf.writeByte(this.type.ordinal());
+    }
+
+    /**
+     * Recursively searches the with and extra element
+     * collections for chat components that need to be
+     * nullified of their formatting codes.
+     *
+     * @param element the json to be modified
+     */
+    private void decolorfy(JsonElement element) {
+        // Return type of chat component is always a
+        // jsonobject
+        JsonObject obj = element.getAsJsonObject();
+        obj.entrySet().removeIf(e -> {
+            String s = e.getKey();
+            return s.equals("color") ||
+                    s.equals("bold") ||
+                    s.equals("italic") ||
+                    s.equals("strikethrough") ||
+                    s.equals("underlined") ||
+                    s.equals("obfuscated");
+        });
     }
 }

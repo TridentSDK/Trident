@@ -20,6 +20,7 @@ import lombok.Data;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import net.tridentsdk.chat.ChatComponent;
+import net.tridentsdk.doc.Policy;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.world.opt.GameMode;
 
@@ -32,6 +33,11 @@ import java.util.UUID;
  */
 @Data
 public class TabListElement {
+    /**
+     * The player that owns this tab list element
+     */
+    @Policy("Must release")
+    private final TridentPlayer player;
     /**
      * The UUID of the player at this tab list element
      */
@@ -64,11 +70,10 @@ public class TabListElement {
     /**
      * Creates a new tab list element which can be filled
      * with custom fields.
-     *
-     * @param uuid the uuid for the element
      */
-    public TabListElement(UUID uuid) {
-        this.uuid = uuid;
+    public TabListElement() {
+        this.player = null;
+        this.uuid = null;
     }
 
     /**
@@ -78,8 +83,10 @@ public class TabListElement {
      * @param player the player to fill the element
      */
     public TabListElement(TridentPlayer player) {
+        this.player = player;
         this.uuid = player.uuid();
         this.name = player.name();
+        this.ping = (int) player.net().getPing();
         this.gameMode = player.getGameMode();
 
         String textures = player.getTextures();
@@ -87,6 +94,24 @@ public class TabListElement {
             this.properties = new ArrayList<>();
             this.properties.add(new TabListElement.PlayerProperty("textures", textures));
         }
+    }
+
+    @Override
+    public int hashCode() {
+        if (this.player != null) {
+            return this.player.hashCode();
+        }
+
+        return System.identityHashCode(this);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this.player != null) {
+            return this.player.equals(obj);
+        }
+
+        return this == obj;
     }
 
     @Data

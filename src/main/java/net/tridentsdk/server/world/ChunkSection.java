@@ -76,10 +76,10 @@ public class ChunkSection {
 
     /**
      * Sets the block at the given position in the chunk
-     * section to the given block state.
+     * section to the given block getState.
      *
      * @param idx the XYZ index
-     * @param state the block state to set
+     * @param state the block getState to set
      */
     public void set(int idx, short state) {
         int bitsPerBlock = this.bitsPerBlock;

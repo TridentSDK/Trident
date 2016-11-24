@@ -39,8 +39,8 @@ public class CustomBossBar extends AbstractBossBar {
     private final AtomicReference<ChatComponent> title =
             new AtomicReference<>(ChatComponent.text("Boss Bar"));
     private final AtomicInteger health = new AtomicInteger();
-    private final AtomicReference<BossBarColor> color = new AtomicReference<>();
-    private final AtomicReference<BossBarDivision> division = new AtomicReference<>();
+    private final AtomicReference<BossBarColor> color = new AtomicReference<>(BossBarColor.PINK);
+    private final AtomicReference<BossBarDivision> division = new AtomicReference<>(BossBarDivision.NO_DIVISION);
     private final AtomicBoolean darkenSky = new AtomicBoolean();
     private final AtomicBoolean dragonBar = new AtomicBoolean();
 
@@ -157,7 +157,7 @@ public class CustomBossBar extends AbstractBossBar {
             old = this.darkenSky.get();
             if (old != darkenSky) {
                 if (this.darkenSky.compareAndSet(old, darkenSky)) {
-                    // TODO send update packet
+                    this.casState(4);
                     break;
                 }
             } else {
@@ -189,7 +189,7 @@ public class CustomBossBar extends AbstractBossBar {
     }
 
     /**
-     * Performs a compare and swap on the state field which
+     * Performs a compare and swap on the getState field which
      * indicates whether or not a particular field has
      * been changed yet.
      *

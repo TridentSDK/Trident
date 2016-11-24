@@ -86,23 +86,18 @@ public abstract class TridentEntity implements Entity {
     public TridentEntity(World world, PoolSpec spec) {
         this.id = EID_COUNTER.incrementAndGet();
         this.position = new Position(world);
+        this.pool = ServerThreadPool.forSpec(spec);
 
         EntityMetaType metaType = this.getClass().getAnnotation(EntityMetaType.class);
-        if(metaType == null){
+        if (metaType == null) {
             throw new RuntimeException(this.getClass() + " doesn't have an EntityMetaType annotation!");
         }
 
-        TridentEntityMeta metadata = null;
-
         try {
-            metadata = metaType.value().getConstructor(EntityMetadata.class).newInstance(new EntityMetadata());
+            this.metadata = metaType.value().getConstructor(EntityMetadata.class).newInstance(new EntityMetadata());
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
-
-        this.metadata = metadata;
-
-        this.pool = ServerThreadPool.forSpec(spec);
     }
 
     @Override

@@ -22,13 +22,13 @@ import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.net.NetData;
 import net.tridentsdk.server.packet.PacketIn;
 import net.tridentsdk.server.player.TridentPlayer;
+import net.tridentsdk.server.player.TridentPlayerMeta;
 
 /**
  * @author TridentSDK
  * @since 0.5-alpha
  */
 public class PlayInClientSettings extends PacketIn {
-
     public PlayInClientSettings() {
         super(PlayInClientSettings.class);
     }
@@ -42,11 +42,15 @@ public class PlayInClientSettings extends PacketIn {
         byte skinFlags = buf.readByte();
         int mainHand = buf.readByte();
 
-        TridentPlayer player = client.player();
+        TridentPlayer player = client.getPlayer();
+        TridentPlayerMeta metadata = player.getMetadata();
         player.setRenderDistance(renderDistance);
-        player.getMetadata().setSkinFlags(skinFlags);
-        player.getMetadata().setLeftHandMain(mainHand == 0);
+        player.setLocale(locale);
+        player.setChatColors(chatColors);
+        player.setChatMode(chatMode);
+        metadata.setSkinFlags(skinFlags);
+        metadata.setLeftHandMain(mainHand == 0);
         player.updateMetadata();
+        player.resumeLogin();
     }
-
 }

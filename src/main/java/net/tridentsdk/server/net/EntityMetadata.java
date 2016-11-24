@@ -86,20 +86,16 @@ public class EntityMetadata {
                     value = new Vector(rd[0], rd[1], rd[2]);
                     break;
                 case POSITION: {
-                    long val = buf.readLong();
-                    int x = (int) (val >> 38);
-                    int y = (int) ((val >> 26) & 0xFFF);
-                    int z = (int) (val << 38 >> 38);
-                    value = new Vector(x, y, z);
+                    Vector vector = new Vector();
+                    NetData.rvec(buf, vector);
+                    value = vector;
                     break;
                 }
                 case OPTPOSITION: {
                     if (buf.readBoolean()) {
-                        long val = buf.readLong();
-                        int x = (int) (val >> 38);
-                        int y = (int) ((val >> 26) & 0xFFF);
-                        int z = (int) (val << 38 >> 38);
-                        value = new Vector(x, y, z);
+                        Vector vector = new Vector();
+                        NetData.rvec(buf, vector);
+                        value = vector;
                     } else {
                         value = null;
                     }
@@ -162,16 +158,12 @@ public class EntityMetadata {
                     break;
                 case POSITION:
                     Vector pv = (Vector) item.value;
-                    int[] posData = new int[]{ pv.intX(), pv.intY(), pv.intZ() };
-                    long posWrite = ((posData[0] & 0x3FFFFFF) << 38) | ((posData[1] & 0xFFF) << 26) | (posData[2] & 0x3FFFFFF);
-                    buf.writeLong(posWrite);
+                    NetData.wvec(buf, pv);
                     break;
                 case OPTPOSITION:
                     Vector opv = (Vector) item.value;
                     if (opv != null) {
-                        int[] optPosData = new int[]{ opv.intX(), opv.intY(), opv.intZ() };
-                        long optPosWrite = ((optPosData[0] & 0x3FFFFFF) << 38) | ((optPosData[1] & 0xFFF) << 26) | (optPosData[2] & 0x3FFFFFF);
-                        buf.writeLong(optPosWrite);
+                        NetData.wvec(buf, opv);
                     }
                     break;
                 case DIRECTION:

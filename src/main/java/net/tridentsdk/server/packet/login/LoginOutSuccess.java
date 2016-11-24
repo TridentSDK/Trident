@@ -58,7 +58,7 @@ public final class LoginOutSuccess extends PacketOut {
     public LoginOutSuccess(NetClient client) {
         super(LoginOutSuccess.class);
         this.client = client;
-        this.name = client.name();
+        this.name = client.getName();
 
         JsonArray array = new JsonArray();
         array.add(new JsonPrimitive(this.name));

@@ -75,7 +75,7 @@ public class InDecoder extends ByteToMessageDecoder {
     protected void decode(ChannelHandlerContext ctx, ByteBuf buf, List<Object> list) throws Exception {
         // Step 1: Decrypt if enabled
         // If not, use the raw buffer
-        NetCrypto crypto = this.client.cryptoModule();
+        NetCrypto crypto = this.client.getCryptoModule();
         ByteBuf decrypt = buf;
         if (crypto != null) {
             decrypt = ctx.alloc().buffer();
@@ -111,7 +111,7 @@ public class InDecoder extends ByteToMessageDecoder {
         // Step 3: Decode packet
         int id = rvint(decompressed);
 
-        Class<? extends Packet> cls = PacketRegistry.byId(this.client.state(), Packet.Bound.SERVER, id);
+        Class<? extends Packet> cls = PacketRegistry.byId(this.client.getState(), Packet.Bound.SERVER, id);
         PacketIn packet = PacketRegistry.make(cls);
 
         LOGGER.debug("RECV: " + packet.getClass().getSimpleName());

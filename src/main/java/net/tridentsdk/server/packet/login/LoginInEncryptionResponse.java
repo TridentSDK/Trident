@@ -58,7 +58,7 @@ public final class LoginInEncryptionResponse extends PacketIn {
         byte[] encryptedToken = arr(buf, tokenLen);
 
         byte[] sharedSecret;
-        if ((sharedSecret = client.cryptoModule().begin(encryptedSecret, encryptedToken)) == null) {
+        if ((sharedSecret = client.getCryptoModule().begin(encryptedSecret, encryptedToken)) == null) {
             client.disconnect("Crypto error");
             return;
         }
@@ -71,10 +71,10 @@ public final class LoginInEncryptionResponse extends PacketIn {
         }
 
         md.update(sharedSecret);
-        md.update(client.cryptoModule().kp().getPublic().getEncoded());
+        md.update(client.getCryptoModule().kp().getPublic().getEncoded());
 
         String hash = toHexStringTwosComplement(md.digest());
-        Mojang.req(MOJANG_SERVER, client.name(), hash).callback((resp) -> {
+        Mojang.req(MOJANG_SERVER, client.getName(), hash).callback((resp) -> {
             if (resp == null) {
                 client.disconnect("Auth error");
                 return;

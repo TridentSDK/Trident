@@ -16,7 +16,7 @@
  */
 package net.tridentsdk.server.ui.tablist;
 
-import com.google.common.collect.Queues;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import lombok.Getter;
 import net.tridentsdk.chat.ChatComponent;
@@ -28,6 +28,7 @@ import net.tridentsdk.ui.tablist.TabList;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * The tab list implementation.
@@ -36,7 +37,12 @@ public abstract class TridentTabList implements TabList {
     /**
      * The players which are displayed this tab list
      */
-    private final Collection<Player> users;
+    protected final Collection<Player> users;
+    /**
+     * Elements of this tab list
+     */
+    protected final List<TabListElement> elements;
+
     /**
      * The tab list header
      */
@@ -47,10 +53,6 @@ public abstract class TridentTabList implements TabList {
      */
     @Getter
     private volatile ChatComponent footer;
-    /**
-     * Elements of this tab list
-     */
-    protected final Collection<TabListElement> elements;
 
     /**
      * Creates and initailizes a new tab list/
@@ -58,7 +60,8 @@ public abstract class TridentTabList implements TabList {
      */
     public TridentTabList() {
         this.users = Sets.newConcurrentHashSet();
-        this.elements = Queues.newConcurrentLinkedQueue();
+        // TODO find a better implementation
+        this.elements = Lists.newCopyOnWriteArrayList();
     }
 
     @Override
@@ -108,6 +111,6 @@ public abstract class TridentTabList implements TabList {
      */
     private void updateHeaderFooter() {
         PlayOutPlayerListHeaderAndFooter packet = new PlayOutPlayerListHeaderAndFooter(this.header, this.footer);
-        this.getUserList().forEach(player -> ((TridentPlayer) player).net().sendPacket(packet));
+        this.users.forEach(player -> ((TridentPlayer) player).net().sendPacket(packet));
     }
 }

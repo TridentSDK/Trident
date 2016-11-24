@@ -126,7 +126,7 @@ public final class PacketRegistry {
      * to locate the a packet inside of the register.
      *
      * @param bound the bound of the packet
-     * @param state the packet state
+     * @param state the packet getState
      * @param id the packet ID
      * @return the compressed packet represented as an
      * integer
@@ -136,7 +136,7 @@ public final class PacketRegistry {
     // hierarchy with minimal impact to performance
     // this helps save memory and autoboxing tremendously
     // top bit is bound switch
-    // after that 4 bits for net state ordinal
+    // after that 4 bits for net getState ordinal
     // then comes the rest of the ID
     private static int shift(NetState state, Bound bound, int id) {
         int identifier = id;
@@ -187,9 +187,9 @@ public final class PacketRegistry {
 
     /**
      * Obtains the class of the packet containing the given
-     * ID, bound, and the given state.
+     * ID, bound, and the given getState.
      *
-     * @param state the packet's network state
+     * @param state the packet's network getState
      * @param bound the packet bound
      * @param id the packet ID
      * @return the packet class
@@ -206,11 +206,11 @@ public final class PacketRegistry {
     }
 
     /**
-     * Obtains the net state which the packet is registered
+     * Obtains the net getState which the packet is registered
      * to be present in.
      *
      * @param cls the packet class
-     * @return the state of the packet
+     * @return the getState of the packet
      */
     public static int packetInfo(Class<? extends Packet> cls) {
         int identifier = PACKET_IDS.getInt(cls);
@@ -232,10 +232,10 @@ public final class PacketRegistry {
     }
 
     /**
-     * Obtains the state of the packet with the given info.
+     * Obtains the getState of the packet with the given info.
      *
      * @param info the info
-     * @return the packet state
+     * @return the packet getState
      */
     public static NetState stateOf(int info) {
         int ordinal = info >> 27 & 0xf;

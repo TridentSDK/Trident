@@ -129,11 +129,11 @@ public final class BitUtils {
     }
 
     /**
-     * Sets the bit in the given value to the given state.
+     * Sets the bit in the given value to the given getState.
      *
      * @param b the value to set
      * @param bit the bit to set
-     * @param state the state to set at the bit in the
+     * @param state the getState to set at the bit in the
      * value
      * @return the value after setting the bit
      */
@@ -142,11 +142,11 @@ public final class BitUtils {
     }
 
     /**
-     * Sets the bit in the given value to the given state.
+     * Sets the bit in the given value to the given getState.
      *
      * @param s the value to set
      * @param bit the bit to set
-     * @param state the state to set at the bit in the value
+     * @param state the getState to set at the bit in the value
      * @return the value after setting the bit
      */
     public static short setBit(short s, int bit, boolean state) {
@@ -154,11 +154,11 @@ public final class BitUtils {
     }
 
     /**
-     * Sets the bit in the given value to the given state.
+     * Sets the bit in the given value to the given getState.
      *
      * @param i the value to set
      * @param bit the bit to set
-     * @param state the state to set at the bit in the value
+     * @param state the getState to set at the bit in the value
      * @return the value after setting the bit
      */
     public static int setBit(int i, int bit, boolean state) {
@@ -166,11 +166,11 @@ public final class BitUtils {
     }
 
     /**
-     * Sets the bit in the given value to the given state.
+     * Sets the bit in the given value to the given getState.
      *
      * @param l the value to set
      * @param bit the bit to set
-     * @param state the state to set at the bit in the value
+     * @param state the getState to set at the bit in the value
      * @return the value after setting the bit
      */
     public static long setBit(long l, int bit, boolean state) {

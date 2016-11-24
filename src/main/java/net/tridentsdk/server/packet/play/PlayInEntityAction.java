@@ -39,19 +39,19 @@ public class PlayInEntityAction extends PacketIn {
 
         switch (actionId) {
             case 0: // start crouching
-                client.player().getMetadata().setCrouched(true);
+                client.getPlayer().getMetadata().setCrouched(true);
                 break;
             case 1: // stop crouching
-                client.player().getMetadata().setCrouched(false);
+                client.getPlayer().getMetadata().setCrouched(false);
                 break;
             case 2: // leave bed
                 // TODO
                 break;
             case 3: // start sprinting
-                client.player().getMetadata().setSprinting(true);
+                client.getPlayer().getMetadata().setSprinting(true);
                 break;
             case 4: // stop sprinting
-                client.player().getMetadata().setSprinting(false);
+                client.getPlayer().getMetadata().setSprinting(false);
                 break;
             case 5: // start jump w/ horse
                 break;
@@ -65,7 +65,7 @@ public class PlayInEntityAction extends PacketIn {
                 break;
         }
 
-        client.player().updateMetadata();
+        client.getPlayer().updateMetadata();
     }
 
 }

@@ -30,7 +30,7 @@ import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
  */
 public abstract class AbstractBossBar implements BossBar {
     /**
-     * Holds the state changes of the boss bar.
+     * Holds the getState changes of the boss bar.
      */
     public static final AtomicIntegerFieldUpdater<AbstractBossBar> STATE =
             AtomicIntegerFieldUpdater.newUpdater(AbstractBossBar.class, "b");
@@ -45,11 +45,11 @@ public abstract class AbstractBossBar implements BossBar {
     private final UUID uuid;
 
     /**
-     * Boss bar state field which holds what options have
+     * Boss bar getState field which holds what options have
      * been changed
      */
-    // int holds title, health, style, and flags booleans
-    //             3  |   2   |   1  |   0
+    // int holds sky, title, health, style, and flags booleans
+    //             4 | 3  |   2   |   1  |   0
     @Policy("Use STATE field to make changes")
     protected volatile int b;
 
@@ -73,10 +73,26 @@ public abstract class AbstractBossBar implements BossBar {
 
     /**
      * Unsets the changed flags of the boss bar
+     *
+     * @param last the last state value that was read
+     * @return {@code false} if a retry is needed
      */
-    public void unsetChanged() {
-        STATE.set(this, 0);
+    public boolean unsetChanged(int last) {
+        return STATE.compareAndSet(this, last, 0);
     }
 
+    @Override
     public abstract AbstractBossBar clone();
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj != null && obj instanceof AbstractBossBar &&
+                this.uuid.equals(((AbstractBossBar) obj).getUuid());
+
+    }
+
+    @Override
+    public int hashCode() {
+        return this.uuid.hashCode();
+    }
 }

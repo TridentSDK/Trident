@@ -26,7 +26,7 @@ import static net.tridentsdk.server.net.NetData.rstr;
 import static net.tridentsdk.server.net.NetData.rvint;
 
 /**
- * Handshake packet. Sent for both ping and as a state
+ * Handshake packet. Sent for both ping and as a getState
  * trigger before login.
  *
  * <p>Packet is serverbound only</p>

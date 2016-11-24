@@ -92,7 +92,7 @@ public class OutEncoder extends MessageToByteEncoder<PacketOut> {
 
         // Step 3: Encrypt if enabled
         // If not, write raw bytes
-        NetCrypto crypto = this.client.cryptoModule();
+        NetCrypto crypto = this.client.getCryptoModule();
         if (crypto != null) {
             crypto.encrypt(buf, out);
         } else {

@@ -35,6 +35,6 @@ public final class PlayInPlayer extends PacketIn {
     @Override
     public void read(ByteBuf buf, NetClient client) {
         boolean onGround = buf.readBoolean();
-        client.player().setOnGround(onGround);
+        client.getPlayer().setOnGround(onGround);
     }
 }

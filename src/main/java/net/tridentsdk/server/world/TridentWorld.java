@@ -53,7 +53,7 @@ public class TridentWorld implements World {
     /**
      * The chunk collection
      */
-    // again this state is only ok to init before proper
+    // again this getState is only ok to init before proper
     // construction because the way we generate worlds is
     // ensuring that the entire world has loaded (read:
     // all chunks) before it is returned in WorldLoader

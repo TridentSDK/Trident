@@ -54,7 +54,7 @@ public class TridentChunk implements Chunk {
     public static final ServerThreadPool DEFAULT_POOL = ServerThreadPool.forSpec(PoolSpec.PLUGINS);
 
     /**
-     * The ready state for this chunk, whether it has fully
+     * The ready getState for this chunk, whether it has fully
      * generated yet.
      */
     private final UncheckedCdl ready = new UncheckedCdl(1);
@@ -146,7 +146,7 @@ public class TridentChunk implements Chunk {
     }
 
     /**
-     * Awaits for the chunk ready state to finish,
+     * Awaits for the chunk ready getState to finish,
      * indicating that the chunk has finished generation.
      *
      * @return the chunk, when ready

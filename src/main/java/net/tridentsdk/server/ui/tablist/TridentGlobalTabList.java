@@ -17,12 +17,8 @@
 package net.tridentsdk.server.ui.tablist;
 
 import net.tridentsdk.chat.ChatComponent;
-import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.server.packet.play.PlayOutTabListItem;
 import net.tridentsdk.server.player.TridentPlayer;
-
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Implementation of a global tablist, which contains all
@@ -35,16 +31,9 @@ public class TridentGlobalTabList extends TridentTabList {
     public static TridentGlobalTabList GLOBAL = new TridentGlobalTabList();
 
     /**
-     * The mapping of players to their own tab list element
-     */
-    private final Map<Player, TabListElement> players;
-
-    /**
      * Creates an initializes a new global tab list
      */
     public TridentGlobalTabList() {
-        this.players = new ConcurrentHashMap<>();
-
         this.setHeader(ChatComponent.text("HEADAAH"));
         this.setFooter(ChatComponent.text("FOOTAAH"));
     }
@@ -66,14 +55,11 @@ public class TridentGlobalTabList extends TridentTabList {
      */
     public void addPlayer(TridentPlayer player) {
         TabListElement element = new TabListElement(player);
-        // TODO Add Ping
-
-        this.elements.add(element);
-        this.players.put(player, element);
+        super.elements.add(element);
 
         PlayOutTabListItem.PlayOutTabListItemAddPlayer packet = PlayOutTabListItem.addPlayerPacket();
         packet.addPlayer(element.getUuid(), element.getName(), element.getGameMode(), element.getPing(), element.getDisplayName());
-        this.getUserList().forEach(p -> ((TridentPlayer) p).net().sendPacket(packet));
+        this.users.forEach(p -> ((TridentPlayer) p).net().sendPacket(packet));
     }
 
     /**
@@ -82,12 +68,10 @@ public class TridentGlobalTabList extends TridentTabList {
      * @param player the player to remove
      */
     public void removePlayer(TridentPlayer player) {
-        if (this.players.remove(player) != null) {
-            this.elements.remove(this.players.get(player));
-
+        if (super.users.remove(player)) {
             PlayOutTabListItem.PlayOutTabListItemRemovePlayer packet = PlayOutTabListItem.removePlayerPacket();
             packet.removePlayer(player.uuid());
-            this.getUserList().forEach(p -> ((TridentPlayer) p).net().sendPacket(packet));
+            super.users.forEach(p -> ((TridentPlayer) p).net().sendPacket(packet));
         }
     }
 }

@@ -44,7 +44,7 @@ public final class PlayInChat extends PacketIn {
 
     @Override
     public void read(ByteBuf buf, NetClient client) {
-        TridentPlayer player = client.player();
+        TridentPlayer player = client.getPlayer();
         String msg = rstr(buf);
 
         ChatComponent chat = ChatComponent.create()

@@ -75,7 +75,7 @@ public final class StatusOutResponse extends PacketOut {
         resp.add("description", ChatComponent.text(cfg.motd()).asJson());
 
         // resp.addProperty("favicon", "data:image/png;base64,<data>");
-        //String toString = ConfigIo.GSON.toJson(resp);
+        // String toString = ConfigIo.GSON.toJson(resp);
         wstr(buf, resp.toString());
     }
 }

@@ -41,7 +41,7 @@ public final class PlayInPos extends PacketIn {
         double z = buf.readDouble();
         boolean onGround = buf.readBoolean();
 
-        TridentPlayer player = client.player();
+        TridentPlayer player = client.getPlayer();
         Position newPosition = player.getPosition().clone();
         newPosition.setX(x);
         newPosition.setY(feetY);

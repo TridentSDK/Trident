@@ -211,7 +211,7 @@ public class GeneratorContextImpl implements GeneratorContext {
 
     /**
      * Sets the block at the given coordinates to the given
-     * block state value.
+     * block getState value.
      *
      * @param x the x coordinate
      * @param y the y coordinate
@@ -249,12 +249,12 @@ public class GeneratorContextImpl implements GeneratorContext {
     }
 
     /**
-     * Builds the given block state given the ID number and
+     * Builds the given block getState given the ID number and
      * the metadata value.
      *
      * @param id the block ID
      * @param meta the block meta
-     * @return the block state
+     * @return the block getState
      */
     // short is perfect for storing block data because
     // short = 2 bytes = 16 bits

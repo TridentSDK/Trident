@@ -22,6 +22,8 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
+import lombok.Getter;
+import lombok.Setter;
 import net.tridentsdk.chat.ChatComponent;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.packet.PacketOut;
@@ -74,7 +76,7 @@ public class NetClient {
     public static final int BUFFER_SIZE = 8192;
     /**
      * Time before the server kicks an inactive client, in
-     * nanoseconds.
+     * nanoseconds (30 seconds)
      */
     public static final long KEEP_ALIVE_KICK_NANOS = 30_000_000_000L;
     /**
@@ -102,15 +104,20 @@ public class NetClient {
      * The current state of the client connection to the
      * server.
      */
-    private volatile NetState currentState;
+    @Getter
+    @Setter
+    private volatile NetState state;
     /**
      * The name of the player that represents this client
      */
+    @Getter
+    @Setter
     private volatile String name;
     /**
      * The crypto module used for encrpyting and decrypting
      * server messages.
      */
+    @Getter
     private volatile NetCrypto cryptoModule;
     /**
      * Whether or not the client performs compression
@@ -119,7 +126,17 @@ public class NetClient {
     /**
      * The player object
      */
+    @Getter
+    @Setter
     private volatile TridentPlayer player;
+    /**
+     * The time it took for the server to receive the
+     * status ping from the player, in ms.
+     */
+    @Setter
+    @Getter
+    private volatile long ping;
+
     /**
      * The last time which this player was pinged for keep
      * alive
@@ -132,7 +149,7 @@ public class NetClient {
      */
     public NetClient(ChannelHandlerContext ctx) {
         this.channel = ctx.channel();
-        this.currentState = NetState.HANDSHAKE;
+        this.state = NetState.HANDSHAKE;
         this.channel.closeFuture().addListener(new GenericFutureListener<Future<Void>>() {
             @Override
             public void operationComplete(Future<Void> future) throws Exception {
@@ -184,55 +201,6 @@ public class NetClient {
     }
 
     /**
-     * Obtains the current state which the client's
-     * connection to the server is in.
-     *
-     * @return the network state
-     */
-    public NetState state() {
-        return this.currentState;
-    }
-
-    /**
-     * Sets the current state of the client to the given
-     * next.
-     *
-     * @param next the next state
-     */
-    public void setState(NetState next) {
-        this.currentState = next;
-    }
-
-    /**
-     * Obtains the name of the player, if it exists.
-     *
-     * @return the name presented upon login
-     */
-    public String name() {
-        return this.name;
-    }
-
-    /**
-     * Sets the name of the client upon login.
-     *
-     * @param name the player name
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    /**
-     * Obtains the crypto module that is used for
-     * encryption
-     * and decryption of packets.
-     *
-     * @return the crypto module
-     */
-    public NetCrypto cryptoModule() {
-        return this.cryptoModule;
-    }
-
-    /**
      * Initializes the crypto module and returns the result
      * of doing so.
      */
@@ -270,26 +238,6 @@ public class NetClient {
     }
 
     /**
-     * Obtains the player that this net client represents
-     * the connection.
-     *
-     * @return the player
-     */
-    public TridentPlayer player() {
-        return this.player;
-    }
-
-    /**
-     * Sets the player that is represented by this instance
-     * of the network client.
-     *
-     * @param player the player to set
-     */
-    public void setPlayer(TridentPlayer player) {
-        this.player = player;
-    }
-
-    /**
      * Overload method of {@link #disconnect(ChatComponent)} but
      * uses
      * shortcut String.
@@ -306,7 +254,7 @@ public class NetClient {
      * @param reason the reason for disconnecting
      */
     public void disconnect(ChatComponent reason) {
-        NetState state = this.currentState;
+        NetState state = this.state;
         if (state == NetState.LOGIN) {
             this.sendPacket(new LoginOutDisconnect(reason))
                     .addListener(future -> this.channel.close());

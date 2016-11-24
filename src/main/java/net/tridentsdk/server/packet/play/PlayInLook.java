@@ -41,7 +41,7 @@ public final class PlayInLook extends PacketIn {
         float pitch = buf.readFloat();
         boolean onGround = buf.readBoolean();
 
-        TridentPlayer player = client.player();
+        TridentPlayer player = client.getPlayer();
         Position position = player.getPosition();
         position.setYaw(yaw);
         position.setPitch(pitch);

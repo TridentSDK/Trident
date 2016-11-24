@@ -18,6 +18,7 @@ package net.tridentsdk.server.player;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import lombok.Getter;
 import lombok.Setter;
 import net.tridentsdk.base.BlockDirection;
@@ -25,11 +26,11 @@ import net.tridentsdk.base.Position;
 import net.tridentsdk.chat.ChatColor;
 import net.tridentsdk.chat.ChatComponent;
 import net.tridentsdk.chat.ChatType;
+import net.tridentsdk.chat.ClientChatMode;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.server.concurrent.PoolSpec;
 import net.tridentsdk.server.entity.TridentEntity;
 import net.tridentsdk.server.entity.meta.EntityMetaType;
-import net.tridentsdk.server.net.EntityMetadata;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.packet.play.*;
 import net.tridentsdk.server.ui.bossbar.AbstractBossBar;
@@ -50,7 +51,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * This class is the implementation of a Minecraft client
@@ -60,7 +61,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @EntityMetaType(TridentPlayerMeta.class)
 public class TridentPlayer extends TridentEntity implements Player {
     // TODO player abilities
-    // TODO client settings
     /**
      * The players on the server
      */
@@ -69,6 +69,12 @@ public class TridentPlayer extends TridentEntity implements Player {
      * The cache time of a chunk
      */
     private static final int CHUNK_CACHE_MILLIS = 1000 * 10; // 10 Seconds
+
+    /**
+     * A map of chunk -> time, storing the last time
+     * the chunk was sent to the client
+     */
+    private final Map<IntPair, Long> chunkSentTime = new ConcurrentHashMap<>();
 
     /**
      * The net connection that this player has to the
@@ -84,56 +90,64 @@ public class TridentPlayer extends TridentEntity implements Player {
      */
     private final UUID uuid;
     /**
-     * The player's current tablist
+     * The player's current game mode
      */
     @Getter
-    private volatile TabList tabList;
+    private volatile GameMode gameMode;
     /**
      * The player's skin value
      */
     @Getter
     private volatile String textures;
     /**
-     * The player's current game mode
-     */
-    @Getter
-    private volatile GameMode gameMode;
-    /**
      * The player's render distance
      */
     @Getter
     @Setter
-    private volatile int renderDistance;
+    private volatile int renderDistance = 7;
+
+    @Getter
+    @Setter
+    private volatile String locale;
+    @Setter
+    private volatile boolean chatColors;
+    @Setter
+    private volatile ClientChatMode chatMode;
 
     /**
-     * The boss bars that are being displayed to this
-     * player.
+     * Whether the player has finished logging in
      */
-    private final Collection<AbstractBossBar> bossBars = new CopyOnWriteArrayList<>();
+    private final AtomicBoolean finishedLogin = new AtomicBoolean(false);
 
     /**
      * The player's meta data
      */
     @Getter
-    private final TridentPlayerMeta metadata = new TridentPlayerMeta(new EntityMetadata());
+    private final TridentPlayerMeta metadata;
 
     /**
-     * A map of chunk -> time, storing the last time
-     * the chunk was sent to the client
+     * The player's current tablist
      */
-    private final Map<IntPair, Long> chunkSentTime = new ConcurrentHashMap<>();
+    @Getter
+    private volatile TabList tabList;
+    /**
+     * The boss bars that are being displayed to this
+     * player.
+     */
+    private final Collection<AbstractBossBar> bossBars = Sets.newConcurrentHashSet();
 
     /**
      * Constructs a new player.
      */
     private TridentPlayer(NetClient client, World world, String name, UUID uuid, String textures) {
         super(world, PoolSpec.PLAYERS);
+        this.metadata = (TridentPlayerMeta) super.getMetadata();
+
         this.client = client;
         this.name = name;
         this.uuid = uuid;
         this.gameMode = world.opts().gameMode();
         this.textures = textures;
-        this.renderDistance = 7;
     }
 
     /**
@@ -160,8 +174,6 @@ public class TridentPlayer extends TridentEntity implements Player {
         client.sendPacket(new PlayOutPosLook(player));
         client.sendPacket(new PlayOutAbilities(false, false, player.getGameMode()));
 
-        player.resumeLogin(); // TODO Remove after fixed Teleport Confirmation
-
         return player;
     }
 
@@ -170,6 +182,10 @@ public class TridentPlayer extends TridentEntity implements Player {
      * confirmed the client spawn position.
      */
     public void resumeLogin() {
+        if (!this.finishedLogin.compareAndSet(false, true)) {
+            return;
+        }
+
         this.setTabList(TridentGlobalTabList.GLOBAL);
         TridentGlobalTabList.GLOBAL.addPlayer(this);
 
@@ -223,6 +239,7 @@ public class TridentPlayer extends TridentEntity implements Player {
     public void doRemove() {
         PLAYERS.remove(this.uuid);
         TridentGlobalTabList.GLOBAL.removePlayer(this);
+        this.setTabList(null);
 
         ChatComponent chat = ChatComponent.create()
                 .setColor(ChatColor.YELLOW)
@@ -243,7 +260,13 @@ public class TridentPlayer extends TridentEntity implements Player {
 
     @Override
     public void sendMessage(ChatComponent chat, ChatType type) {
-        this.net().sendPacket(new PlayOutChat(chat, type));
+        ClientChatMode chatMode = this.chatMode;
+        if (!chatMode.equals(ClientChatMode.NONE)) {
+            if (chatMode.equals(ClientChatMode.COMMANDS_ONLY) &&
+                    type.equals(ChatType.SYSTEM) || chatMode.equals(ClientChatMode.CHAT_AND_COMMANDS)) {
+                this.net().sendPacket(new PlayOutChat(chat, type, this.chatColors));
+            }
+        }
     }
 
     @Override
@@ -299,28 +322,37 @@ public class TridentPlayer extends TridentEntity implements Player {
 
     private void updateBossBars(boolean force) {
         for (AbstractBossBar bossBar : this.bossBars) {
-            boolean health, title, style, flags;
-            health = title = style = flags = force;
-            if (!force) {
-                int changed = AbstractBossBar.STATE.get(bossBar);
+            if (force) {
+                this.net().sendPacket(new PlayOutBossBar.Add(bossBar));
+                continue;
+            }
+
+            int changed = AbstractBossBar.STATE.get(bossBar);
+            do {
+                boolean health, title, style, flags, sky;
+                sky = (changed >>> 4 & 1) == 1;
                 title = (changed >>> 3 & 1) == 1;
                 health = (changed >>> 2 & 1) == 1;
                 style = (changed >>> 1 & 1) == 1;
                 flags = (changed & 1) == 1;
-            }
-            if (health) {
-                this.net().sendPacket(new PlayOutBossBar.UpdateHealth(bossBar));
-            }
-            if (title) {
-                this.net().sendPacket(new PlayOutBossBar.UpdateTitle(bossBar));
-            }
-            if (style) {
-                this.net().sendPacket(new PlayOutBossBar.UpdateStyle(bossBar));
-            }
-            if (flags) {
-                this.net().sendPacket(new PlayOutBossBar.UpdateFlags(bossBar));
-            }
-            bossBar.unsetChanged();
+
+                if (sky) {
+                    this.net().sendPacket(new PlayOutBossBar.Add(bossBar));
+                } else {
+                    if (health) {
+                        this.net().sendPacket(new PlayOutBossBar.UpdateHealth(bossBar));
+                    }
+                    if (title) {
+                        this.net().sendPacket(new PlayOutBossBar.UpdateTitle(bossBar));
+                    }
+                    if (style) {
+                        this.net().sendPacket(new PlayOutBossBar.UpdateStyle(bossBar));
+                    }
+                    if (flags) {
+                        this.net().sendPacket(new PlayOutBossBar.UpdateFlags(bossBar));
+                    }
+                }
+            } while (!bossBar.unsetChanged(changed));
         }
     }
 

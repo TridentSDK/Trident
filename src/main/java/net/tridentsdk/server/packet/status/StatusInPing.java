@@ -34,7 +34,10 @@ public final class StatusInPing extends PacketIn {
 
     @Override
     public void read(ByteBuf buf, NetClient client) {
+        long endStamp = System.currentTimeMillis();
         long time = buf.readLong();
+
+        client.setPing(endStamp - time);
         client.sendPacket(new StatusOutPong(time));
     }
 }

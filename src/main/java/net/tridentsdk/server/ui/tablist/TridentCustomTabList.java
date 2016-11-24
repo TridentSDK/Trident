@@ -23,8 +23,6 @@ import net.tridentsdk.server.player.TridentPlayer;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Implementation of a custom tab list that may be added to
@@ -40,18 +38,6 @@ public class TridentCustomTabList extends TridentTabList {
      */
     private static final String ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-    /**
-     * The list of tab list elements
-     */
-    private final List<TabListElement> elements;
-
-    /**
-     * Create and initialize a new custom tab list.
-     */
-    public TridentCustomTabList() {
-        this.elements = new CopyOnWriteArrayList<>();
-    }
-
     @Override
     public void setElement(int slot, ChatComponent value) {
         if(value != null) {
@@ -66,7 +52,7 @@ public class TridentCustomTabList extends TridentTabList {
 
                 for (int i = 0; i < slot; i++) {
                     if (this.elements.size() == i || this.elements.get(i) == null) {
-                        TabListElement blank = new TabListElement(UUID.randomUUID());
+                        TabListElement blank = new TabListElement();
                         blank.setName(this.getName(i));
                         blank.setBlank(true);
                         blank.setDisplayName(ChatComponent.empty());
@@ -75,7 +61,7 @@ public class TridentCustomTabList extends TridentTabList {
                     }
                 }
 
-                TabListElement element = new TabListElement(UUID.randomUUID());
+                TabListElement element = new TabListElement();
                 element.setDisplayName(value);
                 element.setName(this.getName(slot));
 
