@@ -16,8 +16,6 @@
  */
 package net.tridentsdk.server.packet.play;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import net.tridentsdk.chat.ChatComponent;
@@ -59,37 +57,11 @@ public final class PlayOutChat extends PacketOut {
     @Override
     public void write(ByteBuf buf) {
         if (!this.chatColors) {
-            JsonElement element = this.chat.asJson();
-            this.decolorfy(element);
-
-            ChatComponent chatComponent = ChatComponent.fromJson(element.getAsJsonObject());
-            wstr(buf, chatComponent.toString());
+            wstr(buf, this.chat.stripColor().toString());
         } else {
             wstr(buf, this.chat.toString());
         }
 
         buf.writeByte(this.type.ordinal());
-    }
-
-    /**
-     * Recursively searches the with and extra element
-     * collections for chat components that need to be
-     * nullified of their formatting codes.
-     *
-     * @param element the json to be modified
-     */
-    private void decolorfy(JsonElement element) {
-        // Return type of chat component is always a
-        // jsonobject
-        JsonObject obj = element.getAsJsonObject();
-        obj.entrySet().removeIf(e -> {
-            String s = e.getKey();
-            return s.equals("color") ||
-                    s.equals("bold") ||
-                    s.equals("italic") ||
-                    s.equals("strikethrough") ||
-                    s.equals("underlined") ||
-                    s.equals("obfuscated");
-        });
     }
 }
