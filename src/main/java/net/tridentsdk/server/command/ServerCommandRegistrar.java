@@ -23,7 +23,7 @@ import net.tridentsdk.registry.Registered;
 public class ServerCommandRegistrar {
     private static volatile boolean registered;
     
-    public static final String SERVER_PREFIX = ChatColor.AQUA + "[Server} " + ChatColor.RESET;
+    public static final String SERVER_PREFIX = ChatColor.AQUA + "[Server] " + ChatColor.RESET;
     public static final String ERROR_PREFIX = ChatColor.RED + ChatColor.BOLD.toString() + "Error: ";
 
     public static void registerAll() {
