@@ -16,8 +16,32 @@
  */
 package net.tridentsdk.server.inventory;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import net.tridentsdk.base.Substance;
+import net.tridentsdk.inventory.Item;
+import net.tridentsdk.meta.ItemMeta;
+
 /**
  * Implementation of an inventory item.
  */
-public class TridentItem {
+@Getter
+@AllArgsConstructor
+public class TridentItem implements Item {
+    /**
+     * The item's substance type.
+     */
+    private final Substance substance;
+    /**
+     * The amount of items in this stack.
+     */
+    private int count;
+    /**
+     * The 4-bit item data.
+     */
+    private byte damage;
+    /**
+     * The item metadata
+     */
+    private ItemMeta meta;
 }

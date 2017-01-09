@@ -18,13 +18,17 @@ package net.tridentsdk.server;
 
 import net.tridentsdk.Impl;
 import net.tridentsdk.Server;
+import net.tridentsdk.base.Substance;
 import net.tridentsdk.command.logger.LogHandler;
 import net.tridentsdk.command.logger.Logger;
 import net.tridentsdk.config.Config;
+import net.tridentsdk.inventory.Item;
+import net.tridentsdk.meta.ItemMeta;
 import net.tridentsdk.server.command.InfoLogger;
 import net.tridentsdk.server.command.LoggerHandlers;
 import net.tridentsdk.server.command.PipelinedLogger;
 import net.tridentsdk.server.config.TridentConfig;
+import net.tridentsdk.server.inventory.TridentItem;
 import net.tridentsdk.server.ui.bossbar.CustomBossBar;
 import net.tridentsdk.server.ui.tablist.TridentCustomTabList;
 import net.tridentsdk.server.ui.tablist.TridentGlobalTabList;
@@ -116,4 +120,8 @@ public class ImplementationProvider implements Impl.ImplementationProvider {
         return new CustomBossBar();
     }
 
+    @Override
+    public Item newItem(Substance substance, int count, byte damage, ItemMeta meta) {
+        return new TridentItem(substance, count, damage, meta);
+    }
 }
