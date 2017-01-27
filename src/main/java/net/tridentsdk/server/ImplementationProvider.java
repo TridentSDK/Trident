@@ -22,6 +22,8 @@ import net.tridentsdk.base.Substance;
 import net.tridentsdk.command.logger.LogHandler;
 import net.tridentsdk.command.logger.Logger;
 import net.tridentsdk.config.Config;
+import net.tridentsdk.inventory.Inventory;
+import net.tridentsdk.inventory.InventoryType;
 import net.tridentsdk.inventory.Item;
 import net.tridentsdk.meta.ItemMeta;
 import net.tridentsdk.server.command.InfoLogger;
@@ -118,6 +120,11 @@ public class ImplementationProvider implements Impl.ImplementationProvider {
     @Override
     public BossBar newBossBar() {
         return new CustomBossBar();
+    }
+
+    @Override
+    public Inventory newInv(InventoryType type, int slots) {
+        return null; // TODO
     }
 
     @Override

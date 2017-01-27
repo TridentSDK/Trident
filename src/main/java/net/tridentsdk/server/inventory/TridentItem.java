@@ -35,13 +35,13 @@ public class TridentItem implements Item {
     /**
      * The amount of items in this stack.
      */
-    private int count;
+    private final int count;
     /**
      * The 4-bit item data.
      */
-    private byte damage;
+    private final byte damage;
     /**
      * The item metadata
      */
-    private ItemMeta meta;
+    private final ItemMeta meta;
 }
