@@ -61,7 +61,7 @@ public final class Login {
      * @return {@code true} if the client may login
      */
     public static boolean canLogin(NetClient client) {
-        if (LOGGING_IN.get() + TridentPlayer.PLAYERS.size() >
+        if (LOGGING_IN.get() + TridentPlayer.getPlayers().size() >
                 TridentServer.cfg().maxPlayers()) {
             client.disconnect("Server is full");
             return false;

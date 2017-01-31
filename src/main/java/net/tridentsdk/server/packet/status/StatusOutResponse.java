@@ -61,9 +61,9 @@ public final class StatusOutResponse extends PacketOut {
 
         JsonObject players = new JsonObject();
         players.addProperty("max", cfg.maxPlayers());
-        players.addProperty("online", TridentPlayer.PLAYERS.size());
+        players.addProperty("online", TridentPlayer.getPlayers().size());
         JsonArray sample = new JsonArray();
-        TridentPlayer.PLAYERS.forEach((u, p) -> {
+        TridentPlayer.getPlayers().forEach((u, p) -> {
             JsonObject o = new JsonObject();
             o.addProperty("name", p.name());
             o.addProperty("id", p.uuid().toString());

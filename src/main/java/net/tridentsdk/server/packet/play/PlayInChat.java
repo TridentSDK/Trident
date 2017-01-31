@@ -53,7 +53,7 @@ public final class PlayInChat extends PacketIn {
                         .setText(player.name())
                         .setClickEvent(ClickEvent.of(ClickAction.SUGGEST_COMMAND, "/tell " + player.name() + " ")))
                 .addWith(msg);
-        TridentPlayer.PLAYERS.values().forEach(p -> p.sendMessage(chat, ChatType.CHAT));
+        TridentPlayer.getPlayers().values().forEach(p -> p.sendMessage(chat, ChatType.CHAT));
 
         if(msg.toLowerCase().equals("chunks")){
             Position playerPosition = player.getPosition();

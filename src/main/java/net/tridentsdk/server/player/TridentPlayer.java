@@ -28,6 +28,7 @@ import net.tridentsdk.chat.ChatComponent;
 import net.tridentsdk.chat.ChatType;
 import net.tridentsdk.chat.ClientChatMode;
 import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.concurrent.PoolSpec;
 import net.tridentsdk.server.entity.TridentEntity;
 import net.tridentsdk.server.entity.meta.EntityMetaType;
@@ -41,7 +42,6 @@ import net.tridentsdk.ui.bossbar.BossBar;
 import net.tridentsdk.ui.tablist.TabList;
 import net.tridentsdk.world.IntPair;
 import net.tridentsdk.world.World;
-import net.tridentsdk.world.WorldLoader;
 import net.tridentsdk.world.opt.GameMode;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -64,7 +64,8 @@ public class TridentPlayer extends TridentEntity implements Player {
     /**
      * The players on the server
      */
-    public static final Map<UUID, TridentPlayer> PLAYERS = Maps.newConcurrentMap();
+    @Getter
+    private static final Map<UUID, TridentPlayer> players = Maps.newConcurrentMap();
     /**
      * The cache time of a chunk
      */
@@ -159,9 +160,9 @@ public class TridentPlayer extends TridentEntity implements Player {
      * @param textures the player textures
      */
     public static TridentPlayer spawn(NetClient client, String name, UUID uuid, String textures) {
-        TridentWorld world = (TridentWorld) WorldLoader.instance().getDefault();
+        TridentWorld world = TridentServer.getInstance().getWorldLoader().getDefault();
         TridentPlayer player = new TridentPlayer(client, world, name, uuid, textures);
-        PLAYERS.put(uuid, player);
+        players.put(uuid, player);
         client.setPlayer(player);
 
         Position playerPosition = player.getPosition();
@@ -186,8 +187,8 @@ public class TridentPlayer extends TridentEntity implements Player {
             return;
         }
 
-        this.setTabList(TridentGlobalTabList.GLOBAL);
-        TridentGlobalTabList.GLOBAL.addPlayer(this);
+        this.setTabList(TridentGlobalTabList.getInstance());
+        TridentGlobalTabList.getInstance().addPlayer(this);
 
         PlayOutSpawnPlayer newPlayerPacket = new PlayOutSpawnPlayer(this);
         ChatComponent chat = ChatComponent.create()
@@ -196,7 +197,7 @@ public class TridentPlayer extends TridentEntity implements Player {
                 .addWith(this.name);
         this.sendMessage(chat, ChatType.CHAT);
 
-        TridentPlayer.PLAYERS.values()
+        TridentPlayer.players.values()
                 .stream()
                 .filter(p -> !p.equals(this))
                 .forEach(p -> {
@@ -237,15 +238,15 @@ public class TridentPlayer extends TridentEntity implements Player {
 
     @Override
     public void doRemove() {
-        PLAYERS.remove(this.uuid);
-        TridentGlobalTabList.GLOBAL.removePlayer(this);
+        players.remove(this.uuid);
+        TridentGlobalTabList.getInstance().removePlayer(this);
         this.setTabList(null);
 
         ChatComponent chat = ChatComponent.create()
                 .setColor(ChatColor.YELLOW)
                 .setTranslate("multiplayer.player.left")
                 .addWith(this.name);
-        PLAYERS.values().forEach(e -> e.sendMessage(chat, ChatType.CHAT));
+        players.values().forEach(e -> e.sendMessage(chat, ChatType.CHAT));
     }
 
     @Override

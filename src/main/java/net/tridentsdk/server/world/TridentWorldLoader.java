@@ -17,6 +17,7 @@
 package net.tridentsdk.server.world;
 
 import com.google.common.collect.Maps;
+import lombok.Getter;
 import net.tridentsdk.command.logger.Logger;
 import net.tridentsdk.doc.Policy;
 import net.tridentsdk.util.Misc;
@@ -46,6 +47,7 @@ public class TridentWorldLoader implements WorldLoader {
      * The default world name
      */
     private static final String DEFAULT_WORLD_NAME = "world";
+
     /**
      * The file visitor which removes all files under the
      * enclosing directory (including the enclosing
@@ -64,10 +66,12 @@ public class TridentWorldLoader implements WorldLoader {
             return FileVisitResult.CONTINUE;
         }
     };
+
     /**
      * The instance of the world loader
      */
-    private static final TridentWorldLoader LOADER = new TridentWorldLoader();
+    @Getter
+    private static final TridentWorldLoader instance = new TridentWorldLoader();
 
     /**
      * The collection of all the loaded worlds
@@ -76,16 +80,6 @@ public class TridentWorldLoader implements WorldLoader {
 
     // Prevent instantiation
     private TridentWorldLoader() {
-    }
-
-    /**
-     * Obtains the singleton instance of the world loader
-     * implementation.
-     *
-     * @return the world loader
-     */
-    public static TridentWorldLoader getInstance() {
-        return LOADER;
     }
 
     /**
@@ -131,14 +125,16 @@ public class TridentWorldLoader implements WorldLoader {
     private TridentWorld load(String name, Path enclosing, Path levelDat) {
         Logger.get(this.getClass()).log("Loading world \"" + name + "\"...");
         TridentWorld world = new TridentWorld(name, enclosing);
+
         world.load();
         this.worlds.put(name, world);
         Logger.get(this.getClass()).log("Finished loading \"" + name + "\".");
+
         return world;
     }
 
     @Override
-    public Map<String, World> all() {
+    public Map<String, World> getWorlds() {
         return Collections.unmodifiableMap(this.worlds);
     }
 
@@ -153,14 +149,14 @@ public class TridentWorldLoader implements WorldLoader {
     }
 
     @Override
-    public World getDefault() {
+    public TridentWorld getDefault() {
         return this.worlds.get(DEFAULT_WORLD_NAME);
     }
 
     @Nonnull
     @Override
-    public World get(String name) {
-        World world = this.worlds.get(name);
+    public TridentWorld get(String name) {
+        TridentWorld world = this.worlds.get(name);
         if (world != null) {
             return world;
         }
@@ -177,7 +173,7 @@ public class TridentWorldLoader implements WorldLoader {
     }
 
     @Override
-    public World create(String name, WorldCreateSpec spec) {
+    public TridentWorld create(String name, WorldCreateSpec spec) {
         if (this.worlds.containsKey(name)) {
             throw new IllegalArgumentException("World \"" + name + "\" already exists");
         }

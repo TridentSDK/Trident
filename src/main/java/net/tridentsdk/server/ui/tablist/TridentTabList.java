@@ -26,6 +26,7 @@ import net.tridentsdk.server.packet.play.PlayOutTabListItem;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.ui.tablist.TabList;
 
+import javax.annotation.concurrent.ThreadSafe;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -33,6 +34,7 @@ import java.util.List;
 /**
  * The tab list implementation.
  */
+@ThreadSafe
 public abstract class TridentTabList implements TabList {
     /**
      * The players which are displayed this tab list

@@ -55,6 +55,7 @@ public class TridentConfig extends TridentConfigSection implements Config {
      * class is published when creating new config sections
      * via the load method in TridentConfigSection
      */
+    // TODO should this be cached?
     public static TridentConfig load(Path path) {
         TridentConfig config = new TridentConfig(path);
         try {

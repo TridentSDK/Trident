@@ -16,19 +16,26 @@
  */
 package net.tridentsdk.server.ui.tablist;
 
+import lombok.Getter;
 import net.tridentsdk.chat.ChatComponent;
+import net.tridentsdk.doc.Policy;
 import net.tridentsdk.server.packet.play.PlayOutTabListItem;
 import net.tridentsdk.server.player.TridentPlayer;
+
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * Implementation of a global tablist, which contains all
  * players on the server.
  */
+@Policy("singleton")
+@ThreadSafe
 public class TridentGlobalTabList extends TridentTabList {
     /**
      * The instance of the global tab list
      */
-    public static TridentGlobalTabList GLOBAL = new TridentGlobalTabList();
+    @Getter
+    private static final TridentGlobalTabList instance = new TridentGlobalTabList();
 
     /**
      * Creates an initializes a new global tab list

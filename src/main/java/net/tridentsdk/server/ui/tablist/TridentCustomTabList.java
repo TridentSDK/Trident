@@ -21,6 +21,7 @@ import net.tridentsdk.chat.ChatComponent;
 import net.tridentsdk.server.packet.play.PlayOutTabListItem;
 import net.tridentsdk.server.player.TridentPlayer;
 
+import javax.annotation.concurrent.ThreadSafe;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +29,7 @@ import java.util.List;
  * Implementation of a custom tab list that may be added to
  * a player to be customized.
  */
+@ThreadSafe
 public class TridentCustomTabList extends TridentTabList {
     /**
      * The maximum length of a player name

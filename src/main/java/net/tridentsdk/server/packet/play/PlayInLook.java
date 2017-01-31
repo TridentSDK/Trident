@@ -50,7 +50,7 @@ public final class PlayInLook extends PacketIn {
         PlayOutEntityLook playOutEntityLook = new PlayOutEntityLook(player);
         PlayOutEntityHeadLook playOutEntityHeadLook = new PlayOutEntityHeadLook(player);
 
-        TridentServer.instance().players().stream().filter(p -> !p.equals(player)).forEach(p -> {
+        TridentServer.getInstance().getPlayers().stream().filter(p -> !p.equals(player)).forEach(p -> {
             ((TridentPlayer) p).net().sendPacket(playOutEntityLook);
             ((TridentPlayer) p).net().sendPacket(playOutEntityHeadLook);
         });

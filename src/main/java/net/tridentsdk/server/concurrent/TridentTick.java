@@ -58,7 +58,7 @@ public class TridentTick extends Thread {
                 }
 
                 // Tick players
-                for (TridentPlayer player : TridentPlayer.PLAYERS.values()) {
+                for (TridentPlayer player : TridentPlayer.getPlayers().values()) {
                     player.tick();
                 }
 

@@ -19,13 +19,17 @@ package net.tridentsdk.server;
 import net.tridentsdk.Server;
 import net.tridentsdk.command.logger.Logger;
 import net.tridentsdk.config.Config;
+import net.tridentsdk.doc.Policy;
 import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.event.EventController;
 import net.tridentsdk.server.concurrent.ServerThreadPool;
 import net.tridentsdk.server.concurrent.TridentTick;
 import net.tridentsdk.server.config.ServerConfig;
 import net.tridentsdk.server.net.NetServer;
 import net.tridentsdk.server.player.TridentPlayer;
+import net.tridentsdk.server.plugin.TridentEventController;
 import net.tridentsdk.server.util.JiraExceptionCatcher;
+import net.tridentsdk.server.world.TridentWorldLoader;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.io.IOException;
@@ -35,6 +39,7 @@ import java.util.Collections;
 /**
  * This class represents the running Minecraft server
  */
+@Policy("singleton")
 @ThreadSafe
 public class TridentServer implements Server {
     /**
@@ -95,7 +100,7 @@ public class TridentServer implements Server {
      *
      * @return instance of server
      */
-    public static TridentServer instance() {
+    public static TridentServer getInstance() {
         return TridentServer.instance;
     }
 
@@ -105,32 +110,42 @@ public class TridentServer implements Server {
      * @return the server config
      */
     public static ServerConfig cfg() {
-        return (ServerConfig) instance().config();
+        return (ServerConfig) instance.getConfig();
     }
 
     @Override
-    public String ip() {
+    public String getIp() {
         return this.config.ip();
     }
 
     @Override
-    public int port() {
+    public int getPort() {
         return this.config.port();
     }
 
     @Override
-    public Logger logger() {
+    public Logger getLogger() {
         return this.logger;
     }
 
     @Override
-    public Config config() {
+    public Config getConfig() {
         return this.config;
     }
 
     @Override
-    public Collection<Player> players() {
-        return Collections.unmodifiableCollection(TridentPlayer.PLAYERS.values());
+    public Collection<Player> getPlayers() {
+        return Collections.unmodifiableCollection(TridentPlayer.getPlayers().values());
+    }
+
+    @Override
+    public TridentWorldLoader getWorldLoader() {
+        return TridentWorldLoader.getInstance();
+    }
+
+    @Override
+    public EventController getEventController() {
+        return TridentEventController.getInstance();
     }
 
     @Override

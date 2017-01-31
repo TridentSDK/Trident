@@ -20,7 +20,6 @@ import lombok.Getter;
 import lombok.Setter;
 import net.tridentsdk.base.Position;
 import net.tridentsdk.entity.Entity;
-import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.concurrent.PoolSpec;
 import net.tridentsdk.server.concurrent.ServerThreadPool;
 import net.tridentsdk.server.entity.meta.EntityMetaType;
@@ -31,6 +30,7 @@ import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.world.World;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -105,16 +105,19 @@ public abstract class TridentEntity implements Entity {
         Position delta = position.clone().subtract(this.position);
 
         if(delta.x() != 0 || delta.y() != 0 || delta.z() != 0) {
+            // TODO consider sending packet in a specified range
+            Collection<TridentPlayer> players = TridentPlayer.getPlayers().values();
+
             if (this.position.yaw() != position.yaw() || this.position.pitch() != position.pitch()){
                 PlayOutEntityLookAndRelativeMove lookAndRelativeMove = new PlayOutEntityLookAndRelativeMove(this, delta);
                 PlayOutEntityHeadLook headLook = new PlayOutEntityHeadLook(this);
-                TridentServer.instance().players().stream().filter(p -> !p.equals(this)).forEach(p -> {
-                    ((TridentPlayer) p).net().sendPacket(lookAndRelativeMove);
-                    ((TridentPlayer) p).net().sendPacket(headLook);
+                players.stream().filter(p -> !p.equals(this)).forEach(p -> {
+                    p.net().sendPacket(lookAndRelativeMove);
+                    p.net().sendPacket(headLook);
                 });
             } else {
                 PlayOutEntityRelativeMove packet = new PlayOutEntityRelativeMove(this, delta);
-                TridentServer.instance().players().stream().filter(p -> !p.equals(this)).forEach(p -> ((TridentPlayer) p).net().sendPacket(packet));
+                players.stream().filter(p -> !p.equals(this)).forEach(p -> p.net().sendPacket(packet));
             }
         }
 
@@ -131,7 +134,7 @@ public abstract class TridentEntity implements Entity {
         this.doRemove();
 
         PlayOutDestroyEntities destroyEntities = new PlayOutDestroyEntities(Collections.singletonList(this));
-        TridentPlayer.PLAYERS.values().stream().filter(player -> !player.equals(this)).forEach(p -> p.net().sendPacket(destroyEntities));
+        TridentPlayer.getPlayers().values().stream().filter(player -> !player.equals(this)).forEach(p -> p.net().sendPacket(destroyEntities));
     }
 
     /**
@@ -145,7 +148,7 @@ public abstract class TridentEntity implements Entity {
     @Override
     public void updateMetadata() {
         PlayOutEntityMetadata packet = new PlayOutEntityMetadata(this);
-        TridentPlayer.PLAYERS.values().forEach(p -> p.net().sendPacket(packet));
+        TridentPlayer.getPlayers().values().forEach(p -> p.net().sendPacket(packet));
     }
 
     /**

@@ -24,6 +24,7 @@ import net.tridentsdk.doc.Policy;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.world.opt.GameMode;
 
+import javax.annotation.concurrent.ThreadSafe;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -32,6 +33,7 @@ import java.util.UUID;
  * A tab list element.
  */
 @Data
+@ThreadSafe
 public class TabListElement {
     /**
      * The player that owns this tab list element
@@ -65,7 +67,8 @@ public class TabListElement {
     /**
      * The tab list properties (such as skin textures)
      */
-    private volatile List<PlayerProperty> properties;
+    @Policy("Single update")
+    private final List<PlayerProperty> properties = new ArrayList<>();
 
     /**
      * Creates a new tab list element which can be filled
@@ -91,7 +94,6 @@ public class TabListElement {
 
         String textures = player.getTextures();
         if (textures != null) {
-            this.properties = new ArrayList<>();
             this.properties.add(new TabListElement.PlayerProperty("textures", textures));
         }
     }

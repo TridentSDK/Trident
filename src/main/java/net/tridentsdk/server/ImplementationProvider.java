@@ -34,7 +34,6 @@ import net.tridentsdk.server.inventory.TridentItem;
 import net.tridentsdk.server.ui.bossbar.CustomBossBar;
 import net.tridentsdk.server.ui.tablist.TridentCustomTabList;
 import net.tridentsdk.server.ui.tablist.TridentGlobalTabList;
-import net.tridentsdk.server.world.TridentWorldLoader;
 import net.tridentsdk.ui.bossbar.BossBar;
 import net.tridentsdk.ui.tablist.TabList;
 
@@ -48,9 +47,6 @@ import java.nio.file.Path;
  */
 @Immutable
 public class ImplementationProvider implements Impl.ImplementationProvider {
-    // class is initialized after server is created
-    // safe to call this method
-    private static final TridentServer inst = TridentServer.instance();
     // head of the logger pipeline
     private final PipelinedLogger head;
     // instance of the handlers class
@@ -70,7 +66,7 @@ public class ImplementationProvider implements Impl.ImplementationProvider {
 
     @Override
     public Server svr() {
-        return inst;
+        return TridentServer.getInstance();
     }
 
     @Override
@@ -88,7 +84,8 @@ public class ImplementationProvider implements Impl.ImplementationProvider {
         if (logger == null) {
             this.handlers.handlers().add(handler);
         } else {
-            ((InfoLogger) logger).handlers().add(handler);
+            InfoLogger info = (InfoLogger) logger;
+            info.handlers().add(handler);
         }
     }
 
@@ -103,13 +100,8 @@ public class ImplementationProvider implements Impl.ImplementationProvider {
     }
 
     @Override
-    public TridentWorldLoader wrlds() {
-        return TridentWorldLoader.getInstance();
-    }
-
-    @Override
     public TabList globalTabList() {
-        return TridentGlobalTabList.GLOBAL;
+        return TridentGlobalTabList.getInstance();
     }
 
     @Override

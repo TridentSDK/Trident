@@ -38,7 +38,7 @@ public class PlayInAnimation extends PacketIn {
         int animation = NetData.rvint(buf);
 
         PlayOutAnimation packet = new PlayOutAnimation(client.getPlayer(), animation == 0 ? PlayOutAnimation.AnimationType.SWING_MAIN_ARM : PlayOutAnimation.AnimationType.SWING_OFFHAND);
-        TridentServer.instance().players().forEach(p -> {
+        TridentServer.getInstance().getPlayers().forEach(p -> {
             if (p != client.getPlayer()) {
                 ((TridentPlayer) p).net().sendPacket(packet);
             }
