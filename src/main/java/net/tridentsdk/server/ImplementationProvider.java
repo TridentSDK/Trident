@@ -30,6 +30,7 @@ import net.tridentsdk.server.command.InfoLogger;
 import net.tridentsdk.server.command.LoggerHandlers;
 import net.tridentsdk.server.command.PipelinedLogger;
 import net.tridentsdk.server.config.TridentConfig;
+import net.tridentsdk.server.inventory.TridentInventory;
 import net.tridentsdk.server.inventory.TridentItem;
 import net.tridentsdk.server.ui.bossbar.CustomBossBar;
 import net.tridentsdk.server.ui.tablist.TridentCustomTabList;
@@ -116,7 +117,7 @@ public class ImplementationProvider implements Impl.ImplementationProvider {
 
     @Override
     public Inventory newInv(InventoryType type, int slots) {
-        return null; // TODO
+        return new TridentInventory(type, slots); // TODO
     }
 
     @Override
