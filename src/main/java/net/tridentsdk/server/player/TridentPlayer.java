@@ -135,7 +135,7 @@ public class TridentPlayer extends TridentEntity implements Player {
      * The boss bars that are being displayed to this
      * player.
      */
-    private final Collection<AbstractBossBar> bossBars = Sets.newConcurrentHashSet();
+    private final Collection<BossBar> bossBars = Sets.newConcurrentHashSet();
 
     /**
      * Constructs a new player.
@@ -303,7 +303,7 @@ public class TridentPlayer extends TridentEntity implements Player {
     @Override
     public void addBossBar(BossBar bossBar) {
         Preconditions.checkNotNull(bossBar);
-        if (this.bossBars.add((AbstractBossBar) bossBar)) {
+        if (this.bossBars.add(bossBar)) {
             this.net().sendPacket(new PlayOutBossBar.Add(bossBar));
         }
     }
@@ -322,7 +322,8 @@ public class TridentPlayer extends TridentEntity implements Player {
     }
 
     private void updateBossBars(boolean force) {
-        for (AbstractBossBar bossBar : this.bossBars) {
+        for (BossBar bar : this.bossBars) {
+            AbstractBossBar bossBar = (AbstractBossBar) bar;
             if (force) {
                 this.net().sendPacket(new PlayOutBossBar.Add(bossBar));
                 continue;

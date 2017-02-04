@@ -20,6 +20,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
 
 import javax.annotation.Nonnull;
+import javax.annotation.concurrent.Immutable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +31,7 @@ import java.util.concurrent.*;
  * in CPU resources and performs work stealing when
  * necessary.
  */
+@Immutable
 public class ServerThreadPool implements Executor {
     /**
      * Mapping of spec objects to delegate thread pools.

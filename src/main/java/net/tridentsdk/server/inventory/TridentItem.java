@@ -22,9 +22,12 @@ import net.tridentsdk.base.Substance;
 import net.tridentsdk.inventory.Item;
 import net.tridentsdk.meta.ItemMeta;
 
+import javax.annotation.concurrent.Immutable;
+
 /**
  * Implementation of an inventory item.
  */
+@Immutable
 @Getter
 @AllArgsConstructor
 public class TridentItem implements Item {

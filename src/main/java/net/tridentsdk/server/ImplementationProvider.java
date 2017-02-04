@@ -117,7 +117,7 @@ public class ImplementationProvider implements Impl.ImplementationProvider {
 
     @Override
     public Inventory newInv(InventoryType type, int slots) {
-        return new TridentInventory(type, slots); // TODO
+        return new TridentInventory(type, slots);
     }
 
     @Override

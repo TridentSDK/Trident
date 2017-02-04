@@ -30,6 +30,7 @@ import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.world.World;
 
+import javax.annotation.concurrent.ThreadSafe;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -37,6 +38,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * The implementation class for an entity.
  */
+@ThreadSafe
 public abstract class TridentEntity implements Entity {
     /**
      * The counter which produces the entity ID numbers

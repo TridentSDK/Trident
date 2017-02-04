@@ -16,9 +16,9 @@
  */
 package net.tridentsdk.server;
 
+import lombok.Getter;
 import net.tridentsdk.Server;
 import net.tridentsdk.command.logger.Logger;
-import net.tridentsdk.config.Config;
 import net.tridentsdk.doc.Policy;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.EventController;
@@ -45,15 +45,18 @@ public class TridentServer implements Server {
     /**
      * The instance of the TridentServer, if it exists
      */
+    @Getter
     private static volatile TridentServer instance;
 
     /**
      * The configuration file used by the server
      */
+    @Getter
     private final ServerConfig config;
     /**
      * The logger to which the server logs
      */
+    @Getter
     private final Logger logger;
     /**
      * The socket channel handler instance
@@ -95,22 +98,12 @@ public class TridentServer implements Server {
     }
 
     /**
-     * Obtains the singleton instance of the server
-     * implementation.
-     *
-     * @return instance of server
-     */
-    public static TridentServer getInstance() {
-        return TridentServer.instance;
-    }
-
-    /**
      * Shortcut method to retrieving the server config.
      *
      * @return the server config
      */
     public static ServerConfig cfg() {
-        return (ServerConfig) instance.getConfig();
+        return instance.getConfig();
     }
 
     @Override
@@ -121,16 +114,6 @@ public class TridentServer implements Server {
     @Override
     public int getPort() {
         return this.config.port();
-    }
-
-    @Override
-    public Logger getLogger() {
-        return this.logger;
-    }
-
-    @Override
-    public Config getConfig() {
-        return this.config;
     }
 
     @Override

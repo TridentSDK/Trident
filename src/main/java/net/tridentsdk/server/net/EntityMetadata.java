@@ -25,6 +25,7 @@ import net.tridentsdk.base.BlockDirection;
 import net.tridentsdk.base.Vector;
 import net.tridentsdk.chat.ChatComponent;
 
+import javax.annotation.concurrent.ThreadSafe;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -34,6 +35,7 @@ import java.util.UUID;
  * @author TridentSDK
  * @since 0.5-alpha
  */
+@ThreadSafe
 public class EntityMetadata {
 
     private List<EntityMetadataItem> items = Collections.synchronizedList(new LinkedList<>());

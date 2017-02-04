@@ -105,10 +105,6 @@ public class TridentConfigSection implements ConfigSection {
      * The root config section, or null if root
      */
     private final ConfigSection root;
-    /**
-     * This object is represented by this config section
-     */
-    private final JsonObject object;
 
     /**
      * Creates a new config section.
@@ -116,13 +112,11 @@ public class TridentConfigSection implements ConfigSection {
      * @param name the name of the new config section
      * @param parent the parent of the child section
      * @param root the root section
-     * @param object the
      */
-    public TridentConfigSection(String name, ConfigSection parent, ConfigSection root, JsonObject object) {
+    public TridentConfigSection(String name, ConfigSection parent, ConfigSection root) {
         this.name = name;
         this.parent = parent;
         this.root = root;
-        this.object = object;
     }
 
     @Override
@@ -408,7 +402,7 @@ public class TridentConfigSection implements ConfigSection {
      * @return the created section
      */
     private TridentConfigSection createChild0(String name, JsonObject object) {
-        TridentConfigSection section = new TridentConfigSection(name, this, this.root(), object);
+        TridentConfigSection section = new TridentConfigSection(name, this, this.root());
         this.elements.put(name, section);
         return section;
     }

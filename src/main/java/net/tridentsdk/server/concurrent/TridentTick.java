@@ -22,12 +22,14 @@ import net.tridentsdk.server.util.JiraExceptionCatcher;
 import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.server.world.TridentWorldLoader;
 
+import javax.annotation.concurrent.Immutable;
 import java.util.concurrent.TimeUnit;
 
 /**
  * This class represents the server heartbeat pulse called
  * "tick" which occurs every 1/20th of a second.
  */
+@Immutable
 public class TridentTick extends Thread {
     /**
      * The amount of time taken by a single tick

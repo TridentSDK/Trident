@@ -46,7 +46,7 @@ public class TridentConfig extends TridentConfigSection implements Config {
      * @param path the path to the config file
      */
     protected TridentConfig(Path path) {
-        super("", null, null, null);
+        super(path.getFileName().toString(), null, null);
         this.path = path;
     }
 
