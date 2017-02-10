@@ -18,8 +18,12 @@ package net.tridentsdk.server.world;
 
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.base.Block;
+import net.tridentsdk.base.Position;
+import net.tridentsdk.base.Substance;
+import net.tridentsdk.base.Vector;
 import net.tridentsdk.server.concurrent.PoolSpec;
 import net.tridentsdk.server.concurrent.ServerThreadPool;
+import net.tridentsdk.server.util.Tuple;
 import net.tridentsdk.server.util.UncheckedCdl;
 import net.tridentsdk.server.world.gen.GeneratorContextImpl;
 import net.tridentsdk.world.Chunk;
@@ -207,15 +211,42 @@ public class TridentChunk implements Chunk {
     public int z() {
         return this.z;
     }
-
+    
     @Nonnull
     @Override
     public Block blockAt(int x, int y, int z) {
-        return null;
+        Position position = new Position(world, this.x * 16 + x, y, this.z * 16 + z);
+    
+        Tuple<Substance, Byte> data = sections[y >> 4].dataAt(y << 8 | z << 4 | x);
+        return new TridentBlock(position, data.getA());
     }
-
+    
     @Override
     public World world() {
         return this.world;
     }
+    
+    /**
+     * Set a block state inside the chunk
+     *
+     * @param x Relative X position of the block inside the chunk
+     * @param y Relative Y position of the block inside the chunk
+     * @param z Relative Z position of the block inside the chunk
+     * @param state The state of the block
+     */
+    public void set(int x, int y, int z, short state){
+        sections[y >> 4].set(y << 8 | z << 4 | x, state);
+    }
+    
+    /**
+     * Set a block state inside the chunk
+     *
+     * @param position Relative position of the block inside the chunk
+     * @param substance The substance of the block
+     * @param meta The meta of the block
+     */
+    public void set(Vector position, Substance substance, byte meta){
+        set(position.intX(), position.intY(), position.intZ(), (short) (substance.id() << 4 | meta));
+    }
+    
 }

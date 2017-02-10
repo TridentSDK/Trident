@@ -173,7 +173,7 @@ public class TridentWorld implements World {
         // the reason we switch to AND operator instead of
         // using MOD is because chunk-rel coordinates are
         // never negative
-        return this.chunkAt(x % 16, z % 16).blockAt(x & 15, y, z & 15);
+        return this.chunkAt(x >> 4, z >> 4).blockAt(x & 15, y, z & 15);
     }
 
     @Override

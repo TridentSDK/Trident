@@ -201,4 +201,13 @@ public final class NetData {
         long l = ((v.intX() & 0x3FFFFFF) << 38) | ((v.intY() & 0xFFF) << 26) | (v.intZ() & 0x3FFFFFF);
         buf.writeLong(l);
     }
+    
+    /**
+     * Reads the next vector and creates a new
+     * Vector instance
+     */
+    public static Vector rvec(ByteBuf buf){
+        long pos = buf.readLong();
+        return new Vector(pos >> 38, (pos >> 26) & 0xFFF, pos << 38 >> 38);
+    }
 }

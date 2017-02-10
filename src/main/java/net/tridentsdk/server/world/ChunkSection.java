@@ -18,8 +18,11 @@ package net.tridentsdk.server.world;
 
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.shorts.ShortArrayList;
+import net.tridentsdk.base.Substance;
 import net.tridentsdk.server.util.NibbleArray;
+import net.tridentsdk.server.util.Tuple;
 
+import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.concurrent.atomic.AtomicLongArray;
@@ -101,12 +104,13 @@ public class ChunkSection {
         int dataIdx = (idx * bitsPerBlock) / 64;
         int shift = (idx & ((64 / bitsPerBlock) - 1)) * bitsPerBlock;
         long or = ((long) paletteIdx) << shift;
+        long and = ~((~((long) paletteIdx) & (1 << bitsPerBlock) - 1) << shift);
 
         long oldLong;
         long newLong;
         do {
             oldLong = this.data.get(dataIdx);
-            newLong = oldLong | or;
+            newLong = (oldLong & and) | or;
         }
         while (!this.data.compareAndSet(dataIdx, oldLong, newLong));
     }
@@ -151,4 +155,22 @@ public class ChunkSection {
         // Write skylight (only written if overworld)
         this.skyLight.write(buf); // TODO overworld
     }
+    
+    /**
+     * @param idx The position of the block
+     * @return A tuple consisting of substance and meta
+     */
+    @Nonnull
+    public Tuple<Substance, Byte> dataAt(int idx) {
+        int dataIdx = (idx * bitsPerBlock) / 64;
+        int shift = (idx & ((64 / bitsPerBlock) - 1)) * bitsPerBlock;
+        long paletteIdx = (this.data.get(dataIdx) >> shift) & (1 << bitsPerBlock) - 1;
+        
+        short data = palette.getShort((int) paletteIdx);
+        int substance = (byte) (data >> 4);
+        byte meta = (byte) (data & 0x000F);
+    
+        return new Tuple<>(Substance.of(substance), meta);
+    }
+    
 }
