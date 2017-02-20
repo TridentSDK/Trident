@@ -17,6 +17,7 @@
 package net.tridentsdk.server.config;
 
 
+import com.google.common.collect.Maps;
 import com.google.gson.JsonObject;
 import net.tridentsdk.config.Config;
 import net.tridentsdk.config.ConfigSection;
@@ -25,6 +26,7 @@ import javax.annotation.concurrent.Immutable;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * The default implementation of a configuration file that
@@ -36,6 +38,25 @@ import java.nio.file.Path;
 @Immutable
 public class TridentConfig extends TridentConfigSection implements Config {
     /**
+     * The mapping of configs cached by the server.
+     *
+     * Configs should really only have one instance so this
+     * cache holds configs indefinitely.
+     */
+    private static final ConcurrentMap<Path, TridentConfig> cachedConfigs =
+            Maps.newConcurrentMap();
+
+    /**
+     * Releases the configuration file that may be cached
+     * at the given location.
+     *
+     * @param path the path to evict the config
+     */
+    public static void release(Path path) {
+        cachedConfigs.remove(path);
+    }
+
+    /**
      * The path to the config file
      */
     private final Path path;
@@ -46,7 +67,7 @@ public class TridentConfig extends TridentConfigSection implements Config {
      * @param path the path to the config file
      */
     protected TridentConfig(Path path) {
-        super(path.getFileName().toString(), null, null);
+        super("", null, null);
         this.path = path;
     }
 
@@ -55,16 +76,17 @@ public class TridentConfig extends TridentConfigSection implements Config {
      * class is published when creating new config sections
      * via the load method in TridentConfigSection
      */
-    // TODO should this be cached?
     public static TridentConfig load(Path path) {
-        TridentConfig config = new TridentConfig(path);
-        try {
-            config.load();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        return cachedConfigs.computeIfAbsent(path, k -> {
+            TridentConfig config = new TridentConfig(path);
+            try {
+                config.load();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
 
-        return config;
+            return config;
+        });
     }
 
     @Override

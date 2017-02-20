@@ -18,17 +18,15 @@ package net.tridentsdk.server.world;
 
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.base.Block;
-import net.tridentsdk.base.Position;
-import net.tridentsdk.base.Substance;
-import net.tridentsdk.base.Vector;
+import net.tridentsdk.base.ImmutableWorldVector;
 import net.tridentsdk.server.concurrent.PoolSpec;
 import net.tridentsdk.server.concurrent.ServerThreadPool;
-import net.tridentsdk.server.util.Tuple;
 import net.tridentsdk.server.util.UncheckedCdl;
 import net.tridentsdk.server.world.gen.GeneratorContextImpl;
 import net.tridentsdk.world.Chunk;
 import net.tridentsdk.world.World;
 import net.tridentsdk.world.gen.*;
+import net.tridentsdk.world.opt.Dimension;
 import net.tridentsdk.world.opt.GenOpts;
 
 import javax.annotation.Nonnull;
@@ -36,6 +34,7 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicIntegerArray;
+import java.util.concurrent.atomic.AtomicReferenceArray;
 
 import static net.tridentsdk.server.net.NetData.wvint;
 
@@ -43,11 +42,6 @@ import static net.tridentsdk.server.net.NetData.wvint;
  * Represents a chunk column.
  */
 public class TridentChunk implements Chunk {
-    /**
-     * An empty chunk section, used for writing ground up
-     * continuous chunk columns
-     */
-    private static final ChunkSection EMPTY_SECTION = new ChunkSection();
     /**
      * Thread pool used for arbitrary container generation
      */
@@ -76,12 +70,19 @@ public class TridentChunk implements Chunk {
     private final int z;
 
     /**
+     * An empty ChunkSection which is used in place of a
+     * null element to save memory. This must be set in
+     * the constructor in order to account for differences
+     * in chunk format for different dimensions.
+     */
+    private final ChunkSection emptyPlaceholder;
+    /**
      * The sections that the chunk has generated
      */
-    private volatile ChunkSection[] sections;
+    private final AtomicReferenceArray<ChunkSection> sections = new AtomicReferenceArray<>(16);
     /**
      * The height map for this chunk, 16x16 indexed by x
-     * across then adding z (x << 4 | z)
+     * across then adding z (x << 4 | z & 0xF)
      */
     private final AtomicIntegerArray heights = new AtomicIntegerArray(256);
 
@@ -96,6 +97,12 @@ public class TridentChunk implements Chunk {
         this.world = world;
         this.x = x;
         this.z = z;
+
+        if (world.opts().dimension() == Dimension.OVERWORLD) {
+            this.emptyPlaceholder = ChunkSection.EMPTY_WITH_SKYLIGHT;
+        } else {
+            this.emptyPlaceholder = ChunkSection.EMPTY_WITHOUT_SKYLIGHT;
+        }
     }
 
     /**
@@ -115,7 +122,8 @@ public class TridentChunk implements Chunk {
         TerrainGenerator terrain = provider.terrain(this.world);
         Set<PropGenerator> props = provider.propSet(this.world);
         Set<FeatureGenerator> features = provider.featureSet(this.world);
-        GeneratorContextImpl context = new GeneratorContextImpl(container, opts.seed());
+        GeneratorContextImpl context = new GeneratorContextImpl(container, opts.seed(),
+                this.world.opts().dimension() == Dimension.OVERWORLD);
 
         CompletableFuture.supplyAsync(() -> {
             terrain.generate(this.x, this.z, context);
@@ -140,7 +148,7 @@ public class TridentChunk implements Chunk {
             return latch;
         }, container).thenAcceptAsync(l -> {
             l.await();
-            this.sections = context.asArray();
+            context.copySections(this.sections);
             context.copyHeights(this.heights);
 
             this.ready.countDown();
@@ -169,36 +177,47 @@ public class TridentChunk implements Chunk {
      * is sent bottom to top
      */
     public void write(ByteBuf buf, boolean continuous) {
-        ChunkSection[] sections = this.sections;
+        int len = this.sections.length();
 
+        // Copy chunk sections to local array in order to
+        // prevent upddates from breaking the packet
+        ChunkSection[] sections = new ChunkSection[16];
+        for (int i = 0; i < 16; i++) {
+            sections[i] = this.sections.get(i);
+        }
+
+        // Write the continuous mask
         short mask = 0;
-        for (int i = 0; i < sections.length; i++) {
+        for (int i = 0; i < len; i++) {
             if (sections[i] == null) break;
             mask |= 1 << i;
         }
         wvint(buf, mask);
 
+        // Write section data
         ByteBuf chunkData = buf.alloc().buffer();
-        for (int i = 0; i < sections.length; i++) {
+        for (int i = 0; i < len; i++) {
             if ((mask & 1 << i) == 1) {
-                if (sections[i] != null) {
-                    sections[i].write(chunkData);
+                ChunkSection sec = sections[i];
+                if (sec != null) {
+                    sec.write(chunkData);
                 } else {
-                    EMPTY_SECTION.write(chunkData);
+                    this.emptyPlaceholder.write(chunkData);
                 }
             }
         }
-
         wvint(buf, chunkData.readableBytes() + (continuous ? 256 : 0));
         buf.writeBytes(chunkData);
         chunkData.release();
 
+        // If continous, write the biome data
         if (continuous) {
             for (int i = 0; i < 256; i++) {
                 buf.writeByte(1);
             }
         }
 
+        // TODO - Tile entities
         wvint(buf, 0);
     }
 
@@ -211,21 +230,37 @@ public class TridentChunk implements Chunk {
     public int z() {
         return this.z;
     }
-    
+
     @Nonnull
     @Override
     public Block blockAt(int x, int y, int z) {
-        Position position = new Position(world, this.x * 16 + x, y, this.z * 16 + z);
-    
-        Tuple<Substance, Byte> data = sections[y >> 4].dataAt(y << 8 | z << 4 | x);
-        return new TridentBlock(position, data.getA());
+        return new TridentBlock(new ImmutableWorldVector(this.world, this.x << 4 + x, y, this.z << 4 + z));
     }
-    
+
     @Override
     public World world() {
         return this.world;
     }
-    
+
+    /**
+     * Obtains the stored block data at the given relative
+     * coordinates in the chunk.
+     *
+     * @param x the relative x
+     * @param y the relative y
+     * @param z the relative z
+     * @return the block data, which incorporates the
+     * substance ID and the block meta
+     */
+    public short get(int x, int y, int z) {
+        ChunkSection section = this.sections.get(y >> 4);
+        if (section == null) {
+            return 0;
+        }
+
+        return section.dataAt(y << 8 | z << 4 | x);
+    }
+
     /**
      * Set a block state inside the chunk
      *
@@ -234,19 +269,19 @@ public class TridentChunk implements Chunk {
      * @param z Relative Z position of the block inside the chunk
      * @param state The state of the block
      */
-    public void set(int x, int y, int z, short state){
-        sections[y >> 4].set(y << 8 | z << 4 | x, state);
+    public void set(int x, int y, int z, short state) {
+        int sectionIdx = y >> 4;
+
+        ChunkSection section = this.sections.get(sectionIdx);
+        if (section == null) {
+            ChunkSection newSec = new ChunkSection(this.world.opts().dimension() == Dimension.OVERWORLD);
+            if (this.sections.compareAndSet(sectionIdx, null, newSec)) {
+                section = newSec;
+            } else {
+                section = this.sections.get(sectionIdx);
+            }
+        }
+
+        section.set(y << 8 | z << 4 | x, state);
     }
-    
-    /**
-     * Set a block state inside the chunk
-     *
-     * @param position Relative position of the block inside the chunk
-     * @param substance The substance of the block
-     * @param meta The meta of the block
-     */
-    public void set(Vector position, Substance substance, byte meta){
-        set(position.intX(), position.intY(), position.intZ(), (short) (substance.id() << 4 | meta));
-    }
-    
 }

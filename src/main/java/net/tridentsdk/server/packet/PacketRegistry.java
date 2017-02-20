@@ -18,8 +18,8 @@ package net.tridentsdk.server.packet;
 
 import com.esotericsoftware.reflectasm.ConstructorAccess;
 import com.google.common.collect.Maps;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
 import net.tridentsdk.server.packet.handshake.HandshakeIn;
 import net.tridentsdk.server.packet.login.*;
 import net.tridentsdk.server.packet.play.*;
@@ -54,13 +54,13 @@ public final class PacketRegistry {
     /**
      * Packet registry
      */
-    private static final Object2IntOpenHashMap<Class<? extends Packet>> PACKET_IDS =
-            new Object2IntOpenHashMap<>();
+    private static final Reference2IntOpenHashMap<Class<? extends Packet>> PACKET_IDS =
+            new Reference2IntOpenHashMap<>();
     /**
      * Inverse packet registry
      */
-    private static final Int2ObjectOpenHashMap<Class<? extends Packet>> PACKETS =
-            new Int2ObjectOpenHashMap<>();
+    private static final Int2ReferenceOpenHashMap<Class<? extends Packet>> PACKETS =
+            new Int2ReferenceOpenHashMap<>();
 
     // Initialization done in static initializer performed
     // whilst under lock during class initialization, thus

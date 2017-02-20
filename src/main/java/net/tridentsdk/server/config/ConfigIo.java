@@ -71,19 +71,13 @@ public final class ConfigIo {
      * @param path the config file location
      * @return the in-memory representation of the config
      */
-    public static JsonObject readConfig(Path path) {
+    public static JsonObject readConfig(Path path) throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        try {
-            FileInputStream stream = new FileInputStream(path.toFile());
-
+        try (FileInputStream stream = new FileInputStream(path.toFile())) {
             byte[] buffer = new byte[8192];
             while (stream.read(buffer, 0, buffer.length) > -1) {
                 out.write(buffer, 0, buffer.length);
             }
-
-            stream.close();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
 
         String json = new String(out.toByteArray()).trim();
@@ -98,7 +92,7 @@ public final class ConfigIo {
      * @param object the memory representation of the
      * config
      */
-    public static void writeConfig(Path path, JsonObject object) {
+    public static void writeConfig(Path path, JsonObject object) throws IOException {
         String json = GSON.toJson(object);
 
         try {

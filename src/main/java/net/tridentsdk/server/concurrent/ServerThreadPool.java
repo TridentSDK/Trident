@@ -77,7 +77,7 @@ public class ServerThreadPool implements Executor {
         return pools.computeIfAbsent(spec, k -> {
             int config = spec.getMaxThreads();
             if (spec.isDoStealing()) {
-                return new ServerThreadPool(Executors.newWorkStealingPool(config));
+                return new ServerThreadPool(new ForkJoinPool(config, spec, null, true));
             } else {
                 return new ServerThreadPool(new ThreadPoolExecutor(config, config,
                         60L, TimeUnit.SECONDS,

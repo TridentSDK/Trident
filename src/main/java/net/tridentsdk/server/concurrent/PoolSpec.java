@@ -20,6 +20,8 @@ import lombok.Getter;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinWorkerThread;
 import java.util.concurrent.ThreadFactory;
 
 /**
@@ -27,7 +29,7 @@ import java.util.concurrent.ThreadFactory;
  * managing the server thread pool.
  */
 @ThreadSafe
-public class PoolSpec implements ThreadFactory {
+public class PoolSpec implements ThreadFactory, ForkJoinPool.ForkJoinWorkerThreadFactory {
     // Actually this is used to execute block related tick
     // methods as well such as sugar cane growing, tree leaf
     // decay, etc...
@@ -75,5 +77,12 @@ public class PoolSpec implements ThreadFactory {
     @Override
     public Thread newThread(@Nonnull Runnable r) {
         return new Thread(r, this.name);
+    }
+
+    @Override
+    public ForkJoinWorkerThread newThread(ForkJoinPool pool) {
+        ForkJoinWorkerThread worker = ForkJoinPool.defaultForkJoinWorkerThreadFactory.newThread(pool);
+        worker.setName(this.name + " - " + worker.getPoolIndex());
+        return worker;
     }
 }

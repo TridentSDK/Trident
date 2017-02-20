@@ -17,6 +17,8 @@
 package net.tridentsdk.server.world;
 
 import net.tridentsdk.base.Block;
+import net.tridentsdk.base.ImmutableWorldVector;
+import net.tridentsdk.base.Position;
 import net.tridentsdk.server.concurrent.PoolSpec;
 import net.tridentsdk.server.concurrent.ServerThreadPool;
 import net.tridentsdk.server.world.opt.GenOptImpl;
@@ -170,10 +172,12 @@ public class TridentWorld implements World {
 
     @Override
     public Block blockAt(int x, int y, int z) {
-        // the reason we switch to AND operator instead of
-        // using MOD is because chunk-rel coordinates are
-        // never negative
-        return this.chunkAt(x >> 4, z >> 4).blockAt(x & 15, y, z & 15);
+        return new TridentBlock(new ImmutableWorldVector(this, x, y, z));
+    }
+
+    @Override
+    public Block blockAt(Position pos) {
+        return new TridentBlock(pos.toWorldVector());
     }
 
     @Override

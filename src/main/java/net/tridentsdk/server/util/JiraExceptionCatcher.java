@@ -41,7 +41,7 @@ public final class JiraExceptionCatcher {
      * @param e the exception to catch
      */
     public static void serverException(Exception e) {
-        String url = "https://tridentsdk.atlassian.net/secure/CreateIssue!default.jspa";
+        String url = "https://github.com/TridentSDK/Trident/issues";
 
         try {
             StackTraceElement element = e.getStackTrace()[0];
@@ -81,7 +81,7 @@ public final class JiraExceptionCatcher {
         PrintStream o = System.err;
         o.println();
         o.println();
-        o.println("Unhandled serverException occurred while starting the server.");
+        o.println("Unhandled Exception occurred while starting the server.");
         o.println("This was not intended to happen.");
         o.println("Please report this on " + url);
         o.println();

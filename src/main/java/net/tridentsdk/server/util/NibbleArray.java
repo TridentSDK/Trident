@@ -38,6 +38,11 @@ public class NibbleArray {
     public static final int BYTES_PER_LONG = 8;
 
     /**
+     * The mask value for the splice section
+     */
+    private static final long BYTE_BASK = (long) 0xFF;
+
+    /**
      * The array of nibbles.
      *
      * <p>Nibbles are half byte values which are compacted
@@ -75,8 +80,6 @@ public class NibbleArray {
      * @return the nibble value at the index
      */
     public byte getByte(int position) {
-        this.checkPosition(position);
-
         // Find nibble pos b/c 2 nibbles in single byte
         // Find splice which byte is located in
         // Find shift by figuring out what offset from the
@@ -91,12 +94,11 @@ public class NibbleArray {
         long splice = this.nibbles.get(nibblePosition / BYTES_PER_LONG);
         long shift = (nibblePosition % BYTES_PER_LONG) << 3;
         long shifted = splice >> shift;
-        byte b = (byte) (shifted & 0xFF);
 
         if ((position & 1) == 0) {
-            return (byte) (b & 0x0F);
+            return (byte) (shifted & 0x0F);
         } else {
-            return (byte) ((b >> 4) & 0x0F);
+            return (byte) ((shifted >> 4) & 0x0F);
         }
     }
 
@@ -104,65 +106,33 @@ public class NibbleArray {
      * Sets the nibble at the given position index to the
      * given nibble value.
      *
+     * <p>Even nibbles are stored on the left, odd on the
+     * right.</p>
+     *
      * @param position the nibble index
      * @param value the nibble value
      */
     public void setByte(int position, byte value) {
-        this.checkPosition(position);
-
-        // Code seems messy because the constant values are
-        // hoisted to prevent recalculating every iteration
-        // Same as get byte; however we need additional bit
-        // logic in order to prevent bitwise OR from
-        // combining the bits from the old long value
-        // clearShift is the left bits needed to clear the
-        // topmost bytes in order to isolate the lower part
-        // of the splice
-        // Likewise, the upperShift is the bits shifted
-        // right plus the amount of bits in a byte (8) that
-        // is needed to isolate the higher part of the
-        // splice
-        // Some bitshifting magic is done to obtain the new
-        // splice. Basically, the old splice is shifted
-        // left and back by a specific amount of bytes in
-        // order to clear the top bits and the value that
-        // was originally at the byte position of the
-        // nibble. Then, the shifted value is shifted right
-        // and back to clear the old byte value. The result
-        // of OR between these two values is the top and
-        // bottom portions of the splice being set, leaving
-        // the middle 8 bits (those which are required by
-        // the new byte) unset. This prevents OR conflicts
-        // from existing set bits that are being unset.
-
         int nibblePosition = position / 2;
         int spliceIndex = nibblePosition / BYTES_PER_LONG;
-        int shift = (nibblePosition % BYTES_PER_LONG) << 3;
-        int clearShift = 64 - shift;
-        int upperShift = shift + 8;
+        long shift = (nibblePosition % BYTES_PER_LONG) << 3;
 
         long oldSpice; // easter egg (play Old Spice theme)
         long newSplice;
         if ((position & 1) == 0) {
-            int nibble = value & 0x0F;
             do {
                 oldSpice = this.nibbles.get(spliceIndex);
-                long shifted = oldSpice >> shift;
-                byte oldByte = (byte) (shifted & 0xFF);
-                byte newByte = (byte) (oldByte & 0xF0 | nibble);
+                long newByte = oldSpice >>> shift & 0xF0 | value;
 
-                newSplice = oldSpice << clearShift >> clearShift | shifted >> 8 << upperShift | (long) newByte << shift;
+                newSplice = oldSpice & ~((long) 0xFF << shift) | newByte << shift;
             }
             while (!this.nibbles.compareAndSet(spliceIndex, oldSpice, newSplice));
         } else {
-            int nibble = value << 4 & 0xF0;
             do {
                 oldSpice = this.nibbles.get(spliceIndex);
-                long shifted = oldSpice >> shift;
-                byte oldB = (byte) (shifted & 0xFF);
-                byte newB = (byte) (oldB & 0x0F | nibble);
+                long newByte = oldSpice >>> shift & 0x0F | value << 4;
 
-                newSplice = oldSpice << clearShift >> clearShift | shifted >> 8 << upperShift | (long) newB << shift;
+                newSplice = oldSpice & ~((long) 0xFF << shift) | newByte << shift;
             }
             while (!this.nibbles.compareAndSet(spliceIndex, oldSpice, newSplice));
         }
@@ -193,22 +163,13 @@ public class NibbleArray {
      */
     public void fill(byte value) {
         long splice = 0;
-        byte newValue = (byte) (value << 4 | value);
+        long newValue = value << 4 | value & 0xFF;
         for (int i = 0; i < 64; i += 8) {
-            splice |= (long) newValue << i;
+            splice |= newValue << i;
         }
 
         for (int i = 0; i < this.nibbles.length(); i++) {
             this.nibbles.set(i, splice);
-        }
-    }
-
-    /**
-     * Range check.
-     */
-    private void checkPosition(int position) {
-        if (position < 0 || position >= this.getLength()) {
-            throw new IndexOutOfBoundsException("Index: " + position + ", Size: " + this.getLength());
         }
     }
 }

@@ -45,9 +45,9 @@ public class TridentConfigSection implements ConfigSection {
      */
     private static final String SECTION_SEPARATOR = Pattern.quote(SEPARATOR_LITERAL);
 
-    // One map holds the elements of this section, while the
-    // other holds references to the children of this
-    // section
+    /**
+     * The elements of the the configuration file
+     */
     private final ConcurrentLinkedStringMap<Object> elements = new ConcurrentLinkedStringMap<>();
 
     /**

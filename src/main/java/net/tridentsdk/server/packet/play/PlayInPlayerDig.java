@@ -36,6 +36,8 @@ public class PlayInPlayerDig extends PacketIn {
     @Override
     public void read(ByteBuf buf, NetClient client) {
         DigStatus status = DigStatus.values()[NetData.rvint(buf)];
+        // Single thread usage of the vector uses a noninflated lock,
+        // no optimization needed here
         Position position = NetData.rvec(buf).toPosition(client.getPlayer().getWorld());
         DigFace face = DigFace.get(buf.readByte());
         
