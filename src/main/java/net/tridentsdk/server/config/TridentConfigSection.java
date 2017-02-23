@@ -120,17 +120,17 @@ public class TridentConfigSection implements ConfigSection {
     }
 
     @Override
-    public String name() {
+    public String getName() {
         return this.name;
     }
 
     @Override
-    public ConfigSection root() {
+    public ConfigSection getRoot() {
         return this.root;
     }
 
     @Override
-    public ConfigSection parent() {
+    public ConfigSection getParent() {
         return this.parent;
     }
 
@@ -164,28 +164,28 @@ public class TridentConfigSection implements ConfigSection {
     }
 
     @Override
-    public Stream<ConfigSection> children(boolean deep) {
+    public Stream<ConfigSection> getChildren(boolean deep) {
         Set<ConfigSection> set = Sets.newLinkedHashSet();
         this.children0(set, deep);
         return Collections.unmodifiableSet(set).stream();
     }
 
     @Override
-    public Stream<String> keys(boolean deep) {
+    public Stream<String> getKeys(boolean deep) {
         Set<String> set = Sets.newLinkedHashSet();
         this.iterate("", set, (s, e) -> this.handlePath(s, e.getKey()), deep);
         return Collections.unmodifiableSet(set).stream();
     }
 
     @Override
-    public Stream<Object> values(boolean deep) {
+    public Stream<Object> getValues(boolean deep) {
         LinkedList<Object> list = Lists.newLinkedList();
         this.iterate("", list, (s, e) -> e.getValue(), deep);
         return Collections.unmodifiableCollection(list).stream();
     }
 
     @Override
-    public Stream<Map.Entry<String, Object>> entries(boolean deep) {
+    public Stream<Map.Entry<String, Object>> getEntries(boolean deep) {
         Set<Map.Entry<String, Object>> set = Sets.newLinkedHashSet();
         this.iterate("", set, this::concatKey, deep);
         return Collections.unmodifiableSet(set).stream();
@@ -231,7 +231,7 @@ public class TridentConfigSection implements ConfigSection {
     }
 
     @Override
-    public boolean has(String key) {
+    public boolean hasKey(String key) {
         return this.elements.containsKey(key);
     }
 
@@ -402,7 +402,7 @@ public class TridentConfigSection implements ConfigSection {
      * @return the created section
      */
     private TridentConfigSection createChild0(String name, JsonObject object) {
-        TridentConfigSection section = new TridentConfigSection(name, this, this.root());
+        TridentConfigSection section = new TridentConfigSection(name, this, this.getRoot());
         this.elements.put(name, section);
         return section;
     }

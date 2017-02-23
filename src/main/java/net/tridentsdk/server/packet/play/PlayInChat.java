@@ -50,8 +50,8 @@ public final class PlayInChat extends PacketIn {
         ChatComponent chat = ChatComponent.create()
                 .setTranslate("chat.type.text")
                 .addWith(ChatComponent.create()
-                        .setText(player.name())
-                        .setClickEvent(ClickEvent.of(ClickAction.SUGGEST_COMMAND, "/tell " + player.name() + " ")))
+                        .setText(player.getName())
+                        .setClickEvent(ClickEvent.of(ClickAction.SUGGEST_COMMAND, "/tell " + player.getName() + " ")))
                 .addWith(msg);
         TridentPlayer.getPlayers().values().forEach(p -> p.sendMessage(chat, ChatType.CHAT));
 
@@ -61,7 +61,7 @@ public final class PlayInChat extends PacketIn {
 
             for (int x = playerPosition.getChunkX() - chunkLoadRadius; x <= playerPosition.getChunkX() + chunkLoadRadius; x++) {
                 for (int z = playerPosition.getChunkZ() - chunkLoadRadius; z <= playerPosition.getChunkZ() + chunkLoadRadius; z++) {
-                    TridentChunk chunk = (TridentChunk) playerPosition.world().chunkAt(x, z);
+                    TridentChunk chunk = (TridentChunk) playerPosition.world().getChunkAt(x, z);
                     client.sendPacket(new PlayOutChunk(chunk));
                 }
             }

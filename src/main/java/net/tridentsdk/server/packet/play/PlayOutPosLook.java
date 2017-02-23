@@ -50,11 +50,11 @@ public final class PlayOutPosLook extends PacketOut {
 
     @Override
     public void write(ByteBuf buf) {
-        buf.writeDouble(this.pos.x());
-        buf.writeDouble(this.pos.y());
-        buf.writeDouble(this.pos.z());
-        buf.writeFloat(this.pos.yaw());
-        buf.writeFloat(this.pos.pitch());
+        buf.writeDouble(this.pos.getX());
+        buf.writeDouble(this.pos.getY());
+        buf.writeDouble(this.pos.getZ());
+        buf.writeFloat(this.pos.getYaw());
+        buf.writeFloat(this.pos.getPitch());
         buf.writeByte(0);
         wvint(buf, PlayInTeleportConfirm.query(this.player.net()));
     }

@@ -18,7 +18,8 @@ package net.tridentsdk.server.player;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import lombok.Getter;
 import lombok.Setter;
 import net.tridentsdk.base.BlockDirection;
@@ -45,7 +46,6 @@ import net.tridentsdk.world.World;
 import net.tridentsdk.world.opt.GameMode;
 
 import javax.annotation.concurrent.ThreadSafe;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.UUID;
@@ -135,7 +135,7 @@ public class TridentPlayer extends TridentEntity implements Player {
      * The boss bars that are being displayed to this
      * player.
      */
-    private final Collection<BossBar> bossBars = Sets.newConcurrentHashSet();
+    private final List<BossBar> bossBars = new CopyOnWriteArrayList<>();
 
     /**
      * Constructs a new player.
@@ -147,7 +147,7 @@ public class TridentPlayer extends TridentEntity implements Player {
         this.client = client;
         this.name = name;
         this.uuid = uuid;
-        this.gameMode = world.opts().gameMode();
+        this.gameMode = world.getWorldOptions().getGameMode();
         this.textures = textures;
     }
 
@@ -160,7 +160,7 @@ public class TridentPlayer extends TridentEntity implements Player {
      * @param textures the player textures
      */
     public static TridentPlayer spawn(NetClient client, String name, UUID uuid, String textures) {
-        TridentWorld world = TridentServer.getInstance().getWorldLoader().getDefault();
+        TridentWorld world = TridentServer.getInstance().getWorldLoader().getDefaultWorld();
         TridentPlayer player = new TridentPlayer(client, world, name, uuid, textures);
         players.put(uuid, player);
         client.setPlayer(player);
@@ -216,7 +216,7 @@ public class TridentPlayer extends TridentEntity implements Player {
                 int finalX = x;
                 int finalZ = z;
                 CompletableFuture
-                        .supplyAsync(() -> this.getWorld().chunkAt(finalX, finalZ), this.pool)
+                        .supplyAsync(() -> this.getWorld().getChunkAt(finalX, finalZ), this.pool)
                         .thenAccept(chunk -> this.client.sendPacket(new PlayOutChunk(chunk)));
             }
         }
@@ -250,12 +250,12 @@ public class TridentPlayer extends TridentEntity implements Player {
     }
 
     @Override
-    public String name() {
+    public String getName() {
         return this.name;
     }
 
     @Override
-    public UUID uuid() {
+    public UUID getUuid() {
         return this.uuid;
     }
 
@@ -296,8 +296,8 @@ public class TridentPlayer extends TridentEntity implements Player {
     }
 
     @Override
-    public Collection<BossBar> getBossBars() {
-        return Collections.unmodifiableCollection(this.bossBars);
+    public List<BossBar> getBossBars() {
+        return Collections.unmodifiableList(this.bossBars);
     }
 
     @Override
@@ -404,7 +404,7 @@ public class TridentPlayer extends TridentEntity implements Player {
         /* Should be 16, but renderDistance has to be divided by 2 */
         this.pool.execute(() ->
                 this.chunkSentTime.keySet().iterator().forEachRemaining(chunk -> {
-                    if (chunk.x() - this.position.getChunkX() + chunk.z() - this.position.getChunkZ() > renderDistance * 8 /* == (renderDistance / 2) * 16 */) {
+                    if (chunk.getX() - this.position.getChunkX() + chunk.getZ() - this.position.getChunkZ() > renderDistance * 8 /* == (renderDistance / 2) * 16 */) {
                         this.chunkSentTime.remove(chunk);
                     }
                 }));

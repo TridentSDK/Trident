@@ -87,8 +87,8 @@ public class TabListElement {
      */
     public TabListElement(TridentPlayer player) {
         this.player = player;
-        this.uuid = player.uuid();
-        this.name = player.name();
+        this.uuid = player.getUuid();
+        this.name = player.getName();
         this.ping = (int) player.net().getPing();
         this.gameMode = player.getGameMode();
 

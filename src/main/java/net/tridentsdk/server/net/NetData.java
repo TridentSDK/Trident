@@ -198,7 +198,7 @@ public final class NetData {
         Vector v = new Vector();
         vec.vecWrite(v);
 
-        long l = ((v.intX() & 0x3FFFFFF) << 38) | ((v.intY() & 0xFFF) << 26) | (v.intZ() & 0x3FFFFFF);
+        long l = ((v.getIntX() & 0x3FFFFFF) << 38) | ((v.getIntY() & 0xFFF) << 26) | (v.getIntZ() & 0x3FFFFFF);
         buf.writeLong(l);
     }
     

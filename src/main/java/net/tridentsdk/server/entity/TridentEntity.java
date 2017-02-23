@@ -106,11 +106,11 @@ public abstract class TridentEntity implements Entity {
     public void setPosition(Position position) {
         Position delta = position.clone().subtract(this.position);
 
-        if(delta.x() != 0 || delta.y() != 0 || delta.z() != 0) {
+        if(delta.getX() != 0 || delta.getY() != 0 || delta.getZ() != 0) {
             // TODO consider sending packet in a specified range
             Collection<TridentPlayer> players = TridentPlayer.getPlayers().values();
 
-            if (this.position.yaw() != position.yaw() || this.position.pitch() != position.pitch()){
+            if (this.position.getYaw() != position.getYaw() || this.position.getPitch() != position.getPitch()){
                 PlayOutEntityLookAndRelativeMove lookAndRelativeMove = new PlayOutEntityLookAndRelativeMove(this, delta);
                 PlayOutEntityHeadLook headLook = new PlayOutEntityHeadLook(this);
                 players.stream().filter(p -> !p.equals(this)).forEach(p -> {

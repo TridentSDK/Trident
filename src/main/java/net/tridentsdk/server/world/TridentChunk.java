@@ -98,7 +98,7 @@ public class TridentChunk implements Chunk {
         this.x = x;
         this.z = z;
 
-        if (world.opts().dimension() == Dimension.OVERWORLD) {
+        if (world.getWorldOptions().getDimension() == Dimension.OVERWORLD) {
             this.emptyPlaceholder = ChunkSection.EMPTY_WITH_SKYLIGHT;
         } else {
             this.emptyPlaceholder = ChunkSection.EMPTY_WITHOUT_SKYLIGHT;
@@ -109,21 +109,21 @@ public class TridentChunk implements Chunk {
      * Generates the chunk.
      */
     public void generate() {
-        GenOpts opts = this.world.genOpts();
-        GeneratorProvider provider = opts.provider();
+        GenOpts opts = this.world.getGeneratorOptions();
+        GeneratorProvider provider = opts.getProvider();
 
-        Executor container = provider.container();
+        Executor container = provider.getGenerationContainer();
         if (container == GenContainer.DEFAULT) {
             container = DEFAULT_POOL;
         } else if (container == GenContainer.ARBITRARY) {
             container = ARBITRARY_POOL;
         }
 
-        TerrainGenerator terrain = provider.terrain(this.world);
-        Set<PropGenerator> props = provider.propSet(this.world);
-        Set<FeatureGenerator> features = provider.featureSet(this.world);
-        GeneratorContextImpl context = new GeneratorContextImpl(container, opts.seed(),
-                this.world.opts().dimension() == Dimension.OVERWORLD);
+        TerrainGenerator terrain = provider.getTerrainGenerator(this.world);
+        Set<PropGenerator> props = provider.getPropGenerators(this.world);
+        Set<FeatureGenerator> features = provider.getFeatureGenerators(this.world);
+        GeneratorContextImpl context = new GeneratorContextImpl(container, opts.getSeed(),
+                this.world.getWorldOptions().getDimension() == Dimension.OVERWORLD);
 
         CompletableFuture.supplyAsync(() -> {
             terrain.generate(this.x, this.z, context);
@@ -222,23 +222,23 @@ public class TridentChunk implements Chunk {
     }
 
     @Override
-    public int x() {
+    public int getX() {
         return this.x;
     }
 
     @Override
-    public int z() {
+    public int getZ() {
         return this.z;
     }
 
     @Nonnull
     @Override
-    public Block blockAt(int x, int y, int z) {
+    public Block getBlockAt(int x, int y, int z) {
         return new TridentBlock(new ImmutableWorldVector(this.world, this.x << 4 + x, y, this.z << 4 + z));
     }
 
     @Override
-    public World world() {
+    public World getWorld() {
         return this.world;
     }
 
@@ -274,7 +274,7 @@ public class TridentChunk implements Chunk {
 
         ChunkSection section = this.sections.get(sectionIdx);
         if (section == null) {
-            ChunkSection newSec = new ChunkSection(this.world.opts().dimension() == Dimension.OVERWORLD);
+            ChunkSection newSec = new ChunkSection(this.world.getWorldOptions().getDimension() == Dimension.OVERWORLD);
             if (this.sections.compareAndSet(sectionIdx, null, newSec)) {
                 section = newSec;
             } else {

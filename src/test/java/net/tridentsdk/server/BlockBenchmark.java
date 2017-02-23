@@ -215,7 +215,7 @@ public class BlockBenchmark {
     static {
         ThreadLocalRandom current = ThreadLocalRandom.current();
         for (int i = 0; i < blocks.length; i++) {
-            blocks[i] = (TridentBlock) world.blockAt(current.nextInt(4096), 3, current.nextInt(4096));
+            blocks[i] = (TridentBlock) world.getBlockAt(current.nextInt(4096), 3, current.nextInt(4096));
         }
     }
 

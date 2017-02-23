@@ -90,27 +90,27 @@ public class TridentConfig extends TridentConfigSection implements Config {
     }
 
     @Override
-    public File file() {
+    public File getFile() {
         return this.path.toFile();
     }
 
     @Override
-    public Path path() {
+    public Path getPath() {
         return this.path;
     }
 
     @Override
-    public File directory() {
+    public File getDirectory() {
         return this.path.getParent().toFile();
     }
 
     @Override
-    public ConfigSection root() {
+    public ConfigSection getRoot() {
         return this;
     }
 
     @Override
-    public ConfigSection parent() {
+    public ConfigSection getParent() {
         return this;
     }
 

@@ -154,9 +154,9 @@ public class EntityMetadata {
                     break;
                 case ROTATION:
                     Vector rv = (Vector) item.value;
-                    buf.writeFloat((float) rv.x());
-                    buf.writeFloat((float) rv.y());
-                    buf.writeFloat((float) rv.z());
+                    buf.writeFloat((float) rv.getX());
+                    buf.writeFloat((float) rv.getY());
+                    buf.writeFloat((float) rv.getZ());
                     break;
                 case POSITION:
                     Vector pv = (Vector) item.value;

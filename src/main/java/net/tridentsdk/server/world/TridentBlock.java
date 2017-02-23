@@ -41,7 +41,7 @@ public final class TridentBlock implements Block {
      */
     private final TridentWorld world;
     /**
-     * The chunk x coordinate
+     * The chunk X coordinate
      */
     private final int cX;
     /**
@@ -91,7 +91,7 @@ public final class TridentBlock implements Block {
         // set substance will need to reset the data because
         // retaining the data will usually not make sense
         // e.g. switching from colored wool to grass
-        chunk.set(this.relX, this.relY, this.relZ, (short) (substance.id() << 4));
+        chunk.set(this.relX, this.relY, this.relZ, (short) (substance.getId() << 4));
     }
 
     @Override
@@ -113,6 +113,6 @@ public final class TridentBlock implements Block {
      * @return the container chunk
      */
     private TridentChunk getChunk() {
-        return this.world.chunkAt(this.cX, this.cZ);
+        return this.world.getChunkAt(this.cX, this.cZ);
     }
 }

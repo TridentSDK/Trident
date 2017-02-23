@@ -65,8 +65,8 @@ public final class StatusOutResponse extends PacketOut {
         JsonArray sample = new JsonArray();
         TridentPlayer.getPlayers().forEach((u, p) -> {
             JsonObject o = new JsonObject();
-            o.addProperty("name", p.name());
-            o.addProperty("id", p.uuid().toString());
+            o.addProperty("name", p.getName());
+            o.addProperty("id", p.getUuid().toString());
             sample.add(o);
         });
         players.add("sample", sample);

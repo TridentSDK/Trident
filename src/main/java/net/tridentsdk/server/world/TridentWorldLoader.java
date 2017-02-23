@@ -109,7 +109,7 @@ public class TridentWorldLoader implements WorldLoader {
         // if the end up with no worlds or no default world
         // create a new world
         if (this.worlds.isEmpty() || !this.worlds.containsKey(DEFAULT_WORLD_NAME)) {
-            this.create(DEFAULT_WORLD_NAME, WorldCreateSpec.defaultOpts());
+            this.create(DEFAULT_WORLD_NAME, WorldCreateSpec.getDefaultOptions());
         }
     }
 
@@ -149,7 +149,7 @@ public class TridentWorldLoader implements WorldLoader {
     }
 
     @Override
-    public TridentWorld getDefault() {
+    public TridentWorld getDefaultWorld() {
         return this.worlds.get(DEFAULT_WORLD_NAME);
     }
 
@@ -188,8 +188,8 @@ public class TridentWorldLoader implements WorldLoader {
 
     @Override
     public boolean delete(World world) {
-        if (this.worlds.remove(world.name()) != null) {
-            Path path = world.dir();
+        if (this.worlds.remove(world.getName()) != null) {
+            Path path = world.getWorldDirectory();
             try {
                 Files.walkFileTree(path, DELETE_FILES);
             } catch (IOException e) {

@@ -43,7 +43,7 @@ public class PlayInPlayerDig extends PacketIn {
         
         // TODO Hack prevention, events
     
-        position.block().setSubstance(Substance.AIR);
+        position.getBlock().setSubstance(Substance.AIR);
     }
     
     private enum DigStatus {
