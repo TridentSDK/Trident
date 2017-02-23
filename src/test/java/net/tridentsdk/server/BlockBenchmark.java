@@ -222,7 +222,7 @@ public class BlockBenchmark {
     public static void main(String[] args) {
         for (int i = 0; i < 100; i++) {
             ThreadLocalRandom current = ThreadLocalRandom.current();
-            Block b = world.blockAt(current.nextInt(4096), 3, current.nextInt(4096));
+            Block b = world.getBlockAt(current.nextInt(4096), 3, current.nextInt(4096));
             Substance before = b.getSubstance();
             Substance next = Substance.of(current.nextInt(8));
             b.setSubstance(next);
