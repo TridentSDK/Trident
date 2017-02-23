@@ -31,6 +31,9 @@ if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
     git push -fq https://AgentTroll:${DOC_PASS}@github.com/TridentSDK/javadocs.git HEAD:gh-pages >/dev/null 2>/dev/null
     echo "Published JavaDoc.\n" # Done!
     
+    
     # Ping docker hub
+    CURRENT_VERSION=$(grep -oPm1 "(?<=<version>)[^<]+" ../pom.xml)
+    curl -H "Content-Type: application/json" --data \"{"docker_tag": "$CURRENT_VERSION"}\" -X POST https://registry.hub.docker.com/u/tridentsdk/trident/trigger/${DOCKER_TRIGGER_TOKEN}/
     curl -H "Content-Type: application/json" --data '{"build": true}' -X POST https://registry.hub.docker.com/u/tridentsdk/trident/trigger/${DOCKER_TRIGGER_TOKEN}/
 fi
