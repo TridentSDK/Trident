@@ -5,6 +5,8 @@ before_install:
   - sleep 60
 after_script: ./scripts/javadoc.sh
 script: ./scripts/build.sh
+after_install:
+  - "curl -H \"Content-Type: application/json\" --data '{"build": true}' -X POST https://registry.hub.docker.com/u/tridentsdk/trident/trigger/${env.CENTRAL_USER}/"
 language: java
 jdk:
   - oraclejdk8
