@@ -1,13 +1,28 @@
+/*
+ * Trident - A Multithreaded Server Alternative
+ * Copyright 2016 The TridentSDK Team
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package net.tridentsdk.server;
 
+import net.tridentsdk.base.Block;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.server.world.TridentBlock;
+import net.tridentsdk.server.world.TridentChunk;
 import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.util.Misc;
-import org.openjdk.jmh.annotations.Benchmark;
-import org.openjdk.jmh.annotations.Mode;
-import org.openjdk.jmh.annotations.Scope;
-import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
@@ -194,17 +209,31 @@ n.t.s.BlockBenchmark.testWrite     avgt         5     2070.455       76.236    n
  */
 @State(Scope.Benchmark)
 public class BlockBenchmark {
+    private static final TridentWorld world = new TridentWorld("world", Misc.HOME_PATH.resolve("world"));
     private static final TridentBlock[] blocks = new TridentBlock[16777216];
 
     static {
-        TridentWorld world = new TridentWorld("world", Misc.HOME_PATH.resolve("world"));
         ThreadLocalRandom current = ThreadLocalRandom.current();
         for (int i = 0; i < blocks.length; i++) {
             blocks[i] = (TridentBlock) world.blockAt(current.nextInt(4096), 3, current.nextInt(4096));
         }
     }
 
-    public static void main(String[] args) throws RunnerException {
+    public static void main(String[] args) {
+        for (int i = 0; i < 100; i++) {
+            ThreadLocalRandom current = ThreadLocalRandom.current();
+            Block b = world.blockAt(current.nextInt(4096), 3, current.nextInt(4096));
+            Substance before = b.getSubstance();
+            Substance next = Substance.of(current.nextInt(8));
+            b.setSubstance(next);
+            Substance after = b.getSubstance();
+
+            System.out.printf("BEFORE: %s => AFTER: %s, ACTUAL: %s; ==? %s%n",
+                    before, after, next, next == after ? "YES" : "NO");
+        }
+    }
+
+    public static void main0(String[] args) throws RunnerException {
         Options options = new OptionsBuilder()
                 .include(".*" + BlockBenchmark.class.getSimpleName() + ".*")
                 .timeUnit(TimeUnit.NANOSECONDS)
@@ -218,17 +247,30 @@ public class BlockBenchmark {
         new Runner(options).run();
     }
 
+    @Fork
     @Benchmark
     public void testWrite() {
+        Blackhole.consumeCPU(200);
         int idx = ThreadLocalRandom.current().nextInt(blocks.length);
         TridentBlock block = blocks[idx];
-        block.setSubstance(Substance.DIRT);
+        block.setSubstance(Substance.of(idx % 8));
     }
 
+    @Fork
     @Benchmark
-    public void testRead(Blackhole bh) {
+    public Substance testRead() {
+        Blackhole.consumeCPU(200);
         int idx = ThreadLocalRandom.current().nextInt(blocks.length);
         TridentBlock block = blocks[idx];
-        bh.consume(block.getSubstance());
+        return block.getSubstance();
+    }
+
+    // @Fork
+    // @Benchmark
+    public TridentChunk testChunk() {
+        Blackhole.consumeCPU(200);
+        int idx = ThreadLocalRandom.current().nextInt(blocks.length);
+        TridentBlock block = blocks[idx];
+        return null; // return block.getChunk();
     }
 }

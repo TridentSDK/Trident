@@ -64,7 +64,7 @@ public class ColorizerLogger extends PipelinedLogger {
                 if (codeIdx >= sq.length) {
                     break;
                 } else {
-                    ChatColor decode = ChatColor.getColor(sq[codeIdx]);
+                    ChatColor decode = ChatColor.of(sq[codeIdx]);
                     switch (decode) {
                         case BLACK:
                             builder.append(BLACK);

@@ -16,7 +16,7 @@
  */
 package net.tridentsdk.server.world;
 
-import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import net.tridentsdk.server.util.Long2ReferenceOpenHashMap;
 
 import javax.annotation.concurrent.GuardedBy;
 import java.util.Collection;
@@ -36,7 +36,7 @@ public class ChunkMap {
      * The actual map of chunks
      */
     @GuardedBy("lock")
-    private final Long2ObjectOpenHashMap<TridentChunk> chunks = new Long2ObjectOpenHashMap<TridentChunk>() {
+    private final Long2ReferenceOpenHashMap<TridentChunk> chunks = new Long2ReferenceOpenHashMap<TridentChunk>() {
         @Override
         public TridentChunk get(long k) {
             TridentChunk chunk = super.get(k);

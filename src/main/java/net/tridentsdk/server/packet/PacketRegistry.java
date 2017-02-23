@@ -18,8 +18,6 @@ package net.tridentsdk.server.packet;
 
 import com.esotericsoftware.reflectasm.ConstructorAccess;
 import com.google.common.collect.Maps;
-import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
 import net.tridentsdk.server.packet.handshake.HandshakeIn;
 import net.tridentsdk.server.packet.login.*;
 import net.tridentsdk.server.packet.play.*;
@@ -27,6 +25,8 @@ import net.tridentsdk.server.packet.status.StatusInPing;
 import net.tridentsdk.server.packet.status.StatusInRequest;
 import net.tridentsdk.server.packet.status.StatusOutPong;
 import net.tridentsdk.server.packet.status.StatusOutResponse;
+import net.tridentsdk.server.util.Reference2IntOpenHashMap;
+import net.tridentsdk.util.Int2ReferenceOpenHashMap;
 
 import javax.annotation.concurrent.Immutable;
 import java.util.Map;
@@ -120,7 +120,6 @@ public final class PacketRegistry {
 
         PACKETS.trim();
         PACKET_IDS.trim();
-        PACKET_IDS.defaultReturnValue(-1);
     }
 
     /**

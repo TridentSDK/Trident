@@ -17,8 +17,8 @@
 package net.tridentsdk.server.world;
 
 import io.netty.buffer.ByteBuf;
-import it.unimi.dsi.fastutil.shorts.ShortArrayList;
 import net.tridentsdk.server.util.NibbleArray;
+import net.tridentsdk.server.util.ShortArrayList;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
@@ -76,6 +76,8 @@ public class ChunkSection {
      * Creates a new chunk section.
      */
     public ChunkSection(boolean doSkylight) {
+        // Unsynchronized write is ok because we write final
+        // at the end of construction
         this.palette.add((short) 0);
 
         for (int i = 0; i < this.data.length(); i++) {
@@ -110,9 +112,9 @@ public class ChunkSection {
             }
         }
 
-        int dataIdx = (idx * bitsPerBlock) / 64;
-        int shift = (idx % (64 / bitsPerBlock)) * bitsPerBlock;
-        long or = ((long) paletteIdx) << shift;
+        int dataIdx = idx * bitsPerBlock / 64;
+        int shift = idx % (64 / bitsPerBlock) * bitsPerBlock;
+        long or = (long) paletteIdx << shift;
         long and = ~((~((long) paletteIdx) & (1 << bitsPerBlock) - 1) << shift);
 
         long oldLong;
@@ -122,6 +124,7 @@ public class ChunkSection {
             newLong = (oldLong & and) | or;
         }
         while (!this.data.compareAndSet(dataIdx, oldLong, newLong));
+        // TODO relighting
     }
 
     /**
@@ -132,11 +135,13 @@ public class ChunkSection {
      * @return A tuple consisting of substance and meta
      */
     public short dataAt(int idx) {
-        int dataIdx = (idx * this.bitsPerBlock) / 64;
-        int shift = (idx & ((64 / this.bitsPerBlock) - 1)) * this.bitsPerBlock;
+        int dataIdx = idx * this.bitsPerBlock / 64;
+        int shift = idx % (64 / this.bitsPerBlock) * this.bitsPerBlock;
         long paletteIdx = (this.data.get(dataIdx) >> shift) & (1 << this.bitsPerBlock) - 1;
 
-        return this.palette.getShort((int) paletteIdx);
+        synchronized (this.palette) {
+            return this.palette.getShort((int) paletteIdx);
+        }
     }
 
     /**
@@ -148,14 +153,15 @@ public class ChunkSection {
         // Write Bits per block
         buf.writeByte(this.bitsPerBlock);
 
-        // Write the palette size
-        wvint(buf, this.palette.size());
-
-        // Write the palette itself
+        // Cache the palette in order to prevent breaking
+        // the packet with a concurrent write
         ShortArrayList palette;
         synchronized (this.palette) {
             palette = this.palette;
         }
+
+        // Write the palette size
+        wvint(buf, this.palette.size());
 
         for (int i = 0, lim = palette.size(); i < lim; i++) {
             // range check is actually simple if statement,

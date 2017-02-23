@@ -209,6 +209,17 @@
                             <keywords>
                                 <keyword>license</keyword>
                             </keywords>
+                            <excludes>
+                                <exclude>
+                                    src/main/java/net/tridentsdk/server/util/Long2ReferenceOpenHashMap.java
+                                </exclude>
+                                <exclude>
+                                    src/main/java/net/tridentsdk/server/util/Reference2IntOpenHashMap.java
+                                </exclude>
+                                <exclude>
+                                    src/main/java/net/tridentsdk/server/util/ShortArrayList.java
+                                </exclude>
+                            </excludes>
                             <includes>
                                 <include>src/main/java/**</include>
                                 <include>src/test/java/**</include>

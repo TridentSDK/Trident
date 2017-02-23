@@ -88,8 +88,10 @@ public final class TridentBlock implements Block {
     @Override
     public void setSubstance(Substance substance) {
         TridentChunk chunk = this.getChunk();
-        int data = chunk.get(this.relX, this.relY, this.relZ) & 0xF;
-        chunk.set(this.relX, this.relY, this.relZ, (short) (substance.id() << 4 | data));
+        // set substance will need to reset the data because
+        // retaining the data will usually not make sense
+        // e.g. switching from colored wool to grass
+        chunk.set(this.relX, this.relY, this.relZ, (short) (substance.id() << 4));
     }
 
     @Override
@@ -100,7 +102,8 @@ public final class TridentBlock implements Block {
     @Override
     public void setData(byte data) {
         TridentChunk chunk = this.getChunk();
-        int substanceId = chunk.get(this.relX, this.relY, this.relZ) >>> 4;
+        // rshift needed to reset the lower bits
+        int substanceId = chunk.get(this.relX, this.relY, this.relZ) >> 4 & 0xF;
         chunk.set(this.relX, this.relY, this.relZ, (short) (substanceId << 4 | data));
     }
 

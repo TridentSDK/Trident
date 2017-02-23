@@ -93,10 +93,16 @@ public final class TridentEventController implements EventController {
             if (params.length == 1) {
                 Parameter p = params[0];
                 Class<?> pType = p.getType();
-                if (Event.class.isAssignableFrom(pType)
-                        && pType.getAnnotation(Supertype.class) == null) {
+                if (pType.getAnnotation(Supertype.class) != null) {
+                    // TODO ??
+                    continue;
+                }
+
+                if (Event.class.isAssignableFrom(pType)) {
+                    Class<? extends Event> clazz = (Class<? extends Event>) pType;
                     Queue<EventDispatcher> dispatchers = listeners.computeIfAbsent(
-                            (Class<? extends Event>) pType, k -> Queues.newConcurrentLinkedQueue());
+                            clazz, k -> Queues.newConcurrentLinkedQueue());
+
                 }
             }
         }

@@ -72,7 +72,7 @@ public final class PlayInChat extends PacketIn {
             for (String word : "I hate my life".split(" ")) {
                 BossBar bb = BossBar.newBossBar();
 
-                bb.setTitle(ChatComponent.text(word).setColor(ChatColor.getColor((char) ('a' + i))));
+                bb.setTitle(ChatComponent.text(word).setColor(ChatColor.of((char) ('a' + i))));
                 bb.setColor(BossBarColor.values()[i]);
                 bb.setDivision(BossBarDivision.values()[i++]);
                 bb.setHealth(i * .25f);

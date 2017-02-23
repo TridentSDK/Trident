@@ -28,6 +28,6 @@ if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
     cd gh-pages
     git add .
     git commit -m "Auto-publishing Javadoc from Travis CI"
-    git push -fq https://AgentTroll:${DOC_PASS}@github.com/TridentSDK/javadocs.git HEAD:gh-pages > /dev/null
+    git push -fq https://AgentTroll:${DOC_PASS}@github.com/TridentSDK/javadocs.git HEAD:gh-pages >/dev/null 2>/dev/null
     echo "Published JavaDoc.\n" # Done!
 fi
