@@ -132,12 +132,12 @@ public class GeneratorContextImpl implements GeneratorContext {
 
     @Override
     public void set(int x, int y, int z, Substance substance, byte meta) {
-        this.set(x, y, z, build(substance.id(), meta));
+        this.set(x, y, z, build(substance.getId(), meta));
     }
 
     @Override
     public void set(int x, int y, int z, Substance substance) {
-        this.set(x, y, z, build(substance.id(), (byte) 0));
+        this.set(x, y, z, build(substance.getId(), (byte) 0));
     }
 
     @Override

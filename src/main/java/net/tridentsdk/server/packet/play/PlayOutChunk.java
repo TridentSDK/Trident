@@ -38,8 +38,8 @@ public final class PlayOutChunk extends PacketOut {
     public void write(ByteBuf buf) {
         boolean doGUContinuous = true;
 
-        buf.writeInt(this.chunk.x());
-        buf.writeInt(this.chunk.z());
+        buf.writeInt(this.chunk.getX());
+        buf.writeInt(this.chunk.getZ());
         buf.writeBoolean(doGUContinuous);
         this.chunk.write(buf, doGUContinuous);
     }

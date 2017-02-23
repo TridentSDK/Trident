@@ -38,15 +38,15 @@ public final class PlayOutSpawnPlayer extends PacketOut {
     public void write(ByteBuf buf) {
         wvint(buf, player.getId());
 
-        buf.writeLong(player.uuid().getMostSignificantBits());
-        buf.writeLong(player.uuid().getLeastSignificantBits());
+        buf.writeLong(player.getUuid().getMostSignificantBits());
+        buf.writeLong(player.getUuid().getLeastSignificantBits());
 
-        buf.writeDouble(player.getPosition().x());
-        buf.writeDouble(player.getPosition().y());
-        buf.writeDouble(player.getPosition().z());
+        buf.writeDouble(player.getPosition().getX());
+        buf.writeDouble(player.getPosition().getY());
+        buf.writeDouble(player.getPosition().getZ());
 
-        buf.writeByte((byte) ((player.getPosition().yaw()) % 360 * (256d / 360d)));
-        buf.writeByte((int) (byte) player.getPosition().pitch());
+        buf.writeByte((byte) ((player.getPosition().getYaw()) % 360 * (256d / 360d)));
+        buf.writeByte((int) (byte) player.getPosition().getPitch());
 
         buf.writeByte(7);
         buf.writeByte(2);

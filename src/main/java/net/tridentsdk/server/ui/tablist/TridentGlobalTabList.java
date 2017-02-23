@@ -77,7 +77,7 @@ public class TridentGlobalTabList extends TridentTabList {
     public void removePlayer(TridentPlayer player) {
         if (super.users.remove(player)) {
             PlayOutTabListItem.PlayOutTabListItemRemovePlayer packet = PlayOutTabListItem.removePlayerPacket();
-            packet.removePlayer(player.uuid());
+            packet.removePlayer(player.getUuid());
             super.users.forEach(p -> ((TridentPlayer) p).net().sendPacket(packet));
         }
     }

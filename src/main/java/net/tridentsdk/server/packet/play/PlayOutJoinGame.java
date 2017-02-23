@@ -50,16 +50,16 @@ public final class PlayOutJoinGame extends PacketOut {
     public PlayOutJoinGame(Player player, World world) {
         super(PlayOutJoinGame.class);
         this.player = player;
-        this.opts = world.opts();
-        this.type = world.genOpts().levelType();
+        this.opts = world.getWorldOptions();
+        this.type = world.getGeneratorOptions().getLevelType();
     }
 
     @Override
     public void write(ByteBuf buf) {
         buf.writeInt(this.player.getId());
-        buf.writeByte(this.opts.gameMode().asByte());
-        buf.writeInt(this.opts.dimension().asByte());
-        buf.writeByte(this.opts.difficulty().asByte());
+        buf.writeByte(this.opts.getGameMode().asByte());
+        buf.writeInt(this.opts.getDimension().asByte());
+        buf.writeByte(this.opts.getDifficulty().asByte());
         buf.writeByte(0); // ignored by client
         wstr(buf, this.type.toString());
         buf.writeBoolean(false); // disable reduce debug

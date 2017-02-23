@@ -93,28 +93,28 @@ public class GenOptImpl implements GenOpts {
     }
 
     @Override
-    public GeneratorProvider provider() {
+    public GeneratorProvider getProvider() {
         return this.provider;
     }
 
     @Override
-    public long seed() {
+    public long getSeed() {
         return this.seed;
     }
 
     @Nonnull
     @Override
-    public String seedInput() {
+    public String getSeedInput() {
         return this.seedInput;
     }
 
     @Override
-    public LevelType levelType() {
+    public LevelType getLevelType() {
         return this.type;
     }
 
     @Override
-    public boolean allowFeatures() {
+    public boolean isAllowFeatures() {
         return this.allowFeatures;
     }
 

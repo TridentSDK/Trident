@@ -37,7 +37,7 @@ public final class PlayOutDifficulty extends PacketOut {
 
     public PlayOutDifficulty(World world) {
         super(PlayOutDifficulty.class);
-        this.difficulty = world.opts().difficulty();
+        this.difficulty = world.getWorldOptions().getDifficulty();
     }
 
     @Override

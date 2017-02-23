@@ -36,24 +36,24 @@ public class FlatGeneratorProvider implements GeneratorProvider {
     public static final FlatGeneratorProvider INSTANCE = new FlatGeneratorProvider();
 
     @Override
-    public TerrainGenerator terrain(World world) {
+    public TerrainGenerator getTerrainGenerator(World world) {
         return FlatTerrainGenerator.INSTANCE;
     }
 
     @Nonnull
     @Override
-    public Set<FeatureGenerator> featureSet(World world) {
+    public Set<FeatureGenerator> getFeatureGenerators(World world) {
         return Collections.emptySet();
     }
 
     @Nonnull
     @Override
-    public Set<PropGenerator> propSet(World world) {
+    public Set<PropGenerator> getPropGenerators(World world) {
         return Collections.emptySet();
     }
 
     @Override
-    public GenContainer container() {
+    public GenContainer getGenerationContainer() {
         return GenContainer.ARBITRARY;
     }
 }

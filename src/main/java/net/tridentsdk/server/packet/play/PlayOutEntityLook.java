@@ -38,8 +38,8 @@ public final class PlayOutEntityLook extends PacketOut {
     public void write(ByteBuf buf) {
         wvint(buf, entity.getId());
 
-        buf.writeByte((int) (byte) entity.getPosition().yaw());
-        buf.writeByte((int) (((int) (byte) entity.getPosition().pitch()) / 1.4));
+        buf.writeByte((int) (byte) entity.getPosition().getYaw());
+        buf.writeByte((int) (((int) (byte) entity.getPosition().getPitch()) / 1.4));
 
         buf.writeBoolean(true);
     }

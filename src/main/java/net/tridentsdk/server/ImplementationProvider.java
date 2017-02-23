@@ -66,7 +66,7 @@ public class ImplementationProvider implements Impl.ImplementationProvider {
     }
 
     @Override
-    public Server svr() {
+    public Server getServer() {
         return TridentServer.getInstance();
     }
 
@@ -101,7 +101,7 @@ public class ImplementationProvider implements Impl.ImplementationProvider {
     }
 
     @Override
-    public TabList globalTabList() {
+    public TabList getGlobalTabList() {
         return TridentGlobalTabList.getInstance();
     }
 
@@ -116,7 +116,7 @@ public class ImplementationProvider implements Impl.ImplementationProvider {
     }
 
     @Override
-    public Inventory newInv(InventoryType type, int slots) {
+    public Inventory newInventory(InventoryType type, int slots) {
         return new TridentInventory(type, slots);
     }
 

@@ -103,7 +103,7 @@ public class TridentWorld implements World {
         this.dir = enclosing;
         // this is only ok because we aren't passing the
         // instance to another thread viewable object
-        this.worldOpts = new WorldOptImpl(this, WorldCreateSpec.defaultOpts());
+        this.worldOpts = new WorldOptImpl(this, WorldCreateSpec.getDefaultOptions());
         this.genOpts = new GenOptImpl(new Object());
     }
 
@@ -120,68 +120,68 @@ public class TridentWorld implements World {
     }
 
     @Override
-    public String name() {
+    public String getName() {
         return this.name;
     }
 
     @Override
-    public int time() {
+    public int getTime() {
         return 0;
     }
 
     @Override
-    public WorldOpts opts() {
+    public WorldOpts getWorldOptions() {
         return this.worldOpts;
     }
 
     @Override
-    public Weather weather() {
+    public Weather getWeather() {
         return null;
     }
 
     @Override
-    public GenOpts genOpts() {
+    public GenOpts getGeneratorOptions() {
         return this.genOpts;
     }
 
     @Override
-    public WorldBorder border() {
+    public WorldBorder getBorder() {
         return null;
     }
 
     @Nonnull
     @Override
-    public TridentChunk chunkAt(int x, int z) {
+    public TridentChunk getChunkAt(int x, int z) {
         return this.chunks.get(x, z, true);
     }
 
     @Nullable
     @Override
-    public TridentChunk chunkAt(int x, int z, boolean gen) {
+    public TridentChunk getChunkAt(int x, int z, boolean gen) {
         return this.chunks.get(x, z, gen);
     }
 
     public TridentChunk chunkAt(IntPair pair) {
-        return this.chunkAt(pair.x(), pair.z());
+        return this.getChunkAt(pair.getX(), pair.getZ());
     }
 
     @Override
-    public Collection<? extends Chunk> loadedChunks() {
+    public Collection<? extends Chunk> getLoadedChunks() {
         return Collections.unmodifiableCollection(this.chunks.values());
     }
 
     @Override
-    public Block blockAt(int x, int y, int z) {
+    public Block getBlockAt(int x, int y, int z) {
         return new TridentBlock(new ImmutableWorldVector(this, x, y, z));
     }
 
     @Override
-    public Block blockAt(Position pos) {
+    public Block getBlockAt(Position pos) {
         return new TridentBlock(pos.toWorldVector());
     }
 
     @Override
-    public Path dir() {
+    public Path getWorldDirectory() {
         return this.dir;
     }
 

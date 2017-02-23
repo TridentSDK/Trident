@@ -41,7 +41,7 @@ public final class TridentBlock implements Block {
      */
     private final TridentWorld world;
     /**
-     * The chunk x coordinate
+     * The chunk X coordinate
      */
     private final int cX;
     /**
@@ -89,7 +89,7 @@ public final class TridentBlock implements Block {
     public void setSubstance(Substance substance) {
         TridentChunk chunk = this.getChunk();
         int data = chunk.get(this.relX, this.relY, this.relZ) & 0xF;
-        chunk.set(this.relX, this.relY, this.relZ, (short) (substance.id() << 4 | data));
+        chunk.set(this.relX, this.relY, this.relZ, (short) (substance.getId() << 4 | data));
     }
 
     @Override
@@ -110,6 +110,6 @@ public final class TridentBlock implements Block {
      * @return the container chunk
      */
     private TridentChunk getChunk() {
-        return this.world.chunkAt(this.cX, this.cZ);
+        return this.world.getChunkAt(this.cX, this.cZ);
     }
 }

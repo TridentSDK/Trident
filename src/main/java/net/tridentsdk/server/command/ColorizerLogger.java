@@ -54,7 +54,7 @@ public class ColorizerLogger extends PipelinedLogger {
 
     @Override
     public LogMessageImpl handle(LogMessageImpl msg) {
-        char[] sq = msg.message().toCharArray();
+        char[] sq = msg.getMessage().toCharArray();
 
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < sq.length; i++) {
@@ -149,7 +149,7 @@ public class ColorizerLogger extends PipelinedLogger {
      * log.
      */
     private LogMessageImpl handle(String color, LogMessageImpl msg) {
-        msg.setMessage(color + msg.message() + RESET);
+        msg.setMessage(color + msg.getMessage() + RESET);
         return msg;
     }
 

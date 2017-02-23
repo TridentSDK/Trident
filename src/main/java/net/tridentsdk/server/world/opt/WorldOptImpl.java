@@ -61,7 +61,7 @@ public class WorldOptImpl implements WorldOpts {
     }
 
     @Override
-    public boolean allowFlight() {
+    public boolean isAllowFlight() {
         return this.allowFlight;
     }
 
@@ -71,7 +71,7 @@ public class WorldOptImpl implements WorldOpts {
     }
 
     @Override
-    public boolean allowPvp() {
+    public boolean isAllowPvp() {
         return this.allowPvp;
     }
 
@@ -81,7 +81,7 @@ public class WorldOptImpl implements WorldOpts {
     }
 
     @Override
-    public boolean allowPortals() {
+    public boolean isAllowPortals() {
         return this.allowPortals;
     }
 
@@ -91,7 +91,7 @@ public class WorldOptImpl implements WorldOpts {
     }
 
     @Override
-    public boolean forceGameMode() {
+    public boolean isForceGameMode() {
         return this.forceGamemode;
     }
 
@@ -101,7 +101,7 @@ public class WorldOptImpl implements WorldOpts {
     }
 
     @Override
-    public GameMode gameMode() {
+    public GameMode getGameMode() {
         return this.gameMode;
     }
 
@@ -111,7 +111,7 @@ public class WorldOptImpl implements WorldOpts {
     }
 
     @Override
-    public Difficulty difficulty() {
+    public Difficulty getDifficulty() {
         return this.difficulty;
     }
 
@@ -121,7 +121,7 @@ public class WorldOptImpl implements WorldOpts {
     }
 
     @Override
-    public boolean difficultyLocked() {
+    public boolean isDifficultyLocked() {
         return this.difficultyLocked;
     }
 
@@ -131,7 +131,7 @@ public class WorldOptImpl implements WorldOpts {
     }
 
     @Override
-    public int spawnProtectionRadius() {
+    public int getSpawnProtectionRadius() {
         return this.spawnProtection;
     }
 
@@ -141,7 +141,7 @@ public class WorldOptImpl implements WorldOpts {
     }
 
     @Override
-    public Dimension dimension() {
+    public Dimension getDimension() {
         return this.dimension;
     }
 
@@ -156,7 +156,7 @@ public class WorldOptImpl implements WorldOpts {
     }
 
     @Override
-    public Vector spawn() {
+    public Vector getSpawn() {
         return this.spawn;
     }
 
@@ -166,7 +166,7 @@ public class WorldOptImpl implements WorldOpts {
     }
 
     @Override
-    public GameRuleMap gameRules() {
+    public GameRuleMap getGameRules() {
         return this.map;
     }
 

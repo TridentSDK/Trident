@@ -115,7 +115,7 @@ public class InfoLogger extends LoggerHandlers implements Logger {
     }
 
     @Override
-    public String name() {
+    public String getName() {
         return this.name;
     }
 
@@ -145,7 +145,7 @@ public class InfoLogger extends LoggerHandlers implements Logger {
     }
 
     @Override
-    public OutputStream out() {
+    public OutputStream getOutputStream() {
         return this.next.out();
     }
 }

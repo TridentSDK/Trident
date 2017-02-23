@@ -60,17 +60,17 @@ public class LogMessageImpl implements LogMessage {
     }
 
     @Override
-    public InfoLogger source() {
+    public InfoLogger getLogger() {
         return this.source;
     }
 
     @Override
-    public String[] components() {
+    public String[] getComponents() {
         return this.components;
     }
 
     @Override
-    public String message() {
+    public String getMessage() {
         return this.message;
     }
 
@@ -79,7 +79,7 @@ public class LogMessageImpl implements LogMessage {
     }
 
     @Override
-    public ZonedDateTime time() {
+    public ZonedDateTime getTime() {
         return this.time;
     }
 
