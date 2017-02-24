@@ -11,6 +11,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <build.commit.hash>${TRAVIS_COMMIT}</build.commit.hash>
+        <build.commit.message>${TRAVIS_COMMIT_MESSAGE}</build.commit.message>
     </properties>
 
     <scm>
@@ -132,6 +134,13 @@
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>commit_data</include>
+                </includes>
             </resource>
         </resources>
 

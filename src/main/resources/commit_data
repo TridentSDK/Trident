@@ -1,0 +1,2 @@
+${build.commit.hash}
+${build.commit.message}
