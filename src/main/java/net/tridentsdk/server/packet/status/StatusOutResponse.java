@@ -38,12 +38,12 @@ public final class StatusOutResponse extends PacketOut {
      * The current Minecraft version implemented by the
      * server
      */
-    public static final String MC_VERSION = "1.11";
+    public static final String MC_VERSION = "1.11.2";
     /**
      * The protocol version associated with the Minecraft
      * version
      */
-    private static final int PROTOCOL_VERSION = 315;
+    private static final int PROTOCOL_VERSION = 316;
 
     public StatusOutResponse() {
         super(StatusOutResponse.class);
