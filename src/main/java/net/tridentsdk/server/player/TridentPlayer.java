@@ -418,11 +418,13 @@ public class TridentPlayer extends TridentEntity implements Player {
                             .thenAccept(chunk -> {
                                 this.client.sendPacket(new PlayOutChunk(chunk));
                                 this.chunkSentTime.put(position, System.currentTimeMillis());
-                            }).thenRunAsync(() -> TridentPlayer.players.values().stream()
-                                .filter(player -> !player.equals(this))
-                                .forEach(player -> this.client.sendPacket(new PlayOutSpawnPlayer(player))));
+                            });
                 }
             }
         }
+        
+        CompletableFuture.runAsync(() -> TridentPlayer.players.values().stream()
+                .filter(player -> !player.equals(this))
+                .forEach(player -> this.client.sendPacket(new PlayOutSpawnPlayer(player))));
     }
 }
