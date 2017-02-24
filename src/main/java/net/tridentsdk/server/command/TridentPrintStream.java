@@ -16,8 +16,10 @@
  */
 package net.tridentsdk.server.command;
 
+import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.AnsiConsole;
 
+import javax.annotation.Nonnull;
 import java.io.PrintStream;
 
 /**
@@ -32,7 +34,7 @@ public class TridentPrintStream extends PrintStream {
     @Override
     public void println(String line) {
         synchronized (this) {
-            super.print("\r" + line);
+            super.print(Ansi.ansi().cursorLeft(2) + line);
             super.println();
             super.print("$ ");
             super.flush();
@@ -41,12 +43,7 @@ public class TridentPrintStream extends PrintStream {
 
     @Override
     public void println(Object x) {
-        synchronized (this) {
-            super.print("\r" + x.toString());
-            super.println();
-            super.print("$ ");
-            super.flush();
-        }
+        this.println(x.toString());
     }
     
     @Override
@@ -56,57 +53,36 @@ public class TridentPrintStream extends PrintStream {
 
     @Override
     public void println(boolean x) {
-        synchronized (this) {
-            this.print(x);
-            this.println();
-        }
+        this.println(x ? "true" : "false");
     }
 
     @Override
     public void println(char x) {
-        synchronized (this) {
-            this.print(x);
-            this.println();
-        }
+        this.println(String.valueOf(x));
     }
 
     @Override
     public void println(int x) {
-        synchronized (this) {
-            this.print(x);
-            this.println();
-        }
+        this.println(String.valueOf(x));
     }
 
     @Override
     public void println(long x) {
-        synchronized (this) {
-            this.print(x);
-            this.println();
-        }
+        this.println(String.valueOf(x));
     }
 
     @Override
     public void println(float x) {
-        synchronized (this) {
-            this.print(x);
-            this.println();
-        }
+        this.println(String.valueOf(x));
     }
 
     @Override
     public void println(double x) {
-        synchronized (this) {
-            this.print(x);
-            this.println();
-        }
+        this.println(String.valueOf(x));
     }
 
     @Override
-    public void println(char x[]) {
-        synchronized (this) {
-            this.print(x);
-            this.println();
-        }
+    public void println(@Nonnull char x[]) {
+        this.println(new String(x));
     }
 }
