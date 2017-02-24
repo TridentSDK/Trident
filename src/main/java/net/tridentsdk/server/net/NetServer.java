@@ -16,8 +16,6 @@
  */
 package net.tridentsdk.server.net;
 
-import net.tridentsdk.server.config.ServerConfig;
-
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -47,17 +45,16 @@ public abstract class NetServer {
     /**
      * Initializer code for server startup.
      *
-     * @param config the config which to pull information
+     * @param ip the IP address of the interface to bind
+     * @param port the port which to bind the interface
      * @return the new server net handler
      * @throws InterruptedException if something went
      * horribly wrong
      */
-    public static NetServer init(ServerConfig config) throws InterruptedException {
+    public static NetServer init(String ip, int port, boolean useNative) throws InterruptedException {
         boolean nativeCompat = System.getProperty("os.name").toLowerCase().contains("linux");
-        String ip = config.ip();
-        int port = config.port();
 
-        return nativeCompat && config.useNative() ?
+        return nativeCompat && useNative ?
                 new NetEpollServer(ip, port) : new NetNioServer(ip, port);
     }
 

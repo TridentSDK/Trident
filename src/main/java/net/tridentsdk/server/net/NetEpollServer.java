@@ -17,7 +17,6 @@
 package net.tridentsdk.server.net;
 
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.epoll.EpollEventLoopGroup;
@@ -46,7 +45,7 @@ public class NetEpollServer extends NetServer {
                 .childHandler(new NetChannelInit())
                 .option(ChannelOption.SO_BACKLOG, 128)
                 .childOption(ChannelOption.SO_KEEPALIVE, true);
-        ChannelFuture future = b.bind(this.ip(), this.port()).sync();
+        b.bind(this.ip(), this.port());
     }
 
     @Override

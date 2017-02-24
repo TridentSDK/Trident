@@ -35,6 +35,7 @@ import javax.annotation.concurrent.Immutable;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Scanner;
 
 /**
  * Trident server startup class
@@ -101,14 +102,14 @@ public final class TridentMain {
         // -------------------------------------------------
 
         // Pass net args to the server handler -------------
+        String address = config.ip();
+        int port = config.port();
+
         NetServer server;
         if (vilsol) {
-            String address = config.ip();
-            int port = config.port();
-
             server = new NetNioServer(address, port);
         } else {
-            server = NetServer.init(config);
+            server = NetServer.init(address, port, config.useNative());
         }
         // -------------------------------------------------
 
@@ -136,10 +137,22 @@ public final class TridentMain {
         // -------------------------------------------------
 
         // Setup netty and other network crap --------------
-        String address = config.ip();
-        int port = config.port();
         logger.log(String.format("Server will be opened on %s:%s", address, port));
         server.setup();
+        // -------------------------------------------------
+
+        // Console command handling ------------------------
+        while (true) {
+            Scanner scanner = new Scanner(System.in);
+
+            String next = scanner.nextLine();
+            if (next.equals("shutdown") || next.equals("stop")) {
+                TridentServer.getInstance().shutdown();
+                break;
+            }
+
+            logger.warn("Commands are not implemented :(");
+        }
         // -------------------------------------------------
     }
 }

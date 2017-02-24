@@ -16,8 +16,6 @@
  */
 package net.tridentsdk.server.command;
 
-import org.fusesource.jansi.AnsiConsole;
-
 import javax.annotation.concurrent.Immutable;
 import java.io.OutputStream;
 
@@ -67,11 +65,6 @@ public abstract class PipelinedLogger {
      * Initialization code
      */
     public static PipelinedLogger init(boolean verbose) throws Exception {
-        AnsiConsole.systemInstall();
-        System.setErr(System.out);
-        // force error stream to
-        // lock on System.out
-
         // tail of pipeline
         PipelinedLogger underlying = new DefaultLogger();
         PipelinedLogger colorizer = new ColorizerLogger(underlying);

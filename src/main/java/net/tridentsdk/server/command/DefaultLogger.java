@@ -16,8 +16,6 @@
  */
 package net.tridentsdk.server.command;
 
-import org.fusesource.jansi.AnsiConsole;
-
 import javax.annotation.concurrent.Immutable;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -34,7 +32,7 @@ import java.io.PrintStream;
 @Immutable
 public class DefaultLogger extends PipelinedLogger {
     /**
-     * The underlying stream that to which output is passed
+     * The underlying stream to which output is passed
      */
     private final PrintStream stream;
 
@@ -44,13 +42,12 @@ public class DefaultLogger extends PipelinedLogger {
      */
     public DefaultLogger() {
         super(null);
-        this.stream = new PrintStream(AnsiConsole.out) {
-            @Override
-            public void println(String line) {
-                super.println("\r" + line);
-                super.print("$ ");
-            }
-        };
+        this.stream = new TridentPrintStream();
+
+        System.setOut(this.stream);
+        System.setErr(this.stream);
+        // force error stream to
+        // lock on System.out
     }
 
     @Override
