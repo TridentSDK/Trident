@@ -56,9 +56,6 @@ public final class PlayInPosLook extends PacketIn {
         player.setPosition(newPosition);
         player.setOnGround(isOnGround);
 
-        System.out.println(player.getName() + " yaw = " + yaw);
-        System.out.println(player.getName() + " pitch = " + pitch);
-
         PlayOutEntityLook playOutEntityLook = new PlayOutEntityLook(player);
         PlayOutEntityHeadLook playOutEntityHeadLook = new PlayOutEntityHeadLook(player);
 

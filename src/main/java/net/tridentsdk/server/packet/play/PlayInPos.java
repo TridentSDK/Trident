@@ -43,6 +43,7 @@ public final class PlayInPos extends PacketIn {
 
         TridentPlayer player = client.getPlayer();
         Position newPosition = player.getPosition().clone();
+
         newPosition.setX(x);
         newPosition.setY(feetY);
         newPosition.setZ(z);

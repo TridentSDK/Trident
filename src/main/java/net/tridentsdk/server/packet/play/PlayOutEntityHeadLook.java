@@ -27,17 +27,20 @@ import static net.tridentsdk.server.net.NetData.wvint;
 @Immutable
 public final class PlayOutEntityHeadLook extends PacketOut {
 
-    private final Entity entity;
+    private final int id;
+    private final double yaw;
 
     public PlayOutEntityHeadLook(Entity entity) {
         super(PlayOutEntityHeadLook.class);
-        this.entity = entity;
+        this.id = entity.getId();
+        this.yaw = entity.getPosition().getYaw();
     }
 
     @Override
     public void write(ByteBuf buf) {
-        wvint(buf, entity.getId());
-        buf.writeByte((((int) entity.getPosition().getYaw()) % 360) * 256/360);
+        wvint(buf, id);
+
+        buf.writeByte((int) (yaw * 256 / 360));
     }
 
 }

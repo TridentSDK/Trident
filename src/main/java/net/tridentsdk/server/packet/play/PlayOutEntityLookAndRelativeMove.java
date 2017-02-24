@@ -28,27 +28,33 @@ import static net.tridentsdk.server.net.NetData.wvint;
 @Immutable
 public final class PlayOutEntityLookAndRelativeMove extends PacketOut {
 
-    private final Entity entity;
+    private final int id;
+    private final double yaw;
+    private final double pitch;
+    private final boolean onGround;
     private final Position delta;
 
     public PlayOutEntityLookAndRelativeMove(Entity entity, Position delta) {
         super(PlayOutEntityLookAndRelativeMove.class);
-        this.entity = entity;
+        this.id = entity.getId();
+        this.yaw = entity.getPosition().getYaw();
+        this.pitch = entity.getPosition().getPitch();
+        this.onGround = entity.isOnGround();
         this.delta = delta.clone().multiply(32, 32, 32).multiply(128, 128, 128);
     }
 
     @Override
     public void write(ByteBuf buf) {
-        wvint(buf, entity.getId());
+        wvint(buf, id);
 
         buf.writeShort((int) delta.getX());
         buf.writeShort((int) delta.getY());
         buf.writeShort((int) delta.getZ());
 
-        buf.writeByte((((int) entity.getPosition().getYaw()) % 360) * 256/360);
-        buf.writeByte((int) (((int) (byte) entity.getPosition().getPitch()) / 1.4) * 256/360);
+        buf.writeByte((int) (yaw * 256 / 360));
+        buf.writeByte((int) (pitch / 1.4));
 
-        buf.writeBoolean(entity.isOnGround());
+        buf.writeBoolean(onGround);
     }
 
 }

@@ -110,7 +110,7 @@ public abstract class TridentEntity implements Entity {
             // TODO consider sending packet in a specified range
             Collection<TridentPlayer> players = TridentPlayer.getPlayers().values();
 
-            if (this.position.getYaw() != position.getYaw() || this.position.getPitch() != position.getPitch()){
+            if (Double.compare(this.position.getYaw(), position.getYaw()) == 0 || Double.compare(this.position.getPitch(), position.getPitch()) == 0){
                 PlayOutEntityLookAndRelativeMove lookAndRelativeMove = new PlayOutEntityLookAndRelativeMove(this, delta);
                 PlayOutEntityHeadLook headLook = new PlayOutEntityHeadLook(this);
                 players.stream().filter(p -> !p.equals(this)).forEach(p -> {

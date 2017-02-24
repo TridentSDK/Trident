@@ -407,7 +407,6 @@ public class TridentPlayer extends TridentEntity implements Player {
         } else if (position.getChunkZ() != pos.getChunkZ()) {
             this.updateChunks(position.getChunkZ() > pos.getChunkZ() ? BlockDirection.SOUTH : BlockDirection.NORTH);
         }
-
         super.setPosition(position);
     }
 

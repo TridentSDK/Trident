@@ -55,7 +55,7 @@ public final class PlayOutPosLook extends PacketOut {
         buf.writeDouble(this.pos.getZ());
         buf.writeFloat(this.pos.getYaw());
         buf.writeFloat(this.pos.getPitch());
-        buf.writeByte(0);
+        buf.writeByte(0); // all absolute
         wvint(buf, PlayInTeleportConfirm.query(this.player.net()));
     }
 }

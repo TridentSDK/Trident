@@ -41,9 +41,9 @@ public final class PlayOutEntityRelativeMove extends PacketOut {
     public void write(ByteBuf buf) {
         wvint(buf, entity.getId());
 
-        buf.writeShort((short) (delta.getX()));
-        buf.writeShort((short) (delta.getY()));
-        buf.writeShort((short) (delta.getZ()));
+        buf.writeShort((short) delta.getX());
+        buf.writeShort((short) delta.getY());
+        buf.writeShort((short) delta.getZ());
 
         buf.writeBoolean(entity.isOnGround());
     }
