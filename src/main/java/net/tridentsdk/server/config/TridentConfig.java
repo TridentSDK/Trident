@@ -18,7 +18,6 @@ package net.tridentsdk.server.config;
 
 
 import com.google.common.collect.Maps;
-import com.google.gson.JsonObject;
 import net.tridentsdk.config.Config;
 import net.tridentsdk.config.ConfigSection;
 
@@ -27,6 +26,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.concurrent.ConcurrentMap;
+import org.json.JSONObject;
 
 /**
  * The default implementation of a configuration file that
@@ -116,13 +116,13 @@ public class TridentConfig extends TridentConfigSection implements Config {
 
     @Override
     public void load() throws IOException {
-        JsonObject object = ConfigIo.readConfig(this.path);
+        JSONObject object = ConfigIo.readConfig(this.path);
         this.read(object);
     }
 
     @Override
     public void save() throws IOException {
-        JsonObject object = this.write();
+        JSONObject object = this.write();
         ConfigIo.writeConfig(this.path, object);
     }
 }

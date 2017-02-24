@@ -16,13 +16,13 @@
  */
 package net.tridentsdk.server.config;
 
-import com.google.gson.*;
-
+import java.nio.charset.StandardCharsets;
 import javax.annotation.concurrent.Immutable;
 import java.io.*;
-import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 
 /**
  * This class is a config writer that centralizes logic
@@ -30,19 +30,6 @@ import java.nio.file.Path;
  */
 @Immutable
 public final class ConfigIo {
-    /**
-     * Gson object using readability settings
-     */
-    public static final Gson GSON = new GsonBuilder()
-            .registerTypeAdapterFactory(TridentAdapter.FACTORY)
-            .serializeNulls()
-            .setPrettyPrinting()
-            .disableHtmlEscaping()
-            .create();
-    /**
-     * JsonParser for straight reading the configs
-     */
-    public static final JsonParser PARSER = new JsonParser();
 
     // Prevent instantiation
     private ConfigIo() {
@@ -71,17 +58,13 @@ public final class ConfigIo {
      * @param path the config file location
      * @return the in-memory representation of the config
      */
-    public static JsonObject readConfig(Path path) throws IOException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        try (FileInputStream stream = new FileInputStream(path.toFile())) {
-            byte[] buffer = new byte[8192];
-            while (stream.read(buffer, 0, buffer.length) > -1) {
-                out.write(buffer, 0, buffer.length);
-            }
+    public static JSONObject readConfig(Path path) throws IOException {
+        JSONObject object;
+        try (BufferedReader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
+            JSONTokener tokener = new JSONTokener(reader);
+            object = (JSONObject) tokener.nextValue();
         }
-
-        String json = new String(out.toByteArray()).trim();
-        return PARSER.parse(json).getAsJsonObject();
+        return object;
     }
 
     /**
@@ -92,8 +75,8 @@ public final class ConfigIo {
      * @param object the memory representation of the
      * config
      */
-    public static void writeConfig(Path path, JsonObject object) throws IOException {
-        String json = GSON.toJson(object);
+    public static void writeConfig(Path path, JSONObject object) throws IOException {
+        String json = object.toString();
 
         try {
             if (!Files.exists(path)) {
@@ -109,26 +92,4 @@ public final class ConfigIo {
         }
     }
 
-    /**
-     * Converts the element to an object
-     *
-     * @param element the element to convert
-     * @param cls the type to which this method will
-     * convert
-     * @param <T> the type
-     * @return the object
-     */
-    public static <T> T asObj(JsonElement element, Class<T> cls) {
-        return GSON.fromJson(element, (Type) cls);
-    }
-
-    /**
-     * Converts the object to a json object
-     *
-     * @param o the object to convert
-     * @return the json object
-     */
-    public static JsonElement asJson(Object o) {
-        return GSON.toJsonTree(o);
-    }
 }

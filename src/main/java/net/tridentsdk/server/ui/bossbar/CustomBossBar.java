@@ -26,6 +26,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import org.json.JSONObject;
 
 /**
  * A customizable boss bar that can be used by a client.
@@ -214,7 +215,7 @@ public class CustomBossBar extends AbstractBossBar {
 
     @Override
     public CustomBossBar clone() {
-        return new CustomBossBar(ChatComponent.fromJson(this.title.get().asJson().getAsJsonObject()),
+        return new CustomBossBar(ChatComponent.fromJson((JSONObject) this.title.get().asJson()),
                 this.health.get(),
                 this.color.get(),
                 this.division.get(),

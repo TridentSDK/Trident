@@ -16,8 +16,6 @@
  */
 package net.tridentsdk.server.net;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import io.netty.buffer.ByteBuf;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -30,6 +28,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
+import org.json.JSONObject;
 
 /**
  * @author TridentSDK
@@ -72,7 +71,7 @@ public class EntityMetadata {
                     value = NetData.rstr(buf);
                     break;
                 case CHAT:
-                    value = ChatComponent.fromJson(new Gson().fromJson(NetData.rstr(buf), JsonObject.class));
+                    value = ChatComponent.fromJson(new JSONObject(NetData.rstr(buf)));
                     break;
                 case SLOT:
                     // TODO -  slots

@@ -16,7 +16,6 @@
  */
 package net.tridentsdk.server.packet.login;
 
-import com.google.gson.JsonObject;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.packet.PacketIn;
@@ -26,6 +25,7 @@ import javax.annotation.concurrent.Immutable;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
+import org.json.JSONObject;
 
 import static net.tridentsdk.server.net.NetData.arr;
 import static net.tridentsdk.server.net.NetData.rvint;
@@ -80,13 +80,13 @@ public final class LoginInEncryptionResponse extends PacketIn {
                 return;
             }
 
-            JsonObject obj = resp.getAsJsonObject();
-            String id = obj.get("id").getAsString();
-            String name = obj.get("name").getAsString();
+            JSONObject obj = (JSONObject) resp;
+            String id = obj.getString("id");
+            String name = obj.getString("name");
             String textures = obj
-                    .get("properties").getAsJsonArray()
-                    .get(0).getAsJsonObject()
-                    .get("value").getAsString();
+                    .getJSONArray("properties")
+                    .getJSONObject(0)
+                    .getString("value");
 
             UUID uuid = Login.convert(name, id);
             LoginOutSuccess success = new LoginOutSuccess(client, uuid, name);

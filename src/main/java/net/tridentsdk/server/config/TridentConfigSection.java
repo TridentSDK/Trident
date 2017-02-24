@@ -18,8 +18,6 @@ package net.tridentsdk.server.config;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import net.tridentsdk.config.ConfigSection;
 
 import javax.annotation.Nonnull;
@@ -28,6 +26,7 @@ import java.util.*;
 import java.util.function.BiFunction;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
+import org.json.JSONObject;
 
 /**
  * Implementation of a configuration section
@@ -56,17 +55,17 @@ public class TridentConfigSection implements ConfigSection {
      *
      * @return this section and all its children's json
      */
-    public JsonObject write() {
-        JsonObject object = new JsonObject();
+    public JSONObject write() {
+        JSONObject object = new JSONObject();
 
         // funky code because we need to make sure all the
         // elements remain in insertion order
         this.elements.forEach((k, v) -> {
             if (v instanceof ConfigSection) {
                 TridentConfigSection section = (TridentConfigSection) v;
-                object.add(k, section.write());
+                object.put(k, section.write());
             } else {
-                object.add(k, ConfigIo.asJson(v));
+                object.put(k, v);
             }
         });
         return object;
@@ -77,18 +76,15 @@ public class TridentConfigSection implements ConfigSection {
      *
      * @param object the file json
      */
-    public void read(JsonObject object) {
-        object.entrySet().stream().forEach(e -> {
-            String key = e.getKey();
-            JsonElement value = e.getValue();
-
+    public void read(JSONObject object) {
+        object.toMap().forEach((key, value) -> {
             // special handling for json objects which are
             // config sections
-            if (value.isJsonObject()) {
+            if (value instanceof JSONObject) {
                 TridentConfigSection section = this.createChild0(key, object);
-                section.read(value.getAsJsonObject());
+                section.read((JSONObject) value);
             } else {
-                this.elements.put(key, ConfigIo.asObj(value, TridentAdapter.class));
+                this.elements.put(key, value);
             }
         });
     }
@@ -401,7 +397,7 @@ public class TridentConfigSection implements ConfigSection {
      * or {@code null} if it is just created
      * @return the created section
      */
-    private TridentConfigSection createChild0(String name, JsonObject object) {
+    private TridentConfigSection createChild0(String name, JSONObject object) {
         TridentConfigSection section = new TridentConfigSection(name, this, this.getRoot());
         this.elements.put(name, section);
         return section;

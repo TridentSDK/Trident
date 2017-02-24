@@ -16,8 +16,6 @@
  */
 package net.tridentsdk.server.packet.status;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.chat.ChatComponent;
 import net.tridentsdk.server.TridentServer;
@@ -26,6 +24,8 @@ import net.tridentsdk.server.packet.PacketOut;
 import net.tridentsdk.server.player.TridentPlayer;
 
 import javax.annotation.concurrent.Immutable;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import static net.tridentsdk.server.net.NetData.wstr;
 
@@ -52,27 +52,27 @@ public final class StatusOutResponse extends PacketOut {
     @Override
     public void write(ByteBuf buf) {
         ServerConfig cfg = TridentServer.cfg();
-        JsonObject resp = new JsonObject();
+        JSONObject resp = new JSONObject();
 
-        JsonObject version = new JsonObject();
-        version.addProperty("name", MC_VERSION);
-        version.addProperty("protocol", PROTOCOL_VERSION);
-        resp.add("version", version);
+        JSONObject version = new JSONObject();
+        version.put("name", MC_VERSION);
+        version.put("protocol", PROTOCOL_VERSION);
+        resp.put("version", version);
 
-        JsonObject players = new JsonObject();
-        players.addProperty("max", cfg.maxPlayers());
-        players.addProperty("online", TridentPlayer.getPlayers().size());
-        JsonArray sample = new JsonArray();
+        JSONObject players = new JSONObject();
+        players.put("max", cfg.maxPlayers());
+        players.put("online", TridentPlayer.getPlayers().size());
+        JSONArray sample = new JSONArray();
         TridentPlayer.getPlayers().forEach((u, p) -> {
-            JsonObject o = new JsonObject();
-            o.addProperty("name", p.getName());
-            o.addProperty("id", p.getUuid().toString());
-            sample.add(o);
+            JSONObject o = new JSONObject();
+            o.put("name", p.getName());
+            o.put("id", p.getUuid().toString());
+            sample.put(o);
         });
-        players.add("sample", sample);
-        resp.add("players", players);
+        players.put("sample", sample);
+        resp.put("players", players);
 
-        resp.add("description", ChatComponent.text(cfg.motd()).asJson());
+        resp.put("description", ChatComponent.text(cfg.motd()).asJson());
 
         // resp.addProperty("favicon", "data:image/png;base64,<data>");
         // String toString = ConfigIo.GSON.toJson(resp);
