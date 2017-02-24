@@ -18,8 +18,6 @@ package net.tridentsdk.server.player;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 import lombok.Getter;
 import lombok.Setter;
 import net.tridentsdk.base.BlockDirection;
@@ -47,10 +45,12 @@ import net.tridentsdk.world.opt.GameMode;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -418,7 +418,7 @@ public class TridentPlayer extends TridentEntity implements Player {
                             .thenAccept(chunk -> {
                                 this.client.sendPacket(new PlayOutChunk(chunk));
                                 this.chunkSentTime.put(position, System.currentTimeMillis());
-                            });
+                            }).thenRunAsync(() -> TridentPlayer.players.values().forEach(player -> this.client.sendPacket(new PlayOutSpawnPlayer(player))));
                 }
             }
         }
