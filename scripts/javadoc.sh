@@ -33,10 +33,10 @@ if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
     
     
     # Ping docker hub
-    curl -H "Content-Type: application/json" --data \"{"docker_tag": "latest"}\" -X POST https://registry.hub.docker.com/u/tridentsdk/trident/trigger/${DOCKER_TRIGGER_TOKEN}/
-    curl -H "Content-Type: application/json" --data \"{"docker_tag": "latest-alpine"}\" -X POST https://registry.hub.docker.com/u/tridentsdk/trident/trigger/${DOCKER_TRIGGER_TOKEN}/
+    curl -H "Content-Type: application/json" --data "{\"docker_tag\": \"latest\"}" -X POST https://registry.hub.docker.com/u/tridentsdk/trident/trigger/${DOCKER_TRIGGER_TOKEN}/
+    curl -H "Content-Type: application/json" --data "{\"docker_tag\": \"latest-alpine\"}" -X POST https://registry.hub.docker.com/u/tridentsdk/trident/trigger/${DOCKER_TRIGGER_TOKEN}/
 
     CURRENT_VERSION=$(grep -oPm1 "(?<=<version>)[^<]+" ../pom.xml)
-    curl -H "Content-Type: application/json" --data \"{"docker_tag": "$CURRENT_VERSION"}\" -X POST https://registry.hub.docker.com/u/tridentsdk/trident/trigger/${DOCKER_TRIGGER_TOKEN}/
-    curl -H "Content-Type: application/json" --data \"{"docker_tag": "$CURRENT_VERSION-alpine"}\" -X POST https://registry.hub.docker.com/u/tridentsdk/trident/trigger/${DOCKER_TRIGGER_TOKEN}/
+    curl -H "Content-Type: application/json" --data "{\"docker_tag\": \"$CURRENT_VERSION\"}" -X POST https://registry.hub.docker.com/u/tridentsdk/trident/trigger/${DOCKER_TRIGGER_TOKEN}/
+    curl -H "Content-Type: application/json" --data "{\"docker_tag\": \"$CURRENT_VERSION-alpine\"}" -X POST https://registry.hub.docker.com/u/tridentsdk/trident/trigger/${DOCKER_TRIGGER_TOKEN}/
 fi
