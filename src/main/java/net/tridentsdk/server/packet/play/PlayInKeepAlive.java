@@ -23,7 +23,7 @@ import net.tridentsdk.server.packet.PacketIn;
 
 import javax.annotation.concurrent.Immutable;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static net.tridentsdk.server.net.NetData.rvint;
 
@@ -34,11 +34,6 @@ import static net.tridentsdk.server.net.NetData.rvint;
  */
 @Immutable
 public final class PlayInKeepAlive extends PacketIn {
-    /**
-     * The ID number source
-     */
-    private static final AtomicInteger ID_COUNTER = new AtomicInteger();
-
     /**
      * The keep alive time cache
      */
@@ -53,13 +48,11 @@ public final class PlayInKeepAlive extends PacketIn {
      * @return the next teleport ID
      */
     public static int query(NetClient client) {
-        int id = ID_COUNTER.incrementAndGet();
-        if (id > 1_000_000 && !TICK_IDS.containsValue(10_000)) {
-            ID_COUNTER.set(0);
-        }
+        // retarded int limit on VarInt, idk
+        int value = ThreadLocalRandom.current().nextInt(0xFFFFFFF);
+        TICK_IDS.put(client, value);
 
-        TICK_IDS.put(client, id);
-        return id;
+        return value;
     }
 
     public PlayInKeepAlive() {
