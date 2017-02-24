@@ -3,6 +3,9 @@
 # https://github.com/treelogic-swe/aws-mock/
 
 if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+    # Ping docker hub
+    curl -H "Content-Type: application/json" --data "'{\"build\": true}'" -X POST https://registry.hub.docker.com/u/tridentsdk/trident/trigger/${DOCKER_TRIGGER_TOKEN}/
+
     # Set it up
     git config --global user.email "woodyc40@gmail.com"
     git config --global user.name "AgentTroll"
@@ -30,13 +33,4 @@ if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
     git commit -m "Auto-publishing Javadoc from Travis CI"
     git push -fq https://AgentTroll:${DOC_PASS}@github.com/TridentSDK/javadocs.git HEAD:gh-pages >/dev/null 2>/dev/null
     echo "Published JavaDoc.\n" # Done!
-    
-    
-    # Ping docker hub
-    curl -H "Content-Type: application/json" --data "{\"docker_tag\": \"latest\"}" -X POST https://registry.hub.docker.com/u/tridentsdk/trident/trigger/${DOCKER_TRIGGER_TOKEN}/
-    curl -H "Content-Type: application/json" --data "{\"docker_tag\": \"latest-alpine\"}" -X POST https://registry.hub.docker.com/u/tridentsdk/trident/trigger/${DOCKER_TRIGGER_TOKEN}/
-
-    CURRENT_VERSION=$(grep -oPm1 "(?<=<version>)[^<]+" ../pom.xml)
-    curl -H "Content-Type: application/json" --data "{\"docker_tag\": \"$CURRENT_VERSION\"}" -X POST https://registry.hub.docker.com/u/tridentsdk/trident/trigger/${DOCKER_TRIGGER_TOKEN}/
-    curl -H "Content-Type: application/json" --data "{\"docker_tag\": \"$CURRENT_VERSION-alpine\"}" -X POST https://registry.hub.docker.com/u/tridentsdk/trident/trigger/${DOCKER_TRIGGER_TOKEN}/
 fi
