@@ -173,7 +173,7 @@ public class TridentPlayer extends TridentEntity implements Player {
         client.sendPacket(new PlayOutDifficulty(world));
         client.sendPacket(new PlayOutSpawnPos());
         client.sendPacket(new PlayOutPosLook(player));
-        client.sendPacket(new PlayOutAbilities(false, false, player.getGameMode()));
+        client.sendPacket(new PlayOutPlayerAbilities(false, false, player.getGameMode()));
 
         return player;
     }
@@ -278,7 +278,7 @@ public class TridentPlayer extends TridentEntity implements Player {
     @Override
     public void setGameMode(GameMode gameMode) {
         this.gameMode = gameMode;
-        this.client.sendPacket(new PlayOutAbilities(false, false, gameMode));
+        this.client.sendPacket(new PlayOutPlayerAbilities(false, false, gameMode));
     }
 
     @Override

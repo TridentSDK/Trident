@@ -17,16 +17,17 @@
 package net.tridentsdk.server.packet.play;
 
 import io.netty.buffer.ByteBuf;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.packet.PacketIn;
 
 import javax.annotation.concurrent.Immutable;
 
-import static net.tridentsdk.server.net.NetData.arr;
 import static net.tridentsdk.server.net.NetData.rstr;
 
 /**
- * Packet sent by the client after {@link PlayOutAbilities}
+ * Packet sent by the client after {@link PlayOutPlayerAbilities}
  * to confirm to the server the client brand.
  */
 @Immutable
@@ -38,7 +39,9 @@ public final class PlayInPluginMsg extends PacketIn {
     @Override
     public void read(ByteBuf buf, NetClient client) {
         String channel = rstr(buf);
-        byte[] data = arr(buf);
-        // TODO plugin channels
+        if ("MC|Brand".equals(channel)) {
+            String brand = rstr(buf);
+            System.out.println("User [" + client.getName() + "] is running client [" + brand + "]");
+        }
     }
 }

@@ -27,16 +27,24 @@ import javax.annotation.concurrent.Immutable;
  * client their abilities once joined.
  */
 @Immutable
-public final class PlayOutAbilities extends PacketOut {
+public final class PlayOutPlayerAbilities extends PacketOut {
     private final boolean isGod;
     private final boolean isFlying;
     private final GameMode gameMode;
+    private final float flyingSpeed;
+    private final float walkingSpeed;
 
-    public PlayOutAbilities(boolean isGod, boolean isFlying, GameMode gameMode) {
-        super(PlayOutAbilities.class);
+    public PlayOutPlayerAbilities(boolean isGod, boolean isFlying, GameMode gameMode) {
+        this(isGod, isFlying, gameMode, 0.159F, 0.699999988079071F);
+    }
+
+    public PlayOutPlayerAbilities(boolean isGod, boolean isFlying, GameMode gameMode, float flyingSpeed, float walkingSpeed) {
+        super(PlayOutPlayerAbilities.class);
         this.isGod = isGod;
         this.isFlying = isFlying;
         this.gameMode = gameMode;
+        this.flyingSpeed = flyingSpeed;
+        this.walkingSpeed = walkingSpeed;
     }
 
     @Override
@@ -50,7 +58,7 @@ public final class PlayOutAbilities extends PacketOut {
         abilities |= creative ? 0x01 << 3 : 0; // creative mode
 
         buf.writeByte(abilities);
-        buf.writeFloat(0.159F);
-        buf.writeFloat(0.699999988079071F);
+        buf.writeFloat(flyingSpeed);
+        buf.writeFloat(walkingSpeed);
     }
 }
