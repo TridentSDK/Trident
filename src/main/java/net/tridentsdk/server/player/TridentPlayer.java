@@ -139,34 +139,29 @@ public class TridentPlayer extends TridentEntity implements Player {
      * Whether the player is in god mode
      */
     @Getter
-    @Setter
     private volatile boolean godMode;
 
     /**
      * Whether the player can fly
      */
-    @Setter
     private volatile boolean canFly;
 
     /**
      * Whether the player is flying
      */
     @Getter
-    @Setter
     private volatile boolean flying;
 
     /**
      * The player's flying speed
      */
     @Getter
-    @Setter
     private volatile float flyingSpeed = Player.DEFAULT_FLYING_SPEED;
 
     /**
      * The player's walking speed
      */
     @Getter
-    @Setter
     private volatile float walkingSpeed = Player.DEFAULT_WALKING_SPEED;
 
     /**
@@ -309,13 +304,6 @@ public class TridentPlayer extends TridentEntity implements Player {
     }
 
     @Override
-    public void setGameMode(GameMode gameMode) {
-        this.gameMode = gameMode;
-        this.canFly = gameMode == GameMode.CREATIVE || gameMode == GameMode.SPECTATOR;
-        this.client.sendPacket(new PlayOutPlayerAbilities(this));
-    }
-
-    @Override
     public void setTabList(TabList tabList) {
         TabList old = this.tabList;
         if (old != null) {
@@ -422,8 +410,73 @@ public class TridentPlayer extends TridentEntity implements Player {
     }
 
     @Override
+    public void setGameMode(GameMode gameMode) {
+        this.gameMode = gameMode;
+        this.canFly = gameMode == GameMode.CREATIVE || gameMode == GameMode.SPECTATOR;
+        this.client.sendPacket(new PlayOutPlayerAbilities(this));
+    }
+
+    @Override
+    public void setGodMode(boolean godMode) {
+        setGodMode(godMode, true);
+    }
+
+    public void setGodMode(boolean godMode, boolean sendPacket) {
+        this.godMode = godMode;
+        this.client.sendPacket(new PlayOutPlayerAbilities(this));
+    }
+
+    @Override
     public boolean canFly() {
         return canFly;
+    }
+
+    @Override
+    public void setCanFly(boolean canFly) {
+        setCanFly(canFly, true);
+    }
+
+    public void setCanFly(boolean canFly, boolean sendPacket) {
+        this.canFly = canFly;
+        if (sendPacket) {
+            this.client.sendPacket(new PlayOutPlayerAbilities(this));
+        }
+    }
+
+    @Override
+    public void setFlying(boolean canFly) {
+        setFlying(canFly, true);
+    }
+
+    public void setFlying(boolean canFly, boolean sendPacket) {
+        this.flying = flying;
+        if (sendPacket) {
+            this.client.sendPacket(new PlayOutPlayerAbilities(this));
+        }
+    }
+
+    @Override
+    public void setFlyingSpeed(float flyingSpeed) {
+        setFlyingSpeed(flyingSpeed, true);
+    }
+
+    public void setFlyingSpeed(float flyingSpeed, boolean sendPacket) {
+        this.flyingSpeed = flyingSpeed;
+        if (sendPacket) {
+            this.client.sendPacket(new PlayOutPlayerAbilities(this));
+        }
+    }
+
+    @Override
+    public void setWalkingSpeed(float walkingSpeed) {
+        setWalkingSpeed(walkingSpeed, true);
+    }
+
+    public void setWalkingSpeed(float walkingSpeed, boolean sendPacket) {
+        this.walkingSpeed = walkingSpeed;
+        if (sendPacket) {
+            this.client.sendPacket(new PlayOutPlayerAbilities(this));
+        }
     }
 
     /**

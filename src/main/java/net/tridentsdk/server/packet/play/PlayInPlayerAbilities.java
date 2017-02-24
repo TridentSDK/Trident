@@ -31,9 +31,9 @@ public class PlayInPlayerAbilities extends PacketIn {
         TridentPlayer player = client.getPlayer();
 
         if (player.canFly()) {
-            player.setFlying(isFlying);
+            player.setFlying(isFlying, false);
         } else {
-            player.setFlying(false);
+            player.setFlying(false, false);
         }
 
         client.sendPacket(new PlayOutPlayerAbilities(player));
