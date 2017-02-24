@@ -18,6 +18,7 @@ package net.tridentsdk.server.packet.play;
 
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.base.Position;
+import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.packet.PacketIn;
 import net.tridentsdk.server.player.TridentPlayer;
@@ -39,13 +40,31 @@ public final class PlayInPosLook extends PacketIn {
         TridentPlayer player = client.getPlayer();
         Position newPosition = player.getPosition().clone();
 
-        newPosition.setX(buf.readDouble());
-        newPosition.setY(buf.readDouble());
-        newPosition.setZ(buf.readDouble());
-        newPosition.setYaw(buf.readFloat());
-        newPosition.setPitch(buf.readFloat());
+        double x = buf.readDouble();
+        double y = buf.readDouble();
+        double z = buf.readDouble();
+        float yaw = buf.readFloat();
+        float pitch = buf.readFloat();
+        boolean isOnGround = buf.readBoolean();
+
+        newPosition.setX(x);
+        newPosition.setY(y);
+        newPosition.setZ(z);
+        newPosition.setYaw(yaw);
+        newPosition.setPitch(pitch);
 
         player.setPosition(newPosition);
-        player.setOnGround(buf.readBoolean());
+        player.setOnGround(isOnGround);
+
+        System.out.println(player.getName() + " yaw = " + yaw);
+        System.out.println(player.getName() + " pitch = " + pitch);
+
+        PlayOutEntityLook playOutEntityLook = new PlayOutEntityLook(player);
+        PlayOutEntityHeadLook playOutEntityHeadLook = new PlayOutEntityHeadLook(player);
+
+        TridentServer.getInstance().getPlayers().stream().filter(p -> !p.equals(player)).forEach(p -> {
+            p.net().sendPacket(playOutEntityLook);
+            p.net().sendPacket(playOutEntityHeadLook);
+        });
     }
 }

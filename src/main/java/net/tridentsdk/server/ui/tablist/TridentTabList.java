@@ -16,6 +16,14 @@
  */
 package net.tridentsdk.server.ui.tablist;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 import lombok.Getter;
 import net.tridentsdk.chat.ChatComponent;
 import net.tridentsdk.entity.living.Player;
@@ -56,6 +64,8 @@ public abstract class TridentTabList implements TabList {
     @Getter
     private volatile ChatComponent footer;
 
+    private final Set<TabListElement> lastSeen = Collections.newSetFromMap(new ConcurrentHashMap<>());
+
     /**
      * Creates and initailizes a new tab list/
      * superconstructor
@@ -84,26 +94,77 @@ public abstract class TridentTabList implements TabList {
     }
 
     @Override
-    public void addUser(Player player) {
+    public void subscribe(Player player) {
         this.users.add(player);
     }
 
     @Override
-    public void removeUser(Player player) {
+    public void unsubscribe(Player player) {
         this.users.remove(player);
     }
 
     /**
-     * Sends the tab list to the given player.
-     *
-     * @param player the player to send the tab list
+     * Sends the tab list to all subscribed players.
      */
-    public void sendToPlayer(TridentPlayer player) {
-        PlayOutTabListItem.PlayOutTabListItemAddPlayer itemPacket = PlayOutTabListItem.addPlayerPacket();
-        this.elements.forEach(element -> itemPacket.addPlayer(element.getUuid(), element.getName(), element.getGameMode(), element.getPing(), element.getDisplayName()));
-        player.net().sendPacket(itemPacket);
+    public void update() {
+        if (this.users.isEmpty())
+            return;
 
         PlayOutPlayerListHeaderAndFooter headerAndFooterPacket = new PlayOutPlayerListHeaderAndFooter(this.header, this.footer);
+        PlayOutTabListItem.PlayOutTabListItemAddPlayer addPacket = PlayOutTabListItem.addPlayerPacket();
+        PlayOutTabListItem.PlayOutTabListItemRemovePlayer removePacket = PlayOutTabListItem.removePlayerPacket();
+        PlayOutTabListItem.PlayOutTabListItemUpdateDisplayName updatePacket = PlayOutTabListItem.updatePlayerPacket();
+
+        Map<UUID, TabListElement> lastSeen = new LinkedHashMap<>();
+        Map<UUID, TabListElement> current = new LinkedHashMap<>();
+
+        this.lastSeen.forEach(e -> lastSeen.put(e.getUuid(), e));
+        this.elements.forEach(e -> current.put(e.getUuid(), e));
+
+        if (current.containsKey(null)) {
+            throw new IllegalStateException("tablist currently has a null uuid (= " + current.get(null) + ")");
+        }
+
+        lastSeen.entrySet()
+                .stream()
+                .filter(e -> !current.containsKey(e.getKey()))
+                .forEach(e -> removePacket.removePlayer(e.getKey()));
+
+        current.entrySet()
+                .stream()
+                .filter(e -> !lastSeen.containsKey(e.getKey()))
+                .forEach(e -> addPacket.addPlayer(e.getValue()));
+
+        current.entrySet()
+                .stream()
+                .filter(e -> lastSeen.containsKey(e.getKey()))
+                .filter(e -> !Objects.equals(e.getValue().getDisplayName(), lastSeen.get(e.getKey()).getDisplayName()))
+                .forEach(e -> updatePacket.update(e.getKey(), e.getValue().getDisplayName()));
+
+        synchronized (this) {
+            this.lastSeen.clear();
+            this.lastSeen.addAll(this.elements);
+        }
+
+        this.users.forEach(p -> {
+            TridentPlayer player = (TridentPlayer) p;
+            if (addPacket.getActionCount() > 0)
+                player.net().sendPacket(addPacket);
+            if (removePacket.getActionCount() > 0)
+                player.net().sendPacket(removePacket);
+            if (updatePacket.getActionCount() > 0)
+                player.net().sendPacket(updatePacket);
+            player.net().sendPacket(headerAndFooterPacket);
+        });
+    }
+
+    public void forceSend(TridentPlayer player) {
+        PlayOutTabListItem.PlayOutTabListItemAddPlayer addPacket = PlayOutTabListItem.addPlayerPacket();
+        PlayOutPlayerListHeaderAndFooter headerAndFooterPacket = new PlayOutPlayerListHeaderAndFooter(this.header, this.footer);
+
+        elements.forEach(addPacket::addPlayer);
+
+        player.net().sendPacket(addPacket);
         player.net().sendPacket(headerAndFooterPacket);
     }
 

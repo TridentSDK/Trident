@@ -16,6 +16,7 @@
  */
 package net.tridentsdk.server;
 
+import java.util.stream.Collectors;
 import lombok.Getter;
 import net.tridentsdk.Server;
 import net.tridentsdk.command.logger.Logger;
@@ -25,6 +26,7 @@ import net.tridentsdk.event.EventController;
 import net.tridentsdk.server.concurrent.ServerThreadPool;
 import net.tridentsdk.server.concurrent.TridentTick;
 import net.tridentsdk.server.config.ServerConfig;
+import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.net.NetServer;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.plugin.TridentEventController;
@@ -117,8 +119,11 @@ public class TridentServer implements Server {
     }
 
     @Override
-    public Collection<Player> getPlayers() {
-        return Collections.unmodifiableCollection(TridentPlayer.getPlayers().values());
+    public Collection<TridentPlayer> getPlayers() {
+        return TridentPlayer.getPlayers().values()
+                .stream()
+                .filter(p -> p.net().getState() == NetClient.NetState.PLAY)
+                .collect(Collectors.toSet());
     }
 
     @Override

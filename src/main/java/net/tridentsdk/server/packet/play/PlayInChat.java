@@ -22,6 +22,7 @@ import net.tridentsdk.chat.*;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.packet.PacketIn;
 import net.tridentsdk.server.player.TridentPlayer;
+import net.tridentsdk.server.ui.tablist.TridentGlobalTabList;
 import net.tridentsdk.server.world.TridentChunk;
 import net.tridentsdk.ui.bossbar.BossBar;
 import net.tridentsdk.ui.bossbar.BossBarColor;
@@ -65,6 +66,11 @@ public final class PlayInChat extends PacketIn {
                     client.sendPacket(new PlayOutChunk(chunk));
                 }
             }
+        }
+
+        if (msg.toLowerCase().equals("tablist")) {
+            System.out.println("tablist");
+            TridentGlobalTabList.getInstance().update();
         }
 
         if (msg.toLowerCase().equals("bossbars")) {

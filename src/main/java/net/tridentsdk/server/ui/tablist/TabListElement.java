@@ -36,11 +36,6 @@ import java.util.UUID;
 @ThreadSafe
 public class TabListElement {
     /**
-     * The player that owns this tab list element
-     */
-    @Policy("Must release")
-    private final TridentPlayer player;
-    /**
      * The UUID of the player at this tab list element
      */
     private final UUID uuid;
@@ -75,8 +70,7 @@ public class TabListElement {
      * with custom fields.
      */
     public TabListElement() {
-        this.player = null;
-        this.uuid = null;
+        this.uuid = UUID.randomUUID();
     }
 
     /**
@@ -86,9 +80,9 @@ public class TabListElement {
      * @param player the player to fill the element
      */
     public TabListElement(TridentPlayer player) {
-        this.player = player;
         this.uuid = player.getUuid();
         this.name = player.getName();
+        this.displayName = player.getDisplayName();
         this.ping = (int) player.net().getPing();
         this.gameMode = player.getGameMode();
 
@@ -96,24 +90,6 @@ public class TabListElement {
         if (textures != null) {
             this.properties.add(new TabListElement.PlayerProperty("textures", textures));
         }
-    }
-
-    @Override
-    public int hashCode() {
-        if (this.player != null) {
-            return this.player.hashCode();
-        }
-
-        return System.identityHashCode(this);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this.player != null) {
-            return this.player.equals(obj);
-        }
-
-        return this == obj;
     }
 
     @Data

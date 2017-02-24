@@ -54,12 +54,16 @@ public class PlayInEntityAction extends PacketIn {
                 client.getPlayer().getMetadata().setSprinting(false);
                 break;
             case 5: // start jump w/ horse
+                // TODO
                 break;
             case 6: // stop jump w/ horse
+                // TODO
                 break;
             case 7: // open horse inventory
+                // TODO
                 break;
             case 8: // start flying w/ elytra
+                // TODO
                 break;
             default:
                 break;

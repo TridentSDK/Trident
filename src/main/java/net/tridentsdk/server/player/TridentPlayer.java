@@ -89,6 +89,10 @@ public class TridentPlayer extends TridentEntity implements Player {
      */
     private final UUID uuid;
     /**
+     * The player's display name
+     */
+    private volatile ChatComponent displayName;
+    /**
      * The player's current game mode
      */
     @Getter
@@ -174,6 +178,7 @@ public class TridentPlayer extends TridentEntity implements Player {
         this.client = client;
         this.name = name;
         this.uuid = uuid;
+        this.displayName = ChatComponent.text(name);
         this.gameMode = world.getWorldOptions().getGameMode();
         this.canFly = gameMode == GameMode.CREATIVE || gameMode == GameMode.SPECTATOR;
         this.textures = textures;
@@ -216,7 +221,7 @@ public class TridentPlayer extends TridentEntity implements Player {
         }
 
         this.setTabList(TridentGlobalTabList.getInstance());
-        TridentGlobalTabList.getInstance().addPlayer(this);
+        TridentGlobalTabList.getInstance().update();
 
         PlayOutSpawnPlayer newPlayerPacket = new PlayOutSpawnPlayer(this);
         ChatComponent chat = ChatComponent.create()
@@ -225,7 +230,7 @@ public class TridentPlayer extends TridentEntity implements Player {
                 .addWith(this.name);
         this.sendMessage(chat, ChatType.CHAT);
 
-        TridentPlayer.players.values()
+        TridentServer.getInstance().getPlayers()
                 .stream()
                 .filter(p -> !p.equals(this))
                 .forEach(p -> {
@@ -267,7 +272,6 @@ public class TridentPlayer extends TridentEntity implements Player {
     @Override
     public void doRemove() {
         players.remove(this.uuid);
-        TridentGlobalTabList.getInstance().removePlayer(this);
         this.setTabList(null);
 
         ChatComponent chat = ChatComponent.create()
@@ -288,13 +292,22 @@ public class TridentPlayer extends TridentEntity implements Player {
     }
 
     @Override
+    public ChatComponent getDisplayName() {
+        return displayName;
+    }
+
+    @Override
+    public void setDisplayName(ChatComponent displayName) {
+        this.displayName = displayName != null ? displayName : ChatComponent.text(name);
+        // TODO update
+    }
+
+    @Override
     public void sendMessage(ChatComponent chat, ChatType type) {
         ClientChatMode chatMode = this.chatMode;
-        if (!chatMode.equals(ClientChatMode.NONE)) {
-            if (chatMode.equals(ClientChatMode.COMMANDS_ONLY) &&
-                    type.equals(ChatType.SYSTEM) || chatMode.equals(ClientChatMode.CHAT_AND_COMMANDS)) {
-                this.net().sendPacket(new PlayOutChat(chat, type, this.chatColors));
-            }
+        if (ClientChatMode.COMMANDS_ONLY.equals(chatMode) && ChatType.SYSTEM.equals(type)
+                || ClientChatMode.CHAT_AND_COMMANDS.equals(chatMode)) {
+            this.net().sendPacket(new PlayOutChat(chat, type, this.chatColors));
         }
     }
 
@@ -307,13 +320,13 @@ public class TridentPlayer extends TridentEntity implements Player {
     public void setTabList(TabList tabList) {
         TabList old = this.tabList;
         if (old != null) {
-            old.removeUser(this);
+            old.subscribe(this);
         }
 
         if (tabList != null) {
-            tabList.addUser(this);
             this.tabList = tabList;
-            ((TridentTabList) tabList).sendToPlayer(this);
+            this.tabList.subscribe(this);
+            ((TridentTabList) tabList).forceSend(this);
         }
     }
 

@@ -47,12 +47,15 @@ public final class PlayInLook extends PacketIn {
         position.setPitch(pitch);
         player.setOnGround(onGround);
 
+        System.out.println(player.getName() + " yaw = " + yaw);
+        System.out.println(player.getName() + " pitch = " + pitch);
+
         PlayOutEntityLook playOutEntityLook = new PlayOutEntityLook(player);
         PlayOutEntityHeadLook playOutEntityHeadLook = new PlayOutEntityHeadLook(player);
 
         TridentServer.getInstance().getPlayers().stream().filter(p -> !p.equals(player)).forEach(p -> {
-            ((TridentPlayer) p).net().sendPacket(playOutEntityLook);
-            ((TridentPlayer) p).net().sendPacket(playOutEntityHeadLook);
+            p.net().sendPacket(playOutEntityLook);
+            p.net().sendPacket(playOutEntityHeadLook);
         });
     }
 }

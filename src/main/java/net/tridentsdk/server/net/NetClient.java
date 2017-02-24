@@ -37,6 +37,7 @@ import java.net.SocketAddress;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+import net.tridentsdk.server.ui.tablist.TridentGlobalTabList;
 
 /**
  * This class represents the connection that a Minecraft
@@ -266,5 +267,7 @@ public class NetClient {
         }
 
         CLIENTS.remove(this.channel.remoteAddress());
+
+        TridentGlobalTabList.getInstance().update();
     }
 }

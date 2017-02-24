@@ -16,10 +16,11 @@
  */
 package net.tridentsdk.server.ui.tablist;
 
+import java.util.Collection;
 import lombok.Getter;
 import net.tridentsdk.chat.ChatComponent;
 import net.tridentsdk.doc.Policy;
-import net.tridentsdk.server.packet.play.PlayOutTabListItem;
+import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.player.TridentPlayer;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -55,30 +56,13 @@ public class TridentGlobalTabList extends TridentTabList {
         return null;
     }
 
-    /**
-     * Adds a player to the global tab list.
-     *
-     * @param player the player to add
-     */
-    public void addPlayer(TridentPlayer player) {
-        TabListElement element = new TabListElement(player);
-        super.elements.add(element);
+    @Override
+    public void update() {
+        super.elements.clear();
 
-        PlayOutTabListItem.PlayOutTabListItemAddPlayer packet = PlayOutTabListItem.addPlayerPacket();
-        packet.addPlayer(element.getUuid(), element.getName(), element.getGameMode(), element.getPing(), element.getDisplayName());
-        this.users.forEach(p -> ((TridentPlayer) p).net().sendPacket(packet));
-    }
+        Collection<TridentPlayer> players = TridentServer.getInstance().getPlayers();
+        players.forEach(p -> super.elements.add(new TabListElement(p)));
 
-    /**
-     * Removes a player from the global tab list.
-     *
-     * @param player the player to remove
-     */
-    public void removePlayer(TridentPlayer player) {
-        if (super.users.remove(player)) {
-            PlayOutTabListItem.PlayOutTabListItemRemovePlayer packet = PlayOutTabListItem.removePlayerPacket();
-            packet.removePlayer(player.getUuid());
-            super.users.forEach(p -> ((TridentPlayer) p).net().sendPacket(packet));
-        }
+        super.update();
     }
 }

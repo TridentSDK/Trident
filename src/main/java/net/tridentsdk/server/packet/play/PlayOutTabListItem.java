@@ -55,7 +55,7 @@ public abstract class PlayOutTabListItem extends PacketOut {
         wvint(buf, this.getActionCount());
     }
 
-    protected abstract int getActionCount();
+    public abstract int getActionCount();
 
     public static PlayOutTabListItemAddPlayer addPlayerPacket() {
         return new PlayOutTabListItemAddPlayer();
@@ -120,7 +120,7 @@ public abstract class PlayOutTabListItem extends PacketOut {
         }
 
         @Override
-        protected int getActionCount() {
+        public int getActionCount() {
             return this.additions.size();
         }
 
@@ -157,7 +157,7 @@ public abstract class PlayOutTabListItem extends PacketOut {
         }
 
         @Override
-        protected int getActionCount() {
+        public int getActionCount() {
             return this.removals.size();
         }
     }
@@ -189,7 +189,7 @@ public abstract class PlayOutTabListItem extends PacketOut {
         }
 
         @Override
-        protected int getActionCount() {
+        public int getActionCount() {
             return this.updates.size();
         }
 
