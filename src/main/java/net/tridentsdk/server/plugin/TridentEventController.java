@@ -16,8 +16,6 @@
  */
 package net.tridentsdk.server.plugin;
 
-import com.google.common.collect.Maps;
-import com.google.common.collect.Queues;
 import lombok.Getter;
 import net.tridentsdk.doc.Policy;
 import net.tridentsdk.event.Event;
@@ -29,6 +27,8 @@ import javax.annotation.concurrent.ThreadSafe;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Consumer;
 
@@ -50,8 +50,7 @@ public final class TridentEventController implements EventController {
      * The mapping of all the event listeners to their
      * respective listener events.
      */
-    private static final ConcurrentMap<Class<? extends Event>, Queue<EventDispatcher>> listeners =
-            Maps.newConcurrentMap();
+    private static final ConcurrentMap<Class<? extends Event>, Queue<EventDispatcher>> listeners = new ConcurrentHashMap<>();
 
     /**
      * Check if the class allows its members to be
@@ -101,7 +100,7 @@ public final class TridentEventController implements EventController {
                 if (Event.class.isAssignableFrom(pType)) {
                     Class<? extends Event> clazz = (Class<? extends Event>) pType;
                     Queue<EventDispatcher> dispatchers = listeners.computeIfAbsent(
-                            clazz, k -> Queues.newConcurrentLinkedQueue());
+                            clazz, k -> new ConcurrentLinkedQueue<>());
 
                 }
             }

@@ -16,16 +16,13 @@
  */
 package net.tridentsdk.server.packet.play;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.RemovalCause;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.command.logger.Logger;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.packet.PacketIn;
+import net.tridentsdk.util.Cache;
 
 import javax.annotation.concurrent.ThreadSafe;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static net.tridentsdk.server.net.NetData.rvint;
@@ -43,14 +40,8 @@ public final class PlayInTeleportConfirm extends PacketIn {
     /**
      * The teleport ID cache
      */
-    private static final Cache<NetClient, Integer> TELEPORT_ID = CacheBuilder.newBuilder()
-            .expireAfterWrite(NetClient.KEEP_ALIVE_KICK_NANOS, TimeUnit.NANOSECONDS)
-            .removalListener(notification -> {
-                if (notification.getCause() == RemovalCause.EXPIRED) {
-                    ((NetClient) notification.getKey()).disconnect("No teleport response");
-                }
-            })
-            .build();
+    private static final Cache<NetClient, Integer> TELEPORT_ID =
+            new Cache<>(NetClient.KEEP_ALIVE_KICK_NANOS / 1000000, (client, id) -> client.disconnect("No teleport response"));
 
     /**
      * Obtains the next teleport ID for the given net
@@ -61,7 +52,7 @@ public final class PlayInTeleportConfirm extends PacketIn {
      */
     public static int query(NetClient client) {
         int id = ID_COUNTER.incrementAndGet();
-        if (id > 1_000_000 && !TELEPORT_ID.asMap().containsValue(10_000)) {
+        if (id > 1_000_000) {
             ID_COUNTER.set(0);
         }
 

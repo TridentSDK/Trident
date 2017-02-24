@@ -16,10 +16,6 @@
  */
 package net.tridentsdk.server;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
@@ -27,9 +23,7 @@ import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 // WARNING: YOU NEED LOTS OF RAM!!!!
@@ -418,14 +412,16 @@ class UnitSettings {
 }
 
 class AvgMap {
-    private final Map<String, Long> avg = Maps.newTreeMap();
+    private final Map<String, Long> avg = new TreeMap<>();
 
     public void add(String s, long t) {
         Long l = avg.get(s);
         if (l == null) {
             avg.put(s, t);
         } else {
-            Preconditions.checkState(avg.replace(s, l, (l + t) / 2));
+            if(!avg.replace(s, l, (l + t) / 2)){
+                throw new RuntimeException();
+            }
         }
     }
 
@@ -437,14 +433,16 @@ class AvgMap {
 }
 
 class FreqMap {
-    private final Map<String, Integer> freq = Maps.newTreeMap();
+    private final Map<String, Integer> freq = new TreeMap<>();
 
     public void incr(String s) {
         Integer i = freq.get(s);
         if (i == null) {
             freq.put(s, 1);
         } else {
-            Preconditions.checkState(freq.replace(s, i, i + 1));
+            if(!freq.replace(s, i, i + 1)){
+                throw new RuntimeException();
+            }
         }
     }
 
@@ -485,7 +483,9 @@ public class IoTest {
 
     public void checkWrite(byte[] content, Path path) throws IOException {
         RandomAccessFile raf = new RandomAccessFile(path.toFile(), "r");
-        Preconditions.checkState(raf.length() == content.length);
+        if(raf.length() != content.length){
+            throw new RuntimeException();
+        }
 
         // Read center third of the file
         long start = (long) (content.length * 0.333);
@@ -493,13 +493,17 @@ public class IoTest {
 
         raf.seek(start);
         for (int i = 0; i < (end - start); i++) {
-            Preconditions.checkState(content[i + (int) start] == raf.readByte(), "Index " + i + " is incorrectly written");
+            if(content[i + (int) start] != raf.readByte()){
+                throw new RuntimeException("Index " + i + " is incorrectly written");
+            }
         }
     }
 
     public void checkRead(byte[] content, ByteDest dest) {
         byte[] finish = dest.finish();
-        Preconditions.checkState(finish.length == content.length, content.length + " != " + finish.length);
+        if(finish.length != content.length){
+            throw new RuntimeException(content.length + " != " + finish.length);
+        }
 
         // Read center third of the file
         long start = (long) (content.length * 0.333);
@@ -507,7 +511,9 @@ public class IoTest {
 
         for (int i = 0; i < (end - start); i++) {
             int actualIdx = i + (int) start;
-            Preconditions.checkState(content[actualIdx] == finish[actualIdx], "Index " + i + " is incorrectly read");
+            if(content[actualIdx] != finish[actualIdx]){
+                throw new RuntimeException("Index " + i + " is incorrectly read");
+            }
         }
     }
 
@@ -575,7 +581,7 @@ public class IoTest {
         o.println("Starting to warmup...");
         o.println("Writing files a few times...");
         for (int i = 0; i < WARM_TRIALS; i++) {
-            Map<Long, String> time = Maps.newTreeMap();
+            Map<Long, String> time = new TreeMap<>();
             garbage = generateGarbage(fileLength);
             for (IoStrat strat : unit) {
                 o.print("Warming up " + strat.name() + " (write) - ");
@@ -608,7 +614,7 @@ public class IoTest {
 
         o.println("Writing files a few times (force buffer)...");
         for (int i = 0; i < WARM_TRIALS; i++) {
-            Map<Long, String> time = Maps.newTreeMap();
+            Map<Long, String> time = new TreeMap<>();
             garbage = generateGarbage(fileLength);
             for (IoStrat strat : unit) {
                 o.println("Warming up " + strat.name() + " (buffered write)");
@@ -643,7 +649,7 @@ public class IoTest {
         o.println("Reading files a few times.");
         o.println("Allocating buffers, this might take a bit...");
         for (int i = 0; i < WARM_TRIALS; i++) {
-            Map<Long, String> time = Maps.newTreeMap();
+            Map<Long, String> time = new TreeMap<>();
             for (IoStrat strat : unit) {
                 o.println("Warming up " + strat.name() + " (read)");
                 o.print("Warming up " + strat.name() + " (read) - ");
@@ -701,7 +707,7 @@ public class IoTest {
         o.println("Starting writing tests (no output)...");
         for (int i = 0; i < TEST_TRIALS; i++) {
             garbage = generateGarbage(fileLength);
-            Map<Long, String> time = Maps.newTreeMap();
+            Map<Long, String> time = new TreeMap<>();
             for (IoStrat strat : unit) {
                 Thread.sleep(1000);
                 // 1 setup
@@ -733,7 +739,7 @@ public class IoTest {
         o.println("Starting force buffered write tests (no output)...");
         for (int i = 0; i < TEST_TRIALS; i++) {
             garbage = generateGarbage(fileLength);
-            Map<Long, String> time = Maps.newTreeMap();
+            Map<Long, String> time = new TreeMap<>();
             for (IoStrat strat : unit) {
                 Thread.sleep(1000);
                 // 1 setup
@@ -764,7 +770,7 @@ public class IoTest {
 
         o.println("Starting read tests (no output)...");
         for (int i = 0; i < TEST_TRIALS; i++) {
-            Map<Long, String> time = Maps.newTreeMap();
+            Map<Long, String> time = new TreeMap<>();
             for (IoStrat strat : unit) {
                 Thread.sleep(1000);
                 // 1 setup
@@ -814,7 +820,7 @@ public class IoTest {
         // Buffered write
         o.println("Starting buffer size write test (no output)...");
         for (int i = 0; i < TEST_TRIALS; i++) {
-            Map<Long, String> time = Maps.newTreeMap();
+            Map<Long, String> time = new TreeMap<>();
             garbage = generateGarbage(fileLength);
 
             for (IoStrat strat : unit1024) {
@@ -894,7 +900,7 @@ public class IoTest {
         // Buffered read
         o.println("Starting buffer size read test (no output)...");
         for (int i = 0; i < TEST_TRIALS; i++) {
-            Map<Long, String> time = Maps.newTreeMap();
+            Map<Long, String> time = new TreeMap<>();
 
             for (IoStrat strat : unit1024) {
                 Thread.sleep(1000);
@@ -982,7 +988,7 @@ public class IoTest {
 
         o.println("Starting buffer type read test (no output)...");
         for (int i = 0; i < TEST_TRIALS; i++) {
-            Map<Long, String> time = Maps.newTreeMap();
+            Map<Long, String> time = new TreeMap<>();
 
             for (IoStrat strat : unit) {
                 Thread.sleep(1000);
@@ -1084,7 +1090,7 @@ public class IoTest {
 
         o.println("Starting file size write test (no output)...");
         for (int i = 0; i < TEST_TRIALS; i++) {
-            Map<Long, String> time = Maps.newTreeMap();
+            Map<Long, String> time = new TreeMap<>();
 
             for (IoStrat strat : unit1) {
                 Thread.sleep(1000);
@@ -1162,7 +1168,7 @@ public class IoTest {
 
         o.println("Starting file size read test (no output)...");
         for (int i = 0; i < TEST_TRIALS; i++) {
-            Map<Long, String> time = Maps.newTreeMap();
+            Map<Long, String> time = new TreeMap<>();
 
             for (IoStrat strat : unit1) {
                 Thread.sleep(1000);
@@ -1244,11 +1250,11 @@ public class IoTest {
         Path p = s.path;
         int bufSize = s.bufSize;
 
-        return Sets.newHashSet(
+        return new HashSet<>(Arrays.asList(
                 new ClassicStrat(p, bufSize),
                 new BufferedFileChannel(p, bufSize),
                 new MemMappedChannel(p, bufSize),
-                new Raf(p, bufSize));
+                new Raf(p, bufSize)));
     }
 
     public static void main(String[] args) throws Exception {

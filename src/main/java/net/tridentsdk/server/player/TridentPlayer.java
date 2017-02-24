@@ -16,8 +16,6 @@
  */
 package net.tridentsdk.server.player;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
 import lombok.Getter;
 import lombok.Setter;
 import net.tridentsdk.base.BlockDirection;
@@ -65,7 +63,7 @@ public class TridentPlayer extends TridentEntity implements Player {
      * The players on the server
      */
     @Getter
-    private static final Map<UUID, TridentPlayer> players = Maps.newConcurrentMap();
+    private static final Map<UUID, TridentPlayer> players = new ConcurrentHashMap<>();
     /**
      * The cache time of a chunk
      */
@@ -302,7 +300,10 @@ public class TridentPlayer extends TridentEntity implements Player {
 
     @Override
     public void addBossBar(BossBar bossBar) {
-        Preconditions.checkNotNull(bossBar);
+        if(bossBar == null){
+            throw new NullPointerException();
+        }
+        
         if (this.bossBars.add(bossBar)) {
             this.net().sendPacket(new PlayOutBossBar.Add(bossBar));
         }
@@ -310,7 +311,10 @@ public class TridentPlayer extends TridentEntity implements Player {
 
     @Override
     public void removeBossBar(BossBar bossBar) {
-        Preconditions.checkNotNull(bossBar);
+        if(bossBar == null){
+            throw new NullPointerException();
+        }
+        
         if (this.bossBars.remove(bossBar)) {
             this.net().sendPacket(new PlayOutBossBar.Remove(bossBar));
         }

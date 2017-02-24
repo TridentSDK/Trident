@@ -16,12 +16,13 @@
  */
 package net.tridentsdk.server.ui.bossbar;
 
-import com.google.common.collect.Sets;
 import net.tridentsdk.doc.Policy;
 import net.tridentsdk.ui.bossbar.BossBar;
 
+import java.util.Collections;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 
 /**
@@ -37,7 +38,7 @@ public abstract class AbstractBossBar implements BossBar {
     /**
      * Set of used UUIDs to prevent conflicts
      */
-    private static final Set<UUID> uuids = Sets.newConcurrentHashSet();
+    private static final Set<UUID> uuids = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
     /**
      * The UUID of the boss bar

@@ -16,7 +16,6 @@
  */
 package net.tridentsdk.server.ui.tablist;
 
-import com.google.common.base.Strings;
 import net.tridentsdk.chat.ChatComponent;
 import net.tridentsdk.server.packet.play.PlayOutTabListItem;
 import net.tridentsdk.server.player.TridentPlayer;
@@ -122,6 +121,6 @@ public class TridentCustomTabList extends TridentTabList {
     private String getName(int slot) {
         int count = (slot % MAX_NAME_LENGTH) + 1;
         int position = slot / MAX_NAME_LENGTH;
-        return Strings.repeat(String.valueOf(ALPHABET.charAt(position)), count);
+        return new String(new char[count]).replace("\0", String.valueOf(ALPHABET.charAt(position)));
     }
 }

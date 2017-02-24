@@ -16,11 +16,12 @@
  */
 package net.tridentsdk.server.command;
 
-import com.google.common.collect.Sets;
 import net.tridentsdk.command.logger.LogHandler;
 
 import javax.annotation.concurrent.ThreadSafe;
+import java.util.Collections;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This class contains the handlers that plugins may use to
@@ -31,7 +32,7 @@ public class LoggerHandlers extends PipelinedLogger {
     /**
      * The set of handlers that intercept all output
      */
-    private final Set<LogHandler> handlers = Sets.newConcurrentHashSet();
+    private final Set<LogHandler> handlers = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
     /**
      * Creates a new handler class for the all messages log

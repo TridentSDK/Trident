@@ -16,8 +16,6 @@
  */
 package net.tridentsdk.server.net;
 
-import com.google.common.base.Charsets;
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.base.AbstractVector;
 import net.tridentsdk.base.Vector;
@@ -40,7 +38,7 @@ public final class NetData {
     /**
      * The default character encoding for protocol Strings.
      */
-    public static final Charset NET_CHARSET = Charsets.UTF_8;
+    public static final Charset NET_CHARSET = Charset.forName("UTF-8");
 
     // Prevent instantiation
     private NetData() {
@@ -113,7 +111,10 @@ public final class NetData {
 
         int b = (int) buf.readByte();
         while ((b & 0x80) == 0x80) {
-            Preconditions.checkArgument(indent < 21, "Too many bytes for a VarInt32.");
+            if(!(indent < 21)){
+                throw new RuntimeException("Too many bytes for a VarInt32.");
+            }
+            
             result += (b & 0x7f) << indent;
             indent += 7;
 
@@ -152,7 +153,9 @@ public final class NetData {
 
         long b = (long) buf.readByte();
         while ((b & 0x80L) == 0x80) {
-            Preconditions.checkArgument(indent < 49, "Too many bytes for a VarInt64.");
+            if(!(indent < 48)){
+                throw new RuntimeException("Too many bytes for a VarInt64.");
+            }
 
             result += (b & 0x7fL) << indent;
             indent += 7;

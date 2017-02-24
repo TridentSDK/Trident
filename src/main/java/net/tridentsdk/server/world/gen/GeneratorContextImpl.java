@@ -16,7 +16,6 @@
  */
 package net.tridentsdk.server.world.gen;
 
-import com.google.common.collect.Queues;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.server.util.UncheckedCdl;
 import net.tridentsdk.server.world.ChunkSection;
@@ -24,6 +23,7 @@ import net.tridentsdk.world.gen.GeneratorContext;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicIntegerArray;
 import java.util.concurrent.atomic.AtomicLong;
@@ -49,7 +49,7 @@ public class GeneratorContextImpl implements GeneratorContext {
     /**
      * Queue of generation tasks to be run upon command
      */
-    private final Queue<Consumer<UncheckedCdl>> tasks = Queues.newConcurrentLinkedQueue();
+    private final Queue<Consumer<UncheckedCdl>> tasks = new ConcurrentLinkedQueue<>();
 
     /**
      * The seed to be used for generation

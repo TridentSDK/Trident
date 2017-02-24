@@ -16,9 +16,6 @@
  */
 package net.tridentsdk.server.concurrent;
 
-import com.google.common.collect.Maps;
-import com.google.common.collect.Queues;
-
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 import java.util.Collection;
@@ -36,8 +33,7 @@ public class ServerThreadPool implements Executor {
     /**
      * Mapping of spec objects to delegate thread pools.
      */
-    private static final Map<PoolSpec, ServerThreadPool> pools =
-            Maps.newConcurrentMap();
+    private static final Map<PoolSpec, ServerThreadPool> pools = new ConcurrentHashMap<>();
     /**
      * Delegate executor service that is determined via
      * spec in the {@link #forSpec(PoolSpec)} method.
@@ -81,7 +77,7 @@ public class ServerThreadPool implements Executor {
             } else {
                 return new ServerThreadPool(new ThreadPoolExecutor(config, config,
                         60L, TimeUnit.SECONDS,
-                        Queues.newLinkedBlockingQueue(),
+                        new LinkedBlockingQueue<>(),
                         spec));
             }
         });

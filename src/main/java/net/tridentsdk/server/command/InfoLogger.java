@@ -16,7 +16,6 @@
  */
 package net.tridentsdk.server.command;
 
-import com.google.common.collect.Maps;
 import net.tridentsdk.command.logger.Logger;
 import net.tridentsdk.doc.Policy;
 
@@ -27,6 +26,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.TextStyle;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static java.time.temporal.ChronoField.*;
 
@@ -62,8 +62,7 @@ public class InfoLogger extends LoggerHandlers implements Logger {
     /**
      * The logger cache
      */
-    private static final Map<String, InfoLogger> CACHE =
-            Maps.newConcurrentMap();
+    private static final Map<String, InfoLogger> CACHE = new ConcurrentHashMap<>();
 
     // logger level constants
     private static final String INFO = "INFO";
