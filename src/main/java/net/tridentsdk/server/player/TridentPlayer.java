@@ -69,7 +69,7 @@ public class TridentPlayer extends TridentEntity implements Player {
     /**
      * The cache time of a chunk
      */
-    private static final int CHUNK_CACHE_MILLIS = 1000 * 10; // 10 Seconds
+    private static final int CHUNK_CACHE_MILLIS = 1000 * 30; // 30 Seconds
 
     /**
      * A map of chunk -> time, storing the last time
@@ -404,7 +404,8 @@ public class TridentPlayer extends TridentEntity implements Player {
         /* Should be 16, but renderDistance has to be divided by 2 */
         this.pool.execute(() ->
                 this.chunkSentTime.keySet().iterator().forEachRemaining(chunk -> {
-                    if (chunk.getX() - this.position.getChunkX() + chunk.getZ() - this.position.getChunkZ() > renderDistance * 8 /* == (renderDistance / 2) * 16 */) {
+                    if(Math.abs(chunk.getX() - this.position.getChunkX()) > radius
+                            || Math.abs(chunk.getZ()) - this.position.getChunkZ() > radius){
                         this.chunkSentTime.remove(chunk);
                     }
                 }));
@@ -418,13 +419,14 @@ public class TridentPlayer extends TridentEntity implements Player {
                             .thenAccept(chunk -> {
                                 this.client.sendPacket(new PlayOutChunk(chunk));
                                 this.chunkSentTime.put(position, System.currentTimeMillis());
+    
+                                TridentPlayer.players.values().stream()
+                                        .filter(player -> !player.equals(this))
+                                        .filter(player -> player.getPosition().getChunkX() == position.getX() && player.getPosition().getChunkZ() == position.getZ())
+                                        .forEach(player -> this.client.sendPacket(new PlayOutSpawnPlayer(player)));
                             });
                 }
             }
         }
-        
-        CompletableFuture.runAsync(() -> TridentPlayer.players.values().stream()
-                .filter(player -> !player.equals(this))
-                .forEach(player -> this.client.sendPacket(new PlayOutSpawnPlayer(player))));
     }
 }
