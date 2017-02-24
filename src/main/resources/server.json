@@ -1,18 +1,10 @@
 {
-  // Internal address used to bind the server
   "address": "0.0.0.0",
-  // Internal port used to bind the server
   "port": 25565,
-  // Use native epoll on Linux systems
   "use-native": true,
-  // Minimum packet size before compressing
   "compression-threshold": 256,
-  // Whether the server does authentication
   "online-mode": true,
-  // The max players on the server
   "max-players": 20,
-  // The server MOTD
   "motd": "Just another TridentSDK server...",
-  // Enable Netty Leak Detector
   "netty-leak-detector": false
 }
