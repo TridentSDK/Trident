@@ -74,7 +74,6 @@
             <artifactId>netty-transport-native-epoll</artifactId>
             <version>4.1.3.Final</version>
             <!-- <classifier>linux-x86_64</classifier> -->
-            <scope>runtime</scope>
         </dependency>
 
         <dependency>

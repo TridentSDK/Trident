@@ -44,6 +44,10 @@ public final class TridentMain {
      * Verbose commandline option (print debug or not)
      */
     private static final String VERBOSE = "-v";
+    /**
+     * Whether or not vilsol wants epoll, probably not
+     */
+    private static final String VILSOL = "-noepoll";
 
     // Prevent instantiation
     private TridentMain() {
@@ -68,6 +72,7 @@ public final class TridentMain {
         // Parse args --------------------------------------
         List<String> argList = Lists.newArrayList(args);
         boolean verbose = argList.contains(VERBOSE);
+        boolean vilsol = argList.contains(VILSOL);
         // -------------------------------------------------
 
         // Setup logging facilities ------------------------
@@ -95,7 +100,7 @@ public final class TridentMain {
         // -------------------------------------------------
 
         // Pass net args to the server handler -------------
-        NetServer server = NetServer.init(config);
+        NetServer server = NetServer.init(config, vilsol);
         // -------------------------------------------------
 
         // Setup API implementations -----------------------
