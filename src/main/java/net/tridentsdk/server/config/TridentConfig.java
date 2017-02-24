@@ -17,11 +17,9 @@
 package net.tridentsdk.server.config;
 
 
-import com.google.common.collect.Maps;
 import com.google.gson.JsonObject;
 import net.tridentsdk.config.Config;
 import net.tridentsdk.config.ConfigSection;
-import org.json.JSONObject;
 
 import javax.annotation.concurrent.Immutable;
 import java.io.File;

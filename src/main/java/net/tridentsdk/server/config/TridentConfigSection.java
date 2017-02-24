@@ -16,12 +16,9 @@
  */
 package net.tridentsdk.server.config;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.tridentsdk.config.ConfigSection;
-import org.json.JSONObject;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;

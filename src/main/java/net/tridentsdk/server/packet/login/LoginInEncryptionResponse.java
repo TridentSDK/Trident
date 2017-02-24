@@ -21,7 +21,6 @@ import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.packet.PacketIn;
 import net.tridentsdk.server.player.TridentPlayer;
-import org.json.JSONObject;
 
 import javax.annotation.concurrent.Immutable;
 import java.security.MessageDigest;
