@@ -48,17 +48,16 @@ public abstract class NetServer {
      * Initializer code for server startup.
      *
      * @param config the config which to pull information
-     * @param vilsol {@code true} if you shouldn't use epoll
      * @return the new server net handler
      * @throws InterruptedException if something went
      * horribly wrong
      */
-    public static NetServer init(ServerConfig config, boolean vilsol) throws InterruptedException {
+    public static NetServer init(ServerConfig config) throws InterruptedException {
         boolean nativeCompat = System.getProperty("os.name").toLowerCase().contains("linux");
         String ip = config.ip();
         int port = config.port();
 
-        return nativeCompat && config.useNative() && !vilsol ?
+        return nativeCompat && config.useNative() ?
                 new NetEpollServer(ip, port) : new NetNioServer(ip, port);
     }
 

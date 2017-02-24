@@ -25,6 +25,7 @@ import net.tridentsdk.server.command.PipelinedLogger;
 import net.tridentsdk.server.concurrent.ServerThreadPool;
 import net.tridentsdk.server.config.ConfigIo;
 import net.tridentsdk.server.config.ServerConfig;
+import net.tridentsdk.server.net.NetNioServer;
 import net.tridentsdk.server.net.NetServer;
 import net.tridentsdk.server.packet.status.StatusOutResponse;
 import net.tridentsdk.server.util.JiraExceptionCatcher;
@@ -100,7 +101,15 @@ public final class TridentMain {
         // -------------------------------------------------
 
         // Pass net args to the server handler -------------
-        NetServer server = NetServer.init(config, vilsol);
+        NetServer server;
+        if (vilsol) {
+            String address = config.ip();
+            int port = config.port();
+
+            server = new NetNioServer(address, port);
+        } else {
+            server = NetServer.init(config);
+        }
         // -------------------------------------------------
 
         // Setup API implementations -----------------------
