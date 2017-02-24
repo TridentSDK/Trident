@@ -16,8 +16,6 @@
  */
 package net.tridentsdk.server.config;
 
-import com.google.common.collect.Maps;
-
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -48,7 +46,7 @@ public class ConcurrentLinkedStringMap<V> {
     /**
      * The underlying map
      */
-    private final LinkedHashMap<String, V> map = Maps.newLinkedHashMap();
+    private final LinkedHashMap<String, V> map = new LinkedHashMap<>();
 
     public void put(String key, V value) {
         Lock lock = this.lock.writeLock();

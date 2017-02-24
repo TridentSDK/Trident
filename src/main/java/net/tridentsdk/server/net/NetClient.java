@@ -16,7 +16,6 @@
  */
 package net.tridentsdk.server.net;
 
-import com.google.common.collect.Maps;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
@@ -36,6 +35,7 @@ import net.tridentsdk.server.player.TridentPlayer;
 import javax.annotation.concurrent.ThreadSafe;
 import java.net.SocketAddress;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -87,8 +87,7 @@ public class NetClient {
     /**
      * The mapping of currently connected clients
      */
-    private static final Map<SocketAddress, NetClient> CLIENTS =
-            Maps.newConcurrentMap();
+    private static final Map<SocketAddress, NetClient> CLIENTS = new ConcurrentHashMap<>();
     /**
      * Cached empty disconnection message (for channel
      * closing errors)

@@ -16,16 +16,13 @@
  */
 package net.tridentsdk.server.packet.login;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.player.TridentPlayer;
+import net.tridentsdk.util.Cache;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
@@ -42,8 +39,7 @@ public final class Login {
      * Cache of UUIDs as Mojang doesn't like it when you
      * push the rate limit.
      */
-    private static final Cache<String, UUID> UUID_CACHE =
-            CacheBuilder.newBuilder().expireAfterAccess(5, TimeUnit.MINUTES).build();
+    private static final Cache<String, UUID> UUID_CACHE = new Cache<>(1000 * 60 * 5); // 5 Minutes
     /**
      * The pattern used to add back dashes to the UUID
      */
@@ -85,10 +81,6 @@ public final class Login {
      * @return the dashed string
      */
     public static UUID convert(String name, String input) {
-        try {
-            return UUID_CACHE.get(name, () -> UUID.fromString(UUID_PATTERN.matcher(input).replaceAll("$1-$2-$3-$4-$5")));
-        } catch (ExecutionException e) {
-            throw new RuntimeException(e);
-        }
+        return UUID_CACHE.get(name, () -> UUID.fromString(UUID_PATTERN.matcher(input).replaceAll("$1-$2-$3-$4-$5")));
     }
 }

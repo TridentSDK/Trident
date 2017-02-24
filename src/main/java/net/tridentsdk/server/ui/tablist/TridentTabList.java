@@ -16,8 +16,6 @@
  */
 package net.tridentsdk.server.ui.tablist;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import lombok.Getter;
 import net.tridentsdk.chat.ChatComponent;
 import net.tridentsdk.entity.living.Player;
@@ -30,6 +28,8 @@ import javax.annotation.concurrent.ThreadSafe;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * The tab list implementation.
@@ -61,9 +61,9 @@ public abstract class TridentTabList implements TabList {
      * superconstructor
      */
     public TridentTabList() {
-        this.users = Sets.newConcurrentHashSet();
+        this.users = Collections.newSetFromMap(new ConcurrentHashMap<>());
         // TODO find a better implementation
-        this.elements = Lists.newCopyOnWriteArrayList();
+        this.elements = new CopyOnWriteArrayList<>();
     }
 
     @Override

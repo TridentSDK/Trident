@@ -17,7 +17,6 @@
 package net.tridentsdk.server.packet;
 
 import com.esotericsoftware.reflectasm.ConstructorAccess;
-import com.google.common.collect.Maps;
 import net.tridentsdk.server.packet.handshake.HandshakeIn;
 import net.tridentsdk.server.packet.login.*;
 import net.tridentsdk.server.packet.play.*;
@@ -29,6 +28,7 @@ import net.tridentsdk.server.util.Reference2IntOpenHashMap;
 import net.tridentsdk.util.Int2ReferenceOpenHashMap;
 
 import javax.annotation.concurrent.Immutable;
+import java.util.HashMap;
 import java.util.Map;
 
 import static net.tridentsdk.server.net.NetClient.NetState;
@@ -43,8 +43,7 @@ public final class PacketRegistry {
     /**
      * The constructors used to instantiate the packets
      */
-    private static final Map<Class<? extends Packet>, ConstructorAccess<? extends Packet>> CTORS =
-            Maps.newHashMap();
+    private static final Map<Class<? extends Packet>, ConstructorAccess<? extends Packet>> CTORS = new HashMap<>();
 
     // Even though we save on autobox overhead, I was unable
     // to figure out how to flatten the packet registry,

@@ -16,7 +16,6 @@
  */
 package net.tridentsdk.server;
 
-import com.google.common.collect.Lists;
 import net.tridentsdk.Impl;
 import net.tridentsdk.Server;
 import net.tridentsdk.command.logger.Logger;
@@ -33,6 +32,7 @@ import net.tridentsdk.server.world.TridentWorldLoader;
 
 import javax.annotation.concurrent.Immutable;
 import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -66,7 +66,7 @@ public final class TridentMain {
     @Debug("Leak detector")
     private static void start(String[] args) throws Exception {
         // Parse args --------------------------------------
-        List<String> argList = Lists.newArrayList(args);
+        List<String> argList = Arrays.asList(args);
         boolean verbose = argList.contains(VERBOSE);
         // -------------------------------------------------
 

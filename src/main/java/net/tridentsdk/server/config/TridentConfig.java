@@ -17,16 +17,16 @@
 package net.tridentsdk.server.config;
 
 
-import com.google.common.collect.Maps;
 import net.tridentsdk.config.Config;
 import net.tridentsdk.config.ConfigSection;
+import org.json.JSONObject;
 
 import javax.annotation.concurrent.Immutable;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import org.json.JSONObject;
 
 /**
  * The default implementation of a configuration file that
@@ -43,8 +43,7 @@ public class TridentConfig extends TridentConfigSection implements Config {
      * Configs should really only have one instance so this
      * cache holds configs indefinitely.
      */
-    private static final ConcurrentMap<Path, TridentConfig> cachedConfigs =
-            Maps.newConcurrentMap();
+    private static final ConcurrentMap<Path, TridentConfig> cachedConfigs = new ConcurrentHashMap<>();
 
     /**
      * Releases the configuration file that may be cached

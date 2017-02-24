@@ -16,9 +16,8 @@
  */
 package net.tridentsdk.server.config;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import net.tridentsdk.config.ConfigSection;
+import org.json.JSONObject;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
@@ -26,7 +25,6 @@ import java.util.*;
 import java.util.function.BiFunction;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
-import org.json.JSONObject;
 
 /**
  * Implementation of a configuration section
@@ -161,28 +159,28 @@ public class TridentConfigSection implements ConfigSection {
 
     @Override
     public Stream<ConfigSection> getChildren(boolean deep) {
-        Set<ConfigSection> set = Sets.newLinkedHashSet();
+        Set<ConfigSection> set = new LinkedHashSet<>();
         this.children0(set, deep);
         return Collections.unmodifiableSet(set).stream();
     }
 
     @Override
     public Stream<String> getKeys(boolean deep) {
-        Set<String> set = Sets.newLinkedHashSet();
+        Set<String> set = new LinkedHashSet<>();
         this.iterate("", set, (s, e) -> this.handlePath(s, e.getKey()), deep);
         return Collections.unmodifiableSet(set).stream();
     }
 
     @Override
     public Stream<Object> getValues(boolean deep) {
-        LinkedList<Object> list = Lists.newLinkedList();
+        LinkedList<Object> list = new LinkedList<>();
         this.iterate("", list, (s, e) -> e.getValue(), deep);
         return Collections.unmodifiableCollection(list).stream();
     }
 
     @Override
     public Stream<Map.Entry<String, Object>> getEntries(boolean deep) {
-        Set<Map.Entry<String, Object>> set = Sets.newLinkedHashSet();
+        Set<Map.Entry<String, Object>> set = new LinkedHashSet<>();
         this.iterate("", set, this::concatKey, deep);
         return Collections.unmodifiableSet(set).stream();
     }
