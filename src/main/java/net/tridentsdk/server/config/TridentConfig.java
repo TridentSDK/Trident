@@ -17,6 +17,8 @@
 package net.tridentsdk.server.config;
 
 
+import com.google.common.collect.Maps;
+import com.google.gson.JsonObject;
 import net.tridentsdk.config.Config;
 import net.tridentsdk.config.ConfigSection;
 import org.json.JSONObject;
@@ -115,13 +117,13 @@ public class TridentConfig extends TridentConfigSection implements Config {
 
     @Override
     public void load() throws IOException {
-        JSONObject object = ConfigIo.readConfig(this.path);
+        JsonObject object = ConfigIo.readConfig(this.path);
         this.read(object);
     }
 
     @Override
     public void save() throws IOException {
-        JSONObject object = this.write();
+        JsonObject object = this.write();
         ConfigIo.writeConfig(this.path, object);
     }
 }

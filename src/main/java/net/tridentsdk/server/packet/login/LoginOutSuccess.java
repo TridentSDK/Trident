@@ -16,6 +16,9 @@
  */
 package net.tridentsdk.server.packet.login;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import net.tridentsdk.server.net.NetClient;
@@ -24,8 +27,6 @@ import net.tridentsdk.server.packet.PacketOut;
 import javax.annotation.concurrent.Immutable;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import static net.tridentsdk.server.net.NetData.wstr;
 
@@ -59,12 +60,12 @@ public final class LoginOutSuccess extends PacketOut {
         this.client = client;
         this.name = client.getName();
 
-        JSONArray array = new JSONArray();
-        array.put(this.name);
+        JsonArray array = new JsonArray();
+        array.add(new JsonPrimitive(this.name));
         String tempUuid;
         try {
             tempUuid = Mojang.<String>req("https://api.mojang.com/profiles/minecraft")
-                    .callback((Object object) -> ((JSONArray) object).getJSONObject(0).getString("id"))
+                    .callback((JsonElement element) -> element.getAsJsonArray().get(0).getAsJsonObject().get("id").getAsString())
                     .onException(s -> null)
                     .post(array).get();
         } catch (InterruptedException | ExecutionException e) {
@@ -78,7 +79,7 @@ public final class LoginOutSuccess extends PacketOut {
             this.uuid = Login.convert(this.name, tempUuid);
             try {
                 this.textures = Mojang.<String>req("https://sessionserver.mojang.com/session/minecraft/profile/%s", tempUuid)
-                        .callback((Object element) -> ((JSONObject) element).getJSONArray("properties").getJSONObject(0).getString("value"))
+                        .callback((JsonElement element) -> element.getAsJsonObject().get("properties").getAsJsonArray().get(0).getAsJsonObject().get("value").getAsString())
                         .onException(s -> "")
                         .get().get();
             } catch (InterruptedException | ExecutionException e) {

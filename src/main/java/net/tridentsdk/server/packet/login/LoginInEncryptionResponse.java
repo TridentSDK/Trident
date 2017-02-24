@@ -16,6 +16,7 @@
  */
 package net.tridentsdk.server.packet.login;
 
+import com.google.gson.JsonObject;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.packet.PacketIn;
@@ -80,13 +81,13 @@ public final class LoginInEncryptionResponse extends PacketIn {
                 return;
             }
 
-            JSONObject obj = (JSONObject) resp;
-            String id = obj.getString("id");
-            String name = obj.getString("name");
+            JsonObject obj = resp.getAsJsonObject();
+            String id = obj.get("id").getAsString();
+            String name = obj.get("name").getAsString();
             String textures = obj
-                    .getJSONArray("properties")
-                    .getJSONObject(0)
-                    .getString("value");
+                    .get("properties").getAsJsonArray()
+                    .get(0).getAsJsonObject()
+                    .get("value").getAsString();
 
             UUID uuid = Login.convert(name, id);
             LoginOutSuccess success = new LoginOutSuccess(client, uuid, name);
