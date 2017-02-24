@@ -35,7 +35,6 @@ import javax.annotation.concurrent.Immutable;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Scanner;
 
 /**
  * Trident server startup class
@@ -139,20 +138,6 @@ public final class TridentMain {
         // Setup netty and other network crap --------------
         logger.log(String.format("Server will be opened on %s:%s", address, port));
         server.setup();
-        // -------------------------------------------------
-
-        // Console command handling ------------------------
-        while (true) {
-            Scanner scanner = new Scanner(System.in);
-
-            String next = scanner.nextLine();
-            if (next.equals("shutdown") || next.equals("stop")) {
-                TridentServer.getInstance().shutdown();
-                break;
-            }
-
-            logger.warn("Commands are not implemented :(");
-        }
         // -------------------------------------------------
     }
 }
