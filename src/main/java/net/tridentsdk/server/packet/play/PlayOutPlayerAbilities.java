@@ -17,7 +17,9 @@
 package net.tridentsdk.server.packet.play;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.server.packet.PacketOut;
+import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.world.opt.GameMode;
 
 import javax.annotation.concurrent.Immutable;
@@ -30,32 +32,28 @@ import javax.annotation.concurrent.Immutable;
 public final class PlayOutPlayerAbilities extends PacketOut {
     private final boolean isGod;
     private final boolean isFlying;
+    private final boolean canFly;
     private final GameMode gameMode;
     private final float flyingSpeed;
     private final float walkingSpeed;
 
-    public PlayOutPlayerAbilities(boolean isGod, boolean isFlying, GameMode gameMode) {
-        this(isGod, isFlying, gameMode, 0.159F, 0.699999988079071F);
-    }
-
-    public PlayOutPlayerAbilities(boolean isGod, boolean isFlying, GameMode gameMode, float flyingSpeed, float walkingSpeed) {
+    public PlayOutPlayerAbilities(TridentPlayer player) {
         super(PlayOutPlayerAbilities.class);
-        this.isGod = isGod;
-        this.isFlying = isFlying;
-        this.gameMode = gameMode;
-        this.flyingSpeed = flyingSpeed;
-        this.walkingSpeed = walkingSpeed;
+        this.isGod = player.isGodMode();
+        this.isFlying = player.isFlying();
+        this.canFly = player.canFly();
+        this.gameMode = player.getGameMode();
+        this.flyingSpeed = player.getFlyingSpeed();
+        this.walkingSpeed = player.getWalkingSpeed();
     }
 
     @Override
     public void write(ByteBuf buf) {
         byte abilities = 0x00;
         abilities |= this.isGod ? 0x01 : 0x00; // invuln
-        abilities |= this.isFlying ? 0x01 << 1 : 0; // flying
-
-        boolean creative = this.gameMode == GameMode.CREATIVE;
-        abilities |= creative ? 0x01 << 2 : 0; // allow fly
-        abilities |= creative ? 0x01 << 3 : 0; // creative mode
+        abilities |= this.isFlying ? 0x02 : 0; // flying
+        abilities |= this.canFly ? 0x04 : 0; // can fly
+        abilities |= this.gameMode == GameMode.CREATIVE ? 0x08 : 0; // creative
 
         buf.writeByte(abilities);
         buf.writeFloat(flyingSpeed);

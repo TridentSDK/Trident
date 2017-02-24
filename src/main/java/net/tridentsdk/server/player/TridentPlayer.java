@@ -136,6 +136,35 @@ public class TridentPlayer extends TridentEntity implements Player {
     private final List<BossBar> bossBars = new CopyOnWriteArrayList<>();
 
     /**
+     * Whether the player is in god mode
+     */
+    @Getter
+    private volatile boolean godMode;
+
+    /**
+     * Whether the player can fly
+     */
+    private volatile boolean canFly;
+
+    /**
+     * Whether the player is flying
+     */
+    @Getter
+    private volatile boolean flying;
+
+    /**
+     * The player's flying speed
+     */
+    @Getter
+    private volatile float flyingSpeed = Player.DEFAULT_FLYING_SPEED;
+
+    /**
+     * The player's walking speed
+     */
+    @Getter
+    private volatile float walkingSpeed = Player.DEFAULT_WALKING_SPEED;
+
+    /**
      * Constructs a new player.
      */
     private TridentPlayer(NetClient client, World world, String name, UUID uuid, String textures) {
@@ -146,6 +175,7 @@ public class TridentPlayer extends TridentEntity implements Player {
         this.name = name;
         this.uuid = uuid;
         this.gameMode = world.getWorldOptions().getGameMode();
+        this.canFly = gameMode == GameMode.CREATIVE || gameMode == GameMode.SPECTATOR;
         this.textures = textures;
     }
 
@@ -171,7 +201,7 @@ public class TridentPlayer extends TridentEntity implements Player {
         client.sendPacket(new PlayOutDifficulty(world));
         client.sendPacket(new PlayOutSpawnPos());
         client.sendPacket(new PlayOutPosLook(player));
-        client.sendPacket(new PlayOutPlayerAbilities(false, false, player.getGameMode()));
+        client.sendPacket(new PlayOutPlayerAbilities(player));
 
         return player;
     }
@@ -271,12 +301,6 @@ public class TridentPlayer extends TridentEntity implements Player {
     @Override
     public void kick(ChatComponent reason) {
         this.client.disconnect(reason);
-    }
-
-    @Override
-    public void setGameMode(GameMode gameMode) {
-        this.gameMode = gameMode;
-        this.client.sendPacket(new PlayOutPlayerAbilities(false, false, gameMode));
     }
 
     @Override
@@ -383,6 +407,76 @@ public class TridentPlayer extends TridentEntity implements Player {
     public void setTextures(String textures) {
         this.textures = textures;
         // TODO Push update to tablist and other players
+    }
+
+    @Override
+    public void setGameMode(GameMode gameMode) {
+        this.gameMode = gameMode;
+        this.canFly = gameMode == GameMode.CREATIVE || gameMode == GameMode.SPECTATOR;
+        this.client.sendPacket(new PlayOutPlayerAbilities(this));
+    }
+
+    @Override
+    public void setGodMode(boolean godMode) {
+        setGodMode(godMode, true);
+    }
+
+    public void setGodMode(boolean godMode, boolean sendPacket) {
+        this.godMode = godMode;
+        this.client.sendPacket(new PlayOutPlayerAbilities(this));
+    }
+
+    @Override
+    public boolean canFly() {
+        return canFly;
+    }
+
+    @Override
+    public void setCanFly(boolean canFly) {
+        setCanFly(canFly, true);
+    }
+
+    public void setCanFly(boolean canFly, boolean sendPacket) {
+        this.canFly = canFly;
+        if (sendPacket) {
+            this.client.sendPacket(new PlayOutPlayerAbilities(this));
+        }
+    }
+
+    @Override
+    public void setFlying(boolean canFly) {
+        setFlying(canFly, true);
+    }
+
+    public void setFlying(boolean canFly, boolean sendPacket) {
+        this.flying = flying;
+        if (sendPacket) {
+            this.client.sendPacket(new PlayOutPlayerAbilities(this));
+        }
+    }
+
+    @Override
+    public void setFlyingSpeed(float flyingSpeed) {
+        setFlyingSpeed(flyingSpeed, true);
+    }
+
+    public void setFlyingSpeed(float flyingSpeed, boolean sendPacket) {
+        this.flyingSpeed = flyingSpeed;
+        if (sendPacket) {
+            this.client.sendPacket(new PlayOutPlayerAbilities(this));
+        }
+    }
+
+    @Override
+    public void setWalkingSpeed(float walkingSpeed) {
+        setWalkingSpeed(walkingSpeed, true);
+    }
+
+    public void setWalkingSpeed(float walkingSpeed, boolean sendPacket) {
+        this.walkingSpeed = walkingSpeed;
+        if (sendPacket) {
+            this.client.sendPacket(new PlayOutPlayerAbilities(this));
+        }
     }
 
     /**
