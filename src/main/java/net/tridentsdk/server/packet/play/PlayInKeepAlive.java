@@ -16,13 +16,13 @@
  */
 package net.tridentsdk.server.packet.play;
 
-import com.google.common.collect.Maps;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.packet.PacketIn;
 
 import javax.annotation.concurrent.Immutable;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static net.tridentsdk.server.net.NetData.rvint;
@@ -37,8 +37,7 @@ public final class PlayInKeepAlive extends PacketIn {
     /**
      * The keep alive time cache
      */
-    private static final Map<NetClient, Integer> TICK_IDS =
-            Maps.newConcurrentMap();
+    private static final Map<NetClient, Integer> TICK_IDS = new ConcurrentHashMap<>();
 
     /**
      * Obtains the next keep alive ID for the given net

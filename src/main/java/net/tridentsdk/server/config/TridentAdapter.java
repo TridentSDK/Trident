@@ -16,7 +16,6 @@
  */
 package net.tridentsdk.server.config;
 
-import com.google.common.math.DoubleMath;
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
@@ -113,11 +112,7 @@ public class TridentAdapter extends TypeAdapter<Object> {
                 return in.nextString();
 
             case NUMBER:
-                double d = in.nextDouble();
-                if (DoubleMath.isMathematicalInteger(d)) {
-                    return (int) d;
-                }
-                return d;
+                return in.nextDouble();
 
             case BOOLEAN:
                 return in.nextBoolean();

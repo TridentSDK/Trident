@@ -16,7 +16,6 @@
  */
 package net.tridentsdk.server.world;
 
-import com.google.common.collect.Maps;
 import lombok.Getter;
 import net.tridentsdk.command.logger.Logger;
 import net.tridentsdk.doc.Policy;
@@ -36,6 +35,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * The implementation of the TridentSDK world registry.
@@ -76,7 +76,7 @@ public class TridentWorldLoader implements WorldLoader {
     /**
      * The collection of all the loaded worlds
      */
-    private final Map<String, TridentWorld> worlds = Maps.newConcurrentMap();
+    private final Map<String, TridentWorld> worlds = new ConcurrentHashMap<>();
 
     // Prevent instantiation
     private TridentWorldLoader() {

@@ -16,7 +16,6 @@
  */
 package net.tridentsdk.server;
 
-import com.google.common.collect.Lists;
 import net.tridentsdk.Impl;
 import net.tridentsdk.Server;
 import net.tridentsdk.command.logger.Logger;
@@ -26,6 +25,7 @@ import net.tridentsdk.server.command.PipelinedLogger;
 import net.tridentsdk.server.concurrent.ServerThreadPool;
 import net.tridentsdk.server.config.ConfigIo;
 import net.tridentsdk.server.config.ServerConfig;
+import net.tridentsdk.server.net.NetNioServer;
 import net.tridentsdk.server.net.NetServer;
 import net.tridentsdk.server.packet.status.StatusOutResponse;
 import net.tridentsdk.server.util.JiraExceptionCatcher;
@@ -33,6 +33,7 @@ import net.tridentsdk.server.world.TridentWorldLoader;
 
 import javax.annotation.concurrent.Immutable;
 import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -44,6 +45,10 @@ public final class TridentMain {
      * Verbose commandline option (print debug or not)
      */
     private static final String VERBOSE = "-v";
+    /**
+     * Whether or not vilsol wants epoll, probably not
+     */
+    private static final String VILSOL = "-noepoll";
 
     // Prevent instantiation
     private TridentMain() {
@@ -66,8 +71,9 @@ public final class TridentMain {
     @Debug("Leak detector")
     private static void start(String[] args) throws Exception {
         // Parse args --------------------------------------
-        List<String> argList = Lists.newArrayList(args);
+        List<String> argList = Arrays.asList(args);
         boolean verbose = argList.contains(VERBOSE);
+        boolean vilsol = argList.contains(VILSOL);
         // -------------------------------------------------
 
         // Setup logging facilities ------------------------
@@ -95,7 +101,15 @@ public final class TridentMain {
         // -------------------------------------------------
 
         // Pass net args to the server handler -------------
-        NetServer server = NetServer.init(config);
+        NetServer server;
+        if (vilsol) {
+            String address = config.ip();
+            int port = config.port();
+
+            server = new NetNioServer(address, port);
+        } else {
+            server = NetServer.init(config);
+        }
         // -------------------------------------------------
 
         // Setup API implementations -----------------------

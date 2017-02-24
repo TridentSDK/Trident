@@ -2,7 +2,6 @@ before_install:
   - git clone -b travis `git config --get remote.origin.url` travis
   - chmod 777 "scripts/build.sh"
   - chmod 777 "scripts/javadoc.sh"
-  - sleep 60
 after_script: ./scripts/javadoc.sh
 script: ./scripts/build.sh
 language: java

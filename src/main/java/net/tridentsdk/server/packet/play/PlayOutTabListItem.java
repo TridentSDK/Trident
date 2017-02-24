@@ -16,7 +16,6 @@
  */
 package net.tridentsdk.server.packet.play;
 
-import com.google.common.collect.Queues;
 import io.netty.buffer.ByteBuf;
 import lombok.RequiredArgsConstructor;
 import net.tridentsdk.chat.ChatComponent;
@@ -28,6 +27,7 @@ import javax.annotation.concurrent.Immutable;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static net.tridentsdk.server.net.NetData.wstr;
 import static net.tridentsdk.server.net.NetData.wvint;
@@ -70,7 +70,7 @@ public abstract class PlayOutTabListItem extends PacketOut {
     }
 
     public static class PlayOutTabListItemAddPlayer extends PlayOutTabListItem {
-        private final Collection<PlayerData> additions = Queues.newConcurrentLinkedQueue();
+        private final Collection<PlayerData> additions = new ConcurrentLinkedQueue<>();
 
         public PlayOutTabListItemAddPlayer() {
             super(PlayOutTabListItemActionType.ADD_PLAYER);
@@ -136,7 +136,7 @@ public abstract class PlayOutTabListItem extends PacketOut {
     }
 
     public static class PlayOutTabListItemRemovePlayer extends PlayOutTabListItem {
-        private final Collection<UUID> removals = Queues.newConcurrentLinkedQueue();
+        private final Collection<UUID> removals = new ConcurrentLinkedQueue<>();
 
         public PlayOutTabListItemRemovePlayer() {
             super(PlayOutTabListItemActionType.REMOVE_PLAYER);
@@ -163,7 +163,7 @@ public abstract class PlayOutTabListItem extends PacketOut {
     }
 
     public static class PlayOutTabListItemUpdateDisplayName extends PlayOutTabListItem {
-        private final Collection<PlayerData> updates = Queues.newConcurrentLinkedQueue();
+        private final Collection<PlayerData> updates = new ConcurrentLinkedQueue<>();
 
         public PlayOutTabListItemUpdateDisplayName() {
             super(PlayOutTabListItemActionType.UPDATE_DISPLAY_NAME);

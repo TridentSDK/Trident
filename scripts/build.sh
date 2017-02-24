@@ -1,5 +1,10 @@
 echo "Currently on branch: $TRAVIS_BRANCH"
 
+git clone -b revamp https://github.com/TridentSDK/TridentSDK.git
+pushd TridentSDK
+mvn clean install
+popd
+
 if [ "$TRAVIS_BRANCH" == "revamp" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ];
 then
     echo "Compiling with deployment"
