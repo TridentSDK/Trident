@@ -203,7 +203,7 @@ public final class PacketRegistry {
         }
 
         String paddedHex = String.format("%2s", Integer.toHexString(id).toUpperCase()).replace(' ', '0');
-        throw new IllegalArgumentException(state + ", " + bound + ", " + id + " (0x" + paddedHex + ") is not registered");
+        throw new IllegalArgumentException(state + " => " + bound + ", " + id + " (0x" + paddedHex + ") is not registered");
     }
 
     /**

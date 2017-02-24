@@ -136,6 +136,40 @@ public class TridentPlayer extends TridentEntity implements Player {
     private final List<BossBar> bossBars = new CopyOnWriteArrayList<>();
 
     /**
+     * Whether the player is in god mode
+     */
+    @Getter
+    @Setter
+    private volatile boolean godMode;
+
+    /**
+     * Whether the player can fly
+     */
+    @Setter
+    private volatile boolean canFly;
+
+    /**
+     * Whether the player is flying
+     */
+    @Getter
+    @Setter
+    private volatile boolean flying;
+
+    /**
+     * The player's flying speed
+     */
+    @Getter
+    @Setter
+    private volatile float flyingSpeed = Player.DEFAULT_FLYING_SPEED;
+
+    /**
+     * The player's walking speed
+     */
+    @Getter
+    @Setter
+    private volatile float walkingSpeed = Player.DEFAULT_WALKING_SPEED;
+
+    /**
      * Constructs a new player.
      */
     private TridentPlayer(NetClient client, World world, String name, UUID uuid, String textures) {
@@ -146,6 +180,7 @@ public class TridentPlayer extends TridentEntity implements Player {
         this.name = name;
         this.uuid = uuid;
         this.gameMode = world.getWorldOptions().getGameMode();
+        this.canFly = gameMode == GameMode.CREATIVE || gameMode == GameMode.SPECTATOR;
         this.textures = textures;
     }
 
@@ -171,7 +206,7 @@ public class TridentPlayer extends TridentEntity implements Player {
         client.sendPacket(new PlayOutDifficulty(world));
         client.sendPacket(new PlayOutSpawnPos());
         client.sendPacket(new PlayOutPosLook(player));
-        client.sendPacket(new PlayOutPlayerAbilities(false, false, player.getGameMode()));
+        client.sendPacket(new PlayOutPlayerAbilities(player));
 
         return player;
     }
@@ -276,7 +311,8 @@ public class TridentPlayer extends TridentEntity implements Player {
     @Override
     public void setGameMode(GameMode gameMode) {
         this.gameMode = gameMode;
-        this.client.sendPacket(new PlayOutPlayerAbilities(false, false, gameMode));
+        this.canFly = gameMode == GameMode.CREATIVE || gameMode == GameMode.SPECTATOR;
+        this.client.sendPacket(new PlayOutPlayerAbilities(this));
     }
 
     @Override
@@ -383,6 +419,11 @@ public class TridentPlayer extends TridentEntity implements Player {
     public void setTextures(String textures) {
         this.textures = textures;
         // TODO Push update to tablist and other players
+    }
+
+    @Override
+    public boolean canFly() {
+        return canFly;
     }
 
     /**
