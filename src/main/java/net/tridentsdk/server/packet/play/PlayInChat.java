@@ -68,11 +68,6 @@ public final class PlayInChat extends PacketIn {
             }
         }
 
-        if (msg.toLowerCase().equals("tablist")) {
-            System.out.println("tablist");
-            TridentGlobalTabList.getInstance().update();
-        }
-
         if (msg.toLowerCase().equals("bossbars")) {
             int i = 0;
             for (String word : "I hate my life".split(" ")) {

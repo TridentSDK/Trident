@@ -30,12 +30,15 @@ import javax.annotation.concurrent.Immutable;
  */
 @Immutable
 public final class PlayOutPlayerAbilities extends PacketOut {
+
     private final boolean isGod;
     private final boolean isFlying;
     private final boolean canFly;
     private final GameMode gameMode;
     private final float flyingSpeed;
     private final float walkingSpeed;
+
+    private boolean doubleJump;
 
     public PlayOutPlayerAbilities(TridentPlayer player) {
         super(PlayOutPlayerAbilities.class);
@@ -45,13 +48,18 @@ public final class PlayOutPlayerAbilities extends PacketOut {
         this.gameMode = player.getGameMode();
         this.flyingSpeed = player.getFlyingSpeed();
         this.walkingSpeed = player.getWalkingSpeed();
+        this.doubleJump = false;
+    }
+
+    public void setDoubleJumpInsteadOfFlying() {
+        this.doubleJump = canFly;
     }
 
     @Override
     public void write(ByteBuf buf) {
         byte abilities = 0x00;
         abilities |= this.isGod ? 0x01 : 0x00; // invuln
-        abilities |= this.isFlying ? 0x02 : 0; // flying
+        abilities |= this.isFlying && !this.doubleJump ? 0x02 : 0; // flying
         abilities |= this.canFly ? 0x04 : 0; // can fly
         abilities |= this.gameMode == GameMode.CREATIVE ? 0x08 : 0; // creative
 

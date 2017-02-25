@@ -435,7 +435,9 @@ public class TridentPlayer extends TridentEntity implements Player {
 
     public void setGodMode(boolean godMode, boolean sendPacket) {
         this.godMode = godMode;
-        this.client.sendPacket(new PlayOutPlayerAbilities(this));
+        if (sendPacket) {
+            this.client.sendPacket(new PlayOutPlayerAbilities(this));
+        }
     }
 
     @Override
@@ -456,11 +458,11 @@ public class TridentPlayer extends TridentEntity implements Player {
     }
 
     @Override
-    public void setFlying(boolean canFly) {
-        setFlying(canFly, true);
+    public void setFlying(boolean flying) {
+        setFlying(flying, true);
     }
 
-    public void setFlying(boolean canFly, boolean sendPacket) {
+    public void setFlying(boolean flying, boolean sendPacket) {
         this.flying = flying;
         if (sendPacket) {
             this.client.sendPacket(new PlayOutPlayerAbilities(this));
