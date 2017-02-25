@@ -67,7 +67,7 @@ public final class Mojang<T> {
      */
     public static <T> Mojang<T> req(String format, String... fill) {
         try {
-            URL url = new URL(String.format(format, fill));
+            URL url = new URL(String.format(format, (Object[]) fill));
             URLConnection connection = url.openConnection();
             return new Mojang<>((HttpsURLConnection) connection);
         } catch (IOException e) {

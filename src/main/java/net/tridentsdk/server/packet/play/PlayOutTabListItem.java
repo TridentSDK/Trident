@@ -17,6 +17,7 @@
 package net.tridentsdk.server.packet.play;
 
 import io.netty.buffer.ByteBuf;
+import java.util.Collections;
 import lombok.RequiredArgsConstructor;
 import net.tridentsdk.chat.ChatComponent;
 import net.tridentsdk.server.packet.PacketOut;
@@ -77,7 +78,11 @@ public abstract class PlayOutTabListItem extends PacketOut {
         }
 
         public void addPlayer(UUID uuid, String name, GameMode gameMode, int ping, ChatComponent displayName) {
-            PlayerData playerData = new PlayerData(uuid, name, gameMode, ping, displayName, null);
+            addPlayer(uuid, name, gameMode, ping, displayName, null);
+        }
+
+        public void addPlayer(UUID uuid, String name, GameMode gameMode, int ping, ChatComponent displayName, List<TabListElement.PlayerProperty> properties) {
+            PlayerData playerData = new PlayerData(uuid, name, gameMode, ping, displayName, properties);
             this.additions.add(playerData);
         }
 

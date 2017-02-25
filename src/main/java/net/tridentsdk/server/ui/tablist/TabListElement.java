@@ -16,6 +16,7 @@
  */
 package net.tridentsdk.server.ui.tablist;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -86,14 +87,15 @@ public class TabListElement {
         this.ping = (int) player.net().getPing();
         this.gameMode = player.getGameMode();
 
-        String textures = player.getTextures();
+        PlayerProperty textures = player.getSkinTextures();
         if (textures != null) {
-            this.properties.add(new TabListElement.PlayerProperty("textures", textures));
+            this.properties.add(textures);
         }
     }
 
     @Data
     @RequiredArgsConstructor
+    @AllArgsConstructor
     public static class PlayerProperty {
         private final String name;
         @NonNull

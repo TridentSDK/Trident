@@ -32,6 +32,7 @@ import net.tridentsdk.server.entity.meta.EntityMetaType;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.packet.play.*;
 import net.tridentsdk.server.ui.bossbar.AbstractBossBar;
+import net.tridentsdk.server.ui.tablist.TabListElement;
 import net.tridentsdk.server.ui.tablist.TridentGlobalTabList;
 import net.tridentsdk.server.ui.tablist.TridentTabList;
 import net.tridentsdk.server.world.TridentWorld;
@@ -98,10 +99,10 @@ public class TridentPlayer extends TridentEntity implements Player {
     @Getter
     private volatile GameMode gameMode;
     /**
-     * The player's skin value
+     * The player's skin textures.
      */
     @Getter
-    private volatile String textures;
+    private volatile TabListElement.PlayerProperty skinTextures;
     /**
      * The player's render distance
      */
@@ -171,7 +172,7 @@ public class TridentPlayer extends TridentEntity implements Player {
     /**
      * Constructs a new player.
      */
-    private TridentPlayer(NetClient client, World world, String name, UUID uuid, String textures) {
+    private TridentPlayer(NetClient client, World world, String name, UUID uuid, TabListElement.PlayerProperty skinTextures) {
         super(world, PoolSpec.PLAYERS);
         this.metadata = (TridentPlayerMeta) super.getMetadata();
 
@@ -181,7 +182,7 @@ public class TridentPlayer extends TridentEntity implements Player {
         this.displayName = ChatComponent.text(name);
         this.gameMode = world.getWorldOptions().getGameMode();
         this.canFly = gameMode == GameMode.CREATIVE || gameMode == GameMode.SPECTATOR;
-        this.textures = textures;
+        this.skinTextures = skinTextures;
     }
 
     /**
@@ -190,11 +191,11 @@ public class TridentPlayer extends TridentEntity implements Player {
      * @param client the client representing the player
      * @param name the player name
      * @param uuid the player UUID
-     * @param textures the player textures
+     * @param skinTextures the player textures
      */
-    public static TridentPlayer spawn(NetClient client, String name, UUID uuid, String textures) {
+    public static TridentPlayer spawn(NetClient client, String name, UUID uuid, TabListElement.PlayerProperty skinTextures) {
         TridentWorld world = TridentServer.getInstance().getWorldLoader().getDefaultWorld();
-        TridentPlayer player = new TridentPlayer(client, world, name, uuid, textures);
+        TridentPlayer player = new TridentPlayer(client, world, name, uuid, skinTextures);
         players.put(uuid, player);
         client.setPlayer(player);
 
@@ -414,10 +415,10 @@ public class TridentPlayer extends TridentEntity implements Player {
      * Sets the texture of this player to a different skin
      * data.
      *
-     * @param textures the skin data
+     * @param skinTextures the skin textures
      */
-    public void setTextures(String textures) {
-        this.textures = textures;
+    public void setTextures(TabListElement.PlayerProperty skinTextures) {
+        this.skinTextures = skinTextures;
         // TODO Push update to tablist and other players
     }
 

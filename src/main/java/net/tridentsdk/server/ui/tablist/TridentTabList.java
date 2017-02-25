@@ -148,10 +148,10 @@ public abstract class TridentTabList implements TabList {
 
         this.users.forEach(p -> {
             TridentPlayer player = (TridentPlayer) p;
-            if (addPacket.getActionCount() > 0)
-                player.net().sendPacket(addPacket);
             if (removePacket.getActionCount() > 0)
                 player.net().sendPacket(removePacket);
+            if (addPacket.getActionCount() > 0)
+                player.net().sendPacket(addPacket);
             if (updatePacket.getActionCount() > 0)
                 player.net().sendPacket(updatePacket);
             player.net().sendPacket(headerAndFooterPacket);

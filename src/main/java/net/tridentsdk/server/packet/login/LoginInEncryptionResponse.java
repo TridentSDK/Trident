@@ -26,6 +26,7 @@ import javax.annotation.concurrent.Immutable;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
+import net.tridentsdk.server.ui.tablist.TabListElement;
 
 import static net.tridentsdk.server.net.NetData.arr;
 import static net.tridentsdk.server.net.NetData.rvint;
@@ -83,10 +84,9 @@ public final class LoginInEncryptionResponse extends PacketIn {
             JsonObject obj = resp.getAsJsonObject();
             String id = obj.get("id").getAsString();
             String name = obj.get("name").getAsString();
-            String textures = obj
-                    .get("properties").getAsJsonArray()
-                    .get(0).getAsJsonObject()
-                    .get("value").getAsString();
+            JsonObject tex = obj.get("properties").getAsJsonArray().get(0).getAsJsonObject();
+
+            TabListElement.PlayerProperty textures = new TabListElement.PlayerProperty(tex.get("name").getAsString(), tex.get("value").getAsString(), tex.has("signature") ? tex.get("signature").getAsString() : null);
 
             UUID uuid = Login.convert(name, id);
             LoginOutSuccess success = new LoginOutSuccess(client, uuid, name);

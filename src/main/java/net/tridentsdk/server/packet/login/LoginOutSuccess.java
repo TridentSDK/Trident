@@ -18,6 +18,7 @@ package net.tridentsdk.server.packet.login;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
@@ -27,6 +28,7 @@ import net.tridentsdk.server.packet.PacketOut;
 import javax.annotation.concurrent.Immutable;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
+import net.tridentsdk.server.ui.tablist.TabListElement;
 
 import static net.tridentsdk.server.net.NetData.wstr;
 
@@ -53,7 +55,7 @@ public final class LoginOutSuccess extends PacketOut {
      * The player skin/cape
      */
     @Getter
-    private final String textures;
+    private final TabListElement.PlayerProperty textures;
 
     public LoginOutSuccess(NetClient client) {
         super(LoginOutSuccess.class);
@@ -74,14 +76,16 @@ public final class LoginOutSuccess extends PacketOut {
 
         if (tempUuid == null) {
             this.uuid = UUID.randomUUID();
-            this.textures = "";
+            this.textures = null;
         } else {
             this.uuid = Login.convert(this.name, tempUuid);
             try {
-                this.textures = Mojang.<String>req("https://sessionserver.mojang.com/session/minecraft/profile/%s", tempUuid)
-                        .callback((JsonElement element) -> element.getAsJsonObject().get("properties").getAsJsonArray().get(0).getAsJsonObject().get("value").getAsString())
-                        .onException(s -> "")
-                        .get().get();
+                JsonObject tex = Mojang.<JsonObject>req("https://sessionserver.mojang.com/session/minecraft/profile/%s?unsigned=false", tempUuid)
+                        .callback((JsonElement e) -> e.getAsJsonObject().getAsJsonArray("properties").get(0).getAsJsonObject())
+                        .onException(s -> null)
+                        .get()
+                        .get();
+                this.textures = new TabListElement.PlayerProperty(tex.get("name").getAsString(), tex.get("value").getAsString(), tex.has("signature") ? tex.get("signature").getAsString() : null);
             } catch (InterruptedException | ExecutionException e) {
                 throw new RuntimeException(e);
             }
@@ -95,7 +99,7 @@ public final class LoginOutSuccess extends PacketOut {
         this.client = client;
         this.uuid = uuid;
         this.name = name;
-        this.textures = "";
+        this.textures = null;
         client.enableCompression();
     }
 
