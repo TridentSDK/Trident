@@ -81,7 +81,7 @@ public final class TridentMain {
         Logger logger = InfoLogger.get(internal, "Server");
         // -------------------------------------------------
 
-        logger.log("Server software by TridentSDK - https://tridentsdk.net");
+        logger.log("Server software by TridentSDK - https://tsdk.xyz");
 
         logger.log("Server implements API version " + Server.VERSION);
         logger.log("Server implements Minecraft protocol for " + StatusOutResponse.MC_VERSION);

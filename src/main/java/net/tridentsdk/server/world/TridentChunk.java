@@ -189,15 +189,16 @@ public class TridentChunk implements Chunk {
         // Write the continuous mask
         short mask = 0;
         for (int i = 0; i < len; i++) {
-            if (sections[i] == null) break;
-            mask |= 1 << i;
+            if (sections[i] != null) {
+                mask |= 1 << i;
+            }
         }
         wvint(buf, mask);
 
         // Write section data
         ByteBuf chunkData = buf.alloc().buffer();
         for (int i = 0; i < len; i++) {
-            if ((mask & 1 << i) == 1) {
+            if ((mask & (1 << i)) == (1 << i)) {
                 ChunkSection sec = sections[i];
                 if (sec != null) {
                     sec.write(chunkData);
