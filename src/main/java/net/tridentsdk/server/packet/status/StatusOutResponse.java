@@ -19,6 +19,22 @@ package net.tridentsdk.server.packet.status;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import io.netty.buffer.ByteBuf;
+import java.awt.AlphaComposite;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.WatchEvent;
+import java.nio.file.WatchKey;
+import java.nio.file.WatchService;
+import java.util.Base64;
+import java.util.concurrent.atomic.AtomicReference;
+import javax.imageio.ImageIO;
 import net.tridentsdk.chat.ChatComponent;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.config.ServerConfig;
@@ -27,6 +43,10 @@ import net.tridentsdk.server.player.TridentPlayer;
 
 import javax.annotation.concurrent.Immutable;
 
+import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
+import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
+import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
+import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
 import static net.tridentsdk.server.net.NetData.wstr;
 
 /**
@@ -44,6 +64,85 @@ public final class StatusOutResponse extends PacketOut {
      * version
      */
     private static final int PROTOCOL_VERSION = 316;
+
+    private static final Path iconPath;
+    private static final AtomicReference<String> b64icon = new AtomicReference<>();
+    static {
+        String userDir = System.getProperty("user.dir");
+        iconPath = Paths.get("server-icon.png");
+        try {
+            loadIcon();
+        } catch (IOException ex) {
+            System.out.println("No server-icon.png!");
+        }
+        Thread watcherThread = new Thread(() -> {
+            try {
+                Path dir = Paths.get(userDir);
+                WatchService service = dir.getFileSystem().newWatchService();
+                WatchKey watchKey = dir.register(service, ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE);
+                while (true) {
+                    try {
+                        WatchKey eventKey = service.take();
+                        System.out.println("Got server icon watcher key!");
+                        if (eventKey != watchKey) {
+                            System.err.format("unexpected watch key: %s. expected %s\n", eventKey, watchKey);
+                            break;
+                        }
+                        eventKey.pollEvents().forEach(e -> {
+                            if (!e.context().equals(iconPath))
+                                return;
+                            System.out.println("server-icon.png fired an event: " + e.kind().toString());
+                            if (e.kind() == ENTRY_CREATE || e.kind() == ENTRY_MODIFY) {
+                                try {
+                                    loadIcon();
+                                } catch (IOException ex) {
+                                    ex.printStackTrace();
+                                }
+                            } else if (e.kind() == ENTRY_DELETE) {
+                                b64icon.set(null);
+                            }
+                        });
+
+                        if (!eventKey.reset()) {
+                            System.out.println("Server icon watch key no longer valid!");
+                            break;
+                        }
+                    } catch (InterruptedException ex) {
+                        ex.printStackTrace();
+                        break;
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+        watcherThread.setDaemon(true);
+        watcherThread.start();
+    }
+
+    private static void loadIcon() throws IOException {
+        System.out.println("Loading server-icon.png");
+        BufferedImage image = ImageIO.read(iconPath.toFile());
+
+        if (image.getWidth() != 64 || image.getHeight() != 64){ // resize to 64x64 as required
+            BufferedImage resizedImage = new BufferedImage(64, 64, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D g = resizedImage.createGraphics();
+            g.drawImage(image, 0, 0, 64, 64, null);
+            g.dispose();
+            g.setComposite(AlphaComposite.Src);
+            g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+            g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            image = resizedImage;
+        }
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageIO.write(image, "png", baos);
+        byte[] data = baos.toByteArray();
+        String b64 = Base64.getEncoder().encodeToString(data);
+        b64icon.set("data:image/png;base64," + b64);
+        System.out.println("Loaded server icon data: data:image/png;base64," + b64);
+    }
 
     public StatusOutResponse() {
         super(StatusOutResponse.class);
@@ -74,8 +173,10 @@ public final class StatusOutResponse extends PacketOut {
 
         resp.add("description", ChatComponent.text(cfg.motd()).asJson());
 
-        // resp.addProperty("favicon", "data:image/png;base64,<data>");
-        // String toString = ConfigIo.GSON.toJson(resp);
+        String icon = b64icon.get();
+        if (icon != null) {
+            resp.addProperty("favicon", icon);
+        }
         wstr(buf, resp.toString());
     }
 }
