@@ -1,4 +1,5 @@
 $color-default: #dadada;
+$color-white: #dadada;
 $color-green: #00c300;
 $color-yellow: yellow;
 $color-cyan: cyan;
@@ -59,8 +60,9 @@ body {
                 white-space: pre;
                 font-family: monospace;
             }
-            
+
             .color-default {color: $color-default}
+            .color-white {color: $color-white}
             .color-green {color: $color-green}
             .color-yellow {color: $color-yellow}
             .color-cyan {color: $color-cyan}

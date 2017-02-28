@@ -21,11 +21,6 @@ import net.tridentsdk.command.logger.Logger;
 import org.jtwig.JtwigModel;
 import org.jtwig.JtwigTemplate;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.util.List;
-
 public class WebDriver extends NanoHTTPD {
     
     /**
@@ -65,28 +60,12 @@ public class WebDriver extends NanoHTTPD {
             case "/logo.png":
                 return newChunkedResponse(Response.Status.OK, "image/png", WebDriver.class.getResourceAsStream("/web" + session.getUri()));
             case "/":
-                File[] logs = new File("logs").listFiles();
-                assert logs != null;
-                
-                File log = logs[logs.length - 1];
-                
                 try{
-                    List<String> lines = Files.readAllLines(log.toPath());
-                    
-                    StringBuilder result = new StringBuilder();
-                    for(String line : lines){
-                        result.append("<span class=\"color-default\">").append(line).append("</span><br>");
-                    }
-    
                     JtwigTemplate template = JtwigTemplate.classpathTemplate("web/templates/console.twig");
-                    JtwigModel model = JtwigModel.newModel().with("log", result.toString());
-                    
-                    return newFixedLengthResponse(template.render(model));
-                }catch(IOException e){
+                    return newFixedLengthResponse(template.render(JtwigModel.newModel()));
+                }catch(Exception e){
                     e.printStackTrace();
                 }
-                
-                return newFixedLengthResponse(Response.Status.INTERNAL_ERROR, "text/html", "<center><h1>502</h1></center>");
         }
         
         

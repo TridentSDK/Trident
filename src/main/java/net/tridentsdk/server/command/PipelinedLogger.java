@@ -16,6 +16,8 @@
  */
 package net.tridentsdk.server.command;
 
+import net.tridentsdk.server.web.CollectorLogger;
+
 import javax.annotation.concurrent.Immutable;
 import java.io.OutputStream;
 
@@ -67,7 +69,8 @@ public abstract class PipelinedLogger {
     public static PipelinedLogger init(boolean verbose) throws Exception {
         // tail of pipeline
         PipelinedLogger underlying = new DefaultLogger();
-        PipelinedLogger colorizer = new ColorizerLogger(underlying);
+        PipelinedLogger collector = new CollectorLogger(underlying);
+        PipelinedLogger colorizer = new ColorizerLogger(collector);
         PipelinedLogger debugger = verbose ? DebugLogger.verbose(colorizer) : DebugLogger.noop(colorizer);
         PipelinedLogger handler = new LoggerHandlers(debugger);
         return FileLogger.init(handler); // head of pipeline

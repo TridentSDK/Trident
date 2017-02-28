@@ -32,7 +32,7 @@
     <div class="container-fluid">
         <div class="col-sm-12 panel console">
             <div class="console-inner">
-                <div class="log" id="log">{{ log }}</div>
+                <div class="log" id="log"></div>
                 <div class="command">
                     <input type="text" class="form-control" placeholder="Command...">
                 </div>
@@ -48,6 +48,117 @@
 <script>
     $("#log").ready(function(){
         $('#log').scrollTop($('#log')[0].scrollHeight);
+    });
+
+    var globalSocket = null;
+
+    function checkSocket(){
+        if(globalSocket === null || globalSocket.readyState !== 1){
+            globalSocket = new WebSocket("ws://" + location.hostname + ":" + (parseInt(location.port) + 1));
+
+            globalSocket.onmessage = function (message) {
+                receive(JSON.parse(message.data));
+            };
+
+            globalSocket.onopen = function () {
+                globalSocket.send("1");
+                globalSocket.onopen = null;
+            }
+        }
+    }
+
+    function send(message) {
+        if(globalSocket === null || globalSocket.readyState !== 1){
+            globalSocket = new WebSocket("ws://" + location.hostname + ":" + (parseInt(location.port) + 1));
+
+            globalSocket.onmessage = function (message) {
+                receive(JSON.parse(message.data));
+            };
+
+            globalSocket.onopen = function () {
+                globalSocket.send("1");
+                globalSocket.onopen = null;
+                globalSocket.send(message);
+            }
+        }else{
+            globalSocket.send(message)
+        }
+    }
+
+    function receive(message) {
+        switch (parseInt(message.type)){
+            case 1:
+                var result = "";
+
+                for (var i = 0; i < message.log.length; i++){
+                    result += convertAnsi(message.log[i]) + "<br>";
+                }
+
+                var reScroll = $("#log")[0].clientHeight + $("#log")[0].scrollTop === $('#log')[0].scrollHeight;
+
+                $("#log").html(result);
+
+                if(reScroll){
+                    $('#log').scrollTop($('#log')[0].scrollHeight);
+                }
+
+                cleanup();
+
+                break;
+            case 2:
+
+                result = "";
+
+                for (i = 0; i < message.lines.length; i++){
+                    result += convertAnsi(message.lines[i]) + "<br>";
+                }
+
+                reScroll = $("#log")[0].clientHeight + $("#log")[0].scrollTop === $('#log')[0].scrollHeight;
+
+                $("#log").append(result);
+
+                if(reScroll){
+                    $('#log').scrollTop($('#log')[0].scrollHeight);
+                }
+
+                cleanup();
+
+                break;
+        }
+    }
+
+    function cleanup() {
+        var log = $("#log");
+
+        while(log.children("br").length > 1000){
+            log.children(":first").remove();
+        }
+    }
+
+    function convertAnsi(message) {
+        message = "<span class=\"color-default\">" + message;
+        message = message.replace(/\u001B\[0m/g, "</span><span class=\"color-default\">");
+        message = message.replace(/\u001B\[30m/g, "</span><span class=\"color-black\">");
+        message = message.replace(/\u001B\[31m/g, "</span><span class=\"color-red\">");
+        message = message.replace(/\u001B\[32m/g, "</span><span class=\"color-green\">");
+        message = message.replace(/\u001B\[33m/g, "</span><span class=\"color-yellow\">");
+        message = message.replace(/\u001B\[34m/g, "</span><span class=\"color-blue\">");
+        message = message.replace(/\u001B\[35m/g, "</span><span class=\"color-purple\">");
+        message = message.replace(/\u001B\[36m/g, "</span><span class=\"color-cyan\">");
+        message = message.replace(/\u001B\[37m/g, "</span><span class=\"color-white\">");
+        message = message + "</span>";
+
+        message = message.replace("<span style=\"color-default\"></span>", "");
+
+        return message;
+    }
+
+    $(document).ready(function () {
+        send(1);
+
+        setTimeout(function () {
+            setInterval(checkSocket, 1000)
+        }, 1000);
     })
 </script>
 </body>
