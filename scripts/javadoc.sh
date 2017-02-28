@@ -3,9 +3,6 @@
 # https://github.com/treelogic-swe/aws-mock/
 
 if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
-    # Ping docker hub
-    curl -H "Content-Type: application/json" --data "'{\"build\": true}'" -X POST https://registry.hub.docker.com/u/tridentsdk/trident/trigger/${DOCKER_TRIGGER_TOKEN}/
-
     # Set it up
     git config --global user.email "woodyc40@gmail.com"
     git config --global user.name "AgentTroll"
