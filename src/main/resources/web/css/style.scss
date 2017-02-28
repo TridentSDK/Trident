@@ -1,0 +1,122 @@
+$color-default: #dadada;
+$color-green: #00c300;
+$color-yellow: yellow;
+$color-cyan: cyan;
+$color-red: red;
+$color-blue: #0064ff;
+$color-magenta: magenta;
+
+::-webkit-resizer {
+    background: #ff8300;
+}
+
+::-webkit-resizer {
+    background: #ff8300;
+}
+
+::-webkit-scrollbar {
+    width: 0.5em;
+    height: 0.5em;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #29bdc6;
+}
+
+::-webkit-scrollbar-track {
+    background: #3d4048;
+}
+
+body {
+    background: #222222;
+}
+
+.page {
+    margin-top: 15px;
+}
+
+.panel {
+    background: #333333;
+    border-radius: 5px;
+}
+
+.console {
+    line-height: 14px;
+    padding: 5px 8px;
+    height: calc(100vh - 90px);  
+    overflow: auto;
+    
+    .console-inner {        
+        overflow: auto;
+    
+        .log {
+            overflow: auto;
+            width: 100%;
+            height: calc(100vh - 155px);
+            display: block;
+
+            span {
+                white-space: pre;
+                font-family: monospace;
+            }
+            
+            .color-default {color: $color-default}
+            .color-green {color: $color-green}
+            .color-yellow {color: $color-yellow}
+            .color-cyan {color: $color-cyan}
+            .color-red {color: $color-red}
+            .color-blue {color: $color-blue}
+            .color-magenta {color: $color-magenta}
+        }
+
+        .command {
+            margin-top: 10px;
+            
+            input {
+                background-color: #212121;
+            }
+        }
+    }
+}
+
+.config {
+    
+    .panel {
+        padding: 0;
+        min-height: calc(100vh - 90px);
+        height: 100%;
+        background: none;
+    }
+    
+    h4 {
+        color: #fff;
+    }
+    
+    .list-group {
+        
+        .list-group-item {
+            background: #333333;
+            color: #fff;
+            word-break: break-all;
+            
+            .config-path {
+                font-size: 15px;
+            }
+            
+            small {
+                color: #aaa;
+            }
+            
+            &.active {
+                background-color: #0275d8;
+            }
+        }
+    }
+    
+    #editor {
+        width: 100%;
+        height: 100%;
+        border-radius: 5px;
+    }
+    
+}

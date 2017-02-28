@@ -28,6 +28,7 @@ import net.tridentsdk.server.config.ServerConfig;
 import net.tridentsdk.server.net.NetServer;
 import net.tridentsdk.server.packet.status.StatusOutResponse;
 import net.tridentsdk.server.util.JiraExceptionCatcher;
+import net.tridentsdk.server.web.WebDriver;
 import net.tridentsdk.server.world.TridentWorldLoader;
 
 import javax.annotation.concurrent.Immutable;
@@ -132,6 +133,10 @@ public final class TridentMain {
         // Setup netty and other network crap --------------
         logger.log(String.format("Server will be opened on %s:%s", address, port));
         server.setup();
+        // -------------------------------------------------
+        
+        // Start web admin ---------------------------------
+        WebDriver.run(address, 8080);
         // -------------------------------------------------
     }
 }

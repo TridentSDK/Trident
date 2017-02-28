@@ -50,6 +50,11 @@
             <id>TridentSDK</id>
             <url>https://oss.sonatype.org/content/repositories/public/</url>
         </repository>
+
+        <repository>
+            <id>jcenter</id>
+            <url>https://jcenter.bintray.com/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -83,6 +88,38 @@
             <groupId>org.fusesource.jansi</groupId>
             <artifactId>jansi</artifactId>
             <version>1.13</version>
+        </dependency>
+
+        <!-- Web Admin -->
+        <dependency>
+            <groupId>org.nanohttpd</groupId>
+            <artifactId>nanohttpd</artifactId>
+            <version>2.2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.nanohttpd</groupId>
+            <artifactId>nanohttpd-websocket</artifactId>
+            <version>2.2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm</artifactId>
+            <version>5.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jtwig</groupId>
+            <artifactId>jtwig-core</artifactId>
+            <version>5.85.3.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.12</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.7.12</version>
         </dependency>
 
         <!-- Testing -->
@@ -238,6 +275,25 @@
                     <show>protected</show>
                     <nohelp>true</nohelp>
                     <destDir>gh-pages</destDir>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.github.warmuuh</groupId>
+                <artifactId>libsass-maven-plugin</artifactId>
+                <version>0.2.6-libsass_3.4.0</version>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <inputPath>${basedir}/src/main/resources/web/css/</inputPath>
+                    <outputPath>${basedir}/target/classes/web/css/</outputPath>
+                    <outputStyle>compressed</outputStyle>
+                    <omitSourceMapingURL>true</omitSourceMapingURL>
                 </configuration>
             </plugin>
         </plugins>

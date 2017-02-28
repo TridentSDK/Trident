@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<nav class="navbar navbar-toggleable-md navbar-inverse bg-inverse">
+    <a class="navbar-brand" href="#">
+        <img src="/logo.png" width="30" height="30" class="d-inline-block align-top" alt="">
+        TridentSDK Admin
+    </a>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+                <a class="nav-link" href="#">Console <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Config</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Players</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div class="page">
+    <div class="container-fluid">
+        <div class="col-sm-12 panel console">
+            <div class="console-inner">
+                <div class="log" id="log">{{ log }}</div>
+                <div class="command">
+                    <input type="text" class="form-control" placeholder="Command...">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/js/jquery.min.js"></script>
+<script src="/js/tether.min.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+
+<script>
+    $("#log").ready(function(){
+        $('#log').scrollTop($('#log')[0].scrollHeight);
+    })
+</script>
+</body>
+</html>
