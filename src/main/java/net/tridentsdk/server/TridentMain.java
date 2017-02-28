@@ -25,7 +25,6 @@ import net.tridentsdk.server.command.PipelinedLogger;
 import net.tridentsdk.server.concurrent.ServerThreadPool;
 import net.tridentsdk.server.config.ConfigIo;
 import net.tridentsdk.server.config.ServerConfig;
-import net.tridentsdk.server.net.NetNioServer;
 import net.tridentsdk.server.net.NetServer;
 import net.tridentsdk.server.packet.status.StatusOutResponse;
 import net.tridentsdk.server.util.JiraExceptionCatcher;
@@ -46,9 +45,9 @@ public final class TridentMain {
      */
     private static final String VERBOSE = "-v";
     /**
-     * Whether or not vilsol wants epoll, probably not
+     * If passed, native epoll is not used
      */
-    private static final String VILSOL = "-noepoll";
+    private static final String NO_EPOLL = "-noepoll";
 
     // Prevent instantiation
     private TridentMain() {
@@ -73,7 +72,7 @@ public final class TridentMain {
         // Parse args --------------------------------------
         List<String> argList = Arrays.asList(args);
         boolean verbose = argList.contains(VERBOSE);
-        boolean vilsol = argList.contains(VILSOL);
+        boolean noEpoll = argList.contains(NO_EPOLL);
         // -------------------------------------------------
 
         // Setup logging facilities ------------------------
@@ -103,13 +102,8 @@ public final class TridentMain {
         // Pass net args to the server handler -------------
         String address = config.ip();
         int port = config.port();
-
-        NetServer server;
-        if (vilsol) {
-            server = new NetNioServer(address, port);
-        } else {
-            server = NetServer.init(address, port, config.useNative());
-        }
+        
+        NetServer server = NetServer.init(address, port, config.useNative() && !noEpoll);
         // -------------------------------------------------
 
         // Setup API implementations -----------------------
