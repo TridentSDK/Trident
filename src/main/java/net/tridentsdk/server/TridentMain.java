@@ -79,6 +79,8 @@ public final class TridentMain {
         // Setup logging facilities ------------------------
         PipelinedLogger internal = PipelinedLogger.init(verbose);
         Logger logger = InfoLogger.get(internal, "Server");
+        System.setOut(new Catcher(false, InfoLogger.get(internal, "System")));
+        System.setErr(new Catcher(true, InfoLogger.get(internal, "System")));
         // -------------------------------------------------
 
         logger.log("Server software by TridentSDK - https://tsdk.xyz");
