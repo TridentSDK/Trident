@@ -26,20 +26,33 @@ public class Catcher extends PrintStream {
     
     public Catcher(boolean error, Logger LOGGER){
         super(new OutputStream() {
-            @Override public void write(int b) throws IOException{}
     
+            /**
+             * StringBuilder can write 100k characters to itself in 1ms, which is
+             * faster than System.out and System.err can print to the terminal
+             */
+            private StringBuilder stack = new StringBuilder();
+            
             @Override
-            public void write(byte[] b, int off, int len) throws IOException{
-                String data = new String(b, off, len);
-                
-                if(!data.trim().isEmpty()){
-                    if(error){
-                        LOGGER.error(data);
-                    }else{
-                        LOGGER.log(data);
+            public void write(int b) throws IOException{
+                if(b == 10 || b == 13){
+                    String result = stack.toString();
+                    
+                    if(!result.trim().isEmpty()){
+                        if(error){
+                            LOGGER.error(result);
+                        }else{
+                            LOGGER.log(result);
+                        }
                     }
+                    
+                    stack = new StringBuilder();
+                    return;
                 }
+                
+                stack.append((char) b);
             }
+            
         });
     }
     
