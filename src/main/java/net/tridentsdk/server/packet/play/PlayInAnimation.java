@@ -1,6 +1,6 @@
 /*
  * Trident - A Multithreaded Server Alternative
- * Copyright 2016 The TridentSDK Team
+ * Copyright 2017 The TridentSDK Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.net.NetData;
 import net.tridentsdk.server.packet.PacketIn;
-import net.tridentsdk.server.player.TridentPlayer;
 
 /**
  * @author TridentSDK
@@ -40,7 +39,7 @@ public class PlayInAnimation extends PacketIn {
         PlayOutAnimation packet = new PlayOutAnimation(client.getPlayer(), animation == 0 ? PlayOutAnimation.AnimationType.SWING_MAIN_ARM : PlayOutAnimation.AnimationType.SWING_OFFHAND);
         TridentServer.getInstance().getPlayers().forEach(p -> {
             if (p != client.getPlayer()) {
-                ((TridentPlayer) p).net().sendPacket(packet);
+                p.net().sendPacket(packet);
             }
         });
     }

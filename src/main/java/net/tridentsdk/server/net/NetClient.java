@@ -1,6 +1,6 @@
 /*
  * Trident - A Multithreaded Server Alternative
- * Copyright 2016 The TridentSDK Team
+ * Copyright 2017 The TridentSDK Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,13 +31,13 @@ import net.tridentsdk.server.packet.login.LoginOutDisconnect;
 import net.tridentsdk.server.packet.play.PlayOutDisconnect;
 import net.tridentsdk.server.packet.play.PlayOutKeepAlive;
 import net.tridentsdk.server.player.TridentPlayer;
+import net.tridentsdk.server.ui.tablist.TridentGlobalTabList;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.net.SocketAddress;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
-import net.tridentsdk.server.ui.tablist.TridentGlobalTabList;
 
 /**
  * This class represents the connection that a Minecraft

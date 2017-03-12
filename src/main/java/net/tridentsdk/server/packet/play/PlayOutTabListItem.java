@@ -1,6 +1,6 @@
 /*
  * Trident - A Multithreaded Server Alternative
- * Copyright 2016 The TridentSDK Team
+ * Copyright 2017 The TridentSDK Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package net.tridentsdk.server.packet.play;
 
 import io.netty.buffer.ByteBuf;
-import java.util.Collections;
 import lombok.RequiredArgsConstructor;
 import net.tridentsdk.chat.ChatComponent;
 import net.tridentsdk.server.packet.PacketOut;
@@ -78,7 +77,7 @@ public abstract class PlayOutTabListItem extends PacketOut {
         }
 
         public void addPlayer(UUID uuid, String name, GameMode gameMode, int ping, ChatComponent displayName) {
-            addPlayer(uuid, name, gameMode, ping, displayName, null);
+            this.addPlayer(uuid, name, gameMode, ping, displayName, null);
         }
 
         public void addPlayer(UUID uuid, String name, GameMode gameMode, int ping, ChatComponent displayName, List<TabListElement.PlayerProperty> properties) {

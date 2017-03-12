@@ -1,6 +1,6 @@
 /*
  * Trident - A Multithreaded Server Alternative
- * Copyright 2016 The TridentSDK Team
+ * Copyright 2017 The TridentSDK Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import net.tridentsdk.chat.*;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.packet.PacketIn;
 import net.tridentsdk.server.player.TridentPlayer;
-import net.tridentsdk.server.ui.tablist.TridentGlobalTabList;
 import net.tridentsdk.server.world.TridentChunk;
 import net.tridentsdk.ui.bossbar.BossBar;
 import net.tridentsdk.ui.bossbar.BossBarColor;

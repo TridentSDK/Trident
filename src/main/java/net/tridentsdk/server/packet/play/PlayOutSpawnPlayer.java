@@ -1,6 +1,6 @@
 /*
  * Trident - A Multithreaded Server Alternative
- * Copyright 2016 The TridentSDK Team
+ * Copyright 2017 The TridentSDK Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,17 +36,17 @@ public final class PlayOutSpawnPlayer extends PacketOut {
 
     @Override
     public void write(ByteBuf buf) {
-        wvint(buf, player.getId());
+        wvint(buf, this.player.getId());
 
-        buf.writeLong(player.getUuid().getMostSignificantBits());
-        buf.writeLong(player.getUuid().getLeastSignificantBits());
+        buf.writeLong(this.player.getUuid().getMostSignificantBits());
+        buf.writeLong(this.player.getUuid().getLeastSignificantBits());
 
-        buf.writeDouble(player.getPosition().getX());
-        buf.writeDouble(player.getPosition().getY());
-        buf.writeDouble(player.getPosition().getZ());
+        buf.writeDouble(this.player.getPosition().getX());
+        buf.writeDouble(this.player.getPosition().getY());
+        buf.writeDouble(this.player.getPosition().getZ());
 
-        buf.writeByte((byte) ((player.getPosition().getYaw()) % 360 * (256d / 360d)));
-        buf.writeByte((int) (byte) player.getPosition().getPitch());
+        buf.writeByte((byte) ((this.player.getPosition().getYaw()) % 360 * (256d / 360d)));
+        buf.writeByte((int) (byte) this.player.getPosition().getPitch());
 
         buf.writeByte(7);
         buf.writeByte(2);

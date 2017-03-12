@@ -1,6 +1,6 @@
 /*
  * Trident - A Multithreaded Server Alternative
- * Copyright 2016 The TridentSDK Team
+ * Copyright 2017 The TridentSDK Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,8 +38,8 @@ public final class PlayOutPlayerListHeaderAndFooter extends PacketOut {
 
     @Override
     public void write(ByteBuf buf) {
-        wstr(buf, header == null ? ChatComponent.empty().toString() : header.toString());
-        wstr(buf, header == null ? ChatComponent.empty().toString() : footer.toString());
+        wstr(buf, this.header == null ? ChatComponent.empty().toString() : this.header.toString());
+        wstr(buf, this.header == null ? ChatComponent.empty().toString() : this.footer.toString());
     }
 
 }

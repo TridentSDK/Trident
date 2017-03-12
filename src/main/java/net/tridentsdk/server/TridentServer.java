@@ -1,6 +1,6 @@
 /*
  * Trident - A Multithreaded Server Alternative
- * Copyright 2016 The TridentSDK Team
+ * Copyright 2017 The TridentSDK Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,10 @@
  */
 package net.tridentsdk.server;
 
-import java.util.stream.Collectors;
 import lombok.Getter;
 import net.tridentsdk.Server;
 import net.tridentsdk.command.logger.Logger;
 import net.tridentsdk.doc.Policy;
-import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.EventController;
 import net.tridentsdk.server.concurrent.ServerThreadPool;
 import net.tridentsdk.server.concurrent.TridentTick;
@@ -36,7 +34,7 @@ import net.tridentsdk.server.world.TridentWorldLoader;
 import javax.annotation.concurrent.ThreadSafe;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.stream.Collectors;
 
 /**
  * This class represents the running Minecraft server

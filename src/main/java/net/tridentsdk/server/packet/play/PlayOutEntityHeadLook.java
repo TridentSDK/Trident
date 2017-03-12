@@ -1,6 +1,6 @@
 /*
  * Trident - A Multithreaded Server Alternative
- * Copyright 2016 The TridentSDK Team
+ * Copyright 2017 The TridentSDK Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,9 +38,9 @@ public final class PlayOutEntityHeadLook extends PacketOut {
 
     @Override
     public void write(ByteBuf buf) {
-        wvint(buf, id);
+        wvint(buf, this.id);
 
-        buf.writeByte((int) (yaw * 256 / 360));
+        buf.writeByte((int) (this.yaw * 256 / 360));
     }
 
 }

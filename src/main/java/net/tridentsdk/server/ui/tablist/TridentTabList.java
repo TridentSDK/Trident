@@ -1,6 +1,6 @@
 /*
  * Trident - A Multithreaded Server Alternative
- * Copyright 2016 The TridentSDK Team
+ * Copyright 2017 The TridentSDK Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,6 @@
  */
 package net.tridentsdk.server.ui.tablist;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
 import lombok.Getter;
 import net.tridentsdk.chat.ChatComponent;
 import net.tridentsdk.entity.living.Player;
@@ -33,9 +25,7 @@ import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.ui.tablist.TabList;
 
 import javax.annotation.concurrent.ThreadSafe;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -162,7 +152,7 @@ public abstract class TridentTabList implements TabList {
         PlayOutTabListItem.PlayOutTabListItemAddPlayer addPacket = PlayOutTabListItem.addPlayerPacket();
         PlayOutPlayerListHeaderAndFooter headerAndFooterPacket = new PlayOutPlayerListHeaderAndFooter(this.header, this.footer);
 
-        elements.forEach(addPacket::addPlayer);
+        this.elements.forEach(addPacket::addPlayer);
 
         player.net().sendPacket(addPacket);
         player.net().sendPacket(headerAndFooterPacket);

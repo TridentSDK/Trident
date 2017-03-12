@@ -1,6 +1,6 @@
 /*
  * Trident - A Multithreaded Server Alternative
- * Copyright 2016 The TridentSDK Team
+ * Copyright 2017 The TridentSDK Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -73,17 +73,17 @@ class ByteBufferSource extends ByteDest {
 
         // You can change this to allocateDirect if you want
         // to really try
-        buf = ByteBuffer.allocate(len());
+        this.buf = ByteBuffer.allocate(this.len());
     }
 
     @Override
     public void write(byte[] bytes) {
-        buf.put(bytes);
+        this.buf.put(bytes);
     }
 
     @Override
     public byte[] finish() {
-        return buf.array();
+        return this.buf.array();
     }
 
 }
@@ -97,12 +97,12 @@ class BaosBufferSource extends ByteDest {
 
     @Override
     public void write(byte[] bytes) {
-        stream.write(bytes, 0, bytes.length);
+        this.stream.write(bytes, 0, bytes.length);
     }
 
     @Override
     public byte[] finish() {
-        return stream.toByteArray();
+        return this.stream.toByteArray();
     }
 
 }
@@ -119,13 +119,13 @@ class RawByteSource extends ByteDest {
 
     @Override
     public void write(byte[] src) {
-        System.arraycopy(src, 0, this.bytes, pos, src.length);
-        pos += src.length;
+        System.arraycopy(src, 0, this.bytes, this.pos, src.length);
+        this.pos += src.length;
     }
 
     @Override
     public byte[] finish() {
-        return bytes;
+        return this.bytes;
     }
 
 }
@@ -178,7 +178,7 @@ class ClassicStrat extends IoStrat<FileInputStream, FileOutputStream> {
     public ClassicStrat(Path path, int bufSize) {
         super(path, bufSize);
 
-        this.buffer = new byte[bufSize()];
+        this.buffer = new byte[this.bufSize()];
     }
 
     @Override
@@ -188,12 +188,12 @@ class ClassicStrat extends IoStrat<FileInputStream, FileOutputStream> {
 
     @Override
     public FileInputStream setupRead() throws FileNotFoundException {
-        return new FileInputStream(file());
+        return new FileInputStream(this.file());
     }
 
     @Override
     public FileOutputStream setupWrite() throws FileNotFoundException {
-        return new FileOutputStream(file());
+        return new FileOutputStream(this.file());
     }
 
     @Override
@@ -210,7 +210,7 @@ class ClassicStrat extends IoStrat<FileInputStream, FileOutputStream> {
 
     @Override
     public void writeBuffed(FileOutputStream fileOutputStream, byte[] bytes) throws IOException {
-        BufferedOutputStream stream = new BufferedOutputStream(fileOutputStream, bufSize());
+        BufferedOutputStream stream = new BufferedOutputStream(fileOutputStream, this.bufSize());
         stream.write(bytes);
         stream.flush();
     }
@@ -232,7 +232,7 @@ class BufferedFileChannel extends IoStrat<FileChannel, FileChannel> {
     public BufferedFileChannel(Path path, int bufSize) {
         super(path, bufSize);
 
-        this.buffer = ByteBuffer.wrap(new byte[bufSize()]);
+        this.buffer = ByteBuffer.wrap(new byte[this.bufSize()]);
     }
 
     @Override
@@ -242,20 +242,20 @@ class BufferedFileChannel extends IoStrat<FileChannel, FileChannel> {
 
     @Override
     public FileChannel setupRead() throws Exception {
-        return new FileInputStream(file()).getChannel();
+        return new FileInputStream(this.file()).getChannel();
     }
 
     @Override
     public FileChannel setupWrite() throws Exception {
-        return new FileOutputStream(file()).getChannel();
+        return new FileOutputStream(this.file()).getChannel();
     }
 
     @Override
     public void read(FileChannel fileChannel, ByteDest src) throws IOException {
-        while (fileChannel.read(buffer) > 0) {
-            buffer.flip();
-            src.write(buffer.array());
-            buffer.clear();
+        while (fileChannel.read(this.buffer) > 0) {
+            this.buffer.flip();
+            src.write(this.buffer.array());
+            this.buffer.clear();
         }
     }
 
@@ -290,7 +290,7 @@ class MemMappedChannel extends IoStrat<FileChannel, FileChannel> {
     public MemMappedChannel(Path path, int bufSize) {
         super(path, bufSize);
 
-        this.buffer = new byte[bufSize()];
+        this.buffer = new byte[this.bufSize()];
     }
 
     @Override
@@ -300,20 +300,20 @@ class MemMappedChannel extends IoStrat<FileChannel, FileChannel> {
 
     @Override
     public FileChannel setupRead() throws Exception {
-        return new FileInputStream(file()).getChannel();
+        return new FileInputStream(this.file()).getChannel();
     }
 
     @Override
     public FileChannel setupWrite() throws Exception {
-        return new RandomAccessFile(file(), "rw").getChannel();
+        return new RandomAccessFile(this.file(), "rw").getChannel();
     }
 
     @Override
     public void read(FileChannel fileChannel, ByteDest src) throws IOException {
         MappedByteBuffer map = fileChannel.map(FileChannel.MapMode.READ_ONLY, 0, fileChannel.size());
         while (map.hasRemaining()) {
-            map.get(buffer, 0, buffer.length);
-            src.write(buffer);
+            map.get(this.buffer, 0, this.buffer.length);
+            src.write(this.buffer);
         }
     }
 
@@ -348,7 +348,7 @@ class Raf extends IoStrat<RandomAccessFile, RandomAccessFile> {
     public Raf(Path path, int bufSize) {
         super(path, bufSize);
 
-        this.buffer = new byte[bufSize()];
+        this.buffer = new byte[this.bufSize()];
     }
 
     @Override
@@ -358,19 +358,19 @@ class Raf extends IoStrat<RandomAccessFile, RandomAccessFile> {
 
     @Override
     public RandomAccessFile setupRead() throws Exception {
-        return new RandomAccessFile(file(), "r");
+        return new RandomAccessFile(this.file(), "r");
     }
 
     @Override
     public RandomAccessFile setupWrite() throws Exception {
-        return new RandomAccessFile(file(), "rw");
+        return new RandomAccessFile(this.file(), "rw");
     }
 
     @Override
     public void read(RandomAccessFile randomAccessFile, ByteDest src) throws IOException {
         while (randomAccessFile.getFilePointer() < randomAccessFile.length()) {
-            randomAccessFile.readFully(buffer);
-            src.write(buffer);
+            randomAccessFile.readFully(this.buffer);
+            src.write(this.buffer);
         }
     }
 
@@ -415,19 +415,19 @@ class AvgMap {
     private final Map<String, Long> avg = new TreeMap<>();
 
     public void add(String s, long t) {
-        Long l = avg.get(s);
+        Long l = this.avg.get(s);
         if (l == null) {
-            avg.put(s, t);
+            this.avg.put(s, t);
         } else {
-            if(!avg.replace(s, l, (l + t) / 2)){
+            if(!this.avg.replace(s, l, (l + t) / 2)){
                 throw new RuntimeException();
             }
         }
     }
 
     public void print(PrintStream o) {
-        for (String s : avg.keySet()) {
-            o.println(s + " - " + avg.get(s));
+        for (String s : this.avg.keySet()) {
+            o.println(s + " - " + this.avg.get(s));
         }
     }
 }
@@ -436,19 +436,19 @@ class FreqMap {
     private final Map<String, Integer> freq = new TreeMap<>();
 
     public void incr(String s) {
-        Integer i = freq.get(s);
+        Integer i = this.freq.get(s);
         if (i == null) {
-            freq.put(s, 1);
+            this.freq.put(s, 1);
         } else {
-            if(!freq.replace(s, i, i + 1)){
+            if(!this.freq.replace(s, i, i + 1)){
                 throw new RuntimeException();
             }
         }
     }
 
     public void print(PrintStream o) {
-        for (String s : freq.keySet()) {
-            o.println(s + " - " + freq.get(s));
+        for (String s : this.freq.keySet()) {
+            o.println(s + " - " + this.freq.get(s));
         }
     }
 }
@@ -571,10 +571,10 @@ public class IoTest {
     public void warmup(Path enclosing, PrintStream o) throws Exception {
         int fileLength = 24576; // 24 kb
         UnitSettings settings = new UnitSettings(fileLength, 8192,
-                newTest(enclosing, "warmup"));
-        Set<IoStrat> unit = createUnit(settings);
+                this.newTest(enclosing, "warmup"));
+        Set<IoStrat> unit = this.createUnit(settings);
 
-        byte[] garbage = generateGarbage(fileLength);
+        byte[] garbage = this.generateGarbage(fileLength);
         FreqMap freq = new FreqMap();
         AvgMap avg = new AvgMap();
 
@@ -582,7 +582,7 @@ public class IoTest {
         o.println("Writing files a few times...");
         for (int i = 0; i < WARM_TRIALS; i++) {
             Map<Long, String> time = new TreeMap<>();
-            garbage = generateGarbage(fileLength);
+            garbage = this.generateGarbage(fileLength);
             for (IoStrat strat : unit) {
                 o.print("Warming up " + strat.name() + " (write) - ");
                 Object resource = strat.setupWrite();
@@ -600,13 +600,13 @@ public class IoTest {
                 avg.add(name, elapsed);
 
                 strat.cleanupWrite(resource);
-                checkWrite(garbage, settings.path);
+                this.checkWrite(garbage, settings.path);
             }
 
-            String fastest = getFastest(time);
+            String fastest = this.getFastest(time);
             o.println("Fastest this round: " + fastest);
             freq.incr(fastest);
-            runGc();
+            this.runGc();
         }
         o.println("Finished writing files.");
 
@@ -615,7 +615,7 @@ public class IoTest {
         o.println("Writing files a few times (force buffer)...");
         for (int i = 0; i < WARM_TRIALS; i++) {
             Map<Long, String> time = new TreeMap<>();
-            garbage = generateGarbage(fileLength);
+            garbage = this.generateGarbage(fileLength);
             for (IoStrat strat : unit) {
                 o.println("Warming up " + strat.name() + " (buffered write)");
                 o.print("Warming up " + strat.name() + " (buffered write) - ");
@@ -634,13 +634,13 @@ public class IoTest {
                 avg.add(name, elapsed);
 
                 strat.cleanupWrite(resource);
-                checkWrite(garbage, settings.path);
+                this.checkWrite(garbage, settings.path);
             }
 
-            String fastest = getFastest(time);
+            String fastest = this.getFastest(time);
             o.println("Fastest this round: " + fastest);
             freq.incr(fastest);
-            runGc();
+            this.runGc();
         }
         o.println("Finished writing files.");
 
@@ -669,13 +669,13 @@ public class IoTest {
                 avg.add(name, elapsed);
 
                 strat.cleanupRead(resource);
-                checkRead(garbage, dest);
+                this.checkRead(garbage, dest);
             }
 
-            String fastest = getFastest(time);
+            String fastest = this.getFastest(time);
             o.println("Fastest this round: " + fastest);
             freq.incr(fastest);
-            runGc();
+            this.runGc();
         }
         o.println("Finished reading.");
 
@@ -699,14 +699,14 @@ public class IoTest {
 
         int fileLength = 8192;
         UnitSettings settings = new UnitSettings(fileLength, 8192,
-                newTest(enclosing, "stratcomp"));
-        Set<IoStrat> unit = createUnit(settings);
+                this.newTest(enclosing, "stratcomp"));
+        Set<IoStrat> unit = this.createUnit(settings);
 
-        byte[] garbage = generateGarbage(fileLength);
+        byte[] garbage = this.generateGarbage(fileLength);
 
         o.println("Starting writing tests (no output)...");
         for (int i = 0; i < TEST_TRIALS; i++) {
-            garbage = generateGarbage(fileLength);
+            garbage = this.generateGarbage(fileLength);
             Map<Long, String> time = new TreeMap<>();
             for (IoStrat strat : unit) {
                 Thread.sleep(1000);
@@ -726,11 +726,11 @@ public class IoTest {
 
                 // 4 cleanup
                 strat.cleanupWrite(resource);
-                checkWrite(garbage, settings.path);
+                this.checkWrite(garbage, settings.path);
             }
 
-            runGc();
-            freq.incr(getFastest(time));
+            this.runGc();
+            freq.incr(this.getFastest(time));
         }
         o.println("Finished write tests.");
 
@@ -738,7 +738,7 @@ public class IoTest {
 
         o.println("Starting force buffered write tests (no output)...");
         for (int i = 0; i < TEST_TRIALS; i++) {
-            garbage = generateGarbage(fileLength);
+            garbage = this.generateGarbage(fileLength);
             Map<Long, String> time = new TreeMap<>();
             for (IoStrat strat : unit) {
                 Thread.sleep(1000);
@@ -758,11 +758,11 @@ public class IoTest {
 
                 // 4 cleanup
                 strat.cleanupWrite(resource);
-                checkWrite(garbage, settings.path);
+                this.checkWrite(garbage, settings.path);
             }
 
-            runGc();
-            freq.incr(getFastest(time));
+            this.runGc();
+            freq.incr(this.getFastest(time));
         }
         o.println("Finish force buffer writes");
 
@@ -790,11 +790,11 @@ public class IoTest {
 
                 // 4 cleanup
                 strat.cleanupRead(resource);
-                checkRead(garbage, dest);
+                this.checkRead(garbage, dest);
             }
 
-            runGc();
-            freq.incr(getFastest(time));
+            this.runGc();
+            freq.incr(this.getFastest(time));
         }
         o.println("Finished read test.");
         o.println();
@@ -808,20 +808,20 @@ public class IoTest {
         // dest = baos
 
         int fileLength = 8192;
-        Set<IoStrat> unit1024 = createUnit(new UnitSettings(fileLength, 1024,
-                newTest(enclosing, "bufcomp1024")));
-        Set<IoStrat> unit4096 = createUnit(new UnitSettings(fileLength, 4096,
-                newTest(enclosing, "bufcomp4096")));
-        Set<IoStrat> unit8192 = createUnit(new UnitSettings(fileLength, 8192,
-                newTest(enclosing, "bufcomp8192")));
+        Set<IoStrat> unit1024 = this.createUnit(new UnitSettings(fileLength, 1024,
+                this.newTest(enclosing, "bufcomp1024")));
+        Set<IoStrat> unit4096 = this.createUnit(new UnitSettings(fileLength, 4096,
+                this.newTest(enclosing, "bufcomp4096")));
+        Set<IoStrat> unit8192 = this.createUnit(new UnitSettings(fileLength, 8192,
+                this.newTest(enclosing, "bufcomp8192")));
 
-        byte[] garbage = generateGarbage(fileLength);
+        byte[] garbage = this.generateGarbage(fileLength);
 
         // Buffered write
         o.println("Starting buffer size write test (no output)...");
         for (int i = 0; i < TEST_TRIALS; i++) {
             Map<Long, String> time = new TreeMap<>();
-            garbage = generateGarbage(fileLength);
+            garbage = this.generateGarbage(fileLength);
 
             for (IoStrat strat : unit1024) {
                 Thread.sleep(1000);
@@ -841,10 +841,10 @@ public class IoTest {
 
                 // 4 cleanup
                 strat.cleanupWrite(resource);
-                checkWrite(garbage, enclosing.resolve("bufcomp1024.bin"));
+                this.checkWrite(garbage, enclosing.resolve("bufcomp1024.bin"));
             }
 
-            runGc();
+            this.runGc();
 
             for (IoStrat strat : unit4096) {
                 Thread.sleep(1000);
@@ -864,10 +864,10 @@ public class IoTest {
 
                 // 4 cleanup
                 strat.cleanupWrite(resource);
-                checkWrite(garbage, enclosing.resolve("bufcomp4096.bin"));
+                this.checkWrite(garbage, enclosing.resolve("bufcomp4096.bin"));
             }
 
-            runGc();
+            this.runGc();
 
             for (IoStrat strat : unit8192) {
                 Thread.sleep(1000);
@@ -887,11 +887,11 @@ public class IoTest {
 
                 // 4 cleanup
                 strat.cleanupWrite(resource);
-                checkWrite(garbage, enclosing.resolve("bufcomp8192.bin"));
+                this.checkWrite(garbage, enclosing.resolve("bufcomp8192.bin"));
             }
 
-            runGc();
-            freq.incr(getFastest(time));
+            this.runGc();
+            freq.incr(this.getFastest(time));
         }
         o.println("Finished write test.");
 
@@ -921,10 +921,10 @@ public class IoTest {
 
                 // 4 cleanup
                 strat.cleanupRead(resource);
-                checkRead(garbage, dest);
+                this.checkRead(garbage, dest);
             }
 
-            runGc();
+            this.runGc();
 
             for (IoStrat strat : unit4096) {
                 Thread.sleep(1000);
@@ -945,10 +945,10 @@ public class IoTest {
 
                 // 4 cleanup
                 strat.cleanupRead(resource);
-                checkRead(garbage, dest);
+                this.checkRead(garbage, dest);
             }
 
-            runGc();
+            this.runGc();
 
             for (IoStrat strat : unit8192) {
                 Thread.sleep(1000);
@@ -969,11 +969,11 @@ public class IoTest {
 
                 // 4 cleanup
                 strat.cleanupRead(resource);
-                checkRead(garbage, dest);
+                this.checkRead(garbage, dest);
             }
 
-            runGc();
-            freq.incr(getFastest(time));
+            this.runGc();
+            freq.incr(this.getFastest(time));
         }
         o.println("Finished read test.");
     }
@@ -981,9 +981,9 @@ public class IoTest {
     public void runBufferType(Path enclosing, PrintStream o, FreqMap freq, AvgMap avg) throws Exception {
         int fileLength = 8192;
         UnitSettings settings = new UnitSettings(fileLength, 8192,
-                newTest(enclosing, "typecomp"));
-        Set<IoStrat> unit = createUnit(settings);
-        byte[] garbage = generateGarbage(fileLength);
+                this.newTest(enclosing, "typecomp"));
+        Set<IoStrat> unit = this.createUnit(settings);
+        byte[] garbage = this.generateGarbage(fileLength);
         Files.write(settings.path, garbage);
 
         o.println("Starting buffer type read test (no output)...");
@@ -1009,10 +1009,10 @@ public class IoTest {
 
                 // 4 cleanup
                 strat.cleanupRead(resource);
-                checkRead(garbage, dest);
+                this.checkRead(garbage, dest);
             }
 
-            runGc();
+            this.runGc();
 
             for (IoStrat strat : unit) {
                 Thread.sleep(1000);
@@ -1033,10 +1033,10 @@ public class IoTest {
 
                 // 4 cleanup
                 strat.cleanupRead(resource);
-                checkRead(garbage, dest);
+                this.checkRead(garbage, dest);
             }
 
-            runGc();
+            this.runGc();
 
             for (IoStrat strat : unit) {
                 Thread.sleep(1000);
@@ -1057,11 +1057,11 @@ public class IoTest {
 
                 // 4 cleanup
                 strat.cleanupRead(resource);
-                checkRead(garbage, dest);
+                this.checkRead(garbage, dest);
             }
 
-            runGc();
-            freq.incr(getFastest(time));
+            this.runGc();
+            freq.incr(this.getFastest(time));
         }
         o.println("Finished buffer type read test.");
     }
@@ -1077,16 +1077,16 @@ public class IoTest {
         int fl2 = 10_000; // 524288000; // 500mb
         int fl3 = 100_000; // 1073741824; // 1gb
 
-        Set<IoStrat> unit1 = createUnit(new UnitSettings(fl1, 8192,
-                newTest(enclosing, "sizecomp1kb")));
-        Set<IoStrat> unit2 = createUnit(new UnitSettings(fl2, 8192,
-                newTest(enclosing, "sizecomp500mb")));
-        Set<IoStrat> unit3 = createUnit(new UnitSettings(fl3, 8192,
-                newTest(enclosing, "sizecomp1gb")));
+        Set<IoStrat> unit1 = this.createUnit(new UnitSettings(fl1, 8192,
+                this.newTest(enclosing, "sizecomp1kb")));
+        Set<IoStrat> unit2 = this.createUnit(new UnitSettings(fl2, 8192,
+                this.newTest(enclosing, "sizecomp500mb")));
+        Set<IoStrat> unit3 = this.createUnit(new UnitSettings(fl3, 8192,
+                this.newTest(enclosing, "sizecomp1gb")));
 
-        byte[] garbage1 = generateGarbage(fl1);
-        byte[] garbage2 = generateGarbage(fl2);
-        byte[] garbage3 = generateGarbage(fl3);
+        byte[] garbage1 = this.generateGarbage(fl1);
+        byte[] garbage2 = this.generateGarbage(fl2);
+        byte[] garbage3 = this.generateGarbage(fl3);
 
         o.println("Starting file size write test (no output)...");
         for (int i = 0; i < TEST_TRIALS; i++) {
@@ -1110,10 +1110,10 @@ public class IoTest {
 
                 // 4 cleanup
                 strat.cleanupWrite(resource);
-                checkWrite(garbage1, enclosing.resolve("sizecomp1kb.bin"));
+                this.checkWrite(garbage1, enclosing.resolve("sizecomp1kb.bin"));
             }
 
-            runGc();
+            this.runGc();
 
             for (IoStrat strat : unit2) {
                 Thread.sleep(1000);
@@ -1133,10 +1133,10 @@ public class IoTest {
 
                 // 4 cleanup
                 strat.cleanupWrite(resource);
-                checkWrite(garbage2, enclosing.resolve("sizecomp500mb.bin"));
+                this.checkWrite(garbage2, enclosing.resolve("sizecomp500mb.bin"));
             }
 
-            runGc();
+            this.runGc();
 
             for (IoStrat strat : unit3) {
                 Thread.sleep(1000);
@@ -1156,11 +1156,11 @@ public class IoTest {
 
                 // 4 cleanup
                 strat.cleanupWrite(resource);
-                checkWrite(garbage3, enclosing.resolve("sizecomp1gb.bin"));
+                this.checkWrite(garbage3, enclosing.resolve("sizecomp1gb.bin"));
             }
 
-            runGc();
-            freq.incr(getFastest(time));
+            this.runGc();
+            freq.incr(this.getFastest(time));
         }
         o.println("Finished file size write test.");
 
@@ -1189,10 +1189,10 @@ public class IoTest {
 
                 // 4 cleanup
                 strat.cleanupRead(resource);
-                checkRead(garbage1, dest);
+                this.checkRead(garbage1, dest);
             }
 
-            runGc();
+            this.runGc();
 
             for (IoStrat strat : unit2) {
                 Thread.sleep(1000);
@@ -1213,10 +1213,10 @@ public class IoTest {
 
                 // 4 cleanup
                 strat.cleanupRead(resource);
-                checkRead(garbage2, dest);
+                this.checkRead(garbage2, dest);
             }
 
-            runGc();
+            this.runGc();
 
             for (IoStrat strat : unit3) {
                 Thread.sleep(1000);
@@ -1237,11 +1237,11 @@ public class IoTest {
 
                 // 4 cleanup
                 strat.cleanupRead(resource);
-                checkRead(garbage3, dest);
+                this.checkRead(garbage3, dest);
             }
 
-            runGc();
-            freq.incr(getFastest(time));
+            this.runGc();
+            freq.incr(this.getFastest(time));
         }
         o.println("Finished file size read test.");
     }

@@ -1,6 +1,6 @@
 /*
  * Trident - A Multithreaded Server Alternative
- * Copyright 2016 The TridentSDK Team
+ * Copyright 2017 The TridentSDK Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,12 +21,12 @@ import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.packet.PacketIn;
 import net.tridentsdk.server.player.TridentPlayer;
+import net.tridentsdk.server.ui.tablist.TabListElement;
 
 import javax.annotation.concurrent.Immutable;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
-import net.tridentsdk.server.ui.tablist.TabListElement;
 
 import static net.tridentsdk.server.net.NetData.arr;
 import static net.tridentsdk.server.net.NetData.rvint;

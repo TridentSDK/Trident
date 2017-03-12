@@ -100,13 +100,6 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>com.google.code.findbugs</groupId>
-            <artifactId>jsr305</artifactId>
-            <version>2.0.1</version>
-            <scope>provided</scope>
-        </dependency>
-
         <!-- Benchmarking -->
         <dependency>
             <groupId>org.openjdk.jmh</groupId>
@@ -126,6 +119,13 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>1.16.10</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
+            <version>2.0.3</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

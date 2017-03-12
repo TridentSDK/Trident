@@ -1,6 +1,6 @@
 /*
  * Trident - A Multithreaded Server Alternative
- * Copyright 2016 The TridentSDK Team
+ * Copyright 2017 The TridentSDK Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,16 +45,16 @@ public final class PlayOutEntityLookAndRelativeMove extends PacketOut {
 
     @Override
     public void write(ByteBuf buf) {
-        wvint(buf, id);
+        wvint(buf, this.id);
 
-        buf.writeShort((int) delta.getX());
-        buf.writeShort((int) delta.getY());
-        buf.writeShort((int) delta.getZ());
+        buf.writeShort((int) this.delta.getX());
+        buf.writeShort((int) this.delta.getY());
+        buf.writeShort((int) this.delta.getZ());
 
-        buf.writeByte((int) (yaw * 256 / 360));
-        buf.writeByte((int) (pitch / 1.4));
+        buf.writeByte((int) (this.yaw * 256 / 360));
+        buf.writeByte((int) (this.pitch / 1.4));
 
-        buf.writeBoolean(onGround);
+        buf.writeBoolean(this.onGround);
     }
 
 }

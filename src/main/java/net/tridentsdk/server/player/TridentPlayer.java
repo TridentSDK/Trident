@@ -1,6 +1,6 @@
 /*
  * Trident - A Multithreaded Server Alternative
- * Copyright 2016 The TridentSDK Team
+ * Copyright 2017 The TridentSDK Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -181,7 +181,7 @@ public class TridentPlayer extends TridentEntity implements Player {
         this.uuid = uuid;
         this.displayName = ChatComponent.text(name);
         this.gameMode = world.getWorldOptions().getGameMode();
-        this.canFly = gameMode == GameMode.CREATIVE || gameMode == GameMode.SPECTATOR;
+        this.canFly = this.gameMode == GameMode.CREATIVE || this.gameMode == GameMode.SPECTATOR;
         this.skinTextures = skinTextures;
     }
 
@@ -294,12 +294,12 @@ public class TridentPlayer extends TridentEntity implements Player {
 
     @Override
     public ChatComponent getDisplayName() {
-        return displayName;
+        return this.displayName;
     }
 
     @Override
     public void setDisplayName(ChatComponent displayName) {
-        this.displayName = displayName != null ? displayName : ChatComponent.text(name);
+        this.displayName = displayName != null ? displayName : ChatComponent.text(this.name);
         // TODO update
     }
 
@@ -431,7 +431,7 @@ public class TridentPlayer extends TridentEntity implements Player {
 
     @Override
     public void setGodMode(boolean godMode) {
-        setGodMode(godMode, true);
+        this.setGodMode(godMode, true);
     }
 
     public void setGodMode(boolean godMode, boolean sendPacket) {
@@ -443,12 +443,12 @@ public class TridentPlayer extends TridentEntity implements Player {
 
     @Override
     public boolean canFly() {
-        return canFly;
+        return this.canFly;
     }
 
     @Override
     public void setCanFly(boolean canFly) {
-        setCanFly(canFly, true);
+        this.setCanFly(canFly, true);
     }
 
     public void setCanFly(boolean canFly, boolean sendPacket) {
@@ -460,7 +460,7 @@ public class TridentPlayer extends TridentEntity implements Player {
 
     @Override
     public void setFlying(boolean flying) {
-        setFlying(flying, true);
+        this.setFlying(flying, true);
     }
 
     public void setFlying(boolean flying, boolean sendPacket) {
@@ -472,7 +472,7 @@ public class TridentPlayer extends TridentEntity implements Player {
 
     @Override
     public void setFlyingSpeed(float flyingSpeed) {
-        setFlyingSpeed(flyingSpeed, true);
+        this.setFlyingSpeed(flyingSpeed, true);
     }
 
     public void setFlyingSpeed(float flyingSpeed, boolean sendPacket) {
@@ -484,7 +484,7 @@ public class TridentPlayer extends TridentEntity implements Player {
 
     @Override
     public void setWalkingSpeed(float walkingSpeed) {
-        setWalkingSpeed(walkingSpeed, true);
+        this.setWalkingSpeed(walkingSpeed, true);
     }
 
     public void setWalkingSpeed(float walkingSpeed, boolean sendPacket) {

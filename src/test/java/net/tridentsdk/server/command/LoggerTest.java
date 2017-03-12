@@ -1,6 +1,6 @@
 /*
  * Trident - A Multithreaded Server Alternative
- * Copyright 2016 The TridentSDK Team
+ * Copyright 2017 The TridentSDK Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,7 +71,7 @@ public class LoggerTest {
 
     public LoggerTest() {
         AnsiConsole.systemInstall();
-        System.setOut(new PrintStream(out));
+        System.setOut(new PrintStream(this.out));
         System.setErr(System.out);
 
         PipelinedLogger underlying = new DefaultLogger();
@@ -85,7 +85,7 @@ public class LoggerTest {
             e.printStackTrace();
         }
 
-        logger = InfoLogger.get(file, "Bench");
+        this.logger = InfoLogger.get(file, "Bench");
     }
 
     private volatile String print;
@@ -94,16 +94,16 @@ public class LoggerTest {
     public void setup() {
         byte[] barray = new byte[64];
         ThreadLocalRandom.current().nextBytes(barray);
-        print = new String(barray);
+        this.print = new String(barray);
     }
 
     @TearDown(Level.Iteration)
     public void tearDown() {
-        out.reset();
+        this.out.reset();
     }
 
     @Benchmark
     public void log() {
-        logger.log(print);
+        this.logger.log(this.print);
     }
 }
