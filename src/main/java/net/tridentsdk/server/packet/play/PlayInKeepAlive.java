@@ -19,10 +19,9 @@ package net.tridentsdk.server.packet.play;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.packet.PacketIn;
+import net.tridentsdk.util.Cache;
 
 import javax.annotation.concurrent.Immutable;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static net.tridentsdk.server.net.NetData.rvint;
@@ -37,7 +36,8 @@ public final class PlayInKeepAlive extends PacketIn {
     /**
      * The keep alive time cache
      */
-    private static final Map<NetClient, Integer> TICK_IDS = new ConcurrentHashMap<>();
+    private static final Cache<NetClient, Integer> TICK_IDS =
+            new Cache<>(NetClient.KEEP_ALIVE_KICK_NANOS / 1000000, (client, id) -> client.disconnect("No KeepAlive response"));
 
     /**
      * Obtains the next keep alive ID for the given net

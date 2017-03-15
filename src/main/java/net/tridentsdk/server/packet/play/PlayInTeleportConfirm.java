@@ -67,7 +67,7 @@ public final class PlayInTeleportConfirm extends PacketIn {
     @Override
     public void read(ByteBuf buf, NetClient client) {
         int id = rvint(buf);
-        Integer localId = TELEPORT_ID.getIfPresent(client);
+        Integer localId = TELEPORT_ID.get(client);
 
         // TODO Fix teleport confirmation
         if (localId != null && localId == id) {

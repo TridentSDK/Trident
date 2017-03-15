@@ -110,7 +110,7 @@ public final class StatusOutResponse extends PacketOut {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        });
+        }, "TRD - Icon Watcher");
         watcherThread.setDaemon(true);
         watcherThread.start();
     }

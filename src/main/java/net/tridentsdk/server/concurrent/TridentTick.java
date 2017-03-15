@@ -64,10 +64,14 @@ public class TridentTick extends Thread {
                     player.tick();
                 }
 
+                // Tick the scheduler
+                TridentScheduler.getInstance().tick();
+
+                // Timing mechanics
                 long end = System.currentTimeMillis();
                 long elapsed = end - start;
                 long waitTime = TICK_MILLIS - elapsed;
-                if (waitTime <= 0) {
+                if (waitTime < 0) {
                     this.logger.debug("Server running behind " +
                             -waitTime + "ms, skipped " + (-waitTime / TICK_MILLIS) + " ticks");
                 } else {
