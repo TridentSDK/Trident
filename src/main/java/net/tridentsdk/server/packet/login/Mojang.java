@@ -40,6 +40,10 @@ import java.util.function.Function;
 @ThreadSafe
 public final class Mojang<T> {
     /**
+     * A cached instance of the scheduler thread pool
+     */
+    private static final ServerThreadPool SCHEDULER = ServerThreadPool.forSpec(PoolSpec.SCHEDULER);
+    /**
      * The connection to the Mojang server
      */
     private final HttpsURLConnection c;
@@ -98,7 +102,7 @@ public final class Mojang<T> {
                 return this.exception.apply(e.getMessage());
             }
         };
-        return ServerThreadPool.forSpec(PoolSpec.SCHEDULER).submit(get);
+        return SCHEDULER.submit(get);
     }
 
     /**
@@ -129,7 +133,7 @@ public final class Mojang<T> {
                 return this.exception.apply(e.getMessage());
             }
         };
-        return ServerThreadPool.forSpec(PoolSpec.SCHEDULER).submit(post);
+        return SCHEDULER.submit(post);
     }
 
     /**
