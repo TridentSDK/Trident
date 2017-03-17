@@ -26,10 +26,11 @@ import net.tridentsdk.base.Vector;
 import net.tridentsdk.chat.ChatComponent;
 
 import javax.annotation.concurrent.ThreadSafe;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author TridentSDK
@@ -37,8 +38,7 @@ import java.util.UUID;
  */
 @ThreadSafe
 public class EntityMetadata {
-
-    private List<EntityMetadataItem> items = Collections.synchronizedList(new LinkedList<>());
+    private final List<EntityMetadataItem> items = Collections.synchronizedList(new ArrayList<>());
 
     public EntityMetadataItem get(int x) {
         return this.items.get(x);
@@ -49,11 +49,11 @@ public class EntityMetadata {
     }
 
     public void add(int index, EntityMetadataType type, Object value) {
-        this.items.add(new EntityMetadataItem(index, type, type.cast(value)));
+        this.items.add(new EntityMetadataItem(index, type, new AtomicReference<>(type.cast(value))));
     }
 
     public void read(ByteBuf buf) {
-        List<EntityMetadataItem> items = new LinkedList<>();
+        List<EntityMetadataItem> items = new ArrayList<>();
         short id;
         while ((id = buf.readUnsignedByte()) != 0xFF) {
             EntityMetadataType type = EntityMetadataType.values()[id];
@@ -75,7 +75,7 @@ public class EntityMetadata {
                     value = ChatComponent.fromJson(new Gson().fromJson(NetData.rstr(buf), JsonObject.class));
                     break;
                 case SLOT:
-                    // TODO -  slots
+                    value = new Slot(buf);
                     break;
                 case BOOLEAN:
                     value = buf.readBoolean();
@@ -119,7 +119,7 @@ public class EntityMetadata {
                     break;
             }
             if (value != null) {
-                items.add(new EntityMetadataItem(id, type, value));
+                items.add(new EntityMetadataItem(id, type, new AtomicReference<>(value)));
             }
         }
         this.items.clear();
@@ -135,51 +135,51 @@ public class EntityMetadata {
 
             switch (item.type) {
                 case BYTE:
-                    buf.writeByte((byte) item.value);
+                    buf.writeByte((byte) item.value.get());
                     break;
                 case VARINT:
-                    NetData.wvint(buf, (int) item.value);
+                    NetData.wvint(buf, (int) item.value.get());
                     break;
                 case FLOAT:
-                    buf.writeFloat((float) item.value);
+                    buf.writeFloat((float) item.value.get());
                     break;
                 case STRING:
                     NetData.wstr(buf, item.value.toString());
                     break;
                 case SLOT:
-                    // TODO - slots
+                    ((Slot) item.value.get()).write(buf);
                     break;
                 case BOOLEAN:
-                    buf.writeBoolean((Boolean) item.value);
+                    buf.writeBoolean((Boolean) item.value.get());
                     break;
                 case ROTATION:
-                    Vector rv = (Vector) item.value;
+                    Vector rv = (Vector) item.value.get();
                     buf.writeFloat((float) rv.getX());
                     buf.writeFloat((float) rv.getY());
                     buf.writeFloat((float) rv.getZ());
                     break;
                 case POSITION:
-                    Vector pv = (Vector) item.value;
+                    Vector pv = (Vector) item.value.get();
                     NetData.wvec(buf, pv);
                     break;
                 case OPTPOSITION:
-                    Vector opv = (Vector) item.value;
+                    Vector opv = (Vector) item.value.get();
                     if (opv != null) {
                         NetData.wvec(buf, opv);
                     }
                     break;
                 case DIRECTION:
-                    NetData.wvint(buf, ((BlockDirection) item.value).getMinecraftDirection());
+                    NetData.wvint(buf, ((BlockDirection) item.value.get()).getMinecraftDirection());
                     break;
                 case OPTUUID:
-                    UUID uuid = (UUID) item.value;
+                    UUID uuid = (UUID) item.value.get();
                     if (uuid != null) {
                         buf.writeLong(uuid.getMostSignificantBits());
                         buf.writeLong(uuid.getLeastSignificantBits());
                     }
                     break;
                 case BLOCKID:
-                    int[] blockIdData = (int[]) item.value;
+                    int[] blockIdData = (int[]) item.value.get();
                     NetData.wvint(buf, blockIdData[0] << 4 | blockIdData[1]);
                     break;
             }
@@ -190,21 +190,20 @@ public class EntityMetadata {
     @Getter
     @AllArgsConstructor
     public static final class EntityMetadataItem {
-
-        private int index;
-        private EntityMetadataType type;
-        private Object value;
+        private final int index;
+        private final EntityMetadataType type;
+        private final AtomicReference<Object> value;
 
         public void set(Object value) {
-            this.value = this.type.cast(value);
+            this.value.set(this.type.cast(value));
         }
 
         public byte asByte() {
-            return (byte) this.value;
+            return (byte) this.value.get();
         }
 
         public int asInt() {
-            return (int) this.value;
+            return (int) this.value.get();
         }
 
         public boolean asBit(int x) {
@@ -212,57 +211,59 @@ public class EntityMetadata {
         }
 
         public void setBit(int x, boolean value) {
-            if (this.asBit(x) == value)
-                return;
-            byte val = (byte) this.value;
-            if (value) {
-                val |= 1 << x;
-            } else {
-                val &= ~(1 << x);
-            }
-            this.value = val;
+            byte val;
+            byte newVal;
+            do {
+                val = newVal = (byte) this.value.get();
+                if ((val & (1 << x)) != 0 == value)
+                    return;
+
+                if (value) {
+                    newVal |= 1 << x;
+                } else {
+                    newVal &= ~(1 << x);
+                }
+            } while (!this.value.compareAndSet(val, newVal));
         }
 
         public float asFloat() {
-            return (float) this.value;
+            return (float) this.value.get();
         }
 
         public String asString() {
-            return (String) this.value;
+            return (String) this.value.get();
         }
 
         public ChatComponent asChatComponent() {
-            return (ChatComponent) this.value;
+            return (ChatComponent) this.value.get();
         }
 
         public boolean asBoolean() {
-            return (boolean) this.value;
+            return (boolean) this.value.get();
         }
 
         public Vector asRotation() {
-            return (Vector) this.value;
+            return (Vector) this.value.get();
         }
 
         public Vector asPosition() {
-            return (Vector) this.value;
+            return (Vector) this.value.get();
         }
 
         public BlockDirection asDirection() {
-            return (BlockDirection) this.value;
+            return (BlockDirection) this.value.get();
         }
 
         public UUID asUUID() {
-            return (UUID) this.value;
+            return (UUID) this.value.get();
         }
 
         public int[] asBlockId() {
-            return (int[]) this.value;
+            return (int[]) this.value.get();
         }
-
     }
 
     public enum EntityMetadataType {
-
         BYTE(0) {
             @Override
             public Object cast(Object object) {
@@ -349,7 +350,5 @@ public class EntityMetadata {
         }
 
         public abstract Object cast(Object object);
-
     }
-
 }
