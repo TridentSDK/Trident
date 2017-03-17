@@ -27,7 +27,6 @@ import net.tridentsdk.ui.tablist.TabList;
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * The tab list implementation.
@@ -62,8 +61,7 @@ public abstract class TridentTabList implements TabList {
      */
     public TridentTabList() {
         this.users = Collections.newSetFromMap(new ConcurrentHashMap<>());
-        // TODO find a better implementation
-        this.elements = new CopyOnWriteArrayList<>();
+        this.elements = Collections.synchronizedList(new ArrayList<>());
     }
 
     @Override

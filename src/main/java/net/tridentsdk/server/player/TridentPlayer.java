@@ -231,7 +231,7 @@ public class TridentPlayer extends TridentEntity implements Player {
                 .addWith(this.name);
         this.sendMessage(chat, ChatType.CHAT);
 
-        TridentServer.getInstance().getPlayers()
+        players.values()
                 .stream()
                 .filter(p -> !p.equals(this))
                 .forEach(p -> {

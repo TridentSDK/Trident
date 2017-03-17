@@ -17,10 +17,10 @@
 package net.tridentsdk.server.packet.play;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.net.NetData;
 import net.tridentsdk.server.packet.PacketIn;
+import net.tridentsdk.server.player.TridentPlayer;
 
 /**
  * @author TridentSDK
@@ -37,7 +37,7 @@ public class PlayInAnimation extends PacketIn {
         int animation = NetData.rvint(buf);
 
         PlayOutAnimation packet = new PlayOutAnimation(client.getPlayer(), animation == 0 ? PlayOutAnimation.AnimationType.SWING_MAIN_ARM : PlayOutAnimation.AnimationType.SWING_OFFHAND);
-        TridentServer.getInstance().getPlayers().forEach(p -> {
+        TridentPlayer.getPlayers().values().forEach(p -> {
             if (p != client.getPlayer()) {
                 p.net().sendPacket(packet);
             }

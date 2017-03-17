@@ -69,7 +69,7 @@ public class TridentCustomTabList extends TridentTabList {
                 this.elements.add(slot, element);
                 addedElements.add(element);
 
-                if(addedElements.size() > 0) {
+                if(!addedElements.isEmpty()) {
                     PlayOutTabListItem.PlayOutTabListItemAddPlayer packet = PlayOutTabListItem.addPlayerPacket();
                     addedElements.forEach(e -> packet.addPlayer(e.getUuid(), e.getName(), e.getGameMode(), e.getPing(), e.getDisplayName()));
                     this.getUserList().forEach(player -> ((TridentPlayer) player).net().sendPacket(packet));
@@ -83,12 +83,14 @@ public class TridentCustomTabList extends TridentTabList {
                     removedElements.add(this.elements.get(slot));
                     this.elements.remove(slot);
 
-                    for (int i = this.elements.size() - 1; i >= 0; i--) {
-                        if (this.elements.get(i).isBlank()) {
-                            removedElements.add(this.elements.get(i));
-                            this.elements.remove(i);
-                        } else {
-                            break;
+                    synchronized (this.elements) {
+                        for (int i = this.elements.size() - 1; i >= 0; i--) {
+                            if (this.elements.get(i).isBlank()) {
+                                removedElements.add(this.elements.get(i));
+                                this.elements.remove(i);
+                            } else {
+                                break;
+                            }
                         }
                     }
 

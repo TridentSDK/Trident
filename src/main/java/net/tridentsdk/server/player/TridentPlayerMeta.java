@@ -20,10 +20,13 @@ import net.tridentsdk.entity.meta.living.PlayerMeta;
 import net.tridentsdk.server.entity.meta.TridentLivingEntityMeta;
 import net.tridentsdk.server.net.EntityMetadata;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 /**
  * @author TridentSDK
  * @since 0.5-alpha
  */
+@ThreadSafe
 public class TridentPlayerMeta extends TridentLivingEntityMeta implements PlayerMeta {
 
     public TridentPlayerMeta(EntityMetadata metadata) {

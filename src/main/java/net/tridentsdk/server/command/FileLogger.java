@@ -16,7 +16,6 @@
  */
 package net.tridentsdk.server.command;
 
-import net.tridentsdk.doc.Policy;
 import net.tridentsdk.util.Misc;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -165,7 +164,7 @@ public class FileLogger extends PipelinedLogger {
      * @param last the last log file
      * @throws IOException if something dumb went wrong
      */
-    @Policy("holds lock")
+    @GuardedBy("lock")
     private void makeNewLog(Path last) throws IOException {
         String[] split = last.toFile().getName().split(IDX_SEPARATOR);
         int curIdx = Integer.parseInt(split[1]) + 1;
@@ -178,7 +177,7 @@ public class FileLogger extends PipelinedLogger {
      * @param idx the new index
      * @throws IOException if something dumb went wrong
      */
-    @Policy("holds lock")
+    @GuardedBy("lock")
     private void makeNewLog(int idx) throws IOException {
         Path path = DIR.resolve("log." + idx + ".log");
         Files.createFile(path);

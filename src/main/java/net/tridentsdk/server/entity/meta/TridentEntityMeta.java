@@ -20,14 +20,17 @@ import lombok.Getter;
 import net.tridentsdk.entity.meta.EntityMeta;
 import net.tridentsdk.server.net.EntityMetadata;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 /**
  * @author TridentSDK
  * @since 0.5-alpha
  */
+@ThreadSafe
 public class TridentEntityMeta implements EntityMeta {
 
     @Getter
-    private EntityMetadata metadata;
+    private final EntityMetadata metadata;
 
     public TridentEntityMeta(EntityMetadata metadata) {
         this.metadata = metadata;

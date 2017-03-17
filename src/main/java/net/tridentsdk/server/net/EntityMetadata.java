@@ -24,12 +24,10 @@ import lombok.Getter;
 import net.tridentsdk.base.BlockDirection;
 import net.tridentsdk.base.Vector;
 import net.tridentsdk.chat.ChatComponent;
+import net.tridentsdk.server.inventory.Slot;
 
 import javax.annotation.concurrent.ThreadSafe;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * @author TridentSDK
@@ -38,7 +36,7 @@ import java.util.UUID;
 @ThreadSafe
 public class EntityMetadata {
 
-    private List<EntityMetadataItem> items = Collections.synchronizedList(new LinkedList<>());
+    private final List<EntityMetadataItem> items = Collections.synchronizedList(new ArrayList<EntityMetadataItem>());
 
     public EntityMetadataItem get(int x) {
         return this.items.get(x);
@@ -75,7 +73,7 @@ public class EntityMetadata {
                     value = ChatComponent.fromJson(new Gson().fromJson(NetData.rstr(buf), JsonObject.class));
                     break;
                 case SLOT:
-                    // TODO -  slots
+                    value = Slot.decode(buf);
                     break;
                 case BOOLEAN:
                     value = buf.readBoolean();
@@ -147,7 +145,8 @@ public class EntityMetadata {
                     NetData.wstr(buf, item.value.toString());
                     break;
                 case SLOT:
-                    // TODO - slots
+                    Slot slot = (Slot) item.value;
+                    slot.write(buf);
                     break;
                 case BOOLEAN:
                     buf.writeBoolean((Boolean) item.value);
@@ -235,6 +234,10 @@ public class EntityMetadata {
             return (ChatComponent) this.value;
         }
 
+        public Slot asSlot() {
+            return (Slot) this.value;
+        }
+
         public boolean asBoolean() {
             return (boolean) this.value;
         }
@@ -296,7 +299,7 @@ public class EntityMetadata {
         SLOT(5) {
             @Override
             public Object cast(Object object) {
-                return null;
+                return object;
             }
         },
         BOOLEAN(6) {

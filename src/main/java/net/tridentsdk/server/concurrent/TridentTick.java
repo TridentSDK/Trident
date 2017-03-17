@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
  * "tick" which occurs every 1/20th of a second.
  */
 @Immutable
-public class TridentTick extends Thread {
+public final class TridentTick extends Thread {
     /**
      * The amount of time taken by a single tick
      */
