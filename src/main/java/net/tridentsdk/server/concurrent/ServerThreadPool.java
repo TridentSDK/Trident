@@ -75,7 +75,7 @@ public class ServerThreadPool implements Executor {
             if (spec.isDoStealing()) {
                 return new ServerThreadPool(new ForkJoinPool(config, spec, null, true));
             } else {
-                return new ServerThreadPool(new ThreadPoolExecutor(config, config,
+                return new ServerThreadPool(new ThreadPoolExecutor(1, config,
                         60L, TimeUnit.SECONDS,
                         new LinkedBlockingQueue<>(),
                         spec));

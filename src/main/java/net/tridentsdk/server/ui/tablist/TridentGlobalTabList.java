@@ -19,7 +19,6 @@ package net.tridentsdk.server.ui.tablist;
 import lombok.Getter;
 import net.tridentsdk.chat.ChatComponent;
 import net.tridentsdk.doc.Policy;
-import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.player.TridentPlayer;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -58,10 +57,12 @@ public class TridentGlobalTabList extends TridentTabList {
 
     @Override
     public void update() {
-        super.elements.clear();
+        synchronized (this.lock) {
+            this.elements.clear();
 
-        Collection<TridentPlayer> players = TridentServer.getInstance().getPlayers();
-        players.forEach(p -> super.elements.add(new TabListElement(p)));
+            Collection<TridentPlayer> players = TridentPlayer.getPlayers().values();
+            players.forEach(p -> this.elements.add(new TabListElement(p)));
+        }
 
         super.update();
     }

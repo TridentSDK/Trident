@@ -21,13 +21,13 @@ import net.tridentsdk.server.packet.PacketOut;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.world.opt.GameMode;
 
-import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * Sent after {@link PlayOutSpawnPos} to communicate to the
  * client their abilities once joined.
  */
-@Immutable
+@ThreadSafe
 public final class PlayOutPlayerAbilities extends PacketOut {
 
     private final boolean isGod;
@@ -37,7 +37,7 @@ public final class PlayOutPlayerAbilities extends PacketOut {
     private final float flyingSpeed;
     private final float walkingSpeed;
 
-    private boolean doubleJump;
+    private volatile boolean doubleJump;
 
     public PlayOutPlayerAbilities(TridentPlayer player) {
         super(PlayOutPlayerAbilities.class);

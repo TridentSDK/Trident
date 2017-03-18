@@ -199,7 +199,7 @@ public class CustomBossBar extends AbstractBossBar {
     private void casState(int idx) {
         int b;
         while (true) {
-            b = super.b;
+            b = STATE.get(this);
 
             // Check if bit already set
             if ((b >>> idx & 1) == 1) {

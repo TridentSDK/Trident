@@ -16,7 +16,6 @@
  */
 package net.tridentsdk.server.ui.tablist;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +25,7 @@ import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.world.opt.GameMode;
 
 import javax.annotation.concurrent.ThreadSafe;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -64,7 +63,7 @@ public class TabListElement {
      * The tab list properties (such as skin textures)
      */
     @Policy("Single update")
-    private final List<PlayerProperty> properties = new ArrayList<>();
+    private final List<PlayerProperty> properties;
 
     /**
      * Creates a new tab list element which can be filled
@@ -72,6 +71,7 @@ public class TabListElement {
      */
     public TabListElement() {
         this.uuid = UUID.randomUUID();
+        this.properties = Collections.emptyList();
     }
 
     /**
@@ -89,17 +89,18 @@ public class TabListElement {
 
         PlayerProperty textures = player.getSkinTextures();
         if (textures != null) {
-            this.properties.add(textures);
+            this.properties = Collections.singletonList(textures);
+        } else {
+            this.properties = Collections.emptyList();
         }
     }
 
     @Data
     @RequiredArgsConstructor
-    @AllArgsConstructor
     public static class PlayerProperty {
         private final String name;
         @NonNull
-        private String value;
-        private String signature;
+        private final String value;
+        private final String signature;
     }
 }

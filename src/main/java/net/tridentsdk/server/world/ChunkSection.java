@@ -161,7 +161,7 @@ public class ChunkSection {
         }
 
         // Write the palette size
-        wvint(buf, this.palette.size());
+        wvint(buf, palette.size());
 
         for (int i = 0, lim = palette.size(); i < lim; i++) {
             // range check is actually simple if statement,

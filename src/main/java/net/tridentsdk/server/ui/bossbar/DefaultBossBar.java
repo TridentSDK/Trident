@@ -46,7 +46,7 @@ public class DefaultBossBar extends AbstractBossBar {
 
     @Override
     public void setTitle(ChatComponent title) {
-        // cannot be changed
+        throw new IllegalStateException("Cannot change a default bossbar");
     }
 
     @Override
@@ -77,7 +77,7 @@ public class DefaultBossBar extends AbstractBossBar {
 
     @Override
     public void setDivision(BossBarDivision division) {
-        // cannot be changed
+        throw new IllegalStateException("Cannot change a default bossbar");
     }
 
     @Override
@@ -87,7 +87,7 @@ public class DefaultBossBar extends AbstractBossBar {
 
     @Override
     public void setDarkenSky(boolean darkenSky) {
-        // cannot be changed
+        throw new IllegalStateException("Cannot change a default bossbar");
     }
 
     @Override
@@ -97,12 +97,11 @@ public class DefaultBossBar extends AbstractBossBar {
 
     @Override
     public void setDragonBar(boolean dragonBar) {
-        // cannot be changed
+        throw new IllegalStateException("Cannot change a default bossbar");
     }
 
     @Override
     public DefaultBossBar clone() {
         return this;
     }
-
 }

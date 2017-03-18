@@ -122,7 +122,9 @@ public class FileLogger extends PipelinedLogger {
 
     @Override
     public LogMessageImpl handle(LogMessageImpl msg) {
-        try (Writer out = this.check()) {
+        Writer out = this.check();
+
+        try {
             out.write(msg.format(0));
             out.write(LINE_SEP);
             out.flush();
@@ -176,7 +178,7 @@ public class FileLogger extends PipelinedLogger {
      * @param idx the new index
      * @throws IOException if something dumb went wrong
      */
-    @Policy("holds lock")
+    @GuardedBy("lock")
     private void makeNewLog(int idx) throws IOException {
         Path path = DIR.resolve("log." + idx + ".log");
         Files.createFile(path);
