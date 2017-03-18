@@ -80,7 +80,7 @@ public final class StatusOutResponse extends PacketOut {
                         WatchKey eventKey = service.take();
                         logger.log("Got server icon watcher key!");
                         if (eventKey != watchKey) {
-                            logger.warn(String.format("unexpected watch key: %s. expected %s\n", eventKey, watchKey));
+                            logger.warn(String.format("unexpected watch key: %s. expected %s%n", eventKey, watchKey));
                             break;
                         }
                         eventKey.pollEvents().forEach(e -> {

@@ -80,7 +80,6 @@ public class TridentServer implements Server {
         this.logger = console;
         this.server = server;
         this.tick = new TridentTick(console);
-        this.tick.start();
     }
 
     /**
@@ -91,6 +90,7 @@ public class TridentServer implements Server {
         TridentServer server = new TridentServer(config, console, net);
         if (TridentServer.instance == null) {
             TridentServer.instance = server;
+            server.tick.start();
             return server;
         }
 

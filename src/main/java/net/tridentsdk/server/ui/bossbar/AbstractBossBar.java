@@ -89,7 +89,6 @@ public abstract class AbstractBossBar implements BossBar {
     public boolean equals(Object obj) {
         return obj != null && obj instanceof AbstractBossBar &&
                 this.uuid.equals(((AbstractBossBar) obj).getUuid());
-
     }
 
     @Override

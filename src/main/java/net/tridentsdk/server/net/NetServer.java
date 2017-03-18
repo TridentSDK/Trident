@@ -48,10 +48,8 @@ public abstract class NetServer {
      * @param ip the IP address of the interface to bind
      * @param port the port which to bind the interface
      * @return the new server net handler
-     * @throws InterruptedException if something went
-     * horribly wrong
      */
-    public static NetServer init(String ip, int port, boolean useNative) throws InterruptedException {
+    public static NetServer init(String ip, int port, boolean useNative) {
         boolean nativeCompat = System.getProperty("os.name").toLowerCase().contains("linux");
 
         return nativeCompat && useNative ?
@@ -60,10 +58,8 @@ public abstract class NetServer {
 
     /**
      * Sets up the server.
-     *
-     * @throws InterruptedException no
      */
-    public abstract void setup() throws InterruptedException;
+    public abstract void setup();
 
     /**
      * Shuts down the server.

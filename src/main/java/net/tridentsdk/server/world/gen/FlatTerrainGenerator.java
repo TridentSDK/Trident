@@ -30,7 +30,7 @@ public class FlatTerrainGenerator implements TerrainGenerator {
     /**
      * Instance of this generator
      */
-    public static FlatTerrainGenerator INSTANCE = new FlatTerrainGenerator();
+    public static final FlatTerrainGenerator INSTANCE = new FlatTerrainGenerator();
 
     @Override
     public void generate(int chunkX, int chunkZ, GeneratorContext context) {

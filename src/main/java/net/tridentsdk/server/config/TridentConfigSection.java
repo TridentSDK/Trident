@@ -76,7 +76,7 @@ public class TridentConfigSection implements ConfigSection {
      * @param object the file json
      */
     public void read(JsonObject object) {
-        object.entrySet().stream().forEach(e -> {
+        object.entrySet().forEach(e -> {
             String key = e.getKey();
             JsonElement value = e.getValue();
 
@@ -373,8 +373,7 @@ public class TridentConfigSection implements ConfigSection {
      * @param <T> the type appended to the collection
      */
     private <T> void iterate(String base, Collection<T> col, BiFunction<String, Map.Entry<String, Object>, T> function, boolean deep) {
-        this.elements.entrySet().stream()
-                .forEach(e -> {
+        this.elements.entrySet().forEach(e -> {
                     Object val = e.getValue();
                     if (deep) {
                         if (val instanceof ConfigSection) {

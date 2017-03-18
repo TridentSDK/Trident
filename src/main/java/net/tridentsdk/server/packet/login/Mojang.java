@@ -27,6 +27,7 @@ import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.concurrent.Callable;
@@ -96,8 +97,9 @@ public final class Mojang<T> {
                     return this.exception.apply(String.valueOf(code));
                 }
 
-                BufferedReader reader = new BufferedReader(new InputStreamReader(this.c.getInputStream()));
-                return this.callback.apply(ConfigIo.PARSER.parse(reader));
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(this.c.getInputStream()))) {
+                    return this.callback.apply(ConfigIo.PARSER.parse(reader));
+                }
             } catch (IOException e) {
                 return this.exception.apply(e.getMessage());
             }
@@ -119,16 +121,18 @@ public final class Mojang<T> {
                 this.c.setDoOutput(true);
                 this.c.setDoInput(true);
 
-                this.c.getOutputStream().write(ConfigIo.GSON.toJson(element).getBytes(NetData.NET_CHARSET));
-                this.c.getOutputStream().close();
+                try (OutputStream out = this.c.getOutputStream()) {
+                    out.write(ConfigIo.GSON.toJson(element).getBytes(NetData.NET_CHARSET));
+                }
 
                 int code = this.c.getResponseCode();
                 if (code != 200) {
                     return this.exception.apply(String.valueOf(code));
                 }
 
-                BufferedReader reader = new BufferedReader(new InputStreamReader(this.c.getInputStream()));
-                return this.callback.apply(ConfigIo.PARSER.parse(reader));
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(this.c.getInputStream()))) {
+                    return this.callback.apply(ConfigIo.PARSER.parse(reader));
+                }
             } catch (IOException e) {
                 return this.exception.apply(e.getMessage());
             }

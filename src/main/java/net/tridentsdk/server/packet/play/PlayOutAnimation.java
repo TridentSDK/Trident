@@ -27,8 +27,8 @@ import net.tridentsdk.server.player.TridentPlayer;
  */
 public class PlayOutAnimation extends PacketOut {
 
-    private TridentPlayer player;
-    private AnimationType animationType;
+    private final TridentPlayer player;
+    private final AnimationType animationType;
 
     public PlayOutAnimation(TridentPlayer player, AnimationType animationType) {
         super(PlayOutAnimation.class);

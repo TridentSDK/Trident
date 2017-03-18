@@ -45,12 +45,7 @@ public class InDecoder extends ByteToMessageDecoder {
     /**
      * The packet inflater used for uncompressing packets
      */
-    private static final ThreadLocal<Inflater> INFLATER = new ThreadLocal<Inflater>() {
-        @Override
-        protected Inflater initialValue() {
-            return new Inflater();
-        }
-    };
+    private static final ThreadLocal<Inflater> INFLATER = ThreadLocal.withInitial(Inflater::new);
     /**
      * Obtains the configured compression threshold.
      */

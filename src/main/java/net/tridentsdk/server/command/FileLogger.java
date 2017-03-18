@@ -122,9 +122,7 @@ public class FileLogger extends PipelinedLogger {
 
     @Override
     public LogMessageImpl handle(LogMessageImpl msg) {
-        Writer out = this.check();
-
-        try {
+        try (Writer out = this.check()) {
             out.write(msg.format(0));
             out.write(LINE_SEP);
             out.flush();
