@@ -74,7 +74,7 @@ public final class PlayInTeleportConfirm extends PacketIn {
             //client.player().resumeLogin();
         } else {
             Logger.get(PlayInTeleportConfirm.class).error("Teleport ID mismatch, actual:" + localId + " received:" + id);
-            //client.disconnect("Teleport ID mismatch, actual:" + localId + " rcvd:" + id);
+            client.disconnect("Teleport ID mismatch, actual:" + localId + " rcvd:" + id);
         }
     }
 }

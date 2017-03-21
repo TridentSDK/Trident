@@ -25,11 +25,13 @@ import net.tridentsdk.chat.ChatComponent;
 import net.tridentsdk.chat.ChatType;
 import net.tridentsdk.chat.ClientChatMode;
 import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.event.player.PlayerJoinEvent;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.concurrent.PoolSpec;
 import net.tridentsdk.server.entity.TridentEntity;
 import net.tridentsdk.server.entity.meta.EntityMetaType;
 import net.tridentsdk.server.net.NetClient;
+import net.tridentsdk.server.packet.login.Login;
 import net.tridentsdk.server.packet.play.*;
 import net.tridentsdk.server.ui.bossbar.AbstractBossBar;
 import net.tridentsdk.server.ui.tablist.TabListElement;
@@ -59,7 +61,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @ThreadSafe
 @EntityMetaType(TridentPlayerMeta.class)
 public class TridentPlayer extends TridentEntity implements Player {
-    // TODO player abilities
     /**
      * The players on the server
      */
@@ -84,14 +85,17 @@ public class TridentPlayer extends TridentEntity implements Player {
     /**
      * The player's name
      */
+    @Getter
     private final String name;
     /**
      * The player's UUID
      */
+    @Getter
     private final UUID uuid;
     /**
      * The player's display name
      */
+    @Getter
     private volatile ChatComponent displayName;
     /**
      * The player's current game mode
@@ -198,6 +202,9 @@ public class TridentPlayer extends TridentEntity implements Player {
         TridentPlayer player = new TridentPlayer(client, world, name, uuid, skinTextures);
         players.put(uuid, player);
         client.setPlayer(player);
+        Login.finish();
+
+        TridentServer.getInstance().getEventController().dispatch(new PlayerJoinEvent(player));
 
         Position playerPosition = player.getPosition();
         playerPosition.setY(4);
@@ -251,7 +258,7 @@ public class TridentPlayer extends TridentEntity implements Player {
                 int finalZ = z;
                 CompletableFuture
                         .supplyAsync(() -> this.getWorld().getChunkAt(finalX, finalZ), this.pool)
-                        .thenAccept(chunk -> this.client.sendPacket(new PlayOutChunk(chunk)));
+                        .thenAcceptAsync(chunk -> this.client.sendPacket(new PlayOutChunk(chunk)), this.pool);
             }
         }
     }
@@ -272,29 +279,20 @@ public class TridentPlayer extends TridentEntity implements Player {
 
     @Override
     public void doRemove() {
-        players.remove(this.uuid);
+        // If the player isn't in the list, they haven't
+        // finished logging in yet; cleanup
+        if (players.remove(this.uuid) == null) {
+            Login.finish();
+        }
+
         this.setTabList(null);
+        TridentGlobalTabList.getInstance().update();
 
         ChatComponent chat = ChatComponent.create()
                 .setColor(ChatColor.YELLOW)
                 .setTranslate("multiplayer.player.left")
                 .addWith(this.name);
         players.values().forEach(e -> e.sendMessage(chat, ChatType.CHAT));
-    }
-
-    @Override
-    public String getName() {
-        return this.name;
-    }
-
-    @Override
-    public UUID getUuid() {
-        return this.uuid;
-    }
-
-    @Override
-    public ChatComponent getDisplayName() {
-        return this.displayName;
     }
 
     @Override
@@ -321,12 +319,12 @@ public class TridentPlayer extends TridentEntity implements Player {
     public void setTabList(TabList tabList) {
         TabList old = this.tabList;
         if (old != null) {
-            old.subscribe(this);
+            old.unsubscribe(this);
         }
 
         if (tabList != null) {
             this.tabList = tabList;
-            this.tabList.subscribe(this);
+            tabList.subscribe(this);
             ((TridentTabList) tabList).forceSend(this);
         }
     }
@@ -403,6 +401,7 @@ public class TridentPlayer extends TridentEntity implements Player {
     @Override
     public void setPosition(Position position) {
         Position pos = this.getPosition();
+        // TODO this is dumb
         if (position.getChunkX() != pos.getChunkX()) {
             this.updateChunks(position.getChunkX() > pos.getChunkX() ? BlockDirection.EAST : BlockDirection.WEST);
         } else if (position.getChunkZ() != pos.getChunkZ()) {
@@ -529,7 +528,7 @@ public class TridentPlayer extends TridentEntity implements Player {
                 if (System.currentTimeMillis() - this.chunkSentTime.getOrDefault(position, 0L) > CHUNK_CACHE_MILLIS) {
                     CompletableFuture
                             .supplyAsync(() -> this.getWorld().chunkAt(position), this.pool)
-                            .thenAccept(chunk -> {
+                            .thenAcceptAsync(chunk -> {
                                 this.client.sendPacket(new PlayOutChunk(chunk));
                                 this.chunkSentTime.put(position, System.currentTimeMillis());
     
@@ -537,7 +536,7 @@ public class TridentPlayer extends TridentEntity implements Player {
                                         .filter(player -> !player.equals(this))
                                         .filter(player -> player.getPosition().getChunkX() == position.getX() && player.getPosition().getChunkZ() == position.getZ())
                                         .forEach(player -> this.client.sendPacket(new PlayOutSpawnPlayer(player)));
-                            });
+                            }, this.pool);
                 }
             }
         }

@@ -46,18 +46,14 @@ public final class LoginInStart extends PacketIn {
 
         String name = rstr(buf);
         client.setName(name);
-        // TODO player join event
 
         if (TridentServer.cfg().doAuth()) {
             NetCrypto crypto = client.initCrypto();
             client.sendPacket(crypto.reqCrypto());
         } else {
             LoginOutSuccess packet = new LoginOutSuccess(client);
-            client.sendPacket(packet).addListener(
-                    future -> {
-                        TridentPlayer.spawn(client, name, packet.getUuid(), packet.getTextures());
-                        Login.finish();
-                    });
+            client.sendPacket(packet).addListener(future ->
+                    TridentPlayer.spawn(client, name, packet.getUuid(), packet.getTextures()));
         }
     }
 }

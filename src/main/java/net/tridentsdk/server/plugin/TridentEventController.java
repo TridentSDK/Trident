@@ -85,7 +85,7 @@ public final class TridentEventController implements EventController {
                 // Check that it isn't listening to a
                 // supertype
                 Class<?> pType = p.getType();
-                if (pType.getAnnotation(Supertype.class) != null) {
+                if (pType.isAnnotationPresent(Supertype.class)) {
                     new IllegalArgumentException("Attempted to register listener for supertype: " + pType.getSimpleName()).
                             printStackTrace();
                     continue;
@@ -158,7 +158,7 @@ public final class TridentEventController implements EventController {
                 });
             }
 
-            future.thenAcceptAsync(e -> callback.accept(event), PLUGIN_EXECUTOR);
+            future.thenAcceptAsync(callback, PLUGIN_EXECUTOR);
         }
     }
 }

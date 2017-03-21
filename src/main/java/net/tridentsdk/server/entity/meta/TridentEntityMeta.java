@@ -28,7 +28,6 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public class TridentEntityMeta implements EntityMeta {
-
     @Getter
     private final EntityMetadata metadata;
 
@@ -161,5 +160,4 @@ public class TridentEntityMeta implements EntityMeta {
     public void setNoGravity(boolean noGravity) {
         this.metadata.get(5).set(noGravity);
     }
-
 }

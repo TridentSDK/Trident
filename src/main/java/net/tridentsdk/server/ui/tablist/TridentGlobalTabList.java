@@ -22,6 +22,7 @@ import net.tridentsdk.doc.Policy;
 import net.tridentsdk.server.player.TridentPlayer;
 
 import javax.annotation.concurrent.ThreadSafe;
+import java.util.Collection;
 
 /**
  * Implementation of a global tablist, which contains all
@@ -56,8 +57,13 @@ public class TridentGlobalTabList extends TridentTabList {
 
     @Override
     public void update() {
-        this.elements.clear();
-        TridentPlayer.getPlayers().values().forEach(p -> this.elements.add(new TabListElement(p)));
+        synchronized (this.lock) {
+            this.elements.clear();
+
+            Collection<TridentPlayer> players = TridentPlayer.getPlayers().values();
+            players.forEach(p -> this.elements.add(new TabListElement(p)));
+        }
+
         super.update();
     }
 }

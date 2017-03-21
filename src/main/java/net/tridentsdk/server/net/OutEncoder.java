@@ -24,7 +24,6 @@ import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.packet.PacketOut;
 
 import javax.annotation.concurrent.ThreadSafe;
-import java.io.IOException;
 import java.math.BigInteger;
 import java.util.zip.Deflater;
 
@@ -43,12 +42,8 @@ public class OutEncoder extends MessageToByteEncoder<PacketOut> {
     /**
      * The deflater used for compressing packets
      */
-    private static final ThreadLocal<Deflater> DEFLATER = new ThreadLocal<Deflater>() {
-        @Override
-        protected Deflater initialValue() {
-            return new Deflater(Deflater.BEST_SPEED);
-        }
-    };
+    private static final ThreadLocal<Deflater> DEFLATER = ThreadLocal.withInitial(
+            () -> new Deflater(Deflater.BEST_SPEED));
     /**
      * Length of an uncompressed packet using the
      * compressed transport.
@@ -111,9 +106,8 @@ public class OutEncoder extends MessageToByteEncoder<PacketOut> {
      * @param payload the payload to write
      * @param out the output buffer
      * @param len the length
-     * @throws IOException if something goes wrong
      */
-    private void writeDeflated(ByteBuf payload, ByteBuf out, int len) throws IOException {
+    private void writeDeflated(ByteBuf payload, ByteBuf out, int len) {
         payload.markReaderIndex();
         byte[] input = arr(payload, len);
 

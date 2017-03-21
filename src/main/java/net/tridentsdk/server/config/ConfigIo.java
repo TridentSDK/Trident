@@ -95,17 +95,8 @@ public final class ConfigIo {
     public static void writeConfig(Path path, JsonObject object) throws IOException {
         String json = GSON.toJson(object);
 
-        try {
-            if (!Files.exists(path)) {
-                Files.createFile(path);
-            }
-
-            FileOutputStream stream = new FileOutputStream(path.toFile());
+        try (FileOutputStream stream = new FileOutputStream(path.toFile())) {
             stream.write(json.getBytes());
-
-            stream.close();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 

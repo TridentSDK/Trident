@@ -31,7 +31,6 @@ import net.tridentsdk.server.packet.login.LoginOutDisconnect;
 import net.tridentsdk.server.packet.play.PlayOutDisconnect;
 import net.tridentsdk.server.packet.play.PlayOutKeepAlive;
 import net.tridentsdk.server.player.TridentPlayer;
-import net.tridentsdk.server.ui.tablist.TridentGlobalTabList;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.net.SocketAddress;
@@ -262,12 +261,11 @@ public class NetClient {
             this.sendPacket(new PlayOutDisconnect(reason))
                     .addListener(future -> this.channel.close());
             this.player.remove();
+
         } else {
             this.channel.close();
         }
 
         CLIENTS.remove(this.channel.remoteAddress());
-
-        TridentGlobalTabList.getInstance().update();
     }
 }

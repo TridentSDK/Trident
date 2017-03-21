@@ -38,7 +38,7 @@ public class NetEpollServer extends NetServer {
     }
 
     @Override
-    public void setup() throws InterruptedException {
+    public void setup() {
         ServerBootstrap b = new ServerBootstrap();
         b.group(this.bossGroup, this.workerGroup)
                 .channel(EpollServerSocketChannel.class)
