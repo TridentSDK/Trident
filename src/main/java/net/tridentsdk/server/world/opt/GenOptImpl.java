@@ -16,6 +16,7 @@
  */
 package net.tridentsdk.server.world.opt;
 
+import net.tridentsdk.meta.nbt.TagCompound;
 import net.tridentsdk.server.world.gen.FlatGeneratorProvider;
 import net.tridentsdk.world.gen.GeneratorProvider;
 import net.tridentsdk.world.opt.GenOpts;
@@ -60,7 +61,7 @@ public class GenOptImpl implements GenOpts {
      * Constructor for loading the given NBT options into
      * this set of options.
      */
-    public GenOptImpl(Object o) {
+    public GenOptImpl(TagCompound compound) {
         this();
     }
 
@@ -120,7 +121,19 @@ public class GenOptImpl implements GenOpts {
 
     /**
      * Saves the world options as NBT data.
+     *
+     * @param compound the data which represents the data
+     * which is to be saved
      */
-    public void save() {
+    public void save(TagCompound compound) {
+    }
+
+    /**
+     * Loads the world generation options from the NBT data.
+     *
+     * @param compound the data which represents the data
+     * which is to be loaded
+     */
+    public void load(TagCompound compound) {
     }
 }

@@ -244,6 +244,18 @@ public class TridentChunk implements Chunk {
     }
 
     /**
+     * Obtains the highest Y value at the given chunk
+     * relative X/Z coordinates.
+     *
+     * @param x the relative X
+     * @param z the relative Z
+     * @return the highest Y value
+     */
+    public int getHighestY(int x, int z) {
+        return this.heights.get(x << 4 | z & 0xF);
+    }
+
+    /**
      * Obtains the stored block data at the given relative
      * coordinates in the chunk.
      *
@@ -270,6 +282,7 @@ public class TridentChunk implements Chunk {
      * @param z Relative Z position of the block inside the chunk
      * @param state The state of the block
      */
+    // TODO set heightmap
     public void set(int x, int y, int z, short state) {
         int sectionIdx = y >> 4;
 

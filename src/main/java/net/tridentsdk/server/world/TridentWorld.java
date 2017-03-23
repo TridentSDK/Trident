@@ -19,6 +19,7 @@ package net.tridentsdk.server.world;
 import net.tridentsdk.base.Block;
 import net.tridentsdk.base.ImmutableWorldVector;
 import net.tridentsdk.base.Position;
+import net.tridentsdk.meta.nbt.TagCompound;
 import net.tridentsdk.server.concurrent.PoolSpec;
 import net.tridentsdk.server.concurrent.ServerThreadPool;
 import net.tridentsdk.server.world.opt.GenOptImpl;
@@ -37,7 +38,7 @@ import java.util.Collections;
 
 /**
  * Implementation class for
- * {@link net.tridentsdk.world.World}.
+ * {@link World}.
  */
 @ThreadSafe
 public class TridentWorld implements World {
@@ -104,7 +105,7 @@ public class TridentWorld implements World {
         // this is only ok because we aren't passing the
         // instance to another thread viewable object
         this.worldOpts = new WorldOptImpl(this, WorldCreateSpec.getDefaultOptions());
-        this.genOpts = new GenOptImpl(new Object());
+        this.genOpts = new GenOptImpl(new TagCompound());
     }
 
     /**
@@ -171,6 +172,11 @@ public class TridentWorld implements World {
     }
 
     @Override
+    public int getHighestY(int x, int z) {
+        return this.getChunkAt(x >> 4, z >> 4).getHighestY(x & 15, z & 15);
+    }
+
+    @Override
     public Block getBlockAt(int x, int y, int z) {
         return new TridentBlock(new ImmutableWorldVector(this, x, y, z));
     }
@@ -185,17 +191,22 @@ public class TridentWorld implements World {
         return this.dir;
     }
 
+    // TODO ------------------------------------------------
+
     /**
      * Loads the world from the NBT level.dat format and
      * loads the appropriate spawn chunks.
      */
     public void load() {
-        this.worldOpts.load();
+        TagCompound compound = new TagCompound();
+        this.worldOpts.load(compound);
+        this.genOpts.load(compound);
     }
 
     @Override
     public void save() {
-        this.worldOpts.save();
-        this.genOpts.save();
+        TagCompound compound = new TagCompound();
+        this.worldOpts.save(compound);
+        this.genOpts.save(compound);
     }
 }

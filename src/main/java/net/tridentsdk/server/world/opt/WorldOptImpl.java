@@ -16,33 +16,48 @@
  */
 package net.tridentsdk.server.world.opt;
 
+import lombok.Getter;
+import lombok.Setter;
 import net.tridentsdk.base.Vector;
 import net.tridentsdk.doc.Debug;
 import net.tridentsdk.doc.Internal;
+import net.tridentsdk.meta.nbt.TagCompound;
 import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.world.opt.*;
 
 import javax.annotation.concurrent.ThreadSafe;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicMarkableReference;
 
 /**
  * Implementing class for handling the options in a world.
  */
+@Getter
 @ThreadSafe
 public class WorldOptImpl implements WorldOpts {
     // TODO appropriate packets
+    @Setter
     private volatile boolean allowFlight = false;
+    @Setter
     private volatile boolean allowPvp = true;
+    @Setter
     private volatile boolean allowPortals = true;
-    private volatile boolean forceGamemode = false;
+    @Setter
+    private volatile boolean forceGameMode = false;
 
     @Debug("SURVIVAL")
+    @Setter
     private volatile GameMode gameMode = GameMode.CREATIVE;
-    private volatile Difficulty difficulty = Difficulty.NORMAL;
+    private final AtomicMarkableReference<Difficulty> difficulty =
+            new AtomicMarkableReference<>(Difficulty.NORMAL, false);
+    @Internal
+    @Setter
     private volatile Dimension dimension = Dimension.OVERWORLD;
-    private volatile boolean difficultyLocked = false;
-    private volatile int spawnProtection = 5;
+    @Setter
+    private volatile int spawnProtectionRadius = 5;
+    @Setter
     private volatile Vector spawn = new Vector(0, 4, 0);
-    private final GameRuleMap map = new GameRuleMap();
+    private final GameRuleMap gameRules = new GameRuleMap();
 
     private final TridentWorld world;
 
@@ -57,128 +72,67 @@ public class WorldOptImpl implements WorldOpts {
         this.world = world;
 
         if (!spec.isDefault()) {
+            this.difficulty.set(spec.getDifficulty(), spec.isDifficultyLocked());
+            this.dimension = spec.getDimension();
+            this.gameMode = spec.getGameMode();
+            spec.getGameRules().copyTo(this.gameRules);
+            this.allowFlight = spec.isAllowFlight();
+            this.allowPvp = spec.isAllowPvp();
+            this.allowPortals = spec.isAllowPortals();
+            this.forceGameMode = spec.isForceGameMode();
+            this.spawnProtectionRadius = spec.getSpawnProtectionRadius();
+            this.spawn = spec.getSpawn() == null ? this.randVector() : spec.getSpawn();
         }
     }
 
-    @Override
-    public boolean isAllowFlight() {
-        return this.allowFlight;
-    }
-
-    @Override
-    public void setAllowFlight(boolean allow) {
-        this.allowFlight = allow;
-    }
-
-    @Override
-    public boolean isAllowPvp() {
-        return this.allowPvp;
-    }
-
-    @Override
-    public void setAllowPvp(boolean allow) {
-        this.allowPvp = allow;
-    }
-
-    @Override
-    public boolean isAllowPortals() {
-        return this.allowPortals;
-    }
-
-    @Override
-    public void setAllowPortals(boolean allow) {
-        this.allowPortals = allow;
-    }
-
-    @Override
-    public boolean isForceGameMode() {
-        return this.forceGamemode;
-    }
-
-    @Override
-    public void setForceGameMode(boolean force) {
-        this.forceGamemode = force;
-    }
-
-    @Override
-    public GameMode getGameMode() {
-        return this.gameMode;
-    }
-
-    @Override
-    public void setGameMode(GameMode mode) {
-        this.gameMode = mode;
+    /**
+     * Generates a random vector.
+     *
+     * @return a random vector
+     */
+    private Vector randVector() {
+        ThreadLocalRandom r = ThreadLocalRandom.current();
+        int x = r.nextInt() % 1000;
+        int z = r.nextInt() % 1000;
+        return new Vector(x, this.world.getHighestY(x, z), z);
     }
 
     @Override
     public Difficulty getDifficulty() {
-        return this.difficulty;
+        return this.difficulty.getReference();
     }
 
     @Override
     public void setDifficulty(Difficulty difficulty) {
-        this.difficulty = difficulty;
+        Difficulty d0;
+        do {
+            d0 = this.getDifficulty();
+        } while (!this.difficulty.isMarked() &&
+                !this.difficulty.compareAndSet(d0, difficulty, false, true));
     }
 
     @Override
     public boolean isDifficultyLocked() {
-        return this.difficultyLocked;
+        return this.difficulty.isMarked();
     }
 
     @Override
     public void setDifficultyLocked(boolean locked) {
-        this.difficultyLocked = locked;
-    }
-
-    @Override
-    public int getSpawnProtectionRadius() {
-        return this.spawnProtection;
-    }
-
-    @Override
-    public void setSpawnProtectionRadius(int radius) {
-        this.spawnProtection = radius;
-    }
-
-    @Override
-    public Dimension getDimension() {
-        return this.dimension;
-    }
-
-    /**
-     * Internal method for setting the dimension during
-     * world customization. DO NOT USE. This needs an
-     * annotation @INTERNALINTERNAL.
-     */
-    @Internal
-    public void setDimension(Dimension dimension) {
-        this.dimension = dimension;
-    }
-
-    @Override
-    public Vector getSpawn() {
-        return this.spawn;
-    }
-
-    @Override
-    public void setSpawn(Vector vector) {
-        this.spawn = vector;
-    }
-
-    @Override
-    public GameRuleMap getGameRules() {
-        return this.map;
+        Difficulty difficulty;
+        do {
+            difficulty = this.getDifficulty();
+        } while (!this.difficulty.compareAndSet(difficulty, difficulty, false, true));
     }
 
     /**
      * Loads the world options from the NBT data.
      */
-    public void load() {
+    public void load(TagCompound compound) {
     }
 
     /**
      * Saves the world options as NBT data.
      */
-    public void save() {
+    public void save(TagCompound compound) {
     }
 }
