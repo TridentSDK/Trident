@@ -3,7 +3,8 @@ echo "Pull request: $TRAVIS_PULL_REQUEST"
 
 if [ "$TRAVIS_PULL_REQUEST" != "false" ];
 then
-    FULL_SLUG=$TRAVIS_PULL_REQUEST_SLUG + "SDK"
+    FULL_SLUG=$TRAVIS_PULL_REQUEST_SLUG
+    FULL_SLUG+="SDK"
     
     echo $FULL_SLUG
     
