@@ -3,10 +3,10 @@ Trident [![Build Status](https://travis-ci.org/TridentSDK/Trident.svg?branch=rev
 
 The Trident project, the implementation of the new generation of multi-threaded, high-performance, and cleanroom Minecraft servers.
 
-* [Website](https://tridentsdk.net)
+* [Website](https://tsdk.xyz)
 * [Chat](https://www.hipchat.com/g20bt22H2?v=2)
 * [Issues](https://tridentsdk.atlassian.net/projects/TRD/issues)
-* [Tech Document](https://tridentsdk.net/techdoc/)
+* [Tech Document](https://tsdk.xyz/techdoc/)
 * [Wiki](https://tridentsdkwiki.atlassian.net/wiki/dashboard.action)
 * [Javadoc](https://tridentsdk.github.io/javadocs)
 * [Contributing](https://tridentsdkwiki.atlassian.net/wiki/display/DEV/Trident+Development)
@@ -61,7 +61,7 @@ For a precompiled solution, one which has passed the tests we have wrote, as wel
 
 ### Method three: Get one from us ###
 
-If we've released a JAR for you to use, it usually comes with a nice read. So if you like nice reads or the look of our [official website](https://tridentsdk.net), you can go rummage around the releases forum and look for a download link.
+If we've released a JAR for you to use, it usually comes with a nice read. So if you like nice reads or the look of our [official website](https://tsdk.xyz), you can go rummage around the releases forum and look for a download link.
 
 #### Prerequisites ####
 
@@ -72,7 +72,7 @@ If we've released a JAR for you to use, it usually comes with a nice read. So if
 
 #### Directions ####
 
-1. Nagigate to [tridentsdk.net](https://tridentsdk.net)
+1. Nagigate to [tsdk.xyz](https://tsdk.xyz)
 2. Scroll down the News list to the first release post
 3. Find the download link
 4. Click the download link
