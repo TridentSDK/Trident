@@ -25,7 +25,7 @@ fi
 pushd TridentSDK
 
 REMOTE_REPO=$(git remote -v | grep fetch | awk '{print $2}')
-BRANCH_EXISTS=$($(git ls-remote --heads $REMOTE_REPO $TRAVIS_BRANCH))
+BRANCH_EXISTS=$(git ls-remote --heads "$REMOTE_REPO" "$TRAVIS_BRANCH")
 
 if [ "$BRANCH_EXISTS" ];
 then
