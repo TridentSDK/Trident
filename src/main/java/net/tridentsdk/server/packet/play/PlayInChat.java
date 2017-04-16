@@ -26,6 +26,7 @@ import net.tridentsdk.server.world.TridentChunk;
 import net.tridentsdk.ui.bossbar.BossBar;
 import net.tridentsdk.ui.bossbar.BossBarColor;
 import net.tridentsdk.ui.bossbar.BossBarDivision;
+import net.tridentsdk.ui.title.Title;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -55,7 +56,7 @@ public final class PlayInChat extends PacketIn {
                 .addWith(msg);
         TridentPlayer.getPlayers().values().forEach(p -> p.sendMessage(chat, ChatType.CHAT));
 
-        if(msg.toLowerCase().equals("chunks")){
+        if (msg.toLowerCase().equals("chunks")) {
             Position playerPosition = player.getPosition();
             int chunkLoadRadius = 3;
 
@@ -81,6 +82,22 @@ public final class PlayInChat extends PacketIn {
 
                 player.addBossBar(bb);
             }
+        }
+
+        if (msg.toLowerCase().equals("title")) {
+            Title title = Title.newTitle();
+
+            title.setTitle(ChatComponent.create().setColor(ChatColor.AQUA).setText("henlo player"));
+            title.setSubtitle(ChatComponent.create().setColor(ChatColor.GOLD).setText("hello u STINKY PLAYER"));
+            title.setFadeIn(0);
+            title.setStay(60);
+            title.setFadeOut(0);
+
+            player.sendTitle(title);
+        }
+
+        if (msg.toLowerCase().equals("cleartitle")) {
+            player.resetTitle();
         }
     }
 }
