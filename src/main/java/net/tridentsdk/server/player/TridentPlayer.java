@@ -40,6 +40,7 @@ import net.tridentsdk.server.ui.tablist.TridentTabList;
 import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.ui.bossbar.BossBar;
 import net.tridentsdk.ui.tablist.TabList;
+import net.tridentsdk.ui.title.Title;
 import net.tridentsdk.world.IntPair;
 import net.tridentsdk.world.World;
 import net.tridentsdk.world.opt.GameMode;
@@ -396,6 +397,37 @@ public class TridentPlayer extends TridentEntity implements Player {
                 }
             } while (!bossBar.unsetChanged(changed));
         }
+    }
+
+    @Override
+    public void sendTitle(Title title) {
+        if (title == null) {
+            throw new NullPointerException();
+        }
+
+        if (!title.isDefaultTimings()) {
+            this.net().sendPacket(new PlayOutTitle.SetTiming(title));
+        }
+
+        ChatComponent mainTitle = title.getTitle();
+        ChatComponent subtitle = title.getSubtitle();
+
+        if (mainTitle != null) {
+            this.net().sendPacket(new PlayOutTitle.SetTitle(mainTitle));
+        }
+        if (subtitle != null) {
+            this.net().sendPacket(new PlayOutTitle.SetSubtitle(subtitle));
+        }
+    }
+
+    @Override
+    public void resetTitle() {
+        this.net().sendPacket(new PlayOutTitle.Reset());
+    }
+
+    @Override
+    public void hideTitle() {
+        this.net().sendPacket(new PlayOutTitle.Hide());
     }
 
     @Override

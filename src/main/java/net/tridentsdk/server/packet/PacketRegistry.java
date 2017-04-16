@@ -115,6 +115,7 @@ public final class PacketRegistry {
         put(PlayOutAnimation.class, NetState.PLAY, Bound.CLIENT, 0x06);
         put(PlayInAnimation.class, NetState.PLAY, Bound.SERVER, 0x1A);
         put(PlayOutBossBar.class, NetState.PLAY, Bound.CLIENT, 0x0C);
+        put(PlayOutTitle.class, NetState.PLAY, Bound.CLIENT, 0x45);
     
         put(PlayInPlayerDig.class, NetState.PLAY, Bound.SERVER, 0x13);
 

@@ -35,8 +35,10 @@ import net.tridentsdk.server.inventory.TridentItem;
 import net.tridentsdk.server.ui.bossbar.CustomBossBar;
 import net.tridentsdk.server.ui.tablist.TridentCustomTabList;
 import net.tridentsdk.server.ui.tablist.TridentGlobalTabList;
+import net.tridentsdk.server.ui.title.CustomTitle;
 import net.tridentsdk.ui.bossbar.BossBar;
 import net.tridentsdk.ui.tablist.TabList;
+import net.tridentsdk.ui.title.Title;
 
 import javax.annotation.concurrent.Immutable;
 import java.nio.file.Path;
@@ -114,6 +116,9 @@ public class ImplementationProvider implements Impl.ImplementationProvider {
     public BossBar newBossBar() {
         return new CustomBossBar();
     }
+
+    @Override
+    public Title newTitle() { return new CustomTitle(); }
 
     @Override
     public Inventory newInventory(InventoryType type, int slots) {
