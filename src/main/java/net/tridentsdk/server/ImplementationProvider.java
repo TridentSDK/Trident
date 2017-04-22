@@ -118,7 +118,9 @@ public class ImplementationProvider implements Impl.ImplementationProvider {
     }
 
     @Override
-    public Title newTitle() { return new CustomTitle(); }
+    public Title newTitle() {
+        return new CustomTitle();
+    }
 
     @Override
     public Inventory newInventory(InventoryType type, int slots) {

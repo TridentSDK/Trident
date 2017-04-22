@@ -87,7 +87,7 @@ public final class PlayInChat extends PacketIn {
         if (msg.toLowerCase().equals("title")) {
             Title title = Title.newTitle();
 
-            title.setTitle(ChatComponent.create().setColor(ChatColor.AQUA).setText("henlo player"));
+            title.setHeader(ChatComponent.create().setColor(ChatColor.AQUA).setText("henlo player"));
             title.setSubtitle(ChatComponent.create().setColor(ChatColor.GOLD).setText("hello u STINKY PLAYER"));
             title.setFadeIn(0);
             title.setStay(60);

@@ -8,11 +8,18 @@ import net.tridentsdk.ui.title.Title;
 import static net.tridentsdk.server.net.NetData.wstr;
 import static net.tridentsdk.server.net.NetData.wvint;
 
+/**
+ * Packet used to display and handle text to be displayed
+ * in the center of the player's screen.
+ */
 public abstract class PlayOutTitle extends PacketOut {
+    /**
+     * Cached instance of an empty title
+     */
+    private static final ChatComponent EMPTY_TITLE = ChatComponent.empty();
+    private final PlayOutTitle.PlayOutTitleType action;
 
-    private final PlayOutTitleType action;
-
-    private PlayOutTitle(PlayOutTitleType action) {
+    private PlayOutTitle(PlayOutTitle.PlayOutTitleType action) {
         super(PlayOutTitle.class);
         this.action = action;
     }
@@ -23,69 +30,73 @@ public abstract class PlayOutTitle extends PacketOut {
     }
 
     public static class SetTitle extends PlayOutTitle {
-        private ChatComponent chat;
+        private final ChatComponent chat;
 
         public SetTitle(Title title) {
-            this(title.getTitle());
+            this(title.getHeader());
         }
 
         public SetTitle(ChatComponent chat) {
-            super(PlayOutTitleType.SET_TITLE);
-            this.chat = chat;
+            super(PlayOutTitle.PlayOutTitleType.SET_TITLE);
+            this.chat = chat == null ? PlayOutTitle.EMPTY_TITLE : chat;
         }
 
         @Override
         public void write(ByteBuf buf) {
             super.write(buf);
-            wstr(buf, chat.toString());
+            wstr(buf, this.chat.toString());
         }
     }
 
     public static class SetSubtitle extends PlayOutTitle {
-        private ChatComponent chat;
+        private final ChatComponent chat;
 
         public SetSubtitle(Title title) {
             this(title.getSubtitle());
         }
 
         public SetSubtitle(ChatComponent chat) {
-            super(PlayOutTitleType.SET_SUBTITLE);
-            this.chat = chat;
+            super(PlayOutTitle.PlayOutTitleType.SET_SUBTITLE);
+            this.chat = chat == null ? PlayOutTitle.EMPTY_TITLE : chat;
         }
 
         @Override
         public void write(ByteBuf buf) {
             super.write(buf);
-            wstr(buf, chat.toString());
+            wstr(buf, this.chat.toString());
         }
     }
 
     public static class SetActionBar extends PlayOutTitle {
-        private ChatComponent chat;
+        private final ChatComponent chat;
 
         public SetActionBar(ChatComponent chat) {
-            super(PlayOutTitleType.SET_ACTION_BAR);
+            super(PlayOutTitle.PlayOutTitleType.SET_ACTION_BAR);
             this.chat = chat;
         }
 
         @Override
         public void write(ByteBuf buf) {
             super.write(buf);
-            wstr(buf, chat.toString());
+            wstr(buf, this.chat.toString());
         }
     }
 
     public static class SetTiming extends PlayOutTitle {
-        private int fadeIn;
-        private int stay;
-        private int fadeOut;
+        private final int fadeIn;
+        private final int stay;
+        private final int fadeOut;
+
+        public SetTiming() {
+            this(Title.DEFAULT_FADE_IN, Title.DEFAULT_STAY, Title.DEFAULT_FADE_OUT);
+        }
 
         public SetTiming(Title title) {
             this(title.getFadeIn(), title.getStay(), title.getFadeOut());
         }
 
         public SetTiming(int fadeIn, int stay, int fadeOut) {
-            super(PlayOutTitleType.SET_TIMES_AND_DISPLAY);
+            super(PlayOutTitle.PlayOutTitleType.SET_TIMES_AND_DISPLAY);
             this.fadeIn = fadeIn;
             this.stay = stay;
             this.fadeOut = fadeOut;
@@ -94,21 +105,21 @@ public abstract class PlayOutTitle extends PacketOut {
         @Override
         public void write(ByteBuf buf) {
             super.write(buf);
-            buf.writeInt(fadeIn);
-            buf.writeInt(stay);
-            buf.writeInt(fadeOut);
+            buf.writeInt(this.fadeIn);
+            buf.writeInt(this.stay);
+            buf.writeInt(this.fadeOut);
         }
     }
 
     public static class Hide extends PlayOutTitle {
         public Hide() {
-            super(PlayOutTitleType.HIDE);
+            super(PlayOutTitle.PlayOutTitleType.HIDE);
         }
     }
 
     public static class Reset extends PlayOutTitle {
         public Reset() {
-            super(PlayOutTitleType.RESET);
+            super(PlayOutTitle.PlayOutTitleType.RESET);
         }
     }
 

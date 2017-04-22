@@ -201,7 +201,7 @@ public class TridentPlayer extends TridentEntity implements Player {
     public static TridentPlayer spawn(NetClient client, String name, UUID uuid, TabListElement.PlayerProperty skinTextures) {
         TridentWorld world = TridentServer.getInstance().getWorldLoader().getDefaultWorld();
         TridentPlayer player = new TridentPlayer(client, world, name, uuid, skinTextures);
-        players.put(uuid, player);
+        TridentPlayer.players.put(uuid, player);
         client.setPlayer(player);
         Login.finish();
 
@@ -239,7 +239,7 @@ public class TridentPlayer extends TridentEntity implements Player {
                 .addWith(this.name);
         this.sendMessage(chat, ChatType.CHAT);
 
-        players.values()
+        TridentPlayer.players.values()
                 .stream()
                 .filter(p -> !p.equals(this))
                 .forEach(p -> {
@@ -282,7 +282,7 @@ public class TridentPlayer extends TridentEntity implements Player {
     public void doRemove() {
         // If the player isn't in the list, they haven't
         // finished logging in yet; cleanup
-        if (players.remove(this.uuid) == null) {
+        if (TridentPlayer.players.remove(this.uuid) == null) {
             Login.finish();
         }
 
@@ -293,7 +293,7 @@ public class TridentPlayer extends TridentEntity implements Player {
                 .setColor(ChatColor.YELLOW)
                 .setTranslate("multiplayer.player.left")
                 .addWith(this.name);
-        players.values().forEach(e -> e.sendMessage(chat, ChatType.CHAT));
+        TridentPlayer.players.values().forEach(e -> e.sendMessage(chat, ChatType.CHAT));
     }
 
     @Override
@@ -401,33 +401,22 @@ public class TridentPlayer extends TridentEntity implements Player {
 
     @Override
     public void sendTitle(Title title) {
-        if (title == null) {
-            throw new NullPointerException();
-        }
-
-        if (!title.isDefaultTimings()) {
+        if (!title.isDefaultFadeTimes()) {
             this.net().sendPacket(new PlayOutTitle.SetTiming(title));
         }
 
-        ChatComponent mainTitle = title.getTitle();
+        ChatComponent mainTitle = title.getHeader();
         ChatComponent subtitle = title.getSubtitle();
 
-        if (mainTitle != null) {
-            this.net().sendPacket(new PlayOutTitle.SetTitle(mainTitle));
-        }
-        if (subtitle != null) {
-            this.net().sendPacket(new PlayOutTitle.SetSubtitle(subtitle));
-        }
+        this.net().sendPacket(new PlayOutTitle.SetTitle(mainTitle));
+        this.net().sendPacket(new PlayOutTitle.SetSubtitle(subtitle));
     }
 
     @Override
     public void resetTitle() {
-        this.net().sendPacket(new PlayOutTitle.Reset());
-    }
-
-    @Override
-    public void hideTitle() {
-        this.net().sendPacket(new PlayOutTitle.Hide());
+        this.net().sendPacket(new PlayOutTitle.SetTitle((ChatComponent) null));
+        this.net().sendPacket(new PlayOutTitle.SetSubtitle((ChatComponent) null));
+        this.net().sendPacket(new PlayOutTitle.SetTiming());
     }
 
     @Override
@@ -541,8 +530,8 @@ public class TridentPlayer extends TridentEntity implements Player {
         int radius = renderDistance / 2;
 
         if (direction != null) {
-            centerX += (direction.getXDiff() * radius);
-            centerZ += (direction.getZDiff() * radius);
+            centerX += direction.getXDiff() * radius;
+            centerZ += direction.getZDiff() * radius;
         }
 
         /* Should be 16, but renderDistance has to be divided by 2 */
@@ -557,7 +546,7 @@ public class TridentPlayer extends TridentEntity implements Player {
         for (int x = centerX - radius; x <= centerX + radius; x++) {
             for (int z = centerZ - radius; z <= centerZ + radius; z++) {
                 IntPair position = IntPair.make(x, z);
-                if (System.currentTimeMillis() - this.chunkSentTime.getOrDefault(position, 0L) > CHUNK_CACHE_MILLIS) {
+                if (System.currentTimeMillis() - this.chunkSentTime.getOrDefault(position, 0L) > TridentPlayer.CHUNK_CACHE_MILLIS) {
                     CompletableFuture
                             .supplyAsync(() -> this.getWorld().chunkAt(position), this.pool)
                             .thenAcceptAsync(chunk -> {
