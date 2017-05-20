@@ -82,7 +82,7 @@ public final class TridentBlock implements Block {
 
     @Override
     public Substance getSubstance() {
-        return Substance.of(this.getChunk().get(this.relX, this.relY, this.relZ) >>> 4);
+        return Substance.fromNumericId(this.getChunk().get(this.relX, this.relY, this.relZ) >>> 4);
     }
 
     @Override

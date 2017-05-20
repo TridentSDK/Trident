@@ -224,7 +224,7 @@ public class BlockBenchmark {
             ThreadLocalRandom current = ThreadLocalRandom.current();
             Block b = world.getBlockAt(current.nextInt(4096), 3, current.nextInt(4096));
             Substance before = b.getSubstance();
-            Substance next = Substance.of(current.nextInt(8));
+            Substance next = Substance.fromNumericId(current.nextInt(8));
             b.setSubstance(next);
             Substance after = b.getSubstance();
 
@@ -253,7 +253,7 @@ public class BlockBenchmark {
         Blackhole.consumeCPU(200);
         int idx = ThreadLocalRandom.current().nextInt(blocks.length);
         TridentBlock block = blocks[idx];
-        block.setSubstance(Substance.of(idx % 8));
+        block.setSubstance(Substance.fromNumericId(idx % 8));
     }
 
     @Fork
