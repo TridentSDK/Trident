@@ -372,12 +372,11 @@ public class TridentPlayer extends TridentEntity implements Player {
 
             int changed = AbstractBossBar.STATE.get(bossBar);
             do {
-                boolean health, title, style, flags, sky;
-                sky = (changed >>> 4 & 1) == 1;
-                title = (changed >>> 3 & 1) == 1;
-                health = (changed >>> 2 & 1) == 1;
-                style = (changed >>> 1 & 1) == 1;
-                flags = (changed & 1) == 1;
+                boolean sky = (changed >>> 4 & 1) == 1;
+                boolean title = (changed >>> 3 & 1) == 1;
+                boolean health = (changed >>> 2 & 1) == 1;
+                boolean style = (changed >>> 1 & 1) == 1;
+                boolean flags = (changed & 1) == 1;
 
                 if (sky) {
                     this.net().sendPacket(new PlayOutBossBar.Add(bossBar));

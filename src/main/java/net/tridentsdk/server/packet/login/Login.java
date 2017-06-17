@@ -34,7 +34,7 @@ public final class Login {
     /**
      * The amount of players that are queued to login
      */
-    public static final AtomicInteger LOGGING_IN = new AtomicInteger();
+    private static final AtomicInteger LOGGING_IN = new AtomicInteger();
     /**
      * Cache of UUIDs as Mojang doesn't like it when you
      * push the rate limit.
