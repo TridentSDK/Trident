@@ -33,6 +33,7 @@ public abstract class PlayOutTitle extends PacketOut {
      * Cached instance of an empty title
      */
     private static final ChatComponent EMPTY_TITLE = ChatComponent.empty();
+
     private final PlayOutTitle.PlayOutTitleType action;
 
     private PlayOutTitle(PlayOutTitle.PlayOutTitleType action) {

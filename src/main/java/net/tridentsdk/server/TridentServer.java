@@ -21,6 +21,8 @@ import net.tridentsdk.Server;
 import net.tridentsdk.command.logger.Logger;
 import net.tridentsdk.doc.Policy;
 import net.tridentsdk.event.EventController;
+import net.tridentsdk.plugin.PluginLoader;
+import net.tridentsdk.server.concurrent.PoolSpec;
 import net.tridentsdk.server.concurrent.ServerThreadPool;
 import net.tridentsdk.server.concurrent.TridentTick;
 import net.tridentsdk.server.config.ServerConfig;
@@ -34,6 +36,7 @@ import net.tridentsdk.server.world.TridentWorldLoader;
 import javax.annotation.concurrent.ThreadSafe;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 /**
@@ -139,9 +142,11 @@ public class TridentServer implements Server {
         this.logger.warn("SERVER RELOADING...");
 
         try {
-            this.logger.log("Saving config...");
+            this.logger.log("Reloading server config...");
             this.config.save();
-        } catch (IOException e) {
+            this.logger.log("Reloading plugins...");
+            ServerThreadPool.forSpec(PoolSpec.PLUGINS).submit(() -> PluginLoader.getInstance().reload()).get();
+        } catch (IOException | InterruptedException | ExecutionException e) {
             JiraExceptionCatcher.serverException(e);
             return;
         }
@@ -153,14 +158,20 @@ public class TridentServer implements Server {
     public void shutdown() {
         this.logger.warn("SERVER SHUTTING DOWN...");
         try {
-            this.logger.log("Saving config...");
+            this.logger.log("Unloading plugins...");
+            ServerThreadPool.forSpec(PoolSpec.PLUGINS).submit(() -> {
+                if (!PluginLoader.getInstance().unloadAll()) {
+                    this.logger.error("Unloading plugins failed...");
+                }
+            }).get();
+            this.logger.log("Saving server config...");
             this.config.save();
             this.logger.log("Shutting down server process...");
             this.tick.interrupt();
             ServerThreadPool.shutdownAll();
             this.logger.log("Closing network connections...");
             this.server.shutdown();
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException | InterruptedException | ExecutionException e) {
             JiraExceptionCatcher.serverException(e);
             return;
         }

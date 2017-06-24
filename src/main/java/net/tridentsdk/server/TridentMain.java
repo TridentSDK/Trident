@@ -20,8 +20,11 @@ import net.tridentsdk.Impl;
 import net.tridentsdk.Server;
 import net.tridentsdk.command.logger.Logger;
 import net.tridentsdk.doc.Debug;
+import net.tridentsdk.plugin.Plugin;
+import net.tridentsdk.plugin.PluginLoader;
 import net.tridentsdk.server.command.InfoLogger;
 import net.tridentsdk.server.command.PipelinedLogger;
+import net.tridentsdk.server.concurrent.PoolSpec;
 import net.tridentsdk.server.concurrent.ServerThreadPool;
 import net.tridentsdk.server.config.ConfigIo;
 import net.tridentsdk.server.config.ServerConfig;
@@ -85,7 +88,7 @@ public final class TridentMain {
         logger.log("Server implements API version " + Server.VERSION);
         logger.log("Server implements Minecraft protocol for " + StatusOutResponse.MC_VERSION);
 
-        // Setup the config file ---------------------------
+        // Setup the files ---------------------------
         logger.log("Checking for server files: server.json");
         if (!Files.exists(ServerConfig.PATH)) {
             logger.warn("File \"server.json\" not present");
@@ -97,6 +100,14 @@ public final class TridentMain {
         logger.log("Reading server.json...");
         ServerConfig config = ServerConfig.init();
         logger.success("Done.");
+
+        logger.log("Checking for server files: plugins folder");
+        if (!Files.exists(Plugin.PLUGIN_DIR)) {
+            logger.warn("File \"plugins\" not present");
+            logger.log("Creating one for you... ");
+            Files.createDirectory(Plugin.PLUGIN_DIR);
+            logger.success("Done.");
+        }
         // -------------------------------------------------
 
         // Pass net args to the server handler -------------
@@ -117,6 +128,10 @@ public final class TridentMain {
         ServerThreadPool.init();
         // -------------------------------------------------
 
+        // Try to load all plugins -------------------------
+        ServerThreadPool.forSpec(PoolSpec.PLUGINS).submit(() -> PluginLoader.getInstance().loadAll()).get();
+        // -------------------------------------------------
+
         // Load worlds -------------------------------------
         logger.log("Loading worlds...");
         TridentWorldLoader.getInstance().loadAll();
@@ -127,6 +142,14 @@ public final class TridentMain {
         logger.log("Setting up the server...");
         TridentServer.init(config, logger, server);
         logger.success("Done.");
+        // -------------------------------------------------
+
+        // Setup plugins -----------------------------------
+        ServerThreadPool.forSpec(PoolSpec.PLUGINS).submit(() -> {
+            for (Plugin plugin : PluginLoader.getInstance().getLoaded().values()) {
+                plugin.setup();
+            }
+        }).get();
         // -------------------------------------------------
 
         // Setup netty and other network crap --------------

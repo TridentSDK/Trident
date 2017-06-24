@@ -21,7 +21,7 @@ import lombok.Getter;
 import net.tridentsdk.command.logger.Logger;
 import net.tridentsdk.doc.Policy;
 import net.tridentsdk.event.*;
-import net.tridentsdk.plugin.SelfRegistered;
+import net.tridentsdk.plugin.SkipRegistry;
 import net.tridentsdk.server.concurrent.PoolSpec;
 import net.tridentsdk.server.concurrent.ServerThreadPool;
 
@@ -34,6 +34,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.function.Consumer;
 
+// TODO livelocks?
 /**
  * The implementation of the event instance
  */
@@ -65,11 +66,11 @@ public final class TridentEventController implements EventController {
      * @return {@code true} if the class allows registration
      */
     private static boolean allow(Class<?> cls) {
-        return cls.getAnnotation(SelfRegistered.class) == null;
+        return cls.getAnnotation(SkipRegistry.class) == null;
     }
 
     @Override
-    public void register(Object listener) {
+    public void register(Listener listener) {
         Class<?> cls = listener.getClass();
         if (!allow(cls)) {
             return;
@@ -91,7 +92,7 @@ public final class TridentEventController implements EventController {
                     continue;
                 }
 
-                // Check to make sure we are listenting to
+                // Check to make sure we are listening to
                 // an event
                 if (Event.class.isAssignableFrom(pType)) {
                     Class<? extends Event> clazz = (Class<? extends Event>) pType;
@@ -122,7 +123,7 @@ public final class TridentEventController implements EventController {
     }
 
     @Override
-    public void unregister(Class<?> listener) {
+    public void unregister(Class<? extends Listener> listener) {
         for (ConcurrentSkipListSet<EventDispatcher> queue : this.listeners.values()) {
             for (EventDispatcher dispatcher : queue) {
                 if (dispatcher.isContainedBy(listener)) {

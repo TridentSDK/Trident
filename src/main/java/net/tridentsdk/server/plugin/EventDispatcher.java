@@ -48,7 +48,6 @@ public final class EventDispatcher implements Comparable<EventDispatcher> {
         this.container = inst;
         this.order = order;
 
-        System.out.println("REG M " + method.getName());
         this.idx = access.getIndex(method.getName(), method.getParameterTypes());
     }
 

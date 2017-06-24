@@ -78,6 +78,12 @@
             <version>1.10.0</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.javassist</groupId>
+            <artifactId>javassist</artifactId>
+            <version>3.21.0-GA</version>
+        </dependency>
+
         <!-- Logging -->
         <dependency>
             <groupId>org.fusesource.jansi</groupId>

@@ -19,6 +19,7 @@ package net.tridentsdk.server;
 import net.tridentsdk.Impl;
 import net.tridentsdk.event.DispatchOrder;
 import net.tridentsdk.event.Event;
+import net.tridentsdk.event.Listener;
 import net.tridentsdk.event.ListenerOpts;
 import net.tridentsdk.server.command.PipelinedLogger;
 import net.tridentsdk.server.concurrent.ServerThreadPool;
@@ -32,7 +33,7 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 import java.util.concurrent.TimeUnit;
 
 @State(Scope.Benchmark)
-public class EventTest {
+public class EventTest implements Listener {
     public static void main(String[] args) throws Exception {
         Impl.setImpl(new ImplementationProvider(PipelinedLogger.init(true)));
 
@@ -55,7 +56,7 @@ public class EventTest {
                 .warmupIterations(20)
                 .measurementIterations(5)
                 .forks(0)
-                .threads(4)
+                .threads(1)
                 .build();
 
         new Runner(options).run();
