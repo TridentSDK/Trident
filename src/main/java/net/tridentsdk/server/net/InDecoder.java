@@ -19,7 +19,7 @@ package net.tridentsdk.server.net;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
-import net.tridentsdk.command.logger.Logger;
+import net.tridentsdk.logger.Logger;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.packet.Packet;
 import net.tridentsdk.server.packet.PacketIn;

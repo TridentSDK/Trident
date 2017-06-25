@@ -16,7 +16,7 @@
  */
 package net.tridentsdk.server.concurrent;
 
-import net.tridentsdk.command.logger.Logger;
+import net.tridentsdk.logger.Logger;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.util.JiraExceptionCatcher;
 import net.tridentsdk.server.world.TridentWorld;

@@ -16,7 +16,8 @@
  */
 package net.tridentsdk.server.command;
 
-import net.tridentsdk.command.logger.Logger;
+import net.tridentsdk.logger.Logger;
+import net.tridentsdk.server.logger.*;
 import org.fusesource.jansi.AnsiConsole;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.runner.Runner;

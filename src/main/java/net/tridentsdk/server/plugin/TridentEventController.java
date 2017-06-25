@@ -18,10 +18,9 @@ package net.tridentsdk.server.plugin;
 
 import com.esotericsoftware.reflectasm.MethodAccess;
 import lombok.Getter;
-import net.tridentsdk.command.logger.Logger;
 import net.tridentsdk.doc.Policy;
 import net.tridentsdk.event.*;
-import net.tridentsdk.plugin.SkipRegistry;
+import net.tridentsdk.logger.Logger;
 import net.tridentsdk.server.concurrent.PoolSpec;
 import net.tridentsdk.server.concurrent.ServerThreadPool;
 
@@ -58,24 +57,9 @@ public final class TridentEventController implements EventController {
      */
     private final ConcurrentMap<Class<? extends Event>, ConcurrentSkipListSet<EventDispatcher>> listeners = new ConcurrentHashMap<>();
 
-    /**
-     * Check if the class allows its members to be
-     * registered automatically.
-     *
-     * @param cls the class to check
-     * @return {@code true} if the class allows registration
-     */
-    private static boolean allow(Class<?> cls) {
-        return cls.getAnnotation(SkipRegistry.class) == null;
-    }
-
     @Override
     public void register(Listener listener) {
         Class<?> cls = listener.getClass();
-        if (!allow(cls)) {
-            return;
-        }
-
         MethodAccess access = MethodAccess.get(cls);
         Method[] methods = cls.getMethods();
         for (Method m : methods) {

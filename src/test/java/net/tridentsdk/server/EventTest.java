@@ -21,7 +21,7 @@ import net.tridentsdk.event.DispatchOrder;
 import net.tridentsdk.event.Event;
 import net.tridentsdk.event.Listener;
 import net.tridentsdk.event.ListenerOpts;
-import net.tridentsdk.server.command.PipelinedLogger;
+import net.tridentsdk.server.logger.PipelinedLogger;
 import net.tridentsdk.server.concurrent.ServerThreadPool;
 import net.tridentsdk.server.plugin.TridentEventController;
 import net.tridentsdk.server.util.UncheckedCdl;

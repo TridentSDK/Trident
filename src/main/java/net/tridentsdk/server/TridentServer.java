@@ -18,9 +18,12 @@ package net.tridentsdk.server;
 
 import lombok.Getter;
 import net.tridentsdk.Server;
-import net.tridentsdk.command.logger.Logger;
+import net.tridentsdk.chat.ChatComponent;
+import net.tridentsdk.command.CmdHandler;
+import net.tridentsdk.command.CmdSourceType;
 import net.tridentsdk.doc.Policy;
 import net.tridentsdk.event.EventController;
+import net.tridentsdk.logger.Logger;
 import net.tridentsdk.plugin.PluginLoader;
 import net.tridentsdk.server.concurrent.PoolSpec;
 import net.tridentsdk.server.concurrent.ServerThreadPool;
@@ -69,6 +72,19 @@ public class TridentServer implements Server {
      * The ticking thread for the server
      */
     private final TridentTick tick;
+    /**
+     * Singleton instance of the server plugin loader
+     */
+    private final PluginLoader pluginLoader = new PluginLoader();
+    /**
+     * Singleton instance of the server command handler
+     */
+    private final CmdHandler cmdHandler = new CmdHandler();
+    /**
+     * Whether or not the server is shutting down
+     */
+    @Getter
+    private boolean shutdownState;
 
     /**
      * Creates a new server instance
@@ -138,6 +154,17 @@ public class TridentServer implements Server {
     }
 
     @Override
+    public PluginLoader getPluginLoader() {
+        return this.pluginLoader;
+    }
+
+    @Override
+    public CmdHandler getCmdHandler() {
+        return this.cmdHandler;
+    }
+
+    @Override
+    @Policy("call only from plugin thread")
     public void reload() {
         this.logger.warn("SERVER RELOADING...");
 
@@ -145,8 +172,8 @@ public class TridentServer implements Server {
             this.logger.log("Reloading server config...");
             this.config.save();
             this.logger.log("Reloading plugins...");
-            ServerThreadPool.forSpec(PoolSpec.PLUGINS).submit(() -> PluginLoader.getInstance().reload()).get();
-        } catch (IOException | InterruptedException | ExecutionException e) {
+            this.pluginLoader.reload();
+        } catch (IOException e) {
             JiraExceptionCatcher.serverException(e);
             return;
         }
@@ -155,15 +182,15 @@ public class TridentServer implements Server {
     }
 
     @Override
+    @Policy("call only from plugin thread")
     public void shutdown() {
         this.logger.warn("SERVER SHUTTING DOWN...");
+        this.shutdownState = true;
         try {
             this.logger.log("Unloading plugins...");
-            ServerThreadPool.forSpec(PoolSpec.PLUGINS).submit(() -> {
-                if (!PluginLoader.getInstance().unloadAll()) {
-                    this.logger.error("Unloading plugins failed...");
-                }
-            }).get();
+            if (!this.pluginLoader.unloadAll()) {
+                this.logger.error("Unloading plugins failed...");
+            }
             this.logger.log("Saving server config...");
             this.config.save();
             this.logger.log("Shutting down server process...");
@@ -171,11 +198,32 @@ public class TridentServer implements Server {
             ServerThreadPool.shutdownAll();
             this.logger.log("Closing network connections...");
             this.server.shutdown();
-        } catch (IOException | InterruptedException | ExecutionException e) {
+        } catch (IOException | InterruptedException e) {
             JiraExceptionCatcher.serverException(e);
             return;
         }
 
         this.logger.success("Server has shutdown successfully.");
+    }
+
+    @Override
+    public void runCommand(String command) {
+        try {
+            if (!ServerThreadPool.forSpec(PoolSpec.PLUGINS).submit(() -> this.cmdHandler.dispatch(command, this)).get()) {
+                this.logger.log("No command \"" + command.split(" ")[0] + "\" found");
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void sendMessage(ChatComponent text) {
+        this.logger.log(text.getColor() + text.getText());
+    }
+
+    @Override
+    public CmdSourceType getCmdType() {
+        return CmdSourceType.CONSOLE;
     }
 }

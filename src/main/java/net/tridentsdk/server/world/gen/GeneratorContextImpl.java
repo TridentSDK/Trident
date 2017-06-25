@@ -47,7 +47,7 @@ public class GeneratorContextImpl implements GeneratorContext {
      */
     private final LongAdder count = new LongAdder();
     /**
-     * Queue of generation tasks to be run upon command
+     * Queue of generation tasks to be handle upon command
      */
     private final Queue<Consumer<UncheckedCdl>> tasks = new ConcurrentLinkedQueue<>();
 
@@ -155,7 +155,7 @@ public class GeneratorContextImpl implements GeneratorContext {
     }
 
     /**
-     * Sends the command for the container to run the tasks
+     * Sends the command for the container to handle the tasks
      * that were scheduled by the terrain generator.
      *
      * @param latch the count down latch used to await for

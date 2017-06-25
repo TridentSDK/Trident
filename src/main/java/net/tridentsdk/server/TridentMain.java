@@ -18,12 +18,12 @@ package net.tridentsdk.server;
 
 import net.tridentsdk.Impl;
 import net.tridentsdk.Server;
-import net.tridentsdk.command.logger.Logger;
+import net.tridentsdk.logger.Logger;
 import net.tridentsdk.doc.Debug;
 import net.tridentsdk.plugin.Plugin;
-import net.tridentsdk.plugin.PluginLoader;
-import net.tridentsdk.server.command.InfoLogger;
-import net.tridentsdk.server.command.PipelinedLogger;
+import net.tridentsdk.server.command.Stop;
+import net.tridentsdk.server.logger.InfoLogger;
+import net.tridentsdk.server.logger.PipelinedLogger;
 import net.tridentsdk.server.concurrent.PoolSpec;
 import net.tridentsdk.server.concurrent.ServerThreadPool;
 import net.tridentsdk.server.config.ConfigIo;
@@ -37,6 +37,7 @@ import javax.annotation.concurrent.Immutable;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Scanner;
 
 /**
  * Trident server startup class
@@ -128,9 +129,25 @@ public final class TridentMain {
         ServerThreadPool.init();
         // -------------------------------------------------
 
-        // Try to load all plugins -------------------------
-        ServerThreadPool.forSpec(PoolSpec.PLUGINS).submit(() -> PluginLoader.getInstance().loadAll()).get();
+        // Setup server ------------------------------------
+        logger.log("Setting up the server...");
+        TridentServer trident = TridentServer.init(config, logger, server);
+        logger.success("Done.");
         // -------------------------------------------------
+
+        ServerThreadPool.forSpec(PoolSpec.PLUGINS).submit(() -> {
+            // Register commands ---------------------------
+            logger.log("Registering server commands...");
+            trident.getCmdHandler().register(null, new Stop());
+            logger.log("Done.");
+            // ---------------------------------------------
+
+            // Load plugins --------------------------------
+            logger.log("Loading plugins...");
+            trident.getPluginLoader().loadAll();
+            logger.log("Done.");
+            // ---------------------------------------------
+        }).get();
 
         // Load worlds -------------------------------------
         logger.log("Loading worlds...");
@@ -138,23 +155,31 @@ public final class TridentMain {
         logger.log("Done.");
         // -------------------------------------------------
 
-        // Setup server ------------------------------------
-        logger.log("Setting up the server...");
-        TridentServer.init(config, logger, server);
-        logger.success("Done.");
-        // -------------------------------------------------
-
         // Setup plugins -----------------------------------
+        logger.log("Enabling plugins...");
         ServerThreadPool.forSpec(PoolSpec.PLUGINS).submit(() -> {
-            for (Plugin plugin : PluginLoader.getInstance().getLoaded().values()) {
+            for (Plugin plugin : trident.getPluginLoader().getLoaded().values()) {
                 plugin.setup();
             }
         }).get();
+        logger.log("Done.");
         // -------------------------------------------------
 
         // Setup netty and other network crap --------------
         logger.log(String.format("Server will be opened on %s:%s", address, port));
         server.setup();
+        // -------------------------------------------------
+
+        // Command handler ---------------------------------
+        Scanner scanner = new Scanner(System.in);
+        while (true) {
+            String line = scanner.nextLine();
+            trident.runCommand(line);
+
+            if (trident.isShutdownState()) {
+                return;
+            }
+        }
         // -------------------------------------------------
     }
 }

@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.tridentsdk.server.command;
+package net.tridentsdk.server.logger;
 
-import net.tridentsdk.command.logger.LogHandler;
+import net.tridentsdk.logger.LogHandler;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Collections;

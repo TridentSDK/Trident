@@ -24,10 +24,12 @@ import net.tridentsdk.chat.ChatColor;
 import net.tridentsdk.chat.ChatComponent;
 import net.tridentsdk.chat.ChatType;
 import net.tridentsdk.chat.ClientChatMode;
+import net.tridentsdk.command.CmdSourceType;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.player.PlayerJoinEvent;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.concurrent.PoolSpec;
+import net.tridentsdk.server.concurrent.ServerThreadPool;
 import net.tridentsdk.server.entity.TridentEntity;
 import net.tridentsdk.server.entity.meta.EntityMetaType;
 import net.tridentsdk.server.net.NetClient;
@@ -53,6 +55,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -560,5 +563,23 @@ public class TridentPlayer extends TridentEntity implements Player {
                 }
             }
         }
+    }
+
+    @Override
+    public void runCommand(String command) {
+        try {
+            if (!ServerThreadPool.forSpec(PoolSpec.PLUGINS)
+                    .submit(() -> TridentServer.getInstance().getCmdHandler().dispatch(command, this)).get()) {
+                this.sendMessage(ChatComponent.create().setColor(ChatColor.RED).setText("No command found for " +
+                        command.split(" ")[0]));
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public CmdSourceType getCmdType() {
+        return CmdSourceType.PLAYER;
     }
 }

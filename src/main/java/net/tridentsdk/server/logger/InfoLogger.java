@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.tridentsdk.server.command;
+package net.tridentsdk.server.logger;
 
-import net.tridentsdk.command.logger.Logger;
+import net.tridentsdk.logger.Logger;
 import net.tridentsdk.doc.Policy;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -107,9 +107,9 @@ public class InfoLogger extends LoggerHandlers implements Logger {
      */
     private LogMessageImpl handle(String level, String s) {
         ZonedDateTime time = ZonedDateTime.now();
-        String[] components = new String[]{time.format(DATE_FORMAT),
+        String[] components = { time.format(DATE_FORMAT),
                 time.format(TIME_FORMAT),
-                "[" + this.name + "/" + level + "]"};
+                "[" + this.name + "/" + level + "]" };
         return super.handle(new LogMessageImpl(this, components, s, time));
     }
 

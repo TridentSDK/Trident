@@ -50,7 +50,7 @@ public class NetEpollServer extends NetServer {
 
     @Override
     public void shutdown() throws InterruptedException {
-        this.bossGroup.shutdownGracefully().await();
-        this.workerGroup.shutdownGracefully().await();
+        this.bossGroup.shutdownGracefully();
+        this.workerGroup.shutdownGracefully();
     }
 }

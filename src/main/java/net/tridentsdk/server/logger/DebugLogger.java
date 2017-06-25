@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.tridentsdk.server.command;
+package net.tridentsdk.server.logger;
 
 import javax.annotation.concurrent.Immutable;
 

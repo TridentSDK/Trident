@@ -17,7 +17,7 @@
 package net.tridentsdk.server.world;
 
 import lombok.Getter;
-import net.tridentsdk.command.logger.Logger;
+import net.tridentsdk.logger.Logger;
 import net.tridentsdk.doc.Policy;
 import net.tridentsdk.util.Misc;
 import net.tridentsdk.world.World;
