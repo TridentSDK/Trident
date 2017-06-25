@@ -96,41 +96,40 @@ public abstract class TridentTabList implements TabList {
      */
     @Override
     public void update() {
-        if (this.users.isEmpty())
-            return;
-
         PlayOutPlayerListHeaderAndFooter headerAndFooterPacket = new PlayOutPlayerListHeaderAndFooter(this.header, this.footer);
         PlayOutTabListItem.PlayOutTabListItemAddPlayer addPacket = PlayOutTabListItem.addPlayerPacket();
         PlayOutTabListItem.PlayOutTabListItemRemovePlayer removePacket = PlayOutTabListItem.removePlayerPacket();
         PlayOutTabListItem.PlayOutTabListItemUpdateDisplayName updatePacket = PlayOutTabListItem.updatePlayerPacket();
 
         Map<UUID, TabListElement> lastSeen = new LinkedHashMap<>();
-        Map<UUID, TabListElement> current = new LinkedHashMap<>();
+        Map<UUID, TabListElement> currentElements = new LinkedHashMap<>();
 
         this.lastSeen.forEach(e -> lastSeen.put(e.getUuid(), e));
         synchronized (this.lock) {
-            this.elements.forEach(e -> current.put(e.getUuid(), e));
+            this.elements.forEach(e -> currentElements.put(e.getUuid(), e));
         }
 
-        if (current.containsKey(null)) {
-            throw new IllegalStateException("tablist currently has a null uuid (= " + current.get(null) + ")");
+        if (currentElements.containsKey(null)) {
+            throw new IllegalStateException("tablist currently has a null uuid (= " + currentElements.get(null) + ")");
         }
 
         lastSeen.entrySet()
                 .stream()
-                .filter(e -> !current.containsKey(e.getKey()))
-                .forEach(e -> removePacket.removePlayer(e.getKey()));
+                .filter(e -> !currentElements.containsKey(e.getKey()))
+                .forEach(e -> {
+                    removePacket.removePlayer(e.getKey());
+                    currentElements.remove(e.getKey());
+                });
 
-        current.entrySet()
-                .stream()
-                .filter(e -> !lastSeen.containsKey(e.getKey()))
-                .forEach(e -> addPacket.addPlayer(e.getValue()));
-
-        current.entrySet()
-                .stream()
-                .filter(e -> lastSeen.containsKey(e.getKey()))
-                .filter(e -> !Objects.equals(e.getValue().getDisplayName(), lastSeen.get(e.getKey()).getDisplayName()))
-                .forEach(e -> updatePacket.update(e.getKey(), e.getValue().getDisplayName()));
+        currentElements.forEach((key, value) -> {
+            if (lastSeen.containsKey(key)) {
+                if (!Objects.equals(value.getDisplayName(), lastSeen.get(key).getDisplayName())) {
+                    updatePacket.update(key, value.getDisplayName());
+                }
+            } else {
+                addPacket.addPlayer(value);
+            }
+        });
 
         synchronized (this.lock) {
             this.lastSeen.clear();

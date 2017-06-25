@@ -285,6 +285,8 @@ public class TridentPlayer extends TridentEntity implements Player {
 
     @Override
     public void doRemove() {
+        players.remove(this.uuid);
+
         // If the player isn't in the list, they haven't
         // finished logging in yet; cleanup
         if (TridentPlayer.players.remove(this.uuid) == null) {
