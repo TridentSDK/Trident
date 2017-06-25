@@ -19,9 +19,9 @@ package net.tridentsdk.server.ui.tablist;
 import lombok.Data;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import net.tridentsdk.chat.ChatComponent;
 import net.tridentsdk.doc.Policy;
 import net.tridentsdk.server.player.TridentPlayer;
+import net.tridentsdk.ui.chat.ChatComponent;
 import net.tridentsdk.world.opt.GameMode;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -50,7 +50,7 @@ public class TabListElement {
     /**
      * The player's ping
      */
-    private volatile int ping = 0;
+    private volatile int ping;
     /**
      * The value that is displayed on the scoreboard
      */
@@ -63,7 +63,7 @@ public class TabListElement {
      * The tab list properties (such as skin textures)
      */
     @Policy("Single update")
-    private final List<PlayerProperty> properties;
+    private final List<TabListElement.PlayerProperty> properties;
 
     /**
      * Creates a new tab list element which can be filled
@@ -87,7 +87,7 @@ public class TabListElement {
         this.ping = (int) player.net().getPing();
         this.gameMode = player.getGameMode();
 
-        PlayerProperty textures = player.getSkinTextures();
+        TabListElement.PlayerProperty textures = player.getSkinTextures();
         if (textures != null) {
             this.properties = Collections.singletonList(textures);
         } else {

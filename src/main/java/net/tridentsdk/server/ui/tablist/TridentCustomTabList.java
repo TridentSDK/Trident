@@ -16,9 +16,9 @@
  */
 package net.tridentsdk.server.ui.tablist;
 
-import net.tridentsdk.chat.ChatComponent;
 import net.tridentsdk.server.packet.play.PlayOutTabListItem;
 import net.tridentsdk.server.player.TridentPlayer;
+import net.tridentsdk.ui.chat.ChatComponent;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.ArrayList;
@@ -130,7 +130,7 @@ public class TridentCustomTabList extends TridentTabList {
      * @return a filler name for the slot
      */
     private String getName(int slot) {
-        int count = (slot % MAX_NAME_LENGTH) + 1;
+        int count = slot % MAX_NAME_LENGTH + 1;
         int position = slot / MAX_NAME_LENGTH;
         return new String(new char[count]).replace("\0", String.valueOf(ALPHABET.charAt(position)));
     }

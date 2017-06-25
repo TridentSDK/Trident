@@ -17,7 +17,7 @@
 package net.tridentsdk.server.ui.title;
 
 import lombok.Getter;
-import net.tridentsdk.chat.ChatComponent;
+import net.tridentsdk.ui.chat.ChatComponent;
 import net.tridentsdk.ui.title.Title;
 
 import javax.annotation.concurrent.NotThreadSafe;

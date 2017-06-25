@@ -18,27 +18,29 @@ package net.tridentsdk.server;
 
 import net.tridentsdk.Impl;
 import net.tridentsdk.Server;
-import net.tridentsdk.logger.Logger;
+import net.tridentsdk.command.CmdHandler;
 import net.tridentsdk.doc.Debug;
+import net.tridentsdk.logger.Logger;
 import net.tridentsdk.plugin.Plugin;
-import net.tridentsdk.server.command.Kick;
-import net.tridentsdk.server.command.Stop;
-import net.tridentsdk.server.logger.InfoLogger;
-import net.tridentsdk.server.logger.PipelinedLogger;
+import net.tridentsdk.server.command.*;
 import net.tridentsdk.server.concurrent.PoolSpec;
 import net.tridentsdk.server.concurrent.ServerThreadPool;
 import net.tridentsdk.server.config.ConfigIo;
 import net.tridentsdk.server.config.ServerConfig;
+import net.tridentsdk.server.logger.InfoLogger;
+import net.tridentsdk.server.logger.PipelinedLogger;
 import net.tridentsdk.server.net.NetServer;
 import net.tridentsdk.server.packet.status.StatusOutResponse;
 import net.tridentsdk.server.util.JiraExceptionCatcher;
 import net.tridentsdk.server.world.TridentWorldLoader;
+import org.jline.reader.LineReader;
+import org.jline.reader.LineReaderBuilder;
+import org.jline.terminal.TerminalBuilder;
 
 import javax.annotation.concurrent.Immutable;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Scanner;
 
 /**
  * Trident server startup class
@@ -139,8 +141,13 @@ public final class TridentMain {
         ServerThreadPool.forSpec(PoolSpec.PLUGINS).submit(() -> {
             // Register commands ---------------------------
             logger.log("Registering server commands...");
-            trident.getCmdHandler().register(null, new Stop());
-            trident.getCmdHandler().register(null, new Kick());
+            CmdHandler h = trident.getCmdHandler();
+            h.register("minecraft", new Stop());
+            h.register("minecraft", new Kick());
+            h.register("minecraft", new Tp());
+            h.register("minecraft", new Say());
+            h.register("minecraft", new Help());
+            h.register("trident", new D());
             logger.log("Done.");
             // ---------------------------------------------
 
@@ -172,10 +179,21 @@ public final class TridentMain {
         server.setup();
         // -------------------------------------------------
 
+        // JLine -------------------------------------------
+        LineReader reader = LineReaderBuilder.
+                builder().
+                appName("Trident").
+                terminal(TerminalBuilder.
+                        builder().
+                        dumb(true).
+                        jansi(true).
+                        build()).
+                build();
+        // -------------------------------------------------
+
         // Command handler ---------------------------------
-        Scanner scanner = new Scanner(System.in);
         while (true) {
-            String line = scanner.nextLine();
+            String line = reader.readLine("$ ");
             if (line.isEmpty()) {
                 continue;
             }

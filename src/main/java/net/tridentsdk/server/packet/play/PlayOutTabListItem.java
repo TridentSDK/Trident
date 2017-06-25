@@ -18,9 +18,9 @@ package net.tridentsdk.server.packet.play;
 
 import io.netty.buffer.ByteBuf;
 import lombok.RequiredArgsConstructor;
-import net.tridentsdk.chat.ChatComponent;
 import net.tridentsdk.server.packet.PacketOut;
 import net.tridentsdk.server.ui.tablist.TabListElement;
+import net.tridentsdk.ui.chat.ChatComponent;
 import net.tridentsdk.world.opt.GameMode;
 
 import javax.annotation.concurrent.Immutable;
@@ -35,16 +35,16 @@ import static net.tridentsdk.server.net.NetData.wvint;
 /**
  * A tab list item update packet, which can perform any of
  * the operations that are listed in
- * {@link net.tridentsdk.server.packet.play.PlayOutTabListItem.PlayOutTabListItemActionType}.
+ * {@link PlayOutTabListItem.PlayOutTabListItemActionType}.
  */
 @Immutable
 public abstract class PlayOutTabListItem extends PacketOut {
     /**
      * The action type that is occuring
      */
-    private final PlayOutTabListItemActionType action;
+    private final PlayOutTabListItem.PlayOutTabListItemActionType action;
 
-    private PlayOutTabListItem(PlayOutTabListItemActionType action) {
+    private PlayOutTabListItem(PlayOutTabListItem.PlayOutTabListItemActionType action) {
         super(PlayOutTabListItem.class);
         this.action = action;
     }
@@ -73,7 +73,7 @@ public abstract class PlayOutTabListItem extends PacketOut {
         private final Collection<PlayerData> additions = new ConcurrentLinkedQueue<>();
 
         public PlayOutTabListItemAddPlayer() {
-            super(PlayOutTabListItemActionType.ADD_PLAYER);
+            super(PlayOutTabListItem.PlayOutTabListItemActionType.ADD_PLAYER);
         }
 
         public void addPlayer(UUID uuid, String name, GameMode gameMode, int ping, ChatComponent displayName) {
@@ -143,7 +143,7 @@ public abstract class PlayOutTabListItem extends PacketOut {
         private final Collection<UUID> removals = new ConcurrentLinkedQueue<>();
 
         public PlayOutTabListItemRemovePlayer() {
-            super(PlayOutTabListItemActionType.REMOVE_PLAYER);
+            super(PlayOutTabListItem.PlayOutTabListItemActionType.REMOVE_PLAYER);
         }
 
         public void removePlayer(UUID uuid) {
@@ -167,14 +167,14 @@ public abstract class PlayOutTabListItem extends PacketOut {
     }
 
     public static class PlayOutTabListItemUpdateDisplayName extends PlayOutTabListItem {
-        private final Collection<PlayerData> updates = new ConcurrentLinkedQueue<>();
+        private final Collection<PlayOutTabListItem.PlayOutTabListItemUpdateDisplayName.PlayerData> updates = new ConcurrentLinkedQueue<>();
 
         public PlayOutTabListItemUpdateDisplayName() {
-            super(PlayOutTabListItemActionType.UPDATE_DISPLAY_NAME);
+            super(PlayOutTabListItem.PlayOutTabListItemActionType.UPDATE_DISPLAY_NAME);
         }
 
         public void update(UUID uuid, ChatComponent displayName) {
-            PlayerData data = new PlayerData(uuid, displayName);
+            PlayOutTabListItem.PlayOutTabListItemUpdateDisplayName.PlayerData data = new PlayOutTabListItem.PlayOutTabListItemUpdateDisplayName.PlayerData(uuid, displayName);
             this.updates.add(data);
         }
 

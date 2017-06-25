@@ -17,16 +17,13 @@
 package net.tridentsdk.server.packet.play;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.base.Position;
-import net.tridentsdk.chat.*;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.packet.PacketIn;
 import net.tridentsdk.server.player.TridentPlayer;
-import net.tridentsdk.server.world.TridentChunk;
-import net.tridentsdk.ui.bossbar.BossBar;
-import net.tridentsdk.ui.bossbar.BossBarColor;
-import net.tridentsdk.ui.bossbar.BossBarDivision;
-import net.tridentsdk.ui.title.Title;
+import net.tridentsdk.ui.chat.ChatComponent;
+import net.tridentsdk.ui.chat.ChatType;
+import net.tridentsdk.ui.chat.ClickAction;
+import net.tridentsdk.ui.chat.ClickEvent;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -48,56 +45,16 @@ public final class PlayInChat extends PacketIn {
         TridentPlayer player = client.getPlayer();
         String msg = rstr(buf);
 
-        ChatComponent chat = ChatComponent.create()
-                .setTranslate("chat.type.text")
-                .addWith(ChatComponent.create()
-                        .setText(player.getName())
-                        .setClickEvent(ClickEvent.of(ClickAction.SUGGEST_COMMAND, "/tell " + player.getName() + " ")))
-                .addWith(msg);
-        TridentPlayer.getPlayers().values().forEach(p -> p.sendMessage(chat, ChatType.CHAT));
-
-        if (msg.toLowerCase().equals("chunks")) {
-            Position playerPosition = player.getPosition();
-            int chunkLoadRadius = 3;
-
-            for (int x = playerPosition.getChunkX() - chunkLoadRadius; x <= playerPosition.getChunkX() + chunkLoadRadius; x++) {
-                for (int z = playerPosition.getChunkZ() - chunkLoadRadius; z <= playerPosition.getChunkZ() + chunkLoadRadius; z++) {
-                    TridentChunk chunk = (TridentChunk) playerPosition.world().getChunkAt(x, z);
-                    client.sendPacket(new PlayOutChunk(chunk));
-                }
-            }
-        }
-
-        if (msg.toLowerCase().equals("bossbars")) {
-            int i = 0;
-            for (String word : "I hate my life".split(" ")) {
-                BossBar bb = BossBar.newBossBar();
-
-                bb.setTitle(ChatComponent.text(word).setColor(ChatColor.of((char) ('a' + i))));
-                bb.setColor(BossBarColor.values()[i]);
-                bb.setDivision(BossBarDivision.values()[i++]);
-                bb.setHealth(i * .25f);
-                bb.setDarkenSky(false);
-                bb.setDragonBar(false);
-
-                player.addBossBar(bb);
-            }
-        }
-
-        if (msg.toLowerCase().equals("title")) {
-            Title title = Title.newTitle();
-
-            title.setHeader(ChatComponent.create().setColor(ChatColor.AQUA).setText("henlo player"));
-            title.setSubtitle(ChatComponent.create().setColor(ChatColor.GOLD).setText("hello u STINKY PLAYER"));
-            title.setFadeIn(0);
-            title.setStay(60);
-            title.setFadeOut(0);
-
-            player.sendTitle(title);
-        }
-
-        if (msg.toLowerCase().equals("cleartitle")) {
-            player.resetTitle();
+        if (msg.startsWith("/")) {
+            player.runCommand(msg.replaceFirst("/", ""));
+        } else {
+            ChatComponent chat = ChatComponent.create()
+                    .setTranslate("chat.type.text")
+                    .addWith(ChatComponent.create()
+                            .setText(player.getName())
+                            .setClickEvent(ClickEvent.of(ClickAction.SUGGEST_COMMAND, "/tell " + player.getName() + " ")))
+                    .addWith(msg);
+            TridentPlayer.getPlayers().values().forEach(p -> p.sendMessage(chat, ChatType.CHAT));
         }
     }
 }

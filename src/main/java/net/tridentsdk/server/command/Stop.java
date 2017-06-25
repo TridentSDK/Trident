@@ -16,26 +16,19 @@
  */
 package net.tridentsdk.server.command;
 
-import net.tridentsdk.chat.ChatColor;
-import net.tridentsdk.chat.ChatComponent;
 import net.tridentsdk.command.*;
-import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.server.TridentServer;
 
-/**
- * Command used to stop the server.
- */
+import javax.annotation.concurrent.Immutable;
+
+@Immutable
 public class Stop implements CmdListener {
-    @Cmd(name = "stop", help = "/help", desc = "Stops the server and shuts-down")
+    @Cmd(name = "stop", help = "/stop", desc = "Stops the server and shuts-down")
     @Alias({ "shutdown", "fuck" })
     @Constrain(value = SourceConstraint.class,
             type = ConstraintType.SOURCE,
             src = { CmdSourceType.CONSOLE, CmdSourceType.PLAYER })
     public void stop(String label, CmdSource source, String[] args) {
-        for (Player player : TridentServer.getInstance().getPlayers()) {
-            player.sendMessage(ChatComponent.create().setColor(ChatColor.GRAY).setText("[CONSOLE] Manual shutdown initiated..."));
-        }
-
         TridentServer.getInstance().shutdown();
     }
 }

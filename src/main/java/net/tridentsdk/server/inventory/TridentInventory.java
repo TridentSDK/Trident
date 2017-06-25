@@ -17,10 +17,10 @@
 package net.tridentsdk.server.inventory;
 
 import lombok.Getter;
-import net.tridentsdk.chat.ChatComponent;
 import net.tridentsdk.inventory.Inventory;
 import net.tridentsdk.inventory.InventoryType;
 import net.tridentsdk.inventory.Item;
+import net.tridentsdk.ui.chat.ChatComponent;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;

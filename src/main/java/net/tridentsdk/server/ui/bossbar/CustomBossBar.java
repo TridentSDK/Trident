@@ -17,10 +17,10 @@
 package net.tridentsdk.server.ui.bossbar;
 
 import lombok.NoArgsConstructor;
-import net.tridentsdk.chat.ChatComponent;
 import net.tridentsdk.server.util.BitUtils;
 import net.tridentsdk.ui.bossbar.BossBarColor;
 import net.tridentsdk.ui.bossbar.BossBarDivision;
+import net.tridentsdk.ui.chat.ChatComponent;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.concurrent.atomic.AtomicBoolean;

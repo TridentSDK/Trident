@@ -19,36 +19,32 @@ package net.tridentsdk.server.command;
 import net.tridentsdk.command.*;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.player.TridentPlayer;
-import net.tridentsdk.ui.chat.ChatColor;
 import net.tridentsdk.ui.chat.ChatComponent;
 
 import javax.annotation.concurrent.Immutable;
-import java.util.Optional;
 
 @Immutable
-public class Kick implements CmdListener {
-    @Cmd(name = "kick", help = "/kick <player> [reason]", desc = "Kicks a player from the server")
+public class Say implements CmdListener {
+    @Cmd(name = "say", help = "/say <message>", desc = "Broadcasts a message to all players")
     @Constrain(value = MinArgsConstraint.class, type = ConstraintType.INT, integer = 1)
-    public void kick(String label, CmdSource source, String[] args) {
-        String player = args[0];
+    public void say(String label, CmdSource source, String[] args) {
         StringBuilder builder = new StringBuilder();
-        for (int i = 1; i < args.length; i++) {
-            builder.append(args[i]).append(' ');
+        for (String arg : args) {
+            builder.append(arg).append(' ');
         }
-        String reason = builder.toString();
-        reason = reason.isEmpty() ? "Kicked by an operator." : reason;
 
-        Optional<TridentPlayer> p = TridentPlayer.getPlayers().values().
-                stream().
-                filter(pl -> pl.getName().equals(player)).
-                findFirst();
-
-        if (!p.isPresent()) {
-            source.sendMessage(ChatComponent.create().setColor(ChatColor.RED).
-                    setText("No player by the name \"" + player + "\" is online"));
+        if (source.getCmdType() == CmdSourceType.PLAYER) {
+            String msg = '[' + ((TridentPlayer) source).getName() + "] " + builder;
+            for (TridentPlayer player : TridentPlayer.getPlayers().values()) {
+                player.sendMessage(ChatComponent.create().setText(msg));
+            }
+            TridentServer.getInstance().getLogger().log(msg);
         } else {
-            p.get().kick(ChatComponent.text(reason));
-            TridentServer.getInstance().getLogger().log("Kicked player " + player + " for: " + reason);
+            String msg = "[Server] " + builder;
+            for (TridentPlayer player : TridentPlayer.getPlayers().values()) {
+                player.sendMessage(ChatComponent.create().setText(msg));
+            }
+            TridentServer.getInstance().getLogger().log(msg);
         }
     }
 }

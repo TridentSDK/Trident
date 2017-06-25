@@ -17,11 +17,11 @@
 package net.tridentsdk.server.ui.tablist;
 
 import lombok.Getter;
-import net.tridentsdk.chat.ChatComponent;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.server.packet.play.PlayOutPlayerListHeaderAndFooter;
 import net.tridentsdk.server.packet.play.PlayOutTabListItem;
 import net.tridentsdk.server.player.TridentPlayer;
+import net.tridentsdk.ui.chat.ChatComponent;
 import net.tridentsdk.ui.tablist.TabList;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -94,6 +94,7 @@ public abstract class TridentTabList implements TabList {
     /**
      * Sends the tab list to all subscribed players.
      */
+    @Override
     public void update() {
         if (this.users.isEmpty())
             return;

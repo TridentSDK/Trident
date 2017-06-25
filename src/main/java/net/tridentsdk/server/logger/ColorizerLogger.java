@@ -16,7 +16,7 @@
  */
 package net.tridentsdk.server.logger;
 
-import net.tridentsdk.chat.ChatColor;
+import net.tridentsdk.ui.chat.ChatColor;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -59,7 +59,7 @@ public class ColorizerLogger extends PipelinedLogger {
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < sq.length; i++) {
             char c = sq[i];
-            if (c == '\u00A7') {
+            if (c == ChatColor.getEscape()) {
                 int codeIdx = ++i;
                 if (codeIdx >= sq.length) {
                     break;
@@ -133,6 +133,8 @@ public class ColorizerLogger extends PipelinedLogger {
                         case RESET:
                             builder.append(RESET);
                             break;
+                        default:
+                            builder.append(ChatColor.getEscape()).append(sq[codeIdx]);
                     }
                 }
             } else {
@@ -140,7 +142,7 @@ public class ColorizerLogger extends PipelinedLogger {
             }
         }
 
-        msg.setMessage(builder.toString() + RESET);
+        msg.setMessage(builder + RESET);
         return msg;
     }
 

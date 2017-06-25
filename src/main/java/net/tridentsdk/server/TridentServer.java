@@ -18,7 +18,6 @@ package net.tridentsdk.server;
 
 import lombok.Getter;
 import net.tridentsdk.Server;
-import net.tridentsdk.chat.ChatComponent;
 import net.tridentsdk.command.CmdHandler;
 import net.tridentsdk.command.CmdSourceType;
 import net.tridentsdk.doc.Policy;
@@ -35,6 +34,7 @@ import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.plugin.TridentEventController;
 import net.tridentsdk.server.util.JiraExceptionCatcher;
 import net.tridentsdk.server.world.TridentWorldLoader;
+import net.tridentsdk.ui.chat.ChatComponent;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.io.IOException;
@@ -187,6 +187,8 @@ public class TridentServer implements Server {
         this.logger.warn("SERVER SHUTTING DOWN...");
         this.shutdownState = true;
         try {
+            this.logger.log("Kicking players...");
+            TridentPlayer.getPlayers().values().forEach(p -> p.kick(ChatComponent.text("Server closed")));
             this.logger.log("Unloading plugins...");
             if (!this.pluginLoader.unloadAll()) {
                 this.logger.error("Unloading plugins failed...");
@@ -204,10 +206,12 @@ public class TridentServer implements Server {
         }
 
         this.logger.success("Server has shutdown successfully.");
+        System.exit(0);
     }
 
     @Override
     public void runCommand(String command) {
+        this.logger.log("Server command issued by console: /" + command);
         try {
             if (!ServerThreadPool.forSpec(PoolSpec.PLUGINS).submit(() -> this.cmdHandler.dispatch(command, this)).get()) {
                 this.logger.log("No command \"" + command.split(" ")[0] + "\" found");
@@ -219,7 +223,17 @@ public class TridentServer implements Server {
 
     @Override
     public void sendMessage(ChatComponent text) {
-        this.logger.log(text.getColor() + text.getText());
+        StringBuilder builder = new StringBuilder();
+        builder.append(text.getColor()).append(text.getText());
+        for (ChatComponent e : text.getExtra()) {
+            if (e.getColor() != null) {
+                builder.append(e.getColor());
+            }
+
+            builder.append(e.getText());
+        }
+
+        this.logger.log(builder.toString());
     }
 
     @Override

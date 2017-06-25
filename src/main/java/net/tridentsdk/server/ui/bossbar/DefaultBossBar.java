@@ -16,9 +16,9 @@
  */
 package net.tridentsdk.server.ui.bossbar;
 
-import net.tridentsdk.chat.ChatComponent;
 import net.tridentsdk.ui.bossbar.BossBarColor;
 import net.tridentsdk.ui.bossbar.BossBarDivision;
+import net.tridentsdk.ui.chat.ChatComponent;
 
 /**
  * @author TridentSDK

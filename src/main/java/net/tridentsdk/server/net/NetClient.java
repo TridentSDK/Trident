@@ -23,7 +23,6 @@ import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 import lombok.Getter;
 import lombok.Setter;
-import net.tridentsdk.chat.ChatComponent;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.packet.PacketOut;
 import net.tridentsdk.server.packet.login.LoginOutCompression;
@@ -31,6 +30,7 @@ import net.tridentsdk.server.packet.login.LoginOutDisconnect;
 import net.tridentsdk.server.packet.play.PlayOutDisconnect;
 import net.tridentsdk.server.packet.play.PlayOutKeepAlive;
 import net.tridentsdk.server.player.TridentPlayer;
+import net.tridentsdk.ui.chat.ChatComponent;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.net.SocketAddress;
@@ -105,7 +105,7 @@ public class NetClient {
      */
     @Getter
     @Setter
-    private volatile NetState state;
+    private volatile NetClient.NetState state;
     /**
      * The name of the player that represents this client
      */
@@ -159,7 +159,7 @@ public class NetClient {
      */
     public NetClient(ChannelHandlerContext ctx) {
         this.channel = ctx.channel();
-        this.state = NetState.HANDSHAKE;
+        this.state = NetClient.NetState.HANDSHAKE;
         this.channel.closeFuture().addListener(this.futureListener);
     }
 
@@ -260,11 +260,11 @@ public class NetClient {
     public void disconnect(ChatComponent reason) {
         this.channel.closeFuture().removeListener(this.futureListener);
 
-        NetState state = this.state;
-        if (state == NetState.LOGIN) {
+        NetClient.NetState state = this.state;
+        if (state == NetClient.NetState.LOGIN) {
             this.sendPacket(new LoginOutDisconnect(reason))
                     .addListener(future -> this.channel.close());
-        } else if (state == NetState.PLAY) {
+        } else if (state == NetClient.NetState.PLAY) {
             this.sendPacket(new PlayOutDisconnect(reason))
                     .addListener(future -> this.channel.close());
             this.player.remove();

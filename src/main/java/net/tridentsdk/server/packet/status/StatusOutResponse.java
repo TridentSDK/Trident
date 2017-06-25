@@ -19,12 +19,12 @@ package net.tridentsdk.server.packet.status;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.chat.ChatComponent;
 import net.tridentsdk.logger.Logger;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.config.ServerConfig;
 import net.tridentsdk.server.packet.PacketOut;
 import net.tridentsdk.server.player.TridentPlayer;
+import net.tridentsdk.ui.chat.ChatComponent;
 
 import javax.annotation.concurrent.Immutable;
 import javax.imageio.ImageIO;
@@ -86,7 +86,7 @@ public final class StatusOutResponse extends PacketOut {
                         eventKey.pollEvents().forEach(e -> {
                             if (!e.context().equals(iconPath))
                                 return;
-                            logger.log("server-icon.png fired an event: " + e.kind().toString());
+                            logger.log("server-icon.png fired an event: " + e.kind());
                             if (e.kind() == ENTRY_CREATE || e.kind() == ENTRY_MODIFY) {
                                 try {
                                     loadIcon();

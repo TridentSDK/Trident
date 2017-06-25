@@ -17,12 +17,12 @@
 package net.tridentsdk.server.packet.play;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.chat.ClientChatMode;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.net.NetData;
 import net.tridentsdk.server.packet.PacketIn;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.player.TridentPlayerMeta;
+import net.tridentsdk.ui.chat.ClientChatMode;
 
 /**
  * @author TridentSDK

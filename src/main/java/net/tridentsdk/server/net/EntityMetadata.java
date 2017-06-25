@@ -23,7 +23,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import net.tridentsdk.base.BlockDirection;
 import net.tridentsdk.base.Vector;
-import net.tridentsdk.chat.ChatComponent;
+import net.tridentsdk.ui.chat.ChatComponent;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.ArrayList;
@@ -38,25 +38,25 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 @ThreadSafe
 public class EntityMetadata {
-    private final List<EntityMetadataItem> items = Collections.synchronizedList(new ArrayList<>());
+    private final List<EntityMetadata.EntityMetadataItem> items = Collections.synchronizedList(new ArrayList<>());
 
-    public EntityMetadataItem get(int x) {
+    public EntityMetadata.EntityMetadataItem get(int x) {
         return this.items.get(x);
     }
 
-    public void add(EntityMetadataItem item) {
+    public void add(EntityMetadata.EntityMetadataItem item) {
         this.items.add(item);
     }
 
-    public void add(int index, EntityMetadataType type, Object value) {
-        this.items.add(new EntityMetadataItem(index, type, new AtomicReference<>(type.cast(value))));
+    public void add(int index, EntityMetadata.EntityMetadataType type, Object value) {
+        this.items.add(new EntityMetadata.EntityMetadataItem(index, type, new AtomicReference<>(type.cast(value))));
     }
 
     public void read(ByteBuf buf) {
-        List<EntityMetadataItem> items = new ArrayList<>();
+        List<EntityMetadata.EntityMetadataItem> items = new ArrayList<>();
         short id;
         while ((id = buf.readUnsignedByte()) != 0xFF) {
-            EntityMetadataType type = EntityMetadataType.values()[id];
+            EntityMetadata.EntityMetadataType type = EntityMetadata.EntityMetadataType.values()[id];
             Object value = null;
             switch (type) {
                 case BYTE:
@@ -119,7 +119,7 @@ public class EntityMetadata {
                     break;
             }
             if (value != null) {
-                items.add(new EntityMetadataItem(id, type, new AtomicReference<>(value)));
+                items.add(new EntityMetadata.EntityMetadataItem(id, type, new AtomicReference<>(value)));
             }
         }
         this.items.clear();
@@ -127,9 +127,9 @@ public class EntityMetadata {
     }
 
     public void write(ByteBuf buf) {
-        List<EntityMetadataItem> items = this.items;
+        List<EntityMetadata.EntityMetadataItem> items = this.items;
 
-        for (EntityMetadataItem item : items) {
+        for (EntityMetadata.EntityMetadataItem item : items) {
             buf.writeByte(item.index);
             buf.writeByte(item.type.id);
 
@@ -191,7 +191,7 @@ public class EntityMetadata {
     @AllArgsConstructor
     public static final class EntityMetadataItem {
         private final int index;
-        private final EntityMetadataType type;
+        private final EntityMetadata.EntityMetadataType type;
         private final AtomicReference<Object> value;
 
         public void set(Object value) {
@@ -207,7 +207,7 @@ public class EntityMetadata {
         }
 
         public boolean asBit(int x) {
-            return (this.asByte() & (1 << x)) != 0;
+            return (this.asByte() & 1 << x) != 0;
         }
 
         public void setBit(int x, boolean value) {
@@ -215,7 +215,7 @@ public class EntityMetadata {
             byte newVal;
             do {
                 val = newVal = (byte) this.value.get();
-                if ((val & (1 << x)) != 0 == value)
+                if ((val & 1 << x) != 0 == value)
                     return;
 
                 if (value) {

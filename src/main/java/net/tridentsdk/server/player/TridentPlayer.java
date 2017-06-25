@@ -20,10 +20,6 @@ import lombok.Getter;
 import lombok.Setter;
 import net.tridentsdk.base.BlockDirection;
 import net.tridentsdk.base.Position;
-import net.tridentsdk.chat.ChatColor;
-import net.tridentsdk.chat.ChatComponent;
-import net.tridentsdk.chat.ChatType;
-import net.tridentsdk.chat.ClientChatMode;
 import net.tridentsdk.command.CmdSourceType;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.player.PlayerJoinEvent;
@@ -41,6 +37,10 @@ import net.tridentsdk.server.ui.tablist.TridentGlobalTabList;
 import net.tridentsdk.server.ui.tablist.TridentTabList;
 import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.ui.bossbar.BossBar;
+import net.tridentsdk.ui.chat.ChatColor;
+import net.tridentsdk.ui.chat.ChatComponent;
+import net.tridentsdk.ui.chat.ChatType;
+import net.tridentsdk.ui.chat.ClientChatMode;
 import net.tridentsdk.ui.tablist.TabList;
 import net.tridentsdk.ui.title.Title;
 import net.tridentsdk.world.IntPair;
@@ -419,15 +419,13 @@ public class TridentPlayer extends TridentEntity implements Player {
 
     @Override
     public void resetTitle() {
-        this.net().sendPacket(new PlayOutTitle.SetTitle((ChatComponent) null));
-        this.net().sendPacket(new PlayOutTitle.SetSubtitle((ChatComponent) null));
-        this.net().sendPacket(new PlayOutTitle.SetTiming());
+        this.net().sendPacket(new PlayOutTitle.Hide());
     }
 
     @Override
     public void setPosition(Position position) {
         Position pos = this.getPosition();
-        // TODO this is dumb
+        // TODO this is dumb, needs teleport packet as well
         if (position.getChunkX() != pos.getChunkX()) {
             this.updateChunks(position.getChunkX() > pos.getChunkX() ? BlockDirection.EAST : BlockDirection.WEST);
         } else if (position.getChunkZ() != pos.getChunkZ()) {
@@ -570,6 +568,7 @@ public class TridentPlayer extends TridentEntity implements Player {
 
     @Override
     public void runCommand(String command) {
+        TridentServer.getInstance().getLogger().log(this.name + " issued server command: /" + command);
         try {
             if (!ServerThreadPool.forSpec(PoolSpec.PLUGINS)
                     .submit(() -> TridentServer.getInstance().getCmdHandler().dispatch(command, this)).get()) {

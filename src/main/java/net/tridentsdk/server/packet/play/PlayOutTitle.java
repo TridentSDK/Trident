@@ -17,8 +17,8 @@
 package net.tridentsdk.server.packet.play;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.chat.ChatComponent;
 import net.tridentsdk.server.packet.PacketOut;
+import net.tridentsdk.ui.chat.ChatComponent;
 import net.tridentsdk.ui.title.Title;
 
 import static net.tridentsdk.server.net.NetData.wstr;

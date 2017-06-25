@@ -17,9 +17,9 @@
 package net.tridentsdk.server.ui.tablist;
 
 import lombok.Getter;
-import net.tridentsdk.chat.ChatComponent;
 import net.tridentsdk.doc.Policy;
 import net.tridentsdk.server.player.TridentPlayer;
+import net.tridentsdk.ui.chat.ChatComponent;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Collection;
