@@ -21,6 +21,7 @@ import net.tridentsdk.Server;
 import net.tridentsdk.logger.Logger;
 import net.tridentsdk.doc.Debug;
 import net.tridentsdk.plugin.Plugin;
+import net.tridentsdk.server.command.Kick;
 import net.tridentsdk.server.command.Stop;
 import net.tridentsdk.server.logger.InfoLogger;
 import net.tridentsdk.server.logger.PipelinedLogger;
@@ -95,8 +96,8 @@ public final class TridentMain {
             logger.warn("File \"server.json\" not present");
             logger.log("Creating one for you... ");
             ConfigIo.exportResource(ServerConfig.PATH, "/server.json");
-            logger.success("Done.");
         }
+        logger.success("Done.");
 
         logger.log("Reading server.json...");
         ServerConfig config = ServerConfig.init();
@@ -107,8 +108,8 @@ public final class TridentMain {
             logger.warn("File \"plugins\" not present");
             logger.log("Creating one for you... ");
             Files.createDirectory(Plugin.PLUGIN_DIR);
-            logger.success("Done.");
         }
+        logger.success("Done.");
         // -------------------------------------------------
 
         // Pass net args to the server handler -------------
@@ -139,6 +140,7 @@ public final class TridentMain {
             // Register commands ---------------------------
             logger.log("Registering server commands...");
             trident.getCmdHandler().register(null, new Stop());
+            trident.getCmdHandler().register(null, new Kick());
             logger.log("Done.");
             // ---------------------------------------------
 
@@ -174,6 +176,10 @@ public final class TridentMain {
         Scanner scanner = new Scanner(System.in);
         while (true) {
             String line = scanner.nextLine();
+            if (line.isEmpty()) {
+                continue;
+            }
+
             trident.runCommand(line);
 
             if (trident.isShutdownState()) {

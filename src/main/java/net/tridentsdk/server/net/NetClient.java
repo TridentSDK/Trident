@@ -141,6 +141,17 @@ public class NetClient {
      * alive
      */
     private final AtomicLong lastKeepAlive = new AtomicLong(System.nanoTime());
+    /**
+     * The close future which cleans up the player for an
+     * unexpected loss of connection.
+     */
+    private final GenericFutureListener<Future<Void>> futureListener = new GenericFutureListener<Future<Void>>() {
+        @Override
+        public void operationComplete(Future<Void> future) throws Exception {
+            NetClient.this.disconnect(EMPTY);
+            future.removeListener(this);
+        }
+    };
 
     /**
      * Creates a new netclient that represents a client's
@@ -149,13 +160,7 @@ public class NetClient {
     public NetClient(ChannelHandlerContext ctx) {
         this.channel = ctx.channel();
         this.state = NetState.HANDSHAKE;
-        this.channel.closeFuture().addListener(new GenericFutureListener<Future<Void>>() {
-            @Override
-            public void operationComplete(Future<Void> future) throws Exception {
-                NetClient.this.disconnect(EMPTY);
-                future.removeListener(this);
-            }
-        });
+        this.channel.closeFuture().addListener(this.futureListener);
     }
 
     /**
@@ -253,6 +258,8 @@ public class NetClient {
      * @param reason the reason for disconnecting
      */
     public void disconnect(ChatComponent reason) {
+        this.channel.closeFuture().removeListener(this.futureListener);
+
         NetState state = this.state;
         if (state == NetState.LOGIN) {
             this.sendPacket(new LoginOutDisconnect(reason))
@@ -261,7 +268,6 @@ public class NetClient {
             this.sendPacket(new PlayOutDisconnect(reason))
                     .addListener(future -> this.channel.close());
             this.player.remove();
-
         } else {
             this.channel.close();
         }

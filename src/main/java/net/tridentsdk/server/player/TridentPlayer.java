@@ -242,6 +242,8 @@ public class TridentPlayer extends TridentEntity implements Player {
                 .addWith(this.name);
         this.sendMessage(chat, ChatType.CHAT);
 
+        TridentServer.getInstance().getLogger().log("Player " + this.name + " [" + this.uuid + "] has connected");
+
         TridentPlayer.players.values()
                 .stream()
                 .filter(p -> !p.equals(this))
@@ -297,6 +299,7 @@ public class TridentPlayer extends TridentEntity implements Player {
                 .setTranslate("multiplayer.player.left")
                 .addWith(this.name);
         TridentPlayer.players.values().forEach(e -> e.sendMessage(chat, ChatType.CHAT));
+        TridentServer.getInstance().getLogger().log("Player " + this.name + " [" + this.uuid + "] has disconnected");
     }
 
     @Override
@@ -308,8 +311,8 @@ public class TridentPlayer extends TridentEntity implements Player {
     @Override
     public void sendMessage(ChatComponent chat, ChatType type) {
         ClientChatMode chatMode = this.chatMode;
-        if (ClientChatMode.COMMANDS_ONLY.equals(chatMode) && ChatType.SYSTEM.equals(type)
-                || ClientChatMode.CHAT_AND_COMMANDS.equals(chatMode)) {
+        if (ClientChatMode.COMMANDS_ONLY == chatMode && ChatType.SYSTEM == type
+                || ClientChatMode.CHAT_AND_COMMANDS == chatMode) {
             this.net().sendPacket(new PlayOutChat(chat, type, this.chatColors));
         }
     }
