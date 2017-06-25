@@ -413,13 +413,13 @@ public class TridentPlayer extends TridentEntity implements Player {
         ChatComponent mainTitle = title.getHeader();
         ChatComponent subtitle = title.getSubtitle();
 
-        this.net().sendPacket(new PlayOutTitle.SetTitle(mainTitle));
         this.net().sendPacket(new PlayOutTitle.SetSubtitle(subtitle));
+        this.net().sendPacket(new PlayOutTitle.SetTitle(mainTitle));
     }
 
     @Override
     public void resetTitle() {
-        this.net().sendPacket(new PlayOutTitle.Hide());
+        this.net().sendPacket(new PlayOutTitle.Reset());
     }
 
     @Override
