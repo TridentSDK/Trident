@@ -18,14 +18,13 @@
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.docs.Volatile;
+import net.tridentsdk.docs.Policy;
+import net.tridentsdk.inventory.InventoryType;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
-import net.tridentsdk.window.inventory.InventoryType;
 
-@Volatile(policy = "Do not instantiate", reason = "Only used in TridentWindow.java", fix = "Use the Window instead")
+@Policy("No instantiation; Use Inventory only to correctly handle")
 public class PacketPlayOutOpenWindow extends OutPacket {
-
     protected int windowId;
     protected InventoryType inventoryType;
     protected String windowTitle;
@@ -34,7 +33,7 @@ public class PacketPlayOutOpenWindow extends OutPacket {
 
     @Override
     public int id() {
-        return 0x2D;
+        return 0x13;
     }
 
     public int windowId() {

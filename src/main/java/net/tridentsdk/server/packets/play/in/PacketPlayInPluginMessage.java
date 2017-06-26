@@ -18,8 +18,9 @@
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Handler;
 import net.tridentsdk.plugin.channel.PluginChannel;
+import net.tridentsdk.registry.Registered;
+import net.tridentsdk.server.concurrent.TickSync;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.InPacket;
@@ -41,7 +42,7 @@ public class PacketPlayInPluginMessage extends InPacket {
 
     @Override
     public int id() {
-        return 0x17;
+        return 0x09;
     }
 
     public String channel() {
@@ -64,10 +65,10 @@ public class PacketPlayInPluginMessage extends InPacket {
 
     @Override
     public void handleReceived(ClientConnection connection) {
-        PluginChannel channel = Handler.forChannels().forChannel(this.channel);
+        PluginChannel channel = Registered.channels().fromName(this.channel);
 
         if (channel != null) {
-            channel.process(this.data);
+            TickSync.sync(() -> channel.read(this.data));
         }
     }
 }

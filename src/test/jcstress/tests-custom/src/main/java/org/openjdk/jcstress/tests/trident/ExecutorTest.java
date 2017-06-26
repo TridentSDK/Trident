@@ -25,34 +25,23 @@
 
 package org.openjdk.jcstress.tests.trident;
 
+import java.util.concurrent.atomic.AtomicReference;
 
-import net.tridentsdk.factory.CollectFactory;
-import net.tridentsdk.factory.Factories;
-import net.tridentsdk.server.TridentTaskScheduler;
-import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
-import net.tridentsdk.server.threads.ThreadsHandler;
-import org.openjdk.jcstress.annotations.*;
+import org.openjdk.jcstress.annotations.Actor;
+import org.openjdk.jcstress.annotations.Arbiter;
+import org.openjdk.jcstress.annotations.Expect;
+import org.openjdk.jcstress.annotations.JCStressTest;
+import org.openjdk.jcstress.annotations.Outcome;
 import org.openjdk.jcstress.infra.results.BooleanResult1;
 
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicReference;
+import net.tridentsdk.server.concurrent.ConcurrentTaskExecutor;
 
 @JCStressTest
 @Outcome(id = "[true]", expect = Expect.ACCEPTABLE, desc = "Executor does its job")
 @Outcome(expect = Expect.FORBIDDEN)
 public class ExecutorTest {
-    static {
-        Factories.init(new CollectFactory() {
-            @Override
-            public <K, V> ConcurrentMap<K, V> createMap() {
-                return new ConcurrentHashMap<>();
-            }
-        });
-        Factories.init(ThreadsHandler.create());
-        Factories.init(TridentTaskScheduler.create());
-    }
 
-    private final ConcurrentTaskExecutor<?> factory = ConcurrentTaskExecutor.create(2, "test");
+    private final ConcurrentTaskExecutor factory = ConcurrentTaskExecutor.create(2, "test");
     private final AtomicReference<State> reference = new AtomicReference<>();
 
     @Actor

@@ -18,14 +18,16 @@
 package net.tridentsdk.server.netty;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
-import net.tridentsdk.Handler;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.entity.living.Player;
-import net.tridentsdk.event.player.PlayerDisconnectEvent;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.protocol.Protocol;
+import net.tridentsdk.server.packets.login.LoginHandler;
+import net.tridentsdk.server.packets.login.PacketLoginOutDisconnect;
 import net.tridentsdk.server.packets.login.PacketLoginOutSetCompression;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutDisconnect;
 import net.tridentsdk.server.player.PlayerConnection;
@@ -37,6 +39,9 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.SecureRandom;
 import java.util.UUID;
@@ -62,7 +67,18 @@ public class ClientConnection {
     /**
      * The RSA cipher used to encrypt client data
      */
-    protected static final Cipher cipher = getCipher();
+    protected final ThreadLocal<Cipher> encryptCipher = new ThreadLocal<Cipher>() {
+        @Override
+        protected Cipher initialValue() {
+            return getCipher();
+        }
+    };
+    protected final ThreadLocal<Cipher> decryptCipher = new ThreadLocal<Cipher>() {
+        @Override
+        protected Cipher initialValue() {
+            return getCipher();
+        }
+    };
 
     /* Network fields */
     private final Object BARRIER;
@@ -101,18 +117,30 @@ public class ClientConnection {
      */
     protected volatile boolean compressionEnabled = false;
     private volatile UUID uuid;
-    private IvParameterSpec ivSpec;
+    private volatile IvParameterSpec ivSpec;
 
     /**
      * Creates a new connection handler for the joining channel stream
      */
     protected ClientConnection(Channel channel) {
-        BARRIER = new Object();
         this.address = (InetSocketAddress) channel.remoteAddress();
         this.channel = channel;
+        BARRIER = new Object();
+
         this.encryptionEnabled = false;
         this.stage = Protocol.ClientStage.HANDSHAKE;
         channel.closeFuture().addListener(future -> logout());
+        channel.pipeline().addLast(new ChannelHandlerAdapter() {
+            @Override
+            public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+                if (cause.getMessage().toLowerCase().contains("connection reset")) {
+                    logout();
+                    return;
+                }
+
+                super.exceptionCaught(ctx, cause);
+            }
+        });
     }
 
     protected ClientConnection() {
@@ -123,7 +151,7 @@ public class ClientConnection {
         try {
             return Cipher.getInstance("AES/CFB8/NoPadding");
         } catch (Exception ex) {
-            TridentLogger.error(ex);
+            TridentLogger.get().error(ex);
         }
 
         return null;
@@ -179,16 +207,16 @@ public class ClientConnection {
         // Create new ByteBuf
         ByteBuf buffer = this.channel.alloc().buffer();
 
-        // TridentLogger.log("Sent " + packet.getClass().getSimpleName());
-
         Codec.writeVarInt32(buffer, packet.id());
         packet.encode(buffer);
+        TridentLogger.get().debug(packet.getClass().getSimpleName() + " sent");
 
         // Write the packet and flush it
         this.channel.write(buffer);
         this.channel.flush();
 
-        if (packet instanceof PacketPlayOutDisconnect) {
+        if (packet instanceof PacketPlayOutDisconnect
+                || packet instanceof PacketLoginOutDisconnect) {
             logout();
         }
     }
@@ -200,10 +228,13 @@ public class ClientConnection {
      * @return the encrypted data
      * @throws Exception if something wrong occurs
      */
-    public byte[] encrypt(byte... data) throws Exception {
-        cipher.init(Cipher.ENCRYPT_MODE, this.sharedSecret, this.ivSpec);
+    public ByteBuf encrypt(ByteBuf data) throws Exception {
+        ByteBuffer out = ByteBuffer.allocate(data.readableBytes());
 
-        return cipher.doFinal(data);
+        encryptCipher.get().update(data.nioBuffer(), out);
+        out.flip();
+
+        return Unpooled.wrappedBuffer(out);
     }
 
     /**
@@ -213,10 +244,13 @@ public class ClientConnection {
      * @return the decrypted data
      * @throws Exception if something wrong occurs
      */
-    public byte[] decrypt(byte... data) throws Exception {
-        cipher.init(Cipher.DECRYPT_MODE, this.sharedSecret, this.ivSpec);
+    public ByteBuf decrypt(ByteBuf data) throws Exception {
+        ByteBuffer out = ByteBuffer.allocate(data.readableBytes());
 
-        return cipher.doFinal(data);
+        decryptCipher.get().update(data.nioBuffer(), out);
+        out.flip();
+
+        return Unpooled.wrappedBuffer(out);
     }
 
     /**
@@ -239,6 +273,13 @@ public class ClientConnection {
             this.sharedSecret = new SecretKeySpec(secret, "AES");
             this.ivSpec = new IvParameterSpec(this.sharedSecret.getEncoded());
             this.encryptionEnabled = true;
+
+            try {
+                encryptCipher.get().init(Cipher.ENCRYPT_MODE, sharedSecret, ivSpec);
+                decryptCipher.get().init(Cipher.DECRYPT_MODE, sharedSecret, ivSpec);
+            } catch (InvalidKeyException | InvalidAlgorithmParameterException e) {
+                TridentLogger.get().error(e);
+            }
         }
     }
 
@@ -247,11 +288,12 @@ public class ClientConnection {
      */
     public void enableCompression() {
         if (compressionEnabled) {
-            TridentLogger.error(new UnsupportedOperationException("Compression is already enabled!"));
+            TridentLogger.get().error(new UnsupportedOperationException("Compression is already enabled!"));
         }
 
         if (stage != Protocol.ClientStage.LOGIN) {
-            TridentLogger.error(new UnsupportedOperationException());
+            TridentLogger.get().error(new UnsupportedOperationException());
+            return;
         }
 
         sendPacket(new PacketLoginOutSetCompression());
@@ -264,7 +306,7 @@ public class ClientConnection {
      * @param uuid the uuid of the connection
      */
     @InternalUseOnly
-    public void setUuid(UUID uuid) {        
+    public void setUuid(UUID uuid) {
         this.uuid = uuid;
     }
 
@@ -357,7 +399,10 @@ public class ClientConnection {
      * Removes the client's server side client handler
      */
     public void logout() {
+        // Don't change the order of this, it is important for thread-safety
         ClientConnection connection = clientData.remove(this.address);
+        LoginHandler.getInstance().finish(address()); // In case they errored while logging in
+
         if (connection == null) return;
 
         Player p = null;
@@ -371,9 +416,8 @@ public class ClientConnection {
             return;
         }
 
-        Handler.forEvents().fire(new PlayerDisconnectEvent(p));
-        p.remove();
-
         this.channel.close();
+
+        p.remove();
     }
 }

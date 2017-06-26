@@ -28,7 +28,7 @@ public class PacketPlayOutStatistics extends OutPacket {
 
     @Override
     public int id() {
-        return 0x37;
+        return 0x07;
     }
 
     public StatisticEntry[] entries() {

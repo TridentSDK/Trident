@@ -18,10 +18,10 @@
 package net.tridentsdk.server.data;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Position;
+import net.tridentsdk.base.Position;
 
 /**
- * Represents a writable form of a {@link net.tridentsdk.Position}
+ * Represents a writable form of a {@link Position}
  *
  * @author The TridentSDK Team
  */
@@ -33,16 +33,16 @@ public class PositionWritable implements Writable {
      *
      * @param loc the location to wrap with writable format
      */
-    public PositionWritable(net.tridentsdk.Position loc) {
+    public PositionWritable(Position loc) {
         this.loc = loc;
     }
 
     /**
      * Gets the wrapped, original location
      *
-     * @return the location passed in by constructor or by {@link #setLoc(net.tridentsdk.Position)}
+     * @return the location passed in by constructor or by {@link #setLoc(Position)}
      */
-    public net.tridentsdk.Position location() {
+    public Position location() {
         return this.loc;
     }
 
@@ -54,7 +54,7 @@ public class PositionWritable implements Writable {
      *
      * @param loc the location to wrap with writable format
      */
-    public void setLoc(net.tridentsdk.Position loc) {
+    public void setLoc(Position loc) {
         this.loc = loc;
     }
 

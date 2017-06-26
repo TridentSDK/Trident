@@ -18,23 +18,25 @@
 package net.tridentsdk.server.entity;
 
 import com.google.common.util.concurrent.AtomicDouble;
-import net.tridentsdk.Position;
+import net.tridentsdk.base.BoundingBox;
+import net.tridentsdk.base.Position;
 import net.tridentsdk.base.Substance;
+import net.tridentsdk.concurrent.SelectableThreadPool;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.docs.PossiblyThreadSafe;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.traits.EntityProperties;
 import net.tridentsdk.entity.types.EntityType;
-import net.tridentsdk.factory.ExecutorFactory;
 import net.tridentsdk.meta.nbt.*;
 import net.tridentsdk.server.TridentServer;
+import net.tridentsdk.server.concurrent.ThreadsHandler;
+import net.tridentsdk.server.concurrent.TickSync;
 import net.tridentsdk.server.data.MetadataType;
 import net.tridentsdk.server.data.ProtocolMetadata;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutDestroyEntities;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutEntityTeleport;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutEntityVelocity;
 import net.tridentsdk.server.player.TridentPlayer;
-import net.tridentsdk.server.threads.ThreadsHandler;
 import net.tridentsdk.server.world.TridentChunk;
 import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.util.Vector;
@@ -61,7 +63,7 @@ public class TridentEntity implements Entity {
     /**
      * Internal entity tracker, used to spawn the entity and track movement, etc.
      */
-    protected static final EntityHandler HANDLER = EntityHandler.create();
+    public static final EntityHandler HANDLER = EntityHandler.create();
     /**
      * The distance the entity has fallen
      */
@@ -93,7 +95,7 @@ public class TridentEntity implements Entity {
     /**
      * Entity task executor
      */
-    protected volatile ExecutorFactory executor = ThreadsHandler.entityExecutor();
+    protected volatile SelectableThreadPool executor = ThreadsHandler.entityExecutor();
     /**
      * The movement vector for the entity
      */
@@ -126,6 +128,18 @@ public class TridentEntity implements Entity {
      * {@code true} to indicate the entity cannot be damaged
      */
     protected volatile boolean godMode;
+    /**
+     * TODO
+     */
+    protected volatile BoundingBox boundingBox;
+    /**
+     * TODO
+     */
+    protected volatile float width;
+    /**
+     * TODO
+     */
+    protected volatile float height;
 
     /**
      * Creates a new entity
@@ -138,7 +152,9 @@ public class TridentEntity implements Entity {
         this.id = counter.incrementAndGet();
         this.velocity = new Vector(0.0D, 0.0D, 0.0D);
         this.loc = spawnLocation;
-
+        this.boundingBox = new BoundingBox(0.0D, 0.0D, 0.0D, 0.0D, 0.0D, 0.0D);
+        setSize(0.6f, 1.8f);
+        updateBoudingBox();
         for (double y = this.loc.y(); y > 0.0; y--) {
             Position l = Position.create(this.loc.world(), this.loc.x(), y, this.loc.z());
 
@@ -175,12 +191,14 @@ public class TridentEntity implements Entity {
      */
     public TridentEntity spawn() {
         HANDLER.register(this);
+        ((TridentChunk) loc.chunk()).entitiesInternal().add(this);
+        ((TridentWorld) loc.world()).addEntity(this);
         return this;
     }
 
     protected void encodeMetadata(ProtocolMetadata protocolMeta) {
-        protocolMeta.setMeta(0, MetadataType.BYTE, (byte) ((fireTicks.intValue() == 0) ? 1 : 0));
-        protocolMeta.setMeta(1, MetadataType.SHORT, airTicks.shortValue());
+        protocolMeta.setMeta(0, MetadataType.BYTE, (byte) ((fireTicks.intValue() == 0) ? 0 : 1));
+        protocolMeta.setMeta(1, MetadataType.VARINT, ((int) airTicks.shortValue()));
         doEncodeMeta(protocolMeta);
     }
 
@@ -233,6 +251,12 @@ public class TridentEntity implements Entity {
         }
 
         this.loc = loc;
+        updateBoudingBox();
+    }
+
+    private void updateBoudingBox(){
+        double halfWidth = this.width / 2.0F;
+        this.boundingBox = new BoundingBox(loc.x() - halfWidth, loc.y(), loc.z() - halfWidth, loc.x() + halfWidth, loc.y() + this.height, loc.z() + halfWidth);
     }
 
     @Override
@@ -269,8 +293,12 @@ public class TridentEntity implements Entity {
 
     public void tick() {
         executor.execute(() -> {
-                ticksExisted.incrementAndGet();
-                doTick();
+            ticksExisted.incrementAndGet();
+            doTick();
+            if (ticksExisted.get() % 20 == 0) {
+                updateBoudingBox();
+            }
+            TickSync.complete("ENTITY: uuid-" + uniqueId.toString() + " id-" + id);
         });
     }
 
@@ -457,4 +485,25 @@ public class TridentEntity implements Entity {
 
         doLoad(tag);
     }
+
+    public CompoundTag asNbt() {
+        CompoundTag tag = new CompoundTag("lel");
+        // TODO
+        return tag;
+    }
+
+    @Override
+    public void setSize(float width, float height){
+        if (width != this.width || height != this.height){
+            this.width = width;
+            this.height = height;
+            this.boundingBox = new BoundingBox(boundingBox.minX(), boundingBox.minY(), boundingBox.minZ(), boundingBox.minX() + (double) width, boundingBox.minY() + (double) height, boundingBox.minZ() + (double) width);
+        }
+    }
+
+    @Override
+    public BoundingBox boundingBox(){
+        return boundingBox;
+    }
+
 }

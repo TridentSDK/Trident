@@ -18,16 +18,18 @@ package net.tridentsdk.server.data;
 
 public enum MetadataType {
     BYTE(0),
-    SHORT(1),
-    INT(2),
-    FLOAT(3),
-    STRING(4),
+    VARINT(1),
+    FLOAT(2),
+    STRING(3),
+    CHAT(4),
     SLOT(5),
-    XYZ(6), // expecting a vector to represent
-    /*
-     * Essentially representing pitch, yaw, and roll. Expecting a vector to represent
-     */
-    PYR(7);
+    BOOLEAN(6),
+    ROTATION(7),
+    POSITION(8),
+    OPTPOSITION(9),
+    DIRECTION(10),
+    OPTUUID(11),
+    BLOCKID(12);
 
     private int id;
 

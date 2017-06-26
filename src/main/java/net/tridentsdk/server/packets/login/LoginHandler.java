@@ -18,6 +18,10 @@
 package net.tridentsdk.server.packets.login;
 
 
+import com.google.common.collect.Maps;
+import net.tridentsdk.Trident;
+import net.tridentsdk.registry.Registered;
+
 import java.net.InetSocketAddress;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -26,6 +30,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * Class used to store login usernames during the login stage
  */
 public final class LoginHandler {
+    private static final long THROTTLE_MS = 4000L;
+
     /**
      * Instance of the class
      */
@@ -34,7 +40,8 @@ public final class LoginHandler {
     /**
      * Map used to store usernames with the address as the key
      */
-    protected final Map<InetSocketAddress, String> loginNames = new ConcurrentHashMap<>();
+    protected final Map<InetSocketAddress, String> loginNames = Maps.newHashMap();
+    private final Map<String, Long> times = new ConcurrentHashMap<>();
 
     protected LoginHandler() {
     }
@@ -43,15 +50,38 @@ public final class LoginHandler {
         return instance;
     }
 
-    public void initLogin(InetSocketAddress address, String name) {
-        this.loginNames.put(address, name);
+    public boolean initLogin(InetSocketAddress address, String name) {
+        synchronized (this) {
+            return loginNames.size() + Registered.players().size() < Trident.info().maxPlayers() &&
+                    loginNames.put(address, name) == null && !throttled(name);
+        }
     }
 
     public String name(InetSocketAddress address) {
-        return this.loginNames.get(address);
+        synchronized (this) {
+            return this.loginNames.get(address);
+        }
     }
 
     public void finish(InetSocketAddress address) {
-        this.loginNames.remove(address);
+        synchronized (this) {
+            this.loginNames.remove(address);
+        }
+    }
+
+    private boolean throttled(String name) {
+        long time = System.currentTimeMillis();
+        times.forEach((k, v) -> {
+            if (time - v > THROTTLE_MS) {
+                times.remove(k);
+            }
+        });
+
+        boolean b = times.containsKey(name);
+        if (!b) {
+            times.put(name, System.currentTimeMillis());
+        }
+
+        return b;
     }
 }

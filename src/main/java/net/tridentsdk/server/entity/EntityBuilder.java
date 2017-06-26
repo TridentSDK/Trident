@@ -17,11 +17,11 @@
 
 package net.tridentsdk.server.entity;
 
-import net.tridentsdk.Position;
-import net.tridentsdk.Trident;
+import net.tridentsdk.base.Position;
+import net.tridentsdk.concurrent.SelectableThreadPool;
 import net.tridentsdk.entity.Entity;
-import net.tridentsdk.factory.ExecutorFactory;
-import net.tridentsdk.server.threads.ThreadsHandler;
+import net.tridentsdk.registry.Registered;
+import net.tridentsdk.server.concurrent.ThreadsHandler;
 import net.tridentsdk.util.TridentLogger;
 
 import java.lang.reflect.Constructor;
@@ -37,8 +37,8 @@ import java.util.UUID;
  */
 public final class EntityBuilder {
     private UUID uuid = UUID.randomUUID();
-    private Position spawn = Position.create(Trident.worlds().get("world"), 0, 0, 0);
-    private ExecutorFactory executor;
+    private Position spawn = Position.create(Registered.worlds().get("world"), 0, 0, 0);
+    private SelectableThreadPool executor;
     private boolean god;
     private Entity passenger;
     private String displayName;
@@ -61,7 +61,7 @@ public final class EntityBuilder {
         return this;
     }
 
-    public EntityBuilder executor(ExecutorFactory executor) {
+    public EntityBuilder executor(SelectableThreadPool executor) {
         this.executor = executor;
         return this;
     }
@@ -102,7 +102,7 @@ public final class EntityBuilder {
             entity.spawn();
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException |
                 InstantiationException e) {
-            TridentLogger.error(e);
+            TridentLogger.get().error(e);
         }
 
         return (T) entity;
@@ -133,7 +133,7 @@ public final class EntityBuilder {
             entity.spawn();
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException |
                 InstantiationException e) {
-            TridentLogger.error(e);
+            TridentLogger.get().error(e);
         }
 
         return (T) entity;

@@ -18,7 +18,7 @@
 package net.tridentsdk.server.bench;
 
 import net.tridentsdk.entity.living.Player;
-import net.tridentsdk.server.threads.ThreadsHandler;
+import net.tridentsdk.server.concurrent.ThreadsHandler;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
@@ -35,7 +35,7 @@ public class PlayerThreadTest {
     @Setup
     public static void setup() {
         for (int i = 0; i < 6_000; i++) {
-            //Factories.threads().playerThread(TridentPlayer.spawnPlayer(
+            //Factories.concurrent().playerThread(TridentPlayer.spawnPlayer(
             //       ClientConnection.registerConnection(new CTXProper().channel()), UUID.randomUUID(), ""));
             // PlayerThreadTest.QUEUE.add(new CTXProper());
         }

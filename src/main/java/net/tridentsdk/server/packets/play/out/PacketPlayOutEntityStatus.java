@@ -18,31 +18,30 @@
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.server.entity.EntityStatus;
-import net.tridentsdk.server.netty.Codec;
+import net.tridentsdk.effect.entity.EntityStatusEffectType;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutEntityStatus extends OutPacket {
 
     protected int entityId;
-    protected EntityStatus status;
+    protected EntityStatusEffectType status;
 
     @Override
     public int id() {
-        return 0x1A;
+        return 0x1B;
     }
 
     public int entityId() {
         return this.entityId;
     }
 
-    public EntityStatus status() {
+    public EntityStatusEffectType status() {
         return this.status;
     }
 
     @Override
     public void encode(ByteBuf buf) {
-        Codec.writeVarInt32(buf, this.entityId);
-        buf.writeByte((int) this.status.asByte());
+        buf.writeInt(this.entityId);
+        buf.writeByte((int) this.status.id());
     }
 }

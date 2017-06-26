@@ -18,21 +18,34 @@
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Position;
+import net.tridentsdk.base.Block;
+import net.tridentsdk.base.Position;
 import net.tridentsdk.base.Substance;
+import net.tridentsdk.effect.sound.SoundEffect;
+import net.tridentsdk.effect.sound.SoundEffectType;
+import net.tridentsdk.meta.block.ChestMeta;
+import net.tridentsdk.meta.block.FurnaceMeta;
+import net.tridentsdk.meta.component.MetaFactory;
+import net.tridentsdk.server.data.block.FurnaceMetaImpl;
+import net.tridentsdk.server.inventory.TridentInventory;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.player.PlayerConnection;
 import net.tridentsdk.server.player.TridentPlayer;
+import net.tridentsdk.server.util.OwnedTridentBlock;
+import net.tridentsdk.util.Value;
 import net.tridentsdk.util.Vector;
+
+import static net.tridentsdk.meta.block.ByteArray.writeFirst;
+import static net.tridentsdk.meta.block.ByteArray.writeSecond;
 
 public class PacketPlayInBlockPlace extends InPacket {
     /**
      * Location of the block being placed
      */
     protected Position location;
-    protected byte direction; // wat
+    protected byte direction;
     /**
      * PositionWritable of the cursor, incorrect use of a Vector
      */
@@ -40,7 +53,7 @@ public class PacketPlayInBlockPlace extends InPacket {
 
     @Override
     public int id() {
-        return 0x08;
+        return 0x1C;
     }
 
     @Override
@@ -52,7 +65,6 @@ public class PacketPlayInBlockPlace extends InPacket {
         this.direction = buf.readByte();
 
         // ignore held item
-        // TODO possible NBT
         for (int i = 0; i < buf.readableBytes() - 3; i++) {
             buf.readByte();
         }
@@ -82,49 +94,90 @@ public class PacketPlayInBlockPlace extends InPacket {
         TridentPlayer player = ((PlayerConnection) connection).player();
         location.setWorld(player.world());
 
-        if (location.y() >= 4095) {
+        if(player.heldItem() == null) {
+            //TODO: add a check where this is called from so it will not be null while a player interacts with the item slots containing air while placing blocks.
+            return;
+        }
+        
+        Substance substance = player.heldItem().type();
+        Vector vector = determineOffset();
+        if (!substance.isBlock()) {
+            // TODO eat food or pull bow or release/obtain water in a bucket, etc
+            return;
+        }
+
+        if (location.y() + vector.y() > 255 || location.y() + vector.y() < 0) {
             // Illegal block position
             return;
         }
 
-        Substance substance = player.heldItem().type();
-        if (!substance.isBlock()) {
-            // TODO
-            // eat food or pull bow or release/obtain water in a bucket, etc
-        }
+        Position position = location.block().substance().canBeReplaced() ? location : location.relative(vector);
+        Block block = new OwnedTridentBlock(player, position.block());
 
-        if (substance != Substance.AIR) {
-            int x = 0;
-            int y = 0;
-            int z = 0;
-
-            switch (blockDirection()) {
-                case 0:
-                    y--;
+        if (location.y() < 255 && location.block() != null && block.substance().isFunctional() && !player.isCrouching()) {
+            switch (block.substance()) {
+                case FURNACE:
+                case BURNING_FURNACE:
+                    ((FurnaceMetaImpl) block.obtainMeta(FurnaceMeta.class)).furnaceInventory().sendTo(player);
                     break;
-                case 1:
-                    y++;
+                case CHEST:
+                    ((TridentInventory) block.obtainMeta(ChestMeta.class).inventory()).sendTo(player);
                     break;
-                case 2:
-                    z--;
-                    break;
-                case 3:
-                    z++;
-                    break;
-                case 4:
-                    x--;
-                    break;
-                case 5:
-                    x++;
-                    break;
-                default:
-                    throw new IllegalArgumentException("Offset not within range");
             }
+            // TODO Add all functional blocks (workbench, furnace, anvil, etc)
+        } else if (player.heldItem() != null && player.heldItem().type() != Substance.AIR) {
+            short yaw = (short) (player.position().yaw() * 10);
+            short meta = player.heldItem().damageValue();
+            Value<Byte> result = Value.of((byte) 0);
+            Value<Substance> substanceValue = Value.of(substance);
 
-            Position position = location.relative(new Vector(x, y, z));
-            byte meta = (byte) player.heldItem().damageValue();
-            //TODO: Special Cases for stairs and whatnot
-            position.block().setSubstanceAndMeta(substance, meta);
+            boolean allow = MetaFactory.decode(block, substanceValue, new byte[]{
+                    writeFirst(yaw), writeSecond(yaw), direction,
+                    ((byte) cursorPosition.x()), ((byte) cursorPosition.y()), ((byte) cursorPosition.z()),
+                    writeFirst(meta), writeSecond(meta)
+            }, result);
+
+            if (allow) {
+                block.setSubstanceAndMeta(substanceValue.get(), result.get());
+
+                SoundEffectType soundEffectType = substanceValue.get().placeSound();
+                if (soundEffectType != null) {
+                    SoundEffect sound = location.world().playSound(soundEffectType);
+                    sound.setPosition(location);
+                    sound.apply();
+                }
+            }
         }
+    }
+
+    private Vector determineOffset() {
+        int x = 0;
+        int y = 0;
+        int z = 0;
+
+        switch (blockDirection()) {
+            case 0:
+                y--;
+                break;
+            case 1:
+                y++;
+                break;
+            case 2:
+                z--;
+                break;
+            case 3:
+                z++;
+                break;
+            case 4:
+                x--;
+                break;
+            case 5:
+                x++;
+                break;
+            default:
+                return new Vector(0, 0, 0);
+        }
+
+        return new Vector(x, y, z);
     }
 }

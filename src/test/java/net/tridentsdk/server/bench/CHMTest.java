@@ -17,8 +17,10 @@
 
 package net.tridentsdk.server.bench;
 
+import com.google.common.collect.Sets;
 import io.netty.util.internal.ConcurrentSet;
-import net.tridentsdk.factory.Factories;
+import net.tridentsdk.util.TridentLogger;
+import org.apache.log4j.Level;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
 import org.openjdk.jmh.runner.Runner;
@@ -36,8 +38,12 @@ Benchmark results: http://bit.ly/1y90tml
  */
 @State(Scope.Benchmark)
 public class CHMTest {
+    static {
+        TridentLogger.init(Level.DEBUG);
+    }
+
     private static final Set<Object> SET = new ConcurrentSet<>();
-    private static final Set<Object> SET0 = Factories.collect().createSet();
+    private static final Set<Object> SET0 = Sets.newConcurrentHashSet();
 
     private static final Object OBJECT = new Object();
     @Param({ "1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024" })
@@ -45,15 +51,23 @@ public class CHMTest {
 
     public static void main(String[] args) throws RunnerException {
         Options opt = new OptionsBuilder().include(".*" + CHMTest.class.getSimpleName() + ".*") // CLASS
-                .timeUnit(TimeUnit.NANOSECONDS).mode(Mode.AverageTime).warmupIterations(20).warmupTime(
-                        TimeValue.milliseconds(1))              // ALLOWED TIME
-                .measurementIterations(5).measurementTime(TimeValue.milliseconds(1))         // ALLOWED TIME
+                .timeUnit(TimeUnit.NANOSECONDS)
+                .mode(Mode.AverageTime)
+                .warmupIterations(20)
+                .warmupTime(TimeValue.milliseconds(1))              // ALLOWED TIME
+                .measurementIterations(5)
+                .measurementTime(TimeValue.milliseconds(1))         // ALLOWED TIME
                 .forks(1)                                           // FORKS
                 .verbosity(VerboseMode.SILENT)                      // GRAPH
                 .threads(4)                                         // THREADS
                 .build();
 
         Benchmarks.chart(Benchmarks.parse(new Runner(opt).run()), "Java8 CHM vs Platform CHM"); // TITLE
+    }
+
+    @Setup(org.openjdk.jmh.annotations.Level.Invocation)
+    public void setup() {
+        SET.add(OBJECT);
     }
 
     @Benchmark

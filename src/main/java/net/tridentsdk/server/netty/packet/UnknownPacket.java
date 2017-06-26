@@ -42,7 +42,7 @@ public class UnknownPacket implements Packet {
      */
     @Override
     public void encode(ByteBuf buf) {
-        TridentLogger.error(new UnsupportedOperationException("Cannot serialize unknown packet"));
+        TridentLogger.get().error(new UnsupportedOperationException("Cannot serialize unknown packet"));
     }
 
     @Override

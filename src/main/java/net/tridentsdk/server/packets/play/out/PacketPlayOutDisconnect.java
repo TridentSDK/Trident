@@ -27,7 +27,7 @@ public class PacketPlayOutDisconnect extends OutPacket {
 
     @Override
     public int id() {
-        return 0x40;
+        return 0x1A;
     }
 
     public String reason() {

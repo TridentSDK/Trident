@@ -36,7 +36,7 @@ public class PacketPlayInKeepAlive extends InPacket {
 
     @Override
     public int id() {
-        return 0x00;
+        return 0x0B;
     }
 
     @Override

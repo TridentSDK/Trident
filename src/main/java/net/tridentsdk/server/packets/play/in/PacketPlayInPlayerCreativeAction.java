@@ -18,9 +18,8 @@
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.entity.DroppedItem;
-import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.server.data.Slot;
+import net.tridentsdk.server.entity.TridentDroppedItem;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
@@ -45,7 +44,7 @@ public class PacketPlayInPlayerCreativeAction extends InPacket {
 
     @Override
     public int id() {
-        return 0x10;
+        return 0x06;
     }
 
     public Slot item() {
@@ -68,12 +67,17 @@ public class PacketPlayInPlayerCreativeAction extends InPacket {
     public void handleReceived(ClientConnection connection) {
         TridentPlayer player = ((PlayerConnection) connection).player();
 
-        if (slot == -1) {
-            DroppedItem item = (DroppedItem) player.world().spawn(EntityType.ITEM, player.position());
+        if (slot <= 0) {
+            TridentDroppedItem item = new TridentDroppedItem(player.headLocation(), item().item());
+            item.spawn();
+            item.setVelocity(player.position().toDirection().normalize().multiply(2000));
             // TODO set item type
+            // TODO this can also clear the inventory
 
             return;
         }
-        player.inventory().setSlot(slot - 1, item.item());
+
+        // TODO: Handle when the item is set in the Player's hand
+        player.window().setSlot(slot, item.item());
     }
 }

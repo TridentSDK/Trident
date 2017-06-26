@@ -30,7 +30,7 @@ public class PacketPlayOutPlayerRespawn extends OutPacket {
 
     @Override
     public int id() {
-        return 0x07;
+        return 0x33;
     }
 
     public int dimension() {

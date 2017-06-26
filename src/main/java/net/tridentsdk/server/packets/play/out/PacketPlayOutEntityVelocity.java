@@ -29,7 +29,7 @@ public class PacketPlayOutEntityVelocity extends OutPacket {
 
     @Override
     public int id() {
-        return 0x12;
+        return 0x3B;
     }
 
     public int entityId() {

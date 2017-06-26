@@ -19,11 +19,11 @@ package net.tridentsdk.server.packets.login;
 
 import com.google.gson.Gson;
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.server.encryption.RSA;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
+import net.tridentsdk.server.netty.packet.RSA;
 import net.tridentsdk.server.netty.protocol.Protocol;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.util.TridentLogger;
@@ -120,12 +120,12 @@ public class PacketLoginInEncryptionResponse extends InPacket {
             sharedSecret = RSA.decrypt(this.encryptedSecret, connection.loginKeyPair().getPrivate());
             token = RSA.decrypt(this.encryptedToken, connection.loginKeyPair().getPrivate());
         } catch (Exception e) {
-            TridentLogger.error(e);
+            TridentLogger.get().error(e);
         }
 
         // Check that we got the same verification token;
         if (!Arrays.equals(connection.verificationToken(), token)) {
-            TridentLogger.log("Client with IP " + connection.address().getHostName() +
+            TridentLogger.get().log("Client with IP " + connection.address().getHostName() +
                     " has sent an invalid token!");
 
             connection.logout();
@@ -161,8 +161,10 @@ public class PacketLoginInEncryptionResponse extends InPacket {
 
             reader.close();
         } catch (Exception ex) {
-            TridentLogger.error(ex);
+            TridentLogger.get().error(ex);
 
+            connection.sendPacket(new PacketLoginOutDisconnect().setJsonMessage("An internal error occurred while " +
+                    "validating session. Perhaps authentication servers are down?"));
             connection.logout();
             return;
         }

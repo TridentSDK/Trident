@@ -26,22 +26,23 @@ import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
-import net.tridentsdk.AccessBridge;
 import net.tridentsdk.Defaults;
-import net.tridentsdk.Handler;
 import net.tridentsdk.Trident;
-import net.tridentsdk.config.JsonConfig;
-import net.tridentsdk.docs.Volatile;
-import net.tridentsdk.factory.CollectFactory;
-import net.tridentsdk.plugin.channel.ChannelHandler;
-import net.tridentsdk.plugin.cmd.PlatformColor;
+import net.tridentsdk.config.Config;
+import net.tridentsdk.docs.Policy;
+import net.tridentsdk.plugin.Plugins;
+import net.tridentsdk.registry.Implementation;
+import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.command.ServerCommandRegistrar;
+import net.tridentsdk.server.concurrent.TickSync;
 import net.tridentsdk.server.netty.ClientChannelInitializer;
-import net.tridentsdk.server.packets.play.out.PacketPlayOutPluginMessage;
-import net.tridentsdk.server.player.TridentPlayer;
-import net.tridentsdk.server.threads.ThreadsHandler;
-import net.tridentsdk.server.window.TridentWindowHandler;
+import net.tridentsdk.server.service.Statuses;
+import net.tridentsdk.server.service.TridentImpl;
+import net.tridentsdk.server.world.TridentWorld;
+import net.tridentsdk.server.world.TridentWorldLoader;
 import net.tridentsdk.util.TridentLogger;
+import net.tridentsdk.world.World;
+import org.apache.log4j.Level;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.io.File;
@@ -50,8 +51,6 @@ import java.net.InetSocketAddress;
 import java.nio.file.Files;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -65,12 +64,8 @@ import static com.google.common.collect.Lists.newArrayList;
  */
 @ThreadSafe
 public final class TridentStart {
-    static {
-        TridentLogger.init();
-    }
-
-    private static final EventLoopGroup bossGroup = new NioEventLoopGroup(4, Defaults.ERROR_HANDLED);
-    private static final EventLoopGroup workerGroup = new NioEventLoopGroup(4, Defaults.ERROR_HANDLED);
+    private static volatile EventLoopGroup bossGroup;
+    private static volatile EventLoopGroup workerGroup;
 
     private TridentStart() {
     } // Do not initialize
@@ -80,35 +75,16 @@ public final class TridentStart {
      *
      * @param args the command line arguments
      */
+    @Policy("Do not throw exceptions in this method")
     public static void main(String... args) throws Exception {
-        /*TODO:
-         check some args here, using an interpreter
-         parse the configuration file
-         create the server from the args/config values
-         */
-
-        // DEBUG ===
-        /* Path path = Paths.get("world");
-        if (Files.exists(path)) {
-            for (File file : path.toFile().listFiles()) {
-                file.delete();
-            }
-            Files.delete(path);
-        } */
-        // ===
-
-        TridentLogger.log("Open source software by TridentSDK - https://github.com/TridentSDK");
-        TridentLogger.log("Starting Trident server");
-
-        TridentLogger.log("Creating handlers...");
         OptionParser parser = new OptionParser();
         parser.acceptsAll(newArrayList("h", "help"), "Show this help dialog.").forHelp();
+        parser.accepts("d", "Prints debug level logging output");
         parser.acceptsAll(newArrayList("log-append"), "Whether to append to the log file")
                 .withRequiredArg()
                 .ofType(Boolean.class)
                 .defaultsTo(true)
                 .describedAs("Log append");
-        TridentLogger.log("Parsing server properties, using server.json...");
         OptionSpec<File> properties = parser.acceptsAll(newArrayList("properties"),
                 "The location for the properties file")
                 .withRequiredArg()
@@ -116,27 +92,39 @@ public final class TridentStart {
                 .defaultsTo(new File("server.json"))
                 .describedAs("Properties file");
 
-        TridentLogger.log("Parsing command line arguments...");
         OptionSet options;
         try {
             options = parser.parse(args);
         } catch (OptionException ex) {
-            TridentLogger.error(ex);
+            TridentLogger.get().error(ex);
             return;
         }
-        TridentLogger.success("Parsed arguments.");
 
-        TridentLogger.log("Looking for server properties...");
+        boolean d = options.has("d");
+        TridentLogger.init(d ? Level.DEBUG : Level.INFO);
+        TickSync.DEBUG = d;
+
+        TridentLogger.get().log("Open source software by TridentSDK - https://github.com/TridentSDK");
+        TridentLogger.get().log("Starting Trident server");
+
+        TridentLogger.get().log("Looking for server files...");
         File f = properties.value(options);
         if (!f.exists()) {
-            TridentLogger.warn("Server properties not found, creating one for you...");
+            TridentLogger.get().warn("Server properties not found, creating one for you...");
             InputStream link = TridentServer.class.getResourceAsStream("/server.json");
             Files.copy(link, f.getAbsoluteFile().toPath());
         }
-        TridentLogger.success("Created the server JSON");
 
-        TridentLogger.log("Starting server process...");
-        init(new JsonConfig(f));
+        TridentLogger.get().log("Initializing the API implementations");
+        Implementation implementation = new TridentImpl();
+        Registered.setProvider(implementation);
+        TridentLogger.get().success("Loaded API implementations.");
+
+        ((Statuses) Registered.statuses()).loadAll();
+        TridentLogger.get().success("Loaded the server files");
+
+        TridentLogger.get().log("Starting server process...");
+        init(new Config(f));
     }
 
     /**
@@ -144,56 +132,53 @@ public final class TridentStart {
      *
      * @param config the configuration to use for option lookup
      */
-    @Volatile(policy = "Do not throw exceptions before",
-            reason = "Init begins here",
-            fix = "Just don't do it")
-    private static void init(final JsonConfig config) throws InterruptedException {
+    private static void init(final Config config) throws InterruptedException {
+        bossGroup = new NioEventLoopGroup(4, Defaults.ERROR_HANDLED);
+        workerGroup = new NioEventLoopGroup(4, Defaults.ERROR_HANDLED);
+
         try {
-            TridentLogger.log("Initializing the API implementations");
-            AccessBridge bridge = AccessBridge.open();
-
-            bridge.sendSuper(new CollectFactory() {
-                @Override
-                public <K, V> ConcurrentMap<K, V> createMap() {
-                    return new ConcurrentHashMap<>();
-                }
-            });
-            bridge.sendImplemented(ThreadsHandler.create());
-            bridge.sendImplemented(TridentTaskScheduler.create());
-
-            bridge.sendSuper(new ChannelHandler() {
-                @Override
-                public void sendPluginMessage(String channel, byte... data) {
-                    TridentPlayer.sendAll(new PacketPlayOutPluginMessage().set("channel", channel).set("data", data));
-                }
-            });
-            bridge.sendImplemented(new TridentWindowHandler());
-            TridentLogger.success("Loaded API implementations.");
-
-            TridentLogger.log("Creating server...");
+            TridentLogger.get().log("Creating server...");
             TridentServer.createServer(config);
-            TridentLogger.success("Server created.");
+            TridentLogger.get().success("Server created.");
 
-            TridentLogger.log("Setting server commands...");
-            ServerCommandRegistrar.registerAll();
-            TridentLogger.success("Server commands set.");
-
-            TridentLogger.log("Loading plugins...");
+            // Required before loading worlds to find all class files in case the plugin has a world generator
+            TridentLogger.get().log("Loading plugins...");
             File fi = new File(System.getProperty("user.dir") + File.separator + "plugins");
             if (!fi.exists())
                 fi.mkdir();
 
-            for (File file : new File(System.getProperty("user.dir") + File.separator + "plugins").listFiles())
-                Handler.forPlugins().load(file);
-            TridentLogger.success("Loaded plugins.");
+            for (File file : new File(System.getProperty("user.dir") + File.separator + "plugins")
+                    .listFiles((dir, name) -> name.endsWith(".jar")))
+                Registered.plugins().load(file);
+            TridentLogger.get().success("Loaded plugins.");
+
+            TridentWorldLoader.loadAll();
+            TridentServer.WORLD = (TridentWorld) Registered.worlds().get("world");
+
+            if (TridentServer.WORLD == null) {
+                World world = TridentServer.instance().rootWorldLoader.createWorld("world");
+                TridentServer.WORLD = (TridentWorld) world;
+            }
+
+            TridentLogger.get().log("Setting server commands...");
+            ServerCommandRegistrar.registerAll();
+            TridentLogger.get().success("Server commands set.");
+
+            TridentLogger.get().log("Enabling plugins...");
+            Plugins handler = Registered.plugins();
+            handler.forEach(handler::enable);
+            TridentLogger.get().success("Enabled plugins.");
 
             ////////////////////////////////// NETTY SETUP //////////////////////////////////////////
 
-            TridentLogger.log("Creating server connections...");
+            TridentLogger.get().log("Creating server connections...");
             String ip = config.getString("address", Defaults.ADDRESS);
             int port = config.getInt("port", Defaults.PORT);
 
-            TridentLogger.log("Binding socket to server address, using address:port " + ip + ":" + port);
+            // FIXME double shutdown for no reason...
+            // Runtime.getRuntime().addShutdownHook(new Thread(() -> TridentServer.instance().shutdown()));
+
+            TridentLogger.get().log("Binding socket to server address, using address:port " + ip + ":" + port);
 
             new ServerBootstrap().group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
@@ -202,31 +187,29 @@ public final class TridentStart {
                     .bind(new InetSocketAddress(ip, port))
                     .sync();
 
-            TridentLogger.success("Server started.");
+            TridentLogger.get().success("Server started.");
 
             /////////////////////////// Console command handling ////////////////////////////////////
-            Scanner scanner = new Scanner(System.in);
+            Thread thread = new Thread(() -> {
+                Scanner scanner = new Scanner(System.in);
 
-            while (true) {
-                System.out.print("$" + PlatformColor.forColor("cursoreol2"));
-                String command = scanner.next();
+                while (true) {
+                    String command = scanner.nextLine();
+                    System.out.print("$ ");
 
-                Trident.console().invokeCommand(command);
-
-                switch (command) {
-                    case "shutdown":
-                        return;
-                    case "stop":
-                        return;
+                    Trident.console().invokeCommand(command);
                 }
-            }
+            });
+            thread.setName("Trident - Console");
+            thread.setDaemon(true);
+            thread.start();
         } catch (InterruptedException e) {
             // This exception is caught if server is closed.
         } catch (NoSuchElementException e) {
             // For some reason, this is thrown when the server is quit
         } catch (Exception e) {
-            TridentLogger.error("Server closed, error occurred");
-            TridentLogger.error(e);
+            TridentLogger.get().error("Server closed, error occurred");
+            TridentLogger.get().error(e);
             Trident.shutdown();
         }
     }
@@ -234,9 +217,7 @@ public final class TridentStart {
     /**
      * Shuts down the backed event loops
      */
-
     public static void close() {
-        // Correct way to close the socket and shut down the server
         workerGroup.shutdownGracefully().awaitUninterruptibly();
         bossGroup.shutdownGracefully().awaitUninterruptibly();
     }

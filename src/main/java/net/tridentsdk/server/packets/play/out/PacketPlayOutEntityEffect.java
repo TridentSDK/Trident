@@ -32,7 +32,7 @@ public class PacketPlayOutEntityEffect extends OutPacket {
 
     @Override
     public int id() {
-        return 0x0D;
+        return 0x4B;
     }
 
     public int entityId() {

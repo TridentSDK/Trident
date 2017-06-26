@@ -27,7 +27,7 @@ public class PacketPlayOutGameStateChange extends OutPacket {
 
     @Override
     public int id() {
-        return 0x2B;
+        return 0x1E;
     }
 
     @Override

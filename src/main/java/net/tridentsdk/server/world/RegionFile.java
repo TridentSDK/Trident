@@ -62,21 +62,27 @@ public class RegionFile {
         return FILE_CACHE.computeIfAbsent(path, (k) -> new RegionFile(k.toFile()));
     }
 
-    public TridentChunk loadChunkData(TridentWorld world, ChunkLocation location) {
+    public CompoundTag decode(ChunkLocation location) {
         DataInputStream dis = getChunkDataInputStream(location.x() & 31, location.z() & 31);
         if (dis == null) return null;
 
         try {
-            CompoundTag chunkRoot = new NBTDecoder(dis).decode();
-            TridentChunk chunk = new TridentChunk(world, location);
-            chunk.load(chunkRoot);
-
-            return chunk;
+            return new NBTDecoder(dis).decode();
         } catch (NBTException e) {
             e.printStackTrace();
         }
 
         return null;
+    }
+
+    public TridentChunk loadChunkData(TridentWorld world, ChunkLocation location) {
+        CompoundTag chunkRoot = decode(location);
+        if (chunkRoot == null) return null;
+
+        TridentChunk chunk = new TridentChunk(world, location);
+        chunk.load(chunkRoot);
+
+        return chunk;
     }
 
     public void saveChunkData(TridentChunk chunk) {
@@ -179,7 +185,7 @@ public class RegionFile {
 
     // various small // debug printing helpers
     private void debug(String in) {
-        TridentLogger.warn(in);
+        TridentLogger.get().warn(in);
     }
 
     private void debugln(String in) {

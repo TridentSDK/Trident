@@ -18,12 +18,12 @@
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Difficulty;
-import net.tridentsdk.GameMode;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
-import net.tridentsdk.world.Dimension;
-import net.tridentsdk.world.LevelType;
+import net.tridentsdk.world.settings.Difficulty;
+import net.tridentsdk.world.settings.Dimension;
+import net.tridentsdk.world.settings.GameMode;
+import net.tridentsdk.world.settings.LevelType;
 
 public class PacketPlayOutJoinGame extends OutPacket {
     protected int entityId;
@@ -36,7 +36,7 @@ public class PacketPlayOutJoinGame extends OutPacket {
 
     @Override
     public int id() {
-        return 0x01;
+        return 0x23;
     }
 
     public int entityId() {
@@ -68,7 +68,7 @@ public class PacketPlayOutJoinGame extends OutPacket {
         buf.writeInt(this.entityId);
 
         buf.writeByte((int) this.gamemode.asByte());
-        buf.writeByte((int) this.dimension.asByte());
+        buf.writeInt((int) this.dimension.asByte());
         buf.writeByte((int) this.difficulty.asByte());
         buf.writeByte((int) this.maxPlayers);
 

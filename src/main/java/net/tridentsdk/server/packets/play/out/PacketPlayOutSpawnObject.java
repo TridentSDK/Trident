@@ -18,16 +18,15 @@
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Position;
+import net.tridentsdk.base.Position;
 import net.tridentsdk.entity.Entity;
-import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
-import net.tridentsdk.util.Vector;
+
+import java.util.UUID;
 
 public class PacketPlayOutSpawnObject extends OutPacket {
     protected int entityId;
-    protected EntityType type;
     protected Entity entity;
 
     @Override
@@ -38,21 +37,28 @@ public class PacketPlayOutSpawnObject extends OutPacket {
     @Override
     public void encode(ByteBuf buf) {
         Position l = this.entity.position();
-        Vector v = this.entity.velocity();
 
         Codec.writeVarInt32(buf, this.entityId);
-        buf.writeByte(this.type.ordinal()); // TODO: Get the correct id type
 
-        buf.writeInt((int) l.x() * 32);
-        buf.writeInt((int) l.y() * 32);
-        buf.writeInt((int) l.z() * 32);
+        UUID id = UUID.randomUUID(); // TODO What????
 
-        buf.writeByte((int) (byte) l.yaw());
+        buf.writeLong(id.getMostSignificantBits());
+        buf.writeLong(id.getLeastSignificantBits());
+
+        buf.writeByte(entity.type().asByte());
+
+        buf.writeDouble(l.x());
+        buf.writeDouble(l.y());
+        buf.writeDouble(l.z());
+
         buf.writeByte((int) (byte) l.pitch());
-        buf.writeByte((int) (byte) l.pitch()); // -shrugs-
+        buf.writeByte((int) (byte) l.yaw());
 
-        buf.writeShort((int) v.x());
-        buf.writeShort((int) v.y());
-        buf.writeShort((int) v.z());
+        // TODO object data
+        buf.writeInt(0);
+
+        buf.writeShort((int) (entity.velocity().x() * 8000));
+        buf.writeShort((int) (entity.velocity().y() * 8000));
+        buf.writeShort((int) (entity.velocity().z() * 8000));
     }
 }

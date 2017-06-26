@@ -19,41 +19,54 @@ package net.tridentsdk.server.world;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
-import net.tridentsdk.Position;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import net.tridentsdk.base.Block;
+import net.tridentsdk.base.BoundingBox;
+import net.tridentsdk.base.Position;
 import net.tridentsdk.base.Substance;
-import net.tridentsdk.concurrent.TaskExecutor;
 import net.tridentsdk.entity.Entity;
-import net.tridentsdk.factory.Factories;
+import net.tridentsdk.meta.block.BlockMeta;
+import net.tridentsdk.meta.block.Tile;
 import net.tridentsdk.meta.nbt.*;
+import net.tridentsdk.server.chunk.CRefCounter;
+import net.tridentsdk.server.chunk.ChunkHandler;
+import net.tridentsdk.server.chunk.ConcurrentSectionTable;
+import net.tridentsdk.server.entity.TridentEntity;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutChunkData;
-import net.tridentsdk.server.threads.ThreadsHandler;
 import net.tridentsdk.util.NibbleArray;
-import net.tridentsdk.util.TridentLogger;
+import net.tridentsdk.util.Vector;
 import net.tridentsdk.world.Chunk;
 import net.tridentsdk.world.ChunkLocation;
 import net.tridentsdk.world.ChunkSnapshot;
-import net.tridentsdk.world.gen.AbstractGenerator;
+import net.tridentsdk.world.gen.ChunkGenerator;
+import net.tridentsdk.world.gen.FeatureGenerator;
+import net.tridentsdk.world.gen.FeatureGenerator.ChunkManipulator;
 
+import javax.annotation.concurrent.GuardedBy;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.stream.Stream;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReferenceArray;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class TridentChunk implements Chunk {
     private final TridentWorld world;
     private final ChunkLocation location;
-    private final TaskExecutor executor = ThreadsHandler.chunkExecutor().scaledThread();
-    private final Set<Entity> entities = Factories.collect().createSet();
-    public volatile ChunkSection[] sections;
+
+    @GuardedBy("sections")
+    public final ConcurrentSectionTable sections = new ConcurrentSectionTable();
+    private final Set<Entity> entities = Sets.newConcurrentHashSet();
+    private final Map<Vector, List<BlockMeta>> blockMeta = Maps.newConcurrentMap();
+    private final AtomicReferenceArray<Integer> heights = new AtomicReferenceArray<>(256);
+
     private volatile int lastFileAccess;
     private volatile long lastModified;
     private volatile long inhabitedTime;
-    private volatile byte lightPopulated;
-    private volatile byte terrainPopulated;
+    private final AtomicInteger lightPopulated = new AtomicInteger();
+    private final AtomicInteger terrainPopulated = new AtomicInteger();
 
     protected TridentChunk(TridentWorld world, int x, int z) {
         this(world, ChunkLocation.create(x, z));
@@ -61,26 +74,24 @@ public class TridentChunk implements Chunk {
 
     protected TridentChunk(TridentWorld world, ChunkLocation coord) {
         this.world = world;
-        this.location = coord;
-        this.lastFileAccess = 0;
-        sections = new ChunkSection[16];
-        /*for (int i = 0; i < 16; i ++) {
-            sections[i] = new ChunkSection();
-        }*/
-    }
-
-    // TODO decide necessity, also TBD disk storage
-    // IMPORTANT: MUST BE CALLED FROM executor
-    private ChunkSection[] mapSections() {
-        return sections;
+        location = coord;
+        lastFileAccess = 0;
+        for (int i = 0; i < 256; i++) {
+            heights.set(i, 0);
+        }
     }
 
     protected int lastFileAccess() {
-        return this.lastFileAccess;
+        return lastFileAccess;
     }
 
     protected void setLastFileAccess(int last) {
-        this.lastFileAccess = last;
+        lastFileAccess = last;
+    }
+
+    @Override
+    public boolean isLoaded() {
+        return lightPopulated.get() == 0x01 && terrainPopulated.get() == 0x01;
     }
 
     @Override
@@ -88,60 +99,241 @@ public class TridentChunk implements Chunk {
         return ImmutableSet.copyOf(entities);
     }
 
+    @Override
+    public Collection<Tile> tiles() {
+        List<Tile> concat = Lists.newArrayList();
+        for (List<BlockMeta> metaList : blockMeta.values()) {
+            for (BlockMeta meta : metaList) {
+                if (meta instanceof Tile) {
+                    concat.add((Tile) meta);
+                }
+            }
+        }
+
+        return concat;
+    }
+
     public Set<Entity> entitiesInternal() {
         return entities;
     }
 
+    public Map<Vector, List<BlockMeta>> tilesInternal() {
+        return blockMeta;
+    }
+
+    public void gen(boolean withPaint) {
+        // Has or is generated already if the state is not 0x00
+        if (!lightPopulated.compareAndSet(0x00, 0xFFFFFFFF)) {
+            if (withPaint) paint(true);
+            return;
+        }
+
+        sections.lockFully();
+        try {
+            ChunkGenerator generator = world.loader().generator();
+            char[][] blocks = generator.generateBlocks(location, heights);
+            byte[][] data = generator.generateData(location);
+            for (int i = 0; i < 16; i++) {
+                ChunkSection section = sections.get(i);
+
+                if (blocks != null && blocks.length > 0) {
+                    char[] sector = blocks[i];
+                    if (sector != null && sector.length > 0) {
+                        section.setBlocks(sector);
+                    }
+                }
+
+                if (data != null && data.length > 0) {
+                    byte[] sector = data[i];
+                    if (sector != null && sector.length > 0) {
+                        section.setData(sector);
+                    }
+                }
+
+                // DEBUG ===== makes the entire chunk completely lit, not ideal for production
+                Arrays.fill(section.skyLight, (byte) 255);
+                // =====
+                section.updateRaw();
+            }
+
+            if (withPaint) {
+                paint(false);
+            }
+        } finally {
+            sections.release();
+        }
+
+        lightPopulated.set(0x01);
+        //TODO lighting
+    }
+
     @Override
     public void generate() {
-        executor.addTask(() -> {
-            // Don't call mapSections, as this generates them
-            ChunkSection[] sections = this.sections;
+        gen(true);
+    }
 
+    @Override
+    public boolean load() {
+        if (isLoaded()) {
+            return false;
+        }
+
+        CompoundTag tag = RegionFile.fromPath(world.name(), location).decode(location);
+        if (tag == null) {
+            return false;
+        }
+
+        load(tag);
+        return true;
+    }
+
+    public void paint(boolean withLock) {
+        // If the state is not 0x00 it is either generating (-1) or has already been
+        if (!terrainPopulated.compareAndSet(0x00, 0xFFFFFFFF)) {
+            return;
+        }
+
+        List<FeatureGenerator> brushes = world.loader().brushes();
+        // init chunk event
+        ConcurrentHashMap<ChunkLocation, TridentChunk> localCache = new ConcurrentHashMap<>();
+        ChunkManipulator manipulator = new ChunkManipulator() {
+            @Override
+            public void manipulate(int relX, int y, int relZ, Substance substance, byte data) {
+                if (relX >= 0 && relX <= 15 && relZ >= 0 && relZ <= 15) {
+                    int index = WorldUtils.blockArrayIndex(relX & 15, y & 15, relZ & 15);
+                    ChunkSection section = sections.get(WorldUtils.section(y));
+                    section.types[index] = (char) (substance.asExtended() & 0xfff0 | data);
+                    NibbleArray.set(section.data, index, data);
+                    NibbleArray.set(section.skyLight, index, (byte) 255);
+                    NibbleArray.set(section.blockLight, index, (byte) 255);
+                    return;
+                }
+
+                int cx = location.x();
+                int cz = location.z();
+
+                int xMinDiff = Math.max(relX, 0) - Math.min(relX, 0);
+                int xMaxDiff = Math.max(relX, 15) - Math.min(relX, 15);
+                int zMinDiff = Math.max(relZ, 0) - Math.min(relZ, 0);
+                int zMaxDiff = Math.max(relZ, 15) - Math.min(relZ, 15);
+
+                int chunkX = location.x();
+                int chunkZ = location.z();
+                int newX = relX;
+                int newZ = relZ;
+
+                if (relX < 0) {
+                    newX = 16 - xMinDiff;
+                    chunkX = cx - up(xMinDiff / 16) - 1;
+                } else if (relX > 15) {
+                    newX = xMaxDiff - 1;
+                    chunkX = cx + up(xMaxDiff / 16) + 1;
+                }
+
+                if (relZ < 0){
+                    newZ = 16 - zMinDiff;
+                    chunkZ = cz - up(zMinDiff / 16) - 1;
+                } else if (relZ > 15) {
+                    newZ = zMaxDiff - 1;
+                    chunkZ = cz + up(zMaxDiff / 16) + 1;
+                }
+
+                ChunkLocation loc = ChunkLocation.create(chunkX, chunkZ);
+                TridentChunk chunk = localCache.computeIfAbsent(loc, k -> rawChunk(loc));
+                chunk.setAt(newX, y, newZ, substance, data, (byte) 255, (byte) 15);
+            }
+
+            @Override
+            public Block blockAt(int relX, int y, int relZ) {
+                if (relX >= 0 && relX <= 15 && relZ >= 0 && relZ <= 15) {
+                    ChunkSection section = sections.get(WorldUtils.section(y));
+                    int index = WorldUtils.blockArrayIndex(relX, y & 15, relZ);
+                    byte b = (byte) (section.types[index] >> 4);
+                    byte meta = (byte) (section.types[index] & 0xF);
+
+                    Substance material = Substance.fromId(b);
+
+                    if (material == null) {
+                        material = Substance.AIR; // check if valid
+                    }
+
+                    TridentBlock block = new TridentBlock(Position.create(world, relX + x() * 16, y, relZ + z() * 16),
+                            material, meta);
+                    Vector key = new Vector(relX, y, relZ);
+                    List<BlockMeta> metas = blockMeta.get(key);
+                    if (metas != null) {
+                        for (BlockMeta m : metas) {
+                            block.applyMeta(m);
+                        }
+                    }
+
+                    return block;
+                }
+
+                int cx = location.x();
+                int cz = location.z();
+
+                int xMinDiff = Math.max(relX, 0) - Math.min(relX, 0);
+                int xMaxDiff = Math.max(relX, 15) - Math.min(relX, 15);
+                int zMinDiff = Math.max(relZ, 0) - Math.min(relZ, 0);
+                int zMaxDiff = Math.max(relZ, 15) - Math.min(relZ, 15);
+
+                int chunkX = location.x();
+                int chunkZ = location.z();
+                int newX = relX;
+                int newZ = relZ;
+
+                if (relX < 0) {
+                    newX = 16 - xMinDiff;
+                    chunkX = cx - up(xMinDiff / 16) - 1;
+                } else if (relX > 15) {
+                    newX = xMaxDiff - 1;
+                    chunkX = cx + up(xMaxDiff / 16) + 1;
+                }
+
+                if (relZ < 0){
+                    newZ = 16 - zMinDiff;
+                    chunkZ = cz - up(zMinDiff / 16) - 1;
+                } else if (relZ > 15) {
+                    newZ = zMaxDiff - 1;
+                    chunkZ = cz + up(zMaxDiff / 16) + 1;
+                }
+
+                ChunkLocation loc = ChunkLocation.create(chunkX, chunkZ);
+                TridentChunk chunk = localCache.computeIfAbsent(loc, k -> rawChunk(loc));
+                return chunk.blockAt(newX, y, newZ);
+            }
+        };
+
+        if (withLock) sections.lockFully();
+        try {
             for (int i = 0; i < 16; i++) {
-                if (sections[i] == null) {
-                    sections[i] = new ChunkSection((byte) i);
+                for (int j = 0; j < 16; j++) {
+                    for (FeatureGenerator brush : brushes) {
+                        brush.generate(location, i, j, world.random(), heights, manipulator);
+                    }
                 }
             }
+        } finally {
+            if (withLock) sections.release();
+        }
 
-            // TODO add flag to prevent double generation
-            AbstractGenerator generator = world.loader().generator();
-            int i = 0;
+        // Label as populated, so the chunk is not repopulated
+        terrainPopulated.set(0x01);
+    }
 
-            for (char[] blockData : generator.generateChunkBlocks(location)) {
-                sections[i].setBlocks(blockData);
-                i++;
-            }
+    private TridentChunk rawChunk(ChunkLocation location) {
+        return world.chunkAt(location, true);
+    }
 
-            i = 0;
+    private static int up(double d) {
+        if (Math.rint(d) != d)
+            return (int) d + 1;
+        return (int) d;
+    }
 
-            for (byte[] dataValues : generator.generateBlockData(location)) {
-                sections[i].setData(dataValues);
-                i++;
-            }
-
-            for (ChunkSection section : sections) {
-                if (section.blockLight == null) {
-                    section.blockLight = new byte[ChunkSection.LENGTH / 2];
-                }
-
-                if (section.skyLight == null) {
-                    section.skyLight = new byte[ChunkSection.LENGTH / 2];
-                }
-
-                if (section.types == null) {
-                    section.types = new char[ChunkSection.LENGTH];
-                }
-            }
-
-            // DEBUG ===== Makes the entire chunk full brightness, not exactly ideal
-            for (i = 0; i < 16; i++) {
-                Arrays.fill(sections[i].skyLight, (byte) 255);
-            }
-            // =====
-
-            //TODO lighting
-        });
+    public int maxHeightAt(int x, int z) {
+        return heights.get(WorldUtils.heightIndex(x, z));
     }
 
     @Override
@@ -156,154 +348,116 @@ public class TridentChunk implements Chunk {
 
     @Override
     public ChunkLocation location() {
-        return this.location;
+        return location;
     }
 
     @Override
     public TridentWorld world() {
-        return this.world;
+        return world;
     }
 
     @Override
-    public Block blockAt(final int relX, final int y, final int relZ) {
-        final int index = WorldUtils.blockArrayIndex(relX, y & 15, relZ);
+    public Block blockAt(int relX, int y, int relZ) {
+        int index = WorldUtils.blockArrayIndex(relX, y & 15, relZ);
+        int sectionIndex = WorldUtils.section(y);
+        return sections.modifyAndReturn(sectionIndex, section -> {
+            /* Get block data; use extras accordingly */
+            byte b = (byte) (section.types[index] >> 4);
+            byte meta = (byte) (section.types[index] & 0xF);
 
-        try {
-            return executor.submitTask(() -> {
-                ChunkSection[] sections = mapSections();
+            Substance material = Substance.fromId(b);
 
-                int sectionIndex = WorldUtils.section(y);
-                ChunkSection section = sections[sectionIndex];
+            if (material == null) {
+                material = Substance.AIR; // check if valid
+            }
 
-                /* Get block data; use extras accordingly */
-                byte b = (byte) (section.types[index] >> 4);
-                byte meta = (byte) (section.types[index] & 0xF);
-
-                Substance material = Substance.fromId(b);
-
-                if (material == null) {
-                    material = Substance.AIR; // check if valid
+            TridentBlock block = new TridentBlock(Position.create(world, relX + x() * 16, y, relZ + z() * 16),
+                    material, meta);
+            Vector key = new Vector(relX, y, relZ);
+            List<BlockMeta> metas = blockMeta.get(key);
+            if (metas != null) {
+                for (BlockMeta m : metas) {
+                    block.applyMeta(m);
                 }
+            }
 
-                return new TridentBlock(Position.create(world, relX + x() * 16, y, relZ + z() * 16),
-                        material, meta);
-            }).get();
-        } catch (InterruptedException | ExecutionException e) {
-            TridentLogger.error(e);
-            return null;
-        }
+            return block;
+        });
     }
 
     @Override
     public ChunkSnapshot snapshot() {
-        final List<CompoundTag> sections = Lists.newArrayList();
-
-        final ChunkSection[][] sections1 = new ChunkSection[1][1];
-        executor.addTask(() -> {
-            sections1[0] = mapSections();
-
-            for (ChunkSection section : sections1[0]) {
-                sections.add(NBTSerializer.serialize(section));
-            }
-        });
-
-        executor.addTask(() -> Stream.of(sections1[0]).forEach((s) -> sections.add(NBTSerializer.serialize(s))));
-
-        return new TridentChunkSnapshot(world, location, sections, lastFileAccess, lastModified, inhabitedTime,
-                lightPopulated, terrainPopulated);
+        return new TridentChunkSnapshot(world, this);
     }
 
     public PacketPlayOutChunkData asPacket() {
+        sections.lockFully();
         try {
-            return executor.submitTask(() -> {
-                ChunkSection[] sections = mapSections();
+            ByteArrayOutputStream data = new ByteArrayOutputStream();
 
-                int bitmask = (1 << sections.length) - 1;
-                ByteArrayOutputStream data = new ByteArrayOutputStream();
+            NewChunkSection[] newChunkSections = new NewChunkSection[16];
+            for (int i = 0; i < 16; i++) {
+                NewChunkSection newChunkSection = new NewChunkSection();
 
-                for (ChunkSection section : sections) {
-                    if (section == null)
-                        continue;
-
-                    for (char c : section.types()) {
-                        data.write(c & 0xff);
-                        data.write(c >> 8);
-                    }
-                }
-
-                for (ChunkSection section : sections) {
-                    try {
-                        if (section == null) {
-                            data.write(0);
-                            continue;
+                for (int x = 0; x < 16; x++) {
+                    for (int y = 0; y < 16; y++) {
+                        for (int z = 0; z < 16; z++) {
+                            newChunkSection.setBlock(x, y, z, 1, 3);
                         }
-
-                        data.write(section.blockLight);
-                    } catch (IOException e) {
-                        TridentLogger.error(e);
                     }
                 }
 
-                for (ChunkSection section : sections) {
-                    try {
-                        if (section == null) {
-                            data.write(0);
-                            continue;
-                        }
+                newChunkSections[i] = newChunkSection;
+            }
 
-                        data.write(section.skyLight);
-                    } catch (IOException e) {
-                        TridentLogger.error(e);
-                    }
-                }
-
-                for (int i = 0; i < 256; i += 1) {
-                    data.write(0);
-                }
-
-                return new PacketPlayOutChunkData(data.toByteArray(), location, false, (short) bitmask);
-            }).get();
-        } catch (InterruptedException | ExecutionException e) {
-            TridentLogger.error(e);
-            return null;
+            // fixme unused value
+            int bitmask = 0xFFFF;
+            return new PacketPlayOutChunkData(newChunkSections, location, true, bitmask);
+        } finally {
+            sections.release();
         }
     }
 
     public void load(CompoundTag root) {
         CompoundTag tag = root.getTagAs("Level");
         LongTag lastModifed = tag.getTagAs("LastUpdate");
-        ByteTag lightPopulated = (tag.containsTag("LightPopulated")) ? (ByteTag) tag.getTagAs(
+        ByteTag lightPopulated = tag.containsTag("LightPopulated") ? (ByteTag) tag.getTagAs(
                 "LightPopulated") : new ByteTag("LightPopulated").setValue((byte) 0);
         ByteTag terrainPopulated = tag.getTagAs("TerrainPopulated");
 
         LongTag inhabitedTime = tag.getTagAs("InhabitedTime");
         IntArrayTag biomes = tag.getTagAs("HeightMap");
 
-        final ListTag sectionTags = tag.getTagAs("Sections");
-        ListTag entities = tag.getTagAs("Entities");
-        ListTag tileEntities = (tag.containsTag("TileEntities")) ? (ListTag) tag.getTag("TileEntities") :
-                new ListTag("TileEntities", TagType.COMPOUND);
-        ListTag tileTicks = (tag.containsTag("TileTicks")) ? (ListTag) tag.getTag("TileTicks") : new ListTag(
-                "TileTicks", TagType.COMPOUND);
-        final List<NBTTag> sectionsList = sectionTags.listTags();
-
-        final ChunkSection[] sections = new ChunkSection[sectionsList.size()];
-
-                /* Load sections */
-        for (int i = 0; i < sectionsList.size(); i += 1) {
-            NBTTag t = sectionTags.getTag(i);
-
-            if (t instanceof CompoundTag) {
-                CompoundTag ct = (CompoundTag) t;
-
-                ChunkSection section = NBTSerializer.deserialize(ChunkSection.class, ct);
-
-                section.loadBlocks();
-                sections[section.y()] = section;
-            }
+        int[] rawHeight = biomes.value();
+        for (int i = 0; i < 256; i++) {
+            heights.set(i, rawHeight[i]);
         }
 
-        executor.addTask(() -> this.sections = sections);
+        ListTag sectionTags = tag.getTagAs("Sections");
+        ListTag entities = tag.getTagAs("Entities");
+        ListTag tileEntities = tag.containsTag("TileEntities") ? (ListTag) tag.getTag("TileEntities") :
+                new ListTag("TileEntities", TagType.COMPOUND);
+        ListTag tileTicks = tag.containsTag("TileTicks") ? (ListTag) tag.getTag("TileTicks") : new ListTag(
+                "TileTicks", TagType.COMPOUND);
+        List<NBTTag> sectionsList = sectionTags.listTags();
+
+        /* Load sections */
+        sections.lockFully();
+        try {
+            for (int i = 0; i < sectionsList.size(); i += 1) {
+                NBTTag t = sectionTags.getTag(i);
+
+                if (t instanceof CompoundTag) {
+                    CompoundTag ct = (CompoundTag) t;
+
+                    ChunkSection section = NBTSerializer.deserialize(ChunkSection.class, ct);
+                    section.loadBlocks();
+                    sections.set(section.y(), section);
+                }
+            }
+        } finally {
+            sections.release();
+        }
 
         for (NBTTag t : entities.listTags()) {
             //TridentEntity entity = EntityBuilder.create().build(TridentEntity.class);
@@ -313,17 +467,34 @@ public class TridentChunk implements Chunk {
         }
 
         /* Load extras */
-        this.lightPopulated = lightPopulated.value(); // Unknown use
-        this.terrainPopulated = terrainPopulated.value(); // if chunk was populated with special things (ores,
+        this.lightPopulated.set(lightPopulated.value()); // Unknown use
+        this.terrainPopulated.set(terrainPopulated.value()); // if chunk was populated with special things (ores,
         // trees, etc.), if 1 regenerate
-        this.lastModified = lastModifed.value(); // Tick when the chunk was last saved
+        lastModified = lastModifed.value(); // Tick when the chunk was last saved
         this.inhabitedTime = inhabitedTime.value(); // Cumulative number of ticks player have been in the chunk
     }
 
     @Override
+    // todo refactor to boolean
     public void unload() {
-        world.loader().saveChunk(this);
-        world.loadedChunks.remove(location);
+        sections.lockFully();
+        try {
+            ChunkHandler chunkHandler = world.chunkHandler();
+
+            // slight inefficacy here - redundant operation when called with
+            // ChunkHandler#tryRemove(...)
+            CRefCounter refCounter = chunkHandler.get(location);
+            if (refCounter != null) {
+                if (refCounter.hasStrongRefs()) {
+                    return;
+                }
+            }
+
+            world.loader().saveChunk(this);
+            chunkHandler.remove(location);
+        } finally {
+            sections.release();
+        }
     }
 
     public CompoundTag asNbt() {
@@ -331,28 +502,34 @@ public class TridentChunk implements Chunk {
         CompoundTag level = new CompoundTag("Level");
 
         level.addTag(new LongTag("LastUpdate").setValue(world.time()));
-        level.addTag(new ByteTag("LightPopulated").setValue(lightPopulated));
-        level.addTag(new ByteTag("TerrainPopulated").setValue(terrainPopulated));
+        level.addTag(new ByteTag("LightPopulated").setValue((byte) lightPopulated.get()));
+        level.addTag(new ByteTag("TerrainPopulated").setValue((byte) terrainPopulated.get()));
 
         level.addTag(new LongTag("InhabitedTime").setValue(inhabitedTime));
-        level.addTag(new IntArrayTag("HeightMap").setValue(new int[1024])); // placeholder TODO
 
-        final ListTag sectionTags = new ListTag("Sections", TagType.COMPOUND);
-
-        ChunkSection[] sectionCopy = new ChunkSection[0];
-        try {
-            sectionCopy = executor.submitTask(this::mapSections).get();
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
+        int[] rawHeights = new int[256];
+        for (int i = 0; i < 256; i++) {
+            rawHeights[i] = heights.get(i);
         }
 
-        for (ChunkSection section : sectionCopy) {
-            section.updateRaw();
-            sectionTags.addTag(NBTSerializer.serialize(section));
+        level.addTag(new IntArrayTag("HeightMap").setValue(rawHeights));
+
+        ListTag sectionTags = new ListTag("Sections", TagType.COMPOUND);
+
+        for (int i = 0; i < 16; i++) {
+            sections.modify(i, section -> {
+                section.updateRaw();
+                sectionTags.addTag(NBTSerializer.serialize(section));
+            });
         }
 
         level.addTag(sectionTags);
-        level.addTag(new ListTag("Entities", TagType.COMPOUND)); // another placeholder TODO
+
+        ListTag tag = new ListTag("Entities", TagType.COMPOUND);
+        for (Entity entity : entities()) {
+            tag.addTag(((TridentEntity) entity).asNbt());
+        }
+        level.addTag(tag);
 
         root.addTag(level);
 
@@ -363,18 +540,22 @@ public class TridentChunk implements Chunk {
         setAt((int) p.x(), (int) p.y(), (int) p.z(), type, metaData, skyLight, blockLight);
     }
 
-    public void setAt(int x, final int y, int z, final Substance type, final byte metaData, final byte skyLight,
-                      final byte blockLight) {
-        final int index = WorldUtils.blockArrayIndex(x & 15, y & 15, z & 15);
-        executor.addTask(() -> {
-            ChunkSection[] sections = mapSections();
-
-            ChunkSection section = sections[WorldUtils.section(y)];
-
-            section.types[index] = (char) ((type.asExtended() & 0xfff0) | metaData);
+    public void setAt(int x, int y, int z, Substance type, byte metaData, byte skyLight,
+                      byte blockLight) {
+        int index = WorldUtils.blockArrayIndex(x & 15, y & 15, z & 15);
+        sections.modify(WorldUtils.section(y), section -> {
+            section.types[index] = (char) (type.asExtended() & 0xfff0 | metaData);
             NibbleArray.set(section.data, index, metaData);
             NibbleArray.set(section.skyLight, index, skyLight);
             NibbleArray.set(section.blockLight, index, blockLight);
         });
+    }
+
+    @Override
+    public ArrayList<Entity> getEntities(Entity exclude, BoundingBox boundingBox, Predicate<? super Entity> predicate){
+        return new ArrayList<>(entities.stream()
+                .filter(checking -> !checking.equals(exclude) && checking.boundingBox().collidesWith(boundingBox))
+                .filter(checking -> predicate == null || predicate.test(checking))
+                .collect(Collectors.toList()));
     }
 }

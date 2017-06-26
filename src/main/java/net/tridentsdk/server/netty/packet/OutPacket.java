@@ -56,7 +56,7 @@ public abstract class OutPacket implements Packet {
      */
     @Override
     public Packet decode(ByteBuf buf) {
-        TridentLogger.error(new UnsupportedOperationException(this.getClass().getName() + " cannot be decoded!"));
+        TridentLogger.get().error(new UnsupportedOperationException(this.getClass().getName() + " cannot be decoded!"));
         return null;
     }
 
@@ -67,7 +67,7 @@ public abstract class OutPacket implements Packet {
      */
     @Override
     public void handleReceived(ClientConnection connection) {
-        TridentLogger.error(new UnsupportedOperationException(
+        TridentLogger.get().error(new UnsupportedOperationException(
                 this.getClass().getName() + " is a client-bound packet therefor cannot be handled!"));
     }
 }

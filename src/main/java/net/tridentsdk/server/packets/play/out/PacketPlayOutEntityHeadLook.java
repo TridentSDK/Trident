@@ -28,7 +28,7 @@ public class PacketPlayOutEntityHeadLook extends OutPacket {
 
     @Override
     public int id() {
-        return 0x19;
+        return 0x34;
     }
 
     public int entityId() {

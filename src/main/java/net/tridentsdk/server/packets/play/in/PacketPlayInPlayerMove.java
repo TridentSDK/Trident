@@ -18,13 +18,10 @@
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Handler;
-import net.tridentsdk.Position;
-import net.tridentsdk.event.player.PlayerMoveEvent;
+import net.tridentsdk.base.Position;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
-import net.tridentsdk.server.packets.play.out.PacketPlayOutEntityTeleport;
 import net.tridentsdk.server.player.PlayerConnection;
 import net.tridentsdk.server.player.TridentPlayer;
 
@@ -37,13 +34,13 @@ public class PacketPlayInPlayerMove extends InPacket {
      */
     protected Position location;
     /**
-     * Wether the player is on the ground or not
+     * Whether the player is on the ground or not
      */
     protected boolean onGround;
 
     @Override
     public int id() {
-        return 0x04;
+        return 0x0C;
     }
 
     @Override
@@ -52,7 +49,7 @@ public class PacketPlayInPlayerMove extends InPacket {
         double y = buf.readDouble();
         double z = buf.readDouble();
 
-        this.location = Position.create(null, x, y, z); // TODO: Get the player's world
+        this.location = Position.create(null, x, y, z);
 
         this.onGround = buf.readBoolean();
 
@@ -71,22 +68,8 @@ public class PacketPlayInPlayerMove extends InPacket {
     public void handleReceived(ClientConnection connection) {
         TridentPlayer player = ((PlayerConnection) connection).player();
         this.location.setWorld(player.world());
-        Position from = player.position();
-        Position to = this.location;
-
-        PlayerMoveEvent event = new PlayerMoveEvent(player, from, to);
-
-        Handler.forEvents().fire(event);
-
-        if (event.isIgnored()) {
-            PacketPlayOutEntityTeleport cancel = new PacketPlayOutEntityTeleport();
-
-            cancel.set("entityId", player.entityId()).set("location", from).set("onGround", player.onGround());
-
-            TridentPlayer.sendAll(cancel);
-            return;
-        }
-
-        player.setPosition(to);
+        this.location.setPitch(player.position().pitch());
+        this.location.setYaw(player.position().yaw());
+        player.setPosition(location());
     }
 }

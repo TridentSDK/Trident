@@ -33,7 +33,7 @@ public class PacketPlayOutCombatEvent extends OutPacket {
 
     @Override
     public int id() {
-        return 0x42;
+        return 0x2C;
     }
 
     public short event() {

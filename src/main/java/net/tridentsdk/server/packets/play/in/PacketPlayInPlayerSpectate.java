@@ -37,7 +37,7 @@ public class PacketPlayInPlayerSpectate extends InPacket {
 
     @Override
     public int id() {
-        return 0x18;
+        return 0x1C;
     }
 
     public UUID uniqueId() {

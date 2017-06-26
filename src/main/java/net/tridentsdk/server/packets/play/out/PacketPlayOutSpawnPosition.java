@@ -18,7 +18,7 @@
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Position;
+import net.tridentsdk.base.Position;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
 public class PacketPlayOutSpawnPosition extends OutPacket {
@@ -26,7 +26,7 @@ public class PacketPlayOutSpawnPosition extends OutPacket {
 
     @Override
     public int id() {
-        return 0x05;
+        return 0x43;
     }
 
     public Position location() {

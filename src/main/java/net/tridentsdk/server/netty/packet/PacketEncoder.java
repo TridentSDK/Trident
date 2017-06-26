@@ -69,6 +69,7 @@ public class PacketEncoder extends MessageToByteEncoder<ByteBuf> {
      * Encodes the packet without checking for size to see if it should be compressed
      * <p>Still sends a VarInt 0 to indicate that this packet has not been compressed</p>
      * <p>This method of handling a packet is abnormal and is only used when compression is disabled</p>
+     * FIXME compression needs to be enabled in order to use this method
      */
     private void sendDecompressed(ByteBuf msg, ByteBuf out) {
         Codec.writeVarInt32(out, msg.readableBytes() + Codec.sizeOf(0));

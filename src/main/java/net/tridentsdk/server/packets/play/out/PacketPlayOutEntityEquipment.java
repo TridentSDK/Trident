@@ -30,7 +30,7 @@ public class PacketPlayOutEntityEquipment extends OutPacket {
 
     @Override
     public int id() {
-        return 0x04;
+        return 0x3C;
     }
 
     public int entityId() {

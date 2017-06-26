@@ -18,7 +18,7 @@
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Position;
+import net.tridentsdk.base.Position;
 import net.tridentsdk.event.player.PlayerTabCompleteEvent;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
@@ -46,7 +46,7 @@ public class PacketPlayInTabComplete extends InPacket {
 
     @Override
     public int id() {
-        return 0x14;
+        return 0x01;
     }
 
     @Override

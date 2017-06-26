@@ -18,13 +18,10 @@
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Handler;
-import net.tridentsdk.Position;
-import net.tridentsdk.event.player.PlayerMoveEvent;
+import net.tridentsdk.base.Position;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
-import net.tridentsdk.server.packets.play.out.PacketPlayOutEntityTeleport;
 import net.tridentsdk.server.player.PlayerConnection;
 import net.tridentsdk.server.player.TridentPlayer;
 
@@ -48,7 +45,7 @@ public class PacketPlayInPlayerLook extends InPacket {
 
     @Override
     public int id() {
-        return 0x05;
+        return 0x0E;
     }
 
     @Override
@@ -68,19 +65,6 @@ public class PacketPlayInPlayerLook extends InPacket {
 
         to.setYaw(this.newYaw);
         to.setPitch(this.newPitch);
-
-        PlayerMoveEvent event = new PlayerMoveEvent(player, from, to);
-
-        Handler.forEvents().fire(event);
-
-        if (event.isIgnored()) {
-            PacketPlayOutEntityTeleport cancel = new PacketPlayOutEntityTeleport();
-
-            cancel.set("entityId", player.entityId()).set("location", from).set("onGround", player.onGround());
-
-            TridentPlayer.sendAll(cancel);
-            return;
-        }
 
         player.setPosition(to);
     }

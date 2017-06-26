@@ -27,11 +27,11 @@ public class PacketPlayOutEntityCompleteMove extends OutPacket {
     protected Vector difference;
     protected float yaw;
     protected float pitch;
-    protected byte flags;
+    protected boolean onGround;
 
     @Override
     public int id() {
-        return 0x17;
+        return 0x26;
     }
 
     public int entityId() {
@@ -50,8 +50,8 @@ public class PacketPlayOutEntityCompleteMove extends OutPacket {
         return this.pitch;
     }
 
-    public byte flags() {
-        return this.flags;
+    public boolean flags() {
+        return this.onGround;
     }
 
     @Override
@@ -65,6 +65,6 @@ public class PacketPlayOutEntityCompleteMove extends OutPacket {
         buf.writeByte((int) this.yaw);
         buf.writeByte((int) this.pitch);
 
-        buf.writeByte((int) this.flags);
+        buf.writeBoolean(onGround);
     }
 }

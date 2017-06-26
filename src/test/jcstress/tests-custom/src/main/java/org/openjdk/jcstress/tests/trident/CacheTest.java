@@ -26,12 +26,12 @@
 package org.openjdk.jcstress.tests.trident;
 
 import net.tridentsdk.concurrent.HeldValueLatch;
-import net.tridentsdk.factory.Factories;
 import net.tridentsdk.util.TridentLogger;
 import org.openjdk.jcstress.annotations.*;
 import org.openjdk.jcstress.infra.results.BooleanResult4;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 @JCStressTest
@@ -73,7 +73,7 @@ public class CacheTest {
 
     @State
     public static class ConcurrentCache<K, V> {
-        private final ConcurrentMap<K, HeldValueLatch<V>> cache = Factories.collect().createMap();
+        private final ConcurrentMap<K, HeldValueLatch<V>> cache = new ConcurrentHashMap<>();
 
         private ConcurrentCache() {
         }
@@ -136,7 +136,7 @@ public class CacheTest {
             try {
                 return val.await();
             } catch (InterruptedException e) {
-                TridentLogger.error(e);
+                TridentLogger.get().error(e);
                 return null;
             }
         }

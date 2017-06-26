@@ -22,6 +22,7 @@ import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 
+// NOTE: This packet is inconsistently sent from the client
 public class PacketPlayInPlayerConfirmTransaction extends InPacket {
 
     /**
@@ -35,12 +36,12 @@ public class PacketPlayInPlayerConfirmTransaction extends InPacket {
 
     @Override
     public int id() {
-        return 0x0F;
+        return 0x05;
     }
 
     @Override
     public Packet decode(ByteBuf buf) {
-        buf.readByte(); //ignore windowId, we'd have the window the player has open anyhow
+        buf.readByte(); //ignore windowId, we'd have the inventory the player has open anyhow
 
         this.actionNumber = buf.readShort();
         this.accepted = buf.readBoolean();

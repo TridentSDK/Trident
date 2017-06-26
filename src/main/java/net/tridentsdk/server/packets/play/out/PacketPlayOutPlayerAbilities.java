@@ -28,7 +28,7 @@ public class PacketPlayOutPlayerAbilities extends OutPacket {
 
     @Override
     public int id() {
-        return 0x39;
+        return 0x2B;
     }
 
     public byte flags() {

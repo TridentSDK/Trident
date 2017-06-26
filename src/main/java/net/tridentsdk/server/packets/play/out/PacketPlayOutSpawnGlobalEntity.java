@@ -18,7 +18,7 @@
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Position;
+import net.tridentsdk.base.Position;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
@@ -32,7 +32,7 @@ public class PacketPlayOutSpawnGlobalEntity extends OutPacket {
 
     @Override
     public int id() {
-        return 0x2C;
+        return 0x02;
     }
 
     public int entityId() {

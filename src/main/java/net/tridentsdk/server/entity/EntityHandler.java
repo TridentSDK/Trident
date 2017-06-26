@@ -17,17 +17,15 @@
 
 package net.tridentsdk.server.entity;
 
-import net.tridentsdk.Position;
 import net.tridentsdk.Trident;
+import net.tridentsdk.base.Position;
 import net.tridentsdk.docs.InternalUseOnly;
 import net.tridentsdk.entity.Entity;
-import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.util.TridentLogger;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -37,12 +35,12 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @ThreadSafe
 public final class EntityHandler {
-    private static final Map<UUID, Entity> entities = new ConcurrentHashMap<>();
+    private static final Map<Integer, Entity> entities = new ConcurrentHashMap<>();
 
     @InternalUseOnly
     private EntityHandler() {
         if (!Trident.isTrident())
-            TridentLogger.error(new IllegalAccessException("EntityManager can only be initalized by TridentSDK!"));
+            TridentLogger.get().error(new IllegalAccessException("EntityManager can only be initalized by TridentSDK!"));
     }
 
     /**
@@ -60,10 +58,7 @@ public final class EntityHandler {
      * @param entity the entity to manage
      */
     public void register(Entity entity) {
-        entities.put(entity.uniqueId(), entity);
-        if (entity instanceof TridentPlayer)
-            return;
-        // tracker.track(entity);
+        entities.put(entity.entityId(), entity);
     }
 
     /**
@@ -91,7 +86,7 @@ public final class EntityHandler {
      * @param id the ID to find the entity by
      * @return the entity with the ID specified
      */
-    public Entity entityBy(UUID id) {
+    public Entity entityBy(int id) {
         return entities.get(id);
     }
 

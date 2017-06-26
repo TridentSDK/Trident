@@ -17,13 +17,12 @@
 
 package net.tridentsdk.server.util;
 
-import com.google.code.tempusfugit.concurrency.annotations.ThreadSafe;
+import com.google.common.collect.Iterators;
 
+import javax.annotation.concurrent.ThreadSafe;
 import java.util.Iterator;
-import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * A thread safe implementation of a Circular array
@@ -32,129 +31,36 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * fixed length</p>
  */
 @ThreadSafe
-public class ConcurrentCircularArray<E> {
+public class ConcurrentCircularArray<E> implements Iterable<E> {
+    private final Object[] list;
+    private final int size;
 
-    protected final AtomicReferenceArray<E> backing;
-    private final int maxSize;
-    private final ReadWriteLock rwLock;
-    private int current;
-    private int size;
+    private final Lock lock = new ReentrantLock();
+    private int index = 0;
 
-    public ConcurrentCircularArray(final int length) {
-        backing = new AtomicReferenceArray<>(length);
-        // The position of the value to write
-        current = 0;
-        size = 0;
-
-        maxSize = length;
-
-        rwLock = new ReentrantReadWriteLock();
+    public ConcurrentCircularArray(int size) {
+        this.list = new Object[size];
+        this.size = size;
     }
 
-    public boolean add(E element) {
-
-        Lock lock = rwLock.writeLock();
+    public void add(E item) {
         lock.lock();
         try {
-            if (size < maxSize) {
-                backing.set(current, element);
-                size++;
-                if (current + 1 == maxSize) {
-                    current = 0;
-                } else {
-                    current++;
-                }
-            } else {
-                backing.set(current, element);
-                if (current + 1 == maxSize) {
-                    current = 0;
-                } else {
-                    current++;
-                }
-            }
+            if (index == size) index = 0;
+            list[index] = item;
+            index++;
         } finally {
             lock.unlock();
         }
-        return true;
     }
 
-    public int size() {
-        return size;
-    }
-
-    public boolean isEmpty() {
-        return size == 0;
-    }
-
+    @Override
     public Iterator<E> iterator() {
-
-        Lock lock = rwLock.readLock();
         lock.lock();
-        Iterator<E> retVal = null;
-
         try {
-            retVal = new CircularArrayIterator<>(this);
+            return Iterators.transform(Iterators.forArray(list), e -> (E) e);
         } finally {
             lock.unlock();
         }
-
-        return retVal;
-    }
-
-    public void clear() {
-        Lock lock = rwLock.writeLock();
-        lock.lock();
-        try {
-            for (int i = 0; i < maxSize; i++) {
-                backing.set(i, null);
-            }
-            size = 0;
-            current = 0;
-        } finally {
-            lock.unlock();
-        }
-    }
-
-    /**
-     * Removes the value from the circular array
-     *
-     * <p>Does not collapse the array, only replaces the value with null</p>
-     *
-     * @param i     the index of the value to replace
-     * @param value if this removal is to be checked for modification, the value that is expected, otherwise, null
-     * @return if a specific value was expected, whether it was successfully removed
-     */
-    protected boolean remove(int i, E value) {
-        Lock lock = rwLock.writeLock();
-        lock.lock();
-        try {
-            if (value == null) {
-                backing.set(i, null);
-                size--;
-            } else {
-                boolean retVal = backing.compareAndSet(i, value, null);
-                if (retVal) {
-                    size--;
-                }
-                return retVal;
-            }
-        } finally {
-            lock.unlock();
-        }
-
-        return true;
-    }
-
-    /**
-     * Whether or not this Object has all of its elements filled up, and an add will cause an overwrite to occur
-     *
-     * @return whether or not this is full
-     */
-    public boolean isFull() {
-        return size == maxSize;
-    }
-
-    public int maxSize() {
-        return maxSize;
     }
 }

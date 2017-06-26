@@ -40,7 +40,7 @@ public class PacketPlayInClientStatus extends InPacket {
 
     @Override
     public int id() {
-        return 0x15;
+        return 0x03;
     }
 
     public short actionId() {
@@ -64,9 +64,9 @@ public class PacketPlayInClientStatus extends InPacket {
             case RESPAWN:
                 PacketPlayOutPlayerRespawn respawn = new PacketPlayOutPlayerRespawn();
 
-                respawn.set("dimension", (int) world.dimension().asByte())
-                        .set("difficulity", (int) world.difficulty().asByte())
-                        .set("gameMode", (int) world.defaultGamemode().asByte()
+                respawn.set("dimension", (int) world.settings().dimension().asByte())
+                        .set("difficulity", (int) world.settings().difficulty().asByte())
+                        .set("gameMode", (int) world.settings().defaultGameMode().asByte()
                         /* todo make this specific to the player */);
 
                 connection.sendPacket(respawn);
@@ -87,7 +87,7 @@ public class PacketPlayInClientStatus extends InPacket {
                 break;
 
             default:
-                TridentLogger.error(
+                TridentLogger.get().error(
                         new IllegalArgumentException("Client sent invalid status, maybe modified?")); // catched by
                 // PacketHandler
         }

@@ -18,8 +18,8 @@
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Handler;
 import net.tridentsdk.event.entity.PlayerToggleSprintEvent;
+import net.tridentsdk.server.event.EventProcessor;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.InPacket;
@@ -51,7 +51,7 @@ public class PacketPlayInEntityAction extends InPacket {
 
     @Override
     public int id() {
-        return 0x0B;
+        return 0x14;
     }
 
     @Override
@@ -70,10 +70,8 @@ public class PacketPlayInEntityAction extends InPacket {
         switch(type) {
             case START_SPRINTING:
             case STOP_SPRINTING:
-                PlayerToggleSprintEvent event = new PlayerToggleSprintEvent(player, type ==
-                        ActionType.START_SPRINTING);
-
-                Handler.forEvents().fire(event);
+                PlayerToggleSprintEvent event = EventProcessor.fire(new PlayerToggleSprintEvent(player,
+                        type == ActionType.START_SPRINTING));
 
                 if(!event.isIgnored()) {
                     player.setSprinting(event.sprintOn());
@@ -114,7 +112,7 @@ public class PacketPlayInEntityAction extends InPacket {
                     return type;
             }
 
-            TridentLogger.error(new IllegalArgumentException(id + " is not a valid ActionType id!"));
+            TridentLogger.get().error(new IllegalArgumentException(id + " is not a valid ActionType id!"));
             return null;
         }
 

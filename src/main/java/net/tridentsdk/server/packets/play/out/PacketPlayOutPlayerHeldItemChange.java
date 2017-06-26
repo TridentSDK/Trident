@@ -26,7 +26,7 @@ public class PacketPlayOutPlayerHeldItemChange extends OutPacket {
 
     @Override
     public int id() {
-        return 0x09;
+        return 0x37;
     }
 
     public byte slot() {

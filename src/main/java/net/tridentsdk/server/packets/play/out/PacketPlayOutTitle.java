@@ -59,4 +59,22 @@ public class PacketPlayOutTitle extends OutPacket {
             }
         }
     }
+
+    public enum TitleAction {
+        TITLE(0),
+        SUBTITLE(1),
+        TIMES_AND_DISPLAY(2),
+        HIDE(3),
+        RESET(4);
+
+        private int id;
+
+        TitleAction(int id) {
+            this.id = id;
+        }
+
+        public int id() {
+            return id;
+        }
+    }
 }

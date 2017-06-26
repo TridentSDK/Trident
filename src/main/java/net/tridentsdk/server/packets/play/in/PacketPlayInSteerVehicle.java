@@ -42,7 +42,7 @@ public class PacketPlayInSteerVehicle extends InPacket {
 
     @Override
     public int id() {
-        return 0x0C;
+        return 0x15;
     }
 
     @Override

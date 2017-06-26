@@ -27,7 +27,7 @@ public class PacketPlayOutEntityTick extends OutPacket {
 
     @Override
     public int id() {
-        return 0x14;
+        return 0x28; // TODO Check if correct ID
     }
 
     @Override

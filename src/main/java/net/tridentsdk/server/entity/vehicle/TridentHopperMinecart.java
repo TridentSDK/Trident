@@ -16,11 +16,11 @@
  */
 package net.tridentsdk.server.entity.vehicle;
 
-import net.tridentsdk.Position;
+import net.tridentsdk.base.Position;
 import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.entity.vehicle.HopperMinecart;
-import net.tridentsdk.window.Window;
-import net.tridentsdk.window.inventory.Item;
+import net.tridentsdk.inventory.Inventory;
+import net.tridentsdk.inventory.Item;
 
 import java.util.UUID;
 
@@ -45,7 +45,7 @@ public class TridentHopperMinecart extends TridentMinecart implements HopperMine
     }
 
     @Override
-    public Window inventory() {
+    public Inventory window() {
         return null;
     }
 

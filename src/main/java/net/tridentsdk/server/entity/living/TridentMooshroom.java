@@ -17,11 +17,11 @@
 
 package net.tridentsdk.server.entity.living;
 
-import net.tridentsdk.Position;
+import net.tridentsdk.base.Position;
 import net.tridentsdk.entity.Entity;
-import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.entity.living.Mooshroom;
 import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.event.entity.EntityDamageEvent;
 
 import java.util.UUID;

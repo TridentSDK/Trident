@@ -18,14 +18,14 @@
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.GameMode;
-import net.tridentsdk.Handler;
 import net.tridentsdk.event.player.PlayerToggleFlyingEvent;
+import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.player.PlayerConnection;
 import net.tridentsdk.server.player.TridentPlayer;
+import net.tridentsdk.world.settings.GameMode;
 
 /**
  * Packet is sent when the player starts/stops flying with the second parameter changed accordingly. All other
@@ -53,7 +53,7 @@ public class PacketPlayInPlayerAbilities extends InPacket {
 
     @Override
     public int id() {
-        return 0x13;
+        return 0x12;
     }
 
     @Override
@@ -97,7 +97,7 @@ public class PacketPlayInPlayerAbilities extends InPacket {
                 toggleFly.cancel(true);
             }
 
-            Handler.forEvents().fire(toggleFly);
+            Registered.events().fire(toggleFly);
 
             player.setFlying(!toggleFly.isIgnored());
         }

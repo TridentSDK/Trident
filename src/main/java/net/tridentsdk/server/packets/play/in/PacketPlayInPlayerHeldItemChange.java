@@ -35,7 +35,7 @@ public class PacketPlayInPlayerHeldItemChange extends InPacket {
 
     @Override
     public int id() {
-        return 0x09;
+        return 0x17;
     }
 
     @Override

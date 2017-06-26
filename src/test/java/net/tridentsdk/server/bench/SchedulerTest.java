@@ -17,15 +17,12 @@
 
 package net.tridentsdk.server.bench;
 
-
-import net.tridentsdk.AccessBridge;
-import net.tridentsdk.concurrent.TridentRunnable;
-import net.tridentsdk.factory.CollectFactory;
-import net.tridentsdk.plugin.TridentPlugin;
-import net.tridentsdk.plugin.annotation.PluginDescription;
-import net.tridentsdk.server.TridentTaskScheduler;
-import net.tridentsdk.server.threads.ThreadsHandler;
+import net.tridentsdk.concurrent.ScheduledRunnable;
+import net.tridentsdk.plugin.Plugin;
+import net.tridentsdk.plugin.annotation.PluginDesc;
+import net.tridentsdk.server.concurrent.TridentTaskScheduler;
 import net.tridentsdk.util.TridentLogger;
+import org.apache.log4j.Level;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
 import org.openjdk.jmh.results.RunResult;
@@ -36,8 +33,6 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 import org.openjdk.jmh.runner.options.TimeValue;
 
 import java.util.Collection;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 
 /*
@@ -136,15 +131,7 @@ Trident is 10x faster than Bukkit
 @State(Scope.Benchmark)
 public class SchedulerTest {
     static {
-        TridentLogger.init();
-        AccessBridge.open().sendSelf(new CollectFactory() {
-            @Override
-            public <K, V> ConcurrentMap<K, V> createMap() {
-                return new ConcurrentHashMap<>();
-            }
-        });
-        AccessBridge.open().sendSuper(ThreadsHandler.create());
-        AccessBridge.open().sendSuper(TridentTaskScheduler.create());
+        TridentLogger.init(Level.DEBUG);
     }
 
     private static final TridentTaskScheduler scheduler = TridentTaskScheduler.create();
@@ -153,12 +140,12 @@ public class SchedulerTest {
     private int cpuTokens;
 
     public static void main8(String... args) throws InterruptedException {
-        @PluginDescription(name = "LOLCODE")
-        class PluginImpl extends TridentPlugin {
+        @PluginDesc(name = "LOLCODE")
+        class PluginImpl extends Plugin {
         }
 
         for (int i = 0; i < 1000; i++) {
-            scheduler.asyncRepeat(new PluginImpl(), new TridentRunnable() {
+            scheduler.asyncRepeat(new PluginImpl(), new ScheduledRunnable() {
                 @Override
                 public void run() {
                     System.out.println("Your mom");
@@ -196,12 +183,12 @@ public class SchedulerTest {
     public static void main0(String... args) throws InterruptedException {
         TridentTaskScheduler scheduler = TridentTaskScheduler.create();
         for (int i = 0; i < 100; i++) {
-            @PluginDescription(name = "LOLCODE")
-            class PluginImpl extends TridentPlugin {
+            @PluginDesc(name = "LOLCODE")
+            class PluginImpl extends Plugin {
             }
 
             final int finalI = i;
-            scheduler.asyncRepeat(new PluginImpl(), new TridentRunnable() {
+            scheduler.asyncRepeat(new PluginImpl(), new ScheduledRunnable() {
                 @Override
                 public void run() {
                     System.out.println("LOL: " + finalI);
@@ -219,11 +206,11 @@ public class SchedulerTest {
     @Setup
     public void setup() {
         for (int i = 0; i < 100000; i++) {
-            @PluginDescription(name = "LOLCODE")
-            class PluginImpl extends TridentPlugin {
+            @PluginDesc(name = "LOLCODE")
+            class PluginImpl extends Plugin {
             }
 
-            scheduler.asyncRepeat(new PluginImpl(), new TridentRunnable() {
+            scheduler.asyncRepeat(new PluginImpl(), new ScheduledRunnable() {
                 @Override
                 public void run() {
                     System.out.print("");

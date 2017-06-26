@@ -1,8 +1,10 @@
 before_install:
   - git clone -b travis `git config --get remote.origin.url` target/travis
+  - chmod 777 "scripts/build.sh"
   - chmod 777 "scripts/javadoc.sh"
+  - sleep 60
 after_script: ./scripts/javadoc.sh
-script: mvn clean install deploy --settings target/travis/settings.xml
+script: ./scripts/build.sh
 language: java
 jdk:
   - oraclejdk8
@@ -12,6 +14,7 @@ notifications:
     rooms:
       secure: fphyBTWwJ0bE41mJkxukMseWknNP6j7lpWYwskvCn++D3AJj59crlk0oGlMCM6s/pCOtM868TLHSL8oW/kbnOddQSvkBvpGLPh41tAh6euvYvpUJpWivuuNfhi3HtFEtcv+H0XgLX99McOeCvwxi3bhaqKJen1wrwo7VTpVJihY=
 install: true
+sudo: false
 env:
   global:
   - secure: Qv3lWydc65BlLDv2IGtRC1+NTOyytKOqAGOVSO5/NFvH1mX8VE1yBm+vop/S/Tj6iUxOSzxD47xDQAZt/T13SKKFUngqu83uQS4bwu8QK6aNVp2xxphLNwqprcxXIbvY4L5NxOd0lE050ITgJhyz+tVwW/0yfc7BTvw7t8iOkLI=

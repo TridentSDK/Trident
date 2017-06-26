@@ -28,7 +28,7 @@ public class PacketPlayOutWindowProperty extends OutPacket {
 
     @Override
     public int id() {
-        return 0x31;
+        return 0x15;
     }
 
     public int windowId() {

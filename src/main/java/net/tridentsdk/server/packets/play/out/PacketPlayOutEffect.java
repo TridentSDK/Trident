@@ -18,7 +18,7 @@
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Position;
+import net.tridentsdk.base.Position;
 import net.tridentsdk.server.data.PositionWritable;
 import net.tridentsdk.server.netty.packet.OutPacket;
 
@@ -30,7 +30,7 @@ public class PacketPlayOutEffect extends OutPacket {
 
     @Override
     public int id() {
-        return 0x28;
+        return 0x21;
     }
 
     public int effectId() {

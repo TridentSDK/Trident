@@ -17,15 +17,15 @@
 
 package net.tridentsdk.server.entity.block;
 
-import net.tridentsdk.Handler;
-import net.tridentsdk.Position;
-import net.tridentsdk.base.Audio;
 import net.tridentsdk.base.Block;
+import net.tridentsdk.base.Position;
 import net.tridentsdk.base.Substance;
-import net.tridentsdk.entity.types.EntityType;
+import net.tridentsdk.effect.sound.SoundEffectType;
 import net.tridentsdk.entity.block.PrimeTNT;
+import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.event.entity.EntityExplodeEvent;
 import net.tridentsdk.server.data.RecordBuilder;
+import net.tridentsdk.server.event.EventProcessor;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutExplosion;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutSoundEffect;
 import net.tridentsdk.server.player.TridentPlayer;
@@ -48,8 +48,7 @@ public class TridentPrimeTNT extends TridentFallingBlock implements PrimeTNT {
     @Override
     protected void doTick() {
         if (countDown.get() == 0) {
-            EntityExplodeEvent event = new EntityExplodeEvent(this, radius);
-            Handler.forEvents().fire(event);
+            EntityExplodeEvent event = EventProcessor.fire(new EntityExplodeEvent(this, radius));
             if (event.isIgnored()) {
                 return;
             }
@@ -91,10 +90,10 @@ public class TridentPrimeTNT extends TridentFallingBlock implements PrimeTNT {
                     .set("velocity", new Vector(radius, radius, radius));
 
             PacketPlayOutSoundEffect sound = new PacketPlayOutSoundEffect();
-            sound.set("sound", Audio.RANDOM_EXPLODE).set("loc", p).set("volume", 50).set("pitch", 20);
+            sound.set("sound", SoundEffectType.ENTITY_GENERIC_EXPLODE).set("loc", p).set("volume", 50).set("pitch", 20);
 
-            TridentPlayer.sendAll(explosion);
-            TridentPlayer.sendAll(sound);
+            TridentPlayer.sendFiltered(explosion, player -> player.world().equals(world()));
+            TridentPlayer.sendFiltered(sound, player -> player.world().equals(world()));
         }
 
         countDown.decrementAndGet();

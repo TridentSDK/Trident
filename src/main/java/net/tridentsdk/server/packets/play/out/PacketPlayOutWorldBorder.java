@@ -28,7 +28,7 @@ public class PacketPlayOutWorldBorder extends OutPacket {
 
     @Override
     public int id() {
-        return 0x44;
+        return 0x35;
     }
 
     public int action() {

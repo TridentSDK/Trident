@@ -1,47 +1,67 @@
-Pull Request Guidelines
-=======================
+Contributing
+============
 
-TridentSDK/Trident is a Minecraft server implementation that is community-driven, extensive and multi-threaded. This software complies with Mojang’s end users license agreement (EULA) for Minecraft.
-The executable/compiled file of Trident/TridentSDK will be available to the public [here](http://example.com/) for free download. As said before, we're a community-driven project and wish to see interactions and contributions from the community.
-A great way to-do so is PRs, doing so we need to set some documentation over what is required for us to accept your PR. So, this is generally it.
+TridentSDK is a from-scratch, high-performance, and multithreaded Minecraft server alternative. One would probably looking at this file if they would like to contribute to the development of TridentSDK. There are a few tips, tricks, guidelines, and rules to look at and follow before submitting a Pull Request.
 
-Keep in mind that you will be asked before accepting your PR if you agree to our [Contributors TOS](#terms-and-conditions-for-contributors).
+## Style Guidelines ##
 
-## Getting Started
-- You will first need a [GitHub account](https://github.com/signup/free);
-- You will require to have an account on [TridentSDK](http://example.com/);
-- Reported the issue on our [issue-tracker and support](http://example.com/);
-- Have a fork of the repository.
+See the [Trident Development Wiki Page](https://tridentsdkwiki.atlassian.net/wiki/display/DEV/TridentSDK+Project+Guidelines)
 
-## Making your Changes
-* Make sure your code meets [our requirements](#requirements-of-code);
-* Make sure your commit messages are in the [proper format](#commit-message-format);
-* Test your changes to make sure it actually addresses the issue it should;
-* Make sure your code compiles under Java 7, as that is what the project has to be built with. We will not be supporting Java 8 within the near future.
+## Getting Started ##
 
-## Requirements of Code
+1. Find or create a [JIRA issue](https://tridentsdk.atlassian.net/issues/?jql=project%20in%20(TRD%2C%20SDK)%20AND%20resolution%20%3D%20Unresolved%20ORDER%20BY%20priority%20DESC%2C%20updated%20DESC)
+2. Await response from issue handlers
+3. Fork the repository
+4. [Write your changes](#code-requirements)
+5. [Test the changes](#testing-requirements)
+6. Push to the fork
+7. Create a new Pull Request following the below guidlines
 
-* TridentSDK follows the [Oracle programming conventions](http://www.oracle.com/technetwork/java/javase/documentation/codeconvtoc-136057.html) as we deem them as best fitting for this project.
+## Getting your PR accepted ##
 
-* Tabs shouldn't be used, please reference these threads to find how to make your IDE use spaces:
+We are more likely to accept your Pull Request should you follow all of the given bullet points listed below. That is:
 
-    Eclipse: http://www.oracle.com/technetwork/java/javase/documentation/codeconvtoc-136057.html
-    
-    IntelliJ: http://www.jetbrains.com/idea/webhelp/general.html (Default indent options)
+- Your code meets the code requirements
+- Your PR fits within the PR guidelines
+- Your code is tested and provides testing materials
+- Your PR adds or fixes a bug, and lies within the scope of the TridentSDK project
 
-* Comments in code are encouraged to understand what your code does and how it works
+Once you have created your Pull Request, do not abandon GitHub for a week. We provide responses and code comments, as well as general discussion on the PR page. This feedback, along with proper action taken in response to our feedback will help improve your chances of getting the PR pulled.
 
-* JavaDoc comments are encouraged however not required
+## Code Requirements ##
 
-* Your commit messages must follow the format below
+- We expect all public members to be thouroughly documented
+- If an instantiation requirement is outside the class, it must be documented
+- Follows the [style guide](#style-guidelines)
+- Compiles with Java 8
+- Maven install runs correctly with the latest bleeding-edge commit
+- Overriden methods need not have documentation
 
-* Any PRs that are racist and/or offensive to anyone through commit messages or code-comments will be rejected immediately and reported to GitHub. We have zero tolerance for any type of offensive content.
+## PR Guidelines ##
 
-### Commit Message Format
+- Upstream must be `bleeding-edge`
+- Must contain title summarizing the changes
+- Body contains description of the issue to be fixed, the implementation method, the methods of testing, and references (PRs, sources, stackoverflow, etc...)
 
-The commit message must state what your commit entails in a brief description, an example:
+## Testing Requirements ##
 
-> Slightly reword the terms and conditions
->
-> Reword the terms and conditions to clarify on a point where needed
+- If a performance fix is suggested, it must include JMH benchmarks and/or profiling data
+- A player must join the server, stay on for 5 minutes, leave for 1 minute, join and stay on for 5 further minutes before deeming "joinable"
+- The server must be shutdown with `stop` successfully
+- Player framerate is very important - ensure it is stable and does not drop significantly
+- Ensure that the `MultiplayerChunkCache` has 2 of the same values ({loaded}, {updates})
+- Fly around and ensure chunks load correctly. Expiry threads must expire after 1 minute of inactivity.
+- Ensure all required threads are active
 
+## What To **NOT** Add ##
+
+TridentSDK is a work in progress server reimplementation. We are open to PRs adding features in the Vanilla server that is not present in Trident. We are also open to new APIs, so that the server can be controlled by plugins in a way that was never possible before.
+
+As such, there are things that are *out of the scope* of the TridentSDK project.
+
+- Protocol APIs. We are continuing to discuss this. Currently, we have no maintainable way to provide a reliable API for controlling the Minecraft protocol. Packets continually change IDs, continually change the information contained in them, data types, etc... Please leave this in plugin requeusts.
+- Support for other programming languages. This should be done through an interpreter, not through our API.
+- Adds non-vanilla features. We reimplement the Vanilla server. This belongs in forks of Trident, not within the TridentSDK project itself.
+- Your code contains content viewable from Mojang software. We are cleanroom. Please refrain from basing your content off of copyrighted code.
+
+If the proposed PR adds to Trident what is described above, it does not fall within the scope of the TridentSDK project. Please refrain from creating Pull Requests of the content described. If you have any questions, they may be asked on our [Trident Development](https://tridentsdk.net/f/c/79/) forum.

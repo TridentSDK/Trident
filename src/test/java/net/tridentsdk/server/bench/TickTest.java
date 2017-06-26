@@ -17,12 +17,9 @@
 
 package net.tridentsdk.server.bench;
 
-
-import net.tridentsdk.AccessBridge;
-import net.tridentsdk.factory.CollectFactory;
-import net.tridentsdk.server.TridentTaskScheduler;
-import net.tridentsdk.server.threads.MainThread;
-import net.tridentsdk.server.threads.ThreadsHandler;
+import net.tridentsdk.registry.Registered;
+import net.tridentsdk.server.concurrent.MainThread;
+import net.tridentsdk.server.service.TridentImpl;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
 import org.openjdk.jmh.runner.Runner;
@@ -32,54 +29,39 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 import org.openjdk.jmh.runner.options.TimeValue;
 import org.openjdk.jmh.runner.options.VerboseMode;
 
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 
 /*
-http://bit.ly/1AZxBL6
-
-tick 5.011719043333334E7
-tick 5.0066712083333336E7
-tick 5.006329321666667E7
-tick 5.010468563333334E7
-tick 5.016053133333333E7
-tick 5.012393275E7
-tick 5.007866225E7
-tick 5.01629668E7
-tick 5.010474393333333E7
-tick 5.01045108E7
-tick 5.0183914333333336E7
+http://bit.ly/1SQUSHc
  */
 // Used for baseline measurements
 @State(Scope.Benchmark)
 public class TickTest {
     static {
-        AccessBridge.open().sendSelf(new CollectFactory() {
-            @Override
-            public <K, V> ConcurrentMap<K, V> createMap() {
-                return new ConcurrentHashMap<>();
-            }
-        });
-        AccessBridge.open().sendSuper(ThreadsHandler.create());
-        AccessBridge.open().sendSuper(TridentTaskScheduler.create());
+        TridentImpl trident = new TridentImpl();
+        Registered.setProvider(trident);
     }
 
     private static final MainThread THREAD = new MainThread(20);
     @Param({ "1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024" })
     private int cpuTokens;
 
-    public static void main(String[] args) {
+    public static void main0(String[] args) {
         for (int i = 0; i < 100; i++) {
-            THREAD.doRun();
+            try {
+                THREAD.doRun();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
-    public static void main0(String[] args) throws RunnerException {
+    public static void main(String[] args) throws RunnerException {
         Options opt = new OptionsBuilder().include(".*" + TickTest.class.getSimpleName() + ".*") // CLASS
-                .timeUnit(TimeUnit.NANOSECONDS).mode(Mode.AverageTime).warmupIterations(20).warmupTime(
-                        TimeValue.milliseconds(50))              // ALLOWED TIME
-                .measurementIterations(5).measurementTime(TimeValue.milliseconds(50))         // ALLOWED TIME
+                .timeUnit(TimeUnit.MILLISECONDS)
+                .mode(Mode.AverageTime)
+                .warmupIterations(20).warmupTime(TimeValue.milliseconds(70))
+                .measurementIterations(5).measurementTime(TimeValue.milliseconds(70))        // ALLOWED TIME
                 .forks(1)                                           // FORKS
                 .verbosity(VerboseMode.SILENT)                      // GRAPH
                 .threads(1)                                         // THREADS
@@ -95,6 +77,10 @@ public class TickTest {
 
     @Benchmark
     public void tick() {
-        THREAD.doRun();
+        try {
+            THREAD.doRun();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }

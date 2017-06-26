@@ -17,17 +17,18 @@
 
 package net.tridentsdk.server.command;
 
-import net.tridentsdk.Handler;
-import net.tridentsdk.plugin.cmd.ServerConsole;
+import net.tridentsdk.Console;
+import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.registry.Registered;
 import net.tridentsdk.util.TridentLogger;
 
-public class TridentConsole implements ServerConsole {
+public class TridentConsole implements Console {
     private volatile String lastCommand;
     private volatile String lastMessage;
 
     @Override
     public void invokeCommand(String message) {
-        Handler.forCommands().handleCommand(message, this);
+        Registered.commands().handle(message, this);
         lastCommand = message;
     }
 
@@ -37,9 +38,8 @@ public class TridentConsole implements ServerConsole {
     }
 
     @Override
-    public boolean isOperator() {
-        // console is always OP
-        return true;
+    public Player asPlayer() {
+        return null;
     }
 
     @Override
@@ -47,7 +47,7 @@ public class TridentConsole implements ServerConsole {
         // TODO: convert MessageBuilder json to console output
 
         for (String s : messages) {
-            TridentLogger.log(s);
+            TridentLogger.get().log(s);
         }
 
         lastMessage = messages[messages.length - 1];
@@ -56,5 +56,23 @@ public class TridentConsole implements ServerConsole {
     @Override
     public String lastMessage() {
         return lastMessage;
+    }
+
+    @Override
+    public void grantPermission(String perm) {
+    }
+
+    @Override
+    public void revokePermission(String perm) {
+    }
+
+    @Override
+    public boolean ownsPermission(String perm) {
+        return true; // op
+    }
+
+    @Override
+    public boolean opped() {
+        return true;
     }
 }

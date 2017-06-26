@@ -18,67 +18,72 @@
 package net.tridentsdk.server.world.gen;
 
 import net.tridentsdk.base.Substance;
-import net.tridentsdk.factory.ExecutorFactory;
-import net.tridentsdk.server.threads.ThreadsHandler;
+import net.tridentsdk.concurrent.SelectableThreadPool;
+import net.tridentsdk.server.concurrent.ThreadsHandler;
 import net.tridentsdk.server.world.ChunkSection;
 import net.tridentsdk.server.world.WorldUtils;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.ChunkLocation;
-import net.tridentsdk.world.gen.AbstractGenerator;
+import net.tridentsdk.world.gen.ChunkGenerator;
 
-import java.util.Random;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicReferenceArray;
 
 /**
  * Default world generator engine for Trident
  *
  * @author The TridentSDK Team
  */
-public class DefaultWorldGen extends AbstractGenerator {
-    private final SimplexOctaveGenerator generator = new SimplexOctaveGenerator(12, 0.5, new Random().nextInt());
-    private final ExecutorFactory executor = ThreadsHandler.genExecutor();
+public class DefaultWorldGen extends ChunkGenerator {
+    private final SimplexOctaveGenerator generator = new SimplexOctaveGenerator(12, 0.5, (int) seed);
+    private final SelectableThreadPool executor = ThreadsHandler.genExecutor();
+
+    public DefaultWorldGen(long seed) {
+        super(seed);
+    }
 
     @Override
-    public char[][] generateChunkBlocks(final ChunkLocation location) {
-        final char[][] data = new char[15][ChunkSection.LENGTH];
-        final CountDownLatch release = new CountDownLatch(256);
+    public char[][] generateBlocks(final ChunkLocation location, AtomicReferenceArray<Integer> heights) {
+        final char[][] data = new char[16][ChunkSection.LENGTH];
+        final CountDownLatch release = new CountDownLatch(16);
 
         for (int x = 0; x < 16; x++) {
-            for (int z = 0; z < 16; z++) {
-                final int finalX = x;
-                final int finalZ = z;
+            final int finalX = x;
 
-                executor.execute(() -> {
-                    final int i = WorldUtils.intScale(0, 140, generator.noise(finalX + (location.x() << 4), finalZ +
-                            (location.z() << 4))) - 20;
-                    for (int y = 0; y < i; y++) {
-                        if (i < 40 && y == (i - 1)) {
-                            for (int rev = 40; rev > i; rev--) {
-                                data[rev / 16][WorldUtils.blockArrayIndex(finalX, rev % 16, finalZ)] =
-                                        Substance.WATER.asExtended();
-                            }
-                            data[i / 16][WorldUtils.blockArrayIndex(finalX, i % 16, finalZ)] =
-                                    Substance.CLAY.asExtended();
-                        }
+            executor.execute(() -> {
+                for (int z = 0; z < 16; z++) {
+                    final int i = WorldUtils.intScale(0, 140, generator.noise(finalX + (location.x() << 4), z + (location.z() << 4))) - 20;
+                    heights.set(WorldUtils.heightIndex(finalX, z), i);
 
-                        if (y < i - 1) {
-                            data[y / 16][WorldUtils.blockArrayIndex(finalX, y % 16, finalZ)] =
-                                    Substance.DIRT.asExtended();
-                        } else {
-                            data[y / 16][WorldUtils.blockArrayIndex(finalX, y % 16, finalZ)] =
-                                    Substance.GRASS.asExtended();
+                    if (i < 40) {
+                        for (int j = i; j <= 40; j++) {
+                            data[j / 16][WorldUtils.blockArrayIndex(finalX, j % 16, z)] = Substance.WATER.asExtended();
                         }
                     }
 
-                    release.countDown();
-                });
-            }
+                    for (int y = 0; y <= i; y++) {
+                        if (i < 40) {
+                            if (y == i) {
+                                data[y / 16][WorldUtils.blockArrayIndex(finalX, y % 16, z)] = Substance.SAND.asExtended();
+                                continue;
+                            }
+                        }
+
+                        if (y == i) {
+                            data[y / 16][WorldUtils.blockArrayIndex(finalX, i % 16, z)] = Substance.GRASS.asExtended();
+                        } else
+                            data[y / 16][WorldUtils.blockArrayIndex(finalX, y % 16, z)] = Substance.DIRT.asExtended();
+                    }
+                }
+
+                release.countDown();
+            });
         }
 
         try {
             release.await();
         } catch (InterruptedException e) {
-            TridentLogger.error(e);
+            TridentLogger.get().error(e);
             return null;
         }
 
@@ -86,7 +91,7 @@ public class DefaultWorldGen extends AbstractGenerator {
     }
 
     @Override
-    public byte[][] generateBlockData(ChunkLocation location) {
+    public byte[][] generateData(ChunkLocation location) {
         return new byte[0][];
     }
 }

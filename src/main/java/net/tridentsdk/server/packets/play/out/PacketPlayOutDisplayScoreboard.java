@@ -28,7 +28,7 @@ public class PacketPlayOutDisplayScoreboard extends OutPacket {
 
     @Override
     public int id() {
-        return 0x3D;
+        return 0x38;
     }
 
     public BoardType boardType() {

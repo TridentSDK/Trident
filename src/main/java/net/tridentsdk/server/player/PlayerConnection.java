@@ -56,7 +56,10 @@ public class PlayerConnection extends ClientConnection {
         super.loginKeyPair = connection.loginKeyPair();
         super.sharedSecret = connection.sharedSecret();
         super.stage = Protocol.ClientStage.PLAY; // stage must be PLAY to actually create PlayerConnection
-        super.encryptionEnabled = connection.isEncryptionEnabled();
+        if (sharedSecret != null) {
+            // TODO in case something goes wrong during keygen, this won't be done even with encryption enabled
+            enableEncryption(sharedSecret.getEncoded());
+        }
         super.compressionEnabled = connection.isCompressionEnabled();
 
         this.player = player;
@@ -122,6 +125,7 @@ public class PlayerConnection extends ClientConnection {
 
     @Override
     public void sendPacket(Packet packet) {
+        if (!channel.isWritable()) return;
         super.sendPacket(packet);
 
         synchronized (this) {

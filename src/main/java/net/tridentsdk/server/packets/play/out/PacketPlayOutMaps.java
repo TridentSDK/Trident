@@ -36,7 +36,7 @@ public class PacketPlayOutMaps extends OutPacket {
 
     @Override
     public int id() {
-        return 0x34;
+        return 0x24;
     }
 
     public int itemDamage() {

@@ -18,12 +18,14 @@
 package net.tridentsdk.server.entity;
 
 import com.google.common.util.concurrent.AtomicDouble;
-import net.tridentsdk.Position;
-import net.tridentsdk.Trident;
+import net.tridentsdk.base.Position;
+import net.tridentsdk.effect.entity.EntityStatusEffect;
+import net.tridentsdk.effect.entity.EntityStatusEffectType;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.LivingEntity;
 import net.tridentsdk.entity.Projectile;
 import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.entity.living.ai.AiHandler;
 import net.tridentsdk.entity.living.ai.AiModule;
 import net.tridentsdk.entity.living.ai.Path;
 import net.tridentsdk.entity.traits.EntityProperties;
@@ -31,6 +33,8 @@ import net.tridentsdk.entity.types.EntityType;
 import net.tridentsdk.meta.nbt.*;
 import net.tridentsdk.server.data.MetadataType;
 import net.tridentsdk.server.data.ProtocolMetadata;
+import net.tridentsdk.server.effect.entity.TridentEntityStatusEffect;
+import net.tridentsdk.server.entity.ai.TridentAiHandler;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutDestroyEntities;
 import net.tridentsdk.server.packets.play.out.PacketPlayOutSpawnMob;
 import net.tridentsdk.server.player.TridentPlayer;
@@ -88,7 +92,7 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
         protocolMeta.setMeta(2, MetadataType.STRING, displayName);
         protocolMeta.setMeta(3, MetadataType.BYTE, nameVisible ? (byte) 1 : (byte) 0);
         protocolMeta.setMeta(6, MetadataType.FLOAT, health.floatValue());
-        protocolMeta.setMeta(7, MetadataType.INT, 0);
+        //protocolMeta.setMeta(7, MetadataType.INT, 0); TODO Fix
         protocolMeta.setMeta(8, MetadataType.BYTE, (byte) 1); // TODO (potion effects)
         protocolMeta.setMeta(9, MetadataType.BYTE, (byte) 0); // TODO (arrows in entity)
         protocolMeta.setMeta(15, MetadataType.BYTE, (ai == null) ? (byte) 1 : (byte) 0);
@@ -159,10 +163,16 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
     public AiModule aiModule() {
         AiModule module = this.ai;
         if (module == null) {
-            return Trident.instance().aiHandler().defaultAiFor(type());
+            return aiHandler().defaultAiFor(type());
         } else {
             return module;
         }
+    }
+
+    private static final AiHandler AI_HANDLER = new TridentAiHandler();
+
+    public static AiHandler aiHandler() {
+        return AI_HANDLER;
     }
 
     @Override
@@ -251,5 +261,10 @@ public abstract class TridentLivingEntity extends TridentEntity implements Livin
             this.attributes.add(NBTSerializer.deserialize(EntityAttribute.class,
                     attribute.asType(CompoundTag.class)));
         }
+    }
+
+    @Override
+    public EntityStatusEffect createStatusEffect(EntityStatusEffectType status){
+        return new TridentEntityStatusEffect(this, status);
     }
 }

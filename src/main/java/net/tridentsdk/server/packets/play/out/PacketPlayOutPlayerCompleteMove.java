@@ -18,8 +18,11 @@
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Position;
+import net.tridentsdk.base.Position;
+import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
+
+import java.util.concurrent.ThreadLocalRandom;
 
 public class PacketPlayOutPlayerCompleteMove extends OutPacket {
     protected Position location;
@@ -27,7 +30,7 @@ public class PacketPlayOutPlayerCompleteMove extends OutPacket {
 
     @Override
     public int id() {
-        return 0x08;
+        return 0x2E;
     }
 
     public Position location() {
@@ -48,5 +51,6 @@ public class PacketPlayOutPlayerCompleteMove extends OutPacket {
         buf.writeFloat(this.location.pitch());
 
         buf.writeByte((int) this.flags);
+        Codec.writeVarInt32(buf, ThreadLocalRandom.current().nextInt(0, 10000));
     }
 }

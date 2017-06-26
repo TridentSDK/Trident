@@ -24,13 +24,13 @@ import net.tridentsdk.server.netty.packet.OutPacket;
 public class PacketPlayOutPluginMessage extends OutPacket {
 
     public static final OutPacket VANILLA_CHANNEL = new PacketPlayOutPluginMessage().set("channel", "MC|Brand")
-            .set("data", new byte[] { 'v', 'a', 'n', 'i', 'l', 'l', 'a' });
+            .set("data", new byte[]{'t', 'r', 'i', 'd', 'e', 'n', 't'});
     protected String channel;
     protected byte[] data;
 
     @Override
     public int id() {
-        return 0x3F;
+        return 0x18;
     }
 
     public String channel() {

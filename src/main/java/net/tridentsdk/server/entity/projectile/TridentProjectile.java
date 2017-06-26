@@ -17,10 +17,10 @@
 
 package net.tridentsdk.server.entity.projectile;
 
-import net.tridentsdk.Position;
-import net.tridentsdk.entity.traits.EntityProperties;
+import net.tridentsdk.base.Position;
 import net.tridentsdk.entity.Projectile;
 import net.tridentsdk.entity.living.ProjectileLauncher;
+import net.tridentsdk.entity.traits.EntityProperties;
 import net.tridentsdk.server.entity.TridentEntity;
 
 import java.lang.ref.WeakReference;

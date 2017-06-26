@@ -66,7 +66,7 @@ public class Protocol {
                 return this.login.packet(id, type);
 
             default:
-                TridentLogger.error(new IllegalArgumentException(stage + " is not supported for Protocol#packet!"));
+                TridentLogger.get().error(new IllegalArgumentException(stage + " is not supported for Protocol#packet!"));
         }
         return null;
     }

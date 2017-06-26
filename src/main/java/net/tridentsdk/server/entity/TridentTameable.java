@@ -16,7 +16,7 @@
  */
 package net.tridentsdk.server.entity;
 
-import net.tridentsdk.Position;
+import net.tridentsdk.base.Position;
 import net.tridentsdk.entity.traits.Tameable;
 import net.tridentsdk.server.data.MetadataType;
 import net.tridentsdk.server.data.ProtocolMetadata;
@@ -60,7 +60,7 @@ public abstract class TridentTameable extends TridentBreedable implements Tameab
 
     public void setTame(final UUID owner) {
         if(TridentPlayer.getPlayer(owner) == null) {
-            TridentLogger.error(new IllegalArgumentException("No player found with provided UUID!"));
+            TridentLogger.get().error(new IllegalArgumentException("No player found with provided UUID!"));
             return;
         }
 

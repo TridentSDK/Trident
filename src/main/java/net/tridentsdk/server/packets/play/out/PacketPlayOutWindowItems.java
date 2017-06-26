@@ -19,9 +19,9 @@ package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.base.Substance;
+import net.tridentsdk.inventory.Item;
 import net.tridentsdk.server.data.Slot;
 import net.tridentsdk.server.netty.packet.OutPacket;
-import net.tridentsdk.window.inventory.Item;
 
 public class PacketPlayOutWindowItems extends OutPacket {
     private static final Slot EMPTY = new Slot(new Item(Substance.AIR) {
@@ -36,7 +36,7 @@ public class PacketPlayOutWindowItems extends OutPacket {
 
     @Override
     public int id() {
-        return 0x30;
+        return 0x14;
     }
 
     public int windowId() {

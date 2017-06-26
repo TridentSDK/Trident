@@ -20,7 +20,6 @@ package net.tridentsdk.server.packets.play.out;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
-import net.tridentsdk.util.TridentLogger;
 
 import java.util.UUID;
 
@@ -31,7 +30,7 @@ public class PacketPlayOutPlayerListItem extends OutPacket {
 
     @Override
     public int id() {
-        return 0x38;
+        return 0x2D;
     }
 
     public int action() {
@@ -81,29 +80,41 @@ public class PacketPlayOutPlayerListItem extends OutPacket {
             buf.writeLong(this.id.getLeastSignificantBits());
 
             // rip in organize
-            for (Object o : this.values) {
-
+            for (Object o : values) {
                 if (o == null) {
                     continue;
                 }
 
-                switch (o.getClass().getSimpleName()) {
-                    case "String":
-                        Codec.writeString(buf, (String) o);
-                        break;
+                if (o.getClass().isArray()) {
+                    Object[] objects = (Object[]) o;
+                    for (Object o1 : objects) {
+                        encode(o1, buf);
+                    }
 
-                    case "Integer":
-                        Codec.writeVarInt32(buf, (Integer) o);
-                        break;
-
-                    case "Boolean":
-                        buf.writeBoolean((Boolean) o);
-                        break;
-
-                    default:
-                        // ignore bad developers
-                        break;
+                    continue;
                 }
+
+                encode(o, buf);
+            }
+        }
+
+        private void encode(Object o, ByteBuf buf) {
+            switch (o.getClass().getSimpleName()) {
+                case "String":
+                    Codec.writeString(buf, (String) o);
+                    break;
+
+                case "Integer":
+                    Codec.writeVarInt32(buf, (Integer) o);
+                    break;
+
+                case "Boolean":
+                    buf.writeBoolean((Boolean) o);
+                    break;
+
+                default:
+                    // ignore bad developers
+                    break;
             }
         }
     }

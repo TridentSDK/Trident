@@ -27,7 +27,7 @@ public class PacketPlayOutTabComplete extends OutPacket {
 
     @Override
     public int id() {
-        return 0x3A;
+        return 0x0E;
     }
 
     public String[] matches() {

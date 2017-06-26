@@ -18,27 +18,28 @@
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Handler;
 import net.tridentsdk.event.player.PlayerCloseWindowEvent;
+import net.tridentsdk.registry.Registered;
+import net.tridentsdk.server.event.EventProcessor;
+import net.tridentsdk.server.inventory.TridentInventory;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.player.PlayerConnection;
-import net.tridentsdk.server.window.TridentWindow;
 
 /**
- * Packet sent by the client when closed a Window
+ * Packet sent by the client when closed a Inventory
  */
 public class PacketPlayInPlayerCloseWindow extends InPacket {
 
     /**
-     * Id of the window, 0 if player inventory
+     * Id of the inventory, 0 if player inventory
      */
     protected int id;
 
     @Override
     public int id() {
-        return 0x0D;
+        return 0x08;
     }
 
     @Override
@@ -54,11 +55,8 @@ public class PacketPlayInPlayerCloseWindow extends InPacket {
 
     @Override
     public void handleReceived(ClientConnection connection) {
-        TridentWindow window = (TridentWindow) Handler.forWindows().windowBy(id);
-        PlayerCloseWindowEvent event = new PlayerCloseWindowEvent(window);
-
-        Handler.forEvents().fire(event);
-
+        TridentInventory window = (TridentInventory) Registered.inventories().fromId(id);
+        PlayerCloseWindowEvent event = EventProcessor.fire(new PlayerCloseWindowEvent(window));
         if (event.isIgnored()) {
             return;
         }

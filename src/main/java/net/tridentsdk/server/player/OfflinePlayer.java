@@ -18,26 +18,31 @@
 package net.tridentsdk.server.player;
 
 
-import net.tridentsdk.GameMode;
-import net.tridentsdk.Position;
+import com.google.common.collect.Sets;
 import net.tridentsdk.Trident;
+import net.tridentsdk.bar.BarType;
+import net.tridentsdk.base.Position;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.Projectile;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.entity.traits.EntityProperties;
 import net.tridentsdk.entity.traits.PlayerSpeed;
 import net.tridentsdk.event.entity.EntityDamageEvent;
-import net.tridentsdk.factory.Factories;
+import net.tridentsdk.inventory.Inventory;
+import net.tridentsdk.inventory.Item;
+import net.tridentsdk.meta.MessageBuilder;
 import net.tridentsdk.meta.nbt.*;
+import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.data.Slot;
 import net.tridentsdk.server.entity.TridentInventoryHolder;
-import net.tridentsdk.server.window.TridentWindow;
+import net.tridentsdk.server.inventory.TridentInventory;
 import net.tridentsdk.server.world.TridentWorld;
+import net.tridentsdk.title.TitleTransition;
 import net.tridentsdk.util.TridentLogger;
-import net.tridentsdk.window.inventory.Inventory;
-import net.tridentsdk.world.Dimension;
 import net.tridentsdk.world.World;
+import net.tridentsdk.world.settings.Dimension;
+import net.tridentsdk.world.settings.GameMode;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Locale;
@@ -73,7 +78,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     /**
      * The spawn location of the player
      */
-    protected volatile Position spawnLocation;
+    protected volatile Position spawnPosition;
     /**
      * The current hunger of the player
      */
@@ -110,23 +115,23 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     protected final Inventory enderChest = null;
     protected final PlayerAbilities abilities = new PlayerAbilities();
     protected final PlayerSpeed playerSpeed = new PlayerSpeedImpl();
-    protected final Set<String> permissions = Factories.collect().createSet();
+    protected final Set<String> permissions = Sets.newConcurrentHashSet();
 
     OfflinePlayer(UUID uuid, CompoundTag tag, TridentWorld world) {
         super(uuid, world.spawnPosition());
 
         load(tag);
 
-        dimension = Dimension.dimension(((IntTag) tag.getTag("Dimension")).value());
-        gameMode = GameMode.gamemodeOf(((IntTag) tag.getTag("playerGameType")).value());
+        dimension = Dimension.of(((IntTag) tag.getTag("Dimension")).value());
+        gameMode = GameMode.of(((IntTag) tag.getTag("playerGameType")).value());
         score = ((IntTag) tag.getTag("Score")).value();
         selectedSlot = (short) ((IntTag) tag.getTag("SelectedItemSlot")).value();
 
         if (tag.containsTag("SpawnX")) {
-            spawnLocation = Position.create(world, ((IntTag) tag.getTag("SpawnX")).value(),
+            spawnPosition = Position.create(world, ((IntTag) tag.getTag("SpawnX")).value(),
                     ((IntTag) tag.getTag("SpawnY")).value(), ((IntTag) tag.getTag("SpawnZ")).value());
         } else {
-            spawnLocation = world.spawnPosition();
+            spawnPosition = world.spawnPosition();
         }
 
         hunger = (short) ((IntTag) tag.getTag("foodLevel")).value();
@@ -140,7 +145,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
                 new IntTag("XpSeed").setValue(0).value();
 
         // TODO come up with a valid implementation of this...?
-        inventory = new TridentWindow(44);
+        inventory = new TridentInventory(45, 0);
         for (NBTTag t : ((ListTag) tag.getTag("Inventory")).listTags()) {
             Slot slot = NBTSerializer.deserialize(Slot.class, (CompoundTag) t);
 
@@ -238,7 +243,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     }
 
     public Position spawnLocation() {
-        return spawnLocation;
+        return spawnPosition;
     }
 
     @Override
@@ -265,12 +270,17 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
 
     @Override
     public void sendMessage(String message) {
-        TridentLogger.error(new UnsupportedOperationException("You can't send messages to a non-existant player"));
+        TridentLogger.get().error(new UnsupportedOperationException("You can't send messages to a non-existant player"));
+    }
+
+    @Override
+    public boolean connected() {
+        return false;
     }
 
     @Override
     public void invokeCommand(String message) {
-        TridentLogger.error(new UnsupportedOperationException("You cannot make an OfflinePlayer invoke a command!"));
+        TridentLogger.get().error(new UnsupportedOperationException("You cannot make an OfflinePlayer invoke a command!"));
     }
 
     @Override
@@ -279,20 +289,18 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     }
 
     @Override
-    public boolean isOperator() {
-        // DEBUG ===== Everyone is OP'd!
-        return true;
-        // =====
+    public Player asPlayer() {
+        return null;
     }
 
     @Override
     public void hide(Entity entity) {
-        TridentLogger.error(new UnsupportedOperationException("You cannot hide an entity from an OfflinePlayer!"));
+        TridentLogger.get().error(new UnsupportedOperationException("You cannot hide an entity from an OfflinePlayer!"));
     }
 
     @Override
     public void show(Entity entity) {
-        TridentLogger.error(new UnsupportedOperationException("You cannot show an entity to an OfflinePlayer!"));
+        TridentLogger.get().error(new UnsupportedOperationException("You cannot show an entity to an OfflinePlayer!"));
     }
 
     @Override
@@ -307,7 +315,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
 
     @Override
     public void sendRaw(String... messages) {
-        TridentLogger.error(new UnsupportedOperationException("You cannot send a message to an OfflinePlayer!"));
+        TridentLogger.get().error(new UnsupportedOperationException("You cannot send a message to an OfflinePlayer!"));
     }
 
     @Override
@@ -322,7 +330,7 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
 
     @Override
     public <T extends Projectile> T launchProjectile(EntityProperties properties) {
-        TridentLogger.error(new UnsupportedOperationException("You cannot make an OfflinePlayer launch a projectile!"));
+        TridentLogger.get().error(new UnsupportedOperationException("You cannot make an OfflinePlayer launch a projectile!"));
         return null;
     }
 
@@ -338,9 +346,9 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
         tag.addTag(new IntTag("SelectedItemSlot").setValue(selectedSlot));
 
         //tag.addTag(NBTSerializer.serialize(new Slot(itemInHand())));
-        tag.addTag(new IntTag("SpawnX").setValue((int) spawnLocation.x()));
-        tag.addTag(new IntTag("SpawnY").setValue((int) spawnLocation.y()));
-        tag.addTag(new IntTag("SpawnZ").setValue((int) spawnLocation.z()));
+        tag.addTag(new IntTag("SpawnX").setValue((int) spawnPosition.x()));
+        tag.addTag(new IntTag("SpawnY").setValue((int) spawnPosition.y()));
+        tag.addTag(new IntTag("SpawnZ").setValue((int) spawnPosition.z()));
 
         tag.addTag(new IntTag("foodLevel").setValue(hunger));
         tag.addTag(new FloatTag("foodExhaustionLevel").setValue(exhaustion));
@@ -412,8 +420,38 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
     }
 
     @Override
-    public boolean holdsPermission(String perm) {
-        return permissions.contains(perm);
+    public boolean ownsPermission(String perm) {
+        return perm.isEmpty() || opped() || permissions.contains(perm);
+    }
+
+    @Override
+    public boolean opped() {
+        return Registered.statuses().isOpped(uniqueId());
+    }
+
+    @Override
+    public void sendBar(BarType barType, String s) {
+        TridentLogger.get().error(new UnsupportedOperationException("You may not send a bar to an OfflinePlayer!"));
+    }
+
+    @Override
+    public void sendTitle(String s) {
+        TridentLogger.get().error(new UnsupportedOperationException("You may not send a title to an OfflinePlayer!"));
+    }
+
+    @Override
+    public void sendTitle(String s, String s1) {
+        TridentLogger.get().error(new UnsupportedOperationException("You may not send a title to an OfflinePlayer!"));
+    }
+
+    @Override
+    public void sendTitle(String s, TitleTransition titleTransition) {
+        TridentLogger.get().error(new UnsupportedOperationException("You may not send a title to an OfflinePlayer!"));
+    }
+
+    @Override
+    public void sendTitle(String s, String s1, TitleTransition titleTransition) {
+        TridentLogger.get().error(new UnsupportedOperationException("You may not send a title to an OfflinePlayer!"));
     }
 
     class PlayerSpeedImpl implements PlayerSpeed {
@@ -429,13 +467,13 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
 
         @Override
         public float sneakSpeed() {
-            TridentLogger.error(new UnsupportedOperationException("You may not get the sneak speed of an OfflinePlayer!"));
+            TridentLogger.get().error(new UnsupportedOperationException("You may not get the sneak speed of an OfflinePlayer!"));
             return -1;
         }
 
         @Override
         public void setSneakSpeed(float speed) {
-            TridentLogger.error(new UnsupportedOperationException("You may not set the sneak speed of an OfflinePlayer!"));
+            TridentLogger.get().error(new UnsupportedOperationException("You may not set the sneak speed of an OfflinePlayer!"));
         }
 
         @Override
@@ -447,5 +485,36 @@ public class OfflinePlayer extends TridentInventoryHolder implements Player {
         public void setWalkSpeed(float speed) {
             abilities.walkingSpeed = speed;
         }
+    }
+
+    @Override
+    public Item pickedItem() {
+        TridentLogger.get().error(new UnsupportedOperationException("You may not get the cursor item of an OfflinePlayer!"));
+        return null;
+    }
+
+    @Override
+    public void setPickedItem(Item item) {
+        TridentLogger.get().error(new UnsupportedOperationException("You may not set the cursor item of an OfflinePlayer!"));
+    }
+
+    @Override
+    public String header() {
+        return null;
+    }
+
+    @Override
+    public void setHeader(MessageBuilder builder) {
+        TridentLogger.get().error(new UnsupportedOperationException("You cannot set the header of an OfflinePlayer!"));
+    }
+
+    @Override
+    public String footer() {
+        return null;
+    }
+
+    @Override
+    public void setFooter(MessageBuilder builder) {
+        TridentLogger.get().error(new UnsupportedOperationException("You cannot set the footer of an OfflinePlayer!"));
     }
 }

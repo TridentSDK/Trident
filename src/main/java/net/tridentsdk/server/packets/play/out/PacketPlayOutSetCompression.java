@@ -26,7 +26,7 @@ public class PacketPlayOutSetCompression extends OutPacket {
 
     @Override
     public int id() {
-        return 0x46;
+        return 0x46; // TODO Check if correct packet ID
     }
 
     @Override

@@ -17,34 +17,27 @@
 
 package net.tridentsdk.server;
 
-import com.google.common.collect.Maps;
 import net.tridentsdk.*;
-import net.tridentsdk.config.JsonConfig;
+import net.tridentsdk.config.Config;
 import net.tridentsdk.entity.living.Player;
-import net.tridentsdk.entity.living.ai.AiHandler;
-import net.tridentsdk.factory.Factories;
-import net.tridentsdk.plugin.TridentPlugin;
-import net.tridentsdk.plugin.cmd.ServerConsole;
+import net.tridentsdk.plugin.Plugin;
+import net.tridentsdk.registry.Registered;
 import net.tridentsdk.server.command.TridentConsole;
-import net.tridentsdk.server.entity.living.ai.TridentAiHandler;
+import net.tridentsdk.server.concurrent.ConcurrentTaskExecutor;
+import net.tridentsdk.server.concurrent.MainThread;
+import net.tridentsdk.server.concurrent.ThreadsHandler;
+import net.tridentsdk.server.concurrent.TridentTaskScheduler;
 import net.tridentsdk.server.netty.protocol.Protocol;
 import net.tridentsdk.server.player.TridentPlayer;
-import net.tridentsdk.server.threads.ConcurrentTaskExecutor;
-import net.tridentsdk.server.threads.MainThread;
-import net.tridentsdk.server.threads.ThreadsHandler;
+import net.tridentsdk.server.service.Statuses;
 import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.server.world.TridentWorldLoader;
 import net.tridentsdk.util.TridentLogger;
 import net.tridentsdk.world.World;
-import net.tridentsdk.world.WorldLoader;
-import net.tridentsdk.world.gen.AbstractGenerator;
-import org.slf4j.Logger;
 
 import javax.annotation.concurrent.ThreadSafe;
+import java.io.IOException;
 import java.net.InetAddress;
-import java.util.Collection;
-import java.util.Map;
-import java.util.UUID;
 
 /**
  * The access base to internal workings of the server
@@ -57,25 +50,23 @@ public final class TridentServer implements Server {
     public static TridentWorld WORLD;
     private final MainThread mainThread;
 
-    private final JsonConfig config;
+    private final Config config;
     private final Protocol protocol;
-    private final Logger logger;
+    private final TridentLogger logger;
 
     private final TridentConsole console;
 
-    private final TridentWorldLoader worldLoader;
-    private final AiHandler aiHandler;
-    private volatile DisplayInfo displayInfo;
+    final TridentWorldLoader rootWorldLoader;
+    private volatile PingInfo pingInfo;
 
-    private TridentServer(JsonConfig config) {
+    private TridentServer(Config config) {
         this.config = config;
         this.protocol = new Protocol();
-        this.logger = TridentLogger.logger();
+        this.logger = TridentLogger.get(getClass());
         this.mainThread = new MainThread(20);
-        this.worldLoader = new TridentWorldLoader();
+        this.rootWorldLoader = new TridentWorldLoader();
         this.console = new TridentConsole();
-        this.aiHandler = new TridentAiHandler();
-        this.displayInfo = new DisplayInfo();
+        this.pingInfo = new PingInfo();
     }
 
     /**
@@ -83,18 +74,10 @@ public final class TridentServer implements Server {
      *
      * @param config the configuration to use for option lookup
      */
-    public static TridentServer createServer(JsonConfig config) {
+    public static TridentServer createServer(Config config) {
         TridentServer server = new TridentServer(config);
         Trident.setServer(server);
         server.mainThread.start();
-        server.worldLoader.loadAll();
-        TridentServer.WORLD = (TridentWorld) server.worlds().get("world");
-
-        if (WORLD == null) {
-            World world = server.worldLoader.createWorld("world");
-            WORLD = (TridentWorld) world;
-        }
-
         return server;
         // We CANNOT let the "this" instance escape during creation, else we lose thread-safety
     }
@@ -121,16 +104,12 @@ public final class TridentServer implements Server {
         return this.config.getInt("compression-threshold", Defaults.COMPRESSION_THRESHOLD);
     }
 
-    public int viewDistance() {
-        return this.config.getInt("view-distance", Defaults.VIEW_DISTANCE);
-    }
-
     public MainThread mainThread() {
         return mainThread;
     }
 
     @Override
-    public ServerConsole console() {
+    public Console console() {
         return console;
     }
 
@@ -145,7 +124,7 @@ public final class TridentServer implements Server {
     }
 
     @Override
-    public JsonConfig config() {
+    public Config config() {
         return this.config;
     }
 
@@ -154,87 +133,67 @@ public final class TridentServer implements Server {
      */
     @Override
     public void shutdown() {
-        //TODO: Cleanup stuff...
-        TridentLogger.log("Shutting down plugins...");
-        for (TridentPlugin plugin : Handler.forPlugins().plugins())
-            Handler.forPlugins().disable(plugin);
+        try {
+            TridentLogger.get().log("Saving files...");
+            try {
+                ((Statuses) Registered.statuses()).saveAll();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
-        TridentLogger.log("Saving worlds...");
-        for (World world : worldLoader.worlds())
-            ((TridentWorld) world).save();
+            TridentLogger.get().log("Kicking players...");
+            for (Player player : TridentPlayer.players()) {
+                ((TridentPlayer) player).kickPlayer("Server shutting down");
+                ((TridentPlayer) player).connection().logout();
+            }
 
-        TridentLogger.log("Kicking players...");
+            TridentLogger.get().log("Saving worlds...");
+            for (World world : rootWorldLoader.worlds())
+                ((TridentWorld) world).save();
 
-        for (Player player : TridentPlayer.players()) {
-            ((TridentPlayer) player).kickPlayer("Server shutting down");
+            TridentLogger.get().log("Shutting down scheduler...");
+            ((TridentTaskScheduler) Registered.tasks()).shutdown();
+
+            TridentLogger.get().log("Shutting down server process...");
+            ThreadsHandler.shutdownAll();
+
+            //TODO: Cleanup stuff...
+            TridentLogger.get().log("Shutting down plugins...");
+            for (Plugin plugin : Registered.plugins())
+                Registered.plugins().disable(plugin);
+
+            TridentLogger.get().log("Shutting down thread pools...");
+            ConcurrentTaskExecutor.executors().forEach(ConcurrentTaskExecutor::shutdown);
+
+            TridentLogger.get().log("Shutting down server connections...");
+            TridentStart.close();
+        } catch (Exception e) {
+            TridentLogger.get().error("Server failed to shutdown correctly");
+            TridentLogger.get().error(e);
+            return;
         }
 
-        TridentLogger.log("Shutting down worker threads...");
-        ((TridentTaskScheduler) Factories.tasks()).shutdown();
-
-        TridentLogger.log("Shutting down server process...");
-        ThreadsHandler.shutdownAll();
-
-        TridentLogger.log("Shutting down thread pools...");
-        ConcurrentTaskExecutor.executors().forEach(ConcurrentTaskExecutor::shutdown);
-
-        TridentLogger.log("Shutting down server connections...");
-        TridentStart.close();
-
-        TridentLogger.log("Server shutdown successfully.");
+        TridentLogger.get().log("Server shutdown successfully.");
     }
 
     @Override
-    public Map<String, World> worlds() {
-        Map<String, World> worlds = Maps.newHashMap();
-        for (World world : worldLoader.worlds())
-            worlds.put(world.name(), world);
-
-        return worlds;
-    }
-
-    @Override
-    public WorldLoader newWorldLoader(Class<? extends AbstractGenerator> generator) {
-        return new TridentWorldLoader(generator);
-    }
-
-    @Override
-    public InetAddress serverIp() {
+    public InetAddress ip() {
         return null;
     }
 
     @Override
     public String version() {
         // TODO: Make this more eloquent
-        return "1.0-SNAPSHOT";
+        return "0.3-alpha-DP";
     }
 
     @Override
-    public DisplayInfo info() {
-        return displayInfo;
-    }
-
-    public void setDisplayInfo(DisplayInfo displayInfo) {
-        this.displayInfo = displayInfo;
+    public PingInfo info() {
+        return pingInfo;
     }
 
     @Override
-    public Logger logger() {
+    public TridentLogger logger() {
         return logger;
-    }
-
-    @Override
-    public Player playerBy(UUID id) {
-        return TridentPlayer.getPlayer(id);
-    }
-
-    @Override
-    public Collection<Player> onlinePlayers() {
-        return TridentPlayer.players();
-    }
-
-    @Override
-    public AiHandler aiHandler() {
-        return aiHandler;
     }
 }

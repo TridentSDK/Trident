@@ -18,26 +18,28 @@
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Position;
+import net.tridentsdk.base.Position;
+import net.tridentsdk.effect.particle.ParticleEffectType;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.OutPacket;
 import net.tridentsdk.util.Vector;
 
 public class PacketPlayOutParticle extends OutPacket {
-    protected int particleId;
+    protected ParticleEffectType particle;
     protected boolean distance;
     protected Position loc;
     protected Vector offset; // d - (d * Random#nextGaussian())
     protected float particleData;
+    protected int count;
     protected int[] data;
 
     @Override
     public int id() {
-        return 0x2A;
+        return 0x22;
     }
 
-    public int particleId() {
-        return this.particleId;
+    public ParticleEffectType particle() {
+        return this.particle;
     }
 
     public boolean isDistance() {
@@ -56,13 +58,17 @@ public class PacketPlayOutParticle extends OutPacket {
         return this.particleData;
     }
 
+    public int count() {
+        return this.count;
+    }
+
     public int[] data() {
         return this.data;
     }
 
     @Override
     public void encode(ByteBuf buf) {
-        buf.writeInt(this.particleId);
+        buf.writeInt(this.particle.id());
         buf.writeBoolean(this.distance);
 
         buf.writeFloat((float) this.loc.x());
@@ -74,7 +80,7 @@ public class PacketPlayOutParticle extends OutPacket {
         buf.writeFloat((float) this.offset.z());
 
         buf.writeFloat(this.particleData);
-        buf.writeInt(this.data.length);
+        buf.writeInt(this.count);
 
         for (int i : this.data) {
             Codec.writeVarInt32(buf, i);

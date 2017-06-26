@@ -20,12 +20,12 @@ package net.tridentsdk.server.packets.login;
 import com.google.gson.JsonArray;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.TridentServer;
-import net.tridentsdk.server.encryption.RSA;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.Codec;
 import net.tridentsdk.server.netty.packet.InPacket;
 import net.tridentsdk.server.netty.packet.Packet;
 import net.tridentsdk.server.netty.packet.PacketDirection;
+import net.tridentsdk.server.netty.packet.RSA;
 import net.tridentsdk.server.netty.protocol.Protocol;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.util.TridentLogger;
@@ -42,6 +42,8 @@ import java.util.UUID;
  * @author The TridentSDK Team
  */
 public class PacketLoginInStart extends InPacket {
+    private static final boolean ONLINE_MODE = TridentServer.instance().config().getBoolean("online-mode", true);
+
     /**
      * Username of the client to be verified
      */
@@ -75,10 +77,17 @@ public class PacketLoginInStart extends InPacket {
 
     @Override
     public void handleReceived(ClientConnection connection) {
+        // TODO login throttling
+        boolean allow = LoginHandler.getInstance().initLogin(connection.address(), this.name());
+        if (!allow) {
+            connection.sendPacket(new PacketLoginOutDisconnect().setJsonMessage("Server is full"));
+            return;
+        }
+
         /*
          * If the client is the local machine, skip the encryption process and proceed to the PLAY stage
          */
-        if (true) {
+        if (connection.address().getHostString().equals("127.0.0.1") || !ONLINE_MODE) {
             UUID id;
 
             try {
@@ -122,15 +131,12 @@ public class PacketLoginInStart extends InPacket {
                 JsonArray array = PacketLoginInEncryptionResponse.GSON.fromJson(sb.toString(), JsonArray.class);
                 JsonArray jsonArray = array.getAsJsonArray();
                 if (jsonArray.size() == 0) {
-                    // TODO more checks, session validity
-                    connection.sendPacket(
-                            new PacketLoginOutDisconnect().setJsonMessage("This server is in online-mode"));
-                    return;
+                    id = UUID.randomUUID();
+                } else {
+                    id = UUID.fromString(PacketLoginInEncryptionResponse.idDash.matcher(
+                            jsonArray.get(0).getAsJsonObject().get("id").getAsString())
+                            .replaceAll("$1-$2-$3-$4-$5"));
                 }
-
-                id = UUID.fromString(PacketLoginInEncryptionResponse.idDash.matcher(
-                        jsonArray.get(0).getAsJsonObject().get("id").getAsString())
-                        .replaceAll("$1-$2-$3-$4-$5"));
 
                 if (TridentPlayer.getPlayer(id) != null) {
                     connection.sendPacket(new PacketLoginOutDisconnect().setJsonMessage(
@@ -138,17 +144,18 @@ public class PacketLoginInStart extends InPacket {
                     return;
                 }
             } catch (Exception e) {
-                TridentLogger.error(e);
+                TridentLogger.get().error(e);
                 return;
             }
 
             if (TridentServer.WORLD == null) {
                 connection.sendPacket(new PacketLoginOutDisconnect()
                         .setJsonMessage("{\"text\":\"Disconnected: no world on server\"}"));
-                TridentLogger.error("Rejected a client due to not having a map!");
+                TridentLogger.get().error("Rejected a client due to not having a map!");
                 return;
             }
 
+            LoginHandler.getInstance().finish(connection.address());
             PacketLoginOutSuccess success = new PacketLoginOutSuccess();
 
             // set values in the packet
@@ -166,7 +173,6 @@ public class PacketLoginInStart extends InPacket {
             return;
         }
 
-        LoginHandler.getInstance().initLogin(connection.address(), this.name());
         PacketLoginOutEncryptionRequest p = new PacketLoginOutEncryptionRequest();
 
         // Generate the 4 byte token and update the packet

@@ -18,14 +18,9 @@
 package net.tridentsdk.server.packets.play.in;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Handler;
-import net.tridentsdk.Position;
-import net.tridentsdk.event.Cancellable;
-import net.tridentsdk.event.Event;
-import net.tridentsdk.event.player.PlayerMoveEvent;
+import net.tridentsdk.base.Position;
 import net.tridentsdk.server.netty.ClientConnection;
 import net.tridentsdk.server.netty.packet.Packet;
-import net.tridentsdk.server.packets.play.out.PacketPlayOutEntityTeleport;
 import net.tridentsdk.server.player.PlayerConnection;
 import net.tridentsdk.server.player.TridentPlayer;
 
@@ -33,18 +28,10 @@ import net.tridentsdk.server.player.TridentPlayer;
  * Packet sent when player moved both x, y, z and yaw, and pitch.
  */
 public class PacketPlayInPlayerCompleteMove extends PacketPlayInPlayerMove {
-    /**
-     * New yaw of the client
-     */
-    protected float newYaw;
-    /**
-     * New pitch of the client
-     */
-    protected float newPitch;
 
     @Override
     public int id() {
-        return 0x06;
+        return 0x0D;
     }
 
     @Override
@@ -52,12 +39,10 @@ public class PacketPlayInPlayerCompleteMove extends PacketPlayInPlayerMove {
         double x = buf.readDouble();
         double y = buf.readDouble();
         double z = buf.readDouble();
+        float newYaw = buf.readFloat();
+        float newPitch = buf.readFloat();
 
-        super.location = Position.create(null, x, y, z);
-
-        this.newYaw = buf.readFloat();
-        this.newPitch = buf.readFloat();
-
+        super.location = Position.create(null, x, y, z, newYaw, newPitch);
         super.onGround = buf.readBoolean();
         return this;
     }
@@ -66,24 +51,10 @@ public class PacketPlayInPlayerCompleteMove extends PacketPlayInPlayerMove {
     public void handleReceived(ClientConnection connection) {
         TridentPlayer player = ((PlayerConnection) connection).player();
         super.location.setWorld(player.world());
+        player.setPosition(super.location);
 
-        Event event = new PlayerMoveEvent(player, player.position(), super.location);
-        Handler.forEvents().fire(event);
-
-        if (((Cancellable) event).isIgnored()) {
-            PacketPlayOutEntityTeleport packet = new PacketPlayOutEntityTeleport();
-
-            packet.set("entityId", player.entityId());
-            packet.set("location", player.position());
-            packet.set("onGround", player.onGround());
-
-            connection.sendPacket(packet);
-            return;
-        }
-
-        // process move
-
-        if (player.isLoggingIn())
+        if (player.isLoggingIn()){
             player.resumeLogin();
+        }
     }
 }

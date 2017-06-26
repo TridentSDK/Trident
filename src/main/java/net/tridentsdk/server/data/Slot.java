@@ -20,8 +20,8 @@ package net.tridentsdk.server.data;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import net.tridentsdk.base.Substance;
+import net.tridentsdk.inventory.Item;
 import net.tridentsdk.meta.nbt.*;
-import net.tridentsdk.window.inventory.Item;
 
 public class Slot implements Writable, NBTSerializable {
     @NBTField(name = "id", type = TagType.SHORT)
@@ -38,31 +38,37 @@ public class Slot implements Writable, NBTSerializable {
     protected volatile CompoundTag compoundTag;
 
     public Slot(ByteBuf buf) {
-        this.id = buf.readShort();
-        this.mat = Substance.fromId((byte) this.id);
+        try {
+            this.id = buf.readShort();
 
-        if (this.id == -1) {
-            return;
-        }
+            this.mat = Substance.fromId(this.id);
 
-        this.quantity = buf.readByte();
-        this.damageValue = buf.readShort();
-        byte b;
-
-        if ((b = buf.readByte()) != 0) {
-            try {
-                NBTDecoder builder = new NBTDecoder(new ByteBufInputStream(buf));
-
-                this.compoundTag = builder.decode(b);
-            } catch (NBTException ignored) {
-                // do something
+            if(this.id == -1) {
+                return;
             }
+
+            this.quantity = (byte) buf.readUnsignedByte();
+            this.damageValue = buf.readShort();
+            byte b;
+
+            if((b = buf.readByte()) != 0) {
+                try {
+                    NBTDecoder builder = new NBTDecoder(new ByteBufInputStream(buf));
+
+                    this.compoundTag = builder.decode(b);
+                } catch(NBTException ignored) {
+                    // do something
+                }
+            }
+        } catch(Exception ignored) { // TODO Find out why this throws exceptions
         }
     }
 
     public Slot(Item is) {
-        if (is == null)
+        if (is == null) {
+            this.id = -1;
             return;
+        }
         this.id = (short) is.id();
         this.mat = is.type();
 
@@ -126,17 +132,18 @@ public class Slot implements Writable, NBTSerializable {
 
     @Override
     public void write(ByteBuf buf) {
-        buf.writeByte(this.id);
+        if(id <= 0) {
+            buf.writeShort(-1);
+        } else {
+            buf.writeShort(id);
+            buf.writeByte((int) this.quantity);
+            buf.writeShort((int) this.damageValue);
 
-        if (this.id == -1) {
-            return;
-        }
-
-        buf.writeByte((int) this.quantity);
-        buf.writeShort((int) this.damageValue);
-
-        if (this.compoundTag != null) {
-            // TODO: toPacket compound tag
+            if (this.compoundTag != null) {
+                // TODO: toPacket compound tag
+            } else {
+                buf.writeByte(0); // No NBT
+            }
         }
     }
 

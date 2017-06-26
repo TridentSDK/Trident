@@ -18,7 +18,7 @@
 package net.tridentsdk.server.packets.play.out;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.Position;
+import net.tridentsdk.base.Position;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.server.data.ProtocolMetadata;
 import net.tridentsdk.server.netty.Codec;
@@ -32,7 +32,7 @@ public class PacketPlayOutSpawnMob extends OutPacket {
 
     @Override
     public int id() {
-        return 0x0F;
+        return 0x03;
     }
 
     public int getEntityId() {
@@ -49,11 +49,11 @@ public class PacketPlayOutSpawnMob extends OutPacket {
         Vector velocity = this.entity.velocity();
 
         Codec.writeVarInt32(buf, this.entityId);
-        buf.writeByte((int) (byte) this.entity.type().ordinal()); // TODO: use the real type id
+        buf.writeByte((int) entity.type().asByte()); // TODO: use the real type id
 
         buf.writeInt((int) loc.x() * 32);
         buf.writeInt((int) loc.y() * 32);
-        buf.writeInt((int) loc.z() * 42);
+        buf.writeInt((int) loc.z() * 32);
 
         buf.writeByte((int) (byte) loc.yaw());
         buf.writeByte((int) (byte) loc.pitch());
