@@ -24,7 +24,7 @@ import net.tridentsdk.logger.Logger;
 import net.tridentsdk.server.concurrent.PoolSpec;
 import net.tridentsdk.server.concurrent.ServerThreadPool;
 
-import javax.annotation.concurrent.ThreadSafe;
+import javax.annotation.concurrent.NotThreadSafe;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.concurrent.CompletableFuture;
@@ -33,12 +33,11 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.function.Consumer;
 
-// TODO livelocks?
 /**
  * The implementation of the event instance
  */
 @Policy("singleton")
-@ThreadSafe
+@NotThreadSafe
 public final class TridentEventController implements EventController {
     /**
      * The thread to which the event execution is confined
@@ -118,15 +117,12 @@ public final class TridentEventController implements EventController {
     }
 
     @Override
+    @Policy("call on plugin thread")
     public <T extends Event> void dispatch(T event) {
         ConcurrentSkipListSet<EventDispatcher> dispatchers = this.listeners.get(event.getClass());
         if (dispatchers != null) {
-            CompletableFuture<T> future = CompletableFuture.completedFuture(event);
             for (EventDispatcher dispatcher : dispatchers) {
-                future.thenApplyAsync(dispatcher::fire, PLUGIN_EXECUTOR).exceptionally(t -> {
-                    t.printStackTrace();
-                    return event;
-                });
+                dispatcher.fire(event);
             }
         }
     }

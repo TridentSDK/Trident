@@ -56,7 +56,7 @@ public final class StatusOutResponse extends PacketOut {
      * The protocol version associated with the Minecraft
      * version
      */
-    private static final int PROTOCOL_VERSION = 335;
+    public static final int PROTOCOL_VERSION = 335;
 
     private static final Logger logger;
     private static final Path iconPath;

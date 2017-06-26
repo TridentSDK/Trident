@@ -75,7 +75,7 @@ public final class LoginInEncryptionResponse extends PacketIn {
         md.update(client.getCryptoModule().kp().getPublic().getEncoded());
 
         String hash = toHexStringTwosComplement(md.digest());
-        Mojang.req(MOJANG_SERVER, client.getName(), hash).callback((resp) -> {
+        Mojang.req(MOJANG_SERVER, client.getName(), hash).callback(resp -> {
             if (resp == null) {
                 client.disconnect("Auth error");
                 return;
@@ -102,13 +102,13 @@ public final class LoginInEncryptionResponse extends PacketIn {
      */
     // https://gist.github.com/unascribed/70e830d471d6a3272e3f#file-methodtwo-java
     private static String toHexStringTwosComplement(byte[] bys) {
-        boolean negative = ((bys[0] & 0x80) != 0);
+        boolean negative = (bys[0] & 0x80) != 0;
         if (negative) {
             boolean carry = true;
             for (int i = bys.length - 1; i >= 0; i--) {
-                bys[i] = (byte) ((~bys[i]) & 0xFF);
+                bys[i] = (byte) (~bys[i] & 0xFF);
                 if (carry) {
-                    carry = ((bys[i] & 0xFF) == 0xFF);
+                    carry = (bys[i] & 0xFF) == 0xFF;
                     bys[i]++;
                 }
             }

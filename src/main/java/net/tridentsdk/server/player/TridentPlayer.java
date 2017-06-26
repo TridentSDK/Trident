@@ -208,7 +208,8 @@ public class TridentPlayer extends TridentEntity implements Player {
         client.setPlayer(player);
         Login.finish();
 
-        TridentServer.getInstance().getEventController().dispatch(new PlayerJoinEvent(player));
+        ServerThreadPool.forSpec(PoolSpec.PLUGINS).execute(() ->
+                TridentServer.getInstance().getEventController().dispatch(new PlayerJoinEvent(player)));
 
         Position playerPosition = player.getPosition();
         playerPosition.setY(4);

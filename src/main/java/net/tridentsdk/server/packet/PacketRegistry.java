@@ -17,7 +17,9 @@
 package net.tridentsdk.server.packet;
 
 import com.esotericsoftware.reflectasm.ConstructorAccess;
+import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.packet.handshake.HandshakeIn;
+import net.tridentsdk.server.packet.handshake.LegacyHandshakeIn;
 import net.tridentsdk.server.packet.login.*;
 import net.tridentsdk.server.packet.play.*;
 import net.tridentsdk.server.packet.status.StatusInPing;
@@ -30,9 +32,6 @@ import net.tridentsdk.util.Int2ReferenceOpenHashMap;
 import javax.annotation.concurrent.Immutable;
 import java.util.HashMap;
 import java.util.Map;
-
-import static net.tridentsdk.server.net.NetClient.NetState;
-import static net.tridentsdk.server.packet.Packet.Bound;
 
 /**
  * This class holds packets registered by their identifying
@@ -66,57 +65,58 @@ public final class PacketRegistry {
     // is threadsafe to design the registry this way
 
     static {
-        put(HandshakeIn.class, NetState.HANDSHAKE, Bound.SERVER, 0x00);
+        put(HandshakeIn.class, NetClient.NetState.HANDSHAKE, Packet.Bound.SERVER, 0x00);
+        put(LegacyHandshakeIn.class, NetClient.NetState.HANDSHAKE, Packet.Bound.SERVER, 0xFE);
 
-        put(StatusInRequest.class, NetState.STATUS, Bound.SERVER, 0x00);
-        put(StatusOutResponse.class, NetState.STATUS, Bound.CLIENT, 0x00);
-        put(StatusInPing.class, NetState.STATUS, Bound.SERVER, 0x01);
-        put(StatusOutPong.class, NetState.STATUS, Bound.CLIENT, 0x01);
+        put(StatusInRequest.class, NetClient.NetState.STATUS, Packet.Bound.SERVER, 0x00);
+        put(StatusOutResponse.class, NetClient.NetState.STATUS, Packet.Bound.CLIENT, 0x00);
+        put(StatusInPing.class, NetClient.NetState.STATUS, Packet.Bound.SERVER, 0x01);
+        put(StatusOutPong.class, NetClient.NetState.STATUS, Packet.Bound.CLIENT, 0x01);
 
-        put(LoginInStart.class, NetState.LOGIN, Bound.SERVER, 0x00);
-        put(LoginOutDisconnect.class, NetState.LOGIN, Bound.CLIENT, 0x00);
-        put(LoginOutEncryptionRequest.class, NetState.LOGIN, Bound.CLIENT, 0x01);
-        put(LoginInEncryptionResponse.class, NetState.LOGIN, Bound.SERVER, 0x01);
-        put(LoginOutSuccess.class, NetState.LOGIN, Bound.CLIENT, 0x02);
-        put(LoginOutCompression.class, NetState.LOGIN, Bound.CLIENT, 0x03);
+        put(LoginInStart.class, NetClient.NetState.LOGIN, Packet.Bound.SERVER, 0x00);
+        put(LoginOutDisconnect.class, NetClient.NetState.LOGIN, Packet.Bound.CLIENT, 0x00);
+        put(LoginOutEncryptionRequest.class, NetClient.NetState.LOGIN, Packet.Bound.CLIENT, 0x01);
+        put(LoginInEncryptionResponse.class, NetClient.NetState.LOGIN, Packet.Bound.SERVER, 0x01);
+        put(LoginOutSuccess.class, NetClient.NetState.LOGIN, Packet.Bound.CLIENT, 0x02);
+        put(LoginOutCompression.class, NetClient.NetState.LOGIN, Packet.Bound.CLIENT, 0x03);
 
-        put(PlayOutSpawnPlayer.class, NetState.PLAY, Bound.CLIENT, 0x05);
-        put(PlayOutAnimation.class, NetState.PLAY, Bound.CLIENT, 0x06);
-        put(PlayOutBossBar.class, NetState.PLAY, Bound.CLIENT, 0x0C);
-        put(PlayOutDifficulty.class, NetState.PLAY, Bound.CLIENT, 0x0D);
-        put(PlayOutChat.class, NetState.PLAY, Bound.CLIENT, 0x0F);
-        put(PlayOutPluginMsg.class, NetState.PLAY, Bound.CLIENT, 0x18);
-        put(PlayOutDisconnect.class, NetState.PLAY, Bound.CLIENT, 0x1A);
-        put(PlayOutKeepAlive.class, NetState.PLAY, Bound.CLIENT, 0x1F);
-        put(PlayOutChunk.class, NetState.PLAY, Bound.CLIENT, 0x20);
-        put(PlayOutJoinGame.class, NetState.PLAY, Bound.CLIENT, 0x23);
-        put(PlayOutEntityRelativeMove.class, NetState.PLAY, Bound.CLIENT, 6);
-        put(PlayOutEntityLookAndRelativeMove.class, NetState.PLAY, Bound.CLIENT, 0x27);
-        put(PlayOutEntityLook.class, NetState.PLAY, Bound.CLIENT, 0x28);
-        put(PlayOutPlayerAbilities.class, NetState.PLAY, Bound.CLIENT, 0x2B);
-        put(PlayOutTabListItem.class, NetState.PLAY, Bound.CLIENT, 0x2D);
-        put(PlayOutPosLook.class, NetState.PLAY, Bound.CLIENT, 0x2E);
-        put(PlayOutDestroyEntities.class, NetState.PLAY, Bound.CLIENT, 0x31);
-        put(PlayOutEntityHeadLook.class, NetState.PLAY, Bound.CLIENT, 0x35);
-        put(PlayOutEntityMetadata.class, NetState.PLAY, Bound.CLIENT, 0x3B);
-        put(PlayOutSpawnPos.class, NetState.PLAY, Bound.CLIENT, 0x45);
-        put(PlayOutTitle.class, NetState.PLAY, Bound.CLIENT, 0x47);
-        put(PlayOutPlayerListHeaderAndFooter.class, NetState.PLAY, Bound.CLIENT, 0x49);
+        put(PlayOutSpawnPlayer.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x05);
+        put(PlayOutAnimation.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x06);
+        put(PlayOutBossBar.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x0C);
+        put(PlayOutDifficulty.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x0D);
+        put(PlayOutChat.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x0F);
+        put(PlayOutPluginMsg.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x18);
+        put(PlayOutDisconnect.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x1A);
+        put(PlayOutKeepAlive.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x1F);
+        put(PlayOutChunk.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x20);
+        put(PlayOutJoinGame.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x23);
+        put(PlayOutEntityRelativeMove.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 6);
+        put(PlayOutEntityLookAndRelativeMove.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x27);
+        put(PlayOutEntityLook.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x28);
+        put(PlayOutPlayerAbilities.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x2B);
+        put(PlayOutTabListItem.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x2D);
+        put(PlayOutPosLook.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x2E);
+        put(PlayOutDestroyEntities.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x31);
+        put(PlayOutEntityHeadLook.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x35);
+        put(PlayOutEntityMetadata.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x3B);
+        put(PlayOutSpawnPos.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x45);
+        put(PlayOutTitle.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x47);
+        put(PlayOutPlayerListHeaderAndFooter.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x49);
 
-        put(PlayInTeleportConfirm.class, NetState.PLAY, Bound.SERVER, 0x00);
-        put(PlayInChat.class, NetState.PLAY, Bound.SERVER, 0x03);
-        put(PlayInClientStatus.class, NetState.PLAY, Bound.SERVER, 0x04);
-        put(PlayInClientSettings.class, NetState.PLAY, Bound.SERVER, 0x05);
-        put(PlayInPluginMsg.class, NetState.PLAY, Bound.SERVER, 0x0A);
-        put(PlayInKeepAlive.class, NetState.PLAY, Bound.SERVER, 0x0C);
-        put(PlayInPlayer.class, NetState.PLAY, Bound.SERVER, 0x0D);
-        put(PlayInPos.class, NetState.PLAY, Bound.SERVER, 0x0E);
-        put(PlayInPosLook.class, NetState.PLAY, Bound.SERVER, 0x0F);
-        put(PlayInLook.class, NetState.PLAY, Bound.SERVER, 0x10);
-        put(PlayInPlayerAbilities.class, NetState.PLAY, Bound.SERVER, 0x13);
-        put(PlayInPlayerDig.class, NetState.PLAY, Bound.SERVER, 0x14);
-        put(PlayInEntityAction.class, NetState.PLAY, Bound.SERVER, 0x15);
-        put(PlayInAnimation.class, NetState.PLAY, Bound.SERVER, 0x1D);
+        put(PlayInTeleportConfirm.class, NetClient.NetState.PLAY, Packet.Bound.SERVER, 0x00);
+        put(PlayInChat.class, NetClient.NetState.PLAY, Packet.Bound.SERVER, 0x03);
+        put(PlayInClientStatus.class, NetClient.NetState.PLAY, Packet.Bound.SERVER, 0x04);
+        put(PlayInClientSettings.class, NetClient.NetState.PLAY, Packet.Bound.SERVER, 0x05);
+        put(PlayInPluginMsg.class, NetClient.NetState.PLAY, Packet.Bound.SERVER, 0x0A);
+        put(PlayInKeepAlive.class, NetClient.NetState.PLAY, Packet.Bound.SERVER, 0x0C);
+        put(PlayInPlayer.class, NetClient.NetState.PLAY, Packet.Bound.SERVER, 0x0D);
+        put(PlayInPos.class, NetClient.NetState.PLAY, Packet.Bound.SERVER, 0x0E);
+        put(PlayInPosLook.class, NetClient.NetState.PLAY, Packet.Bound.SERVER, 0x0F);
+        put(PlayInLook.class, NetClient.NetState.PLAY, Packet.Bound.SERVER, 0x10);
+        put(PlayInPlayerAbilities.class, NetClient.NetState.PLAY, Packet.Bound.SERVER, 0x13);
+        put(PlayInPlayerDig.class, NetClient.NetState.PLAY, Packet.Bound.SERVER, 0x14);
+        put(PlayInEntityAction.class, NetClient.NetState.PLAY, Packet.Bound.SERVER, 0x15);
+        put(PlayInAnimation.class, NetClient.NetState.PLAY, Packet.Bound.SERVER, 0x1D);
 
         PACKETS.trim();
         PACKET_IDS.trim();
@@ -139,7 +139,7 @@ public final class PacketRegistry {
     // top bit is bound switch
     // after that 4 bits for net getState ordinal
     // then comes the rest of the ID
-    private static int shift(NetState state, Bound bound, int id) {
+    private static int shift(NetClient.NetState state, Packet.Bound bound, int id) {
         int identifier = id;
         identifier |= state.ordinal() << 27;
         identifier |= bound.ordinal() << 31;
@@ -155,12 +155,12 @@ public final class PacketRegistry {
      * @param id the ID
      */
     private static void put(Class<? extends Packet> cls,
-                            NetState state, Bound bound, int id) {
+                            NetClient.NetState state, Packet.Bound bound, int id) {
         int identifier = shift(state, bound, id);
         PACKET_IDS.put(cls, identifier);
 
         // Only in packets will need reflection inst
-        if (bound == Bound.SERVER) {
+        if (bound == Packet.Bound.SERVER) {
             PACKETS.put(identifier, cls);
             CTORS.put(cls, ConstructorAccess.get(cls));
         }
@@ -195,7 +195,7 @@ public final class PacketRegistry {
      * @param id the packet ID
      * @return the packet class
      */
-    public static Class<? extends Packet> byId(NetState state, Bound bound, int id) {
+    public static Class<? extends Packet> byId(NetClient.NetState state, Packet.Bound bound, int id) {
         int identifier = shift(state, bound, id);
         Class<? extends Packet> packet = PACKETS.get(identifier);
         if (packet != null) {
@@ -238,9 +238,9 @@ public final class PacketRegistry {
      * @param info the info
      * @return the packet getState
      */
-    public static NetState stateOf(int info) {
+    public static NetClient.NetState stateOf(int info) {
         int ordinal = info >> 27 & 0xf;
-        return NetState.values()[ordinal];
+        return NetClient.NetState.values()[ordinal];
     }
 
     /**
@@ -249,8 +249,8 @@ public final class PacketRegistry {
      * @param info the info
      * @return the packet bound
      */
-    public static Bound boundOf(int info) {
+    public static Packet.Bound boundOf(int info) {
         int ordinal = info >> 31 & 0x1;
-        return Bound.values()[ordinal];
+        return Packet.Bound.values()[ordinal];
     }
 }

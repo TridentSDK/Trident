@@ -19,6 +19,9 @@ package net.tridentsdk.server.packet.handshake;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.packet.PacketIn;
+import net.tridentsdk.server.packet.login.LoginOutDisconnect;
+import net.tridentsdk.server.packet.status.StatusOutResponse;
+import net.tridentsdk.ui.chat.ChatComponent;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -49,6 +52,10 @@ public final class HandshakeIn extends PacketIn {
         String address = rstr(buf);
         int port = buf.readUnsignedShort();
         int nextState = rvint(buf);
+
+        if (version != StatusOutResponse.PROTOCOL_VERSION) {
+            client.sendPacket(new LoginOutDisconnect(ChatComponent.text("Client has the wrong protocol version")));
+        }
 
         client.setState(NetClient.NetState.values()[nextState]);
     }
