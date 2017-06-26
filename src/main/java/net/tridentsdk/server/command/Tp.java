@@ -31,6 +31,7 @@ public class Tp implements CmdListener {
     @Constrain(value = SourceConstraint.class, type = ConstraintType.SOURCE, src = CmdSourceType.PLAYER)
     @Constrain(value = MinArgsConstraint.class, type = ConstraintType.INT, integer = 4)
     @Constrain(value = MaxArgsConstraint.class, type = ConstraintType.INT, integer = 6)
+    @Constrain(value = PermsConstraint.class, type = ConstraintType.STRING, str = "minecraft.tp")
     public void teleport(String label, CmdSource source, String[] args) {
         String player = args[0];
         Player p = Player.byName(player);

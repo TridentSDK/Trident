@@ -48,10 +48,7 @@ import net.tridentsdk.world.World;
 import net.tridentsdk.world.opt.GameMode;
 
 import javax.annotation.concurrent.ThreadSafe;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -71,7 +68,48 @@ public class TridentPlayer extends TridentEntity implements Player {
      * The players ordered by name
      */
     @Getter
-    private static final ConcurrentSkipListMap<String, Player> playerNames = new ConcurrentSkipListMap<>();
+    private static final ConcurrentSkipListMap<String, Player> playerNames =
+            new ConcurrentSkipListMap<>((c0, c1) -> {
+                // Indexes: 0123456789AaBbCcDdEeFfGg..._
+                for (int i = 0; i < c0.length() && i < c1.length(); i++) {
+                    char c0i = c0.charAt(i);
+                    char c1i = c1.charAt(i);
+
+                    boolean d0 = Character.isDigit(c0i) || c0i == '_';
+                    boolean d1 = Character.isDigit(c1i) || c0i == '_';
+
+                    boolean u0 = Character.isUpperCase(c0i);
+                    boolean u1 = Character.isUpperCase(c1i);
+
+                    int t0 = (Character.toUpperCase(c0i) - 'A' << 1) + (u0 ? 0 : 1);
+                    int t1 = (Character.toUpperCase(c1i) - 'A' << 1) + (u1 ? 0 : 1);
+
+                    if (d0 && d1) { // Compare if both are digits
+                        int cmp = Character.compare(c0i, c1i);
+                        if (cmp != 0) { // If they aren't equal, return comparison
+                            return cmp;
+                        }
+                    } else if (d0) { // If only 0 is digit, c0 is before
+                        return -1;
+                    } else if (d1) { // If only 1 is digit, c0 is after
+                        return 1;
+                    }
+
+                    if (t0 > t1) { // If letter is ahead, c0 is after
+                        return 1;
+                    } else if (t1 > t0) { // If letter is behind, c0 is before
+                        return -1;
+                    }
+                }
+
+                if (c0.length() > c1.length()) { // If all chars equal, shorter goes first
+                    return 1;
+                } else if (c0.length() < c1.length()) {
+                    return -1;
+                }
+
+                return 0; // Otherwise same
+            });
 
     /**
      * The cache time of a chunk
@@ -150,6 +188,16 @@ public class TridentPlayer extends TridentEntity implements Player {
      * player.
      */
     private final List<BossBar> bossBars = new CopyOnWriteArrayList<>();
+
+    /**
+     * The collection of permissions held by this player
+     */
+    private final Set<String> permissions = Collections.newSetFromMap(new ConcurrentHashMap<>());
+    /**
+     * Whether or not this player is an operator
+     */
+    @Getter
+    private volatile boolean op;
 
     /**
      * Whether the player is in god mode
@@ -239,6 +287,12 @@ public class TridentPlayer extends TridentEntity implements Player {
 
         this.setTabList(TridentGlobalTabList.getInstance());
         TridentGlobalTabList.getInstance().update();
+
+        // TODO default permissions?
+        Collections.addAll(this.permissions, "minecraft.help");
+        if (TridentServer.getInstance().getOpsList().getOps().contains(this.uuid)) {
+            this.op = true;
+        }
 
         PlayOutSpawnPlayer newPlayerPacket = new PlayOutSpawnPlayer(this);
         ChatComponent chat = ChatComponent.create()
@@ -591,5 +645,47 @@ public class TridentPlayer extends TridentEntity implements Player {
     @Override
     public CmdSourceType getCmdType() {
         return CmdSourceType.PLAYER;
+    }
+
+    @Override
+    public boolean hasPerm(String perm) {
+        return this.op || this.permissions.contains(perm);
+    }
+
+    @Override
+    public void addPerm(String perm) {
+        this.permissions.add(perm);
+    }
+
+    @Override
+    public boolean removePerm(String perm) {
+        return this.permissions.remove(perm);
+    }
+
+    @Override
+    public void setOp(boolean op) {
+        this.op = op;
+
+        if (op) {
+            TridentServer.getInstance().getOpsList().addOp(this.uuid);
+
+            ChatComponent c = ChatComponent.
+                    create().
+                    setColor(ChatColor.GRAY).
+                    setText("[Server] " + this.name + " has been opped");
+            for (TridentPlayer player : players.values()) {
+                player.sendMessage(c);
+            }
+        } else {
+            TridentServer.getInstance().getOpsList().removeOp(this.uuid);
+
+            ChatComponent c = ChatComponent.
+                    create().
+                    setColor(ChatColor.GRAY).
+                    setText("[Server] " + this.name + " has been deopped");
+            for (TridentPlayer player : players.values()) {
+                player.sendMessage(c);
+            }
+        }
     }
 }

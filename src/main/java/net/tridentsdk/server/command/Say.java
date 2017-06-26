@@ -27,6 +27,7 @@ import javax.annotation.concurrent.Immutable;
 public class Say implements CmdListener {
     @Cmd(name = "say", help = "/say <message>", desc = "Broadcasts a message to all players")
     @Constrain(value = MinArgsConstraint.class, type = ConstraintType.INT, integer = 1)
+    @Constrain(value = PermsConstraint.class, type = ConstraintType.STRING, str = "minecraft.say")
     public void say(String label, CmdSource source, String[] args) {
         StringBuilder builder = new StringBuilder();
         for (String arg : args) {

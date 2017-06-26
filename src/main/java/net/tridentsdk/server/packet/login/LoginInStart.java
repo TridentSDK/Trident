@@ -45,6 +45,11 @@ public final class LoginInStart extends PacketIn {
         }
 
         String name = rstr(buf);
+        if (name.length() > 16 || !name.matches("[a-zA-Z0-9_]+")) {
+            client.disconnect("Invalid name");
+            return;
+        }
+
         client.setName(name);
 
         if (TridentServer.cfg().doAuth()) {

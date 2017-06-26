@@ -140,17 +140,29 @@ public class ImplementationProvider implements Impl.ImplementationProvider {
 
     @Override
     @Nonnull
-    // TODO improve
     public Map<String, Player> findByName(String name) {
-        Map.Entry<String, Player> top = TridentPlayer.getPlayerNames().floorEntry(name);
-        Map.Entry<String, Player> bot = TridentPlayer.getPlayerNames().ceilingEntry(name);
-        if (top == null) {
-            return Collections.unmodifiableMap(TridentPlayer.getPlayerNames().headMap(bot.getKey(), true));
-        } else if (bot == null) {
-            return Collections.unmodifiableMap(TridentPlayer.getPlayerNames().tailMap(top.getKey(), true));
+        // Skip list orders first from numbers, then
+        // 1A to 16A then 1a to 16a, then 1B to 16B then
+        // to 1b to 16b
+        // _ goes last
+        String top = TridentPlayer.getPlayerNames().ceilingKey(name.toUpperCase());
+
+        StringBuilder last = new StringBuilder(name);
+        for (int i = 0; i < 16 - name.length(); i++) {
+            last.append('_');
+        }
+        String bot = TridentPlayer.getPlayerNames().floorKey(last.toString());
+
+        // Nothing in between, therefore no possibilities
+        if (top == null || bot == null) {
+            return Collections.emptyMap();
         }
 
-        return Collections.unmodifiableMap(TridentPlayer.getPlayerNames().subMap(top.getKey(), true, bot.getKey(), true));
+        if (top.equals(bot)) {
+            return Collections.singletonMap(top, TridentPlayer.getPlayerNames().get(top));
+        }
+
+        return Collections.unmodifiableMap(TridentPlayer.getPlayerNames().subMap(top, true, bot, true));
     }
 
     @Override

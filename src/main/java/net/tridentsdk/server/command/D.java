@@ -39,6 +39,7 @@ public class D implements CmdListener {
             desc = "Secret debug command for devs")
     @Constrain(value = SourceConstraint.class, type = ConstraintType.SOURCE, src = CmdSourceType.PLAYER)
     @Constrain(value = MinArgsConstraint.class, type = ConstraintType.INT, integer = 1)
+    @Constrain(value = PermsConstraint.class, type = ConstraintType.STRING, str = "trident.debug")
     public void debug(String label, CmdSource source, String[] args) {
         TridentPlayer player = (TridentPlayer) source;
         NetClient client = player.net();

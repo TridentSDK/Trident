@@ -27,6 +27,7 @@ import net.tridentsdk.plugin.PluginLoader;
 import net.tridentsdk.server.concurrent.PoolSpec;
 import net.tridentsdk.server.concurrent.ServerThreadPool;
 import net.tridentsdk.server.concurrent.TridentTick;
+import net.tridentsdk.server.config.OpsList;
 import net.tridentsdk.server.config.ServerConfig;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.net.NetServer;
@@ -39,6 +40,8 @@ import net.tridentsdk.ui.chat.ChatComponent;
 import javax.annotation.concurrent.ThreadSafe;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
@@ -60,10 +63,16 @@ public class TridentServer implements Server {
     @Getter
     private final ServerConfig config;
     /**
+     * The server operators list
+     */
+    @Getter
+    private final OpsList opsList;
+    /**
      * The logger to which the server logs
      */
     @Getter
     private final Logger logger;
+
     /**
      * The socket channel handler instance
      */
@@ -94,10 +103,12 @@ public class TridentServer implements Server {
      */
     private TridentServer(ServerConfig config,
                           Logger console,
-                          NetServer server) {
+                          NetServer server,
+                          OpsList opsList) {
         this.config = config;
         this.logger = console;
         this.server = server;
+        this.opsList = opsList;
         this.tick = new TridentTick(console);
     }
 
@@ -105,8 +116,8 @@ public class TridentServer implements Server {
      * Init code for server startup
      */
     public static TridentServer init(ServerConfig config, Logger console,
-                                     NetServer net) throws IllegalStateException {
-        TridentServer server = new TridentServer(config, console, net);
+                                     NetServer net, OpsList list) throws IllegalStateException {
+        TridentServer server = new TridentServer(config, console, net, list);
         if (TridentServer.instance == null) {
             TridentServer.instance = server;
             server.tick.start();
@@ -133,6 +144,11 @@ public class TridentServer implements Server {
     @Override
     public int getPort() {
         return this.config.port();
+    }
+
+    @Override
+    public Collection<UUID> getOps() {
+        return Collections.unmodifiableCollection(this.opsList.getOps());
     }
 
     @Override

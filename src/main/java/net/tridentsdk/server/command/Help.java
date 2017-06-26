@@ -32,6 +32,7 @@ public class Help implements CmdListener {
 
     @Cmd(name = "help", help = "/help [command] [page]", desc = "Displays a help message, or looks for one if a command is provided")
     @Constrain(value = MaxArgsConstraint.class, type = ConstraintType.INT, integer = 2)
+    @Constrain(value = PermsConstraint.class, type = ConstraintType.STRING, str = "minecraft.help")
     public void say(String label, CmdSource source, String[] args) {
         if (args.length == 1) {
             try {

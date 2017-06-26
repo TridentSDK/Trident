@@ -28,6 +28,7 @@ public class Stop implements CmdListener {
     @Constrain(value = SourceConstraint.class,
             type = ConstraintType.SOURCE,
             src = { CmdSourceType.CONSOLE, CmdSourceType.PLAYER })
+    @Constrain(value = PermsConstraint.class, type = ConstraintType.STRING, str = "minecraft.stop")
     public void stop(String label, CmdSource source, String[] args) {
         TridentServer.getInstance().shutdown();
     }

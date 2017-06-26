@@ -26,6 +26,7 @@ import net.tridentsdk.server.command.*;
 import net.tridentsdk.server.concurrent.PoolSpec;
 import net.tridentsdk.server.concurrent.ServerThreadPool;
 import net.tridentsdk.server.config.ConfigIo;
+import net.tridentsdk.server.config.OpsList;
 import net.tridentsdk.server.config.ServerConfig;
 import net.tridentsdk.server.logger.InfoLogger;
 import net.tridentsdk.server.logger.PipelinedLogger;
@@ -99,11 +100,6 @@ public final class TridentMain {
             logger.log("Creating one for you... ");
             ConfigIo.exportResource(ServerConfig.PATH, "/server.json");
         }
-        logger.success("Done.");
-
-        logger.log("Reading server.json...");
-        ServerConfig config = ServerConfig.init();
-        logger.success("Done.");
 
         logger.log("Checking for server files: plugins folder");
         if (!Files.exists(Plugin.PLUGIN_DIR)) {
@@ -111,7 +107,19 @@ public final class TridentMain {
             logger.log("Creating one for you... ");
             Files.createDirectory(Plugin.PLUGIN_DIR);
         }
-        logger.success("Done.");
+
+        logger.log("Checking for server files: ops list");
+        if (!Files.exists(OpsList.PATH)) {
+            logger.warn("File \"ops.json\" not present");
+            logger.log("Creating one for you... ");
+            Files.createFile(OpsList.PATH);
+        }
+
+        logger.log("Reading server.json...");
+        ServerConfig config = ServerConfig.init();
+
+        logger.log("Reading ops.json...");
+        OpsList opsList = OpsList.init();
         // -------------------------------------------------
 
         // Pass net args to the server handler -------------
@@ -134,7 +142,7 @@ public final class TridentMain {
 
         // Setup server ------------------------------------
         logger.log("Setting up the server...");
-        TridentServer trident = TridentServer.init(config, logger, server);
+        TridentServer trident = TridentServer.init(config, logger, server, opsList);
         logger.success("Done.");
         // -------------------------------------------------
 
@@ -147,6 +155,8 @@ public final class TridentMain {
             h.register("minecraft", new Tp());
             h.register("minecraft", new Say());
             h.register("minecraft", new Help());
+            h.register("minecraft", new Op());
+            h.register("minecraft", new Deop());
             h.register("trident", new D());
             logger.log("Done.");
             // ---------------------------------------------
@@ -193,6 +203,7 @@ public final class TridentMain {
 
         // Command handler ---------------------------------
         while (true) {
+            // TODO this sucks
             String line = reader.readLine("$ ");
             if (line.isEmpty()) {
                 continue;

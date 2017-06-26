@@ -29,14 +29,18 @@ import java.util.Map;
 public class Kick implements CmdListener {
     @Cmd(name = "kick", help = "/kick <player> [reason]", desc = "Kicks a player from the server")
     @Constrain(value = MinArgsConstraint.class, type = ConstraintType.INT, integer = 1)
+    @Constrain(value = PermsConstraint.class, type = ConstraintType.STRING, str = "minecraft.kick")
     public void kick(String label, CmdSource source, String[] args) {
         String player = args[0];
-        StringBuilder builder = new StringBuilder();
-        for (int i = 1; i < args.length; i++) {
-            builder.append(args[i]).append(' ');
+
+        String reason = "Kicked by an operator.";
+        if (args.length > 1) {
+            StringBuilder builder = new StringBuilder();
+            for (int i = 1; i < args.length; i++) {
+                builder.append(args[i]).append(' ');
+            }
+            reason = builder.toString();
         }
-        String reason = builder.toString();
-        reason = reason.isEmpty() ? "Kicked by an operator." : reason;
 
         Player p = Player.byName(player);
 
@@ -52,6 +56,6 @@ public class Kick implements CmdListener {
         }
 
         p.kick(ChatComponent.text(reason));
-        TridentServer.getInstance().getLogger().log("Kicked player " + player + " for: " + reason);
+        TridentServer.getInstance().getLogger().log("Kicked player " + p.getName() + " for: " + reason);
     }
 }
