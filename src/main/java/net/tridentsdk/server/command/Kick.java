@@ -17,13 +17,13 @@
 package net.tridentsdk.server.command;
 
 import net.tridentsdk.command.*;
+import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.server.TridentServer;
-import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.ui.chat.ChatColor;
 import net.tridentsdk.ui.chat.ChatComponent;
 
 import javax.annotation.concurrent.Immutable;
-import java.util.Optional;
+import java.util.Map;
 
 @Immutable
 public class Kick implements CmdListener {
@@ -38,17 +38,20 @@ public class Kick implements CmdListener {
         String reason = builder.toString();
         reason = reason.isEmpty() ? "Kicked by an operator." : reason;
 
-        Optional<TridentPlayer> p = TridentPlayer.getPlayers().values().
-                stream().
-                filter(pl -> pl.getName().equals(player)).
-                findFirst();
+        Player p = Player.byName(player);
 
-        if (!p.isPresent()) {
-            source.sendMessage(ChatComponent.create().setColor(ChatColor.RED).
-                    setText("No player by the name \"" + player + "\" is online"));
-        } else {
-            p.get().kick(ChatComponent.text(reason));
-            TridentServer.getInstance().getLogger().log("Kicked player " + player + " for: " + reason);
+        Map<String, Player> map = Player.search(player);
+        if (p == null) {
+            if (map.size() == 1) {
+                p = map.values().stream().findFirst().orElseThrow(RuntimeException::new);
+            } else {
+                source.sendMessage(ChatComponent.create().setColor(ChatColor.RED).
+                        setText("No player by the name \"" + player + "\" is online"));
+                return;
+            }
         }
+
+        p.kick(ChatComponent.text(reason));
+        TridentServer.getInstance().getLogger().log("Kicked player " + player + " for: " + reason);
     }
 }

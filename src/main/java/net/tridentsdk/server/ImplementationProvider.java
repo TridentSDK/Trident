@@ -19,19 +19,21 @@ package net.tridentsdk.server;
 import net.tridentsdk.Impl;
 import net.tridentsdk.Server;
 import net.tridentsdk.base.Substance;
-import net.tridentsdk.logger.LogHandler;
-import net.tridentsdk.logger.Logger;
 import net.tridentsdk.config.Config;
+import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.inventory.Inventory;
 import net.tridentsdk.inventory.InventoryType;
 import net.tridentsdk.inventory.Item;
+import net.tridentsdk.logger.LogHandler;
+import net.tridentsdk.logger.Logger;
 import net.tridentsdk.meta.ItemMeta;
-import net.tridentsdk.server.logger.InfoLogger;
-import net.tridentsdk.server.logger.LoggerHandlers;
-import net.tridentsdk.server.logger.PipelinedLogger;
 import net.tridentsdk.server.config.TridentConfig;
 import net.tridentsdk.server.inventory.TridentInventory;
 import net.tridentsdk.server.inventory.TridentItem;
+import net.tridentsdk.server.logger.InfoLogger;
+import net.tridentsdk.server.logger.LoggerHandlers;
+import net.tridentsdk.server.logger.PipelinedLogger;
+import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.ui.bossbar.CustomBossBar;
 import net.tridentsdk.server.ui.tablist.TridentCustomTabList;
 import net.tridentsdk.server.ui.tablist.TridentGlobalTabList;
@@ -40,8 +42,12 @@ import net.tridentsdk.ui.bossbar.BossBar;
 import net.tridentsdk.ui.tablist.TabList;
 import net.tridentsdk.ui.title.Title;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import java.nio.file.Path;
+import java.util.Collections;
+import java.util.Map;
 
 /**
  * This class is the bridge between the server and the API,
@@ -130,5 +136,26 @@ public class ImplementationProvider implements Impl.ImplementationProvider {
     @Override
     public Item newItem(Substance substance, int count, byte damage, ItemMeta meta) {
         return new TridentItem(substance, count, damage, meta);
+    }
+
+    @Override
+    @Nonnull
+    // TODO improve
+    public Map<String, Player> findByName(String name) {
+        Map.Entry<String, Player> top = TridentPlayer.getPlayerNames().floorEntry(name);
+        Map.Entry<String, Player> bot = TridentPlayer.getPlayerNames().ceilingEntry(name);
+        if (top == null) {
+            return Collections.unmodifiableMap(TridentPlayer.getPlayerNames().headMap(bot.getKey(), true));
+        } else if (bot == null) {
+            return Collections.unmodifiableMap(TridentPlayer.getPlayerNames().tailMap(top.getKey(), true));
+        }
+
+        return Collections.unmodifiableMap(TridentPlayer.getPlayerNames().subMap(top.getKey(), true, bot.getKey(), true));
+    }
+
+    @Override
+    @Nullable
+    public Player getByName(String name) {
+        return TridentPlayer.getPlayerNames().get(name);
     }
 }

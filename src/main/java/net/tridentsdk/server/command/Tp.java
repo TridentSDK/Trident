@@ -18,12 +18,12 @@ package net.tridentsdk.server.command;
 
 import net.tridentsdk.base.Position;
 import net.tridentsdk.command.*;
-import net.tridentsdk.server.player.TridentPlayer;
+import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.ui.chat.ChatColor;
 import net.tridentsdk.ui.chat.ChatComponent;
 
 import javax.annotation.concurrent.Immutable;
-import java.util.Optional;
+import java.util.Map;
 
 @Immutable
 public class Tp implements CmdListener {
@@ -33,47 +33,49 @@ public class Tp implements CmdListener {
     @Constrain(value = MaxArgsConstraint.class, type = ConstraintType.INT, integer = 6)
     public void teleport(String label, CmdSource source, String[] args) {
         String player = args[0];
-        Optional<TridentPlayer> p = TridentPlayer.getPlayers().values().
-                stream().
-                filter(pl -> pl.getName().equals(player)).
-                findFirst();
+        Player p = Player.byName(player);
 
-        if (!p.isPresent()) {
-            source.sendMessage(ChatComponent.create().setColor(ChatColor.RED).
-                    setText("No player by the name \"" + player + "\" is online"));
-        } else {
-            TridentPlayer tridentPlayer = p.get();
-            Position position = tridentPlayer.getPosition();
+        if (p == null) {
+            Map<String, Player> map = Player.search(player);
+            if (map.size() == 1) {
+                p = map.values().stream().findFirst().orElseThrow(RuntimeException::new);
+            } else {
+                source.sendMessage(ChatComponent.create().setColor(ChatColor.RED).
+                        setText("No player by the name \"" + player + "\" is online"));
+                return;
+            }
+        }
 
-            if (args.length == 4) {
-                try {
-                    int x = Integer.parseInt(args[1]);
-                    int y = Integer.parseInt(args[2]);
-                    int z = Integer.parseInt(args[3]);
-                    position.set(x, y, z);
+        Position position = p.getPosition();
 
-                    // TODO teleport packet and player search needs UUID lookup
-                    tridentPlayer.setPosition(position);
-                } catch (NumberFormatException e) {
-                    source.sendMessage(ChatComponent.create().setColor(ChatColor.RED).
-                            setText("Given coordinates were not numbers"));
-                }
-            } else if (args.length == 6) {
-                try {
-                    int x = Integer.parseInt(args[1]);
-                    int y = Integer.parseInt(args[2]);
-                    int z = Integer.parseInt(args[3]);
-                    float pitch = Float.parseFloat(args[4]);
-                    float yaw = Float.parseFloat(args[5]);
-                    position.set(x, y, z);
-                    position.setPitch(pitch);
-                    position.setYaw(yaw);
+        if (args.length == 4) {
+            try {
+                int x = Integer.parseInt(args[1]);
+                int y = Integer.parseInt(args[2]);
+                int z = Integer.parseInt(args[3]);
+                position.set(x, y, z);
 
-                    tridentPlayer.setPosition(position);
-                } catch (NumberFormatException e) {
-                    source.sendMessage(ChatComponent.create().setColor(ChatColor.RED).
-                            setText("Given coordinates were not numbers"));
-                }
+                // TODO teleport packet and player search needs UUID lookup
+                p.setPosition(position);
+            } catch (NumberFormatException e) {
+                source.sendMessage(ChatComponent.create().setColor(ChatColor.RED).
+                        setText("Given coordinates were not numbers"));
+            }
+        } else if (args.length == 6) {
+            try {
+                int x = Integer.parseInt(args[1]);
+                int y = Integer.parseInt(args[2]);
+                int z = Integer.parseInt(args[3]);
+                float pitch = Float.parseFloat(args[4]);
+                float yaw = Float.parseFloat(args[5]);
+                position.set(x, y, z);
+                position.setPitch(pitch);
+                position.setYaw(yaw);
+
+                p.setPosition(position);
+            } catch (NumberFormatException e) {
+                source.sendMessage(ChatComponent.create().setColor(ChatColor.RED).
+                        setText("Given coordinates were not numbers"));
             }
         }
     }

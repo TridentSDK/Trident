@@ -52,10 +52,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -70,6 +67,12 @@ public class TridentPlayer extends TridentEntity implements Player {
      */
     @Getter
     private static final Map<UUID, TridentPlayer> players = new ConcurrentHashMap<>();
+    /**
+     * The players ordered by name
+     */
+    @Getter
+    private static final ConcurrentSkipListMap<String, Player> playerNames = new ConcurrentSkipListMap<>();
+
     /**
      * The cache time of a chunk
      */
@@ -205,6 +208,7 @@ public class TridentPlayer extends TridentEntity implements Player {
         TridentWorld world = TridentServer.getInstance().getWorldLoader().getDefaultWorld();
         TridentPlayer player = new TridentPlayer(client, world, name, uuid, skinTextures);
         TridentPlayer.players.put(uuid, player);
+        TridentPlayer.playerNames.put(name, player);
         client.setPlayer(player);
         Login.finish();
 
@@ -287,6 +291,7 @@ public class TridentPlayer extends TridentEntity implements Player {
     @Override
     public void doRemove() {
         players.remove(this.uuid);
+        playerNames.remove(this.name);
 
         // If the player isn't in the list, they haven't
         // finished logging in yet; cleanup
