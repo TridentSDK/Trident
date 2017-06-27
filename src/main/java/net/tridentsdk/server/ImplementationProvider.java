@@ -20,6 +20,7 @@ import net.tridentsdk.Impl;
 import net.tridentsdk.Server;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.config.Config;
+import net.tridentsdk.doc.Policy;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.inventory.Inventory;
 import net.tridentsdk.inventory.InventoryType;
@@ -27,7 +28,6 @@ import net.tridentsdk.inventory.Item;
 import net.tridentsdk.logger.LogHandler;
 import net.tridentsdk.logger.Logger;
 import net.tridentsdk.meta.ItemMeta;
-import net.tridentsdk.plugin.channel.Destination;
 import net.tridentsdk.plugin.channel.PluginChannel;
 import net.tridentsdk.plugin.channel.SimpleChannelListener;
 import net.tridentsdk.server.config.TridentConfig;
@@ -37,6 +37,7 @@ import net.tridentsdk.server.logger.InfoLogger;
 import net.tridentsdk.server.logger.LoggerHandlers;
 import net.tridentsdk.server.logger.PipelinedLogger;
 import net.tridentsdk.server.player.TridentPlayer;
+import net.tridentsdk.server.plugin.TridentPluginAllChannel;
 import net.tridentsdk.server.plugin.TridentPluginChannel;
 import net.tridentsdk.server.ui.bossbar.CustomBossBar;
 import net.tridentsdk.server.ui.tablist.TridentCustomTabList;
@@ -50,6 +51,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import java.nio.file.Path;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
@@ -177,44 +179,23 @@ public class ImplementationProvider implements Impl.ImplementationProvider {
 
     @Override
     public PluginChannel open(String name, Player... targets) {
-        return TridentPluginChannel.getChannel(name, k -> {
-            TridentPluginChannel channel = new TridentPluginChannel(name, targets);
-            channel.addRecipient(targets);
+        PluginChannel channel = TridentPluginChannel.getChannel(name, TridentPluginChannel::new);
+        channel.addRecipient(targets);
 
-            for (SimpleChannelListener listener : TridentPluginChannel.getListeners().values()) {
-                listener.channelOpened(channel, Destination.CLIENT);
-            }
-
-            return channel;
-        });
+        return channel;
     }
 
     @Override
-    public PluginChannel open(String name, Iterable<Player> players) {
-        return TridentPluginChannel.getChannel(name, k -> {
-            TridentPluginChannel channel = new TridentPluginChannel(name, players);
-            for (Player player : players) {
-                channel.addRecipient(player);
-            }
+    public PluginChannel open(String name, Collection<? extends Player> players) {
+        PluginChannel channel = TridentPluginChannel.getChannel(name, TridentPluginChannel::new);
+        channel.addRecipient(players);
 
-            for (SimpleChannelListener listener : TridentPluginChannel.getListeners().values()) {
-                listener.channelOpened(channel, Destination.CLIENT);
-            }
-
-            return channel;
-        });
+        return channel;
     }
 
     @Override
     public PluginChannel openAll(String name) {
-        return TridentPluginChannel.getChannel(name, k -> {
-            TridentPluginChannel channel = new TridentPluginChannel(name);
-            for (SimpleChannelListener listener : TridentPluginChannel.getListeners().values()) {
-                listener.channelOpened(channel, Destination.CLIENT);
-            }
-
-            return channel;
-        });
+        return TridentPluginChannel.getChannel(name, TridentPluginAllChannel::new);
     }
 
     @Override
@@ -233,11 +214,13 @@ public class ImplementationProvider implements Impl.ImplementationProvider {
     }
 
     @Override
+    @Policy("plugin thread only")
     public void register(SimpleChannelListener listener) {
         TridentPluginChannel.register(listener);
     }
 
     @Override
+    @Policy("plugin thread only")
     public boolean unregister(Class<? extends SimpleChannelListener> cls) {
         return TridentPluginChannel.unregister(cls);
     }

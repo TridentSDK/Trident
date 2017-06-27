@@ -17,19 +17,20 @@
 package net.tridentsdk.server.plugin;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import net.tridentsdk.doc.Policy;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.plugin.channel.Destination;
 import net.tridentsdk.plugin.channel.PluginChannel;
 import net.tridentsdk.plugin.channel.SimpleChannelListener;
+import net.tridentsdk.server.concurrent.PoolSpec;
+import net.tridentsdk.server.concurrent.ServerThreadPool;
 import net.tridentsdk.server.net.NetData;
 import net.tridentsdk.server.packet.play.PlayOutPluginMsg;
 import net.tridentsdk.server.player.TridentPlayer;
 
 import javax.annotation.concurrent.ThreadSafe;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
@@ -37,17 +38,21 @@ import java.util.function.Function;
  * Implements a plugin channel.
  */
 @ThreadSafe
+@RequiredArgsConstructor
 public class TridentPluginChannel implements PluginChannel {
     /**
      * Cache of open plugin channels.
      */
-    private static final Map<String, TridentPluginChannel> CHANNELS = new ConcurrentHashMap<>();
+    private static final Map<String, PluginChannel> CHANNELS = new ConcurrentHashMap<>();
     /**
-     * Mapping of all the listener entries
+     * Mapping of all the listener entries.
+     *
+     * <p>This map may only be accessed by the plugin
+     * thread.</p>
      */
     @Getter
     private static final Map<Class<? extends SimpleChannelListener>, SimpleChannelListener> listeners =
-            new ConcurrentHashMap<>();
+            new HashMap<>();
 
     /**
      * The register channel name
@@ -68,43 +73,11 @@ public class TridentPluginChannel implements PluginChannel {
      */
     @Getter
     private final String name;
-    /**
-     * Whether or not this channel sends its messages to all
-     * players
-     */
-    private final boolean forAll;
 
     /**
      * Whether or not this channel is closed
      */
     private volatile boolean closed;
-
-    public TridentPluginChannel(String name, Player... targets) {
-        this.name = name;
-        this.forAll = false;
-
-        PlayOutPluginMsg msg = new PlayOutPluginMsg(REGISTER, this.name.getBytes(NetData.NET_CHARSET));
-        for (Player player : targets) {
-            this.recipients.put(player.getUuid(), player);
-            ((TridentPlayer) player).net().sendPacket(msg);
-        }
-    }
-
-    public TridentPluginChannel(String name, Iterable<Player> players) {
-        this.name = name;
-        this.forAll = false;
-
-        PlayOutPluginMsg msg = new PlayOutPluginMsg(REGISTER, this.name.getBytes(NetData.NET_CHARSET));
-        for (Player player : players) {
-            this.recipients.put(player.getUuid(), player);
-            ((TridentPlayer) player).net().sendPacket(msg);
-        }
-    }
-
-    public TridentPluginChannel(String name) {
-        this.name = name;
-        this.forAll = true;
-    }
 
     /**
      * Cache lookup and compute for the plugin channel with
@@ -115,7 +88,7 @@ public class TridentPluginChannel implements PluginChannel {
      * @return the old or new channel, depending if it
      * existed or not
      */
-    public static TridentPluginChannel getChannel(String name, Function<String, TridentPluginChannel> func) {
+    public static PluginChannel getChannel(String name, Function<String, PluginChannel> func) {
         return CHANNELS.computeIfAbsent(name, func);
     }
 
@@ -126,8 +99,62 @@ public class TridentPluginChannel implements PluginChannel {
      * @return the channel, or {@code null} if it is not
      * cached
      */
-    public static TridentPluginChannel get(String name) {
+    public static PluginChannel get(String name) {
         return CHANNELS.get(name);
+    }
+
+    /**
+     * Removes the channel with the given name from the
+     * mapping of channels registered.
+     *
+     * @param name the name of the channel to remove
+     */
+    public static void remove(String name) {
+        CHANNELS.remove(name);
+    }
+
+    /**
+     * Autoadds the given player to the recipients of all
+     * "all" channels
+     *
+     * @param player the player to add
+     */
+    public static void autoAdd(TridentPlayer player) {
+        Set<Player> singleton = Collections.singleton(player);
+        for (PluginChannel channel : CHANNELS.values()) {
+            if (channel instanceof TridentPluginAllChannel) {
+                PlayOutPluginMsg msg = new PlayOutPluginMsg(REGISTER,
+                        channel.getName().getBytes(NetData.NET_CHARSET));
+                player.net().sendPacket(msg);
+
+                ServerThreadPool.forSpec(PoolSpec.PLUGINS).execute(() -> {
+                    for (SimpleChannelListener listener : listeners.values()) {
+                        listener.channelOpened(channel, Destination.CLIENT, singleton);
+                    }
+                });
+            }
+        }
+    }
+
+    /**
+     * Autoremoves the given player from the recipients list
+     * of all the "all" channels
+     *
+     * @param player the player to remove
+     */
+    public static void autoRemove(TridentPlayer player) {
+        Set<Player> singleton = Collections.singleton(player);
+        for (PluginChannel channel : CHANNELS.values()) {
+            if (channel instanceof TridentPluginAllChannel) {
+                channel.closeFor(singleton);
+
+                ServerThreadPool.forSpec(PoolSpec.PLUGINS).execute(() -> {
+                    for (SimpleChannelListener listener : listeners.values()) {
+                        listener.channelClosed(channel, Destination.CLIENT, singleton);
+                    }
+                });
+            }
+        }
     }
 
     /**
@@ -136,6 +163,7 @@ public class TridentPluginChannel implements PluginChannel {
      *
      * @param listener the listener to register
      */
+    @Policy("plugin thread only")
     public static void register(SimpleChannelListener listener) {
         listeners.put(listener.getClass(), listener);
     }
@@ -148,6 +176,7 @@ public class TridentPluginChannel implements PluginChannel {
      * @return {@code true} if the class was successfully
      * unregistered, {@code false} otherwise
      */
+    @Policy("plugin thread only")
     public static boolean unregister(Class<? extends SimpleChannelListener> cls) {
         return listeners.remove(cls) != null;
     }
@@ -158,50 +187,55 @@ public class TridentPluginChannel implements PluginChannel {
         CHANNELS.remove(this.name);
 
         PlayOutPluginMsg msg = new PlayOutPluginMsg(UNREGISTER, this.name.getBytes(NetData.NET_CHARSET));
-        Collection<? extends Player> players = this.forAll ? TridentPlayer.getPlayers().values() : this.recipients.values();
-        for (Player player : players) {
-            if (!this.forAll) {
-                this.recipients.remove(player.getUuid());
-            }
-
+        for (Player player : this.recipients.values()) {
             this.recipients.remove(player.getUuid());
             ((TridentPlayer) player).net().sendPacket(msg);
         }
 
-        for (SimpleChannelListener listener : listeners.values()) {
-            listener.channelClosed(this, Destination.CLIENT, players);
-        }
+        ServerThreadPool.forSpec(PoolSpec.PLUGINS).execute(() -> {
+            for (SimpleChannelListener listener : listeners.values()) {
+                listener.channelClosed(this, Destination.CLIENT, this.recipients.values());
+            }
+        });
     }
 
     @Override
     public void closeFor(Function<Player, Boolean> function) {
+        Set<Player> players = new HashSet<>();
         PlayOutPluginMsg msg = new PlayOutPluginMsg(UNREGISTER, this.name.getBytes(NetData.NET_CHARSET));
-        for (Player player : this.forAll ? TridentPlayer.getPlayers().values() : this.recipients.values()) {
+        for (Player player : this.recipients.values()) {
             if (function.apply(player)) {
-                if (!this.forAll) {
-                    this.recipients.remove(player.getUuid());
-                }
-
+                players.add(player);
+                this.recipients.remove(player.getUuid());
                 ((TridentPlayer) player).net().sendPacket(msg);
             }
         }
+
+        ServerThreadPool.forSpec(PoolSpec.PLUGINS).execute(() -> {
+            for (SimpleChannelListener listener : listeners.values()) {
+                listener.channelClosed(this, Destination.CLIENT, players);
+            }
+        });
     }
 
     @Override
-    public boolean closeFor(Iterable<Player> players) {
+    public boolean closeFor(Collection<Player> players) {
         boolean success = true;
         PlayOutPluginMsg msg = new PlayOutPluginMsg(UNREGISTER, this.name.getBytes(NetData.NET_CHARSET));
         for (Player player : players) {
-            if (!this.forAll) {
-                this.recipients.remove(player.getUuid());
-            }
-
+            player = this.recipients.remove(player.getUuid());
             if (player != null) {
                 ((TridentPlayer) player).net().sendPacket(msg);
             } else {
                 success = false;
             }
         }
+
+        ServerThreadPool.forSpec(PoolSpec.PLUGINS).execute(() -> {
+            for (SimpleChannelListener listener : listeners.values()) {
+                listener.channelClosed(this, Destination.CLIENT, players);
+            }
+        });
 
         return success;
     }
@@ -209,36 +243,57 @@ public class TridentPluginChannel implements PluginChannel {
     @Override
     public boolean closeFor(UUID... uuids) {
         boolean success = true;
+        Set<Player> players = new HashSet<>();
         PlayOutPluginMsg msg = new PlayOutPluginMsg(UNREGISTER, this.name.getBytes(NetData.NET_CHARSET));
         for (UUID uuid : uuids) {
-            Player player;
-            if (this.forAll) {
-                player = TridentPlayer.getPlayers().get(uuid);
-            } else {
-                player = this.recipients.remove(uuid);
-            }
-
+            Player player = this.recipients.remove(uuid);
             if (player != null) {
+                players.add(player);
                 ((TridentPlayer) player).net().sendPacket(msg);
             } else {
                 success = false;
             }
         }
 
+        ServerThreadPool.forSpec(PoolSpec.PLUGINS).execute(() -> {
+            for (SimpleChannelListener listener : listeners.values()) {
+                listener.channelClosed(this, Destination.CLIENT, players);
+            }
+        });
+
         return success;
     }
 
     @Override
     public void addRecipient(Player... recipients) {
-        if (this.forAll) {
-            throw new UnsupportedOperationException("All players have been registered");
+        Set<Player> players = new HashSet<>();
+        PlayOutPluginMsg msg = new PlayOutPluginMsg(REGISTER, this.name.getBytes(NetData.NET_CHARSET));
+        for (Player player : recipients) {
+            players.add(player);
+            this.recipients.put(player.getUuid(), player);
+            ((TridentPlayer) player).net().sendPacket(msg);
         }
 
+        ServerThreadPool.forSpec(PoolSpec.PLUGINS).execute(() -> {
+            for (SimpleChannelListener listener : listeners.values()) {
+                listener.channelOpened(this, Destination.CLIENT, players);
+            }
+        });
+    }
+
+    @Override
+    public void addRecipient(Collection<? extends Player> recipients) {
         PlayOutPluginMsg msg = new PlayOutPluginMsg(REGISTER, this.name.getBytes(NetData.NET_CHARSET));
         for (Player player : recipients) {
             this.recipients.put(player.getUuid(), player);
             ((TridentPlayer) player).net().sendPacket(msg);
         }
+
+        ServerThreadPool.forSpec(PoolSpec.PLUGINS).execute(() -> {
+            for (SimpleChannelListener listener : listeners.values()) {
+                listener.channelOpened(this, Destination.CLIENT, recipients);
+            }
+        });
     }
 
     @Override
@@ -252,14 +307,16 @@ public class TridentPluginChannel implements PluginChannel {
             return false;
         }
 
-        for (SimpleChannelListener listener : TridentPluginChannel.getListeners().values()) {
-            listener.messageSent(this, message);
-        }
-
         PlayOutPluginMsg msg = new PlayOutPluginMsg(this.name, message);
-        for (Player player : this.forAll ? TridentPlayer.getPlayers().values() : this.recipients.values()) {
+        for (Player player : this.recipients.values()) {
             ((TridentPlayer) player).net().sendPacket(msg);
         }
+
+        ServerThreadPool.forSpec(PoolSpec.PLUGINS).execute(() -> {
+            for (SimpleChannelListener listener : listeners.values()) {
+                listener.messageSent(this, message);
+            }
+        });
         return true;
     }
 }

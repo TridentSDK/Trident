@@ -31,6 +31,7 @@ import net.tridentsdk.server.entity.meta.EntityMetaType;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.packet.login.Login;
 import net.tridentsdk.server.packet.play.*;
+import net.tridentsdk.server.plugin.TridentPluginChannel;
 import net.tridentsdk.server.ui.bossbar.AbstractBossBar;
 import net.tridentsdk.server.ui.tablist.TabListElement;
 import net.tridentsdk.server.ui.tablist.TridentGlobalTabList;
@@ -268,6 +269,7 @@ public class TridentPlayer extends TridentEntity implements Player {
 
         client.sendPacket(new PlayOutJoinGame(player, world));
         client.sendPacket(PlayOutPluginMsg.BRAND);
+        TridentPluginChannel.autoAdd(player);
         client.sendPacket(new PlayOutDifficulty(world));
         client.sendPacket(new PlayOutSpawnPos());
         client.sendPacket(new PlayOutPosLook(player));
@@ -344,6 +346,8 @@ public class TridentPlayer extends TridentEntity implements Player {
 
     @Override
     public void doRemove() {
+        TridentPluginChannel.autoRemove(this);
+
         players.remove(this.uuid);
         playerNames.remove(this.name);
 

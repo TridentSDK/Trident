@@ -18,8 +18,10 @@ package net.tridentsdk.server.packet.play;
 
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.doc.Debug;
-import net.tridentsdk.plugin.channel.Destination;
+import net.tridentsdk.plugin.channel.PluginChannel;
 import net.tridentsdk.plugin.channel.SimpleChannelListener;
+import net.tridentsdk.server.concurrent.PoolSpec;
+import net.tridentsdk.server.concurrent.ServerThreadPool;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.net.NetData;
 import net.tridentsdk.server.packet.PacketIn;
@@ -28,7 +30,6 @@ import net.tridentsdk.server.plugin.TridentPluginChannel;
 
 import javax.annotation.concurrent.Immutable;
 import java.io.ByteArrayOutputStream;
-import java.util.Collections;
 
 import static net.tridentsdk.server.net.NetData.rstr;
 
@@ -48,12 +49,14 @@ public final class PlayInPluginMsg extends PacketIn {
         TridentPlayer player = client.getPlayer();
         String channel = rstr(buf);
 
-        buf.markReaderIndex();
-        byte[] arr = NetData.arr(buf);
-        for (SimpleChannelListener listener : TridentPluginChannel.getListeners().values()) {
-            listener.messageReceived(channel, player, arr);
-        }
-        buf.resetReaderIndex();
+        ServerThreadPool.forSpec(PoolSpec.PLUGINS).execute(() -> {
+            buf.markReaderIndex();
+            byte[] arr = NetData.arr(buf);
+            for (SimpleChannelListener listener : TridentPluginChannel.getListeners().values()) {
+                listener.messageReceived(channel, player, arr);
+            }
+            buf.resetReaderIndex();
+        });
 
         if ("MC|Brand".equals(channel)) {
             String brand = rstr(buf);
@@ -75,14 +78,8 @@ public final class PlayInPluginMsg extends PacketIn {
                 }
 
                 String name = new String(stream.toByteArray(), NetData.NET_CHARSET);
-                TridentPluginChannel.getChannel(name, k -> {
-                    TridentPluginChannel c = new TridentPluginChannel(name, player);
-                    for (SimpleChannelListener listener : TridentPluginChannel.getListeners().values()) {
-                        listener.channelOpened(c, Destination.SERVER);
-                    }
-
-                    return c;
-                });
+                PluginChannel c = TridentPluginChannel.getChannel(name, TridentPluginChannel::new);
+                c.addRecipient(player);
             }
             return;
         }
@@ -101,12 +98,9 @@ public final class PlayInPluginMsg extends PacketIn {
                 }
 
                 String name = new String(stream.toByteArray(), NetData.NET_CHARSET);
-                TridentPluginChannel c = TridentPluginChannel.get(name);
+                PluginChannel c = TridentPluginChannel.get(name);
                 if (c != null) {
                     c.closeFor(player.getUuid());
-                    for (SimpleChannelListener listener : TridentPluginChannel.getListeners().values()) {
-                        listener.channelClosed(c, Destination.SERVER, Collections.singleton(player));
-                    }
                 }
             }
             return;
