@@ -27,6 +27,9 @@ import net.tridentsdk.inventory.Item;
 import net.tridentsdk.logger.LogHandler;
 import net.tridentsdk.logger.Logger;
 import net.tridentsdk.meta.ItemMeta;
+import net.tridentsdk.plugin.channel.Destination;
+import net.tridentsdk.plugin.channel.PluginChannel;
+import net.tridentsdk.plugin.channel.SimpleChannelListener;
 import net.tridentsdk.server.config.TridentConfig;
 import net.tridentsdk.server.inventory.TridentInventory;
 import net.tridentsdk.server.inventory.TridentItem;
@@ -34,6 +37,7 @@ import net.tridentsdk.server.logger.InfoLogger;
 import net.tridentsdk.server.logger.LoggerHandlers;
 import net.tridentsdk.server.logger.PipelinedLogger;
 import net.tridentsdk.server.player.TridentPlayer;
+import net.tridentsdk.server.plugin.TridentPluginChannel;
 import net.tridentsdk.server.ui.bossbar.CustomBossBar;
 import net.tridentsdk.server.ui.tablist.TridentCustomTabList;
 import net.tridentsdk.server.ui.tablist.TridentGlobalTabList;
@@ -169,5 +173,72 @@ public class ImplementationProvider implements Impl.ImplementationProvider {
     @Nullable
     public Player getByName(String name) {
         return TridentPlayer.getPlayerNames().get(name);
+    }
+
+    @Override
+    public PluginChannel open(String name, Player... targets) {
+        return TridentPluginChannel.getChannel(name, k -> {
+            TridentPluginChannel channel = new TridentPluginChannel(name, targets);
+            channel.addRecipient(targets);
+
+            for (SimpleChannelListener listener : TridentPluginChannel.getListeners().values()) {
+                listener.channelOpened(channel, Destination.CLIENT);
+            }
+
+            return channel;
+        });
+    }
+
+    @Override
+    public PluginChannel open(String name, Iterable<Player> players) {
+        return TridentPluginChannel.getChannel(name, k -> {
+            TridentPluginChannel channel = new TridentPluginChannel(name, players);
+            for (Player player : players) {
+                channel.addRecipient(player);
+            }
+
+            for (SimpleChannelListener listener : TridentPluginChannel.getListeners().values()) {
+                listener.channelOpened(channel, Destination.CLIENT);
+            }
+
+            return channel;
+        });
+    }
+
+    @Override
+    public PluginChannel openAll(String name) {
+        return TridentPluginChannel.getChannel(name, k -> {
+            TridentPluginChannel channel = new TridentPluginChannel(name);
+            for (SimpleChannelListener listener : TridentPluginChannel.getListeners().values()) {
+                listener.channelOpened(channel, Destination.CLIENT);
+            }
+
+            return channel;
+        });
+    }
+
+    @Override
+    public PluginChannel tryOpen(String name) {
+        Map.Entry<String, Player> entry = TridentPlayer.getPlayerNames().firstEntry();
+        if (entry == null) {
+            return null;
+        } else {
+            return this.open(name, entry.getValue());
+        }
+    }
+
+    @Override
+    public PluginChannel get(String name) {
+        return TridentPluginChannel.get(name);
+    }
+
+    @Override
+    public void register(SimpleChannelListener listener) {
+        TridentPluginChannel.register(listener);
+    }
+
+    @Override
+    public boolean unregister(Class<? extends SimpleChannelListener> cls) {
+        return TridentPluginChannel.unregister(cls);
     }
 }

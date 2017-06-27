@@ -18,10 +18,17 @@ package net.tridentsdk.server.packet.play;
 
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.doc.Debug;
+import net.tridentsdk.plugin.channel.Destination;
+import net.tridentsdk.plugin.channel.SimpleChannelListener;
 import net.tridentsdk.server.net.NetClient;
+import net.tridentsdk.server.net.NetData;
 import net.tridentsdk.server.packet.PacketIn;
+import net.tridentsdk.server.player.TridentPlayer;
+import net.tridentsdk.server.plugin.TridentPluginChannel;
 
 import javax.annotation.concurrent.Immutable;
+import java.io.ByteArrayOutputStream;
+import java.util.Collections;
 
 import static net.tridentsdk.server.net.NetData.rstr;
 
@@ -38,10 +45,71 @@ public final class PlayInPluginMsg extends PacketIn {
     @Debug("Client brand")
     @Override
     public void read(ByteBuf buf, NetClient client) {
+        TridentPlayer player = client.getPlayer();
         String channel = rstr(buf);
+
+        buf.markReaderIndex();
+        byte[] arr = NetData.arr(buf);
+        for (SimpleChannelListener listener : TridentPluginChannel.getListeners().values()) {
+            listener.messageReceived(channel, player, arr);
+        }
+        buf.resetReaderIndex();
+
         if ("MC|Brand".equals(channel)) {
             String brand = rstr(buf);
             System.out.println("User [" + client.getName() + "] is running client [" + brand + "]");
+            return;
+        }
+
+        if (channel.equals(TridentPluginChannel.REGISTER)) {
+            while (buf.isReadable()) {
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                byte b = buf.readByte();
+                while (b != 0x00) {
+                    stream.write(b);
+                    if (!buf.isReadable()) {
+                        break;
+                    }
+
+                    b = buf.readByte();
+                }
+
+                String name = new String(stream.toByteArray(), NetData.NET_CHARSET);
+                TridentPluginChannel.getChannel(name, k -> {
+                    TridentPluginChannel c = new TridentPluginChannel(name, player);
+                    for (SimpleChannelListener listener : TridentPluginChannel.getListeners().values()) {
+                        listener.channelOpened(c, Destination.SERVER);
+                    }
+
+                    return c;
+                });
+            }
+            return;
+        }
+
+        if (channel.equals(TridentPluginChannel.UNREGISTER)) {
+            while (buf.isReadable()) {
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                byte b = buf.readByte();
+                while (b != 0x00) {
+                    stream.write(b);
+                    if (!buf.isReadable()) {
+                        break;
+                    }
+
+                    b = buf.readByte();
+                }
+
+                String name = new String(stream.toByteArray(), NetData.NET_CHARSET);
+                TridentPluginChannel c = TridentPluginChannel.get(name);
+                if (c != null) {
+                    c.closeFor(player.getUuid());
+                    for (SimpleChannelListener listener : TridentPluginChannel.getListeners().values()) {
+                        listener.channelClosed(c, Destination.SERVER, Collections.singleton(player));
+                    }
+                }
+            }
+            return;
         }
     }
 }

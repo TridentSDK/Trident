@@ -46,6 +46,10 @@ public final class PlayOutPluginMsg extends PacketOut {
 
     public PlayOutPluginMsg(String channel, byte[] data) {
         super(PlayOutPluginMsg.class);
+        if (data.length >= Short.MAX_VALUE) {
+            throw new ArrayIndexOutOfBoundsException("Data must have len < Short.MAX_VALUE");
+        }
+
         this.channel = channel;
         this.data = data;
     }
