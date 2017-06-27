@@ -16,7 +16,7 @@
  */
 package net.tridentsdk.server.world.opt;
 
-import net.tridentsdk.meta.nbt.TagCompound;
+import net.tridentsdk.meta.nbt.Tag;
 import net.tridentsdk.server.world.gen.FlatGeneratorProvider;
 import net.tridentsdk.world.gen.GeneratorProvider;
 import net.tridentsdk.world.opt.GenOpts;
@@ -61,7 +61,7 @@ public class GenOptImpl implements GenOpts {
      * Constructor for loading the given NBT options into
      * this set of options.
      */
-    public GenOptImpl(TagCompound compound) {
+    public GenOptImpl(Tag.Compound compound) {
         this();
     }
 
@@ -83,8 +83,7 @@ public class GenOptImpl implements GenOpts {
 
         if (seed == 0) {
             long potentialSeed;
-            while ((potentialSeed = SEED_SRC.nextLong()) == 0)
-                ;
+            while ((potentialSeed = SEED_SRC.nextLong()) == 0);
             this.seed = potentialSeed;
             this.seedInput = String.valueOf(potentialSeed);
         } else {
@@ -125,7 +124,7 @@ public class GenOptImpl implements GenOpts {
      * @param compound the data which represents the data
      * which is to be saved
      */
-    public void save(TagCompound compound) {
+    public void save(Tag.Compound compound) {
     }
 
     /**
@@ -134,6 +133,6 @@ public class GenOptImpl implements GenOpts {
      * @param compound the data which represents the data
      * which is to be loaded
      */
-    public void load(TagCompound compound) {
+    public void load(Tag.Compound compound) {
     }
 }

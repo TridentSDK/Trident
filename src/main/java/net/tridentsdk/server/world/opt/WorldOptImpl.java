@@ -21,7 +21,7 @@ import lombok.Setter;
 import net.tridentsdk.base.Vector;
 import net.tridentsdk.doc.Debug;
 import net.tridentsdk.doc.Internal;
-import net.tridentsdk.meta.nbt.TagCompound;
+import net.tridentsdk.meta.nbt.Tag;
 import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.world.opt.*;
 
@@ -37,13 +37,13 @@ import java.util.concurrent.atomic.AtomicMarkableReference;
 public class WorldOptImpl implements WorldOpts {
     // TODO appropriate packets
     @Setter
-    private volatile boolean allowFlight = false;
+    private volatile boolean allowFlight;
     @Setter
     private volatile boolean allowPvp = true;
     @Setter
     private volatile boolean allowPortals = true;
     @Setter
-    private volatile boolean forceGameMode = false;
+    private volatile boolean forceGameMode;
 
     @Debug("SURVIVAL")
     @Setter
@@ -108,7 +108,7 @@ public class WorldOptImpl implements WorldOpts {
         do {
             d0 = this.getDifficulty();
         } while (!this.difficulty.isMarked() &&
-                !this.difficulty.compareAndSet(d0, difficulty, false, true));
+                !this.difficulty.compareAndSet(d0, difficulty, false, false));
     }
 
     @Override
@@ -127,12 +127,12 @@ public class WorldOptImpl implements WorldOpts {
     /**
      * Loads the world options from the NBT data.
      */
-    public void load(TagCompound compound) {
+    public void load(Tag.Compound compound) {
     }
 
     /**
      * Saves the world options as NBT data.
      */
-    public void save(TagCompound compound) {
+    public void save(Tag.Compound compound) {
     }
 }

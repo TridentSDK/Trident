@@ -85,6 +85,7 @@ public final class PacketRegistry {
         put(PlayOutBossBar.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x0C);
         put(PlayOutDifficulty.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x0D);
         put(PlayOutChat.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x0F);
+        put(PlayOutSlot.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x16);
         put(PlayOutPluginMsg.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x18);
         put(PlayOutDisconnect.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x1A);
         put(PlayOutKeepAlive.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x1F);

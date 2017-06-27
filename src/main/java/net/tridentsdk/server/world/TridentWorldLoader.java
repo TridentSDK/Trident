@@ -17,8 +17,8 @@
 package net.tridentsdk.server.world;
 
 import lombok.Getter;
-import net.tridentsdk.logger.Logger;
 import net.tridentsdk.doc.Policy;
+import net.tridentsdk.logger.Logger;
 import net.tridentsdk.util.Misc;
 import net.tridentsdk.world.World;
 import net.tridentsdk.world.WorldLoader;
@@ -93,13 +93,13 @@ public class TridentWorldLoader implements WorldLoader {
             // try to walk the file tree and load the worlds
             Files.walkFileTree(Misc.HOME_PATH, new SimpleFileVisitor<Path>() {
                 @Override
-                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
                     Path levelDat = dir.resolve("level.dat");
                     if (Files.exists(levelDat)) {
                         TridentWorldLoader.this.load(dir.getFileName().toString(), dir, levelDat);
                     }
 
-                    return FileVisitResult.SKIP_SUBTREE;
+                    return FileVisitResult.CONTINUE;
                 }
             });
         } catch (IOException e) {

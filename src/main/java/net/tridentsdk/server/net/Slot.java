@@ -17,14 +17,18 @@
 package net.tridentsdk.server.net;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufInputStream;
+import io.netty.buffer.ByteBufOutputStream;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.inventory.Item;
-import net.tridentsdk.meta.nbt.NbtDecoder;
-import net.tridentsdk.meta.nbt.TagCompound;
+import net.tridentsdk.meta.ItemMeta;
+import net.tridentsdk.meta.nbt.Tag;
 
 import javax.annotation.concurrent.Immutable;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 
 /**
  * This class represents a protocol Slot object used to send
@@ -42,17 +46,7 @@ public class Slot {
     private final short id;
     private final byte count;
     private final short damage;
-    private final TagCompound nbt;
-
-    /**
-     * Creates a new slot using the given information of a
-     * server wrapper over an item.
-     *
-     * @param item the item which to fill the slot
-     */
-    private Slot(Item item) {
-        this((short) item.getSubstance().getId(), (byte) item.getCount(), item.getDamage(), item.getMeta().toNbt());
-    }
+    private final ItemMeta meta;
 
     /**
      * Creates a new slot using the given byte buffer to
@@ -60,8 +54,17 @@ public class Slot {
      *
      * @param buf the buffer which to read
      */
-    public Slot(ByteBuf buf) {
-        this(buf.readShort(), buf.readByte(), buf.readShort(), NbtDecoder.decode(buf));
+    public static Slot newSlot(ByteBuf buf) {
+        short id = buf.readShort();
+        byte count = buf.readByte();
+        short dmg = buf.readShort();
+        Tag.Compound nbt = Tag.decode(new DataInputStream(new ByteBufInputStream(buf)));
+
+        if (id == Substance.AIR.getId()) {
+            return EMPTY;
+        } else {
+            return new Slot(id, count, dmg, new ItemMeta(nbt));
+        }
     }
 
     /**
@@ -80,7 +83,9 @@ public class Slot {
             return EMPTY;
         }
 
-        return new Slot(item);
+        return new Slot((short) item.getSubstance().getId(),
+                (byte) item.getCount(),
+                item.getDamage(), item.getMeta());
     }
 
     /**
@@ -91,15 +96,10 @@ public class Slot {
     public void write(ByteBuf buf) {
         buf.writeShort(this.id);
 
-        if (this.id != -1) {
+        if (this.id != -1 && Substance.fromNumericId(this.id).isItem()) {
             buf.writeByte(this.count);
             buf.writeShort(this.damage);
-
-            if (this.nbt != null) {
-                this.nbt.write(buf);
-            } else {
-                buf.writeByte(0);
-            }
+            this.meta.toNbt().write(new DataOutputStream(new ByteBufOutputStream(buf)));
         }
     }
 }

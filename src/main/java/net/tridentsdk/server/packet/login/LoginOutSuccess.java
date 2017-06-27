@@ -22,6 +22,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
+import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.packet.PacketOut;
 import net.tridentsdk.server.ui.tablist.TabListElement;
@@ -82,10 +83,17 @@ public final class LoginOutSuccess extends PacketOut {
             try {
                 JsonObject tex = Mojang.<JsonObject>req("https://sessionserver.mojang.com/session/minecraft/profile/%s?unsigned=false", tempUuid)
                         .callback((JsonElement e) -> e.getAsJsonObject().getAsJsonArray("properties").get(0).getAsJsonObject())
-                        .onException(s -> null)
+                        .onException(s -> {
+                            TridentServer.getInstance().getLogger().error("Login cannot be completed due to HTTPS error");
+                            return null;
+                        })
                         .get()
                         .get();
-                this.textures = new TabListElement.PlayerProperty(tex.get("name").getAsString(), tex.get("value").getAsString(), tex.has("signature") ? tex.get("signature").getAsString() : null);
+                if (tex == null) {
+                    this.textures = new TabListElement.PlayerProperty("", "", "");
+                } else {
+                    this.textures = new TabListElement.PlayerProperty(tex.get("name").getAsString(), tex.get("value").getAsString(), tex.has("signature") ? tex.get("signature").getAsString() : null);
+                }
             } catch (InterruptedException | ExecutionException e) {
                 throw new RuntimeException(e);
             }

@@ -75,7 +75,7 @@ public class EntityMetadata {
                     value = ChatComponent.fromJson(new Gson().fromJson(NetData.rstr(buf), JsonObject.class));
                     break;
                 case SLOT:
-                    value = new Slot(buf);
+                    value = Slot.newSlot(buf);
                     break;
                 case BOOLEAN:
                     value = buf.readBoolean();
@@ -93,7 +93,7 @@ public class EntityMetadata {
                     value = vector;
                     break;
                 }
-                case OPTPOSITION: {
+                case OPTPOSITION:
                     if (buf.readBoolean()) {
                         Vector vector = new Vector();
                         NetData.rvec(buf, vector);
@@ -102,7 +102,6 @@ public class EntityMetadata {
                         value = null;
                     }
                     break;
-                }
                 case DIRECTION:
                     value = BlockDirection.fromMinecraftDirection(NetData.rvint(buf));
                     break;
@@ -115,7 +114,7 @@ public class EntityMetadata {
                     break;
                 case BLOCKID:
                     int bid = NetData.rvint(buf);
-                    value = new int[]{ (bid >> 4) & 0xF, bid & 0xF };
+                    value = new int[]{ bid >> 4 & 0xF, bid & 0xF };
                     break;
             }
             if (value != null) {

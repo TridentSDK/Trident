@@ -19,7 +19,7 @@ package net.tridentsdk.server.world;
 import net.tridentsdk.base.Block;
 import net.tridentsdk.base.ImmutableWorldVector;
 import net.tridentsdk.base.Position;
-import net.tridentsdk.meta.nbt.TagCompound;
+import net.tridentsdk.meta.nbt.Tag;
 import net.tridentsdk.server.concurrent.PoolSpec;
 import net.tridentsdk.server.concurrent.ServerThreadPool;
 import net.tridentsdk.server.world.opt.GenOptImpl;
@@ -32,9 +32,12 @@ import net.tridentsdk.world.opt.*;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
+import java.io.*;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 /**
  * Implementation class for
@@ -105,7 +108,7 @@ public class TridentWorld implements World {
         // this is only ok because we aren't passing the
         // instance to another thread viewable object
         this.worldOpts = new WorldOptImpl(this, WorldCreateSpec.getDefaultOptions());
-        this.genOpts = new GenOptImpl(new TagCompound());
+        this.genOpts = new GenOptImpl();
     }
 
     /**
@@ -198,15 +201,30 @@ public class TridentWorld implements World {
      * loads the appropriate spawn chunks.
      */
     public void load() {
-        TagCompound compound = new TagCompound();
-        this.worldOpts.load(compound);
-        this.genOpts.load(compound);
+        try (GZIPInputStream stream = new GZIPInputStream(new FileInputStream(this.dir.resolve("level.dat").toFile()))) {
+            Tag.Compound root = Tag.decode(new DataInputStream(stream));
+            Tag.Compound compound = root.getCompound("Data");
+
+            this.worldOpts.load(compound);
+            this.genOpts.load(compound);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public void save() {
-        TagCompound compound = new TagCompound();
+        Tag.Compound root = new Tag.Compound("");
+        Tag.Compound compound = new Tag.Compound("Data");
+        root.putCompound(compound);
+
         this.worldOpts.save(compound);
         this.genOpts.save(compound);
+
+        try (GZIPOutputStream stream = new GZIPOutputStream(new FileOutputStream(this.dir.resolve("level.dat").toFile()))) {
+            root.write(new DataOutputStream(stream));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
