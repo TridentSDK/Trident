@@ -96,7 +96,7 @@ public class TridentWorldLoader implements WorldLoader {
                 public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
                     Path levelDat = dir.resolve("level.dat");
                     if (Files.exists(levelDat)) {
-                        TridentWorldLoader.this.load(dir.getFileName().toString(), dir, levelDat);
+                        TridentWorldLoader.this.load(dir.getFileName().toString(), dir);
                     }
 
                     return FileVisitResult.CONTINUE;
@@ -118,11 +118,10 @@ public class TridentWorldLoader implements WorldLoader {
      *
      * @param name the name of the world to be loaded
      * @param enclosing the enclosing folder
-     * @param levelDat the level file of the world
      * @return the world, once it has loaded
      */
     @Nonnull
-    private TridentWorld load(String name, Path enclosing, Path levelDat) {
+    private TridentWorld load(String name, Path enclosing) {
         Logger.get(this.getClass()).log("Loading world \"" + name + "\"...");
         TridentWorld world = new TridentWorld(name, enclosing);
 
@@ -165,7 +164,7 @@ public class TridentWorldLoader implements WorldLoader {
         if (Files.isDirectory(enclosing)) {
             Path levelDat = enclosing.resolve("level.dat");
             if (Files.exists(levelDat)) {
-                return this.load(name, enclosing, levelDat);
+                return this.load(name, enclosing);
             }
         }
 
@@ -174,16 +173,18 @@ public class TridentWorldLoader implements WorldLoader {
 
     @Override
     public TridentWorld create(String name, WorldCreateSpec spec) {
-        if (this.worlds.containsKey(name)) {
-            throw new IllegalArgumentException("World \"" + name + "\" already exists");
-        }
+        return this.worlds.compute(name, (k, v) -> {
+           if (v != null) {
+               throw new IllegalArgumentException("World \"" + name + "\" already exists");
+           }
 
-        Logger.get(this.getClass()).log("Creating world \"" + name + "\"...");
-        TridentWorld world = new TridentWorld(name, Misc.HOME_PATH.resolve(name), spec);
-        world.save();
-        this.worlds.put(name, world);
-        Logger.get(this.getClass()).log("Finished creating \"" + name + "\".");
-        return world;
+            Logger.get(this.getClass()).log("Creating world \"" + name + "\"...");
+            TridentWorld world = new TridentWorld(name, Misc.HOME_PATH.resolve(name), spec);
+            world.save();
+            this.worlds.put(name, world);
+            Logger.get(this.getClass()).log("Finished creating \"" + name + "\".");
+            return world;
+        });
     }
 
     @Override

@@ -17,16 +17,30 @@
 package net.tridentsdk.server.util;
 
 import io.netty.buffer.ByteBuf;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
-import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * Utilities for debugging byte buffers and byte streams.
+ * Debug helper class which contains useful debug functions
+ * for different purposes of testing the server.
+ *
+ * @author TridentSDK
+ * @since 0.5-alpha
  */
-@Immutable
-public final class BufferUtils {
-    // Prevent instantiation
-    private BufferUtils() {
+@ThreadSafe
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public class Debug {
+    public static volatile boolean IS_DEBUGGING;
+
+    public static void tryCheckThread() {
+        if (IS_DEBUGGING) {
+            String name = Thread.currentThread().getName();
+            if (!name.equals("TRD - Plugins")) {
+                throw new IllegalStateException("Wrong thread: " + name);
+            }
+        }
     }
 
     /**

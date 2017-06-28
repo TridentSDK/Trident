@@ -130,16 +130,15 @@ public final class TridentEventController implements EventController {
     @Override
     public <T extends Event> void dispatch(T event, Consumer<T> callback) {
         ConcurrentSkipListSet<EventDispatcher> dispatchers = this.listeners.get(event.getClass());
+        CompletableFuture<T> future = CompletableFuture.completedFuture(event);
         if (dispatchers != null) {
-            CompletableFuture<T> future = CompletableFuture.completedFuture(event);
             for (EventDispatcher dispatcher : dispatchers) {
                 future.thenApplyAsync(dispatcher::fire, PLUGIN_EXECUTOR).exceptionally(t -> {
                     t.printStackTrace();
                     return event;
                 });
             }
-
-            future.thenAcceptAsync(callback, PLUGIN_EXECUTOR);
         }
+        future.thenAcceptAsync(callback, PLUGIN_EXECUTOR);
     }
 }

@@ -33,6 +33,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 import java.io.*;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
@@ -214,15 +215,26 @@ public class TridentWorld implements World {
 
     @Override
     public void save() {
-        Tag.Compound root = new Tag.Compound("");
-        Tag.Compound compound = new Tag.Compound("Data");
-        root.putCompound(compound);
+        Path level = this.dir.resolve("level.dat");
+        try {
+            if (!Files.exists(this.dir)) {
+                Files.createDirectory(this.dir);
+            }
 
-        this.worldOpts.save(compound);
-        this.genOpts.save(compound);
+            if (!Files.exists(level)) {
+                Files.createFile(level);
+            }
 
-        try (GZIPOutputStream stream = new GZIPOutputStream(new FileOutputStream(this.dir.resolve("level.dat").toFile()))) {
-            root.write(new DataOutputStream(stream));
+            Tag.Compound root = new Tag.Compound("");
+            Tag.Compound compound = new Tag.Compound("Data");
+            root.putCompound(compound);
+
+            this.worldOpts.save(compound);
+            this.genOpts.save(compound);
+
+            try (GZIPOutputStream stream = new GZIPOutputStream(new FileOutputStream(level.toFile()))) {
+                root.write(new DataOutputStream(stream));
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

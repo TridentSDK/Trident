@@ -17,17 +17,26 @@
 package net.tridentsdk.server.packet.play;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.base.Block;
 import net.tridentsdk.base.Position;
 import net.tridentsdk.base.Substance;
+import net.tridentsdk.event.player.PlayerDigEvent;
+import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.net.NetData;
 import net.tridentsdk.server.packet.PacketIn;
+import net.tridentsdk.server.player.TridentPlayer;
+import net.tridentsdk.world.opt.GameMode;
 
 /**
  * @author TridentSDK
  * @since 0.5-alpha
  */
 public class PlayInPlayerDig extends PacketIn {
+    /**
+     * (http://wiki.vg/Protocol#Player_Digging)
+     */
+    private static final int MAX_DIST_SQ = 36;
 
     public PlayInPlayerDig() {
         super(PlayInPlayerDig.class);
@@ -38,12 +47,40 @@ public class PlayInPlayerDig extends PacketIn {
         DigStatus status = DigStatus.values()[NetData.rvint(buf)];
         // Single thread usage of the vector uses a noninflated lock,
         // no optimization needed here
-        Position position = NetData.rvec(buf).toPosition(client.getPlayer().getWorld());
+        TridentPlayer player = client.getPlayer();
+        Position position = NetData.rvec(buf).toPosition(player.getWorld());
         DigFace face = DigFace.get(buf.readByte());
-        
-        // TODO Hack prevention, events
-    
-        position.getBlock().setSubstance(Substance.AIR);
+
+        if (status == DigStatus.START_DIGGING && player.getGameMode() == GameMode.CREATIVE) {
+            Block block = position.getBlock();
+            if (position.distanceSquared(player.getPosition()) > MAX_DIST_SQ) {
+                TridentServer.getInstance().getLogger().warn(
+                        "Suspicious dig @ " + position + " by " + player.getName() + " (" + player.getUuid() + ')');
+                return;
+            }
+
+            TridentServer.getInstance().getEventController().dispatch(new PlayerDigEvent(player, block), e -> {
+                if (!e.isCancelled()) {
+                    block.setSubstance(Substance.AIR);
+                }
+            });
+            return;
+        }
+
+        if (status == DigStatus.FINISH_DIGGING) {
+            Block block = position.getBlock();
+            if (position.distanceSquared(player.getPosition()) > MAX_DIST_SQ) {
+                TridentServer.getInstance().getLogger().warn(
+                        "Suspicious dig @ " + position + " by " + player.getName() + " (" + player.getUuid() + ')');
+                return;
+            }
+
+            TridentServer.getInstance().getEventController().dispatch(new PlayerDigEvent(player, block), e -> {
+                if (!e.isCancelled()) {
+                    block.setSubstance(Substance.AIR);
+                }
+            });
+        }
     }
     
     private enum DigStatus {

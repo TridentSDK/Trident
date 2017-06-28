@@ -56,7 +56,7 @@ public class Tp implements CmdListener {
                 int z = Integer.parseInt(args[3]);
                 position.set(x, y, z);
 
-                // TODO teleport packet and player search needs UUID lookup
+                // TODO teleport
                 p.setPosition(position);
             } catch (NumberFormatException e) {
                 source.sendMessage(ChatComponent.create().setColor(ChatColor.RED).

@@ -33,6 +33,7 @@ import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.net.NetServer;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.plugin.TridentEventController;
+import net.tridentsdk.server.util.Debug;
 import net.tridentsdk.server.util.JiraExceptionCatcher;
 import net.tridentsdk.server.world.TridentWorldLoader;
 import net.tridentsdk.ui.chat.ChatComponent;
@@ -182,6 +183,7 @@ public class TridentServer implements Server {
     @Override
     @Policy("call only from plugin thread")
     public void reload() {
+        Debug.tryCheckThread();
         this.logger.warn("SERVER RELOADING...");
 
         try {
@@ -200,6 +202,7 @@ public class TridentServer implements Server {
     @Override
     @Policy("call only from plugin thread")
     public void shutdown() {
+        Debug.tryCheckThread();
         this.logger.warn("SERVER SHUTTING DOWN...");
         this.shutdownState = true;
         try {

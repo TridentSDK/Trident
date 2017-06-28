@@ -31,6 +31,7 @@ import net.tridentsdk.server.logger.InfoLogger;
 import net.tridentsdk.server.logger.PipelinedLogger;
 import net.tridentsdk.server.net.NetServer;
 import net.tridentsdk.server.packet.status.StatusOutResponse;
+import net.tridentsdk.server.util.Debug;
 import net.tridentsdk.server.util.JiraExceptionCatcher;
 import net.tridentsdk.server.world.TridentWorldLoader;
 import org.jline.reader.LineReader;
@@ -53,6 +54,10 @@ public final class TridentMain {
      * If passed, native epoll is not used
      */
     private static final String NO_EPOLL = "-noepoll";
+    /**
+     * Enables certain debugging functions in the server
+     */
+    private static final String DEBUG = "-d";
 
     // Prevent instantiation
     private TridentMain() {
@@ -84,6 +89,11 @@ public final class TridentMain {
 
             if (s.equals(NO_EPOLL)) {
                 noEpoll = true;
+                continue;
+            }
+
+            if (s.equals(DEBUG)) {
+                Debug.IS_DEBUGGING = true;
                 continue;
             }
 
