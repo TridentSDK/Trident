@@ -49,14 +49,16 @@ public final class PlayInPluginMsg extends PacketIn {
         TridentPlayer player = client.getPlayer();
         String channel = rstr(buf);
 
-        ServerThreadPool.forSpec(PoolSpec.PLUGINS).execute(() -> {
+        if (!TridentPluginChannel.getListeners().isEmpty()) {
             buf.markReaderIndex();
             byte[] arr = NetData.arr(buf);
-            for (SimpleChannelListener listener : TridentPluginChannel.getListeners().values()) {
-                listener.messageReceived(channel, player, arr);
-            }
+            ServerThreadPool.forSpec(PoolSpec.PLUGINS).execute(() -> {
+                for (SimpleChannelListener listener : TridentPluginChannel.getListeners().values()) {
+                    listener.messageReceived(channel, player, arr);
+                }
+            });
             buf.resetReaderIndex();
-        });
+        }
 
         if ("MC|Brand".equals(channel)) {
             String brand = rstr(buf);

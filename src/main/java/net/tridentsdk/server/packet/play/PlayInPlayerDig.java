@@ -47,7 +47,6 @@ public class PlayInPlayerDig extends PacketIn {
     }
     
     private enum DigStatus {
-        
         START_DIGGING,
         CANCEL_DIGGING,
         FINISH_DIGGING,
@@ -55,11 +54,9 @@ public class PlayInPlayerDig extends PacketIn {
         DROP_ITEM,
         SHOOT_ARROW_FINISH_EATING,
         SWAP_ITEM_IN_HAND
-        
     }
     
     private enum DigFace {
-        
         BOTTOM,
         TOP,
         NORTH,
@@ -75,7 +72,5 @@ public class PlayInPlayerDig extends PacketIn {
             
             return SPECIAL;
         }
-        
     }
-
 }

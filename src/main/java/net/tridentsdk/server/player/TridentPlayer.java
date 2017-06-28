@@ -20,18 +20,15 @@ import lombok.Getter;
 import lombok.Setter;
 import net.tridentsdk.base.BlockDirection;
 import net.tridentsdk.base.Position;
-import net.tridentsdk.base.Substance;
 import net.tridentsdk.command.CmdSourceType;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.player.PlayerJoinEvent;
-import net.tridentsdk.inventory.Item;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.concurrent.PoolSpec;
 import net.tridentsdk.server.concurrent.ServerThreadPool;
 import net.tridentsdk.server.entity.TridentEntity;
 import net.tridentsdk.server.entity.meta.EntityMetaType;
 import net.tridentsdk.server.net.NetClient;
-import net.tridentsdk.server.net.Slot;
 import net.tridentsdk.server.packet.login.Login;
 import net.tridentsdk.server.packet.play.*;
 import net.tridentsdk.server.plugin.TridentPluginChannel;
@@ -320,11 +317,6 @@ public class TridentPlayer extends TridentEntity implements Player {
                     this.client.sendPacket(oldPlayerPacket);
                 });
 
-        Slot send = Slot.newSlot(Item.newItem(Substance.DIAMOND_PICKAXE));
-        for (int i = 9; i < 45; i++) {
-            this.net().sendPacket(new PlayOutSlot(0, i, send));
-        }
-
         Position pos = this.getPosition();
         int initialChunkRadius = 3;
         for (int x = pos.getChunkX() - initialChunkRadius; x <= pos.getChunkX() + initialChunkRadius; x++) {
@@ -367,6 +359,8 @@ public class TridentPlayer extends TridentEntity implements Player {
 
         this.setTabList(null);
         TridentGlobalTabList.getInstance().update();
+
+        this.client.disconnect(ChatComponent.empty());
 
         ChatComponent chat = ChatComponent.create()
                 .setColor(ChatColor.YELLOW)

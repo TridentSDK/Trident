@@ -19,7 +19,6 @@ package net.tridentsdk.server;
 import net.tridentsdk.Impl;
 import net.tridentsdk.Server;
 import net.tridentsdk.command.CmdHandler;
-import net.tridentsdk.doc.Debug;
 import net.tridentsdk.logger.Logger;
 import net.tridentsdk.plugin.Plugin;
 import net.tridentsdk.server.command.*;
@@ -40,8 +39,6 @@ import org.jline.terminal.TerminalBuilder;
 
 import javax.annotation.concurrent.Immutable;
 import java.nio.file.Files;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Trident server startup class
@@ -75,12 +72,23 @@ public final class TridentMain {
      * everything shifted to the right as a result of the
      * error handling
      */
-    @Debug("Leak detector")
     private static void start(String[] args) throws Exception {
         // Parse args --------------------------------------
-        List<String> argList = Arrays.asList(args);
-        boolean verbose = argList.contains(VERBOSE);
-        boolean noEpoll = argList.contains(NO_EPOLL);
+        boolean verbose = false;
+        boolean noEpoll = false;
+        for (String s : args) {
+            if (s.equals(VERBOSE)) {
+                verbose = true;
+                continue;
+            }
+
+            if (s.equals(NO_EPOLL)) {
+                noEpoll = true;
+                continue;
+            }
+
+            System.out.println("Unrecognized option: " + s + ", ignoring.");
+        }
         // -------------------------------------------------
 
         // Setup logging facilities ------------------------

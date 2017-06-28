@@ -42,6 +42,7 @@ public final class PlayOutKeepAlive extends PacketOut {
 
     @Override
     public void write(ByteBuf buf) {
-        wvint(buf, PlayInKeepAlive.query(this.client));
+        int query = PlayInKeepAlive.query(this.client);
+        wvint(buf, query);
     }
 }

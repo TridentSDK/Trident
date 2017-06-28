@@ -17,13 +17,12 @@
 package net.tridentsdk.server.packet.play;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.logger.Logger;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.packet.PacketIn;
 import net.tridentsdk.util.Cache;
 
 import javax.annotation.concurrent.ThreadSafe;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 
 import static net.tridentsdk.server.net.NetData.rvint;
 
@@ -34,14 +33,78 @@ import static net.tridentsdk.server.net.NetData.rvint;
 @ThreadSafe
 public final class PlayInTeleportConfirm extends PacketIn {
     /**
-     * The ID number source
-     */
-    private static final AtomicInteger ID_COUNTER = new AtomicInteger();
-    /**
      * The teleport ID cache
      */
-    private static final Cache<NetClient, Integer> TELEPORT_ID =
-            new Cache<>(NetClient.KEEP_ALIVE_KICK_NANOS / 1000000, (client, id) -> client.disconnect("No teleport response"));
+    private static final Cache<NetClient, IdBlock> TELEPORT_ID =
+            new Cache<>(NetClient.KEEP_ALIVE_KICK_NANOS / 1000000, (client, id) -> {
+                if (id.shouldRemove()) {
+                    client.disconnect("No teleport response");
+                    return true;
+                }
+
+                return false;
+            });
+
+    /**
+     * A block of reserved IDs for a particular client
+     */
+    private static class IdBlock {
+        /**
+         * The ID counter for the max reserved block
+         */
+        private volatile int counter;
+        /**
+         * The IDs that have been checked in
+         */
+        private volatile int checkedIn;
+
+        // Field updaters to save memory
+        private static final AtomicIntegerFieldUpdater<IdBlock> COUNTER =
+                AtomicIntegerFieldUpdater.newUpdater(IdBlock.class, "counter");
+        private static final AtomicIntegerFieldUpdater<IdBlock> CHECK_IN =
+                AtomicIntegerFieldUpdater.newUpdater(IdBlock.class, "checkedIn");
+
+        /**
+         * Obtains the next ID value in this block.
+         *
+         * @return the next ID
+         */
+        int checkOut() {
+            return COUNTER.getAndAdd(this, 1);
+        }
+
+        /**
+         * Invalidates the block portion that has been
+         * already reserved when a confirmation packet is
+         * received.
+         *
+         * @param id the id to invalidate
+         * @return {@code true} if the ID is good,
+         * {@code false} if it has not been reserved
+         */
+        boolean checkIn(int id) {
+            boolean good = COUNTER.get(this) >= id;
+            if (good) {
+                CHECK_IN.addAndGet(this, 1);
+            }
+
+            return good;
+        }
+
+        /**
+         * Checks to see whether or not this block has been
+         * fully checked in and should be removed to make
+         * space for another block.
+         *
+         * @return {@code true} if the block should be
+         * removed
+         */
+        boolean shouldRemove() {
+            int done = CHECK_IN.get(this);
+            int cur = COUNTER.get(this);
+            return done == cur;
+        }
+    }
 
     /**
      * Obtains the next teleport ID for the given net
@@ -51,13 +114,8 @@ public final class PlayInTeleportConfirm extends PacketIn {
      * @return the next teleport ID
      */
     public static int query(NetClient client) {
-        int id = ID_COUNTER.incrementAndGet();
-        if (id > 1_000_000) {
-            ID_COUNTER.set(0);
-        }
-
-        TELEPORT_ID.put(client, id);
-        return id;
+        IdBlock block = TELEPORT_ID.get(client, IdBlock::new);
+        return block.checkOut();
     }
 
     public PlayInTeleportConfirm() {
@@ -67,14 +125,14 @@ public final class PlayInTeleportConfirm extends PacketIn {
     @Override
     public void read(ByteBuf buf, NetClient client) {
         int id = rvint(buf);
-        Integer localId = TELEPORT_ID.get(client);
+        IdBlock block = TELEPORT_ID.get(client);
 
-        // TODO Fix teleport confirmation
-        if (localId != null && localId == id) {
-            //client.player().resumeLogin();
-        } else {
-            Logger.get(PlayInTeleportConfirm.class).error("Teleport ID mismatch, actual:" + localId + " received:" + id);
-            client.disconnect("Teleport ID mismatch, actual:" + localId + " rcvd:" + id);
+        if (block != null) {
+            if (block.checkIn(id)) {
+                client.getPlayer().resumeLogin();
+            } else {
+                client.disconnect("Mismatched confirmation ID (" + id + ')');
+            }
         }
     }
 }

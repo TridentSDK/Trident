@@ -37,7 +37,10 @@ public final class PlayInKeepAlive extends PacketIn {
      * The keep alive time cache
      */
     private static final Cache<NetClient, Integer> TICK_IDS =
-            new Cache<>(NetClient.KEEP_ALIVE_KICK_NANOS / 1000000, (client, id) -> client.disconnect("No KeepAlive response"));
+            new Cache<>(NetClient.KEEP_ALIVE_KICK_NANOS / 1000000, (client, id) -> {
+                client.disconnect("No KeepAlive response");
+                return true;
+            });
 
     /**
      * Obtains the next keep alive ID for the given net
@@ -47,11 +50,15 @@ public final class PlayInKeepAlive extends PacketIn {
      * @return the next teleport ID
      */
     public static int query(NetClient client) {
-        // retarded int limit on VarInt, idk
-        int value = ThreadLocalRandom.current().nextInt(0xFFFFFFF);
-        TICK_IDS.put(client, value);
-
-        return value;
+        return TICK_IDS.compute(client, (k, v) -> {
+            if (v == null) {
+                // retarded int limit on VarInt, idk
+                return ThreadLocalRandom.current().nextInt(0xFFFFFFF);
+            } else {
+                client.disconnect("No KeepAlive response");
+                return null;
+            }
+        });
     }
 
     public PlayInKeepAlive() {
@@ -65,10 +72,14 @@ public final class PlayInKeepAlive extends PacketIn {
 
         if (localId != null && id != localId) {
             client.disconnect("Keep alive ID mismatch, actual:" + localId + " rcvd:" + id);
+            return;
         }
 
-        if ((System.nanoTime() - client.lastKeepAlive()) > NetClient.KEEP_ALIVE_KICK_NANOS) {
+        if (System.nanoTime() - client.lastKeepAlive() > NetClient.KEEP_ALIVE_KICK_NANOS) {
             client.disconnect("Timed out");
+            return;
         }
+
+        TICK_IDS.compute(client, (k, v) -> null);
     }
 }

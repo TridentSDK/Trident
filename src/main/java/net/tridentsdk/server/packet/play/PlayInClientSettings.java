@@ -51,6 +51,5 @@ public class PlayInClientSettings extends PacketIn {
         metadata.setSkinFlags(skinFlags);
         metadata.setLeftHandMain(mainHand == 0);
         player.updateMetadata();
-        player.resumeLogin();
     }
 }

@@ -37,6 +37,7 @@ import java.net.SocketAddress;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * This class represents the connection that a Minecraft
@@ -125,9 +126,7 @@ public class NetClient {
     /**
      * The player object
      */
-    @Getter
-    @Setter
-    private volatile TridentPlayer player;
+    private final AtomicReference<TridentPlayer> player = new AtomicReference<>();
     /**
      * The time it took for the server to receive the
      * status ping from the player, in ms.
@@ -173,7 +172,7 @@ public class NetClient {
      * @return the net client wrapping the given connection
      */
     public static NetClient get(ChannelHandlerContext ctx) {
-        return CLIENTS.computeIfAbsent(ctx.channel().remoteAddress(), (k) -> new NetClient(ctx));
+        return CLIENTS.computeIfAbsent(ctx.channel().remoteAddress(), k -> new NetClient(ctx));
     }
 
     /**
@@ -242,6 +241,26 @@ public class NetClient {
     }
 
     /**
+     * Sets the player that holds the connection represented
+     * by this net client.
+     *
+     * @param player the player to set
+     */
+    public void setPlayer(TridentPlayer player) {
+        this.player.set(player);
+    }
+
+    /**
+     * Obtains the owner of the connection represented by
+     * this net client.
+     *
+     * @return the player owner of this connection
+     */
+    public TridentPlayer getPlayer() {
+        return this.player.get();
+    }
+
+    /**
      * Overload method of {@link #disconnect(ChatComponent)} but
      * uses
      * shortcut String.
@@ -258,20 +277,25 @@ public class NetClient {
      * @param reason the reason for disconnecting
      */
     public void disconnect(ChatComponent reason) {
-        this.channel.closeFuture().removeListener(this.futureListener);
+        TridentPlayer player = this.player.get();
+        if (this.player.compareAndSet(player, null)) {
+            this.channel.closeFuture().removeListener(this.futureListener);
 
-        NetClient.NetState state = this.state;
-        if (state == NetClient.NetState.LOGIN) {
-            this.sendPacket(new LoginOutDisconnect(reason))
-                    .addListener(future -> this.channel.close());
-        } else if (state == NetClient.NetState.PLAY) {
-            this.sendPacket(new PlayOutDisconnect(reason))
-                    .addListener(future -> this.channel.close());
-            this.player.remove();
-        } else {
-            this.channel.close();
+            NetClient.NetState state = this.state;
+            if (state == NetClient.NetState.LOGIN) {
+                this.sendPacket(new LoginOutDisconnect(reason))
+                        .addListener(future -> this.channel.close());
+            } else if (state == NetClient.NetState.PLAY) {
+                if (player != null) {
+                    this.sendPacket(new PlayOutDisconnect(reason))
+                            .addListener(future -> this.channel.close());
+                    player.remove();
+                }
+            } else {
+                this.channel.close();
+            }
+
+            CLIENTS.remove(this.channel.remoteAddress());
         }
-
-        CLIENTS.remove(this.channel.remoteAddress());
     }
 }
