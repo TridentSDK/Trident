@@ -227,6 +227,9 @@
                                 <exclude>
                                     src/main/java/net/tridentsdk/server/util/ShortArrayList.java
                                 </exclude>
+                                <exclude>
+                                    src/main/java/net/tridentsdk/server/util/ShortOpenHashSet.java
+                                </exclude>
                             </excludes>
                             <includes>
                                 <include>src/main/java/**</include>

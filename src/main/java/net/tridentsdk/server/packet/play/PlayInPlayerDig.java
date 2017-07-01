@@ -36,7 +36,7 @@ public class PlayInPlayerDig extends PacketIn {
     /**
      * (http://wiki.vg/Protocol#Player_Digging)
      */
-    private static final int MAX_DIST_SQ = 36;
+    public static final int MAX_DIST_SQ = 36;
 
     public PlayInPlayerDig() {
         super(PlayInPlayerDig.class);
@@ -93,7 +93,7 @@ public class PlayInPlayerDig extends PacketIn {
         SWAP_ITEM_IN_HAND
     }
     
-    private enum DigFace {
+    public enum DigFace {
         BOTTOM,
         TOP,
         NORTH,
@@ -102,7 +102,7 @@ public class PlayInPlayerDig extends PacketIn {
         EAST,
         SPECIAL;
         
-        public static DigFace get(byte face){
+        public static DigFace get(int face){
             if(face <= 5){
                 return values()[face];
             }

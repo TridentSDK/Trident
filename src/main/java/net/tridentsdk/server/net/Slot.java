@@ -21,10 +21,13 @@ import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.ToString;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.inventory.Item;
 import net.tridentsdk.meta.ItemMeta;
 import net.tridentsdk.meta.nbt.Tag;
+import net.tridentsdk.server.inventory.TridentItem;
 
 import javax.annotation.concurrent.Immutable;
 import java.io.DataInputStream;
@@ -34,6 +37,7 @@ import java.io.DataOutputStream;
  * This class represents a protocol Slot object used to send
  * data pertaining to inventory items.
  */
+@ToString
 @Immutable
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Slot {
@@ -43,9 +47,13 @@ public class Slot {
     public static final Slot EMPTY = new Slot((short) -1, (byte) 0, (short) 0, null);
 
     // Self explanatory
+    @Getter
     private final short id;
+    @Getter
     private final byte count;
+    @Getter
     private final short damage;
+    @Getter
     private final ItemMeta meta;
 
     /**
@@ -54,16 +62,21 @@ public class Slot {
      *
      * @param buf the buffer which to read
      */
-    public static Slot newSlot(ByteBuf buf) {
+    public static Slot read(ByteBuf buf) {
         short id = buf.readShort();
-        byte count = buf.readByte();
-        short dmg = buf.readShort();
-        Tag.Compound nbt = Tag.decode(new DataInputStream(new ByteBufInputStream(buf)));
+        if (id != -1) {
+            byte count = buf.readByte();
+            short dmg = buf.readShort();
+            Tag.Compound nbt = Tag.decode(new DataInputStream(new ByteBufInputStream(buf)));
+            buf.readBytes(buf.readableBytes());
 
-        if (id == Substance.AIR.getId()) {
-            return EMPTY;
+            if (id == Substance.AIR.getId()) {
+                return EMPTY;
+            } else {
+                return new Slot(id, count, dmg, new ItemMeta(nbt));
+            }
         } else {
-            return new Slot(id, count, dmg, new ItemMeta(nbt));
+            return EMPTY;
         }
     }
 
@@ -89,6 +102,15 @@ public class Slot {
     }
 
     /**
+     * Converts this slot to a tangible item.
+     *
+     * @return the item
+     */
+    public TridentItem toItem() {
+        return new TridentItem(Substance.fromNumericId(this.id), this.count, (byte) this.damage, this.meta);
+    }
+
+    /**
      * Writes the slot data to the given byte buffer.
      *
      * @param buf the buffer which to write
@@ -96,10 +118,10 @@ public class Slot {
     public void write(ByteBuf buf) {
         buf.writeShort(this.id);
 
-        if (this.id != -1 && Substance.fromNumericId(this.id).isItem()) {
+        if (this.id != -1) {
             buf.writeByte(this.count);
             buf.writeShort(this.damage);
-            this.meta.toNbt().write(new DataOutputStream(new ByteBufOutputStream(buf)));
+            this.meta.writeNbt(new DataOutputStream(new ByteBufOutputStream(buf)));
         }
     }
 }

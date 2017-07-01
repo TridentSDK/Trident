@@ -23,11 +23,14 @@ import net.tridentsdk.base.Position;
 import net.tridentsdk.command.CmdSourceType;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.player.PlayerJoinEvent;
+import net.tridentsdk.inventory.Inventory;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.concurrent.PoolSpec;
 import net.tridentsdk.server.concurrent.ServerThreadPool;
 import net.tridentsdk.server.entity.TridentEntity;
 import net.tridentsdk.server.entity.meta.EntityMetaType;
+import net.tridentsdk.server.inventory.TridentInventory;
+import net.tridentsdk.server.inventory.TridentPlayerInventory;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.packet.login.Login;
 import net.tridentsdk.server.packet.play.*;
@@ -195,28 +198,29 @@ public class TridentPlayer extends TridentEntity implements Player {
      */
     private final Set<String> permissions = Collections.newSetFromMap(new ConcurrentHashMap<>());
     /**
+     * The player's inventory
+     */
+    @Getter
+    private final TridentPlayerInventory inventory;
+    /**
      * Whether or not this player is an operator
      */
     @Getter
     private volatile boolean op;
-
     /**
      * Whether the player is in god mode
      */
     @Getter
     private volatile boolean godMode;
-
     /**
      * Whether the player can fly
      */
     private volatile boolean canFly;
-
     /**
      * Whether the player is flying
      */
     @Getter
     private volatile boolean flying;
-
     /**
      * The player's flying speed
      */
@@ -243,6 +247,7 @@ public class TridentPlayer extends TridentEntity implements Player {
         this.gameMode = world.getWorldOptions().getGameMode();
         this.canFly = this.gameMode == GameMode.CREATIVE || this.gameMode == GameMode.SPECTATOR;
         this.skinTextures = skinTextures;
+        this.inventory = new TridentPlayerInventory(client);
     }
 
     /**
@@ -256,10 +261,11 @@ public class TridentPlayer extends TridentEntity implements Player {
     public static TridentPlayer spawn(NetClient client, String name, UUID uuid, TabListElement.PlayerProperty skinTextures) {
         TridentWorld world = TridentServer.getInstance().getWorldLoader().getDefaultWorld();
         TridentPlayer player = new TridentPlayer(client, world, name, uuid, skinTextures);
-        TridentPlayer.players.put(uuid, player);
-        TridentPlayer.playerNames.put(name, player);
         client.setPlayer(player);
+
+        TridentPlayer.players.put(uuid, player);
         Login.finish();
+        TridentPlayer.playerNames.put(name, player);
 
         ServerThreadPool.forSpec(PoolSpec.PLUGINS).execute(() ->
                 TridentServer.getInstance().getEventController().dispatch(new PlayerJoinEvent(player)));
@@ -347,8 +353,6 @@ public class TridentPlayer extends TridentEntity implements Player {
     @Override
     public void doRemove() {
         TridentPluginChannel.autoRemove(this);
-
-        players.remove(this.uuid);
         playerNames.remove(this.name);
 
         // If the player isn't in the list, they haven't
@@ -361,6 +365,8 @@ public class TridentPlayer extends TridentEntity implements Player {
         TridentGlobalTabList.getInstance().update();
 
         this.client.disconnect(ChatComponent.empty());
+
+        TridentInventory.clean();
 
         ChatComponent chat = ChatComponent.create()
                 .setColor(ChatColor.YELLOW)
@@ -379,8 +385,8 @@ public class TridentPlayer extends TridentEntity implements Player {
     @Override
     public void sendMessage(ChatComponent chat, ChatType type) {
         ClientChatMode chatMode = this.chatMode;
-        if (ClientChatMode.COMMANDS_ONLY == chatMode && ChatType.SYSTEM == type
-                || ClientChatMode.CHAT_AND_COMMANDS == chatMode) {
+        if (chatMode == ClientChatMode.COMMANDS_ONLY && type == ChatType.SYSTEM
+                || chatMode == ClientChatMode.CHAT_AND_COMMANDS) {
             this.net().sendPacket(new PlayOutChat(chat, type, this.chatColors));
         }
     }
@@ -488,6 +494,11 @@ public class TridentPlayer extends TridentEntity implements Player {
     @Override
     public void resetTitle() {
         this.net().sendPacket(new PlayOutTitle.Reset());
+    }
+
+    @Override
+    public void openInventory(Inventory inventory) {
+        TridentInventory.open((TridentInventory) inventory, this);
     }
 
     @Override

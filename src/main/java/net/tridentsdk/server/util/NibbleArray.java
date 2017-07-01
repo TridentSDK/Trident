@@ -40,7 +40,7 @@ public class NibbleArray {
     /**
      * The mask value for the splice section
      */
-    private static final long BYTE_BASK = (long) 0xFF;
+    private static final long BYTE_BASK = 0xFFL;
 
     /**
      * The array of nibbles.
@@ -69,7 +69,7 @@ public class NibbleArray {
      * @return the length of the nibbles * 2
      */
     public int getLength() {
-        return (this.nibbles.length() * BYTES_PER_LONG) << 1;
+        return this.nibbles.length() * BYTES_PER_LONG << 1;
     }
 
     /**
@@ -92,13 +92,13 @@ public class NibbleArray {
 
         int nibblePosition = position / 2;
         long splice = this.nibbles.get(nibblePosition / BYTES_PER_LONG);
-        long shift = (nibblePosition % BYTES_PER_LONG) << 3;
+        long shift = nibblePosition % BYTES_PER_LONG << 3;
         long shifted = splice >> shift;
 
         if ((position & 1) == 0) {
             return (byte) (shifted & 0x0F);
         } else {
-            return (byte) ((shifted >> 4) & 0x0F);
+            return (byte) (shifted >> 4 & 0x0F);
         }
     }
 
@@ -114,8 +114,8 @@ public class NibbleArray {
      */
     public void setByte(int position, byte value) {
         int nibblePosition = position / 2;
-        int spliceIndex = nibblePosition / BYTES_PER_LONG;
-        long shift = (nibblePosition % BYTES_PER_LONG) << 3;
+        int spliceIndex = nibblePosition >> 3;
+        long shift = nibblePosition % BYTES_PER_LONG << 3;
 
         long oldSpice; // easter egg (play Old Spice theme)
         long newSplice;
@@ -124,15 +124,16 @@ public class NibbleArray {
                 oldSpice = this.nibbles.get(spliceIndex);
                 long newByte = oldSpice >>> shift & 0xF0 | value;
 
-                newSplice = oldSpice & ~((long) 0xFF << shift) | newByte << shift;
+                newSplice = oldSpice & ~(0xFFL << shift) | newByte << shift;
             }
             while (!this.nibbles.compareAndSet(spliceIndex, oldSpice, newSplice));
         } else {
+            long shiftedVal = value << 4;
             do {
                 oldSpice = this.nibbles.get(spliceIndex);
-                long newByte = oldSpice >>> shift & 0x0F | value << 4;
+                long newByte = oldSpice >>> shift & 0x0F | shiftedVal;
 
-                newSplice = oldSpice & ~((long) 0xFF << shift) | newByte << shift;
+                newSplice = oldSpice & ~(0xFFL << shift) | newByte << shift;
             }
             while (!this.nibbles.compareAndSet(spliceIndex, oldSpice, newSplice));
         }

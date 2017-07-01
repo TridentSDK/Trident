@@ -16,7 +16,7 @@
  */
 package net.tridentsdk.server.entity.meta;
 
-import net.tridentsdk.entity.meta.living.LivingEntityMeta;
+import net.tridentsdk.meta.entity.living.LivingEntityMeta;
 import net.tridentsdk.server.net.EntityMetadata;
 
 import javax.annotation.concurrent.ThreadSafe;

@@ -64,12 +64,12 @@ public class ShortArrayList {
      * of
      * <code>array</code>.
      */
-    public static short[] grow(final short[] array, final int length,
-                               final int preserve) {
+    public static short[] grow(short[] array, int length,
+                               int preserve) {
         if (length > array.length) {
-            final int newLength = (int) Math.max(
+            int newLength = (int) Math.max(
                     Math.min(2L * array.length, MAX_ARRAY_SIZE), length);
-            final short t[] = new short[newLength];
+            short t[] = new short[newLength];
             System.arraycopy(array, 0, t, 0, preserve);
             return t;
         }
@@ -94,10 +94,10 @@ public class ShortArrayList {
      * same as those
      * of <code>array</code>.
      */
-    public static short[] ensureCapacity(final short[] array, final int length,
-                                         final int preserve) {
+    public static short[] ensureCapacity(short[] array, int length,
+                                         int preserve) {
         if (length > array.length) {
-            final short t[] = new short[length];
+            short t[] = new short[length];
             System.arraycopy(array, 0, t, 0, preserve);
             return t;
         }
@@ -113,13 +113,13 @@ public class ShortArrayList {
      * @throws IndexOutOfBoundsException if the given index
      * is negative or greater than the list size.
      */
-    protected void ensureIndex(final int index) {
+    protected void ensureIndex(int index) {
         if (index < 0)
             throw new IndexOutOfBoundsException("Index (" + index
                     + ") is negative");
         if (index > this.size())
             throw new IndexOutOfBoundsException("Index (" + index
-                    + ") is greater than list size (" + (this.size()) + ")");
+                    + ") is greater than list size (" + this.size() + ")");
     }
 
     /**
@@ -134,7 +134,7 @@ public class ShortArrayList {
     /**
      * The initial default capacity of an array list.
      */
-    public final static int DEFAULT_INITIAL_CAPACITY = 16;
+    public static final int DEFAULT_INITIAL_CAPACITY = 16;
     /**
      * The backing array.
      */
@@ -158,7 +158,7 @@ public class ShortArrayList {
      * array list.
      */
     @SuppressWarnings("unused")
-    protected ShortArrayList(final short a[], boolean dummy) {
+    protected ShortArrayList(short a[], boolean dummy) {
         this.a = a;
     }
 
@@ -169,7 +169,7 @@ public class ShortArrayList {
      * list (may be 0).
      */
 
-    public ShortArrayList(final int capacity) {
+    public ShortArrayList(int capacity) {
         if (capacity < 0)
             throw new IllegalArgumentException("Initial capacity (" + capacity
                     + ") is negative");
@@ -193,7 +193,7 @@ public class ShortArrayList {
      * array list.
      */
 
-    public void ensureCapacity(final int capacity) {
+    public void ensureCapacity(int capacity) {
         this.a = ensureCapacity(this.a, capacity, this.size);
         if (ASSERTS)
             assert this.size <= this.a.length;
@@ -209,13 +209,13 @@ public class ShortArrayList {
      * @param capacity the new minimum capacity for this
      * array list.
      */
-    private void grow(final int capacity) {
+    private void grow(int capacity) {
         this.a = grow(this.a, capacity, this.size);
         if (ASSERTS)
             assert this.size <= this.a.length;
     }
 
-    public void add(final int index, final short k) {
+    public void add(int index, short k) {
         this.ensureIndex(index);
         this.grow(this.size + 1);
         if (index != this.size)
@@ -226,29 +226,30 @@ public class ShortArrayList {
             assert this.size <= this.a.length;
     }
 
-    public boolean add(final short k) {
+    public int add(short k) {
         this.grow(this.size + 1);
-        this.a[this.size++] = k;
+        int idx = this.size++;
+        this.a[idx] = k;
         if (ASSERTS)
             assert this.size <= this.a.length;
-        return true;
+        return idx;
     }
 
-    public short getShort(final int index) {
+    public short getShort(int index) {
         if (index >= this.size)
             throw new IndexOutOfBoundsException("Index (" + index
                     + ") is greater than or equal to list size (" + this.size + ")");
         return this.a[index];
     }
 
-    public int indexOf(final short k) {
+    public int indexOf(short k) {
         for (int i = 0; i < this.size; i++)
-            if (((k) == (this.a[i])))
+            if (k == this.a[i])
                 return i;
         return -1;
     }
 
-    public short set(final int index, final short k) {
+    public short set(int index, short k) {
         if (index >= this.size)
             throw new IndexOutOfBoundsException("Index (" + index
                     + ") is greater than or equal to list size (" + this.size + ")");
@@ -261,11 +262,11 @@ public class ShortArrayList {
         return this.size;
     }
 
-    public void size(final int size) {
+    public void size(int size) {
         if (size > this.a.length)
             this.ensureCapacity(size);
         if (size > this.size)
-            Arrays.fill(this.a, this.size, size, ((short) 0));
+            Arrays.fill(this.a, this.size, size, (short) 0);
         this.size = size;
     }
 }

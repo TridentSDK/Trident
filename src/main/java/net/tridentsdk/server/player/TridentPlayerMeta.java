@@ -16,7 +16,7 @@
  */
 package net.tridentsdk.server.player;
 
-import net.tridentsdk.entity.meta.living.PlayerMeta;
+import net.tridentsdk.meta.entity.living.PlayerMeta;
 import net.tridentsdk.server.entity.meta.TridentLivingEntityMeta;
 import net.tridentsdk.server.net.EntityMetadata;
 

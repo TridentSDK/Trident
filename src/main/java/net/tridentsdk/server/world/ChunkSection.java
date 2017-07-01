@@ -19,6 +19,7 @@ package net.tridentsdk.server.world;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.util.NibbleArray;
 import net.tridentsdk.server.util.ShortArrayList;
+import net.tridentsdk.server.util.ShortOpenHashSet;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
@@ -43,22 +44,24 @@ public class ChunkSection {
      * The amount of blocks in a chunk section
      */
     private static final int BLOCKS_PER_SECTION = 4096;
+    /**
+     * The number of block state values that can be stored
+     * in a single long
+     */
+    private static final int SHORTS_PER_LONG = 4;
 
     /**
-     * The default amount of bits per palette index
+     * The palette that caches the block states used by this
+     * ChunkSection and evicts unused entries when the
+     * chunk is written.
      */
-    private final int bitsPerBlock = 4;
-    /**
-     * The chunk section palette, containing the block
-     * states
-     */
-    @GuardedBy("palette")
-    private final ShortArrayList palette = new ShortArrayList();
+    @GuardedBy("mainPalette")
+    private final ShortOpenHashSet mainPalette = new ShortOpenHashSet();
     /**
      * The data array, which contains palette indexes at
      * the XYZ index in the array
      */
-    private final AtomicLongArray data = new AtomicLongArray((BLOCKS_PER_SECTION * this.bitsPerBlock) / 64);
+    private final AtomicLongArray data = new AtomicLongArray(1024);
     /**
      * The nibble array of light emitted from blocks
      */
@@ -76,10 +79,7 @@ public class ChunkSection {
      * Creates a new chunk section.
      */
     public ChunkSection(boolean doSkylight) {
-        // Unsynchronized write is ok because we write final
-        // at the end of construction
-        this.palette.add((short) 0);
-
+        this.mainPalette.add((short) 0);
         for (int i = 0; i < this.data.length(); i++) {
             this.data.set(i, 0L);
         }
@@ -97,33 +97,22 @@ public class ChunkSection {
      * @param state the block getState to set
      */
     public void set(int idx, short state) {
-        int bitsPerBlock = this.bitsPerBlock;
-        int paletteIdx;
-        synchronized (this.palette) {
-            paletteIdx = this.palette.indexOf(state);
-
-            if (paletteIdx == -1) {
-                this.palette.add(state);
-                paletteIdx = this.palette.size() - 1;
-
-                if (this.palette.size() > 1 << bitsPerBlock) {
-                    // TODO Increase bits per block
-                }
-            }
+        synchronized (this.mainPalette) {
+            this.mainPalette.add(state);
         }
 
-        int dataIdx = idx * bitsPerBlock / 64;
-        int shift = idx % (64 / bitsPerBlock) * bitsPerBlock;
-        long or = (long) paletteIdx << shift;
-        long and = ~((~((long) paletteIdx) & (1 << bitsPerBlock) - 1) << shift);
+        int spliceIdx = idx >>> 2;
+        long shift = idx % SHORTS_PER_LONG << 4;
 
-        long oldLong;
-        long newLong;
+        long placeMask = ~(0xFFFFL << shift);
+        long shiftedState = (long) state << shift;
+
+        long oldSplice;
+        long newSplice;
         do {
-            oldLong = this.data.get(dataIdx);
-            newLong = (oldLong & and) | or;
-        }
-        while (!this.data.compareAndSet(dataIdx, oldLong, newLong));
+            oldSplice = this.data.get(spliceIdx);
+            newSplice = oldSplice & placeMask | shiftedState;
+        } while (!this.data.compareAndSet(spliceIdx, oldSplice, newSplice));
         // TODO relighting
     }
 
@@ -135,13 +124,9 @@ public class ChunkSection {
      * @return A tuple consisting of substance and meta
      */
     public short dataAt(int idx) {
-        int dataIdx = idx * this.bitsPerBlock / 64;
-        int shift = idx % (64 / this.bitsPerBlock) * this.bitsPerBlock;
-        long paletteIdx = (this.data.get(dataIdx) >> shift) & (1 << this.bitsPerBlock) - 1;
-
-        synchronized (this.palette) {
-            return this.palette.getShort((int) paletteIdx);
-        }
+        int spliceIdx = idx >>> 2;
+        long shift = idx % SHORTS_PER_LONG << 4;
+        return (short) (this.data.get(spliceIdx) >>> shift & 0xFFFF);
     }
 
     /**
@@ -150,34 +135,90 @@ public class ChunkSection {
      * @param buf the buffer to write the section data
      */
     public void write(ByteBuf buf) {
-        // Write Bits per block
-        buf.writeByte(this.bitsPerBlock);
+        int dataLen = 0;
+        ByteBuf dataBuffer = buf.alloc().buffer();
 
-        // Cache the palette in order to prevent breaking
-        // the packet with a concurrent write
-        ShortArrayList palette;
-        synchronized (this.palette) {
-            palette = this.palette;
+        ShortArrayList palette = null;
+        int bitsPerBlock;
+        boolean doPalette;
+        synchronized (this.mainPalette) {
+            int paletteSize = this.mainPalette.size();
+            bitsPerBlock = Integer.highestOneBit(paletteSize);
+            doPalette = bitsPerBlock < 9;
+
+            this.mainPalette.clear();
+            this.mainPalette.add((short) 0);
+
+            if (!doPalette) {
+                bitsPerBlock = 13;
+            } else {
+                palette = new ShortArrayList(paletteSize);
+                palette.add((short) 0);
+            }
+
+            int individualValueMask = (1 << bitsPerBlock) - 1;
+            int bitsWritten = 0;
+            long cur = 0;
+            for (int y = 0; y < 16; y++) {
+                for (int z = 0; z < 16; z++) {
+                    for (int x = 0; x < 16; x++) {
+                        int realIdx = y << 8 | z << 4 | x;
+                        int data = this.dataAt(realIdx);
+                        boolean added = this.mainPalette.add((short) data);
+
+                        if (doPalette) {
+                            if (added) {
+                                data = palette.add((short) data);
+                            } else {
+                                data = palette.indexOf((short) data);
+                                if (data == -1) {
+                                    throw new IllegalStateException("Failed to lock");
+                                }
+                            }
+                        }
+
+                        long shift = realIdx * bitsPerBlock % 64;
+                        long or = (long) (data & individualValueMask) << shift;
+                        bitsWritten += bitsPerBlock;
+
+                        if (bitsWritten == 64) {
+                            dataLen++;
+                            dataBuffer.writeLong(cur | or);
+
+                            cur = 0;
+                            bitsWritten = 0;
+                        } else if (bitsWritten > 64) {
+                            int lowerMask = (1 << bitsPerBlock - (bitsWritten - 64)) - 1;
+                            dataLen++;
+                            dataBuffer.writeLong(cur | or & lowerMask);
+
+                            cur = or & ~lowerMask;
+                            bitsWritten = bitsWritten - 64;
+                        } else {
+                            cur |= or;
+                        }
+                    }
+                }
+            }
         }
 
-        // Write the palette size
-        wvint(buf, palette.size());
+        // Write Bits per block
+        buf.writeByte(bitsPerBlock);
 
-        for (int i = 0, lim = palette.size(); i < lim; i++) {
-            // range check is actually simple if statement,
-            // we like that over iterators so this is the
-            // preference iteration method
+        // Write the palette size
+        wvint(buf, doPalette ? palette.size() : 0);
+
+        // Write palette
+        for (int i = 0, max = doPalette ? palette.size() : 0; i < max; i++) {
             wvint(buf, palette.getShort(i));
         }
 
         // Write the section data length
-        int dataLen = this.data.length();
         wvint(buf, dataLen);
 
         // Write the actual data
-        for (int i = 0; i < dataLen; i++) {
-            buf.writeLong(this.data.get(i));
-        }
+        buf.writeBytes(dataBuffer);
+        dataBuffer.release();
 
         // Write block light
         this.blockLight.write(buf);

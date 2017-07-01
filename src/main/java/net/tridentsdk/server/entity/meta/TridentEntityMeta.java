@@ -17,7 +17,7 @@
 package net.tridentsdk.server.entity.meta;
 
 import lombok.Getter;
-import net.tridentsdk.entity.meta.EntityMeta;
+import net.tridentsdk.meta.entity.EntityMeta;
 import net.tridentsdk.server.net.EntityMetadata;
 
 import javax.annotation.concurrent.ThreadSafe;

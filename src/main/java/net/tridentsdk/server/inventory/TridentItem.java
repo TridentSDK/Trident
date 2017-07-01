@@ -17,6 +17,7 @@
 package net.tridentsdk.server.inventory;
 
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.inventory.Item;
@@ -28,9 +29,15 @@ import javax.annotation.concurrent.Immutable;
  * Implementation of an inventory item.
  */
 @Immutable
+@EqualsAndHashCode
 @Getter
 @AllArgsConstructor
 public class TridentItem implements Item {
+    /**
+     * An empty item
+     */
+    public static final TridentItem EMPTY = new TridentItem(Substance.AIR, 0, (byte) 0, new ItemMeta());
+
     /**
      * The item's substance type.
      */

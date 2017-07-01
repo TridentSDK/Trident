@@ -82,7 +82,7 @@ public final class TridentBlock implements Block {
 
     @Override
     public Substance getSubstance() {
-        return Substance.fromNumericId(this.getChunk().get(this.relX, this.relY, this.relZ) >>> 4);
+        return Substance.fromNumericId(this.getChunk().get(this.relX, this.relY, this.relZ) >> 4);
     }
 
     @Override
@@ -103,8 +103,8 @@ public final class TridentBlock implements Block {
     public void setData(byte data) {
         TridentChunk chunk = this.getChunk();
         // rshift needed to reset the lower bits
-        int substanceId = chunk.get(this.relX, this.relY, this.relZ) >> 4 & 0xF;
-        chunk.set(this.relX, this.relY, this.relZ, (short) (substanceId << 4 | data));
+        int substanceId = chunk.get(this.relX, this.relY, this.relZ) >> 4;
+        chunk.set(this.relX, this.relY, this.relZ, (short) (substanceId << 4 | data & 0xF));
     }
 
     /**

@@ -75,7 +75,7 @@ public class EntityMetadata {
                     value = ChatComponent.fromJson(new Gson().fromJson(NetData.rstr(buf), JsonObject.class));
                     break;
                 case SLOT:
-                    value = Slot.newSlot(buf);
+                    value = Slot.read(buf);
                     break;
                 case BOOLEAN:
                     value = buf.readBoolean();
