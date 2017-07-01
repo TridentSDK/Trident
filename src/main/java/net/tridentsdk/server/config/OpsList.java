@@ -63,6 +63,8 @@ public class OpsList extends TridentConfig {
      */
     public static OpsList init() throws IOException {
         OpsList list = new OpsList();
+        list.load();
+
         if (list.hasKey(OPS_KEY)) {
             list.getCollection("ops", list.getOps());
         } else {
