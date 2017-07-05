@@ -163,7 +163,7 @@ public final class NetData {
             b = (long) buf.readByte();
         }
 
-        result += (b & 0x7fL);
+        result += b & 0x7fL;
         return result << indent;
     }
 
@@ -188,7 +188,7 @@ public final class NetData {
      */
     public static void rvec(ByteBuf buf, AbstractVector<?> vec) {
         long l = buf.readLong();
-        vec.set(l >> 38, (l >> 26) & 0xFFF, l << 38 >> 38);
+        vec.set(l >> 38, l >> 26 & 0xFFF, l << 38 >> 38);
     }
 
     /**
@@ -201,7 +201,7 @@ public final class NetData {
         Vector v = new Vector();
         vec.vecWrite(v);
 
-        long l = ((v.getIntX() & 0x3FFFFFF) << 38) | ((v.getIntY() & 0xFFF) << 26) | (v.getIntZ() & 0x3FFFFFF);
+        long l = ((long) v.getIntX() & 0x3FFFFFFL) << 38 | ((long) v.getIntY() & 0xFFFL) << 26 | (long) v.getIntZ() & 0x3FFFFFFL;
         buf.writeLong(l);
     }
     
@@ -211,6 +211,6 @@ public final class NetData {
      */
     public static Vector rvec(ByteBuf buf){
         long pos = buf.readLong();
-        return new Vector(pos >> 38, (pos >> 26) & 0xFFF, pos << 38 >> 38);
+        return new Vector(pos >> 38, pos >> 26 & 0xFFF, pos << 38 >> 38);
     }
 }

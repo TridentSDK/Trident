@@ -67,7 +67,7 @@ public abstract class TridentEntity implements Entity {
      * The position at which this entity is located
      */
     @Getter
-    protected volatile Position position;
+    protected final Position position;
     /**
      * Whether or not this entity is on the ground
      */
@@ -123,7 +123,7 @@ public abstract class TridentEntity implements Entity {
             }
         }
 
-        this.position = position;
+        position.write(this.position);
     }
 
     @Override

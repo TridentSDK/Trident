@@ -17,30 +17,36 @@
 package net.tridentsdk.server.world;
 
 import io.netty.buffer.ByteBuf;
+import lombok.Getter;
 import net.tridentsdk.base.Block;
 import net.tridentsdk.base.ImmutableWorldVector;
+import net.tridentsdk.meta.nbt.Tag;
 import net.tridentsdk.server.concurrent.PoolSpec;
 import net.tridentsdk.server.concurrent.ServerThreadPool;
 import net.tridentsdk.server.util.UncheckedCdl;
 import net.tridentsdk.server.world.gen.GeneratorContextImpl;
 import net.tridentsdk.world.Chunk;
-import net.tridentsdk.world.World;
 import net.tridentsdk.world.gen.*;
 import net.tridentsdk.world.opt.Dimension;
 import net.tridentsdk.world.opt.GenOpts;
 
 import javax.annotation.Nonnull;
+import javax.annotation.concurrent.ThreadSafe;
+import java.io.DataInputStream;
+import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicIntegerArray;
 import java.util.concurrent.atomic.AtomicReferenceArray;
+import java.util.concurrent.atomic.LongAdder;
 
 import static net.tridentsdk.server.net.NetData.wvint;
 
 /**
  * Represents a chunk column.
  */
+@ThreadSafe
 public class TridentChunk implements Chunk {
     /**
      * Thread pool used for arbitrary container generation
@@ -59,14 +65,17 @@ public class TridentChunk implements Chunk {
     /**
      * The world in which this chunk is located
      */
+    @Getter
     private final TridentWorld world;
     /**
      * The x coordinate
      */
+    @Getter
     private final int x;
     /**
      * The z coordinate
      */
+    @Getter
     private final int z;
 
     /**
@@ -85,6 +94,11 @@ public class TridentChunk implements Chunk {
      * across then adding z (x << 4 | z & 0xF)
      */
     private final AtomicIntegerArray heights = new AtomicIntegerArray(256);
+    /**
+     * The number of ticks that all players have spent in
+     * this chunk
+     */
+    private final LongAdder inhabited = new LongAdder();
 
     /**
      * Creates a new chunk at the specified coordinates.
@@ -106,9 +120,52 @@ public class TridentChunk implements Chunk {
     }
 
     /**
+     * Ticks the chunk, updating the inhabited time, tile
+     * entities, stateful blocks, and entities.
+     */
+    public void tick() {
+        // this.inhabited.add(this.players.size());
+    }
+
+    /**
      * Generates the chunk.
      */
     public void generate() {
+        if (this.ready.getCount() == 0) {
+            return;
+        }
+
+        Region region = Region.getFile(this, false);
+        if (region == null) {
+            this.runGenerator();
+        } else {
+            int rX = this.x & 31;
+            int rZ = this.z & 31;
+            if (region.hasChunk(rX, rZ)) {
+                try (DataInputStream in = region.getChunkDataInputStream(rX, rZ)) {
+                    Tag.Compound compound = Tag.decode(in).getCompound("Level");
+                    CompletableFuture.runAsync(() -> this.read(compound), ARBITRARY_POOL).
+                            whenCompleteAsync((v, t) -> {
+                                if (this.ready.getCount() == 1) {
+                                    this.runGenerator();
+                                }
+                            }, ARBITRARY_POOL);
+                    this.waitReady();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            } else {
+                this.runGenerator();
+            }
+        }
+    }
+
+    /**
+     * Runs the custom generator function when the data is
+     * not loaded into memory, or if the chunk has no data
+     * to load.
+     */
+    private void runGenerator() {
         GenOpts opts = this.world.getGeneratorOptions();
         GeneratorProvider provider = opts.getProvider();
 
@@ -180,38 +237,41 @@ public class TridentChunk implements Chunk {
         int len = this.sections.length();
 
         // Copy chunk sections to local array in order to
-        // prevent upddates from breaking the packet
+        // prevent updates from breaking the packet
+        short mask = 0;
         ChunkSection[] sections = new ChunkSection[16];
         for (int i = 0; i < 16; i++) {
-            sections[i] = this.sections.get(i);
-        }
+            ChunkSection sec = this.sections.get(i);
+            sections[i] = sec;
 
-        // Write the continuous mask
-        short mask = 0;
-        for (int i = 0; i < len; i++) {
-            if (sections[i] != null) {
+            if (sec != null) {
                 mask |= 1 << i;
             }
         }
+
+        // Write the continuous mask
         wvint(buf, mask);
 
         // Write section data
         ByteBuf chunkData = buf.alloc().buffer();
-        for (int i = 0; i < len; i++) {
-            if ((mask & (1 << i)) == (1 << i)) {
-                ChunkSection sec = sections[i];
-                if (sec != null) {
-                    sec.write(chunkData);
-                } else {
-                    this.emptyPlaceholder.write(chunkData);
+        try {
+            for (int i = 0; i < len; i++) {
+                if ((mask & 1 << i) == 1 << i) {
+                    ChunkSection sec = sections[i];
+                    if (sec != null) {
+                        sec.write(chunkData);
+                    } else {
+                        this.emptyPlaceholder.write(chunkData);
+                    }
                 }
             }
+            wvint(buf, chunkData.readableBytes() + (continuous ? 256 : 0));
+            buf.writeBytes(chunkData);
+        } finally {
+            chunkData.release();
         }
-        wvint(buf, chunkData.readableBytes() + (continuous ? 256 : 0));
-        buf.writeBytes(chunkData);
-        chunkData.release();
 
-        // If continous, write the biome data
+        // If continuous, write the biome data
         if (continuous) {
             for (int i = 0; i < 256; i++) {
                 buf.writeByte(1);
@@ -222,25 +282,10 @@ public class TridentChunk implements Chunk {
         wvint(buf, 0);
     }
 
-    @Override
-    public int getX() {
-        return this.x;
-    }
-
-    @Override
-    public int getZ() {
-        return this.z;
-    }
-
     @Nonnull
     @Override
     public Block getBlockAt(int x, int y, int z) {
         return new TridentBlock(new ImmutableWorldVector(this.world, this.x << 4 + x, y, this.z << 4 + z));
-    }
-
-    @Override
-    public World getWorld() {
-        return this.world;
     }
 
     /**
@@ -271,7 +316,7 @@ public class TridentChunk implements Chunk {
             return 0;
         }
 
-        return section.dataAt(y << 8 | z << 4 | x);
+        return section.dataAt((y & 15) << 8 | z << 4 | x);
     }
 
     /**
@@ -282,7 +327,6 @@ public class TridentChunk implements Chunk {
      * @param z Relative Z position of the block inside the chunk
      * @param state The state of the block
      */
-    // TODO set heightmap
     public void set(int x, int y, int z, short state) {
         int sectionIdx = y >> 4;
 
@@ -296,6 +340,91 @@ public class TridentChunk implements Chunk {
             }
         }
 
-        section.set(y << 8 | z << 4 | x, state);
+        int heightIdx = x << 4 | z & 0xF;
+        int height;
+        int newHeight;
+        do {
+            height = this.heights.get(heightIdx);
+            newHeight = height;
+
+            if (y > height) {
+                newHeight = height;
+            } else {
+                for (int i = height; i >= 0; i--) {
+                    if (this.get(x, i, z) >> 4 != 0) {
+                        newHeight = i;
+                        break;
+                    }
+                }
+            }
+        } while (!this.heights.compareAndSet(heightIdx, height, newHeight));
+
+        section.set((y & 15) << 8 | z << 4 | x, state);
+    }
+
+    /**
+     * Reads the chunk data from the region file compound.
+     *
+     * @param compound the compound to read
+     */
+    public void read(Tag.Compound compound) {
+        this.inhabited.add(compound.getLong("InhabitedTime"));
+
+        Tag.List<Tag.Compound> sectionList = compound.getList("Sections", Tag.Compound.class);
+        for (Tag.Compound c : sectionList) {
+            ChunkSection section = new ChunkSection(this.world.getWorldOptions().getDimension() == Dimension.OVERWORLD);
+            section.read(c);
+
+            byte y = c.getByte("Y");
+            this.sections.set(y, section);
+        }
+
+        int[] heightMap = compound.getIntArray("HeightMap");
+        for (int i = 0; i < heightMap.length; i++) {
+            this.heights.set(i, heightMap[i]);
+        }
+
+        if (compound.getByte("TerrainPopulated") == 1) {
+            this.ready.countDown();
+        }
+    }
+
+    /**
+     * Writes the chunk data to the region file compound.
+     *
+     * TODO
+     * Biomes (byte_array)
+     * TileEntities (list [tag compound?])
+     * Entities (list [tag compound?])
+     *
+     * @param compound the compound to write
+     */
+    public void write(Tag.Compound compound) {
+        compound.putInt("xPos", this.x);
+        compound.putInt("zPos", this.z);
+
+        byte hasGenerated = (byte) (this.ready.getCount() == 0 ? 1 : 0);
+        compound.putByte("TerrainPopulated", hasGenerated);
+        compound.putByte("LightPopulated", hasGenerated);
+        compound.putLong("InhabitedTime", this.inhabited.longValue());
+        compound.putLong("LastUpdate", this.world.getTime());
+
+        Tag.List<Tag.Compound> sectionList = new Tag.List<>(Tag.Type.COMPOUND);
+        for (int i = 0; i < this.sections.length(); i++) {
+            ChunkSection section = this.sections.get(i);
+            if (section != null) {
+                Tag.Compound sectionCompound = new Tag.Compound("");
+                sectionCompound.putByte("Y", (byte) i);
+                section.write(sectionCompound);
+                sectionList.add(sectionCompound);
+            }
+        }
+        compound.putList("Sections", sectionList);
+
+        int[] heightMap = new int[this.heights.length()];
+        for (int i = 0; i < heightMap.length; i++) {
+            heightMap[i] = this.heights.get(i);
+        }
+        compound.putIntArray("HeightMap", heightMap);
     }
 }

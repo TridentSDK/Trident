@@ -22,7 +22,6 @@ import io.netty.buffer.ByteBufOutputStream;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.ToString;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.inventory.Item;
 import net.tridentsdk.meta.ItemMeta;
@@ -37,14 +36,13 @@ import java.io.DataOutputStream;
  * This class represents a protocol Slot object used to send
  * data pertaining to inventory items.
  */
-@ToString
 @Immutable
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Slot {
     /**
      * Represents a slot that contains no data
      */
-    public static final Slot EMPTY = new Slot((short) -1, (byte) 0, (short) 0, null);
+    public static final Slot EMPTY = new Slot((short) -1, (byte) 0, (short) 0, new ItemMeta());
 
     // Self explanatory
     @Getter

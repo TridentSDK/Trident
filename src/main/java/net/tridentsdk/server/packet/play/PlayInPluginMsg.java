@@ -60,8 +60,7 @@ public final class PlayInPluginMsg extends PacketIn {
         });
 
         if ("MC|Brand".equals(channel)) {
-            String brand = rstr(buf);
-            System.out.println("User [" + client.getName() + "] is running client [" + brand + "]");
+            rstr(buf);
             return;
         }
 

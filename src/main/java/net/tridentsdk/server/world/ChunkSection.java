@@ -17,6 +17,7 @@
 package net.tridentsdk.server.world;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.meta.nbt.Tag;
 import net.tridentsdk.server.util.NibbleArray;
 import net.tridentsdk.server.util.ShortArrayList;
 import net.tridentsdk.server.util.ShortOpenHashSet;
@@ -61,7 +62,7 @@ public class ChunkSection {
      * The data array, which contains palette indexes at
      * the XYZ index in the array
      */
-    private final AtomicLongArray data = new AtomicLongArray(1024);
+    private final AtomicLongArray data = new AtomicLongArray(BLOCKS_PER_SECTION / SHORTS_PER_LONG);
     /**
      * The nibble array of light emitted from blocks
      */
@@ -144,6 +145,10 @@ public class ChunkSection {
         synchronized (this.mainPalette) {
             int paletteSize = this.mainPalette.size();
             bitsPerBlock = Integer.highestOneBit(paletteSize);
+            if (bitsPerBlock < 4) {
+                bitsPerBlock = 4;
+            }
+
             doPalette = bitsPerBlock < 9;
 
             this.mainPalette.clear();
@@ -164,38 +169,41 @@ public class ChunkSection {
                     for (int x = 0; x < 16; x++) {
                         int realIdx = y << 8 | z << 4 | x;
                         int data = this.dataAt(realIdx);
-                        boolean added = this.mainPalette.add((short) data);
+                        short shortData = (short) data;
+                        boolean added = this.mainPalette.add(shortData);
 
                         if (doPalette) {
                             if (added) {
-                                data = palette.add((short) data);
+                                data = palette.add(shortData);
                             } else {
-                                data = palette.indexOf((short) data);
+                                data = palette.indexOf(shortData);
                                 if (data == -1) {
                                     throw new IllegalStateException("Failed to lock");
                                 }
                             }
                         }
 
-                        long shift = realIdx * bitsPerBlock % 64;
-                        long or = (long) (data & individualValueMask) << shift;
+                        int shift = realIdx * bitsPerBlock % 64;
+                        long or = data & individualValueMask;
                         bitsWritten += bitsPerBlock;
 
                         if (bitsWritten == 64) {
                             dataLen++;
-                            dataBuffer.writeLong(cur | or);
+                            dataBuffer.writeLong(cur | or << shift);
 
                             cur = 0;
                             bitsWritten = 0;
                         } else if (bitsWritten > 64) {
-                            int lowerMask = (1 << bitsPerBlock - (bitsWritten - 64)) - 1;
-                            dataLen++;
-                            dataBuffer.writeLong(cur | or & lowerMask);
+                            bitsWritten -= 64;
+                            int lowerLen = bitsPerBlock - bitsWritten;
+                            int lowerMask = (1 << lowerLen) - 1;
 
-                            cur = or & ~lowerMask;
-                            bitsWritten = bitsWritten - 64;
+                            dataLen++;
+                            dataBuffer.writeLong(cur | (or & lowerMask) << shift);
+
+                            cur = (or & ~lowerMask) >> lowerLen;
                         } else {
-                            cur |= or;
+                            cur |= or << shift;
                         }
                     }
                 }
@@ -218,7 +226,10 @@ public class ChunkSection {
 
         // Write the actual data
         buf.writeBytes(dataBuffer);
-        dataBuffer.release();
+
+        if (dataBuffer != null) {
+            dataBuffer.release();
+        }
 
         // Write block light
         this.blockLight.write(buf);
@@ -227,5 +238,76 @@ public class ChunkSection {
         if (this.doSkylight) {
             this.skyLight.write(buf);
         }
+    }
+
+    /**
+     * Loads block data from the NBT tag read at the chunk's
+     * region file into this chunk section.
+     *
+     * @param section the section to load NBT data
+     */
+    public void read(Tag.Compound section) {
+        byte[] blocks = section.getByteArray("Blocks");
+        byte[] add = section.get("Add");
+        byte[] data = section.getByteArray("Data");
+        byte[] skyLight = section.getByteArray("SkyLight");
+        byte[] blockLight = section.getByteArray("BlockLight");
+
+        this.skyLight.read(skyLight);
+        this.blockLight.read(blockLight);
+
+        for (int y = 0; y < 16; y++) {
+            for (int z = 0; z < 16; z++) {
+                for (int x = 0; x < 16; x++) {
+                    int realIdx = y << 8 | z << 4 | x;
+
+                    int block = blocks[realIdx];
+                    byte blockData = NibbleArray.getNibble(data, realIdx);
+                    if (add != null) {
+                        int blockId = block + ((int) NibbleArray.getNibble(add, realIdx) << 8);
+                        short state = (short) (blockId << 4 | blockData);
+                        this.set(realIdx, state);
+                    } else {
+                        short state = (short) (block << 4 | blockData);
+                        this.set(realIdx, state);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Writes the data from this chunk section into the
+     * given NBT data going into a chunk's {@code Sections}
+     * list.
+     *
+     * @param section the section to write
+     */
+    public void write(Tag.Compound section) {
+        section.putByteArray("SkyLight", this.skyLight.write());
+        section.putByteArray("BlockLight", this.skyLight.write());
+
+        byte[] blocks = new byte[4096];
+        byte[] add = new byte[2048];
+        byte[] data = new byte[2048];
+        for (int y = 0; y < 16; y++) {
+            for (int z = 0; z < 16; z++) {
+                for (int x = 0; x < 16; x++) {
+                    int realIdx = y << 8 | z << 4 | x;
+                    short state = this.dataAt(realIdx);
+                    int blockId = state >> 4;
+
+                    blocks[realIdx] = (byte) (blockId & 0xFF);
+                    NibbleArray.setNibble(data, realIdx, (byte) (state & 0xF));
+                    if (blockId > 255) {
+                        NibbleArray.setNibble(add, realIdx, (byte) (blockId >> 8));
+                    }
+                }
+            }
+        }
+
+        section.putByteArray("Blocks", blocks);
+        section.putByteArray("Add", add);
+        section.putByteArray("Data", data);
     }
 }

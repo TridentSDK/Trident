@@ -17,8 +17,10 @@
 package net.tridentsdk.server.command;
 
 import net.tridentsdk.base.Position;
+import net.tridentsdk.base.Substance;
 import net.tridentsdk.command.*;
 import net.tridentsdk.doc.Debug;
+import net.tridentsdk.inventory.Item;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.packet.play.PlayOutChunk;
 import net.tridentsdk.server.player.TridentPlayer;
@@ -28,6 +30,7 @@ import net.tridentsdk.ui.bossbar.BossBarColor;
 import net.tridentsdk.ui.bossbar.BossBarDivision;
 import net.tridentsdk.ui.chat.ChatColor;
 import net.tridentsdk.ui.chat.ChatComponent;
+import net.tridentsdk.ui.chat.HoverEvent;
 import net.tridentsdk.ui.title.Title;
 
 import javax.annotation.concurrent.Immutable;
@@ -87,6 +90,10 @@ public class D implements CmdListener {
 
         if (msg.equals("cleartitle")) {
             player.resetTitle();
+        }
+
+        if (msg.equals("chat")) {
+            player.sendMessage(ChatComponent.create().setText("What is this").setHoverEvent(HoverEvent.item(Item.newItem(Substance.BLOCK_OF_DIAMOND))));
         }
     }
 }

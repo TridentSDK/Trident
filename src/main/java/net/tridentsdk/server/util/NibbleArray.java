@@ -38,11 +38,6 @@ public class NibbleArray {
     public static final int BYTES_PER_LONG = 8;
 
     /**
-     * The mask value for the splice section
-     */
-    private static final long BYTE_BASK = 0xFFL;
-
-    /**
      * The array of nibbles.
      *
      * <p>Nibbles are half byte values which are compacted
@@ -61,6 +56,34 @@ public class NibbleArray {
      */
     public NibbleArray(int length) {
         this.nibbles = new AtomicLongArray(length / BYTES_PER_LONG);
+    }
+
+    /**
+     * Obtains the byte nibble for the given index 0-4095.
+     *
+     * @param array the array to obtain the nibble
+     * @param idx the index to read the nibble
+     * @return the nibble
+     */
+    public static byte getNibble(byte[] array, int idx) {
+        return (byte) ((idx & 1) == 0 ? array[idx >> 1] & 0x0F : array[idx >> 1] >> 4 & 0x0F);
+    }
+
+    /**
+     * Sets the nibble at the given index 0-4095 with the
+     * given nibble data.
+     *
+     * @param array the array to set
+     * @param idx the index to set the nibble
+     * @param nibble the nibble data to set
+     */
+    public static void setNibble(byte[] array, int idx, byte nibble) {
+        int i = idx >> 1;
+        if ((idx & 1) == 0) {
+            array[i] = (byte) (array[i] & 0xF0 | nibble & 0x0F);
+        } else {
+            array[i] = (byte) (array[i] & 0x0F | nibble << 4 & 0xF0);
+        }
     }
 
     /**
@@ -172,5 +195,52 @@ public class NibbleArray {
         for (int i = 0; i < this.nibbles.length(); i++) {
             this.nibbles.set(i, splice);
         }
+    }
+
+    /**
+     * Loads the bytes from the given nibble array into the
+     * long striped splice array.
+     *
+     * @param bytes the bytes to load
+     */
+    public void read(byte[] bytes) {
+        for (int i = 0; i < bytes.length; i++) {
+            byte value = bytes[i];
+            int spliceIndex = i >> 3;
+            long shift = i % BYTES_PER_LONG << 3;
+
+            long newSplice;
+            if ((i & 1) == 0) {
+                long oldSpice = this.nibbles.get(spliceIndex);
+                long newByte = oldSpice >>> shift & 0xF0 | value;
+
+                newSplice = oldSpice & ~(0xFFL << shift) | newByte << shift;
+            } else {
+                long oldSpice = this.nibbles.get(spliceIndex);
+                long newByte = oldSpice >>> shift & 0x0F | value << 4;
+
+                newSplice = oldSpice & ~(0xFFL << shift) | newByte << shift;
+            }
+            this.nibbles.set(spliceIndex, newSplice);
+        }
+    }
+
+    /**
+     * Writes the given byte array with the data stored in
+     * this spliced nibble array.
+     *
+     * @return the data written from this nibble array
+     */
+    public byte[] write() {
+        byte[] bytes = new byte[this.nibbles.length() * BYTES_PER_LONG];
+        for (int i = 0, len = this.nibbles.length(); i < len; i++) {
+            long l = this.nibbles.get(i);
+            for (int shift = 0, offset = 0; shift < 64; shift += 8, offset++) {
+                long shifted = l >> shift;
+                byte b = (byte) (shifted & 0xFF);
+                bytes[i * BYTES_PER_LONG + offset] = b;
+            }
+        }
+        return bytes;
     }
 }

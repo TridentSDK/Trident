@@ -20,6 +20,8 @@ import net.tridentsdk.server.util.Long2ReferenceOpenHashMap;
 
 import javax.annotation.concurrent.GuardedBy;
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.function.Consumer;
 
 /**
  * Map of loaded chunks.
@@ -27,7 +29,7 @@ import java.util.Collection;
  * <p>This class makes concurrency handing easier on the
  * world.</p>
  */
-public class ChunkMap {
+public class ChunkMap implements Iterable<TridentChunk> {
     /**
      * The lock guarding the chunk map
      */
@@ -94,6 +96,20 @@ public class ChunkMap {
     public Collection<TridentChunk> values() {
         synchronized (this.lock) {
             return this.chunks.values();
+        }
+    }
+
+    @Override
+    public Iterator<TridentChunk> iterator() {
+        return this.values().iterator();
+    }
+
+    @Override
+    public void forEach(Consumer<? super TridentChunk> action) {
+        synchronized (this.lock) {
+            for (TridentChunk chunk : this) {
+                action.accept(chunk);
+            }
         }
     }
 }

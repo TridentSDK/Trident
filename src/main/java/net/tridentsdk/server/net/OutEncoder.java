@@ -48,11 +48,7 @@ public class OutEncoder extends MessageToByteEncoder<PacketOut> {
      * Length of an uncompressed packet using the
      * compressed transport.
      */
-    private static final int VINT_LEN = BigInteger.ZERO.toByteArray().length;
-    /**
-     * Obtains the configured compression threshold.
-     */
-    public static final int COMPRESSION_THRESH = TridentServer.cfg().compressionThresh();
+    public static final int VINT_LEN = BigInteger.ZERO.toByteArray().length;
 
     /**
      * The net client which holds this channel handler
@@ -68,34 +64,39 @@ public class OutEncoder extends MessageToByteEncoder<PacketOut> {
     protected void encode(ChannelHandlerContext ctx, PacketOut msg, ByteBuf out) throws Exception {
         // Step 1: Encode packet
         ByteBuf payload = ctx.alloc().buffer();
-        wvint(payload, msg.id());
-        msg.write(payload);
+        try {
+            wvint(payload, msg.id());
+            msg.write(payload);
 
-        // Step 2: Compress if enabled
-        // If not, write headers to new buffer
-        ByteBuf buf = ctx.alloc().buffer();
-        if (this.client.doCompression()) {
-            int len = payload.readableBytes();
-            if (len > COMPRESSION_THRESH) {
-                this.writeDeflated(payload, buf, len);
-            } else {
-                this.writeCompressed(payload, buf);
+            // Step 2: Compress if enabled
+            // If not, write headers to new buffer
+            ByteBuf buf = ctx.alloc().buffer();
+            try {
+                if (this.client.doCompression()) {
+                    int len = payload.readableBytes();
+                    if (len > TridentServer.cfg().compressionThresh()) {
+                        this.writeDeflated(payload, buf, len);
+                    } else {
+                        this.writeCompressed(payload, buf);
+                    }
+                } else {
+                    this.writeUncompressed(payload, buf);
+                }
+
+                // Step 3: Encrypt if enabled
+                // If not, write raw bytes
+                NetCrypto crypto = this.client.getCryptoModule();
+                if (crypto != null) {
+                    crypto.encrypt(buf, out);
+                } else {
+                    out.writeBytes(buf);
+                }
+            } finally {
+                buf.release();
             }
-        } else {
-            this.writeUncompressed(payload, buf);
+        } finally {
+            payload.release();
         }
-
-        // Step 3: Encrypt if enabled
-        // If not, write raw bytes
-        NetCrypto crypto = this.client.getCryptoModule();
-        if (crypto != null) {
-            crypto.encrypt(buf, out);
-        } else {
-            out.writeBytes(buf);
-        }
-
-        payload.release();
-        buf.release();
         LOGGER.debug("SEND: " + msg.getClass().getSimpleName());
     }
 
@@ -161,5 +162,17 @@ public class OutEncoder extends MessageToByteEncoder<PacketOut> {
     private void writeUncompressed(ByteBuf payload, ByteBuf out) {
         wvint(out, payload.readableBytes());
         out.writeBytes(payload);
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        NetClient client = NetClient.get(ctx);
+        if (client != null) {
+            client.disconnect("Server error: " + cause.getMessage());
+        } else {
+            ctx.channel().close().addListener(future -> LOGGER.error(ctx.channel().remoteAddress() + " disconnected due to server error"));
+        }
+
+        throw new RuntimeException(cause);
     }
 }

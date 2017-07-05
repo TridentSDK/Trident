@@ -37,6 +37,7 @@ import net.tridentsdk.server.util.Debug;
 import net.tridentsdk.server.util.JiraExceptionCatcher;
 import net.tridentsdk.server.world.TridentWorldLoader;
 import net.tridentsdk.ui.chat.ChatComponent;
+import net.tridentsdk.world.World;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.io.IOException;
@@ -187,8 +188,11 @@ public class TridentServer implements Server {
         this.logger.warn("SERVER RELOADING...");
 
         try {
-            this.logger.log("Reloading server config...");
+            this.logger.log("Reloading server configs...");
             this.config.save();
+            this.opsList.save();
+            this.config.load();
+            this.opsList.load();
             this.logger.log("Reloading plugins...");
             this.pluginLoader.reload();
         } catch (IOException e) {
@@ -211,6 +215,10 @@ public class TridentServer implements Server {
             this.logger.log("Unloading plugins...");
             if (!this.pluginLoader.unloadAll()) {
                 this.logger.error("Unloading plugins failed...");
+            }
+            for (World world : TridentWorldLoader.getInstance().getWorlds().values()) {
+                this.logger.log("Saving world \"" + world.getName() + "\"...");
+                world.save();
             }
             this.logger.log("Saving server config...");
             this.config.save();

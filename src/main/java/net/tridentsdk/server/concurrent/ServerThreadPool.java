@@ -97,7 +97,7 @@ public class ServerThreadPool implements Executor {
      * Attempts to shutdown the thread pool immediately.
      */
     public void shutdown() {
-        this.delegate.shutdownNow();
+        this.delegate.shutdown();
     }
 
     public <T> Future<T> submit(Callable<T> task) {

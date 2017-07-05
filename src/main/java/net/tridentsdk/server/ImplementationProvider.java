@@ -180,6 +180,10 @@ public class ImplementationProvider implements Impl.ImplementationProvider {
 
     @Override
     public PluginChannel open(String name, Player... targets) {
+        if (name.length() > 20) {
+            throw new IllegalArgumentException("Cannot have channel name > 20");
+        }
+
         PluginChannel channel = TridentPluginChannel.getChannel(name, TridentPluginChannel::new);
         channel.addRecipient(targets);
 
@@ -188,6 +192,10 @@ public class ImplementationProvider implements Impl.ImplementationProvider {
 
     @Override
     public PluginChannel open(String name, Collection<? extends Player> players) {
+        if (name.length() > 20) {
+            throw new IllegalArgumentException("Cannot have channel name > 20");
+        }
+
         PluginChannel channel = TridentPluginChannel.getChannel(name, TridentPluginChannel::new);
         channel.addRecipient(players);
 
@@ -196,11 +204,19 @@ public class ImplementationProvider implements Impl.ImplementationProvider {
 
     @Override
     public PluginChannel openAll(String name) {
+        if (name.length() > 20) {
+            throw new IllegalArgumentException("Cannot have channel name > 20");
+        }
+
         return TridentPluginChannel.getChannel(name, TridentPluginAllChannel::new);
     }
 
     @Override
     public PluginChannel tryOpen(String name) {
+        if (name.length() > 20) {
+            throw new IllegalArgumentException("Cannot have channel name > 20");
+        }
+
         Map.Entry<String, Player> entry = TridentPlayer.getPlayerNames().firstEntry();
         if (entry == null) {
             return null;

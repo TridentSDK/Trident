@@ -39,6 +39,7 @@ import net.tridentsdk.server.ui.bossbar.AbstractBossBar;
 import net.tridentsdk.server.ui.tablist.TabListElement;
 import net.tridentsdk.server.ui.tablist.TridentGlobalTabList;
 import net.tridentsdk.server.ui.tablist.TridentTabList;
+import net.tridentsdk.server.world.TridentChunk;
 import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.ui.bossbar.BossBar;
 import net.tridentsdk.ui.chat.ChatColor;
@@ -269,17 +270,21 @@ public class TridentPlayer extends TridentEntity implements Player {
 
         ServerThreadPool.forSpec(PoolSpec.PLUGINS).execute(() ->
                 TridentServer.getInstance().getEventController().dispatch(new PlayerJoinEvent(player)));
+        world.getWorldOptions().getSpawn().vecWrite(player.getPosition());
 
-        Position playerPosition = player.getPosition();
-        playerPosition.setY(4);
+        CompletableFuture<TridentChunk> done = CompletableFuture.completedFuture(null);
+        Position pos = player.getPosition();
+        int initialChunkRadius = 3;
+        for (int x = pos.getChunkX() - initialChunkRadius; x <= pos.getChunkX() + initialChunkRadius; x++) {
+            for (int z = pos.getChunkZ() - initialChunkRadius; z <= pos.getChunkZ() + initialChunkRadius; z++) {
+                int finalX = x;
+                int finalZ = z;
+                done.thenApplyAsync(chunk -> player.getWorld().getChunkAt(finalX, finalZ), player.pool)
+                        .thenAcceptAsync(chunk -> player.net().sendPacket(new PlayOutChunk(chunk)), player.pool);
+            }
+        }
 
-        client.sendPacket(new PlayOutJoinGame(player, world));
-        client.sendPacket(PlayOutPluginMsg.BRAND);
-        TridentPluginChannel.autoAdd(player);
-        client.sendPacket(new PlayOutDifficulty(world));
-        client.sendPacket(new PlayOutSpawnPos());
-        client.sendPacket(new PlayOutPosLook(player));
-        client.sendPacket(new PlayOutPlayerAbilities(player));
+        player.resumeLogin();
 
         return player;
     }
@@ -292,6 +297,14 @@ public class TridentPlayer extends TridentEntity implements Player {
         if (!this.finishedLogin.compareAndSet(false, true)) {
             return;
         }
+
+        this.client.sendPacket(new PlayOutJoinGame(this, this.getWorld()));
+        this.client.sendPacket(PlayOutPluginMsg.BRAND);
+        TridentPluginChannel.autoAdd(this);
+        this.client.sendPacket(new PlayOutDifficulty(this.getWorld()));
+        this.client.sendPacket(new PlayOutSpawnPos());
+        this.client.sendPacket(new PlayOutPosLook(this));
+        this.client.sendPacket(new PlayOutPlayerAbilities(this));
 
         this.setTabList(TridentGlobalTabList.getInstance());
         TridentGlobalTabList.getInstance().update();
@@ -322,18 +335,6 @@ public class TridentPlayer extends TridentEntity implements Player {
                     PlayOutSpawnPlayer oldPlayerPacket = new PlayOutSpawnPlayer(p);
                     this.client.sendPacket(oldPlayerPacket);
                 });
-
-        Position pos = this.getPosition();
-        int initialChunkRadius = 3;
-        for (int x = pos.getChunkX() - initialChunkRadius; x <= pos.getChunkX() + initialChunkRadius; x++) {
-            for (int z = pos.getChunkZ() - initialChunkRadius; z <= pos.getChunkZ() + initialChunkRadius; z++) {
-                int finalX = x;
-                int finalZ = z;
-                CompletableFuture
-                        .supplyAsync(() -> this.getWorld().getChunkAt(finalX, finalZ), this.pool)
-                        .thenAcceptAsync(chunk -> this.client.sendPacket(new PlayOutChunk(chunk)), this.pool);
-            }
-        }
     }
 
     /**
@@ -373,7 +374,6 @@ public class TridentPlayer extends TridentEntity implements Player {
                 .setTranslate("multiplayer.player.left")
                 .addWith(this.name);
         TridentPlayer.players.values().forEach(e -> e.sendMessage(chat, ChatType.CHAT));
-        TridentServer.getInstance().getLogger().log("Player " + this.name + " [" + this.uuid + "] has disconnected");
     }
 
     @Override
@@ -620,8 +620,9 @@ public class TridentPlayer extends TridentEntity implements Player {
         this.pool.execute(() ->
                 this.chunkSentTime.keySet().iterator().forEachRemaining(chunk -> {
                     if(Math.abs(chunk.getX() - this.position.getChunkX()) > radius
-                            || Math.abs(chunk.getZ()) - this.position.getChunkZ() > radius){
+                            || Math.abs(chunk.getZ() - this.position.getChunkZ()) > radius){
                         this.chunkSentTime.remove(chunk);
+                        this.net().sendPacket(new PlayOutUnloadChunk(chunk.getX(), chunk.getZ()));
                     }
                 }));
 

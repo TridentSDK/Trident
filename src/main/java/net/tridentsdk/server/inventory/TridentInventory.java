@@ -243,7 +243,7 @@ public class TridentInventory implements Inventory {
         }
 
         if (slot < 0 || slot >= this.size) {
-            throw new IllegalArgumentException("Illegal slot");
+            throw new IllegalArgumentException("Illegal slot " + slot);
         }
 
         Item computed = this.contents.compute(slot, (k, v) -> {
@@ -268,7 +268,7 @@ public class TridentInventory implements Inventory {
     @Override
     public Item get(int slot) {
         if (slot < 0 || slot >= this.size) {
-            throw new IllegalArgumentException("Illegal slot");
+            throw new IllegalArgumentException("Illegal slot " + slot);
         }
 
         Item item = this.contents.get(slot);

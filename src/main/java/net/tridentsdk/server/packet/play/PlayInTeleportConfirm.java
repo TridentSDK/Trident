@@ -19,7 +19,7 @@ package net.tridentsdk.server.packet.play;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.packet.PacketIn;
-import net.tridentsdk.util.Cache;
+import net.tridentsdk.server.util.Cache;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;

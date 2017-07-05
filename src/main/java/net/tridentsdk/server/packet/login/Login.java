@@ -19,7 +19,7 @@ package net.tridentsdk.server.packet.login;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.player.TridentPlayer;
-import net.tridentsdk.util.Cache;
+import net.tridentsdk.server.util.Cache;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.UUID;

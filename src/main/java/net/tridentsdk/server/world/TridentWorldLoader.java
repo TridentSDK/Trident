@@ -97,6 +97,7 @@ public class TridentWorldLoader implements WorldLoader {
                     Path levelDat = dir.resolve("level.dat");
                     if (Files.exists(levelDat)) {
                         TridentWorldLoader.this.load(dir.getFileName().toString(), dir);
+                        return FileVisitResult.SKIP_SUBTREE;
                     }
 
                     return FileVisitResult.CONTINUE;
@@ -124,8 +125,8 @@ public class TridentWorldLoader implements WorldLoader {
     private TridentWorld load(String name, Path enclosing) {
         Logger.get(this.getClass()).log("Loading world \"" + name + "\"...");
         TridentWorld world = new TridentWorld(name, enclosing);
-
         world.load();
+
         this.worlds.put(name, world);
         Logger.get(this.getClass()).log("Finished loading \"" + name + "\".");
 
@@ -181,7 +182,6 @@ public class TridentWorldLoader implements WorldLoader {
             Logger.get(this.getClass()).log("Creating world \"" + name + "\"...");
             TridentWorld world = new TridentWorld(name, Misc.HOME_PATH.resolve(name), spec);
             world.save();
-            this.worlds.put(name, world);
             Logger.get(this.getClass()).log("Finished creating \"" + name + "\".");
             return world;
         });
@@ -190,7 +190,7 @@ public class TridentWorldLoader implements WorldLoader {
     @Override
     public boolean delete(World world) {
         if (this.worlds.remove(world.getName()) != null) {
-            Path path = world.getWorldDirectory();
+            Path path = world.getDirectory();
             try {
                 Files.walkFileTree(path, DELETE_FILES);
             } catch (IOException e) {

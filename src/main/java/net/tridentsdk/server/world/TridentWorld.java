@@ -16,6 +16,7 @@
  */
 package net.tridentsdk.server.world;
 
+import lombok.Getter;
 import net.tridentsdk.base.Block;
 import net.tridentsdk.base.ImmutableWorldVector;
 import net.tridentsdk.base.Position;
@@ -23,11 +24,13 @@ import net.tridentsdk.meta.nbt.Tag;
 import net.tridentsdk.server.concurrent.PoolSpec;
 import net.tridentsdk.server.concurrent.ServerThreadPool;
 import net.tridentsdk.server.world.opt.GenOptImpl;
+import net.tridentsdk.server.world.opt.WeatherImpl;
+import net.tridentsdk.server.world.opt.WorldBorderImpl;
 import net.tridentsdk.server.world.opt.WorldOptImpl;
 import net.tridentsdk.world.Chunk;
 import net.tridentsdk.world.IntPair;
 import net.tridentsdk.world.World;
-import net.tridentsdk.world.opt.*;
+import net.tridentsdk.world.opt.WorldCreateSpec;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -37,12 +40,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 /**
- * Implementation class for
- * {@link World}.
+ * Implementation class for {@link World}.
  */
 @ThreadSafe
 public class TridentWorld implements World {
@@ -68,19 +71,41 @@ public class TridentWorld implements World {
     /**
      * Name of the world
      */
+    @Getter
     private final String name;
     /**
      * The enclosing folder of the world directory
      */
-    private final Path dir;
+    @Getter
+    private final Path directory;
     /**
      * The implementation world options
      */
-    private final WorldOptImpl worldOpts;
+    @Getter
+    private final WorldOptImpl worldOptions;
     /**
      * The implementation generator options
      */
-    private final GenOptImpl genOpts;
+    @Getter
+    private final GenOptImpl generatorOptions;
+    /**
+     * The implementation of the world border
+     */
+    @Getter
+    private final WorldBorderImpl border = new WorldBorderImpl(this);
+    /**
+     * The implementation of the world's current weather
+     */
+    @Getter
+    private final WeatherImpl weather = new WeatherImpl(this);
+
+    /**
+     * The current world time, in ticks.
+     *
+     * <p>One day/night cycle = 20 min * 60 sec/min * 20 TPS
+     * = 2400 ticks total then resets.</p>
+     */
+    private final AtomicInteger time = new AtomicInteger();
 
     /**
      * Creates a new world with the given name, folder, and
@@ -90,11 +115,11 @@ public class TridentWorld implements World {
      */
     public TridentWorld(String name, Path enclosing, WorldCreateSpec spec) {
         this.name = name;
-        this.dir = enclosing;
+        this.directory = enclosing;
         // this is only ok because we aren't passing the
         // instance to another thread viewable object
-        this.worldOpts = new WorldOptImpl(this, spec);
-        this.genOpts = spec.isDefault() ? new GenOptImpl() : new GenOptImpl(spec);
+        this.worldOptions = new WorldOptImpl(this, spec);
+        this.generatorOptions = spec.isDefault() ? new GenOptImpl() : new GenOptImpl(spec);
     }
 
     /**
@@ -105,11 +130,11 @@ public class TridentWorld implements World {
      */
     public TridentWorld(String name, Path enclosing) {
         this.name = name;
-        this.dir = enclosing;
+        this.directory = enclosing;
         // this is only ok because we aren't passing the
         // instance to another thread viewable object
-        this.worldOpts = new WorldOptImpl(this, WorldCreateSpec.getDefaultOptions());
-        this.genOpts = new GenOptImpl();
+        this.worldOptions = new WorldOptImpl(this, WorldCreateSpec.getDefaultOptions());
+        this.generatorOptions = new GenOptImpl();
     }
 
     /**
@@ -122,36 +147,13 @@ public class TridentWorld implements World {
 
     // Ticking implementation
     private void doTick() {
-    }
-
-    @Override
-    public String getName() {
-        return this.name;
+        this.time.incrementAndGet();
+        this.chunks.forEach(TridentChunk::tick);
     }
 
     @Override
     public int getTime() {
-        return 0;
-    }
-
-    @Override
-    public WorldOpts getWorldOptions() {
-        return this.worldOpts;
-    }
-
-    @Override
-    public Weather getWeather() {
-        return null;
-    }
-
-    @Override
-    public GenOpts getGeneratorOptions() {
-        return this.genOpts;
-    }
-
-    @Override
-    public WorldBorder getBorder() {
-        return null;
+        return this.time.get();
     }
 
     @Nonnull
@@ -190,11 +192,6 @@ public class TridentWorld implements World {
         return new TridentBlock(pos.toWorldVector());
     }
 
-    @Override
-    public Path getWorldDirectory() {
-        return this.dir;
-    }
-
     // TODO ------------------------------------------------
 
     /**
@@ -202,12 +199,12 @@ public class TridentWorld implements World {
      * loads the appropriate spawn chunks.
      */
     public void load() {
-        try (GZIPInputStream stream = new GZIPInputStream(new FileInputStream(this.dir.resolve("level.dat").toFile()))) {
+        try (GZIPInputStream stream = new GZIPInputStream(new FileInputStream(this.directory.resolve("level.dat").toFile()))) {
             Tag.Compound root = Tag.decode(new DataInputStream(stream));
             Tag.Compound compound = root.getCompound("Data");
 
-            this.worldOpts.load(compound);
-            this.genOpts.load(compound);
+            this.worldOptions.load(compound);
+            this.generatorOptions.load(compound);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -215,26 +212,45 @@ public class TridentWorld implements World {
 
     @Override
     public void save() {
-        Path level = this.dir.resolve("level.dat");
+        Path level = this.directory.resolve("level.dat");
+        Path regionDir = this.directory.resolve("region");
         try {
-            if (!Files.exists(this.dir)) {
-                Files.createDirectory(this.dir);
+            if (!Files.exists(this.directory)) {
+                Files.createDirectory(this.directory);
             }
 
             if (!Files.exists(level)) {
                 Files.createFile(level);
             }
 
-            Tag.Compound root = new Tag.Compound("");
-            Tag.Compound compound = new Tag.Compound("Data");
-            root.putCompound(compound);
+            if (!Files.exists(regionDir)) {
+                Files.createDirectory(regionDir);
+            }
 
-            this.worldOpts.save(compound);
-            this.genOpts.save(compound);
+            Tag.Compound worldRoot = new Tag.Compound("");
+            Tag.Compound worldData = new Tag.Compound("Data");
+            worldRoot.putCompound(worldData);
+
+            this.worldOptions.save(worldData);
+            this.generatorOptions.save(worldData);
 
             try (GZIPOutputStream stream = new GZIPOutputStream(new FileOutputStream(level.toFile()))) {
-                root.write(new DataOutputStream(stream));
+                worldRoot.write(new DataOutputStream(stream));
             }
+
+            this.chunks.forEach(c -> {
+                Region region = Region.getFile(c, true);
+                try (DataOutputStream out = region.getChunkDataOutputStream(c.getX() & 31, c.getZ() & 31)) {
+                    Tag.Compound rootChunk = new Tag.Compound("");
+                    Tag.Compound chunkData = new Tag.Compound("Level");
+                    c.write(chunkData);
+                    rootChunk.putCompound(chunkData);
+                    rootChunk.write(out);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    throw new RuntimeException(e);
+                }
+            });
         } catch (IOException e) {
             e.printStackTrace();
         }

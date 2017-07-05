@@ -64,14 +64,6 @@ public class OpsList extends TridentConfig {
     public static OpsList init() throws IOException {
         OpsList list = new OpsList();
         list.load();
-
-        if (list.hasKey(OPS_KEY)) {
-            list.getCollection("ops", list.getOps());
-        } else {
-            list.set("ops", list.getOps());
-            list.save();
-        }
-
         return list;
     }
 
@@ -107,5 +99,16 @@ public class OpsList extends TridentConfig {
         }
         TridentServer.getInstance().getLogger().log(TridentPlayer.getPlayers().get(uuid).getName() +
                 " [" + uuid + "] has been deopped");
+    }
+
+    @Override
+    public void load() throws IOException {
+        super.load();
+        if (this.hasKey(OPS_KEY)) {
+            this.getCollection("ops", this.ops);
+        } else {
+            this.set("ops", this.ops);
+            this.save();
+        }
     }
 }

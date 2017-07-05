@@ -56,7 +56,7 @@ public class WorldOptImpl implements WorldOpts {
     @Setter
     private volatile int spawnProtectionRadius = 5;
     @Setter
-    private volatile Vector spawn = new Vector(0, 4, 0);
+    private volatile Vector spawn = new Vector(0, 64, 0);
     private final GameRuleMap gameRules = new GameRuleMap();
 
     private final TridentWorld world;

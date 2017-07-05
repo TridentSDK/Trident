@@ -1,6 +1,8 @@
 package net.tridentsdk.server.packet.play;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.inventory.Item;
+import net.tridentsdk.server.inventory.TridentPlayerInventory;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.net.Slot;
 import net.tridentsdk.server.packet.PacketIn;
@@ -22,11 +24,17 @@ public class PlayInCreativeInventoryAction extends PacketIn {
         int slot = buf.readShort();
         Slot item = Slot.read(buf);
 
-        System.out.println(item);
+        TridentPlayerInventory inventory = client.getPlayer().getInventory();
+        if (slot == -1) {
+            Item drop = item.toItem();
+            // TODO drop it
+            return;
+        }
+
         if (item.getId() == -1) {
-            // TODO drop item
+            inventory.remove(slot, Integer.MAX_VALUE);
         } else {
-            client.getPlayer().getInventory().add(slot, item.toItem(), item.getCount());
+            inventory.add(slot, item.toItem(), item.getCount());
         }
     }
 }

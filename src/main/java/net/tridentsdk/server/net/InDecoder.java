@@ -18,14 +18,18 @@ package net.tridentsdk.server.net;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.ByteToMessageDecoder;
+import io.netty.handler.codec.ReplayingDecoder;
 import net.tridentsdk.logger.Logger;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.packet.Packet;
 import net.tridentsdk.server.packet.PacketIn;
 import net.tridentsdk.server.packet.PacketRegistry;
+import net.tridentsdk.server.packet.play.PlayOutChat;
+import net.tridentsdk.ui.chat.ChatComponent;
+import net.tridentsdk.ui.chat.ChatType;
 
 import javax.annotation.concurrent.ThreadSafe;
+import java.math.BigInteger;
 import java.util.List;
 import java.util.zip.Inflater;
 
@@ -37,19 +41,11 @@ import static net.tridentsdk.server.net.NetData.rvint;
  * packets are read and decompressed through this decoder.
  */
 @ThreadSafe
-public class InDecoder extends ByteToMessageDecoder {
+public class InDecoder extends ReplayingDecoder<Void> {
     /**
      * The logger used for debugging packets
      */
     private static final Logger LOGGER = Logger.get(InDecoder.class);
-    /**
-     * The packet inflater used for uncompressing packets
-     */
-    private static final ThreadLocal<Inflater> INFLATER = ThreadLocal.withInitial(Inflater::new);
-    /**
-     * Obtains the configured compression threshold.
-     */
-    public static final int COMPRESSION_THRESH = TridentServer.cfg().compressionThresh();
 
     /**
      * The net client which holds this channel handler
@@ -70,8 +66,8 @@ public class InDecoder extends ByteToMessageDecoder {
     protected void decode(ChannelHandlerContext ctx, ByteBuf buf, List<Object> list) throws Exception {
         // Step 1: Decrypt if enabled
         // If not, use the raw buffer
-        NetCrypto crypto = this.client.getCryptoModule();
         ByteBuf decrypt = buf;
+        NetCrypto crypto = this.client.getCryptoModule();
         if (crypto != null) {
             decrypt = ctx.alloc().buffer();
             crypto.decrypt(buf, decrypt);
@@ -79,16 +75,20 @@ public class InDecoder extends ByteToMessageDecoder {
 
         // Step 2: Decompress if enabled
         // If not, compressed, use raw buffer
-        // Toss appropriate header fields
-        ByteBuf decompressed = decrypt;
+        int fullLen = rvint(decrypt);
+        ByteBuf decompressed;
         if (this.client.doCompression()) {
-            rvint(decrypt); // toss full packet length
-            int compressedLen = rvint(decrypt);
-            if (compressedLen > COMPRESSION_THRESH) {
-                decompressed = ctx.alloc().buffer();
-                byte[] in = arr(decrypt);
+            int uncompressed = rvint(decrypt);
+            if (uncompressed != 0) {
+                if (uncompressed < TridentServer.cfg().compressionThresh()) {
+                    this.client.disconnect("Incorrect compression header");
+                    return;
+                }
 
-                Inflater inflater = INFLATER.get();
+                decompressed = ctx.alloc().buffer();
+                byte[] in = arr(decrypt, fullLen - BigInteger.valueOf(uncompressed).toByteArray().length);
+
+                Inflater inflater = new Inflater();
                 inflater.setInput(in);
 
                 byte[] buffer = new byte[NetClient.BUFFER_SIZE];
@@ -96,29 +96,41 @@ public class InDecoder extends ByteToMessageDecoder {
                     int bytes = inflater.inflate(buffer);
                     decompressed.writeBytes(buffer, 0, bytes);
                 }
-
-                inflater.reset();
+            } else {
+                decompressed = decrypt.readBytes(fullLen - OutEncoder.VINT_LEN);
             }
         } else {
-            rvint(decompressed); // toss full packet length
+            decompressed = decrypt.readBytes(fullLen);
         }
 
-        // Step 3: Decode packet
-        int id = rvint(decompressed);
+        try {
+            // Step 3: Decode packet
+            int id = rvint(decompressed);
 
-        Class<? extends Packet> cls = PacketRegistry.byId(this.client.getState(), Packet.Bound.SERVER, id);
-        PacketIn packet = PacketRegistry.make(cls);
+            Class<? extends Packet> cls = PacketRegistry.byId(this.client.getState(), Packet.Bound.SERVER, id);
+            PacketIn packet = PacketRegistry.make(cls);
 
-        LOGGER.debug("RECV: " + packet.getClass().getSimpleName());
-        packet.read(decompressed, this.client);
-
-        // If we created a new buffer, release it here
-        if (decompressed != decrypt) {
+            LOGGER.debug("RECV: " + packet.getClass().getSimpleName());
+            packet.read(decompressed, this.client);
+        } finally {
             decompressed.release();
+
+            // If we created a new buffer, release it here
+            if (decrypt != buf) {
+                decrypt.release();
+            }
+        }
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        NetClient client = NetClient.get(ctx);
+        if (client != null) {
+            client.sendPacket(new PlayOutChat(ChatComponent.create().setText("Server error: " + cause.getMessage()), ChatType.SYSTEM, true));
+        } else {
+            ctx.channel().close().addListener(future -> LOGGER.error(ctx.channel().remoteAddress() + " disconnected due to server error"));
         }
 
-        if (decrypt != buf) {
-            decrypt.release();
-        }
+        throw new RuntimeException(cause);
     }
 }

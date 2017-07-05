@@ -283,15 +283,19 @@ public class NetClient {
 
             NetClient.NetState state = this.state;
             if (state == NetClient.NetState.LOGIN) {
-                this.sendPacket(new LoginOutDisconnect(reason))
-                        .addListener(future -> this.channel.close());
+                this.sendPacket(new LoginOutDisconnect(reason)).addListener(future -> {
+                    this.channel.close();
+                    TridentServer.getInstance().getLogger().log("Player " + this.name + " has disconnected");
+                });
             } else if (state == NetClient.NetState.PLAY) {
                 if (player != null) {
-                    this.sendPacket(new PlayOutDisconnect(reason))
-                            .addListener(future -> this.channel.close());
-                    player.remove();
+                    this.sendPacket(new PlayOutDisconnect(reason)).addListener(future -> {
+                        this.channel.close();
+                        player.remove();
+                        TridentServer.getInstance().getLogger().log("Player " + this.name + " [" + player.getUuid() + "] has disconnected");
+                    });
                 }
-            } else {
+            } else if (state == NetState.STATUS) {
                 this.channel.close();
             }
 
