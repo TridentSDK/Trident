@@ -19,10 +19,14 @@ package net.tridentsdk.server.world;
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import net.tridentsdk.base.Block;
-import net.tridentsdk.base.ImmutableWorldVector;
+import net.tridentsdk.base.Position;
+import net.tridentsdk.entity.Entity;
+import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.meta.nbt.Tag;
 import net.tridentsdk.server.concurrent.PoolSpec;
 import net.tridentsdk.server.concurrent.ServerThreadPool;
+import net.tridentsdk.server.entity.TridentEntity;
+import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.util.UncheckedCdl;
 import net.tridentsdk.server.world.gen.GeneratorContextImpl;
 import net.tridentsdk.world.Chunk;
@@ -34,12 +38,15 @@ import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicIntegerArray;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.concurrent.atomic.LongAdder;
+import java.util.stream.Stream;
 
 import static net.tridentsdk.server.net.NetData.wvint;
 
@@ -101,6 +108,22 @@ public class TridentChunk implements Chunk {
     private final LongAdder inhabited = new LongAdder();
 
     /**
+     * The players that currently occupy this chunk
+     */
+    @Getter
+    private final Set<TridentPlayer> occupants = Collections.newSetFromMap(new ConcurrentHashMap<>());
+    /**
+     * The players that have this chunk loaded
+     */
+    @Getter
+    private final Set<TridentPlayer> holders = Collections.newSetFromMap(new ConcurrentHashMap<>());
+    /**
+     * The entities in this chunk
+     */
+    @Getter
+    private final Set<TridentEntity> entitySet = Collections.newSetFromMap(new ConcurrentHashMap<>());
+
+    /**
      * Creates a new chunk at the specified coordinates.
      *
      * @param world the world which contains this chunk
@@ -124,7 +147,7 @@ public class TridentChunk implements Chunk {
      * entities, stateful blocks, and entities.
      */
     public void tick() {
-        // this.inhabited.add(this.players.size());
+        this.inhabited.add(this.occupants.size());
     }
 
     /**
@@ -285,7 +308,17 @@ public class TridentChunk implements Chunk {
     @Nonnull
     @Override
     public Block getBlockAt(int x, int y, int z) {
-        return new TridentBlock(new ImmutableWorldVector(this.world, this.x << 4 + x, y, this.z << 4 + z));
+        return new TridentBlock(new Position(this.world, this.x << 4 + x, y, this.z << 4 + z));
+    }
+
+    @Override
+    public Set<? extends Player> getPlayers() {
+        return Collections.unmodifiableSet(this.occupants);
+    }
+
+    @Override
+    public Stream<? extends Entity> getEntities() {
+        return Stream.concat(this.occupants.stream(), this.entitySet.stream());
     }
 
     /**

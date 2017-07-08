@@ -17,7 +17,9 @@
 package net.tridentsdk.server.packet.play;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.base.Position;
 import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.server.entity.meta.TridentEntityMeta;
 import net.tridentsdk.server.packet.PacketOut;
 
 import javax.annotation.concurrent.Immutable;
@@ -41,17 +43,15 @@ public final class PlayOutSpawnPlayer extends PacketOut {
         buf.writeLong(this.player.getUuid().getMostSignificantBits());
         buf.writeLong(this.player.getUuid().getLeastSignificantBits());
 
-        buf.writeDouble(this.player.getPosition().getX());
-        buf.writeDouble(this.player.getPosition().getY());
-        buf.writeDouble(this.player.getPosition().getZ());
+        Position pos = this.player.getPosition();
+        buf.writeDouble(pos.getX());
+        buf.writeDouble(pos.getY());
+        buf.writeDouble(pos.getZ());
 
-        buf.writeByte((byte) ((this.player.getPosition().getYaw()) % 360 * (256d / 360d)));
-        buf.writeByte((int) (byte) this.player.getPosition().getPitch());
+        buf.writeByte((byte) (pos.getYaw() % 360 * (256d / 360d)));
+        buf.writeByte((int) (byte) pos.getPitch());
 
-        buf.writeByte(7);
-        buf.writeByte(2);
-        buf.writeFloat(20f);
-        buf.writeByte(0xFF);
+        ((TridentEntityMeta) this.player.getMetadata()).getMetadata().write(buf);
     }
 
 }

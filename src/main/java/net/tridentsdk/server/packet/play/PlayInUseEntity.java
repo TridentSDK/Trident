@@ -17,40 +17,39 @@
 package net.tridentsdk.server.packet.play;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.inventory.Item;
-import net.tridentsdk.server.inventory.TridentPlayerInventory;
 import net.tridentsdk.server.net.NetClient;
-import net.tridentsdk.server.net.Slot;
 import net.tridentsdk.server.packet.PacketIn;
 
 import javax.annotation.concurrent.Immutable;
 
+import static net.tridentsdk.server.net.NetData.rvint;
+
 /**
- * Sent by the client whenever an inventory action occurs
- * in creative mode.
+ * Sent by the client to the server whenever a player
+ * interacts with an entity.
  */
 @Immutable
-public class PlayInCreativeInventoryAction extends PacketIn {
-    public PlayInCreativeInventoryAction() {
-        super(PlayInCreativeInventoryAction.class);
+public class PlayInUseEntity extends PacketIn {
+    public PlayInUseEntity() {
+        super(PlayInUseEntity.class);
     }
 
     @Override
     public void read(ByteBuf buf, NetClient client) {
-        int slot = buf.readShort();
-        Slot item = Slot.read(buf);
-
-        TridentPlayerInventory inventory = client.getPlayer().getInventory();
-        if (slot == -1) {
-            Item drop = item.toItem();
-            // TODO drop it
-            return;
+        int target = rvint(buf); // eid I think
+        int type = rvint(buf); // 0=interact 1=attack 2=inat
+        float x = Float.NaN;
+        float y = Float.NaN;
+        float z = Float.NaN;
+        int hand = -1;
+        if (type == 2) {
+            x = buf.readFloat();
+            y = buf.readFloat();
+            z = buf.readFloat();
         }
 
-        if (item.getId() == -1) {
-            inventory.remove(slot, Integer.MAX_VALUE);
-        } else {
-            inventory.add(slot, item.toItem(), item.getCount());
+        if (type == 0 || type == 2) {
+            hand = rvint(buf); // 0=main
         }
     }
 }

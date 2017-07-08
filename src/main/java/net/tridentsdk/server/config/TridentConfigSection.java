@@ -83,7 +83,7 @@ public class TridentConfigSection implements ConfigSection {
             // special handling for json objects which are
             // config sections
             if (value.isJsonObject()) {
-                TridentConfigSection section = this.createChild0(key, object);
+                TridentConfigSection section = this.createChild0(key);
                 section.read(value.getAsJsonObject());
             } else {
                 this.elements.put(key, ConfigIo.asObj(value, TridentAdapter.class));
@@ -139,7 +139,12 @@ public class TridentConfigSection implements ConfigSection {
         TridentConfigSection section = this;
         if (split.length > 0) {
             for (String aSplit : split) {
-                section = section.createChild0(aSplit, null);
+                TridentConfigSection child = section.getChild(aSplit);
+                if (child != null) {
+                    section = child;
+                    continue;
+                }
+                section = section.createChild0(aSplit);
             }
         }
 
@@ -148,7 +153,7 @@ public class TridentConfigSection implements ConfigSection {
 
     @Nonnull
     @Override
-    public ConfigSection getChild(String key) {
+    public TridentConfigSection getChild(String key) {
         return this.findSection(key.split(SECTION_SEPARATOR), false);
     }
 
@@ -393,12 +398,9 @@ public class TridentConfigSection implements ConfigSection {
      * when we know that the name is not . separated.
      *
      * @param name the name of the new child
-     * @param object the json object that makes the
-     * section,
-     * or {@code null} if it is just created
      * @return the created section
      */
-    private TridentConfigSection createChild0(String name, JsonObject object) {
+    private TridentConfigSection createChild0(String name) {
         TridentConfigSection section = new TridentConfigSection(name, this, this.getRoot());
         this.elements.put(name, section);
         return section;

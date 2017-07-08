@@ -40,7 +40,7 @@ public final class PlayOutEntityLookAndRelativeMove extends PacketOut {
         this.yaw = entity.getPosition().getYaw();
         this.pitch = entity.getPosition().getPitch();
         this.onGround = entity.isOnGround();
-        this.delta = delta.clone().multiply(32, 32, 32).multiply(128, 128, 128);
+        this.delta = delta.multiply(32, 32, 32).multiply(128, 128, 128);
     }
 
     @Override

@@ -24,9 +24,6 @@ import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.packet.Packet;
 import net.tridentsdk.server.packet.PacketIn;
 import net.tridentsdk.server.packet.PacketRegistry;
-import net.tridentsdk.server.packet.play.PlayOutChat;
-import net.tridentsdk.ui.chat.ChatComponent;
-import net.tridentsdk.ui.chat.ChatType;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.math.BigInteger;
@@ -42,6 +39,11 @@ import static net.tridentsdk.server.net.NetData.rvint;
  */
 @ThreadSafe
 public class InDecoder extends ReplayingDecoder<Void> {
+    /**
+     * The per-thread instance of the inflater to use to
+     * decompress packets
+     */
+    private static final ThreadLocal<Inflater> INFLATER = ThreadLocal.withInitial(Inflater::new);
     /**
      * The logger used for debugging packets
      */
@@ -88,7 +90,7 @@ public class InDecoder extends ReplayingDecoder<Void> {
                 decompressed = ctx.alloc().buffer();
                 byte[] in = arr(decrypt, fullLen - BigInteger.valueOf(uncompressed).toByteArray().length);
 
-                Inflater inflater = new Inflater();
+                Inflater inflater = INFLATER.get();
                 inflater.setInput(in);
 
                 byte[] buffer = new byte[NetClient.BUFFER_SIZE];
@@ -96,6 +98,7 @@ public class InDecoder extends ReplayingDecoder<Void> {
                     int bytes = inflater.inflate(buffer);
                     decompressed.writeBytes(buffer, 0, bytes);
                 }
+                inflater.reset();
             } else {
                 decompressed = decrypt.readBytes(fullLen - OutEncoder.VINT_LEN);
             }
@@ -126,7 +129,7 @@ public class InDecoder extends ReplayingDecoder<Void> {
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         NetClient client = NetClient.get(ctx);
         if (client != null) {
-            client.sendPacket(new PlayOutChat(ChatComponent.create().setText("Server error: " + cause.getMessage()), ChatType.SYSTEM, true));
+            client.disconnect("Server error: " + cause.getMessage());
         } else {
             ctx.channel().close().addListener(future -> LOGGER.error(ctx.channel().remoteAddress() + " disconnected due to server error"));
         }

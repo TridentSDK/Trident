@@ -18,7 +18,6 @@ package net.tridentsdk.server.world;
 
 import lombok.Getter;
 import net.tridentsdk.base.Block;
-import net.tridentsdk.base.ImmutableWorldVector;
 import net.tridentsdk.base.Position;
 import net.tridentsdk.base.Substance;
 
@@ -64,20 +63,17 @@ public final class TridentBlock implements Block {
     /**
      * Creates a new block object at the given vector.
      *
-     * @param vector the vector at which the block is
+     * @param position the vector at which the block is
      * located
      */
-    public TridentBlock(ImmutableWorldVector vector) {
-        this.position = new Position(vector.getWorld(),
-                vector.getX(),
-                vector.getY(),
-                vector.getZ());
-        this.world = (TridentWorld) vector.getWorld();
-        this.cX = vector.getX() >> 4;
-        this.cZ = vector.getZ() >> 4;
-        this.relX = vector.getX() & 15;
-        this.relY = vector.getY(); // Unfortunately cannot hoist Y due to breaking in set()
-        this.relZ = vector.getZ() & 15;
+    public TridentBlock(Position position) {
+        this.position = position;
+        this.world = (TridentWorld) position.getWorld();
+        this.cX = position.getIntX() >> 4;
+        this.cZ = position.getIntZ() >> 4;
+        this.relX = position.getIntX() & 15;
+        this.relY = position.getIntY(); // Unfortunately cannot hoist Y due to breaking in set()
+        this.relZ = position.getIntZ() & 15;
     }
 
     @Override

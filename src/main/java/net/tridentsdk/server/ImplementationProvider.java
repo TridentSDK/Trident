@@ -169,7 +169,7 @@ public class ImplementationProvider implements Impl.ImplementationProvider {
             return Collections.singletonMap(top, TridentPlayer.getPlayerNames().get(top));
         }
 
-        return Collections.unmodifiableMap(TridentPlayer.getPlayerNames().subMap(top, true, bot, true));
+        return Collections.unmodifiableMap(TridentPlayer.getPlayerNames().subMap(bot, true, top, true));
     }
 
     @Override

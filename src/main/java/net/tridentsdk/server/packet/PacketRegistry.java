@@ -85,6 +85,7 @@ public final class PacketRegistry {
         put(PlayOutBossBar.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x0C);
         put(PlayOutDifficulty.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x0D);
         put(PlayOutChat.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x0F);
+        put(PlayOutWindowItems.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x14);
         put(PlayOutSlot.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x16);
         put(PlayOutPluginMsg.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x18);
         put(PlayOutDisconnect.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x1A);
@@ -111,6 +112,7 @@ public final class PacketRegistry {
         put(PlayInClientSettings.class, NetClient.NetState.PLAY, Packet.Bound.SERVER, 0x05);
         put(PlayInCloseWindow.class, NetClient.NetState.PLAY, Packet.Bound.SERVER, 0x09);
         put(PlayInPluginMsg.class, NetClient.NetState.PLAY, Packet.Bound.SERVER, 0x0A);
+        put(PlayInUseEntity.class, NetClient.NetState.PLAY, Packet.Bound.SERVER, 0x0B);
         put(PlayInKeepAlive.class, NetClient.NetState.PLAY, Packet.Bound.SERVER, 0x0C);
         put(PlayInPlayer.class, NetClient.NetState.PLAY, Packet.Bound.SERVER, 0x0D);
         put(PlayInPos.class, NetClient.NetState.PLAY, Packet.Bound.SERVER, 0x0E);

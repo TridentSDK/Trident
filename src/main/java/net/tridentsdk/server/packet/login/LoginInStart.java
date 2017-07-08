@@ -39,18 +39,17 @@ public final class LoginInStart extends PacketIn {
 
     @Override
     public void read(ByteBuf buf, NetClient client) {
+        String name = rstr(buf);
+        client.setName(name);
+
         if (!Login.canLogin(client)) {
-            client.disconnect("Server is full");
             return;
         }
 
-        String name = rstr(buf);
         if (name.length() > 16 || !name.matches("[a-zA-Z0-9_]+")) {
             client.disconnect("Invalid name");
             return;
         }
-
-        client.setName(name);
 
         if (TridentServer.cfg().doAuth()) {
             NetCrypto crypto = client.initCrypto();

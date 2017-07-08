@@ -26,6 +26,7 @@ import net.tridentsdk.server.net.Slot;
 import net.tridentsdk.server.packet.PacketOut;
 import net.tridentsdk.server.packet.play.PlayOutOpenWindow;
 import net.tridentsdk.server.packet.play.PlayOutSlot;
+import net.tridentsdk.server.packet.play.PlayOutWindowItems;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.ui.chat.ChatComponent;
 import net.tridentsdk.util.Tuple;
@@ -90,7 +91,6 @@ public class TridentInventory implements Inventory {
      */
     public static void open(TridentInventory inventory, TridentPlayer player) {
         // TODO horse
-        player.net().sendPacket(new PlayOutOpenWindow(inventory, null));
         REGISTERED_WINDOWS.compute(inventory.getId(), (k, v) -> {
             if (v == null) {
                 Set<TridentPlayer> players = Collections.newSetFromMap(new WeakHashMap<>());
@@ -101,6 +101,9 @@ public class TridentInventory implements Inventory {
                 return v;
             }
         });
+
+        player.net().sendPacket(new PlayOutOpenWindow(inventory, null));
+        player.net().sendPacket(new PlayOutWindowItems(inventory));
     }
 
     /**

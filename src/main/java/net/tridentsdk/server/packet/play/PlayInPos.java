@@ -17,7 +17,6 @@
 package net.tridentsdk.server.packet.play;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.base.Position;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.packet.PacketIn;
 import net.tridentsdk.server.player.TridentPlayer;
@@ -42,13 +41,7 @@ public final class PlayInPos extends PacketIn {
         boolean onGround = buf.readBoolean();
 
         TridentPlayer player = client.getPlayer();
-        Position newPosition = player.getPosition().clone();
-
-        newPosition.setX(x);
-        newPosition.setY(feetY);
-        newPosition.setZ(z);
-
-        player.setPosition(newPosition);
+        player.setPosition(player.getPosition().set(x, feetY, z));
         player.setOnGround(onGround);
     }
 }

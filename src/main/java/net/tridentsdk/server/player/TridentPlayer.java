@@ -18,8 +18,6 @@ package net.tridentsdk.server.player;
 
 import lombok.Getter;
 import lombok.Setter;
-import net.tridentsdk.base.BlockDirection;
-import net.tridentsdk.base.Position;
 import net.tridentsdk.command.CmdSourceType;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.player.PlayerJoinEvent;
@@ -32,6 +30,7 @@ import net.tridentsdk.server.entity.meta.EntityMetaType;
 import net.tridentsdk.server.inventory.TridentInventory;
 import net.tridentsdk.server.inventory.TridentPlayerInventory;
 import net.tridentsdk.server.net.NetClient;
+import net.tridentsdk.server.packet.PacketOut;
 import net.tridentsdk.server.packet.login.Login;
 import net.tridentsdk.server.packet.play.*;
 import net.tridentsdk.server.plugin.TridentPluginChannel;
@@ -48,14 +47,17 @@ import net.tridentsdk.ui.chat.ChatType;
 import net.tridentsdk.ui.chat.ClientChatMode;
 import net.tridentsdk.ui.tablist.TabList;
 import net.tridentsdk.ui.title.Title;
-import net.tridentsdk.world.IntPair;
 import net.tridentsdk.world.World;
 import net.tridentsdk.world.opt.GameMode;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 /**
  * This class is the implementation of a Minecraft client
@@ -116,16 +118,9 @@ public class TridentPlayer extends TridentEntity implements Player {
                 return 0; // Otherwise same
             });
 
-    /**
-     * The cache time of a chunk
-     */
-    private static final int CHUNK_CACHE_MILLIS = 1000 * 30; // 30 Seconds
-
-    /**
-     * A map of chunk -> time, storing the last time
-     * the chunk was sent to the client
-     */
-    private final Map<IntPair, Long> chunkSentTime = new ConcurrentHashMap<>();
+    // -----------------------------------------------------
+    // LOGIN HEADERS ---------------------------------------
+    // -----------------------------------------------------
 
     /**
      * The net connection that this player has to the
@@ -158,56 +153,34 @@ public class TridentPlayer extends TridentEntity implements Player {
     @Getter
     private volatile TabListElement.PlayerProperty skinTextures;
     /**
+     * Whether the player has finished logging in
+     */
+    private final AtomicBoolean finishedLogin = new AtomicBoolean(false);
+
+    // -----------------------------------------------------
+    // CHUNKS ----------------------------------------------
+    // -----------------------------------------------------
+
+    /**
      * The player's render distance
      */
     @Getter
     @Setter
     private volatile int renderDistance = 7;
-
-    @Getter
-    @Setter
-    private volatile String locale;
-    @Setter
-    private volatile boolean chatColors;
-    @Setter
-    private volatile ClientChatMode chatMode;
-
     /**
-     * Whether the player has finished logging in
+     * The chunks that are held by this player
      */
-    private final AtomicBoolean finishedLogin = new AtomicBoolean(false);
+    private final Set<TridentChunk> heldChunks = Collections.newSetFromMap(new ConcurrentHashMap<>());
+
+    // -----------------------------------------------------
+    // PLAYER META -----------------------------------------
+    // -----------------------------------------------------
 
     /**
      * The player's meta data
      */
     @Getter
     private final TridentPlayerMeta metadata;
-
-    /**
-     * The player's current tablist
-     */
-    @Getter
-    private volatile TabList tabList;
-    /**
-     * The boss bars that are being displayed to this
-     * player.
-     */
-    private final List<BossBar> bossBars = new CopyOnWriteArrayList<>();
-
-    /**
-     * The collection of permissions held by this player
-     */
-    private final Set<String> permissions = Collections.newSetFromMap(new ConcurrentHashMap<>());
-    /**
-     * The player's inventory
-     */
-    @Getter
-    private final TridentPlayerInventory inventory;
-    /**
-     * Whether or not this player is an operator
-     */
-    @Getter
-    private volatile boolean op;
     /**
      * Whether the player is in god mode
      */
@@ -233,6 +206,56 @@ public class TridentPlayer extends TridentEntity implements Player {
      */
     @Getter
     private volatile float walkingSpeed = Player.DEFAULT_WALKING_SPEED;
+
+    // -----------------------------------------------------
+    // UI SETTINGS -----------------------------------------
+    // -----------------------------------------------------
+
+    /**
+     * The player's current tablist
+     */
+    @Getter
+    private volatile TabList tabList;
+    /**
+     * The boss bars that are being displayed to this
+     * player.
+     */
+    private final List<BossBar> bossBars = new CopyOnWriteArrayList<>();
+    /**
+     * The player's language locale
+     */
+    @Getter
+    @Setter
+    private volatile String locale;
+    /**
+     * Whether or not this client allows chat colors
+     */
+    @Setter
+    private volatile boolean chatColors;
+    /**
+     * The allowed chat filters for this client
+     */
+    @Setter
+    private volatile ClientChatMode chatMode;
+    /**
+     * The player's inventory
+     */
+    @Getter
+    private final TridentPlayerInventory inventory;
+
+    // -----------------------------------------------------
+    // PERMISSIONS -----------------------------------------
+    // -----------------------------------------------------
+
+    /**
+     * The collection of permissions held by this player
+     */
+    private final Set<String> permissions = Collections.newSetFromMap(new ConcurrentHashMap<>());
+    /**
+     * Whether or not this player is an operator
+     */
+    @Getter
+    private volatile boolean op;
 
     /**
      * Constructs a new player.
@@ -270,20 +293,9 @@ public class TridentPlayer extends TridentEntity implements Player {
 
         ServerThreadPool.forSpec(PoolSpec.PLUGINS).execute(() ->
                 TridentServer.getInstance().getEventController().dispatch(new PlayerJoinEvent(player)));
-        world.getWorldOptions().getSpawn().vecWrite(player.getPosition());
+        player.setPosition(world.getWorldOptions().getSpawn().toPosition(world));
 
-        CompletableFuture<TridentChunk> done = CompletableFuture.completedFuture(null);
-        Position pos = player.getPosition();
-        int initialChunkRadius = 3;
-        for (int x = pos.getChunkX() - initialChunkRadius; x <= pos.getChunkX() + initialChunkRadius; x++) {
-            for (int z = pos.getChunkZ() - initialChunkRadius; z <= pos.getChunkZ() + initialChunkRadius; z++) {
-                int finalX = x;
-                int finalZ = z;
-                done.thenApplyAsync(chunk -> player.getWorld().getChunkAt(finalX, finalZ), player.pool)
-                        .thenAcceptAsync(chunk -> player.net().sendPacket(new PlayOutChunk(chunk)), player.pool);
-            }
-        }
-
+        player.updateChunks();
         player.resumeLogin();
 
         return player;
@@ -315,26 +327,19 @@ public class TridentPlayer extends TridentEntity implements Player {
             this.op = true;
         }
 
-        PlayOutSpawnPlayer newPlayerPacket = new PlayOutSpawnPlayer(this);
-        ChatComponent chat = ChatComponent.create()
-                .setColor(ChatColor.YELLOW)
-                .setTranslate("multiplayer.player.joined")
-                .addWith(this.name);
-        this.sendMessage(chat, ChatType.CHAT);
+        PlayOutSpawnPlayer spawnThis = new PlayOutSpawnPlayer(this);
+        ChatComponent chat = ChatComponent.create().setColor(ChatColor.YELLOW).
+                setTranslate("multiplayer.player.joined").
+                addWith(this.name);
+        TridentPlayer.players.values().stream().filter(p -> !p.equals(this)).forEach(p -> {
+            p.sendMessage(chat, ChatType.CHAT);
+            p.net().sendPacket(spawnThis);
+
+            PlayOutSpawnPlayer oldPlayerPacket = new PlayOutSpawnPlayer(p);
+            this.client.sendPacket(oldPlayerPacket);
+        });
 
         TridentServer.getInstance().getLogger().log("Player " + this.name + " [" + this.uuid + "] has connected");
-
-        TridentPlayer.players.values()
-                .stream()
-                .filter(p -> !p.equals(this))
-                .forEach(p -> {
-                    p.sendMessage(chat, ChatType.CHAT);
-
-                    p.net().sendPacket(newPlayerPacket);
-
-                    PlayOutSpawnPlayer oldPlayerPacket = new PlayOutSpawnPlayer(p);
-                    this.client.sendPacket(oldPlayerPacket);
-                });
     }
 
     /**
@@ -352,6 +357,11 @@ public class TridentPlayer extends TridentEntity implements Player {
     }
 
     @Override
+    public PacketOut getSpawnPacket() {
+        return new PlayOutSpawnPlayer(this);
+    }
+
+    @Override
     public void doRemove() {
         TridentPluginChannel.autoRemove(this);
         playerNames.remove(this.name);
@@ -364,16 +374,17 @@ public class TridentPlayer extends TridentEntity implements Player {
 
         this.setTabList(null);
         TridentGlobalTabList.getInstance().update();
-
-        this.client.disconnect(ChatComponent.empty());
-
         TridentInventory.clean();
+        for (TridentChunk chunk : this.heldChunks) {
+            chunk.getHolders().remove(this);
+        }
+        this.heldChunks.clear();
 
-        ChatComponent chat = ChatComponent.create()
-                .setColor(ChatColor.YELLOW)
+        ChatComponent chat = ChatComponent.create().setColor(ChatColor.YELLOW)
                 .setTranslate("multiplayer.player.left")
                 .addWith(this.name);
         TridentPlayer.players.values().forEach(e -> e.sendMessage(chat, ChatType.CHAT));
+        this.client.disconnect(ChatComponent.empty());
     }
 
     @Override
@@ -400,6 +411,7 @@ public class TridentPlayer extends TridentEntity implements Player {
     public void setTabList(TabList tabList) {
         TabList old = this.tabList;
         if (old != null) {
+            // TODO does this need send remove elements packet?
             old.unsubscribe(this);
         }
 
@@ -501,18 +513,6 @@ public class TridentPlayer extends TridentEntity implements Player {
         TridentInventory.open((TridentInventory) inventory, this);
     }
 
-    @Override
-    public void setPosition(Position position) {
-        Position pos = this.getPosition();
-        // TODO this is dumb, needs teleport packet as well
-        if (position.getChunkX() != pos.getChunkX()) {
-            this.updateChunks(position.getChunkX() > pos.getChunkX() ? BlockDirection.EAST : BlockDirection.WEST);
-        } else if (position.getChunkZ() != pos.getChunkZ()) {
-            this.updateChunks(position.getChunkZ() > pos.getChunkZ() ? BlockDirection.SOUTH : BlockDirection.NORTH);
-        }
-        super.setPosition(position);
-    }
-
     /**
      * Sets the texture of this player to a different skin
      * data.
@@ -599,51 +599,39 @@ public class TridentPlayer extends TridentEntity implements Player {
     /**
      * Send an update to the client with the chunks
      * If direction is null, chunks around the player will be sent
-     *
-     * @param direction the direction the player moved or null
      */
-    public void updateChunks(BlockDirection direction) {
+    public void updateChunks() {
         // TODO Improve this algorithm
-        // For example, send chunks closer to the player first
+        TridentWorld world = (TridentWorld) this.getPosition().getWorld();
         int centerX = this.getPosition().getChunkX();
         int centerZ = this.getPosition().getChunkZ();
 
-        int renderDistance = this.renderDistance;
-        int radius = renderDistance / 2;
+        int radius = this.renderDistance;
 
-        if (direction != null) {
-            centerX += direction.getXDiff() * radius;
-            centerZ += direction.getZDiff() * radius;
-        }
-
-        /* Should be 16, but renderDistance has to be divided by 2 */
-        this.pool.execute(() ->
-                this.chunkSentTime.keySet().iterator().forEachRemaining(chunk -> {
-                    if(Math.abs(chunk.getX() - this.position.getChunkX()) > radius
-                            || Math.abs(chunk.getZ() - this.position.getChunkZ()) > radius){
-                        this.chunkSentTime.remove(chunk);
-                        this.net().sendPacket(new PlayOutUnloadChunk(chunk.getX(), chunk.getZ()));
+        this.pool.execute(() -> {
+            for (int x = centerX - radius; x < centerX + radius; x++) {
+                for (int z = centerZ - radius; z < centerZ + radius; z++) {
+                    TridentChunk chunk = world.getChunkAt(x, z);
+                    if (!this.heldChunks.contains(chunk)) {
+                        this.heldChunks.add(chunk);
+                        chunk.getHolders().add(this);
+                        this.net().sendPacket(new PlayOutChunk(chunk));
+                        chunk.getEntities().forEach(e -> this.net().sendPacket(((TridentEntity) e).getSpawnPacket()));
                     }
-                }));
-
-        for (int x = centerX - radius; x <= centerX + radius; x++) {
-            for (int z = centerZ - radius; z <= centerZ + radius; z++) {
-                IntPair position = IntPair.make(x, z);
-                if (System.currentTimeMillis() - this.chunkSentTime.getOrDefault(position, 0L) > TridentPlayer.CHUNK_CACHE_MILLIS) {
-                    CompletableFuture
-                            .supplyAsync(() -> this.getWorld().chunkAt(position), this.pool)
-                            .thenAcceptAsync(chunk -> {
-                                this.client.sendPacket(new PlayOutChunk(chunk));
-                                this.chunkSentTime.put(position, System.currentTimeMillis());
-    
-                                TridentPlayer.players.values().stream()
-                                        .filter(player -> !player.equals(this))
-                                        .filter(player -> player.getPosition().getChunkX() == position.getX() && player.getPosition().getChunkZ() == position.getZ())
-                                        .forEach(player -> this.client.sendPacket(new PlayOutSpawnPlayer(player)));
-                            }, this.pool);
                 }
             }
-        }
+        });
+
+        this.pool.execute(() -> {
+            for (TridentChunk chunk : this.heldChunks) {
+                if (Math.abs(chunk.getX() - centerX) > radius || Math.abs(chunk.getZ() - centerZ) > radius) {
+                    this.heldChunks.remove(chunk);
+                    chunk.getHolders().remove(this);
+                    this.net().sendPacket(new PlayOutUnloadChunk(chunk.getX(), chunk.getZ()));
+                    this.net().sendPacket(new PlayOutDestroyEntities(chunk.getEntities().collect(Collectors.toList())));
+                }
+            }
+        });
     }
 
     @Override
@@ -690,9 +678,12 @@ public class TridentPlayer extends TridentEntity implements Player {
             ChatComponent c = ChatComponent.
                     create().
                     setColor(ChatColor.GRAY).
-                    setText("[Server] " + this.name + " has been opped");
-            for (TridentPlayer player : players.values()) {
-                player.sendMessage(c);
+                    setText("[Server: " + this.name + " has been opped]");
+            for (UUID uuid : TridentServer.getInstance().getOpsList().getOps()) {
+                TridentPlayer p = players.get(uuid);
+                if (p != null) {
+                    p.sendMessage(c);
+                }
             }
         } else {
             TridentServer.getInstance().getOpsList().removeOp(this.uuid);
@@ -700,9 +691,12 @@ public class TridentPlayer extends TridentEntity implements Player {
             ChatComponent c = ChatComponent.
                     create().
                     setColor(ChatColor.GRAY).
-                    setText("[Server] " + this.name + " has been deopped");
-            for (TridentPlayer player : players.values()) {
-                player.sendMessage(c);
+                    setText("[Server " + this.name + " has been deopped]");
+            for (UUID uuid : TridentServer.getInstance().getOpsList().getOps()) {
+                TridentPlayer p = players.get(uuid);
+                if (p != null) {
+                    p.sendMessage(c);
+                }
             }
         }
     }

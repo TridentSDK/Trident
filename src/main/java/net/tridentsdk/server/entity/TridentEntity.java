@@ -20,20 +20,25 @@ import lombok.Getter;
 import lombok.Setter;
 import net.tridentsdk.base.Position;
 import net.tridentsdk.entity.Entity;
+import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.server.concurrent.PoolSpec;
 import net.tridentsdk.server.concurrent.ServerThreadPool;
 import net.tridentsdk.server.entity.meta.EntityMetaType;
 import net.tridentsdk.server.entity.meta.TridentEntityMeta;
 import net.tridentsdk.server.net.EntityMetadata;
+import net.tridentsdk.server.packet.PacketOut;
 import net.tridentsdk.server.packet.play.*;
+import net.tridentsdk.server.player.RecipientSelector;
 import net.tridentsdk.server.player.TridentPlayer;
+import net.tridentsdk.server.world.TridentChunk;
 import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.world.World;
 
 import javax.annotation.concurrent.ThreadSafe;
-import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 
 /**
  * The implementation class for an entity.
@@ -67,7 +72,7 @@ public abstract class TridentEntity implements Entity {
      * The position at which this entity is located
      */
     @Getter
-    protected final Position position;
+    protected volatile Position position;
     /**
      * Whether or not this entity is on the ground
      */
@@ -103,36 +108,117 @@ public abstract class TridentEntity implements Entity {
     }
 
     @Override
-    public void setPosition(Position position) {
-        Position delta = position.clone().subtract(this.position);
+    public final void setPosition(Position position) {
+        Position old = this.position;
+        this.position = position;
 
-        if(delta.getX() != 0 || delta.getY() != 0 || delta.getZ() != 0) {
-            // TODO consider sending packet in a specified range
-            Collection<TridentPlayer> players = TridentPlayer.getPlayers().values();
-
-            if (Double.compare(this.position.getYaw(), position.getYaw()) == 0 || Double.compare(this.position.getPitch(), position.getPitch()) == 0){
-                PlayOutEntityLookAndRelativeMove lookAndRelativeMove = new PlayOutEntityLookAndRelativeMove(this, delta);
-                PlayOutEntityHeadLook headLook = new PlayOutEntityHeadLook(this);
-                players.stream().filter(p -> !p.equals(this)).forEach(p -> {
-                    p.net().sendPacket(lookAndRelativeMove);
-                    p.net().sendPacket(headLook);
-                });
+        TridentWorld fromWorld = (TridentWorld) old.getWorld();
+        TridentWorld destWorld = (TridentWorld) position.getWorld();
+        if (!destWorld.equals(fromWorld)) {
+            if (this instanceof Player) {
+                fromWorld.getOccupants().remove(this);
+                destWorld.getOccupants().add((TridentPlayer) this);
             } else {
-                PlayOutEntityRelativeMove packet = new PlayOutEntityRelativeMove(this, delta);
-                players.stream().filter(p -> !p.equals(this)).forEach(p -> p.net().sendPacket(packet));
+                fromWorld.getEntitySet().remove(this);
+                destWorld.getEntitySet().add(this);
             }
         }
 
-        position.write(this.position);
+        int destCX = position.getChunkX();
+        int destCZ = position.getChunkZ();
+        TridentChunk destChunk = destWorld.getChunkAt(destCX, destCZ, true);
+        int fromCX = old.getChunkX();
+        int fromCZ = old.getChunkZ();
+        if (fromCX != destCX || fromCZ != destCZ) {
+            TridentChunk fromChunk = fromWorld.getChunkAt(fromCX, fromCZ, false);
+            List<Entity> destroy = Collections.singletonList(this);
+
+            if (this instanceof Player) {
+                if (fromChunk == null) {
+                    throw new RuntimeException("Chunk unloaded too soon");
+                }
+
+                TridentPlayer player = (TridentPlayer) this;
+                fromChunk.getOccupants().remove(player);
+                destChunk.getOccupants().add(player);
+
+                Stream.concat(fromChunk.getHolders().stream(), destChunk.getHolders().stream()).
+                        distinct().
+                        forEach(p -> {
+                            if (!fromChunk.getHolders().contains(p)) {
+                                p.net().sendPacket(new PlayOutSpawnPlayer(player));
+                            }
+
+                            if (!destChunk.getHolders().contains(p)) {
+                                p.net().sendPacket(new PlayOutDestroyEntities(destroy));
+                            }
+                        });
+                player.updateChunks();
+            } else {
+                if (fromChunk != null) {
+                    fromChunk.getEntitySet().remove(this);
+                }
+
+                destChunk.getEntitySet().add(this);
+                Stream.concat(fromChunk.getHolders().stream(), destChunk.getHolders().stream()).
+                        distinct().
+                        forEach(p -> {
+                            if (!fromChunk.getHolders().contains(p)) {
+                                p.net().sendPacket(this.getSpawnPacket());
+                            }
+
+                            if (!destChunk.getHolders().contains(p)) {
+                                p.net().sendPacket(new PlayOutDestroyEntities(destroy));
+                            }
+                        });
+            }
+        }
+
+        Position delta = position.subtract(old);
+        if(delta.getX() != 0 || delta.getY() != 0 || delta.getZ() != 0) {
+            // TODO teleport if too far
+            if (Double.compare(old.getYaw(), position.getYaw()) == 0 && Double.compare(old.getPitch(), position.getPitch()) == 0){
+                PlayOutEntityRelativeMove packet = new PlayOutEntityRelativeMove(this, delta);
+                RecipientSelector.whoCanSee(destChunk, packet, this);
+            } else {
+                PlayOutEntityLookAndRelativeMove lookAndRelativeMove = new PlayOutEntityLookAndRelativeMove(this, delta);
+                RecipientSelector.whoCanSee(destChunk, lookAndRelativeMove, this);
+
+                PlayOutEntityHeadLook look = new PlayOutEntityHeadLook(this);
+                RecipientSelector.whoCanSee(destChunk, look, this);
+            }
+        } else if (old.getYaw() != position.getYaw() || old.getPitch() != position.getPitch()) {
+            PlayOutEntityLookAndRelativeMove lookAndRelativeMove = new PlayOutEntityLookAndRelativeMove(this, delta);
+            RecipientSelector.whoCanSee(destChunk, lookAndRelativeMove, this);
+
+            PlayOutEntityHeadLook look = new PlayOutEntityHeadLook(this);
+            RecipientSelector.whoCanSee(destChunk, look, this);
+        }
     }
 
     @Override
     public TridentWorld getWorld() {
-        return (TridentWorld) this.position.world();
+        return (TridentWorld) this.position.getWorld();
     }
 
     @Override
     public final void remove() {
+        TridentWorld world = (TridentWorld) this.position.getWorld();
+        TridentChunk chunk = world.getChunkAt(this.position.getChunkX(), this.position.getChunkZ(), false);
+        if (chunk != null) {
+            if (this instanceof Player) {
+                chunk.getOccupants().remove(this);
+            } else {
+                chunk.getEntitySet().remove(this);
+            }
+        }
+
+        if (this instanceof Player) {
+            world.getOccupants().remove(this);
+        } else {
+            world.getEntitySet().remove(this);
+        }
+
         this.doRemove();
 
         PlayOutDestroyEntities destroyEntities = new PlayOutDestroyEntities(Collections.singletonList(this));
@@ -162,4 +248,12 @@ public abstract class TridentEntity implements Entity {
      * Ticking hook.
      */
     public abstract void doTick();
+
+    /**
+     * Obtains the entity spawn packet.
+     *
+     * @return the packet which is sent to spawn the entity
+     * for a client
+     */
+    public abstract PacketOut getSpawnPacket();
 }

@@ -18,17 +18,19 @@ package net.tridentsdk.server.world;
 
 import lombok.Getter;
 import net.tridentsdk.base.Block;
-import net.tridentsdk.base.ImmutableWorldVector;
 import net.tridentsdk.base.Position;
+import net.tridentsdk.entity.Entity;
+import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.meta.nbt.Tag;
 import net.tridentsdk.server.concurrent.PoolSpec;
 import net.tridentsdk.server.concurrent.ServerThreadPool;
+import net.tridentsdk.server.entity.TridentEntity;
+import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.world.opt.GenOptImpl;
 import net.tridentsdk.server.world.opt.WeatherImpl;
 import net.tridentsdk.server.world.opt.WorldBorderImpl;
 import net.tridentsdk.server.world.opt.WorldOptImpl;
 import net.tridentsdk.world.Chunk;
-import net.tridentsdk.world.IntPair;
 import net.tridentsdk.world.World;
 import net.tridentsdk.world.opt.WorldCreateSpec;
 
@@ -40,7 +42,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -103,9 +108,20 @@ public class TridentWorld implements World {
      * The current world time, in ticks.
      *
      * <p>One day/night cycle = 20 min * 60 sec/min * 20 TPS
-     * = 2400 ticks total then resets.</p>
+     * = 24000 ticks total then resets.</p>
      */
     private final AtomicInteger time = new AtomicInteger();
+
+    /**
+     * The players that occupy this world
+     */
+    @Getter
+    private final Set<TridentPlayer> occupants = Collections.newSetFromMap(new ConcurrentHashMap<>());
+    /**
+     * The entities that occupy this world
+     */
+    @Getter
+    private final Set<TridentEntity> entitySet = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
     /**
      * Creates a new world with the given name, folder, and
@@ -147,13 +163,32 @@ public class TridentWorld implements World {
 
     // Ticking implementation
     private void doTick() {
-        this.time.incrementAndGet();
+        int curTime;
+        int newTime;
+        do {
+            curTime = this.time.get();
+            newTime = curTime++;
+            if (newTime == 24000) {
+                newTime = 0;
+            }
+        } while (!this.time.compareAndSet(curTime, newTime));
+
         this.chunks.forEach(TridentChunk::tick);
     }
 
     @Override
     public int getTime() {
         return this.time.get();
+    }
+
+    @Override
+    public Set<? extends Player> getPlayers() {
+        return Collections.unmodifiableSet(this.occupants);
+    }
+
+    @Override
+    public Stream<? extends Entity> getEntities() {
+        return Stream.concat(this.occupants.stream(), this.entitySet.stream());
     }
 
     @Nonnull
@@ -168,10 +203,6 @@ public class TridentWorld implements World {
         return this.chunks.get(x, z, gen);
     }
 
-    public TridentChunk chunkAt(IntPair pair) {
-        return this.getChunkAt(pair.getX(), pair.getZ());
-    }
-
     @Override
     public Collection<? extends Chunk> getLoadedChunks() {
         return Collections.unmodifiableCollection(this.chunks.values());
@@ -184,12 +215,12 @@ public class TridentWorld implements World {
 
     @Override
     public Block getBlockAt(int x, int y, int z) {
-        return new TridentBlock(new ImmutableWorldVector(this, x, y, z));
+        return new TridentBlock(new Position(this, x, y, z));
     }
 
     @Override
     public Block getBlockAt(Position pos) {
-        return new TridentBlock(pos.toWorldVector());
+        return new TridentBlock(pos);
     }
 
     // TODO ------------------------------------------------

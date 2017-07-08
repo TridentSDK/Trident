@@ -63,6 +63,12 @@ public final class Login {
             return false;
         }
 
+        String name = client.getName();
+        if (TridentPlayer.getPlayerNames().containsKey(name)) {
+            client.disconnect("Player with name \"" + name + "\" already exists");
+            return false;
+        }
+
         LOGGING_IN.incrementAndGet();
         return true;
     }

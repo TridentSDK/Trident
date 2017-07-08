@@ -24,9 +24,7 @@ import net.tridentsdk.util.Misc;
 import javax.annotation.concurrent.ThreadSafe;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -74,7 +72,7 @@ public class OpsList extends TridentConfig {
      */
     public void addOp(UUID uuid) {
         this.ops.add(uuid);
-        this.set("ops", this.ops);
+        this.set(OPS_KEY, this.ops);
         try {
             this.save();
         } catch (IOException e) {
@@ -91,7 +89,7 @@ public class OpsList extends TridentConfig {
      */
     public void removeOp(UUID uuid) {
         this.ops.remove(uuid);
-        this.set("ops", this.ops);
+        this.set(OPS_KEY, this.ops);
         try {
             this.save();
         } catch (IOException e) {
@@ -105,9 +103,27 @@ public class OpsList extends TridentConfig {
     public void load() throws IOException {
         super.load();
         if (this.hasKey(OPS_KEY)) {
-            this.getCollection("ops", this.ops);
+            this.getCollection(OPS_KEY, new AbstractSet<String>() {
+                @Override
+                public boolean addAll(Collection<? extends String> c) {
+                    for (String s : c) {
+                        OpsList.this.ops.add(UUID.fromString(s));
+                    }
+                    return true;
+                }
+
+                @Override
+                public Iterator<String> iterator() {
+                    return null;
+                }
+
+                @Override
+                public int size() {
+                    return 0;
+                }
+            });
         } else {
-            this.set("ops", this.ops);
+            this.set(OPS_KEY, this.ops);
             this.save();
         }
     }

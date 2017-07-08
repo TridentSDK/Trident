@@ -28,9 +28,9 @@ import static net.tridentsdk.server.net.NetData.wvint;
 @Immutable
 public final class PlayOutDestroyEntities extends PacketOut {
 
-    private final List<Entity> entities;
+    private final List<? extends Entity> entities;
 
-    public PlayOutDestroyEntities(List<Entity> entities) {
+    public PlayOutDestroyEntities(List<? extends Entity> entities) {
         super(PlayOutDestroyEntities.class);
         this.entities = entities;
     }

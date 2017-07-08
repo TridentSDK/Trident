@@ -198,10 +198,7 @@ public final class NetData {
      * @param vec the Vector coordinates to write
      */
     public static void wvec(ByteBuf buf, AbstractVector<?> vec) {
-        Vector v = new Vector();
-        vec.vecWrite(v);
-
-        long l = ((long) v.getIntX() & 0x3FFFFFFL) << 38 | ((long) v.getIntY() & 0xFFFL) << 26 | (long) v.getIntZ() & 0x3FFFFFFL;
+        long l = ((long) vec.getIntX() & 0x3FFFFFFL) << 38 | ((long) vec.getIntY() & 0xFFFL) << 26 | (long) vec.getIntZ() & 0x3FFFFFFL;
         buf.writeLong(l);
     }
     

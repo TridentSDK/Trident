@@ -34,7 +34,7 @@ public final class PlayOutEntityRelativeMove extends PacketOut {
     public PlayOutEntityRelativeMove(Entity entity, Position delta) {
         super(PlayOutEntityRelativeMove.class);
         this.entity = entity;
-        this.delta = delta.clone().multiply(32, 32, 32).multiply(128, 128, 128);
+        this.delta = delta.multiply(32, 32, 32).multiply(128, 128, 128);
     }
 
     @Override

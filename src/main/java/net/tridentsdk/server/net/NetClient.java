@@ -285,14 +285,14 @@ public class NetClient {
             if (state == NetClient.NetState.LOGIN) {
                 this.sendPacket(new LoginOutDisconnect(reason)).addListener(future -> {
                     this.channel.close();
-                    TridentServer.getInstance().getLogger().log("Player " + this.name + " has disconnected");
+                    TridentServer.getInstance().getLogger().log("Player " + this.name + " has disconnected: " + reason.getText());
                 });
             } else if (state == NetClient.NetState.PLAY) {
                 if (player != null) {
                     this.sendPacket(new PlayOutDisconnect(reason)).addListener(future -> {
                         this.channel.close();
                         player.remove();
-                        TridentServer.getInstance().getLogger().log("Player " + this.name + " [" + player.getUuid() + "] has disconnected");
+                        TridentServer.getInstance().getLogger().log("Player " + this.name + " [" + player.getUuid() + "] has disconnected: " + reason.getText());
                     });
                 }
             } else if (state == NetState.STATUS) {

@@ -54,7 +54,7 @@ public class D implements CmdListener {
 
             for (int x = playerPosition.getChunkX() - chunkLoadRadius; x <= playerPosition.getChunkX() + chunkLoadRadius; x++) {
                 for (int z = playerPosition.getChunkZ() - chunkLoadRadius; z <= playerPosition.getChunkZ() + chunkLoadRadius; z++) {
-                    TridentChunk chunk = (TridentChunk) playerPosition.world().getChunkAt(x, z);
+                    TridentChunk chunk = (TridentChunk) playerPosition.getWorld().getChunkAt(x, z);
                     client.sendPacket(new PlayOutChunk(chunk));
                 }
             }
@@ -93,7 +93,8 @@ public class D implements CmdListener {
         }
 
         if (msg.equals("chat")) {
-            player.sendMessage(ChatComponent.create().setText("What is this").setHoverEvent(HoverEvent.item(Item.newItem(Substance.BLOCK_OF_DIAMOND))));
+            player.sendMessage(ChatComponent.create().setText("What is this").setHoverEvent(
+                    HoverEvent.item(Item.newItem(Substance.STONE, 30, (byte) 1))));
         }
     }
 }
