@@ -20,6 +20,7 @@ import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.net.NetData;
 import net.tridentsdk.server.packet.PacketIn;
+import net.tridentsdk.server.player.TridentPlayer;
 
 /**
  * @author TridentSDK
@@ -37,21 +38,22 @@ public class PlayInEntityAction extends PacketIn {
         int actionId = NetData.rvint(buf);
         int jumpBoost = NetData.rvint(buf);
 
+        TridentPlayer player = client.getPlayer();
         switch (actionId) {
             case 0: // start crouching
-                client.getPlayer().getMetadata().setCrouched(true);
+                player.setCrouching(true);
                 break;
             case 1: // stop crouching
-                client.getPlayer().getMetadata().setCrouched(false);
+                player.setCrouching(false);
                 break;
             case 2: // leave bed
                 // TODO
                 break;
             case 3: // start sprinting
-                client.getPlayer().getMetadata().setSprinting(true);
+                player.setSprinting(true);
                 break;
             case 4: // stop sprinting
-                client.getPlayer().getMetadata().setSprinting(false);
+                player.setSprinting(false);
                 break;
             case 5: // start jump w/ horse
                 // TODO
@@ -69,7 +71,7 @@ public class PlayInEntityAction extends PacketIn {
                 break;
         }
 
-        client.getPlayer().updateMetadata();
+        player.updateMetadata();
     }
 
 }

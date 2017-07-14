@@ -200,7 +200,6 @@ public class TridentPlayer extends TridentEntity implements Player {
      */
     @Getter
     private volatile float flyingSpeed = Player.DEFAULT_FLYING_SPEED;
-
     /**
      * The player's walking speed
      */
@@ -590,6 +589,34 @@ public class TridentPlayer extends TridentEntity implements Player {
     @Override
     public void setWalkingSpeed(float walkingSpeed) {
         this.setWalkingSpeed(walkingSpeed, true);
+    }
+
+    @Override
+    public void setSprinting(boolean sprinting) {
+        this.metadata.setSprinting(sprinting);
+        if (sprinting) {
+            this.walkingSpeed = Player.DEFAULT_SPRINT_SPEED;
+        } else {
+            this.walkingSpeed = Player.DEFAULT_WALKING_SPEED;
+        }
+        this.client.sendPacket(new PlayOutPlayerAbilities(this));
+        this.updateMetadata();
+    }
+
+    @Override
+    public boolean isSprinting() {
+        return this.metadata.isSprinting();
+    }
+
+    @Override
+    public void setCrouching(boolean crouching) {
+        this.metadata.setCrouched(crouching);
+        this.updateMetadata();
+    }
+
+    @Override
+    public boolean isCrouching() {
+        return this.metadata.isCrouched();
     }
 
     public void setWalkingSpeed(float walkingSpeed, boolean sendPacket) {

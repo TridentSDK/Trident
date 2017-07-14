@@ -29,7 +29,6 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class PlayOutPlayerAbilities extends PacketOut {
-
     private final boolean isGod;
     private final boolean isFlying;
     private final boolean canFly;
