@@ -125,7 +125,6 @@ public class TridentWorldLoader implements WorldLoader {
     private TridentWorld load(String name, Path enclosing) {
         Logger.get(this.getClass()).log("Loading world \"" + name + "\"...");
         TridentWorld world = new TridentWorld(name, enclosing);
-        world.load();
 
         this.worlds.put(name, world);
         Logger.get(this.getClass()).log("Finished loading \"" + name + "\".");

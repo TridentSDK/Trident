@@ -403,7 +403,7 @@ public class TridentChunk implements Chunk {
     public void read(Tag.Compound compound) {
         this.inhabited.add(compound.getLong("InhabitedTime"));
 
-        Tag.List<Tag.Compound> sectionList = compound.getList("Sections", Tag.Compound.class);
+        Tag.List<Tag.Compound> sectionList = compound.getList("Sections");
         for (Tag.Compound c : sectionList) {
             ChunkSection section = new ChunkSection(this.world.getWorldOptions().getDimension() == Dimension.OVERWORLD);
             section.read(c);

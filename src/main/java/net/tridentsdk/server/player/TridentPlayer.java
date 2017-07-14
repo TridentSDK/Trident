@@ -260,7 +260,8 @@ public class TridentPlayer extends TridentEntity implements Player {
     /**
      * Constructs a new player.
      */
-    private TridentPlayer(NetClient client, World world, String name, UUID uuid, TabListElement.PlayerProperty skinTextures) {
+    private TridentPlayer(NetClient client, World world, String name, UUID uuid,
+                          TabListElement.PlayerProperty skinTextures) {
         super(world, PoolSpec.PLAYERS);
         this.metadata = (TridentPlayerMeta) super.getMetadata();
 
@@ -282,7 +283,8 @@ public class TridentPlayer extends TridentEntity implements Player {
      * @param uuid the player UUID
      * @param skinTextures the player textures
      */
-    public static TridentPlayer spawn(NetClient client, String name, UUID uuid, TabListElement.PlayerProperty skinTextures) {
+    public static TridentPlayer spawn(NetClient client, String name, UUID uuid,
+                                      TabListElement.PlayerProperty skinTextures) {
         TridentWorld world = TridentServer.getInstance().getWorldLoader().getDefaultWorld();
         TridentPlayer player = new TridentPlayer(client, world, name, uuid, skinTextures);
         client.setPlayer(player);
@@ -529,6 +531,7 @@ public class TridentPlayer extends TridentEntity implements Player {
         this.gameMode = gameMode;
         this.canFly = gameMode == GameMode.CREATIVE || gameMode == GameMode.SPECTATOR;
         this.client.sendPacket(new PlayOutPlayerAbilities(this));
+        this.client.sendPacket(new PlayOutGameState(3, gameMode.asInt()));
     }
 
     @Override
@@ -628,7 +631,10 @@ public class TridentPlayer extends TridentEntity implements Player {
                     this.heldChunks.remove(chunk);
                     chunk.getHolders().remove(this);
                     this.net().sendPacket(new PlayOutUnloadChunk(chunk.getX(), chunk.getZ()));
-                    this.net().sendPacket(new PlayOutDestroyEntities(chunk.getEntities().collect(Collectors.toList())));
+
+                    if (!chunk.getEntitySet().isEmpty() || !chunk.getOccupants().isEmpty()) {
+                        this.net().sendPacket(new PlayOutDestroyEntities(chunk.getEntities().collect(Collectors.toList())));
+                    }
                 }
             }
         });

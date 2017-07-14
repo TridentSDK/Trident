@@ -89,11 +89,6 @@ public class NetClient {
      * The mapping of currently connected clients
      */
     private static final Map<SocketAddress, NetClient> CLIENTS = new ConcurrentHashMap<>();
-    /**
-     * Cached empty disconnection message (for channel
-     * closing errors)
-     */
-    private static final ChatComponent EMPTY = ChatComponent.empty();
 
     /**
      * The channel which is the connection that this client
@@ -147,7 +142,7 @@ public class NetClient {
     private final GenericFutureListener<Future<Void>> futureListener = new GenericFutureListener<Future<Void>>() {
         @Override
         public void operationComplete(Future<Void> future) throws Exception {
-            NetClient.this.disconnect(EMPTY);
+            NetClient.this.disconnect("Player lost connection");
             future.removeListener(this);
         }
     };

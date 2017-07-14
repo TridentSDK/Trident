@@ -135,7 +135,7 @@ public class TridentWorld implements World {
         // this is only ok because we aren't passing the
         // instance to another thread viewable object
         this.worldOptions = new WorldOptImpl(this, spec);
-        this.generatorOptions = spec.isDefault() ? new GenOptImpl() : new GenOptImpl(spec);
+        this.generatorOptions = new GenOptImpl(spec);
     }
 
     /**
@@ -147,10 +147,18 @@ public class TridentWorld implements World {
     public TridentWorld(String name, Path enclosing) {
         this.name = name;
         this.directory = enclosing;
-        // this is only ok because we aren't passing the
-        // instance to another thread viewable object
-        this.worldOptions = new WorldOptImpl(this, WorldCreateSpec.getDefaultOptions());
-        this.generatorOptions = new GenOptImpl();
+
+        try (GZIPInputStream stream = new GZIPInputStream(new FileInputStream(this.directory.resolve("level.dat").toFile()))) {
+            Tag.Compound root = Tag.decode(new DataInputStream(stream));
+            Tag.Compound compound = root.getCompound("Data");
+
+            this.worldOptions = new WorldOptImpl(this, compound);
+            this.generatorOptions = new GenOptImpl(compound);
+            this.weather.read(compound);
+            this.border.read(compound);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -225,22 +233,6 @@ public class TridentWorld implements World {
 
     // TODO ------------------------------------------------
 
-    /**
-     * Loads the world from the NBT level.dat format and
-     * loads the appropriate spawn chunks.
-     */
-    public void load() {
-        try (GZIPInputStream stream = new GZIPInputStream(new FileInputStream(this.directory.resolve("level.dat").toFile()))) {
-            Tag.Compound root = Tag.decode(new DataInputStream(stream));
-            Tag.Compound compound = root.getCompound("Data");
-
-            this.worldOptions.load(compound);
-            this.generatorOptions.load(compound);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     @Override
     public void save() {
         Path level = this.directory.resolve("level.dat");
@@ -262,8 +254,12 @@ public class TridentWorld implements World {
             Tag.Compound worldData = new Tag.Compound("Data");
             worldRoot.putCompound(worldData);
 
-            this.worldOptions.save(worldData);
-            this.generatorOptions.save(worldData);
+            this.worldOptions.write(worldData);
+            this.generatorOptions.write(worldData);
+            this.weather.write(worldData);
+            this.border.write(worldData);
+
+            worldData.putString("LevelName", this.name);
 
             try (GZIPOutputStream stream = new GZIPOutputStream(new FileOutputStream(level.toFile()))) {
                 worldRoot.write(new DataOutputStream(stream));

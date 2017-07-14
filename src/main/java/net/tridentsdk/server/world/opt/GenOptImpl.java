@@ -16,6 +16,7 @@
  */
 package net.tridentsdk.server.world.opt;
 
+import lombok.Getter;
 import net.tridentsdk.meta.nbt.Tag;
 import net.tridentsdk.server.world.gen.FlatGeneratorProvider;
 import net.tridentsdk.world.gen.GeneratorProvider;
@@ -23,7 +24,6 @@ import net.tridentsdk.world.opt.GenOpts;
 import net.tridentsdk.world.opt.LevelType;
 import net.tridentsdk.world.opt.WorldCreateSpec;
 
-import javax.annotation.Nonnull;
 import java.util.Random;
 
 /**
@@ -35,26 +35,36 @@ public class GenOptImpl implements GenOpts {
      * server
      */
     private static final Random SEED_SRC = new Random();
-    private final GeneratorProvider provider;
-    private final long seed;
-    private final String seedInput;
-    private final LevelType type;
-    private final boolean allowFeatures;
 
-    /**
-     * Default constructor for generating a world with
-     * the normal options.
-     */
-    public GenOptImpl() {
-        this(FlatGeneratorProvider.INSTANCE, 0, "", LevelType.FLAT, true);
-    }
+    @Getter
+    private final GeneratorProvider provider;
+    @Getter
+    private final long seed;
+    @Getter
+    private final String optionString;
+    @Getter
+    private final LevelType levelType;
+    @Getter
+    private final boolean allowFeatures;
 
     /**
      * Constructor for generating a world custom to the
      * given specifications.
      */
     public GenOptImpl(WorldCreateSpec spec) {
-        this();
+        if (spec.isDefault()) {
+            this.provider = FlatGeneratorProvider.INSTANCE;
+            this.levelType = LevelType.FLAT;
+            this.optionString = "";
+            this.allowFeatures = true;
+            this.seed = verifySeed(0);
+        } else {
+            this.provider = spec.getProvider() == null ? FlatGeneratorProvider.INSTANCE : spec.getProvider();
+            this.levelType = spec.getLevelType();
+            this.optionString = spec.getOptionString();
+            this.allowFeatures = spec.isAllowFeatures();
+            this.seed = verifySeed(spec.getSeed());
+        }
     }
 
     /**
@@ -62,60 +72,39 @@ public class GenOptImpl implements GenOpts {
      * this set of options.
      */
     public GenOptImpl(Tag.Compound compound) {
-        this();
+        String providerClass = compound.get("TridentProvider");
+        if (providerClass != null) {
+            try {
+                this.provider = (GeneratorProvider) Class.forName(providerClass).newInstance();
+            } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+               throw new RuntimeException(e);
+            }
+        } else {
+            this.provider = FlatGeneratorProvider.INSTANCE;
+        }
+
+        this.seed = compound.getLong("RandomSeed");
+        this.levelType = LevelType.from(compound.getString("generatorName"));
+        this.optionString = compound.getString("generatorOptions");
+        this.allowFeatures = compound.getByte("MapFeatures") == 1;
     }
 
     /**
-     * Custom constructor for customizing the generator
-     * options of the world to be generated.
+     * Verifies the seed, ensuring that it is not 0 as that
+     * will fuck with the RNG functions. If it is 0, tries
+     * to calculate a new one.
      *
-     * @param provider the generator
-     * @param seed the seed
-     * @param seedInput the input that created the seed
-     * @param level the level type
-     * @param allowFeatures whether or not features are
-     * done
+     * @param seed a possibly non-zero seed
+     * @return a non-zero seed
      */
-    public GenOptImpl(GeneratorProvider provider, int seed, String seedInput, LevelType level, boolean allowFeatures) {
-        this.provider = provider;
-        this.type = level;
-        this.allowFeatures = allowFeatures;
-
+    private static long verifySeed(long seed) {
         if (seed == 0) {
             long potentialSeed;
             while ((potentialSeed = SEED_SRC.nextLong()) == 0);
-            this.seed = potentialSeed;
-            this.seedInput = String.valueOf(potentialSeed);
+            return potentialSeed;
         } else {
-            this.seed = seed;
-            this.seedInput = seedInput;
+            return seed;
         }
-    }
-
-    @Override
-    public GeneratorProvider getProvider() {
-        return this.provider;
-    }
-
-    @Override
-    public long getSeed() {
-        return this.seed;
-    }
-
-    @Nonnull
-    @Override
-    public String getSeedInput() {
-        return this.seedInput;
-    }
-
-    @Override
-    public LevelType getLevelType() {
-        return this.type;
-    }
-
-    @Override
-    public boolean isAllowFeatures() {
-        return this.allowFeatures;
     }
 
     /**
@@ -124,15 +113,13 @@ public class GenOptImpl implements GenOpts {
      * @param compound the data which represents the data
      * which is to be saved
      */
-    public void save(Tag.Compound compound) {
-    }
-
-    /**
-     * Loads the world generation options from the NBT data.
-     *
-     * @param compound the data which represents the data
-     * which is to be loaded
-     */
-    public void load(Tag.Compound compound) {
+    public void write(Tag.Compound compound) {
+        if (this.provider != FlatGeneratorProvider.INSTANCE) {
+            compound.putString("TridentProvider", this.provider.getClass().getName());
+        }
+        compound.putLong("RandomSeed", this.seed);
+        compound.putString("generatorName", this.levelType.toString());
+        compound.putString("generatorOptions", this.optionString);
+        compound.putByte("MapFeatures", (byte) (this.allowFeatures ? 1 : 0));
     }
 }

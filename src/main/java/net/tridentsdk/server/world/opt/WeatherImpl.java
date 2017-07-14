@@ -17,6 +17,7 @@
 package net.tridentsdk.server.world.opt;
 
 import lombok.RequiredArgsConstructor;
+import net.tridentsdk.meta.nbt.Tag;
 import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.world.opt.Weather;
 
@@ -84,5 +85,11 @@ public class WeatherImpl implements Weather {
     @Override
     public void setClearTime(int ticks) {
 
+    }
+
+    public void read(Tag.Compound compound) {
+    }
+
+    public void write(Tag.Compound compound) {
     }
 }

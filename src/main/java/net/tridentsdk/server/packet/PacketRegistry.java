@@ -80,6 +80,7 @@ public final class PacketRegistry {
         put(LoginOutSuccess.class, NetClient.NetState.LOGIN, Packet.Bound.CLIENT, 0x02);
         put(LoginOutCompression.class, NetClient.NetState.LOGIN, Packet.Bound.CLIENT, 0x03);
 
+        put(PlayOutLightning.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x02);
         put(PlayOutSpawnPlayer.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x05);
         put(PlayOutAnimation.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x06);
         put(PlayOutBossBar.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x0C);
@@ -90,6 +91,7 @@ public final class PacketRegistry {
         put(PlayOutPluginMsg.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x18);
         put(PlayOutDisconnect.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x1A);
         put(PlayOutUnloadChunk.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x1D);
+        put(PlayOutGameState.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x1E);
         put(PlayOutKeepAlive.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x1F);
         put(PlayOutChunk.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x20);
         put(PlayOutJoinGame.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x23);

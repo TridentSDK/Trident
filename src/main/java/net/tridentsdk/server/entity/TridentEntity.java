@@ -48,7 +48,7 @@ public abstract class TridentEntity implements Entity {
     /**
      * The counter which produces the entity ID numbers
      */
-    private static final AtomicInteger EID_COUNTER = new AtomicInteger();
+    public static final AtomicInteger EID_COUNTER = new AtomicInteger();
 
     // THREADING MECHANICS
     /**

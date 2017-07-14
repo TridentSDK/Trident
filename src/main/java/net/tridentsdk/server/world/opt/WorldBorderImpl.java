@@ -17,6 +17,7 @@
 package net.tridentsdk.server.world.opt;
 
 import lombok.RequiredArgsConstructor;
+import net.tridentsdk.meta.nbt.Tag;
 import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.world.IntPair;
 import net.tridentsdk.world.opt.WorldBorder;
@@ -95,5 +96,11 @@ public class WorldBorderImpl implements WorldBorder {
     @Override
     public void setWarnTime(int time) {
 
+    }
+
+    public void read(Tag.Compound compound) {
+    }
+
+    public void write(Tag.Compound compound) {
     }
 }

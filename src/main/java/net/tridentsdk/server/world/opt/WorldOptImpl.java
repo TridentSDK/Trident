@@ -20,8 +20,9 @@ import lombok.Getter;
 import lombok.Setter;
 import net.tridentsdk.base.Vector;
 import net.tridentsdk.doc.Debug;
-import net.tridentsdk.doc.Internal;
 import net.tridentsdk.meta.nbt.Tag;
+import net.tridentsdk.server.packet.play.PlayOutDifficulty;
+import net.tridentsdk.server.player.RecipientSelector;
 import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.world.opt.*;
 
@@ -35,7 +36,6 @@ import java.util.concurrent.atomic.AtomicMarkableReference;
 @Getter
 @ThreadSafe
 public class WorldOptImpl implements WorldOpts {
-    // TODO appropriate packets
     @Setter
     private volatile boolean allowFlight;
     @Setter
@@ -50,9 +50,7 @@ public class WorldOptImpl implements WorldOpts {
     private volatile GameMode gameMode = GameMode.CREATIVE;
     private final AtomicMarkableReference<Difficulty> difficulty =
             new AtomicMarkableReference<>(Difficulty.NORMAL, false);
-    @Internal
-    @Setter
-    private volatile Dimension dimension = Dimension.OVERWORLD;
+    private final Dimension dimension;
     @Setter
     private volatile int spawnProtectionRadius = 5;
     @Setter
@@ -70,10 +68,10 @@ public class WorldOptImpl implements WorldOpts {
      */
     public WorldOptImpl(TridentWorld world, WorldCreateSpec spec) {
         this.world = world;
+        this.dimension = spec.getDimension();
 
         if (!spec.isDefault()) {
             this.difficulty.set(spec.getDifficulty(), spec.isDifficultyLocked());
-            this.dimension = spec.getDimension();
             this.gameMode = spec.getGameMode();
             spec.getGameRules().copyTo(this.gameRules);
             this.allowFlight = spec.isAllowFlight();
@@ -83,6 +81,18 @@ public class WorldOptImpl implements WorldOpts {
             this.spawnProtectionRadius = spec.getSpawnProtectionRadius();
             this.spawn = spec.getSpawn() == null ? this.randVector() : spec.getSpawn();
         }
+    }
+
+    /**
+     * Creates a new set of world options which implements
+     * those found in the compound file for this world.
+     *
+     * @param world the world to create options for
+     * @param compound the compound to read data from
+     */
+    public WorldOptImpl(TridentWorld world, Tag.Compound compound) {
+        this.world = world;
+        this.dimension = Dimension.OVERWORLD;
     }
 
     /**
@@ -109,6 +119,10 @@ public class WorldOptImpl implements WorldOpts {
             d0 = this.getDifficulty();
         } while (!this.difficulty.isMarked() &&
                 !this.difficulty.compareAndSet(d0, difficulty, false, false));
+
+        if (d0 != difficulty) {
+            RecipientSelector.inWorld(this.world, new PlayOutDifficulty(this.world));
+        }
     }
 
     @Override
@@ -121,18 +135,12 @@ public class WorldOptImpl implements WorldOpts {
         Difficulty difficulty;
         do {
             difficulty = this.getDifficulty();
-        } while (!this.difficulty.compareAndSet(difficulty, difficulty, false, true));
-    }
-
-    /**
-     * Loads the world options from the NBT data.
-     */
-    public void load(Tag.Compound compound) {
+        } while (!this.difficulty.attemptMark(difficulty, locked));
     }
 
     /**
      * Saves the world options as NBT data.
      */
-    public void save(Tag.Compound compound) {
+    public void write(Tag.Compound compound) {
     }
 }
