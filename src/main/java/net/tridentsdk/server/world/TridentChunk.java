@@ -37,15 +37,14 @@ import net.tridentsdk.world.opt.GenOpts;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
-import java.util.concurrent.atomic.AtomicIntegerArray;
-import java.util.concurrent.atomic.AtomicReferenceArray;
-import java.util.concurrent.atomic.LongAdder;
+import java.util.concurrent.atomic.*;
 import java.util.stream.Stream;
 
 import static net.tridentsdk.server.net.NetData.wvint;
@@ -58,12 +57,24 @@ public class TridentChunk implements Chunk {
     /**
      * Thread pool used for arbitrary container generation
      */
-    public static final ServerThreadPool ARBITRARY_POOL = ServerThreadPool.forSpec(PoolSpec.CHUNKS);
+    private static final ServerThreadPool ARBITRARY_POOL = ServerThreadPool.forSpec(PoolSpec.CHUNKS);
     /**
      * Thread pool used for default container generation
      */
-    public static final ServerThreadPool DEFAULT_POOL = ServerThreadPool.forSpec(PoolSpec.PLUGINS);
+    private static final ServerThreadPool DEFAULT_POOL = ServerThreadPool.forSpec(PoolSpec.PLUGINS);
 
+    private static final int USABLE = -1;
+    private static final int TRANSITION = 0;
+    private static final int UNUSABLE = 1;
+
+    /**
+     * Whether or not this chunk is usable
+     */
+    private final AtomicInteger useState = new AtomicInteger(USABLE);
+    /**
+     * Whether or not this chunk is being generated
+     */
+    private final AtomicBoolean generationInProgress = new AtomicBoolean();
     /**
      * The ready getState for this chunk, whether it has fully
      * generated yet.
@@ -147,14 +158,20 @@ public class TridentChunk implements Chunk {
      * entities, stateful blocks, and entities.
      */
     public void tick() {
-        this.inhabited.add(this.occupants.size());
+        ARBITRARY_POOL.execute(() -> {
+            this.inhabited.add(this.occupants.size());
+
+            if (this.world.getTime() == 0) {
+                this.checkValidForGc();
+            }
+        });
     }
 
     /**
      * Generates the chunk.
      */
     public void generate() {
-        if (this.ready.getCount() == 0) {
+        if (!this.generationInProgress.compareAndSet(false, true)) {
             return;
         }
 
@@ -322,6 +339,71 @@ public class TridentChunk implements Chunk {
     }
 
     /**
+     * Checks to see whether this chunk is usable.
+     *
+     * @return {@code true} to indicate that this chunk may
+     * be used, {@code false} if this chunk is being saved
+     * and cannot be used
+     */
+    public boolean canUse() {
+        int state;
+        do {
+            state = this.useState.get();
+        } while (state == TRANSITION);
+
+        return state == USABLE;
+    }
+
+    /**
+     * Updates the usability state field in order to check
+     * if this chunk may still be used or is reclaimable.
+     */
+    public void checkValidForGc() {
+        this.useState.set(TRANSITION);
+
+        if (this.holders.isEmpty()) {
+            this.useState.set(UNUSABLE);
+
+            if (this.world.removeChunkAt(this.x, this.z) != null) {
+                Region region = Region.getFile(this, true);
+                int rX = this.x & 31;
+                int rZ = this.z & 31;
+                if (region.hasChunk(rX, rZ)) {
+                    try (DataInputStream in = region.getChunkDataInputStream(rX, rZ)) {
+                        Tag.Compound root = Tag.decode(in);
+                        Tag.Compound compound = root.getCompound("Level");
+                        CompletableFuture.runAsync(() -> this.write(compound), ARBITRARY_POOL).
+                                whenCompleteAsync((v, t) -> {
+                                    try (DataOutputStream out = region.getChunkDataOutputStream(rX, rZ)) {
+                                        root.write(out);
+                                    } catch (IOException e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                }, ARBITRARY_POOL);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                } else {
+                    ARBITRARY_POOL.execute(() -> {
+                        Tag.Compound root = new Tag.Compound("");
+                        Tag.Compound level = new Tag.Compound("Level");
+                        root.putCompound(level);
+                        this.write(level);
+
+                        try (DataOutputStream out = region.getChunkDataOutputStream(rX, rZ)) {
+                            root.write(out);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
+                }
+            }
+        } else {
+            this.useState.set(USABLE);
+        }
+    }
+
+    /**
      * Obtains the highest Y value at the given chunk
      * relative X/Z coordinates.
      *
@@ -418,6 +500,7 @@ public class TridentChunk implements Chunk {
         }
 
         if (compound.getByte("TerrainPopulated") == 1) {
+            this.generationInProgress.set(true);
             this.ready.countDown();
         }
     }

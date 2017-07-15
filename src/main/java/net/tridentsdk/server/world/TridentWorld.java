@@ -175,7 +175,7 @@ public class TridentWorld implements World {
         int newTime;
         do {
             curTime = this.time.get();
-            newTime = curTime++;
+            newTime = curTime + 1;
             if (newTime == 24000) {
                 newTime = 0;
             }
@@ -224,6 +224,20 @@ public class TridentWorld implements World {
     @Override
     public Block getBlockAt(int x, int y, int z) {
         return new TridentBlock(new Position(this, x, y, z));
+    }
+
+    /**
+     * Removes the chunk from memory, without doing any save
+     * or file write operations that are necessary to
+     * cleanup.
+     *
+     * @param x the chunk X coordinate
+     * @param z the chunk Z coordinate
+     * @return the chunk that was removed, or {@code null}
+     * if no chunk was removed
+     */
+    public TridentChunk removeChunkAt(int x, int z) {
+        return this.chunks.remove(x, z);
     }
 
     @Override

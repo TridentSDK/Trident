@@ -18,6 +18,7 @@ package net.tridentsdk.server.world;
 
 import net.tridentsdk.server.util.Long2ReferenceOpenHashMap;
 
+import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
 import java.util.Collection;
 import java.util.Iterator;
@@ -38,17 +39,7 @@ public class ChunkMap implements Iterable<TridentChunk> {
      * The actual map of chunks
      */
     @GuardedBy("lock")
-    private final Long2ReferenceOpenHashMap<TridentChunk> chunks = new Long2ReferenceOpenHashMap<TridentChunk>() {
-        @Override
-        public TridentChunk get(long k) {
-            TridentChunk chunk = super.get(k);
-            if (chunk != null) {
-                return chunk.waitReady();
-            }
-
-            return null;
-        }
-    };
+    private final Long2ReferenceOpenHashMap<TridentChunk> chunks = new Long2ReferenceOpenHashMap<TridentChunk>();
     /**
      * The world holding the chunks in this map
      */
@@ -75,16 +66,43 @@ public class ChunkMap implements Iterable<TridentChunk> {
      */
     public TridentChunk get(int x, int z, boolean gen) {
         long key = (long) x << 32 | z & 0xFFFFFFFFL;
+        boolean doGenerate = false;
+        TridentChunk chunk;
 
         synchronized (this.lock) {
-            TridentChunk chunk = this.chunks.get(key);
-            if (chunk == null && gen) {
+            chunk = this.chunks.get(key);
+            if ((chunk == null || !chunk.canUse()) && gen) {
                 chunk = new TridentChunk(this.world, x, z);
-                chunk.generate();
                 this.chunks.put(key, chunk);
-            }
 
-            return chunk;
+                doGenerate = true;
+            }
+        }
+
+        if (doGenerate) {
+            chunk.generate();
+        }
+
+        if (chunk != null) {
+            return chunk.waitReady();
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Removes the chunk at the given coordinates.
+     *
+     * @param x the chunk X coordinate
+     * @param z the chunk Z coordinate
+     * @return the chunk that was removed, or {@code null}
+     * if nothing happened
+     */
+    public TridentChunk remove(int x, int z) {
+        long key = (long) x << 32 | z & 0xFFFFFFFFL;
+
+        synchronized (this.lock) {
+            return this.chunks.remove(key);
         }
     }
 
@@ -99,6 +117,7 @@ public class ChunkMap implements Iterable<TridentChunk> {
         }
     }
 
+    @Nonnull
     @Override
     public Iterator<TridentChunk> iterator() {
         return this.values().iterator();

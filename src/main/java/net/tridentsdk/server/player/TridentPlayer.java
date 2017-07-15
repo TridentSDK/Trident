@@ -644,9 +644,9 @@ public class TridentPlayer extends TridentEntity implements Player {
                     TridentChunk chunk = world.getChunkAt(x, z);
                     if (!this.heldChunks.contains(chunk)) {
                         this.heldChunks.add(chunk);
+                        chunk.getEntities().forEach(e -> this.net().sendPacket(((TridentEntity) e).getSpawnPacket()));
                         chunk.getHolders().add(this);
                         this.net().sendPacket(new PlayOutChunk(chunk));
-                        chunk.getEntities().forEach(e -> this.net().sendPacket(((TridentEntity) e).getSpawnPacket()));
                     }
                 }
             }
@@ -662,6 +662,7 @@ public class TridentPlayer extends TridentEntity implements Player {
                     if (!chunk.getEntitySet().isEmpty() || !chunk.getOccupants().isEmpty()) {
                         this.net().sendPacket(new PlayOutDestroyEntities(chunk.getEntities().collect(Collectors.toList())));
                     }
+                    chunk.checkValidForGc();
                 }
             }
         });
