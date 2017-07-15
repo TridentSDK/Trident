@@ -361,7 +361,9 @@ public class TridentChunk implements Chunk {
     public void checkValidForGc() {
         this.useState.set(TRANSITION);
 
-        if (this.holders.isEmpty()) {
+        int centerX = this.world.getWorldOptions().getSpawn().getIntX() >> 4;
+        int centerZ = this.world.getWorldOptions().getSpawn().getIntZ() >> 4;
+        if (this.holders.isEmpty() && (Math.abs(centerX - this.x) > 3 || Math.abs(centerZ - this.z) > 3)) {
             this.useState.set(UNUSABLE);
 
             if (this.world.removeChunkAt(this.x, this.z) != null) {

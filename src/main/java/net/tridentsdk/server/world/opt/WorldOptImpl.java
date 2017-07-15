@@ -36,6 +36,9 @@ import java.util.concurrent.atomic.AtomicMarkableReference;
 @Getter
 @ThreadSafe
 public class WorldOptImpl implements WorldOpts {
+    private final TridentWorld world;
+    private final Dimension dimension;
+
     @Setter
     private volatile boolean allowFlight;
     @Setter
@@ -44,20 +47,17 @@ public class WorldOptImpl implements WorldOpts {
     private volatile boolean allowPortals = true;
     @Setter
     private volatile boolean forceGameMode;
+    @Setter
+    private volatile int spawnProtectionRadius = 16;
 
     @Debug("SURVIVAL")
     @Setter
     private volatile GameMode gameMode = GameMode.CREATIVE;
     private final AtomicMarkableReference<Difficulty> difficulty =
             new AtomicMarkableReference<>(Difficulty.NORMAL, false);
-    private final Dimension dimension;
-    @Setter
-    private volatile int spawnProtectionRadius = 5;
     @Setter
     private volatile Vector spawn = new Vector(0, 64, 0);
     private final GameRuleMap gameRules = new GameRuleMap();
-
-    private final TridentWorld world;
 
     /**
      * Creates a new set of world options for the given
@@ -90,9 +90,20 @@ public class WorldOptImpl implements WorldOpts {
      * @param world the world to create options for
      * @param compound the compound to read data from
      */
+    @Debug("creative")
     public WorldOptImpl(TridentWorld world, Tag.Compound compound) {
         this.world = world;
         this.dimension = Dimension.OVERWORLD;
+
+        this.gameMode = GameMode.CREATIVE; // GameMode.from(compound.getInt("GameType"));
+        this.difficulty.set(Difficulty.from(compound.getByte("Difficulty")),
+                compound.getByte("DifficultyLocked") == 1);
+        this.spawn = new Vector(compound.getInt("SpawnX"), compound.getInt("SpawnY"), compound.getInt("SpawnZ"));
+        Tag.Compound rulesCmp = compound.getCompound("GameRules");
+        for (String s : rulesCmp.getEntries().keySet()) {
+            GameRule<Object> rule = GameRule.from(s);
+            this.gameRules.set(rule, rule.parseValue(rulesCmp.getString(s)));
+        }
     }
 
     /**

@@ -136,6 +136,15 @@ public class TridentWorld implements World {
         // instance to another thread viewable object
         this.worldOptions = new WorldOptImpl(this, spec);
         this.generatorOptions = new GenOptImpl(spec);
+
+        int centerX = this.worldOptions.getSpawn().getIntX() >> 4;
+        int centerZ = this.worldOptions.getSpawn().getIntZ() >> 4;
+        int radius = 3;
+        for (int x = centerX - radius; x < centerX + radius; x++) {
+            for (int z = centerZ - radius; z < centerZ + radius; z++) {
+                this.getChunkAt(x, z);
+            }
+        }
     }
 
     /**
@@ -158,6 +167,15 @@ public class TridentWorld implements World {
             this.border.read(compound);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+
+        int centerX = this.worldOptions.getSpawn().getIntX() >> 4;
+        int centerZ = this.worldOptions.getSpawn().getIntZ() >> 4;
+        int radius = 3;
+        for (int x = centerX - radius; x < centerX + radius; x++) {
+            for (int z = centerZ - radius; z < centerZ + radius; z++) {
+                this.getChunkAt(x, z);
+            }
         }
     }
 

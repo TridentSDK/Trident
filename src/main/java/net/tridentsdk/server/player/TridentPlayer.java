@@ -292,10 +292,7 @@ public class TridentPlayer extends TridentEntity implements Player {
         Login.finish();
         TridentPlayer.playerNames.put(name, player);
 
-        ServerThreadPool.forSpec(PoolSpec.PLUGINS).execute(() ->
-                TridentServer.getInstance().getEventController().dispatch(new PlayerJoinEvent(player)));
-        player.setPosition(world.getWorldOptions().getSpawn().toPosition(world));
-
+        player.position = world.getWorldOptions().getSpawn().toPosition(world);
         player.updateChunks();
         player.resumeLogin();
 
@@ -339,6 +336,9 @@ public class TridentPlayer extends TridentEntity implements Player {
             PlayOutSpawnPlayer oldPlayerPacket = new PlayOutSpawnPlayer(p);
             this.client.sendPacket(oldPlayerPacket);
         });
+
+        ServerThreadPool.forSpec(PoolSpec.PLUGINS).execute(() ->
+                TridentServer.getInstance().getEventController().dispatch(new PlayerJoinEvent(this)));
 
         TridentServer.getInstance().getLogger().log("Player " + this.name + " [" + this.uuid + "] has connected");
     }

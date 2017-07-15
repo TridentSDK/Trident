@@ -20,6 +20,7 @@ import io.netty.buffer.ByteBuf;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.server.packet.PacketOut;
 import net.tridentsdk.world.World;
+import net.tridentsdk.world.opt.GameRule;
 import net.tridentsdk.world.opt.LevelType;
 import net.tridentsdk.world.opt.WorldOpts;
 
@@ -62,6 +63,6 @@ public final class PlayOutJoinGame extends PacketOut {
         buf.writeByte(this.opts.getDifficulty().asByte());
         buf.writeByte(0); // ignored by client
         wstr(buf, this.type.toString());
-        buf.writeBoolean(false); // disable reduce debug
+        buf.writeBoolean(this.opts.getGameRules().get(GameRule.REDUCE_DEBUG));
     }
 }
