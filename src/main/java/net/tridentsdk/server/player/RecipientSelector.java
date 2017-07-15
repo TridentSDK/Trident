@@ -20,6 +20,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.server.entity.TridentEntity;
 import net.tridentsdk.server.packet.PacketOut;
 import net.tridentsdk.server.world.TridentChunk;
 import net.tridentsdk.server.world.TridentWorld;
@@ -69,15 +70,15 @@ public final class RecipientSelector {
 
     /**
      * Sends the given packet to those who can see the given
-     * player.
+     * entity.
      *
-     * @param canSee the player that can be seen
+     * @param canSee the entity that can be seen
      * @param packetOut the packet to send to selected
      * recipients
      * @param exclude whether or not to exclude the player
      * that can be seen from the recipients
      */
-    public static void whoCanSee(TridentPlayer canSee, PacketOut packetOut, boolean exclude) {
+    public static void whoCanSee(TridentEntity canSee, PacketOut packetOut, boolean exclude) {
         whoCanSee(canSee.getWorld().getChunkAt(canSee.getPosition().getChunkX(), canSee.getPosition().getChunkZ(), true),
                 packetOut, exclude ? canSee : null);
     }

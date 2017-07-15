@@ -236,7 +236,7 @@ public abstract class TridentEntity implements Entity {
     @Override
     public void updateMetadata() {
         PlayOutEntityMetadata packet = new PlayOutEntityMetadata(this);
-        TridentPlayer.getPlayers().values().forEach(p -> p.net().sendPacket(packet));
+        RecipientSelector.whoCanSee(this, packet, false);
     }
 
     /**
