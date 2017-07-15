@@ -79,22 +79,22 @@ public class PlayInBlockPlace extends PacketIn {
             PlayInPlayerDig.DigFace face = PlayInPlayerDig.DigFace.get(faceIdx);
             switch (face) {
                 case BOTTOM:
-                    blockPos.subtract(0, 1, 0);
+                    blockPos = blockPos.subtract(0, 1, 0);
                     break;
                 case TOP:
-                    blockPos.add(0, 1, 0);
+                    blockPos = blockPos.add(0, 1, 0);
                     break;
                 case NORTH:
-                    blockPos.subtract(0, 0, 1);
+                    blockPos = blockPos.subtract(0, 0, 1);
                     break;
                 case SOUTH:
-                    blockPos.add(0, 0 , 1);
+                    blockPos = blockPos.add(0, 0 , 1);
                     break;
                 case WEST:
-                    blockPos.subtract(1, 0, 0);
+                    blockPos = blockPos.subtract(1, 0, 0);
                     break;
                 case EAST:
-                    blockPos.add(1, 0 , 0);
+                    blockPos = blockPos.add(1, 0 , 0);
                     break;
                 case SPECIAL:
                     throw new RuntimeException("Invalid item placement");
