@@ -48,7 +48,7 @@ public class Cache<T, M> {
      * A no-op removal listener used for evictions that
      * require no further action
      */
-    private static final BiFunction NOP = (a, b) -> null;
+    private static final BiFunction NOP = (a, b) -> false;
 
     /**
      * The internal mapping of the cache entries

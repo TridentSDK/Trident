@@ -59,7 +59,6 @@ public class TridentPluginChannel implements PluginChannel {
      *
      * @return the listener map
      */
-    @net.tridentsdk.doc.Debug
     public static Map<Class<? extends SimpleChannelListener>, SimpleChannelListener> getListeners() {
         Debug.tryCheckThread();
         return listeners;

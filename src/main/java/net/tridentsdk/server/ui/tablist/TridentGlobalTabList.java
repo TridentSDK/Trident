@@ -17,7 +17,6 @@
 package net.tridentsdk.server.ui.tablist;
 
 import lombok.Getter;
-import net.tridentsdk.doc.Debug;
 import net.tridentsdk.doc.Policy;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.ui.chat.ChatComponent;
@@ -41,10 +40,7 @@ public class TridentGlobalTabList extends TridentTabList {
     /**
      * Creates an initializes a new global tab list
      */
-    @Debug("header/footer")
     public TridentGlobalTabList() {
-        this.setHeader(ChatComponent.text("HEADAAH"));
-        this.setFooter(ChatComponent.text("FOOTAAH"));
     }
 
     @Override

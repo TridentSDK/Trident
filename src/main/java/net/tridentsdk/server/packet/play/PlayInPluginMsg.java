@@ -17,7 +17,6 @@
 package net.tridentsdk.server.packet.play;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.doc.Debug;
 import net.tridentsdk.plugin.channel.PluginChannel;
 import net.tridentsdk.plugin.channel.SimpleChannelListener;
 import net.tridentsdk.server.concurrent.PoolSpec;
@@ -43,7 +42,6 @@ public final class PlayInPluginMsg extends PacketIn {
         super(PlayInPluginMsg.class);
     }
 
-    @Debug("Client brand")
     @Override
     public void read(ByteBuf buf, NetClient client) {
         TridentPlayer player = client.getPlayer();
