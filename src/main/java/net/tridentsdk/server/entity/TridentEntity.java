@@ -92,7 +92,7 @@ public abstract class TridentEntity implements Entity {
      */
     public TridentEntity(World world, PoolSpec spec) {
         this.id = EID_COUNTER.incrementAndGet();
-        this.position = new Position(world);
+        this.position = world.getWorldOptions().getSpawn().toPosition(world);
         this.pool = ServerThreadPool.forSpec(spec);
 
         EntityMetaType metaType = this.getClass().getAnnotation(EntityMetaType.class);

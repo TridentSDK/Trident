@@ -212,6 +212,7 @@ public class TridentServer implements Server {
         try {
             this.logger.log("Kicking players...");
             TridentPlayer.getPlayers().values().forEach(p -> p.kick(ChatComponent.text("Server closed")));
+            this.tick.interrupt();
             this.logger.log("Unloading plugins...");
             if (!this.pluginLoader.unloadAll()) {
                 this.logger.error("Unloading plugins failed...");
@@ -223,7 +224,6 @@ public class TridentServer implements Server {
             this.logger.log("Saving server config...");
             this.config.save();
             this.logger.log("Shutting down server process...");
-            this.tick.interrupt();
             ServerThreadPool.shutdownAll();
             this.logger.log("Closing network connections...");
             this.server.shutdown();

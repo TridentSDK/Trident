@@ -292,7 +292,6 @@ public class TridentPlayer extends TridentEntity implements Player {
         Login.finish();
         TridentPlayer.playerNames.put(name, player);
 
-        player.position = world.getWorldOptions().getSpawn().toPosition(world);
         player.updateChunks();
         player.resumeLogin();
 
