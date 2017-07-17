@@ -16,10 +16,8 @@
  */
 package net.tridentsdk.server.packet.login;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import net.tridentsdk.server.TridentServer;
@@ -63,14 +61,12 @@ public final class LoginOutSuccess extends PacketOut {
         this.client = client;
         this.name = client.getName();
 
-        JsonArray array = new JsonArray();
-        array.add(new JsonPrimitive(this.name));
         String tempUuid;
         try {
-            tempUuid = Mojang.<String>req("https://api.mojang.com/profiles/minecraft")
-                    .callback((JsonElement element) -> element.getAsJsonArray().get(0).getAsJsonObject().get("id").getAsString())
+            tempUuid = Mojang.<String>req("https://api.mojang.com/users/profiles/minecraft/%s", this.name)
+                    .callback((JsonElement element) -> element.getAsJsonObject().get("id").getAsString())
                     .onException(s -> null)
-                    .post(array).get();
+                    .get().get();
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
         }

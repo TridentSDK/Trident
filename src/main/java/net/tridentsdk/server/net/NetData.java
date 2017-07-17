@@ -141,6 +141,16 @@ public final class NetData {
     }
 
     /**
+     * Converts the given angle into protocol format.
+     *
+     * @param angle the angle to convert
+     * @return the protocol format
+     */
+    public static byte convertAngle(float angle) {
+        return (byte) (angle / 1.40625);
+    }
+
+    /**
      * Reads the next VarLong value from the byte stream
      * represented by the given buffer.
      *

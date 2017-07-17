@@ -22,14 +22,15 @@ import net.tridentsdk.server.packet.PacketOut;
 
 import javax.annotation.concurrent.Immutable;
 
+import static net.tridentsdk.server.net.NetData.convertAngle;
 import static net.tridentsdk.server.net.NetData.wvint;
 
 @Immutable
 public final class PlayOutEntityLook extends PacketOut {
 
     private final int id;
-    private final double yaw;
-    private final double pitch;
+    private final float yaw;
+    private final float pitch;
     private final boolean onGround;
 
     public PlayOutEntityLook(Entity entity) {
@@ -44,8 +45,8 @@ public final class PlayOutEntityLook extends PacketOut {
     public void write(ByteBuf buf) {
         wvint(buf, this.id);
 
-        buf.writeByte((int) (this.yaw * 256 / 360));
-        buf.writeByte((int) (this.pitch / 1.4));
+        buf.writeByte(convertAngle(this.yaw));
+        buf.writeByte(convertAngle(this.pitch));
 
         buf.writeBoolean(this.onGround);
     }

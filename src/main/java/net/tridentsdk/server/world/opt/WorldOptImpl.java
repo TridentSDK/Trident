@@ -39,17 +39,6 @@ public class WorldOptImpl implements WorldOpts {
     private final TridentWorld world;
     private final Dimension dimension;
 
-    @Setter
-    private volatile boolean allowFlight;
-    @Setter
-    private volatile boolean allowPvp = true;
-    @Setter
-    private volatile boolean allowPortals = true;
-    @Setter
-    private volatile boolean forceGameMode;
-    @Setter
-    private volatile int spawnProtectionRadius = 16;
-
     @Debug("SURVIVAL")
     @Setter
     private volatile GameMode gameMode = GameMode.CREATIVE;
@@ -74,11 +63,6 @@ public class WorldOptImpl implements WorldOpts {
             this.difficulty.set(spec.getDifficulty(), spec.isDifficultyLocked());
             this.gameMode = spec.getGameMode();
             spec.getGameRules().copyTo(this.gameRules);
-            this.allowFlight = spec.isAllowFlight();
-            this.allowPvp = spec.isAllowPvp();
-            this.allowPortals = spec.isAllowPortals();
-            this.forceGameMode = spec.isForceGameMode();
-            this.spawnProtectionRadius = spec.getSpawnProtectionRadius();
             this.spawn = spec.getSpawn() == null ? this.randVector() : spec.getSpawn();
         }
     }
@@ -153,5 +137,19 @@ public class WorldOptImpl implements WorldOpts {
      * Saves the world options as NBT data.
      */
     public void write(Tag.Compound compound) {
+        compound.putInt("GameType", this.gameMode.asInt());
+        compound.putByte("Difficulty", this.difficulty.getReference().asByte());
+        compound.putByte("DifficultyLocked", (byte) (this.difficulty.isMarked() ? 1 : 0));
+
+        Vector spawn = this.spawn;
+        compound.putInt("SpawnX", spawn.getIntX());
+        compound.putInt("SpawnY", spawn.getIntY());
+        compound.putInt("SpawnZ", spawn.getIntZ());
+
+        Tag.Compound rulesCmp = new Tag.Compound("GameRules");
+        for (String s : GameRule.getKeyStrings()) {
+            rulesCmp.putString(s, String.valueOf(this.gameRules.<Object>get(GameRule.from(s))));
+        }
+        compound.putCompound(rulesCmp);
     }
 }
