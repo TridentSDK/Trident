@@ -20,10 +20,10 @@ public class PlayOutTeleport extends PacketOut {
     private final Position position;
     private final boolean onGround;
 
-    public PlayOutTeleport(TridentEntity entity) {
+    public PlayOutTeleport(TridentEntity entity, Position teleport) {
         super(PlayOutTeleport.class);
         this.eid = entity.getId();
-        this.position = entity.getPosition();
+        this.position = teleport;
         this.onGround = entity.isOnGround();
     }
 

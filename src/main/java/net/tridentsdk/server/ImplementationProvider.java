@@ -62,7 +62,7 @@ import java.util.Map;
  * {@link Impl}.
  */
 @Immutable
-public class ImplementationProvider implements Impl.ImplementationProvider {
+public class ImplementationProvider implements Impl.Provider {
     // head of the logger pipeline
     private final PipelinedLogger head;
     // instance of the handlers class
@@ -154,7 +154,7 @@ public class ImplementationProvider implements Impl.ImplementationProvider {
         // _ goes last
         String top = TridentPlayer.getPlayerNames().ceilingKey(name.toUpperCase());
 
-        StringBuilder last = new StringBuilder(name);
+        StringBuilder last = new StringBuilder(name.toLowerCase());
         for (int i = 0; i < 16 - name.length(); i++) {
             last.append('_');
         }

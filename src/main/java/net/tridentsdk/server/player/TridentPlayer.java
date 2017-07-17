@@ -311,9 +311,9 @@ public class TridentPlayer extends TridentEntity implements Player {
         TridentPluginChannel.autoAdd(this);
         this.client.sendPacket(new PlayOutDifficulty(this.getWorld()));
         this.client.sendPacket(new PlayOutSpawnPos());
-        this.client.sendPacket(new PlayOutPosLook(this));
         this.client.sendPacket(new PlayOutPlayerAbilities(this));
         this.inventory.update();
+        this.client.sendPacket(new PlayOutPosLook(this));
 
         this.setTabList(TridentGlobalTabList.getInstance());
         TridentGlobalTabList.getInstance().update();

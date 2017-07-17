@@ -195,7 +195,7 @@ public abstract class TridentEntity implements Entity {
         Position delta = position.subtract(old);
         if(delta.getX() != 0 || delta.getY() != 0 || delta.getZ() != 0) {
             if (old.distanceSquared(position) > 16) {
-                PlayOutTeleport packet = new PlayOutTeleport(this);
+                PlayOutTeleport packet = new PlayOutTeleport(this, position);
                 RecipientSelector.whoCanSee(destChunk, null, packet);
             } else {
                 if (Double.compare(old.getYaw(), position.getYaw()) == 0 && Double.compare(old.getPitch(), position.getPitch()) == 0){

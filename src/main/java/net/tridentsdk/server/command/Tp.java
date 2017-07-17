@@ -27,7 +27,8 @@ import java.util.Map;
 
 @Immutable
 public class Tp implements CmdListener {
-    @Cmd(name = "tp", help = "/teleport <player> <x> <y> <z> [<pitch> <yaw>]", desc = "Teleports the given player to the given XYZ")
+    @Cmd(name = "teleport", help = "/teleport <player> <x> <y> <z> [<pitch> <yaw>]", desc = "Teleports the given player to the given XYZ")
+    @Alias("tp")
     @Constrain(value = SourceConstraint.class, type = ConstraintType.SOURCE, src = CmdSourceType.PLAYER)
     @Constrain(value = MinArgsConstraint.class, type = ConstraintType.INT, integer = 4)
     @Constrain(value = MaxArgsConstraint.class, type = ConstraintType.INT, integer = 6)
@@ -47,17 +48,13 @@ public class Tp implements CmdListener {
             }
         }
 
-        Position position = p.getPosition();
-
         if (args.length == 4) {
             try {
                 int x = Integer.parseInt(args[1]);
                 int y = Integer.parseInt(args[2]);
                 int z = Integer.parseInt(args[3]);
-                position.set(x, y, z);
 
-                // TODO teleport
-                p.setPosition(position);
+                p.setPosition(new Position(p.getWorld(), x, y, z));
             } catch (NumberFormatException e) {
                 source.sendMessage(ChatComponent.create().setColor(ChatColor.RED).
                         setText("Given coordinates were not numbers"));
@@ -69,11 +66,8 @@ public class Tp implements CmdListener {
                 int z = Integer.parseInt(args[3]);
                 float pitch = Float.parseFloat(args[4]);
                 float yaw = Float.parseFloat(args[5]);
-                position.set(x, y, z);
-                position.setPitch(pitch);
-                position.setYaw(yaw);
 
-                p.setPosition(position);
+                p.setPosition(new Position(p.getWorld(), x, y, z, pitch, yaw));
             } catch (NumberFormatException e) {
                 source.sendMessage(ChatComponent.create().setColor(ChatColor.RED).
                         setText("Given coordinates were not numbers"));
