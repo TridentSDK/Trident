@@ -146,7 +146,7 @@ public class TridentChunk implements Chunk {
         this.x = x;
         this.z = z;
 
-        if (world.getWorldOptions().getDimension() == Dimension.OVERWORLD) {
+        if (world.getDimension() == Dimension.OVERWORLD) {
             this.emptyPlaceholder = ChunkSection.EMPTY_WITH_SKYLIGHT;
         } else {
             this.emptyPlaceholder = ChunkSection.EMPTY_WITHOUT_SKYLIGHT;
@@ -220,7 +220,7 @@ public class TridentChunk implements Chunk {
         Set<PropGenerator> props = provider.getPropGenerators(this.world);
         Set<FeatureGenerator> features = provider.getFeatureGenerators(this.world);
         GeneratorContextImpl context = new GeneratorContextImpl(container, opts.getSeed(),
-                this.world.getWorldOptions().getDimension() == Dimension.OVERWORLD);
+                this.world.getDimension() == Dimension.OVERWORLD);
 
         CompletableFuture.supplyAsync(() -> {
             terrain.generate(this.x, this.z, context);
@@ -449,7 +449,7 @@ public class TridentChunk implements Chunk {
 
         ChunkSection section = this.sections.get(sectionIdx);
         if (section == null) {
-            ChunkSection newSec = new ChunkSection(this.world.getWorldOptions().getDimension() == Dimension.OVERWORLD);
+            ChunkSection newSec = new ChunkSection(this.world.getDimension() == Dimension.OVERWORLD);
             if (this.sections.compareAndSet(sectionIdx, null, newSec)) {
                 section = newSec;
             } else {
@@ -489,7 +489,7 @@ public class TridentChunk implements Chunk {
 
         Tag.List<Tag.Compound> sectionList = compound.getList("Sections");
         for (Tag.Compound c : sectionList) {
-            ChunkSection section = new ChunkSection(this.world.getWorldOptions().getDimension() == Dimension.OVERWORLD);
+            ChunkSection section = new ChunkSection(this.world.getDimension() == Dimension.OVERWORLD);
             section.read(c);
 
             byte y = c.getByte("Y");

@@ -24,11 +24,13 @@ import net.tridentsdk.world.opt.GenOpts;
 import net.tridentsdk.world.opt.LevelType;
 import net.tridentsdk.world.opt.WorldCreateSpec;
 
+import javax.annotation.concurrent.Immutable;
 import java.util.Random;
 
 /**
  * Implementation of the generator options interface.
  */
+@Immutable
 public class GenOptImpl implements GenOpts {
     /**
      * The seed source for the current instance of the

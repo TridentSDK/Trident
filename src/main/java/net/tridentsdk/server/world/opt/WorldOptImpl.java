@@ -37,7 +37,6 @@ import java.util.concurrent.atomic.AtomicMarkableReference;
 @ThreadSafe
 public class WorldOptImpl implements WorldOpts {
     private final TridentWorld world;
-    private final Dimension dimension;
 
     @Debug("SURVIVAL")
     @Setter
@@ -45,7 +44,7 @@ public class WorldOptImpl implements WorldOpts {
     private final AtomicMarkableReference<Difficulty> difficulty =
             new AtomicMarkableReference<>(Difficulty.NORMAL, false);
     @Setter
-    private volatile Vector spawn = new Vector(0, 64, 0);
+    private volatile Vector spawn;
     private final GameRuleMap gameRules = new GameRuleMap();
 
     /**
@@ -57,13 +56,14 @@ public class WorldOptImpl implements WorldOpts {
      */
     public WorldOptImpl(TridentWorld world, WorldCreateSpec spec) {
         this.world = world;
-        this.dimension = spec.getDimension();
 
         if (!spec.isDefault()) {
             this.difficulty.set(spec.getDifficulty(), spec.isDifficultyLocked());
             this.gameMode = spec.getGameMode();
             spec.getGameRules().copyTo(this.gameRules);
             this.spawn = spec.getSpawn() == null ? this.randVector() : spec.getSpawn();
+        } else {
+            this.spawn = this.randVector();
         }
     }
 
@@ -77,7 +77,6 @@ public class WorldOptImpl implements WorldOpts {
     @Debug("creative")
     public WorldOptImpl(TridentWorld world, Tag.Compound compound) {
         this.world = world;
-        this.dimension = Dimension.OVERWORLD;
 
         this.gameMode = GameMode.CREATIVE; // GameMode.from(compound.getInt("GameType"));
         this.difficulty.set(Difficulty.from(compound.getByte("Difficulty")),
@@ -99,7 +98,7 @@ public class WorldOptImpl implements WorldOpts {
         ThreadLocalRandom r = ThreadLocalRandom.current();
         int x = r.nextInt() % 1000;
         int z = r.nextInt() % 1000;
-        return new Vector(x, this.world.getHighestY(x, z), z);
+        return new Vector(x, this.world.getHighestY(x, z) + 1, z);
     }
 
     @Override

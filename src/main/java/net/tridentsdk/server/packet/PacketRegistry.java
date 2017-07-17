@@ -83,6 +83,7 @@ public final class PacketRegistry {
         put(PlayOutLightning.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x02);
         put(PlayOutSpawnPlayer.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x05);
         put(PlayOutAnimation.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x06);
+        put(PlayOutBlockChange.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x0B);
         put(PlayOutBossBar.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x0C);
         put(PlayOutDifficulty.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x0D);
         put(PlayOutChat.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x0F);
