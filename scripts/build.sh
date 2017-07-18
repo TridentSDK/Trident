@@ -36,17 +36,17 @@ then
     git checkout $ORIGIN_BRANCH
 fi
 
-gradlew clean build jar publishToMavenLocal
+./gradlew clean build jar publishToMavenLocal
 popd
 
 if [ "$TRAVIS_BRANCH" == "revamp" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ];
 then
     echo "Compiling with deployment"
-    gradlew clean build jar jacocoTestReport uploadArchives
+    ./gradlew clean build jar jacocoTestReport uploadArchives
 
     # Ping docker hub
     curl -H "Content-Type: application/json" --data "'{\"build\": true}'" -X POST https://registry.hub.docker.com/u/tridentsdk/trident/trigger/${DOCKER_TRIGGER_TOKEN}/
 else
     echo "Compiling without deployment"
-    gradlew clean build jar
+    ./gradlew clean build jar
 fi
