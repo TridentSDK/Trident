@@ -6,10 +6,6 @@ jdk:
   - oraclejdk8
   - openjdk8
 
-before_install:
-  - chmod 777 "scripts/build.sh"
-  - chmod 777 "scripts/javadoc.sh"
-
 after_script: ./scripts/javadoc.sh
 
 script: ./scripts/build.sh
