@@ -1,18 +1,26 @@
 {
-  // Internal address used to bind the server
-  "address": "0.0.0.0",
-  // Internal port used to bind the server
-  "port": 25565,
-  // Use native epoll on Linux systems
-  "use-native": true,
-  // Minimum packet size before compressing
-  "compression-threshold": 256,
-  // Whether the server does authentication
-  "online-mode": true,
-  // The max players on the server
-  "max-players": 20,
-  // The server MOTD
-  "motd": "Just another TridentSDK server...",
-  // Enable Netty Leak Detector
-  "netty-leak-detector": false
+  // Address used by the server
+  address: 0.0.0.0
+
+  // The server port
+  port: 25565
+
+  // "true" to use linux natives when available
+  use-native: true
+
+  // The amount of bytes before compressing packets
+  // Use -1 to disable
+  compression-threshold: 256
+
+  // Whether to use Mojang auth to check players
+  online-mode: true
+
+  // The max players that can be online at once
+  max-players: 20
+
+  // The MOTD message shown in the server list
+  motd: Just another TridentSDK server...
+
+  // Whether to check for netty memory leaks during runtime
+  netty-leak-detector: false
 }
