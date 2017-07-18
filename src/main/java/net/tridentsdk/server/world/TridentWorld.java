@@ -134,6 +134,8 @@ public class TridentWorld implements World {
      * creation options.
      *
      * @param name the name of the new world
+     * @param enclosing the enclosing folder
+     * @param spec the world spec
      */
     public TridentWorld(String name, Path enclosing, WorldCreateSpec spec) {
         this.name = name;
@@ -151,6 +153,7 @@ public class TridentWorld implements World {
      *
      * @param name the name of the world
      * @param enclosing the enclosing folder
+     * @param dimension the dimension
      */
     public TridentWorld(String name, Path enclosing, Dimension dimension) {
         this.name = name;

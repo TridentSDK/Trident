@@ -58,7 +58,10 @@ public class OpsList extends TridentConfig {
     /**
      * Initializes the ops list to the config file contents.
      *
+     * @param needsInit whether to initialize empty file
      * @return the new ops list
+     *
+     * @throws IOException pass down exception
      */
     public static OpsList init(boolean needsInit) throws IOException {
         OpsList list = new OpsList();

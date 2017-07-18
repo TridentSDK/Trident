@@ -42,6 +42,8 @@ public final class TridentTick extends Thread {
 
     /**
      * Creates a new server ticker thread.
+     *
+     * @param logger the logger to log to
      */
     public TridentTick(Logger logger) {
         super("TRD - Tick");

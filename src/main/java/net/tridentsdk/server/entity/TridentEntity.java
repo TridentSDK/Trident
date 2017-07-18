@@ -88,6 +88,7 @@ public abstract class TridentEntity implements Entity {
      * Entity superconstructor.
      *
      * @param world the world which the entity is located
+     * @param spec the specifications of the pool
      */
     public TridentEntity(TridentWorld world, PoolSpec spec) {
         this.id = EID_COUNTER.incrementAndGet();
