@@ -33,7 +33,7 @@ public class ServerConfig extends TridentConfig {
     /**
      * The path to the server configuration file
      */
-    public static final Path PATH = Misc.HOME_PATH.resolve("server.json");
+    public static final Path PATH = Misc.HOME_PATH.resolve("server.hjson");
 
     /**
      * The internal server ip to which the socket

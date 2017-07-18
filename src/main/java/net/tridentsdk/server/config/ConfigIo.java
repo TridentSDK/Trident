@@ -16,11 +16,12 @@
  */
 package net.tridentsdk.server.config;
 
-import com.google.gson.*;
+import org.hjson.JsonObject;
+import org.hjson.JsonValue;
+import org.hjson.Stringify;
 
 import javax.annotation.concurrent.Immutable;
 import java.io.*;
-import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -30,20 +31,6 @@ import java.nio.file.Path;
  */
 @Immutable
 public final class ConfigIo {
-    /**
-     * Gson object using readability settings
-     */
-    public static final Gson GSON = new GsonBuilder()
-            .registerTypeAdapterFactory(TridentAdapter.FACTORY)
-            .serializeNulls()
-            .setPrettyPrinting()
-            .disableHtmlEscaping()
-            .create();
-    /**
-     * JsonParser for straight reading the configs
-     */
-    public static final JsonParser PARSER = new JsonParser();
-
     // Prevent instantiation
     private ConfigIo() {
     }
@@ -81,7 +68,7 @@ public final class ConfigIo {
         }
 
         String json = new String(out.toByteArray()).trim();
-        return PARSER.parse(json).getAsJsonObject();
+        return JsonValue.readHjson(json).asObject();
     }
 
     /**
@@ -93,7 +80,7 @@ public final class ConfigIo {
      * config
      */
     public static void writeConfig(Path path, JsonObject object) throws IOException {
-        String json = GSON.toJson(object);
+        String json = object.toString(Stringify.HJSON);
 
         try (FileOutputStream stream = new FileOutputStream(path.toFile())) {
             stream.write(json.getBytes());
@@ -104,13 +91,25 @@ public final class ConfigIo {
      * Converts the element to an object
      *
      * @param element the element to convert
-     * @param cls the type to which this method will
-     * convert
-     * @param <T> the type
      * @return the object
      */
-    public static <T> T asObj(JsonElement element, Class<T> cls) {
-        return GSON.fromJson(element, (Type) cls);
+    public static Object asObj(JsonValue element) {
+        switch (element.getType()) {
+            case STRING:
+                return element.asString();
+            case NUMBER:
+                return element.asInt();
+            case OBJECT:
+                throw new RuntimeException("This is a config section");
+            case ARRAY:
+                return element.asArray();
+            case BOOLEAN:
+                return element.asBoolean();
+            case NULL:
+                throw new RuntimeException("Element cannot be null");
+        }
+
+        throw new RuntimeException("Cannot parse " + element.getType());
     }
 
     /**
@@ -119,7 +118,35 @@ public final class ConfigIo {
      * @param o the object to convert
      * @return the json object
      */
-    public static JsonElement asJson(Object o) {
-        return GSON.toJsonTree(o);
+    public static JsonValue asJson(Object o) {
+        if (o instanceof Double) {
+            return JsonValue.valueOf((Double) o);
+        }
+
+        if (o instanceof Float) {
+            return JsonValue.valueOf((Float) o);
+        }
+
+        if (o instanceof Long) {
+            return JsonValue.valueOf((Long) o);
+        }
+
+        if (o instanceof Integer) {
+            return JsonValue.valueOf((Integer) o);
+        }
+
+        if (o instanceof String) {
+            return JsonValue.valueOf((String) o);
+        }
+
+        if (o instanceof Boolean) {
+            return JsonValue.valueOf((Boolean) o);
+        }
+
+        if (o instanceof JsonValue) {
+            return (JsonValue) o;
+        }
+
+        throw new RuntimeException("Objects must be preformatted as JsonObjects: " + o.getClass());
     }
 }

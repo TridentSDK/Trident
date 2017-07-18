@@ -16,14 +16,13 @@
  */
 package net.tridentsdk.server.net;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import io.netty.buffer.ByteBuf;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import net.tridentsdk.base.BlockDirection;
 import net.tridentsdk.base.Vector;
 import net.tridentsdk.ui.chat.ChatComponent;
+import org.hjson.JsonValue;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.ArrayList;
@@ -72,7 +71,7 @@ public class EntityMetadata {
                     value = NetData.rstr(buf);
                     break;
                 case CHAT:
-                    value = ChatComponent.fromJson(new Gson().fromJson(NetData.rstr(buf), JsonObject.class));
+                    value = ChatComponent.fromJson(JsonValue.readJSON(NetData.rstr(buf)).asObject());
                     break;
                 case SLOT:
                     value = Slot.read(buf);

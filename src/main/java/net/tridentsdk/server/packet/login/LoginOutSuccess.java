@@ -16,14 +16,14 @@
  */
 package net.tridentsdk.server.packet.login;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.packet.PacketOut;
 import net.tridentsdk.server.ui.tablist.TabListElement;
+import org.hjson.JsonObject;
+import org.hjson.JsonValue;
 
 import javax.annotation.concurrent.Immutable;
 import java.util.UUID;
@@ -64,7 +64,7 @@ public final class LoginOutSuccess extends PacketOut {
         String tempUuid;
         try {
             tempUuid = Mojang.<String>req("https://api.mojang.com/users/profiles/minecraft/%s", this.name)
-                    .callback((JsonElement element) -> element.getAsJsonObject().get("id").getAsString())
+                    .callback((JsonValue element) -> element.asObject().get("id").asString())
                     .onException(s -> null)
                     .get().get();
         } catch (InterruptedException | ExecutionException e) {
@@ -78,7 +78,7 @@ public final class LoginOutSuccess extends PacketOut {
             this.uuid = Login.convert(this.name, tempUuid);
             try {
                 JsonObject tex = Mojang.<JsonObject>req("https://sessionserver.mojang.com/session/minecraft/profile/%s?unsigned=false", tempUuid)
-                        .callback((JsonElement e) -> e.getAsJsonObject().getAsJsonArray("properties").get(0).getAsJsonObject())
+                        .callback((JsonValue e) -> e.asObject().get("properties").asArray().get(0).asObject())
                         .onException(s -> {
                             TridentServer.getInstance().getLogger().error("Login cannot be completed due to HTTPS error");
                             return null;
@@ -88,7 +88,9 @@ public final class LoginOutSuccess extends PacketOut {
                 if (tex == null) {
                     this.textures = new TabListElement.PlayerProperty("", "", "");
                 } else {
-                    this.textures = new TabListElement.PlayerProperty(tex.get("name").getAsString(), tex.get("value").getAsString(), tex.has("signature") ? tex.get("signature").getAsString() : null);
+                    JsonValue signature = tex.get("signature");
+                    this.textures = new TabListElement.PlayerProperty(tex.get("name").asString(),
+                            tex.get("value").asString(), signature != null ? signature.asString() : null);
                 }
             } catch (InterruptedException | ExecutionException e) {
                 throw new RuntimeException(e);

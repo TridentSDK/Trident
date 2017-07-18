@@ -23,6 +23,7 @@ import net.tridentsdk.util.Misc;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -35,7 +36,7 @@ public class OpsList extends TridentConfig {
     /**
      * Path to the ops file
      */
-    public static final Path PATH = Misc.HOME_PATH.resolve("ops.json");
+    public static final Path PATH = Misc.HOME_PATH.resolve("ops.hjson");
     /**
      * The key to the ops collection in the config file
      */
@@ -59,8 +60,11 @@ public class OpsList extends TridentConfig {
      *
      * @return the new ops list
      */
-    public static OpsList init() throws IOException {
+    public static OpsList init(boolean needsInit) throws IOException {
         OpsList list = new OpsList();
+        if (needsInit) {
+            Files.write(list.getPath(), "{}".getBytes());
+        }
         list.load();
         return list;
     }
@@ -105,10 +109,8 @@ public class OpsList extends TridentConfig {
         if (this.hasKey(OPS_KEY)) {
             this.getCollection(OPS_KEY, new AbstractSet<String>() {
                 @Override
-                public boolean addAll(Collection<? extends String> c) {
-                    for (String s : c) {
-                        OpsList.this.ops.add(UUID.fromString(s));
-                    }
+                public boolean add(String c) {
+                    OpsList.this.ops.add(UUID.fromString(c));
                     return true;
                 }
 

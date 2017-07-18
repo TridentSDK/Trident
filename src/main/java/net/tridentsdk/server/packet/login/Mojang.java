@@ -16,11 +16,12 @@
  */
 package net.tridentsdk.server.packet.login;
 
-import com.google.gson.JsonElement;
 import net.tridentsdk.server.concurrent.PoolSpec;
 import net.tridentsdk.server.concurrent.ServerThreadPool;
-import net.tridentsdk.server.config.ConfigIo;
 import net.tridentsdk.server.net.NetData;
+import org.hjson.JsonObject;
+import org.hjson.JsonValue;
+import org.hjson.Stringify;
 
 import javax.annotation.concurrent.ThreadSafe;
 import javax.net.ssl.HttpsURLConnection;
@@ -51,7 +52,7 @@ public final class Mojang<T> {
     /**
      * The async callback
      */
-    private volatile Function<JsonElement, T> callback;
+    private volatile Function<JsonValue, T> callback;
     /**
      * Callback for exceptional requests
      */
@@ -98,7 +99,7 @@ public final class Mojang<T> {
                 }
 
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(this.c.getInputStream()))) {
-                    return this.callback.apply(ConfigIo.PARSER.parse(reader));
+                    return this.callback.apply(JsonValue.readJSON(reader));
                 }
             } catch (IOException e) {
                 return this.exception.apply(e.getMessage());
@@ -112,7 +113,7 @@ public final class Mojang<T> {
      *
      * @param element the JSON object to POST
      */
-    public Future<T> post(JsonElement element) {
+    public Future<T> post(JsonObject element) {
         Callable<T> post = () -> {
             try {
                 this.c.setRequestMethod("POST");
@@ -122,7 +123,7 @@ public final class Mojang<T> {
                 this.c.setDoInput(true);
 
                 try (OutputStream out = this.c.getOutputStream()) {
-                    out.write(ConfigIo.GSON.toJson(element).getBytes(NetData.NET_CHARSET));
+                    out.write(element.asObject().toString(Stringify.PLAIN).getBytes(NetData.NET_CHARSET));
                 }
 
                 int code = this.c.getResponseCode();
@@ -131,7 +132,7 @@ public final class Mojang<T> {
                 }
 
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(this.c.getInputStream()))) {
-                    return this.callback.apply(ConfigIo.PARSER.parse(reader));
+                    return this.callback.apply(JsonValue.readJSON(reader));
                 }
             } catch (IOException e) {
                 return this.exception.apply(e.getMessage());
@@ -146,8 +147,8 @@ public final class Mojang<T> {
      * @param consumer the callback
      * @return the current instance of this mojang request
      */
-    public Mojang<T> callback(Consumer<JsonElement> consumer) {
-        return this.callback((resp) -> {
+    public Mojang<T> callback(Consumer<JsonValue> consumer) {
+        return this.callback(resp -> {
             consumer.accept(resp);
             return null;
         });
@@ -159,7 +160,7 @@ public final class Mojang<T> {
      * @param func the callback
      * @return the current instance of this mojang request
      */
-    public Mojang<T> callback(Function<JsonElement, T> func) {
+    public Mojang<T> callback(Function<JsonValue, T> func) {
         this.callback = func;
         return this;
     }
