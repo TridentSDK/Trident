@@ -187,6 +187,7 @@ public final class PacketRegistry {
     /**
      * Creates a new instance of the given packet class.
      *
+     * @param <T> the packet type
      * @param cls the packet class to instantiate
      * @return the instantiated packet
      */

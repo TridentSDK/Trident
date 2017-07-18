@@ -84,6 +84,11 @@ public class FileLogger extends PipelinedLogger {
     /**
      * Initializes the files and directories, attempts to
      * find the last log file.
+     *
+     * @param next the next logger in the pipeline
+     * @return a new {@link FileLogger}
+     *
+     * @throws Exception pass down exception
      */
     public static FileLogger init(PipelinedLogger next) throws Exception {
         FileLogger logger = new FileLogger(next);

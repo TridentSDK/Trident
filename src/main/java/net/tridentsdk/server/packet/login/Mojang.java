@@ -38,6 +38,8 @@ import java.util.function.Function;
 
 /**
  * Helper class for initiating requests to Mojang servers.
+ *
+ * @param <T> the response type
  */
 @ThreadSafe
 public final class Mojang<T> {
@@ -67,6 +69,7 @@ public final class Mojang<T> {
      * Opens a connection to the mojang URL following the
      * given format and fillers.
      *
+     * @param <T> the response type
      * @param format the full URL
      * @param fill the variables
      * @return the mojang request
@@ -83,6 +86,8 @@ public final class Mojang<T> {
 
     /**
      * Performs an HTTP(s) GET to the server.
+     *
+     * @return the response future
      */
     public Future<T> get() {
         Callable<T> get = () -> {
@@ -112,6 +117,7 @@ public final class Mojang<T> {
      * Performs an HTTP(s) POST to the mojang server.
      *
      * @param element the JSON object to POST
+     * @return the response future
      */
     public Future<T> post(JsonObject element) {
         Callable<T> post = () -> {

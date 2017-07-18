@@ -57,6 +57,8 @@ public final class ConfigIo {
      *
      * @param path the config file location
      * @return the in-memory representation of the config
+     *
+     * @throws IOException pass down exception
      */
     public static JsonObject readConfig(Path path) throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -78,6 +80,8 @@ public final class ConfigIo {
      * @param path the config to write
      * @param object the memory representation of the
      * config
+     *
+     * @throws IOException pass down exception
      */
     public static void writeConfig(Path path, JsonObject object) throws IOException {
         String json = object.toString(Stringify.HJSON);

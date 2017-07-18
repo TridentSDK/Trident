@@ -53,6 +53,7 @@ public class WorldOptImpl implements WorldOpts {
      * a plugin.
      *
      * @param world the world possessing these options.
+     * @param spec the world spec
      */
     public WorldOptImpl(TridentWorld world, WorldCreateSpec spec) {
         this.world = world;
@@ -134,6 +135,8 @@ public class WorldOptImpl implements WorldOpts {
 
     /**
      * Saves the world options as NBT data.
+     *
+     * @param compound the compound to write to
      */
     public void write(Tag.Compound compound) {
         compound.putInt("GameType", this.gameMode.asInt());

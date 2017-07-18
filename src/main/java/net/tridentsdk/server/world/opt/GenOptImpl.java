@@ -52,6 +52,8 @@ public class GenOptImpl implements GenOpts {
     /**
      * Constructor for generating a world custom to the
      * given specifications.
+     *
+     * @param spec the world spec
      */
     public GenOptImpl(WorldCreateSpec spec) {
         if (spec.isDefault()) {
@@ -72,6 +74,8 @@ public class GenOptImpl implements GenOpts {
     /**
      * Constructor for loading the given NBT options into
      * this set of options.
+     *
+     * @param compound the compound to read from
      */
     public GenOptImpl(Tag.Compound compound) {
         String providerClass = compound.get("TridentProvider");

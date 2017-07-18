@@ -83,6 +83,7 @@ public final class Login {
     /**
      * Corrects input UUIDs that do not have dashes.
      *
+     * @param name the name to cache
      * @param input the raw UUID from mojang
      * @return the dashed string
      */

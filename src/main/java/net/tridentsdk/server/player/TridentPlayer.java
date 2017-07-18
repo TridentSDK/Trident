@@ -280,6 +280,7 @@ public class TridentPlayer extends TridentEntity implements Player {
      * @param name the player name
      * @param uuid the player UUID
      * @param skinTextures the player textures
+     * @return the spawned player
      */
     public static TridentPlayer spawn(NetClient client, String name, UUID uuid,
                                       TabListElement.PlayerProperty skinTextures) {

@@ -150,6 +150,8 @@ public class NetClient {
     /**
      * Creates a new netclient that represents a client's
      * connection to the server.
+     *
+     * @param ctx the context
      */
     public NetClient(ChannelHandlerContext ctx) {
         this.channel = ctx.channel();
@@ -201,6 +203,8 @@ public class NetClient {
     /**
      * Initializes the crypto module and returns the result
      * of doing so.
+     *
+     * @return the crypto module
      */
     public NetCrypto initCrypto() {
         return this.cryptoModule = new NetCrypto();
@@ -230,6 +234,7 @@ public class NetClient {
      * Sends the given packet to the client's channel.
      *
      * @param packet the packet to send
+     * @return the response future
      */
     public ChannelFuture sendPacket(PacketOut packet) {
         return this.channel.writeAndFlush(packet);

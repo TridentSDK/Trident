@@ -59,6 +59,7 @@ public class Slot {
      * read encoded values of the slot.
      *
      * @param buf the buffer which to read
+     * @return the slot
      */
     public static Slot read(ByteBuf buf) {
         short id = buf.readShort();

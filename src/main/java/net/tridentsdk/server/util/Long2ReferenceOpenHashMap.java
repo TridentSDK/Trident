@@ -234,6 +234,7 @@ public class Long2ReferenceOpenHashMap<V> {
          *
          * @param a the array that will be used to back this
          * array list.
+         * @param dummy dummy
          */
         @SuppressWarnings("unused")
         protected LongArrayList(final long a[], boolean dummy) {

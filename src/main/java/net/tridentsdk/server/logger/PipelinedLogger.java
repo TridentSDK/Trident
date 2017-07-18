@@ -24,7 +24,7 @@ import java.io.OutputStream;
  * pipeline.
  *
  * <p>The server pipeline usually looks something like
- * this:
+ * this:</p>
  * <pre>{@code
  *              [Plugin Loggers]
  *                     ||
@@ -43,7 +43,7 @@ import java.io.OutputStream;
  *                     ||
  *                     \/
  *                DefaultLogger
- * }</pre></p>
+ * }</pre>
  */
 @Immutable
 public abstract class PipelinedLogger {
@@ -63,6 +63,11 @@ public abstract class PipelinedLogger {
 
     /**
      * Initialization code
+     *
+     * @param verbose whether to enable verbose
+     * @return a new logger
+     *
+     * @throws Exception pass down exception
      */
     public static PipelinedLogger init(boolean verbose) throws Exception {
         // tail of pipeline

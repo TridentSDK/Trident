@@ -116,6 +116,12 @@ public class TridentServer implements Server {
 
     /**
      * Init code for server startup
+     *
+     * @param config the server config
+     * @param console the console to log to
+     * @param net the network connection
+     * @param list the list of server operators
+     * @return the Trident server
      */
     public static TridentServer init(ServerConfig config, Logger console,
                                      NetServer net, OpsList list) throws IllegalStateException {
