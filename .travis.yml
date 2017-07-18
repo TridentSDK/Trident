@@ -1,7 +1,10 @@
 language: java
-matrix:
-  include:
-  - jdk: oraclejdk8
+
+dist: trusty
+
+jdk:
+  - oraclejdk8
+  - openjdk8
 
 before_install:
   - chmod 777 "scripts/build.sh"
