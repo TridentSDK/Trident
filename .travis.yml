@@ -14,10 +14,6 @@ install: true
 
 sudo: false
 
-env:
-  global:
-  - secure: Qv3lWydc65BlLDv2IGtRC1+NTOyytKOqAGOVSO5/NFvH1mX8VE1yBm+vop/S/Tj6iUxOSzxD47xDQAZt/T13SKKFUngqu83uQS4bwu8QK6aNVp2xxphLNwqprcxXIbvY4L5NxOd0lE050ITgJhyz+tVwW/0yfc7BTvw7t8iOkLI=
-
 deploy:
   provider: script
   script: scripts/deploy.sh
