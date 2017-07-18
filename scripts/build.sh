@@ -1,3 +1,5 @@
+#!/bin/bash
+
 echo "Currently on branch: $TRAVIS_BRANCH"
 echo "Pull request: $TRAVIS_PULL_REQUEST"
 

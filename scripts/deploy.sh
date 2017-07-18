@@ -1,3 +1,5 @@
+#!/bin/bash
+
 echo "Currently on branch: $TRAVIS_BRANCH"
 
 if [ "$TRAVIS_BRANCH" == "revamp" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ];
