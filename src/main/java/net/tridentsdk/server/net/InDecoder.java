@@ -70,7 +70,7 @@ public class InDecoder extends ReplayingDecoder<Void> {
         // If not, use the raw buffer
         ByteBuf decrypt = buf;
         NetCrypto crypto = this.client.getCryptoModule();
-        if (crypto != null) {
+        if (crypto != null && crypto.isCryptoEnabled()) {
             decrypt = ctx.alloc().buffer();
             crypto.decrypt(buf, decrypt);
         }
