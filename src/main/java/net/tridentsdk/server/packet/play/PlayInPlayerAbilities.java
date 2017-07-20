@@ -46,7 +46,7 @@ public class PlayInPlayerAbilities extends PacketIn {
         // NOTE: We have to be very careful here, since a hacked client can easily send these things.
 
         TridentPlayer player = client.getPlayer();
-        player.setSprinting(walkingSpeed == Player.DEFAULT_SPRINT_SPEED);
+        player.setSprinting(Double.compare(walkingSpeed, Player.DEFAULT_SPRINT_SPEED) == 0);
 
         if (player.canFly()) {
             player.setFlyingSpeed(flyingSpeed);

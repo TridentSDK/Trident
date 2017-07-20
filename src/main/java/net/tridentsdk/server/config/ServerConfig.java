@@ -33,7 +33,7 @@ public class ServerConfig extends TridentConfig {
     /**
      * The path to the server configuration file
      */
-    public static final Path PATH = Misc.HOME_PATH.resolve("server.json");
+    public static final Path PATH = Misc.HOME_PATH.resolve("server.hjson");
 
     /**
      * The internal server ip to which the socket
@@ -81,6 +81,10 @@ public class ServerConfig extends TridentConfig {
 
     /**
      * Init code for server startup
+     *
+     * @return a new server config
+     *
+     * @throws IOException pass down exception
      */
     public static ServerConfig init() throws IOException {
         ServerConfig config = new ServerConfig();
@@ -129,7 +133,7 @@ public class ServerConfig extends TridentConfig {
     /**
      * Obtains the minimum packet size before compression.
      *
-     * <p>By default, this needs to be {@link 256}</p>
+     * <p>By default, this needs to be 256</p>
      *
      * @return the minimum packet size
      */

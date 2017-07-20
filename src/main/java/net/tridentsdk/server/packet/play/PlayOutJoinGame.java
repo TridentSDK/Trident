@@ -20,6 +20,7 @@ import io.netty.buffer.ByteBuf;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.server.packet.PacketOut;
 import net.tridentsdk.world.World;
+import net.tridentsdk.world.opt.Dimension;
 import net.tridentsdk.world.opt.GameRule;
 import net.tridentsdk.world.opt.LevelType;
 import net.tridentsdk.world.opt.WorldOpts;
@@ -40,6 +41,10 @@ public final class PlayOutJoinGame extends PacketOut {
      */
     private final WorldOpts opts;
     /**
+     * The world's dimension
+     */
+    private final Dimension dimension;
+    /**
      * The level type
      */
     private final LevelType type;
@@ -51,6 +56,7 @@ public final class PlayOutJoinGame extends PacketOut {
     public PlayOutJoinGame(Player player, World world) {
         super(PlayOutJoinGame.class);
         this.player = player;
+        this.dimension = world.getDimension();
         this.opts = world.getWorldOptions();
         this.type = world.getGeneratorOptions().getLevelType();
     }
@@ -59,7 +65,7 @@ public final class PlayOutJoinGame extends PacketOut {
     public void write(ByteBuf buf) {
         buf.writeInt(this.player.getId());
         buf.writeByte(this.opts.getGameMode().asByte());
-        buf.writeInt(this.opts.getDimension().asByte());
+        buf.writeInt(this.dimension.asByte());
         buf.writeByte(this.opts.getDifficulty().asByte());
         buf.writeByte(0); // ignored by client
         wstr(buf, this.type.toString());

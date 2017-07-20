@@ -204,24 +204,17 @@ public class NibbleArray {
      * @param bytes the bytes to load
      */
     public void read(byte[] bytes) {
-        for (int i = 0; i < bytes.length; i++) {
-            byte value = bytes[i];
-            int spliceIndex = i >> 3;
-            long shift = i % BYTES_PER_LONG << 3;
+        long cur = 0;
+        for (int i = 0, shift = 0, splice = 0; i < bytes.length; i++) {
+            cur |= (long) bytes[i] << shift;
 
-            long newSplice;
-            if ((i & 1) == 0) {
-                long oldSpice = this.nibbles.get(spliceIndex);
-                long newByte = oldSpice >>> shift & 0xF0 | value;
-
-                newSplice = oldSpice & ~(0xFFL << shift) | newByte << shift;
-            } else {
-                long oldSpice = this.nibbles.get(spliceIndex);
-                long newByte = oldSpice >>> shift & 0x0F | value << 4;
-
-                newSplice = oldSpice & ~(0xFFL << shift) | newByte << shift;
+            shift += 8;
+            if (shift == 64) {
+                this.nibbles.set(splice, cur);
+                cur = 0;
+                shift = 0;
+                splice++;
             }
-            this.nibbles.set(spliceIndex, newSplice);
         }
     }
 

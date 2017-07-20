@@ -32,6 +32,7 @@ import net.tridentsdk.server.world.opt.WorldBorderImpl;
 import net.tridentsdk.server.world.opt.WorldOptImpl;
 import net.tridentsdk.world.Chunk;
 import net.tridentsdk.world.World;
+import net.tridentsdk.world.opt.Dimension;
 import net.tridentsdk.world.opt.WorldCreateSpec;
 
 import javax.annotation.Nonnull;
@@ -84,6 +85,11 @@ public class TridentWorld implements World {
     @Getter
     private final Path directory;
     /**
+     *
+     */
+    @Getter
+    private final Dimension dimension;
+    /**
      * The implementation world options
      */
     @Getter
@@ -128,23 +134,18 @@ public class TridentWorld implements World {
      * creation options.
      *
      * @param name the name of the new world
+     * @param enclosing the enclosing folder
+     * @param spec the world spec
      */
     public TridentWorld(String name, Path enclosing, WorldCreateSpec spec) {
         this.name = name;
         this.directory = enclosing;
+        this.dimension = spec.getDimension();
+
         // this is only ok because we aren't passing the
         // instance to another thread viewable object
-        this.worldOptions = new WorldOptImpl(this, spec);
         this.generatorOptions = new GenOptImpl(spec);
-
-        int centerX = this.worldOptions.getSpawn().getIntX() >> 4;
-        int centerZ = this.worldOptions.getSpawn().getIntZ() >> 4;
-        int radius = 3;
-        for (int x = centerX - radius; x < centerX + radius; x++) {
-            for (int z = centerZ - radius; z < centerZ + radius; z++) {
-                this.getChunkAt(x, z);
-            }
-        }
+        this.worldOptions = new WorldOptImpl(this, spec);
     }
 
     /**
@@ -152,23 +153,30 @@ public class TridentWorld implements World {
      *
      * @param name the name of the world
      * @param enclosing the enclosing folder
+     * @param dimension the dimension
      */
-    public TridentWorld(String name, Path enclosing) {
+    public TridentWorld(String name, Path enclosing, Dimension dimension) {
         this.name = name;
         this.directory = enclosing;
+        this.dimension = dimension;
 
         try (GZIPInputStream stream = new GZIPInputStream(new FileInputStream(this.directory.resolve("level.dat").toFile()))) {
             Tag.Compound root = Tag.decode(new DataInputStream(stream));
             Tag.Compound compound = root.getCompound("Data");
 
-            this.worldOptions = new WorldOptImpl(this, compound);
             this.generatorOptions = new GenOptImpl(compound);
+            this.worldOptions = new WorldOptImpl(this, compound);
             this.weather.read(compound);
             this.border.read(compound);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
 
+    /**
+     * Loads the chunks at spawn.
+     */
+    public void loadSpawnChunks() {
         int centerX = this.worldOptions.getSpawn().getIntX() >> 4;
         int centerZ = this.worldOptions.getSpawn().getIntZ() >> 4;
         int radius = 3;

@@ -18,6 +18,7 @@ package net.tridentsdk.server.player;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import net.tridentsdk.base.Position;
 import net.tridentsdk.entity.Entity;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.server.entity.TridentEntity;
@@ -42,12 +43,12 @@ public final class RecipientSelector {
      *
      * @param chunk the chunk in which holders will be
      * selected to receive the given packet
-     * @param packetOut the packet to send to the selected
-     * targets
      * @param exclude a non-null player if they should be
-     * excluded from receiving this packet
+     * excluded
+     * @param packetOut the packets to send to the selected
+     * targets
      */
-    public static void whoCanSee(TridentChunk chunk, PacketOut packetOut, Entity exclude) {
+    public static void whoCanSee(TridentChunk chunk, Entity exclude, PacketOut... packetOut) {
         if (chunk == null) {
             throw new IllegalStateException("Player cannot inhabit an unloaded chunk");
         }
@@ -55,7 +56,9 @@ public final class RecipientSelector {
         Set<TridentPlayer> targets = chunk.getHolders();
         if (exclude == null || !(exclude instanceof Player)) {
             for (TridentPlayer p : targets) {
-                p.net().sendPacket(packetOut);
+                for (PacketOut out : packetOut) {
+                    p.net().sendPacket(out);
+                }
             }
         } else {
             for (TridentPlayer p : targets) {
@@ -63,7 +66,9 @@ public final class RecipientSelector {
                     continue;
                 }
 
-                p.net().sendPacket(packetOut);
+                for (PacketOut out : packetOut) {
+                    p.net().sendPacket(out);
+                }
             }
         }
     }
@@ -73,14 +78,14 @@ public final class RecipientSelector {
      * entity.
      *
      * @param canSee the entity that can be seen
-     * @param packetOut the packet to send to selected
-     * recipients
      * @param exclude whether or not to exclude the player
-     * that can be seen from the recipients
+     * @param packetOut the packets to send to selected
+     * recipients
      */
-    public static void whoCanSee(TridentEntity canSee, PacketOut packetOut, boolean exclude) {
-        whoCanSee(canSee.getWorld().getChunkAt(canSee.getPosition().getChunkX(), canSee.getPosition().getChunkZ(), true),
-                packetOut, exclude ? canSee : null);
+    public static void whoCanSee(TridentEntity canSee, boolean exclude, PacketOut... packetOut) {
+        Position pos = canSee.getPosition();
+        whoCanSee(canSee.getWorld().getChunkAt(pos.getChunkX(), pos.getChunkZ(), true),
+                exclude ? canSee : null, packetOut);
     }
 
     /**
@@ -89,12 +94,14 @@ public final class RecipientSelector {
      *
      * @param world the world in which the players are the
      * target of the packet to be sent
-     * @param packetOut the packet to send to the selected
+     * @param packetOut the packets to send to the selected
      * players
      */
-    public static void inWorld(TridentWorld world, PacketOut packetOut) {
+    public static void inWorld(TridentWorld world, PacketOut... packetOut) {
         for (TridentPlayer player : world.getOccupants()) {
-            player.net().sendPacket(packetOut);
+            for (PacketOut out : packetOut) {
+                player.net().sendPacket(out);
+            }
         }
     }
 }

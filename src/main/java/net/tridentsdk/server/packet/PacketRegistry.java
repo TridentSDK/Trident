@@ -83,6 +83,7 @@ public final class PacketRegistry {
         put(PlayOutLightning.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x02);
         put(PlayOutSpawnPlayer.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x05);
         put(PlayOutAnimation.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x06);
+        put(PlayOutBlockChange.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x0B);
         put(PlayOutBossBar.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x0C);
         put(PlayOutDifficulty.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x0D);
         put(PlayOutChat.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x0F);
@@ -104,9 +105,11 @@ public final class PacketRegistry {
         put(PlayOutDestroyEntities.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x31);
         put(PlayOutEntityHeadLook.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x35);
         put(PlayOutEntityMetadata.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x3B);
+        put(PlayOutEquipment.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x3E);
         put(PlayOutSpawnPos.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x45);
         put(PlayOutTitle.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x47);
         put(PlayOutPlayerListHeaderAndFooter.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x49);
+        put(PlayOutTeleport.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x4B);
 
         put(PlayInTeleportConfirm.class, NetClient.NetState.PLAY, Packet.Bound.SERVER, 0x00);
         put(PlayInChat.class, NetClient.NetState.PLAY, Packet.Bound.SERVER, 0x03);
@@ -184,6 +187,7 @@ public final class PacketRegistry {
     /**
      * Creates a new instance of the given packet class.
      *
+     * @param <T> the packet type
      * @param cls the packet class to instantiate
      * @return the instantiated packet
      */

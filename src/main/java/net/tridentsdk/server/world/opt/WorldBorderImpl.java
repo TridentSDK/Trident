@@ -16,6 +16,7 @@
  */
 package net.tridentsdk.server.world.opt;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.tridentsdk.meta.nbt.Tag;
 import net.tridentsdk.server.world.TridentWorld;
@@ -33,19 +34,14 @@ public class WorldBorderImpl implements WorldBorder {
      */
     private final TridentWorld world;
 
-    @Override
-    public IntPair getCenter() {
-        return null;
-    }
+    @Getter
+    private final IntPair center = DEFAULT_CENTER;
+    @Getter
+    private final int size = DEFAULT_SIZE;
 
     @Override
     public void setCenter(IntPair center) {
 
-    }
-
-    @Override
-    public int getSize() {
-        return 0;
     }
 
     @Override

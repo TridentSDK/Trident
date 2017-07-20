@@ -156,6 +156,7 @@ public class ShortArrayList {
      *
      * @param a the array that will be used to back this
      * array list.
+     * @param dummy dummy
      */
     @SuppressWarnings("unused")
     protected ShortArrayList(short a[], boolean dummy) {

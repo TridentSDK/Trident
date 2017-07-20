@@ -1,0 +1,26 @@
+{
+  // Address used by the server
+  address: 0.0.0.0
+
+  // The server port
+  port: 25565
+
+  // "true" to use linux natives when available
+  use-native: true
+
+  // The amount of bytes before compressing packets
+  // Use -1 to disable
+  compression-threshold: 256
+
+  // Whether to use Mojang auth to check players
+  online-mode: true
+
+  // The max players that can be online at once
+  max-players: 20
+
+  // The MOTD message shown in the server list
+  motd: Just another TridentSDK server...
+
+  // Whether to check for netty memory leaks during runtime
+  netty-leak-detector: false
+}

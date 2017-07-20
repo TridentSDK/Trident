@@ -83,6 +83,7 @@ public class InfoLogger extends LoggerHandlers implements Logger {
      * Creates a new logger handler interceptor with the
      * given String the name to format the output.
      *
+     * @param next the next logger in the pipeline
      * @param name the name
      */
     public InfoLogger(PipelinedLogger next, String name) {

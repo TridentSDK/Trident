@@ -109,7 +109,6 @@ public class OutEncoder extends MessageToByteEncoder<PacketOut> {
      * @param len the length
      */
     private void writeDeflated(ByteBuf payload, ByteBuf out, int len) {
-        payload.markReaderIndex();
         byte[] input = arr(payload, len);
 
         Deflater deflater = DEFLATER.get();
@@ -126,16 +125,9 @@ public class OutEncoder extends MessageToByteEncoder<PacketOut> {
         deflater.reset();
 
         int resultLen = result.readableBytes();
-        if (resultLen >= len) {
-            // if no compression happened, write the same
-            // uncompressed payload
-            payload.resetReaderIndex();
-            this.writeCompressed(payload, out);
-        } else {
-            wvint(out, resultLen + BigInteger.valueOf(len).toByteArray().length);
-            wvint(out, len);
-            out.writeBytes(result);
-        }
+        wvint(out, resultLen + BigInteger.valueOf(len).toByteArray().length);
+        wvint(out, len);
+        out.writeBytes(result);
 
         result.release();
     }

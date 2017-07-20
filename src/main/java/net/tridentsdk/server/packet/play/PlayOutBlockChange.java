@@ -17,38 +17,33 @@
 package net.tridentsdk.server.packet.play;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.entity.Entity;
+import net.tridentsdk.base.Position;
 import net.tridentsdk.server.packet.PacketOut;
 
 import javax.annotation.concurrent.Immutable;
 
-import static net.tridentsdk.server.net.NetData.convertAngle;
+import static net.tridentsdk.server.net.NetData.wvec;
 import static net.tridentsdk.server.net.NetData.wvint;
 
+/**
+ * Sent by the server to indicate to the client that the
+ * block at the given location has changed to the new
+ * value.
+ */
 @Immutable
-public final class PlayOutEntityLook extends PacketOut {
+public final class PlayOutBlockChange extends PacketOut {
+    private final Position block;
+    private final int newBlock;
 
-    private final int id;
-    private final float yaw;
-    private final float pitch;
-    private final boolean onGround;
-
-    public PlayOutEntityLook(Entity entity) {
-        super(PlayOutEntityLook.class);
-        this.id = entity.getId();
-        this.yaw = entity.getPosition().getYaw();
-        this.pitch = entity.getPosition().getPitch();
-        this.onGround = entity.isOnGround();
+    public PlayOutBlockChange(Position block, int newBlock) {
+        super(PlayOutBlockChange.class);
+        this.block = block;
+        this.newBlock = newBlock;
     }
 
     @Override
     public void write(ByteBuf buf) {
-        wvint(buf, this.id);
-
-        buf.writeByte(convertAngle(this.yaw));
-        buf.writeByte(convertAngle(this.pitch));
-
-        buf.writeBoolean(this.onGround);
+        wvec(buf, this.block);
+        wvint(buf, this.newBlock);
     }
-
 }

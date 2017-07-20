@@ -54,4 +54,9 @@ public class TridentItem implements Item {
      * The item metadata
      */
     private final ItemMeta meta;
+
+    @Override
+    public boolean isEmpty() {
+        return this.substance == Substance.AIR;
+    }
 }

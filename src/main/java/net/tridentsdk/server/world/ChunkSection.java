@@ -78,6 +78,8 @@ public class ChunkSection {
 
     /**
      * Creates a new chunk section.
+     *
+     * @param doSkylight whether to write skylight
      */
     public ChunkSection(boolean doSkylight) {
         this.mainPalette.add((short) 0);

@@ -104,8 +104,7 @@ public class PlayInBlockPlace extends PacketIn {
 
             TridentServer.getInstance().getEventController().dispatch(new BlockPlaceEvent(player, b, item), e -> {
                 if (!e.isCancelled()) {
-                    b.setSubstance(item.getSubstance());
-                    b.setData(item.getDamage());
+                    b.setSubstanceData(item.getSubstance(), item.getDamage());
 
                     if (player.getGameMode() != GameMode.CREATIVE) {
                         if (hand == 0) {

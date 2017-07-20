@@ -214,7 +214,7 @@ public class CustomBossBar extends AbstractBossBar {
 
     @Override
     public CustomBossBar clone() {
-        return new CustomBossBar(ChatComponent.fromJson(this.title.get().asJson().getAsJsonObject()),
+        return new CustomBossBar(ChatComponent.fromJson(this.title.get().asJson().asObject()),
                 this.health.get(),
                 this.color.get(),
                 this.division.get(),

@@ -16,12 +16,13 @@
  */
 package net.tridentsdk.server.packet.login;
 
-import com.google.gson.JsonObject;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.packet.PacketIn;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.ui.tablist.TabListElement;
+import org.hjson.JsonObject;
+import org.hjson.JsonValue;
 
 import javax.annotation.concurrent.Immutable;
 import java.security.MessageDigest;
@@ -81,12 +82,14 @@ public final class LoginInEncryptionResponse extends PacketIn {
                 return;
             }
 
-            JsonObject obj = resp.getAsJsonObject();
-            String id = obj.get("id").getAsString();
-            String name = obj.get("name").getAsString();
-            JsonObject tex = obj.get("properties").getAsJsonArray().get(0).getAsJsonObject();
+            JsonObject obj = resp.asObject();
+            String id = obj.get("id").asString();
+            String name = obj.get("name").asString();
+            JsonObject tex = obj.get("properties").asArray().get(0).asObject();
 
-            TabListElement.PlayerProperty textures = new TabListElement.PlayerProperty(tex.get("name").getAsString(), tex.get("value").getAsString(), tex.has("signature") ? tex.get("signature").getAsString() : null);
+            JsonValue signature = tex.get("signature");
+            TabListElement.PlayerProperty textures = new TabListElement.PlayerProperty(tex.get("name").asString(),
+                    tex.get("value").asString(), signature != null ? signature.asString() : null);
 
             UUID uuid = Login.convert(name, id);
             LoginOutSuccess success = new LoginOutSuccess(client, uuid, name);

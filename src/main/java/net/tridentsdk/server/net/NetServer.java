@@ -47,6 +47,7 @@ public abstract class NetServer {
      *
      * @param ip the IP address of the interface to bind
      * @param port the port which to bind the interface
+     * @param useNative whether to use native epoll
      * @return the new server net handler
      */
     public static NetServer init(String ip, int port, boolean useNative) {

@@ -47,7 +47,7 @@ import net.tridentsdk.ui.chat.ChatType;
 import net.tridentsdk.ui.chat.ClientChatMode;
 import net.tridentsdk.ui.tablist.TabList;
 import net.tridentsdk.ui.title.Title;
-import net.tridentsdk.world.World;
+import net.tridentsdk.world.IntPair;
 import net.tridentsdk.world.opt.GameMode;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -170,7 +170,7 @@ public class TridentPlayer extends TridentEntity implements Player {
     /**
      * The chunks that are held by this player
      */
-    private final Set<TridentChunk> heldChunks = Collections.newSetFromMap(new ConcurrentHashMap<>());
+    private final Map<IntPair, TridentChunk> heldChunks = new ConcurrentHashMap<>();
 
     // -----------------------------------------------------
     // PLAYER META -----------------------------------------
@@ -259,7 +259,7 @@ public class TridentPlayer extends TridentEntity implements Player {
     /**
      * Constructs a new player.
      */
-    private TridentPlayer(NetClient client, World world, String name, UUID uuid,
+    private TridentPlayer(NetClient client, TridentWorld world, String name, UUID uuid,
                           TabListElement.PlayerProperty skinTextures) {
         super(world, PoolSpec.PLAYERS);
         this.metadata = (TridentPlayerMeta) super.getMetadata();
@@ -281,6 +281,7 @@ public class TridentPlayer extends TridentEntity implements Player {
      * @param name the player name
      * @param uuid the player UUID
      * @param skinTextures the player textures
+     * @return the spawned player
      */
     public static TridentPlayer spawn(NetClient client, String name, UUID uuid,
                                       TabListElement.PlayerProperty skinTextures) {
@@ -312,8 +313,9 @@ public class TridentPlayer extends TridentEntity implements Player {
         TridentPluginChannel.autoAdd(this);
         this.client.sendPacket(new PlayOutDifficulty(this.getWorld()));
         this.client.sendPacket(new PlayOutSpawnPos());
-        this.client.sendPacket(new PlayOutPosLook(this));
         this.client.sendPacket(new PlayOutPlayerAbilities(this));
+        this.inventory.update();
+        this.client.sendPacket(new PlayOutPosLook(this));
 
         this.setTabList(TridentGlobalTabList.getInstance());
         TridentGlobalTabList.getInstance().update();
@@ -324,17 +326,11 @@ public class TridentPlayer extends TridentEntity implements Player {
             this.op = true;
         }
 
-        PlayOutSpawnPlayer spawnThis = new PlayOutSpawnPlayer(this);
         ChatComponent chat = ChatComponent.create().setColor(ChatColor.YELLOW).
                 setTranslate("multiplayer.player.joined").
                 addWith(this.name);
-        TridentPlayer.players.values().stream().filter(p -> !p.equals(this)).forEach(p -> {
-            p.sendMessage(chat, ChatType.CHAT);
-            p.net().sendPacket(spawnThis);
-
-            PlayOutSpawnPlayer oldPlayerPacket = new PlayOutSpawnPlayer(p);
-            this.client.sendPacket(oldPlayerPacket);
-        });
+        RecipientSelector.whoCanSee(this, true, new PlayOutSpawnPlayer(this));
+        this.getWorld().getOccupants().forEach(p -> p.sendMessage(chat, ChatType.CHAT));
 
         ServerThreadPool.forSpec(PoolSpec.PLUGINS).execute(() ->
                 TridentServer.getInstance().getEventController().dispatch(new PlayerJoinEvent(this)));
@@ -363,19 +359,19 @@ public class TridentPlayer extends TridentEntity implements Player {
 
     @Override
     public void doRemove() {
-        TridentPluginChannel.autoRemove(this);
-        playerNames.remove(this.name);
-
         // If the player isn't in the list, they haven't
         // finished logging in yet; cleanup
         if (TridentPlayer.players.remove(this.uuid) == null) {
             Login.finish();
         }
 
+        TridentPluginChannel.autoRemove(this);
+        playerNames.remove(this.name);
+
         this.setTabList(null);
         TridentGlobalTabList.getInstance().update();
         TridentInventory.clean();
-        for (TridentChunk chunk : this.heldChunks) {
+        for (TridentChunk chunk : this.heldChunks.values()) {
             chunk.getHolders().remove(this);
         }
         this.heldChunks.clear();
@@ -383,7 +379,7 @@ public class TridentPlayer extends TridentEntity implements Player {
         ChatComponent chat = ChatComponent.create().setColor(ChatColor.YELLOW)
                 .setTranslate("multiplayer.player.left")
                 .addWith(this.name);
-        TridentPlayer.players.values().forEach(e -> e.sendMessage(chat, ChatType.CHAT));
+        this.getWorld().getOccupants().forEach(e -> e.sendMessage(chat, ChatType.CHAT));
         this.client.disconnect(ChatComponent.empty());
     }
 
@@ -640,10 +636,11 @@ public class TridentPlayer extends TridentEntity implements Player {
         this.pool.execute(() -> {
             for (int x = centerX - radius; x < centerX + radius; x++) {
                 for (int z = centerZ - radius; z < centerZ + radius; z++) {
-                    TridentChunk chunk = world.getChunkAt(x, z);
-                    if (!this.heldChunks.contains(chunk)) {
-                        this.heldChunks.add(chunk);
-                        chunk.getEntities().forEach(e -> this.net().sendPacket(((TridentEntity) e).getSpawnPacket()));
+                    IntPair pair = IntPair.make(x, z);
+                    if (!this.heldChunks.containsKey(pair)) {
+                        TridentChunk chunk = world.getChunkAt(x, z);
+                        this.heldChunks.put(pair, chunk);
+                        chunk.getEntities().filter(e -> !e.equals(this)).forEach(e -> this.net().sendPacket(((TridentEntity) e).getSpawnPacket()));
                         chunk.getHolders().add(this);
                         this.net().sendPacket(new PlayOutChunk(chunk));
                     }
@@ -652,9 +649,9 @@ public class TridentPlayer extends TridentEntity implements Player {
         });
 
         this.pool.execute(() -> {
-            for (TridentChunk chunk : this.heldChunks) {
+            for (TridentChunk chunk : this.heldChunks.values()) {
                 if (Math.abs(chunk.getX() - centerX) > radius || Math.abs(chunk.getZ() - centerZ) > radius) {
-                    this.heldChunks.remove(chunk);
+                    this.heldChunks.remove(IntPair.make(chunk.getX(), chunk.getZ()));
                     chunk.getHolders().remove(this);
                     this.net().sendPacket(new PlayOutUnloadChunk(chunk.getX(), chunk.getZ()));
 

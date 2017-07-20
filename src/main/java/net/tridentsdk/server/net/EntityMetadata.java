@@ -16,8 +16,6 @@
  */
 package net.tridentsdk.server.net;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import io.netty.buffer.ByteBuf;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
@@ -25,6 +23,7 @@ import lombok.Getter;
 import net.tridentsdk.base.BlockDirection;
 import net.tridentsdk.base.Vector;
 import net.tridentsdk.ui.chat.ChatComponent;
+import org.hjson.JsonValue;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.ArrayList;
@@ -39,7 +38,6 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 @ThreadSafe
 public class EntityMetadata {
-    private static final Gson GSON = new Gson();
 
     private final List<EntityMetadata.EntityMetadataItem> items = Collections.synchronizedList(new ArrayList<>());
 
@@ -75,7 +73,7 @@ public class EntityMetadata {
                     value = NetData.rstr(buf);
                     break;
                 case CHAT:
-                    value = ChatComponent.fromJson(GSON.fromJson(NetData.rstr(buf), JsonObject.class));
+                    value = ChatComponent.fromJson(JsonValue.readJSON(NetData.rstr(buf)).asObject());
                     break;
                 case SLOT:
                     value = Slot.read(buf);

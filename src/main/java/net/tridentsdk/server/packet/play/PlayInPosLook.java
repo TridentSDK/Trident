@@ -17,6 +17,7 @@
 package net.tridentsdk.server.packet.play;
 
 import io.netty.buffer.ByteBuf;
+import net.tridentsdk.base.Position;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.packet.PacketIn;
 import net.tridentsdk.server.player.TridentPlayer;
@@ -43,7 +44,7 @@ public final class PlayInPosLook extends PacketIn {
         float pitch = buf.readFloat();
         boolean isOnGround = buf.readBoolean();
 
-        player.setPosition(player.getPosition().set(x, y, z).setYaw(yaw).setPitch(pitch));
+        player.setPosition(new Position(player.getWorld(), x, y, z, yaw, pitch));
         player.setOnGround(isOnGround);
     }
 }

@@ -59,6 +59,7 @@ public class Slot {
      * read encoded values of the slot.
      *
      * @param buf the buffer which to read
+     * @return the slot
      */
     public static Slot read(ByteBuf buf) {
         short id = buf.readShort();
@@ -71,7 +72,7 @@ public class Slot {
             if (id == Substance.AIR.getId()) {
                 return EMPTY;
             } else {
-                return new Slot(id, count, dmg, new ItemMeta(nbt));
+                return new Slot(id, count, dmg, nbt == null ? new ItemMeta() : new ItemMeta(nbt));
             }
         } else {
             return EMPTY;
@@ -90,7 +91,7 @@ public class Slot {
      * @return the new slot
      */
     public static Slot newSlot(Item item) {
-        if (item.getSubstance() == Substance.AIR) {
+        if (item.isEmpty()) {
             return EMPTY;
         }
 

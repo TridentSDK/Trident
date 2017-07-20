@@ -37,18 +37,6 @@ import java.util.concurrent.atomic.AtomicMarkableReference;
 @ThreadSafe
 public class WorldOptImpl implements WorldOpts {
     private final TridentWorld world;
-    private final Dimension dimension;
-
-    @Setter
-    private volatile boolean allowFlight;
-    @Setter
-    private volatile boolean allowPvp = true;
-    @Setter
-    private volatile boolean allowPortals = true;
-    @Setter
-    private volatile boolean forceGameMode;
-    @Setter
-    private volatile int spawnProtectionRadius = 16;
 
     @Debug("SURVIVAL")
     @Setter
@@ -56,7 +44,7 @@ public class WorldOptImpl implements WorldOpts {
     private final AtomicMarkableReference<Difficulty> difficulty =
             new AtomicMarkableReference<>(Difficulty.NORMAL, false);
     @Setter
-    private volatile Vector spawn = new Vector(0, 64, 0);
+    private volatile Vector spawn;
     private final GameRuleMap gameRules = new GameRuleMap();
 
     /**
@@ -65,21 +53,18 @@ public class WorldOptImpl implements WorldOpts {
      * a plugin.
      *
      * @param world the world possessing these options.
+     * @param spec the world spec
      */
     public WorldOptImpl(TridentWorld world, WorldCreateSpec spec) {
         this.world = world;
-        this.dimension = spec.getDimension();
 
         if (!spec.isDefault()) {
             this.difficulty.set(spec.getDifficulty(), spec.isDifficultyLocked());
             this.gameMode = spec.getGameMode();
             spec.getGameRules().copyTo(this.gameRules);
-            this.allowFlight = spec.isAllowFlight();
-            this.allowPvp = spec.isAllowPvp();
-            this.allowPortals = spec.isAllowPortals();
-            this.forceGameMode = spec.isForceGameMode();
-            this.spawnProtectionRadius = spec.getSpawnProtectionRadius();
             this.spawn = spec.getSpawn() == null ? this.randVector() : spec.getSpawn();
+        } else {
+            this.spawn = this.randVector();
         }
     }
 
@@ -93,7 +78,6 @@ public class WorldOptImpl implements WorldOpts {
     @Debug("creative")
     public WorldOptImpl(TridentWorld world, Tag.Compound compound) {
         this.world = world;
-        this.dimension = Dimension.OVERWORLD;
 
         this.gameMode = GameMode.CREATIVE; // GameMode.from(compound.getInt("GameType"));
         this.difficulty.set(Difficulty.from(compound.getByte("Difficulty")),
@@ -115,7 +99,7 @@ public class WorldOptImpl implements WorldOpts {
         ThreadLocalRandom r = ThreadLocalRandom.current();
         int x = r.nextInt() % 1000;
         int z = r.nextInt() % 1000;
-        return new Vector(x, this.world.getHighestY(x, z), z);
+        return new Vector(x, this.world.getHighestY(x, z) + 1, z);
     }
 
     @Override
@@ -151,7 +135,23 @@ public class WorldOptImpl implements WorldOpts {
 
     /**
      * Saves the world options as NBT data.
+     *
+     * @param compound the compound to write to
      */
     public void write(Tag.Compound compound) {
+        compound.putInt("GameType", this.gameMode.asInt());
+        compound.putByte("Difficulty", this.difficulty.getReference().asByte());
+        compound.putByte("DifficultyLocked", (byte) (this.difficulty.isMarked() ? 1 : 0));
+
+        Vector spawn = this.spawn;
+        compound.putInt("SpawnX", spawn.getIntX());
+        compound.putInt("SpawnY", spawn.getIntY());
+        compound.putInt("SpawnZ", spawn.getIntZ());
+
+        Tag.Compound rulesCmp = new Tag.Compound("GameRules");
+        for (String s : GameRule.getKeyStrings()) {
+            rulesCmp.putString(s, String.valueOf(this.gameRules.<Object>get(GameRule.from(s))));
+        }
+        compound.putCompound(rulesCmp);
     }
 }

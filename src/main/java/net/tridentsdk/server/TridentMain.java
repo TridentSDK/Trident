@@ -116,7 +116,7 @@ public final class TridentMain {
         if (!Files.exists(ServerConfig.PATH)) {
             logger.warn("File \"server.json\" not present");
             logger.log("Creating one for you... ");
-            ConfigIo.exportResource(ServerConfig.PATH, "/server.json");
+            ConfigIo.exportResource(ServerConfig.PATH, "/server.hjson");
         }
 
         logger.log("Checking for server files: plugins folder");
@@ -126,18 +126,20 @@ public final class TridentMain {
             Files.createDirectory(Plugin.PLUGIN_DIR);
         }
 
+        boolean initOpsList = false;
         logger.log("Checking for server files: ops list");
         if (!Files.exists(OpsList.PATH)) {
             logger.warn("File \"ops.json\" not present");
             logger.log("Creating one for you... ");
             Files.createFile(OpsList.PATH);
+            initOpsList = true;
         }
 
         logger.log("Reading server.json...");
         ServerConfig config = ServerConfig.init();
 
         logger.log("Reading ops.json...");
-        OpsList opsList = OpsList.init();
+        OpsList opsList = OpsList.init(initOpsList);
         // -------------------------------------------------
 
         // Pass net args to the server handler -------------

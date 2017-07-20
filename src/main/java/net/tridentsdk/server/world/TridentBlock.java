@@ -20,6 +20,8 @@ import lombok.Getter;
 import net.tridentsdk.base.Block;
 import net.tridentsdk.base.Position;
 import net.tridentsdk.base.Substance;
+import net.tridentsdk.server.packet.play.PlayOutBlockChange;
+import net.tridentsdk.server.player.RecipientSelector;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -87,7 +89,10 @@ public final class TridentBlock implements Block {
         // set substance will need to reset the data because
         // retaining the data will usually not make sense
         // e.g. switching from colored wool to grass
-        chunk.set(this.relX, this.relY, this.relZ, (short) (substance.getId() << 4));
+        short state = (short) (substance.getId() << 4);
+        chunk.set(this.relX, this.relY, this.relZ, state);
+
+        RecipientSelector.whoCanSee(chunk, null, new PlayOutBlockChange(this.position, state));
     }
 
     @Override
@@ -100,7 +105,20 @@ public final class TridentBlock implements Block {
         TridentChunk chunk = this.getChunk();
         // rshift needed to reset the lower bits
         int substanceId = chunk.get(this.relX, this.relY, this.relZ) >> 4;
-        chunk.set(this.relX, this.relY, this.relZ, (short) (substanceId << 4 | data & 0xF));
+        short state = (short) (substanceId << 4 | data & 0xF);
+        chunk.set(this.relX, this.relY, this.relZ, state);
+
+        RecipientSelector.whoCanSee(chunk, null, new PlayOutBlockChange(this.position, state));
+    }
+
+    @Override
+    public void setSubstanceData(Substance substance, byte data) {
+        TridentChunk chunk = this.getChunk();
+        // rshift needed to reset the lower bits
+        short state = (short) (substance.getId() << 4 | data & 0xF);
+        chunk.set(this.relX, this.relY, this.relZ, state);
+
+        RecipientSelector.whoCanSee(chunk, null, new PlayOutBlockChange(this.position, state));
     }
 
     /**

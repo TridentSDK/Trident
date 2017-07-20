@@ -16,8 +16,6 @@
  */
 package net.tridentsdk.server.packet.status;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.logger.Logger;
 import net.tridentsdk.server.TridentServer;
@@ -25,6 +23,9 @@ import net.tridentsdk.server.config.ServerConfig;
 import net.tridentsdk.server.packet.PacketOut;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.ui.chat.ChatComponent;
+import org.hjson.JsonArray;
+import org.hjson.JsonObject;
+import org.hjson.Stringify;
 
 import javax.annotation.concurrent.Immutable;
 import javax.imageio.ImageIO;
@@ -149,18 +150,18 @@ public final class StatusOutResponse extends PacketOut {
         JsonObject resp = new JsonObject();
 
         JsonObject version = new JsonObject();
-        version.addProperty("name", MC_VERSION);
-        version.addProperty("protocol", PROTOCOL_VERSION);
+        version.add("name", MC_VERSION);
+        version.add("protocol", PROTOCOL_VERSION);
         resp.add("version", version);
 
         JsonObject players = new JsonObject();
-        players.addProperty("max", cfg.maxPlayers());
-        players.addProperty("online", TridentPlayer.getPlayers().size());
+        players.add("max", cfg.maxPlayers());
+        players.add("online", TridentPlayer.getPlayers().size());
         JsonArray sample = new JsonArray();
         TridentPlayer.getPlayers().forEach((u, p) -> {
             JsonObject o = new JsonObject();
-            o.addProperty("name", p.getName());
-            o.addProperty("id", p.getUuid().toString());
+            o.add("name", p.getName());
+            o.add("id", p.getUuid().toString());
             sample.add(o);
         });
         players.add("sample", sample);
@@ -170,8 +171,8 @@ public final class StatusOutResponse extends PacketOut {
 
         String icon = b64icon.get();
         if (icon != null) {
-            resp.addProperty("favicon", icon);
+            resp.add("favicon", icon);
         }
-        wstr(buf, resp.toString());
+        wstr(buf, resp.toString(Stringify.PLAIN));
     }
 }

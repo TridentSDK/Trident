@@ -17,9 +17,9 @@
 package net.tridentsdk.server.config;
 
 
-import com.google.gson.JsonObject;
 import net.tridentsdk.config.Config;
 import net.tridentsdk.config.ConfigSection;
+import org.hjson.JsonObject;
 
 import javax.annotation.concurrent.Immutable;
 import java.io.File;
@@ -74,6 +74,9 @@ public class TridentConfig extends TridentConfigSection implements Config {
      * Init safety static factory method; instance of this
      * class is published when creating new config sections
      * via the load method in TridentConfigSection
+     *
+     * @param path the path to config
+     * @return the loaded Trident config
      */
     public static TridentConfig load(Path path) {
         return cachedConfigs.computeIfAbsent(path, k -> {

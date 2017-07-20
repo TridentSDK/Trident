@@ -22,6 +22,7 @@ import net.tridentsdk.logger.Logger;
 import net.tridentsdk.util.Misc;
 import net.tridentsdk.world.World;
 import net.tridentsdk.world.WorldLoader;
+import net.tridentsdk.world.opt.Dimension;
 import net.tridentsdk.world.opt.WorldCreateSpec;
 
 import javax.annotation.Nonnull;
@@ -96,7 +97,7 @@ public class TridentWorldLoader implements WorldLoader {
                 public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
                     Path levelDat = dir.resolve("level.dat");
                     if (Files.exists(levelDat)) {
-                        TridentWorldLoader.this.load(dir.getFileName().toString(), dir);
+                        TridentWorldLoader.this.load(dir.getFileName().toString(), dir, Dimension.OVERWORLD);
                         return FileVisitResult.SKIP_SUBTREE;
                     }
 
@@ -122,9 +123,10 @@ public class TridentWorldLoader implements WorldLoader {
      * @return the world, once it has loaded
      */
     @Nonnull
-    private TridentWorld load(String name, Path enclosing) {
+    private TridentWorld load(String name, Path enclosing, Dimension dimension) {
         Logger.get(this.getClass()).log("Loading world \"" + name + "\"...");
-        TridentWorld world = new TridentWorld(name, enclosing);
+        TridentWorld world = new TridentWorld(name, enclosing, dimension);
+        world.loadSpawnChunks();
 
         this.worlds.put(name, world);
         Logger.get(this.getClass()).log("Finished loading \"" + name + "\".");
@@ -160,11 +162,11 @@ public class TridentWorldLoader implements WorldLoader {
             return world;
         }
 
-        Path enclosing = Misc.HOME_PATH.resolve(name);
+        Path enclosing = Misc.HOME_PATH.resolve(name); // TODO incase this is a subdir to nether
         if (Files.isDirectory(enclosing)) {
             Path levelDat = enclosing.resolve("level.dat");
             if (Files.exists(levelDat)) {
-                return this.load(name, enclosing);
+                return this.load(name, enclosing, Dimension.OVERWORLD);
             }
         }
 
@@ -180,6 +182,7 @@ public class TridentWorldLoader implements WorldLoader {
 
             Logger.get(this.getClass()).log("Creating world \"" + name + "\"...");
             TridentWorld world = new TridentWorld(name, Misc.HOME_PATH.resolve(name), spec);
+            world.loadSpawnChunks();
             world.save();
             Logger.get(this.getClass()).log("Finished creating \"" + name + "\".");
             return world;

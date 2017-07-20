@@ -79,7 +79,9 @@ public class GeneratorContextImpl implements GeneratorContext {
      * Creates a new generator context with the given seed
      * as the starting random.
      *
+     * @param container where to run generator tasks
      * @param seed the seed
+     * @param doSkylight whether to generate skylight
      */
     public GeneratorContextImpl(Executor container, long seed, boolean doSkylight) {
         this.container = container;

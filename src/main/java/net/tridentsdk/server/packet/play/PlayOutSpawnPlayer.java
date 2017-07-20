@@ -24,6 +24,7 @@ import net.tridentsdk.server.packet.PacketOut;
 
 import javax.annotation.concurrent.Immutable;
 
+import static net.tridentsdk.server.net.NetData.convertAngle;
 import static net.tridentsdk.server.net.NetData.wvint;
 
 @Immutable
@@ -48,8 +49,8 @@ public final class PlayOutSpawnPlayer extends PacketOut {
         buf.writeDouble(pos.getY());
         buf.writeDouble(pos.getZ());
 
-        buf.writeByte((byte) (pos.getYaw() % 360 * (256d / 360d)));
-        buf.writeByte((int) (byte) pos.getPitch());
+        buf.writeByte(convertAngle(pos.getYaw()));
+        buf.writeByte(convertAngle(pos.getPitch()));
 
         ((TridentEntityMeta) this.player.getMetadata()).getMetadata().write(buf);
     }

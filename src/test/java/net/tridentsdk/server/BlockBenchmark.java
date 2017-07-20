@@ -22,6 +22,7 @@ import net.tridentsdk.server.world.TridentBlock;
 import net.tridentsdk.server.world.TridentChunk;
 import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.util.Misc;
+import net.tridentsdk.world.opt.Dimension;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
 import org.openjdk.jmh.runner.Runner;
@@ -209,17 +210,18 @@ n.t.s.BlockBenchmark.testWrite     avgt         5     2070.455       76.236    n
  */
 @State(Scope.Benchmark)
 public class BlockBenchmark {
-    private static final TridentWorld world = new TridentWorld("world", Misc.HOME_PATH.resolve("world"));
+    private static final TridentWorld world = new TridentWorld("world", Misc.HOME_PATH.resolve("server/world"), Dimension.OVERWORLD);
     private static final TridentBlock[] blocks = new TridentBlock[16777216];
 
     static {
+        world.loadSpawnChunks();
         ThreadLocalRandom current = ThreadLocalRandom.current();
         for (int i = 0; i < blocks.length; i++) {
             blocks[i] = (TridentBlock) world.getBlockAt(current.nextInt(4096), 3, current.nextInt(4096));
         }
     }
 
-    public static void main(String[] args) {
+    public static void main0(String[] args) {
         for (int i = 0; i < 100; i++) {
             ThreadLocalRandom current = ThreadLocalRandom.current();
             Block b = world.getBlockAt(current.nextInt(4096), 3, current.nextInt(4096));
@@ -233,7 +235,7 @@ public class BlockBenchmark {
         }
     }
 
-    public static void main0(String[] args) throws RunnerException {
+    public static void main(String[] args) throws RunnerException {
         Options options = new OptionsBuilder()
                 .include(".*" + BlockBenchmark.class.getSimpleName() + ".*")
                 .timeUnit(TimeUnit.NANOSECONDS)
@@ -250,7 +252,6 @@ public class BlockBenchmark {
     @Fork
     @Benchmark
     public void testWrite() {
-        Blackhole.consumeCPU(200);
         int idx = ThreadLocalRandom.current().nextInt(blocks.length);
         TridentBlock block = blocks[idx];
         block.setSubstance(Substance.fromNumericId(idx % 8));
@@ -259,7 +260,6 @@ public class BlockBenchmark {
     @Fork
     @Benchmark
     public Substance testRead() {
-        Blackhole.consumeCPU(200);
         int idx = ThreadLocalRandom.current().nextInt(blocks.length);
         TridentBlock block = blocks[idx];
         return block.getSubstance();

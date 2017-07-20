@@ -16,9 +16,10 @@
  */
 package net.tridentsdk.server.config;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import net.tridentsdk.config.ConfigSection;
+import org.hjson.JsonArray;
+import org.hjson.JsonObject;
+import org.hjson.JsonValue;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
@@ -32,6 +33,7 @@ import java.util.stream.Stream;
  */
 @ThreadSafe
 public class TridentConfigSection implements ConfigSection {
+    private static final String COMMENT_KEY = "( ͡° ͜ʖ ͡°) $$$$$$$$$$$TRIDENTCONFIGCOMMENT$$$$$$$$$$$$ ( ͡° ͜ʖ ͡°)";
     /**
      * The string literal for the separator
      */
@@ -76,17 +78,17 @@ public class TridentConfigSection implements ConfigSection {
      * @param object the file json
      */
     public void read(JsonObject object) {
-        object.entrySet().forEach(e -> {
-            String key = e.getKey();
-            JsonElement value = e.getValue();
+        object.forEach(e -> {
+            String key = e.getName();
+            JsonValue value = e.getValue();
 
             // special handling for json objects which are
             // config sections
-            if (value.isJsonObject()) {
+            if (value.isObject()) {
                 TridentConfigSection section = this.createChild0(key);
-                section.read(value.getAsJsonObject());
+                section.read(value.asObject());
             } else {
-                this.elements.put(key, ConfigIo.asObj(value, TridentAdapter.class));
+                this.elements.put(key, ConfigIo.asObj(value));
             }
         });
     }
@@ -222,6 +224,14 @@ public class TridentConfigSection implements ConfigSection {
             }
         }
 
+        if (value instanceof Collection) {
+            JsonArray v = new JsonArray();
+            for (Object o : (Collection) value) {
+                v.add(ConfigIo.asJson(o));
+            }
+            value = v;
+        }
+
         section.elements.put(finalKey, value);
     }
 
@@ -332,8 +342,11 @@ public class TridentConfigSection implements ConfigSection {
     @Override
     public <T, C extends Collection<T>> void getCollection(String key, C collection) {
         Object o = this.getElement(key);
-        if (o instanceof Collection) {
-            collection.addAll((Collection) o);
+        if (o instanceof JsonArray) {
+            JsonArray array = (JsonArray) o;
+            for (JsonValue value : array) {
+                collection.add((T) ConfigIo.asObj(value));
+            }
             return;
         }
 

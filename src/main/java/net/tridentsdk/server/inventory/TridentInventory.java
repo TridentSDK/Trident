@@ -31,7 +31,7 @@ import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.ui.chat.ChatComponent;
 import net.tridentsdk.util.Tuple;
 
-import javax.annotation.Nullable;
+import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Collections;
 import java.util.Map;
@@ -72,12 +72,12 @@ public class TridentInventory implements Inventory {
      * The title of this inventory
      */
     @Getter
-    private volatile ChatComponent title;
+    private volatile ChatComponent title = ChatComponent.text("Inventory");
 
     /**
      * The inventory contents
      */
-    private final Map<Integer, Item> contents = new ConcurrentHashMap<>();
+    protected final Map<Integer, Item> contents = new ConcurrentHashMap<>();
 
     /**
      * Upon opening a window, this method will ensure that
@@ -238,7 +238,7 @@ public class TridentInventory implements Inventory {
         return computed.getSubstance() == sub ? null : computed;
     }
 
-    @Nullable
+    @Nonnull
     @Override
     public Item remove(int slot, int quantity) {
         if (quantity < 0) {
@@ -268,6 +268,7 @@ public class TridentInventory implements Inventory {
         return computed == null ? TridentItem.EMPTY : computed;
     }
 
+    @Nonnull
     @Override
     public Item get(int slot) {
         if (slot < 0 || slot >= this.size) {

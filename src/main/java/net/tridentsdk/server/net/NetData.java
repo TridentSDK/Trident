@@ -141,6 +141,16 @@ public final class NetData {
     }
 
     /**
+     * Converts the given angle into protocol format.
+     *
+     * @param angle the angle to convert
+     * @return the protocol format
+     */
+    public static byte convertAngle(float angle) {
+        return (byte) (angle / 1.40625);
+    }
+
+    /**
      * Reads the next VarLong value from the byte stream
      * represented by the given buffer.
      *
@@ -185,6 +195,9 @@ public final class NetData {
     /**
      * Reads the next vector and sets the values of it into
      * the given Vector.
+     *
+     * @param buf the buffer to read from
+     * @param vec the vector to write to
      */
     public static void rvec(ByteBuf buf, AbstractVector<?> vec) {
         long l = buf.readLong();
@@ -205,6 +218,9 @@ public final class NetData {
     /**
      * Reads the next vector and creates a new
      * Vector instance
+     *
+     * @param buf the buffer to read from
+     * @return a new vector
      */
     public static Vector rvec(ByteBuf buf){
         long pos = buf.readLong();
