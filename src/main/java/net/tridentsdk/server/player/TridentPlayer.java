@@ -21,6 +21,7 @@ import lombok.Setter;
 import net.tridentsdk.command.CmdSourceType;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.player.PlayerJoinEvent;
+import net.tridentsdk.event.player.PlayerQuitEvent;
 import net.tridentsdk.inventory.Inventory;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.concurrent.PoolSpec;
@@ -326,14 +327,19 @@ public class TridentPlayer extends TridentEntity implements Player {
             this.op = true;
         }
 
-        ChatComponent chat = ChatComponent.create().setColor(ChatColor.YELLOW).
-                setTranslate("multiplayer.player.joined").
-                addWith(this.name);
         RecipientSelector.whoCanSee(this, true, new PlayOutSpawnPlayer(this));
-        this.getWorld().getOccupants().forEach(p -> p.sendMessage(chat, ChatType.CHAT));
 
-        ServerThreadPool.forSpec(PoolSpec.PLUGINS).execute(() ->
-                TridentServer.getInstance().getEventController().dispatch(new PlayerJoinEvent(this)));
+        ServerThreadPool.forSpec(PoolSpec.PLUGINS).execute(() -> {
+            ChatComponent chat = ChatComponent.create()
+                    .setColor(ChatColor.YELLOW)
+                    .setTranslate("multiplayer.player.joined")
+                    .addWith(this.name);
+            PlayerJoinEvent event = new PlayerJoinEvent(this, chat);
+            TridentServer.getInstance().getEventController().dispatch(event);
+            ChatComponent message = event.getMessage();
+            if (message != null)
+                TridentServer.getInstance().getPlayers().forEach(p -> p.sendMessage(message, ChatType.CHAT));
+        });
 
         TridentServer.getInstance().getLogger().log("Player " + this.name + " [" + this.uuid + "] has connected");
     }
@@ -376,10 +382,18 @@ public class TridentPlayer extends TridentEntity implements Player {
         }
         this.heldChunks.clear();
 
-        ChatComponent chat = ChatComponent.create().setColor(ChatColor.YELLOW)
-                .setTranslate("multiplayer.player.left")
-                .addWith(this.name);
-        this.getWorld().getOccupants().forEach(e -> e.sendMessage(chat, ChatType.CHAT));
+
+        ServerThreadPool.forSpec(PoolSpec.PLUGINS).execute(() -> {
+            ChatComponent chat = ChatComponent.create()
+                    .setColor(ChatColor.YELLOW)
+                    .setTranslate("multiplayer.player.left")
+                    .addWith(this.name);
+            PlayerQuitEvent event = new PlayerQuitEvent(this, chat);
+            TridentServer.getInstance().getEventController().dispatch(event);
+            ChatComponent message = event.getMessage();
+            if (message != null)
+                TridentServer.getInstance().getPlayers().forEach(p -> p.sendMessage(message, ChatType.CHAT));
+        });
         this.client.disconnect(ChatComponent.empty());
     }
 
