@@ -78,19 +78,22 @@ public class TridentPlayer extends TridentEntity implements Player {
     @Getter
     private static final ConcurrentSkipListMap<String, Player> playerNames =
             new ConcurrentSkipListMap<>((c0, c1) -> {
+                int l0 = c0.length();
+                int l1 = c1.length();
+
+                if (l0 == 0 && l1 > 0) {
+                    return -1;
+                } else if (l1 == 0 && l0 > 0) {
+                    return 1;
+                }
+
                 // Indexes: 0123456789AaBbCcDdEeFfGg..._
-                for (int i = 0; i < c0.length() && i < c1.length(); i++) {
+                for (int i = 0, j = Math.min(l0, l1); i < j; i++) {
                     char c0i = c0.charAt(i);
                     char c1i = c1.charAt(i);
 
                     boolean d0 = Character.isDigit(c0i) || c0i == '_';
                     boolean d1 = Character.isDigit(c1i) || c0i == '_';
-
-                    boolean u0 = Character.isUpperCase(c0i);
-                    boolean u1 = Character.isUpperCase(c1i);
-
-                    int t0 = (Character.toUpperCase(c0i) - 'A' << 1) + (u0 ? 0 : 1);
-                    int t1 = (Character.toUpperCase(c1i) - 'A' << 1) + (u1 ? 0 : 1);
 
                     if (d0 && d1) { // Compare if both are digits
                         int cmp = Character.compare(c0i, c1i);
@@ -103,6 +106,15 @@ public class TridentPlayer extends TridentEntity implements Player {
                         return 1;
                     }
 
+                    boolean u0 = Character.isUpperCase(c0i);
+                    boolean u1 = Character.isUpperCase(c1i);
+
+                    char r0 = u0 ? 'A' : 'a';
+                    char r1 = u1 ? 'A' : 'a';
+
+                    int t0 = (c0i - r0 << 1) + (u0 ? 0 : 1);
+                    int t1 = (c1i - r1 << 1) + (u1 ? 0 : 1);
+
                     if (t0 > t1) { // If letter is ahead, c0 is after
                         return 1;
                     } else if (t1 > t0) { // If letter is behind, c0 is before
@@ -110,9 +122,9 @@ public class TridentPlayer extends TridentEntity implements Player {
                     }
                 }
 
-                if (c0.length() > c1.length()) { // If all chars equal, shorter goes first
+                if (l0 > l1) { // If all chars equal, shorter goes first
                     return 1;
-                } else if (c0.length() < c1.length()) {
+                } else if (l0 < l1) {
                     return -1;
                 }
 
