@@ -29,7 +29,7 @@ public class OpCommand implements CommandListener {
     @ParamsAnnotations.AllowedSourceTypes({ CommandSourceType.PLAYER, CommandSourceType.CONSOLE })
     public void op(CommandSource source, String[] args, @ParamsAnnotations.PlayerExactMatch Player player) {
         if (player == null) {
-            source.sendMessage(ChatComponent.create().setColor(ChatColor.RED).setText("No player by that name is online!"));
+            source.sendMessage(ChatComponent.create().setColor(ChatColor.RED).setText("No player by the name '" + args[1] + "' is online!"));
         } else {
             player.setOp(true);
         }

@@ -35,7 +35,7 @@ public class KickCommand implements CommandListener {
             player.kick(ChatComponent.text(reasonString));
             TridentServer.getInstance().getLogger().log("Kicked player " + player.getName() + " for: " + reason);
         } else {
-            source.sendMessage(ChatComponent.text("There is no player with that name online."));
+            source.sendMessage(ChatComponent.text("No player by the name '" + args[1] + "' is online."));
         }
     }
 }

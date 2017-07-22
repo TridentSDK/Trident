@@ -286,6 +286,8 @@ public class TridentServer implements Server {
         System.exit(0);
     }
 
+    /* CommandSource methods */
+
     @Override
     public void runCommand(String command) {
         this.logger.log("Server command issued by console: /" + command);
@@ -301,20 +303,18 @@ public class TridentServer implements Server {
     @Override
     public void sendMessage(ChatComponent text) {
         StringBuilder builder = new StringBuilder();
-        builder.append(text.getColor()).append(text.getText());
+        if (text.getColor() != null)
+            builder.append(text.getColor());
+        builder.append(text.getText());
         for (ChatComponent e : text.getExtra()) {
             if (e.getColor() != null) {
                 builder.append(e.getColor());
             }
-
             builder.append(e.getText());
         }
 
         this.logger.log(builder.toString());
     }
-
-
-    /* CommandSource methods */
 
     @Override
     public CommandSourceType getCmdType() { return CommandSourceType.CONSOLE; }
