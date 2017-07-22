@@ -18,6 +18,7 @@ package net.tridentsdk.server.net;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.ByteToMessageDecoder;
 import io.netty.handler.codec.ReplayingDecoder;
 import net.tridentsdk.logger.Logger;
 import net.tridentsdk.server.TridentServer;
@@ -38,7 +39,7 @@ import static net.tridentsdk.server.net.NetData.rvint;
  * packets are read and decompressed through this decoder.
  */
 @ThreadSafe
-public class InDecoder extends ReplayingDecoder<Void> {
+public class InDecoder extends ByteToMessageDecoder {
     /**
      * The per-thread instance of the inflater to use to
      * decompress packets

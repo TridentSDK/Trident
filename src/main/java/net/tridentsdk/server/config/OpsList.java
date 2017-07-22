@@ -16,6 +16,7 @@
  */
 package net.tridentsdk.server.config;
 
+import java.util.stream.Collectors;
 import lombok.Getter;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.player.TridentPlayer;
@@ -79,14 +80,13 @@ public class OpsList extends TridentConfig {
      */
     public void addOp(UUID uuid) {
         this.ops.add(uuid);
-        this.set(OPS_KEY, this.ops);
+        this.set(OPS_KEY, this.ops.stream().map(UUID::toString).collect(Collectors.toList()));
         try {
             this.save();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        TridentServer.getInstance().getLogger().log(TridentPlayer.getPlayers().get(uuid).getName() +
-                " [" + uuid + "] has been opped");
+        TridentServer.getInstance().getLogger().log(TridentPlayer.getPlayers().get(uuid).getName() + " [" + uuid + "] has been opped");
     }
 
     /**

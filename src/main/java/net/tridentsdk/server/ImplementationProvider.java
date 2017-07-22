@@ -217,7 +217,7 @@ public class ImplementationProvider implements Impl.Provider {
             throw new IllegalArgumentException("Cannot have channel name > 20");
         }
 
-        Map.Entry<String, Player> entry = TridentPlayer.getPlayerNames().firstEntry();
+        Map.Entry<String, TridentPlayer> entry = TridentPlayer.getPlayerNames().firstEntry();
         if (entry == null) {
             return null;
         } else {

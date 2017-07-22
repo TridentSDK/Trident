@@ -17,19 +17,14 @@
 package net.tridentsdk.server.command;
 
 import net.tridentsdk.command.*;
+import net.tridentsdk.command.params.ParamsAnnotations;
 import net.tridentsdk.server.TridentServer;
 
-import javax.annotation.concurrent.Immutable;
-
-@Immutable
-public class Stop implements CmdListener {
-    @Cmd(name = "stop", help = "/stop", desc = "Stops the server and shuts-down")
-    @Alias({ "shutdown", "fuck" })
-    @Constrain(value = SourceConstraint.class,
-            type = ConstraintType.SOURCE,
-            src = { CmdSourceType.CONSOLE, CmdSourceType.PLAYER })
-    @Constrain(value = PermsConstraint.class, type = ConstraintType.STRING, str = "minecraft.stop")
-    public void stop(String label, CmdSource source, String[] args) {
+public class StopCommand implements CommandListener {
+    @Command(name = "stop", aliases = { "shutdown", "fuck" }, help = "/stop", desc = "Stops the server and shuts-down")
+    @ParamsAnnotations.PermissionRequired("minecraft.stop")
+    @ParamsAnnotations.AllowedSourceTypes({ CommandSourceType.CONSOLE, CommandSourceType.PLAYER })
+    public void stop(CommandSource source, String[] args) {
         TridentServer.getInstance().shutdown();
     }
 }

@@ -17,31 +17,36 @@
 package net.tridentsdk.server.command;
 
 import net.tridentsdk.command.*;
+import net.tridentsdk.command.params.ParamsAnnotations;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.ui.chat.ChatComponent;
 
-import javax.annotation.concurrent.Immutable;
+import net.tridentsdk.ui.chat.ClickAction;
+import net.tridentsdk.ui.chat.ClickEvent;
 
-@Immutable
-public class Say implements CmdListener {
-    @Cmd(name = "say", help = "/say <message>", desc = "Broadcasts a message to all players")
-    @Constrain(value = MinArgsConstraint.class, type = ConstraintType.INT, integer = 1)
-    @Constrain(value = PermsConstraint.class, type = ConstraintType.STRING, str = "minecraft.say")
-    public void say(String label, CmdSource source, String[] args) {
+public class SayCommand implements CommandListener {
+    @Command(name = "say", help = "/say <message>", desc = "Broadcasts a message to all players")
+    @ParamsAnnotations.PermissionRequired("minecraft.say")
+    public void say(CommandSource source, String[] args, @ParamsAnnotations.MinCount(1) String... message) {
         StringBuilder builder = new StringBuilder();
-        for (String arg : args) {
-            builder.append(arg).append(' ');
+        for (String arg : message) {
+            builder.append(' ').append(arg);
         }
 
-        if (source.getCmdType() == CmdSourceType.PLAYER) {
-            String msg = '[' + ((TridentPlayer) source).getName() + "] " + builder;
+        if (source.getCmdType() == CommandSourceType.PLAYER) {
+            String name = ((TridentPlayer) source).getName();
+            String msg = '[' + name + "]";
+            ChatComponent cc = ChatComponent.create()
+                    .setText(msg)
+                    .setClickEvent(ClickEvent.of(ClickAction.SUGGEST_COMMAND, "/tell " + name + " "))
+                    .addExtra(builder.toString());
             for (TridentPlayer player : TridentPlayer.getPlayers().values()) {
-                player.sendMessage(ChatComponent.create().setText(msg));
+                player.sendMessage(cc);
             }
-            TridentServer.getInstance().getLogger().log(msg);
+            TridentServer.getInstance().getLogger().log(msg + builder);
         } else {
-            String msg = "[Server] " + builder;
+            String msg = "[Server]" + builder;
             for (TridentPlayer player : TridentPlayer.getPlayers().values()) {
                 player.sendMessage(ChatComponent.create().setText(msg));
             }

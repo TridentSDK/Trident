@@ -18,7 +18,7 @@ package net.tridentsdk.server.player;
 
 import lombok.Getter;
 import lombok.Setter;
-import net.tridentsdk.command.CmdSourceType;
+import net.tridentsdk.command.CommandSourceType;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.player.PlayerJoinEvent;
 import net.tridentsdk.event.player.PlayerQuitEvent;
@@ -76,7 +76,7 @@ public class TridentPlayer extends TridentEntity implements Player {
      * The players ordered by name
      */
     @Getter
-    private static final ConcurrentSkipListMap<String, Player> playerNames =
+    private static final ConcurrentSkipListMap<String, TridentPlayer> playerNames =
             new ConcurrentSkipListMap<>((c0, c1) -> {
                 int l0 = c0.length();
                 int l1 = c1.length();
@@ -697,7 +697,7 @@ public class TridentPlayer extends TridentEntity implements Player {
         TridentServer.getInstance().getLogger().log(this.name + " issued server command: /" + command);
         try {
             if (!ServerThreadPool.forSpec(PoolSpec.PLUGINS)
-                    .submit(() -> TridentServer.getInstance().getCmdHandler().dispatch(command, this)).get()) {
+                    .submit(() -> TridentServer.getInstance().getCommandHandler().dispatch(command, this)).get()) {
                 this.sendMessage(ChatComponent.create().setColor(ChatColor.RED).setText("No command found for " +
                         command.split(" ")[0]));
             }
@@ -707,22 +707,22 @@ public class TridentPlayer extends TridentEntity implements Player {
     }
 
     @Override
-    public CmdSourceType getCmdType() {
-        return CmdSourceType.PLAYER;
+    public CommandSourceType getCmdType() {
+        return CommandSourceType.PLAYER;
     }
 
     @Override
-    public boolean hasPerm(String perm) {
+    public boolean hasPermission(String perm) {
         return this.op || this.permissions.contains(perm);
     }
 
     @Override
-    public void addPerm(String perm) {
+    public void addPermission(String perm) {
         this.permissions.add(perm);
     }
 
     @Override
-    public boolean removePerm(String perm) {
+    public boolean removePermission(String perm) {
         return this.permissions.remove(perm);
     }
 

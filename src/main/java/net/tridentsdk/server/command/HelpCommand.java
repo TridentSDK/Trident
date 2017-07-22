@@ -16,7 +16,14 @@
  */
 package net.tridentsdk.server.command;
 
+import java.util.Collections;
+import java.util.IdentityHashMap;
+import java.util.Set;
 import net.tridentsdk.command.*;
+import net.tridentsdk.command.constraint.ConstraintType;
+import net.tridentsdk.command.constraint.ConstraintsAnnotations;
+import net.tridentsdk.command.constraint.MaxArgsConstraint;
+import net.tridentsdk.command.constraint.PermsConstraint;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.ui.chat.ChatColor;
 import net.tridentsdk.ui.chat.ChatComponent;
@@ -27,14 +34,13 @@ import java.util.List;
 import java.util.Map;
 
 @Immutable
-public class Help implements CmdListener {
+public class HelpCommand implements CommandListener {
     private static final int PAGE_SIZE = 5;
 
-    @Cmd(name = "help", help = "/help [command] [page]", desc = "Displays a help message, or looks for one if a command is provided")
-    @Alias("?")
-    @Constrain(value = MaxArgsConstraint.class, type = ConstraintType.INT, integer = 2)
-    @Constrain(value = PermsConstraint.class, type = ConstraintType.STRING, str = "minecraft.help")
-    public void say(String label, CmdSource source, String[] args) {
+    @Command(name = "help", aliases = "?", help = "/help [command] [page]", desc = "Displays a help message, or looks for one if a command is provided")
+    @ConstraintsAnnotations.Constrain(value = MaxArgsConstraint.class, type = ConstraintType.INT, integer = 2)
+    @ConstraintsAnnotations.Constrain(value = PermsConstraint.class, type = ConstraintType.STRING, str = "minecraft.help")
+    public void say(String label, CommandSource source, String[] args) {
         if (args.length == 1) {
             try {
                 int page = Integer.parseInt(args[0]);
@@ -77,9 +83,9 @@ public class Help implements CmdListener {
      * @param page the page to generate
      * @param source the command source
      */
-    private void help(int page, CmdSource source) {
+    private void help(int page, CommandSource source) {
         int max = page * PAGE_SIZE;
-        int ceil = (int) Math.ceil(TridentServer.getInstance().getCmdHandler().getCmdCount() / (double) PAGE_SIZE);
+        int ceil = (int) Math.ceil(TridentServer.getInstance().getCommandHandler().getCmdCount() / (double) PAGE_SIZE);
 
         if (max <= 0 || page > ceil) {
             source.sendMessage(ChatComponent.create().setColor(ChatColor.RED)
@@ -89,24 +95,24 @@ public class Help implements CmdListener {
 
         int it = 0;
         List<String> help = new ArrayList<>();
-        for (Map.Entry<String, CmdDispatcher> entry : TridentServer.getInstance().getCmdHandler().getDispatchers().entrySet()) {
-            if (!entry.getValue().isAlias()) {
-                if (it == max) {
-                    break;
-                }
-
-                if (it >= max - 5) {
-                    String s = ChatColor.GOLD.toString() + '/' + entry.getKey() + ": " +
-                            ChatColor.WHITE + entry.getValue().getCmd().desc();
-                    if (s.length() > 64) {
-                        s = s.substring(0, 64) + "...";
-                    }
-
-                    help.add(s);
-                }
-
-                it++;
+        Set<CommandDispatcher> dispatcherSet = Collections.newSetFromMap(new IdentityHashMap<>());
+        dispatcherSet.addAll(TridentServer.getInstance().getCommandHandler().getDispatchers().values());
+        for (CommandDispatcher dispatcher : dispatcherSet) {
+            if (it == max) {
+                break;
             }
+
+            if (it >= max - 5) {
+                String s = ChatColor.GOLD.toString() + '/' + dispatcher.getCommand().name() + ": " +
+                        ChatColor.WHITE + dispatcher.getCommand().desc();
+                if (s.length() > 64) {
+                    s = s.substring(0, 64) + "...";
+                }
+
+                help.add(s);
+            }
+
+            it++;
         }
 
         source.sendMessage(ChatComponent.create().setColor(ChatColor.YELLOW).setText("-------- ").
@@ -131,7 +137,7 @@ public class Help implements CmdListener {
      * @param page the page to find
      * @param source the command source
      */
-    private void search(String search, int page, CmdSource source) {
+    private void search(String search, int page, CommandSource source) {
         int max = page * PAGE_SIZE;
 
         if (max <= 0) {
@@ -142,25 +148,25 @@ public class Help implements CmdListener {
 
         int it = 0;
         List<String> help = new ArrayList<>();
-        Map<String, CmdDispatcher> dispatchers = TridentServer.getInstance().getCmdHandler().getDispatchers();
-        CmdDispatcher dispatcher = dispatchers.get(search);
+        Map<String, CommandDispatcher> dispatchers = TridentServer.getInstance().getCommandHandler().getDispatchers();
+        CommandDispatcher dispatcher = dispatchers.get(search);
         if (dispatcher != null) {
             source.sendMessage(ChatComponent.create().setColor(ChatColor.YELLOW).setText("-------- ").
                     addExtra(ChatComponent.create().setColor(ChatColor.WHITE).setText("Help: /" + search)).
                     addExtra(ChatComponent.create().setColor(ChatColor.YELLOW).setText(" ----------------------")));
-            if (dispatcher.isAlias()) {
+            if (!dispatcher.getCommand().name().equalsIgnoreCase(search)) {
                 source.sendMessage(ChatComponent.create().setColor(ChatColor.YELLOW).setText("Alias for ").
-                        addExtra(ChatComponent.create().setColor(ChatColor.WHITE).setText('/' + dispatcher.getCmd().name())));
+                        addExtra(ChatComponent.create().setColor(ChatColor.WHITE).setText('/' + dispatcher.getCommand().name())));
             }
 
             source.sendMessage(ChatComponent.create().setColor(ChatColor.GOLD).setText("Description: ").
-                    addExtra(ChatComponent.create().setColor(ChatColor.WHITE).setText(dispatcher.getCmd().desc())));
+                    addExtra(ChatComponent.create().setColor(ChatColor.WHITE).setText(dispatcher.getCommand().desc())));
             source.sendMessage(ChatComponent.create().setColor(ChatColor.GOLD).setText("Usage: ").
-                    addExtra(ChatComponent.create().setColor(ChatColor.WHITE).setText(dispatcher.getCmd().help())));
+                    addExtra(ChatComponent.create().setColor(ChatColor.WHITE).setText(dispatcher.getCommand().help())));
 
-            if (dispatcher.getAliases().length > 0) {
+            if (dispatcher.getCommand().aliases().length > 0) {
                 StringBuilder builder = new StringBuilder();
-                for (String alias : dispatcher.getAliases()) {
+                for (String alias : dispatcher.getCommand().aliases()) {
                     builder.append(alias).append(", ");
                 }
                 String text = builder.toString();
@@ -169,7 +175,7 @@ public class Help implements CmdListener {
                         addExtra(ChatComponent.create().setColor(ChatColor.WHITE).setText(text.substring(0, text.length() - 2))));
             }
         } else {
-            for (Map.Entry<String, CmdDispatcher> entry : dispatchers.entrySet()) {
+            for (Map.Entry<String, CommandDispatcher> entry : dispatchers.entrySet()) {
                 if (this.isSimilar(search, entry.getKey())) {
                     if (it >= max) {
                         it++;
@@ -177,9 +183,9 @@ public class Help implements CmdListener {
                     }
 
                     if (it >= max - 5) {
-                        if (!entry.getValue().isAlias()) {
+                        if (dispatcher.getCommand().name().equalsIgnoreCase(search)) {
                             String s = ChatColor.GOLD.toString() + '/' + entry.getKey() + ": " +
-                                    ChatColor.WHITE + entry.getValue().getCmd().desc();
+                                    ChatColor.WHITE + entry.getValue().getCommand().desc();
                             if (s.length() > 64) {
                                 s = s.substring(0, 64) + "...";
                             }
@@ -187,7 +193,7 @@ public class Help implements CmdListener {
                         } else {
                             String s = ChatColor.GOLD.toString() + '/' + entry.getKey() + ": " +
                                     ChatColor.YELLOW + "Alias for " +
-                                    ChatColor.WHITE + '/' + entry.getValue().getCmd().name();
+                                    ChatColor.WHITE + '/' + entry.getValue().getCommand().name();
                             if (s.length() > 66) {
                                 s = s.substring(0, 66) + "...";
                             }
@@ -243,10 +249,10 @@ public class Help implements CmdListener {
      * @param page the page to generate
      * @param source the command source
      */
-    private void aliases(int page, CmdSource source) {
+    private void aliases(int page, CommandSource source) {
         int max = page * PAGE_SIZE;
-        int ceil = (int) Math.ceil((TridentServer.getInstance().getCmdHandler().getDispatchers().size() -
-                TridentServer.getInstance().getCmdHandler().getCmdCount()) / (double) PAGE_SIZE);
+        int ceil = (int) Math.ceil((TridentServer.getInstance().getCommandHandler().getDispatchers().size() -
+                TridentServer.getInstance().getCommandHandler().getCmdCount()) / (double) PAGE_SIZE);
 
         if (max <= 0 || page > ceil) {
             source.sendMessage(ChatComponent.create().setColor(ChatColor.RED)
@@ -256,8 +262,9 @@ public class Help implements CmdListener {
 
         int it = 0;
         List<String> help = new ArrayList<>();
-        for (Map.Entry<String, CmdDispatcher> entry : TridentServer.getInstance().getCmdHandler().getDispatchers().entrySet()) {
-            if (entry.getValue().isAlias()) {
+        for (Map.Entry<String, CommandDispatcher> entry : TridentServer.getInstance().getCommandHandler().getDispatchers().entrySet()) {
+            CommandDispatcher dispatcher = entry.getValue();
+            if (!dispatcher.getCommand().name().equalsIgnoreCase(entry.getKey())) {
                 if (it == max) {
                     break;
                 }
@@ -265,7 +272,7 @@ public class Help implements CmdListener {
                 if (it >= max - 5) {
                     String s = ChatColor.GOLD.toString() + '/' + entry.getKey() + ": " +
                             ChatColor.YELLOW + "Alias for " +
-                            ChatColor.WHITE + '/' + entry.getValue().getCmd().name();
+                            ChatColor.WHITE + '/' + dispatcher.getCommand().name();
                     if (s.length() > 66) {
                         s = s.substring(0, 66) + "...";
                     }
@@ -293,7 +300,7 @@ public class Help implements CmdListener {
      * @param page the page to generate
      * @param source the command source
      */
-    private void fallback(String f, int page, CmdSource source) {
+    private void fallback(String f, int page, CommandSource source) {
         int max = page * PAGE_SIZE;
 
         if (max <= 0) {
@@ -304,8 +311,9 @@ public class Help implements CmdListener {
 
         int it = 0;
         List<String> help = new ArrayList<>();
-        for (Map.Entry<String, CmdDispatcher> entry : TridentServer.getInstance().getCmdHandler().getDispatchers().entrySet()) {
-            if (entry.getValue().getFallback().equalsIgnoreCase(f) && !entry.getValue().isAlias()) {
+        for (Map.Entry<String, CommandDispatcher> entry : TridentServer.getInstance().getCommandHandler().getDispatchers().entrySet()) {
+            CommandDispatcher dispatcher = entry.getValue();
+            if (dispatcher.getFallback().equalsIgnoreCase(f) && !dispatcher.getCommand().name().equalsIgnoreCase(entry.getKey())) {
                 if (it >= max) {
                     it++;
                     continue;
@@ -313,7 +321,7 @@ public class Help implements CmdListener {
 
                 if (it >= max - 5) {
                     String s = ChatColor.GOLD.toString() + '/' + entry.getKey() + ": " +
-                            ChatColor.WHITE + entry.getValue().getCmd().desc();
+                            ChatColor.WHITE + dispatcher.getCommand().desc();
                     if (s.length() > 64) {
                         s = s.substring(0, 64) + "...";
                     }

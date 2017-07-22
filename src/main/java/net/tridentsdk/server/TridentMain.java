@@ -18,10 +18,17 @@ package net.tridentsdk.server;
 
 import net.tridentsdk.Impl;
 import net.tridentsdk.Server;
-import net.tridentsdk.command.CmdHandler;
+import net.tridentsdk.command.CommandHandler;
 import net.tridentsdk.logger.Logger;
 import net.tridentsdk.plugin.Plugin;
-import net.tridentsdk.server.command.*;
+import net.tridentsdk.server.command.DebugCommand;
+import net.tridentsdk.server.command.DeopCommand;
+import net.tridentsdk.server.command.HelpCommand;
+import net.tridentsdk.server.command.KickCommand;
+import net.tridentsdk.server.command.OpCommand;
+import net.tridentsdk.server.command.SayCommand;
+import net.tridentsdk.server.command.StopCommand;
+import net.tridentsdk.server.command.TeleportCommand;
 import net.tridentsdk.server.concurrent.PoolSpec;
 import net.tridentsdk.server.concurrent.ServerThreadPool;
 import net.tridentsdk.server.config.ConfigIo;
@@ -169,15 +176,15 @@ public final class TridentMain {
         ServerThreadPool.forSpec(PoolSpec.PLUGINS).submit(() -> {
             // Register commands ---------------------------
             logger.log("Registering server commands...");
-            CmdHandler h = trident.getCmdHandler();
-            h.register("minecraft", new Stop());
-            h.register("minecraft", new Kick());
-            h.register("minecraft", new Tp());
-            h.register("minecraft", new Say());
-            h.register("minecraft", new Help());
-            h.register("minecraft", new Op());
-            h.register("minecraft", new Deop());
-            h.register("trident", new D());
+            CommandHandler h = trident.getCommandHandler();
+            h.register("minecraft", new StopCommand());
+            h.register("minecraft", new KickCommand());
+            h.register("minecraft", new TeleportCommand());
+            h.register("minecraft", new SayCommand());
+            h.register("minecraft", new HelpCommand());
+            h.register("minecraft", new OpCommand());
+            h.register("minecraft", new DeopCommand());
+            h.register("trident", new DebugCommand());
             logger.log("Done.");
             // ---------------------------------------------
 

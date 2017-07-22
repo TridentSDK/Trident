@@ -16,10 +16,11 @@
  */
 package net.tridentsdk.server;
 
+import java.util.Objects;
 import lombok.Getter;
 import net.tridentsdk.Server;
-import net.tridentsdk.command.CmdHandler;
-import net.tridentsdk.command.CmdSourceType;
+import net.tridentsdk.command.CommandHandler;
+import net.tridentsdk.command.CommandSourceType;
 import net.tridentsdk.doc.Policy;
 import net.tridentsdk.event.EventController;
 import net.tridentsdk.logger.Logger;
@@ -90,7 +91,7 @@ public class TridentServer implements Server {
     /**
      * Singleton instance of the server command handler
      */
-    private final CmdHandler cmdHandler = new CmdHandler();
+    private final CommandHandler commandHandler = new CommandHandler();
     /**
      * Whether or not the server is shutting down
      */
@@ -168,6 +169,49 @@ public class TridentServer implements Server {
     }
 
     @Override
+    public TridentPlayer getPlayer(UUID uuid) {
+        Objects.requireNonNull(uuid, "uuid cannot be null");
+        TridentPlayer player = TridentPlayer.getPlayers().get(uuid);
+        return player != null && player.net().getState() == NetClient.NetState.PLAY ? player : null;
+    }
+
+    @Override
+    public TridentPlayer getPlayerExact(String name) {
+        Objects.requireNonNull(name, "name cannot be null");
+        TridentPlayer player = TridentPlayer.getPlayerNames().get(name);
+        return player != null && player.net().getState() == NetClient.NetState.PLAY ? player : null;
+    }
+
+    @Override
+    public Collection<TridentPlayer> getPlayersMatching(String name) {
+        Objects.requireNonNull(name, "name cannot be null");
+        return getPlayers().stream()
+                .filter(p -> p.getName().toLowerCase().contains(name.toLowerCase()))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Collection<TridentPlayer> getPlayersFuzzyMatching(String filter) {
+        Objects.requireNonNull(filter, "filter cannot be null");
+        return getPlayers().stream()
+                .filter(p -> {
+                    String f = filter;
+                    String n = p.getName();
+                    while (n.length() >= f.length()) {
+                        if (f.length() == 0 || n.length() == 0)
+                            return true;
+                        int index = n.indexOf(f.charAt(0));
+                        if (index < 0)
+                            break;
+                        n = n.substring(index + 1);
+                        f = f.substring(1);
+                    }
+                    return false;
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public TridentWorldLoader getWorldLoader() {
         return TridentWorldLoader.getInstance();
     }
@@ -183,8 +227,8 @@ public class TridentServer implements Server {
     }
 
     @Override
-    public CmdHandler getCmdHandler() {
-        return this.cmdHandler;
+    public CommandHandler getCommandHandler() {
+        return this.commandHandler;
     }
 
     @Override
@@ -246,7 +290,7 @@ public class TridentServer implements Server {
     public void runCommand(String command) {
         this.logger.log("Server command issued by console: /" + command);
         try {
-            if (!ServerThreadPool.forSpec(PoolSpec.PLUGINS).submit(() -> this.cmdHandler.dispatch(command, this)).get()) {
+            if (!ServerThreadPool.forSpec(PoolSpec.PLUGINS).submit(() -> this.commandHandler.dispatch(command, this)).get()) {
                 this.logger.log("No command \"" + command.split(" ")[0] + "\" found");
             }
         } catch (InterruptedException | ExecutionException e) {
@@ -269,8 +313,24 @@ public class TridentServer implements Server {
         this.logger.log(builder.toString());
     }
 
+
+    /* CommandSource methods */
+
     @Override
-    public CmdSourceType getCmdType() {
-        return CmdSourceType.CONSOLE;
-    }
+    public CommandSourceType getCmdType() { return CommandSourceType.CONSOLE; }
+
+    @Override
+    public boolean hasPermission(String permission) { return true; }
+
+    @Override
+    public void addPermission(String perm) {}
+
+    @Override
+    public boolean removePermission(String perm) { return false; }
+
+    @Override
+    public void setOp(boolean op) {}
+
+    @Override
+    public boolean isOp() { return true; }
 }

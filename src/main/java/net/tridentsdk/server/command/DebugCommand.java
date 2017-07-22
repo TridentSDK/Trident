@@ -19,6 +19,7 @@ package net.tridentsdk.server.command;
 import net.tridentsdk.base.Position;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.command.*;
+import net.tridentsdk.command.params.ParamsAnnotations;
 import net.tridentsdk.doc.Debug;
 import net.tridentsdk.inventory.Item;
 import net.tridentsdk.server.net.NetClient;
@@ -37,18 +38,16 @@ import javax.annotation.concurrent.Immutable;
 
 @Immutable
 @Debug
-public class D implements CmdListener {
-    @Cmd(name = "d", help = "/debug <chunks|bossbars|title|cleartitle>",
-            desc = "Secret debug command for devs")
-    @Constrain(value = SourceConstraint.class, type = ConstraintType.SOURCE, src = CmdSourceType.PLAYER)
-    @Constrain(value = MinArgsConstraint.class, type = ConstraintType.INT, integer = 1)
-    @Constrain(value = PermsConstraint.class, type = ConstraintType.STRING, str = "trident.debug")
-    public void debug(String label, CmdSource source, String[] args) {
+public class DebugCommand implements CommandListener {
+
+    @Command(name = "debug", help = "/debug <chunks|bossbars|title|cleartitle|chat>", desc = "Secret debug command for devs")
+    @ParamsAnnotations.AllowedSourceTypes(CommandSourceType.PLAYER)
+    @ParamsAnnotations.PermissionRequired("trident.debug")
+    public void debug(CommandSource source, String[] args, String mode) {
         TridentPlayer player = (TridentPlayer) source;
         NetClient client = player.net();
-        String msg = args[0].toLowerCase();
 
-        if (msg.equals("chunks")) {
+        if (mode.equals("chunks")) {
             Position playerPosition = player.getPosition();
             int chunkLoadRadius = 3;
 
@@ -58,9 +57,7 @@ public class D implements CmdListener {
                     client.sendPacket(new PlayOutChunk(chunk));
                 }
             }
-        }
-
-        if (msg.equals("bossbars")) {
+        } else if (mode.equals("bossbars")) {
             int i = 0;
             for (String word : "I hate my life".split(" ")) {
                 BossBar bb = BossBar.newBossBar();
@@ -74,9 +71,7 @@ public class D implements CmdListener {
 
                 player.addBossBar(bb);
             }
-        }
-
-        if (msg.equals("title")) {
+        } else if (mode.equals("title")) {
             Title title = Title.newTitle();
 
             title.setHeader(ChatComponent.create().setColor(ChatColor.AQUA).setText("henlo player"));
@@ -86,13 +81,9 @@ public class D implements CmdListener {
             title.setFadeOut(0);
 
             player.sendTitle(title);
-        }
-
-        if (msg.equals("cleartitle")) {
+        } else if (mode.equals("cleartitle")) {
             player.resetTitle();
-        }
-
-        if (msg.equals("chat")) {
+        } else if (mode.equals("chat")) {
             player.sendMessage(ChatComponent.create().setText("What is this").setHoverEvent(
                     HoverEvent.item(Item.newItem(Substance.STONE, 30, (byte) 1))));
         }
