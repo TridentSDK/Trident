@@ -17,7 +17,10 @@
 package net.tridentsdk.server.packet.play;
 
 import io.netty.buffer.ByteBuf;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import lombok.RequiredArgsConstructor;
+import net.tridentsdk.server.net.NetData;
 import net.tridentsdk.server.packet.PacketOut;
 import net.tridentsdk.server.ui.tablist.TabListElement;
 import net.tridentsdk.ui.chat.ChatComponent;
@@ -67,6 +70,14 @@ public abstract class PlayOutTabListItem extends PacketOut {
 
     public static PlayOutTabListItemUpdateDisplayName updatePlayerPacket() {
         return new PlayOutTabListItemUpdateDisplayName();
+    }
+
+    public static PlayOutTabListItemUpdateGamemode updateGamemodePacket() {
+        return new PlayOutTabListItemUpdateGamemode();
+    }
+
+    public static PlayOutTabListItemUpdateLatency updateLatencyPacket() {
+        return new PlayOutTabListItemUpdateLatency();
     }
 
     public static class PlayOutTabListItemAddPlayer extends PlayOutTabListItem {
@@ -163,6 +174,62 @@ public abstract class PlayOutTabListItem extends PacketOut {
         @Override
         public int getActionCount() {
             return this.removals.size();
+        }
+    }
+
+    public static class PlayOutTabListItemUpdateGamemode extends PlayOutTabListItem {
+        private final Map<UUID, GameMode> updates = new ConcurrentHashMap<>();
+
+        public PlayOutTabListItemUpdateGamemode() {
+            super(PlayOutTabListItemActionType.UPDATE_GAMEMODE);
+        }
+
+        public void update(UUID uuid, GameMode gameMode) {
+            this.updates.put(uuid, gameMode);
+        }
+
+        @Override
+        public void write(ByteBuf buf) {
+            super.write(buf);
+
+            this.updates.forEach((uuid, gameMode) -> {
+                buf.writeLong(uuid.getMostSignificantBits());
+                buf.writeLong(uuid.getLeastSignificantBits());
+                NetData.wvint(buf, gameMode.asInt());
+            });
+        }
+
+        @Override
+        public int getActionCount() {
+            return this.updates.size();
+        }
+    }
+
+    public static class PlayOutTabListItemUpdateLatency extends PlayOutTabListItem {
+        private final Map<UUID, Integer> updates = new ConcurrentHashMap<>();
+
+        public PlayOutTabListItemUpdateLatency() {
+            super(PlayOutTabListItemActionType.UPDATE_LATENCY);
+        }
+
+        public void update(UUID uuid, int latency) {
+            this.updates.put(uuid, latency);
+        }
+
+        @Override
+        public void write(ByteBuf buf) {
+            super.write(buf);
+
+            this.updates.forEach((uuid, latency) -> {
+                buf.writeLong(uuid.getMostSignificantBits());
+                buf.writeLong(uuid.getLeastSignificantBits());
+                NetData.wvint(buf, latency);
+            });
+        }
+
+        @Override
+        public int getActionCount() {
+            return this.updates.size();
         }
     }
 

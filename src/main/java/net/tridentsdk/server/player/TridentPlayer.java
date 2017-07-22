@@ -229,6 +229,10 @@ public class TridentPlayer extends TridentEntity implements Player {
     @Getter
     private volatile TabList tabList;
     /**
+     * The tablists on which this
+     */
+    public final Set<TabList> featuredTabLists = Collections.newSetFromMap(new WeakHashMap<>());
+    /**
      * The boss bars that are being displayed to this
      * player.
      */
@@ -303,8 +307,8 @@ public class TridentPlayer extends TridentEntity implements Player {
         client.setPlayer(player);
 
         TridentPlayer.players.put(uuid, player);
-        Login.finish();
         TridentPlayer.playerNames.put(name, player);
+        Login.finish();
 
         player.updateChunks();
         player.resumeLogin();
@@ -411,8 +415,10 @@ public class TridentPlayer extends TridentEntity implements Player {
 
     @Override
     public void setDisplayName(ChatComponent displayName) {
+        if (displayName != null && displayName.getText() == null)
+            throw new IllegalArgumentException("display name must set text field");
         this.displayName = displayName != null ? displayName : ChatComponent.text(this.name);
-        // TODO update
+        this.featuredTabLists.forEach(TabList::update);
     }
 
     @Override
@@ -451,9 +457,7 @@ public class TridentPlayer extends TridentEntity implements Player {
 
     @Override
     public void addBossBar(BossBar bossBar) {
-        if(bossBar == null){
-            throw new NullPointerException();
-        }
+        Objects.requireNonNull(bossBar, "boss bar cannot be null");
         
         if (this.bossBars.add(bossBar)) {
             this.net().sendPacket(new PlayOutBossBar.Add(bossBar));
@@ -462,9 +466,7 @@ public class TridentPlayer extends TridentEntity implements Player {
 
     @Override
     public void removeBossBar(BossBar bossBar) {
-        if(bossBar == null){
-            throw new NullPointerException();
-        }
+        Objects.requireNonNull(bossBar, "boss bar cannot be null");
         
         if (this.bossBars.remove(bossBar)) {
             this.net().sendPacket(new PlayOutBossBar.Remove(bossBar));
@@ -543,7 +545,7 @@ public class TridentPlayer extends TridentEntity implements Player {
      */
     public void setTextures(TabListElement.PlayerProperty skinTextures) {
         this.skinTextures = skinTextures;
-        // TODO Push update to tablist and other players
+        this.featuredTabLists.forEach(TabList::update);
     }
 
     @Override

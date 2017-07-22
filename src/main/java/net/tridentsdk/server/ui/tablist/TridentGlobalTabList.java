@@ -16,8 +16,13 @@
  */
 package net.tridentsdk.server.ui.tablist;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import lombok.Getter;
 import net.tridentsdk.doc.Policy;
+import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.ui.chat.ChatComponent;
 
@@ -58,8 +63,12 @@ public class TridentGlobalTabList extends TridentTabList {
         synchronized (this.lock) {
             this.elements.clear();
 
-            Collection<TridentPlayer> players = TridentPlayer.getPlayers().values();
-            players.forEach(p -> this.elements.add(new TabListElement(p)));
+            List<TridentPlayer> players = new ArrayList<>(TridentPlayer.getPlayers().values());
+            players.sort(Comparator.comparing(p -> p.getDisplayName().getText()));
+            players.forEach(p -> {
+                p.featuredTabLists.add(this);
+                this.elements.add(new TabListElement(p));
+            });
         }
 
         super.update();

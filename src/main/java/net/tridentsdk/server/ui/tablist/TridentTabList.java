@@ -99,7 +99,9 @@ public abstract class TridentTabList implements TabList {
         PlayOutPlayerListHeaderAndFooter headerAndFooterPacket = new PlayOutPlayerListHeaderAndFooter(this.header, this.footer);
         PlayOutTabListItem.PlayOutTabListItemAddPlayer addPacket = PlayOutTabListItem.addPlayerPacket();
         PlayOutTabListItem.PlayOutTabListItemRemovePlayer removePacket = PlayOutTabListItem.removePlayerPacket();
-        PlayOutTabListItem.PlayOutTabListItemUpdateDisplayName updatePacket = PlayOutTabListItem.updatePlayerPacket();
+        PlayOutTabListItem.PlayOutTabListItemUpdateGamemode updateGamemodePacket = PlayOutTabListItem.updateGamemodePacket();
+        PlayOutTabListItem.PlayOutTabListItemUpdateLatency updateLatencyPacket = PlayOutTabListItem.updateLatencyPacket();
+        PlayOutTabListItem.PlayOutTabListItemUpdateDisplayName updateNamePacket = PlayOutTabListItem.updatePlayerPacket();
 
         Map<UUID, TabListElement> lastSeen = new LinkedHashMap<>();
         Map<UUID, TabListElement> currentElements = new LinkedHashMap<>();
@@ -123,8 +125,15 @@ public abstract class TridentTabList implements TabList {
 
         currentElements.forEach((key, value) -> {
             if (lastSeen.containsKey(key)) {
-                if (!Objects.equals(value.getDisplayName(), lastSeen.get(key).getDisplayName())) {
-                    updatePacket.update(key, value.getDisplayName());
+                TabListElement last = lastSeen.get(key);
+                if (!Objects.equals(value.getDisplayName(), last.getDisplayName())) {
+                    updateNamePacket.update(key, value.getDisplayName());
+                }
+                if (value.getGameMode() != last.getGameMode()) {
+                    updateGamemodePacket.update(key, value.getGameMode());
+                }
+                if (value.getPing() != last.getPing()) {
+                    updateLatencyPacket.update(key, value.getPing());
                 }
             } else {
                 addPacket.addPlayer(value);
@@ -142,8 +151,12 @@ public abstract class TridentTabList implements TabList {
                 player.net().sendPacket(removePacket);
             if (addPacket.getActionCount() > 0)
                 player.net().sendPacket(addPacket);
-            if (updatePacket.getActionCount() > 0)
-                player.net().sendPacket(updatePacket);
+            if (updateGamemodePacket.getActionCount() > 0)
+                player.net().sendPacket(updateGamemodePacket);
+            if (updateLatencyPacket.getActionCount() > 0)
+                player.net().sendPacket(updateLatencyPacket);
+            if (updateNamePacket.getActionCount() > 0)
+                player.net().sendPacket(updateNamePacket);
             player.net().sendPacket(headerAndFooterPacket);
         });
     }
