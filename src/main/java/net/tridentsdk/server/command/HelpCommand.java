@@ -20,54 +20,49 @@ import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Set;
 import net.tridentsdk.command.*;
-import net.tridentsdk.command.constraint.ConstraintType;
-import net.tridentsdk.command.constraint.ConstraintsAnnotations;
-import net.tridentsdk.command.constraint.MaxArgsConstraint;
-import net.tridentsdk.command.constraint.PermsConstraint;
+import net.tridentsdk.command.params.ParamsAnnotations;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.ui.chat.ChatColor;
 import net.tridentsdk.ui.chat.ChatComponent;
 
-import javax.annotation.concurrent.Immutable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@Immutable
 public class HelpCommand implements CommandListener {
     private static final int PAGE_SIZE = 5;
 
     @Command(name = "help", aliases = "?", help = "/help [command] [page]", desc = "Displays a help message, or looks for one if a command is provided")
-    @ConstraintsAnnotations.Constrain(value = MaxArgsConstraint.class, type = ConstraintType.INT, integer = 2)
-    @ConstraintsAnnotations.Constrain(value = PermsConstraint.class, type = ConstraintType.STRING, str = "minecraft.help")
-    public void say(String label, CommandSource source, String[] args) {
+    @ParamsAnnotations.PermissionRequired("minecraft.help")
+    public void help(CommandSource source, String[] args, @ParamsAnnotations.MaxCount(2) String... params) {
         if (args.length == 1) {
+            String command = params[0];
             try {
-                int page = Integer.parseInt(args[0]);
+                int page = Integer.parseInt(command);
                 this.help(page, source);
             } catch (NumberFormatException e) {
-                if (args[0].equalsIgnoreCase("aliases")) {
+                if (command.equalsIgnoreCase("aliases")) {
                     this.aliases(1, source);
-                } else if (args[0].equalsIgnoreCase("trident")) {
-                    this.fallback("Trident", 1, source);
-                } else if (args[0].equalsIgnoreCase("minecraft")) {
-                    this.fallback("Minecraft", 1, source);
+                } else if (command.equalsIgnoreCase("trident")) {
+                    this.plugin("Trident", 1, source);
+                } else if (command.equalsIgnoreCase("minecraft")) {
+                    this.plugin("Minecraft", 1, source);
                 } else {
-                    this.search(args[0], 1, source);
+                    this.search(command, 1, source);
                 }
             }
         } else if (args.length == 2) {
+            String command = params[0];
             try {
-                int page = Integer.parseInt(args[1]);
-
-                if (args[0].equalsIgnoreCase("aliases")) {
+                int page = Integer.parseInt(params[1]);
+                if (command.equalsIgnoreCase("aliases")) {
                     this.aliases(page, source);
-                } else if (args[0].equalsIgnoreCase("trident")) {
-                    this.fallback("Trident", page, source);
-                } else if (args[0].equalsIgnoreCase("minecraft")) {
-                    this.fallback("Minecraft", page, source);
+                } else if (command.equalsIgnoreCase("trident")) {
+                    this.plugin("Trident", page, source);
+                } else if (command.equalsIgnoreCase("minecraft")) {
+                    this.plugin("Minecraft", page, source);
                 } else {
-                    this.search(args[0], page, source);
+                    this.search(command, page, source);
                 }
             } catch (NumberFormatException x) {
                 source.sendMessage(ChatComponent.create().setColor(ChatColor.RED).setText("No help for " + args[0] + ' ' + args[1]));
@@ -296,11 +291,11 @@ public class HelpCommand implements CommandListener {
      * Searches for commands that are dispatched to the
      * given fallback string, i.e. their owners.
      *
-     * @param f the fallback string to look for
+     * @param plugin the plugin id to look for
      * @param page the page to generate
      * @param source the command source
      */
-    private void fallback(String f, int page, CommandSource source) {
+    private void plugin(String plugin, int page, CommandSource source) {
         int max = page * PAGE_SIZE;
 
         if (max <= 0) {
@@ -313,7 +308,7 @@ public class HelpCommand implements CommandListener {
         List<String> help = new ArrayList<>();
         for (Map.Entry<String, CommandDispatcher> entry : TridentServer.getInstance().getCommandHandler().getDispatchers().entrySet()) {
             CommandDispatcher dispatcher = entry.getValue();
-            if (dispatcher.getFallback().equalsIgnoreCase(f) && !dispatcher.getCommand().name().equalsIgnoreCase(entry.getKey())) {
+            if (dispatcher.getPlugin().equalsIgnoreCase(plugin) && !dispatcher.getCommand().name().equalsIgnoreCase(entry.getKey())) {
                 if (it >= max) {
                     it++;
                     continue;
@@ -341,10 +336,10 @@ public class HelpCommand implements CommandListener {
         }
 
         source.sendMessage(ChatComponent.create().setColor(ChatColor.YELLOW).setText("-------- ").
-                addExtra(ChatComponent.create().setColor(ChatColor.WHITE).setText("Help: " + f + " (" + page + '/' +
+                addExtra(ChatComponent.create().setColor(ChatColor.WHITE).setText("Help: " + plugin + " (" + page + '/' +
                         ceil + ')')).
                 addExtra(ChatComponent.create().setColor(ChatColor.YELLOW).setText(" ----------------------")));
-        source.sendMessage(ChatComponent.create().setColor(ChatColor.GRAY).setText("Below is a list of all " + f + " commands:"));
+        source.sendMessage(ChatComponent.create().setColor(ChatColor.GRAY).setText("Below is a list of all " + plugin + " commands:"));
         for (String s : help) {
             source.sendMessage(ChatComponent.fromFormat(s));
         }
