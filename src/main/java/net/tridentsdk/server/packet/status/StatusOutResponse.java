@@ -26,8 +26,6 @@ import net.tridentsdk.server.config.ServerConfig;
 import net.tridentsdk.server.packet.PacketOut;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.ui.chat.ChatComponent;
-import org.hjson.JsonArray;
-import org.hjson.JsonObject;
 import org.hjson.Stringify;
 
 import javax.annotation.concurrent.Immutable;
