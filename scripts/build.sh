@@ -38,7 +38,7 @@ then
     git checkout $ORIGIN_BRANCH
 fi
 
-./gradlew clean build jar publishToMavenLocal
+./gradlew clean install
 popd
 
-./gradlew clean build jar
+./gradlew clean install
