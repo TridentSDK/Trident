@@ -48,6 +48,9 @@ import org.jline.terminal.TerminalBuilder;
 import javax.annotation.concurrent.Immutable;
 import java.nio.file.Files;
 
+import static net.tridentsdk.server.command.TridentDummyCommandPlugin.MINECRAFT_INST;
+import static net.tridentsdk.server.command.TridentDummyCommandPlugin.TRIDENT_INST;
+
 /**
  * Trident server startup class
  */
@@ -177,14 +180,14 @@ public final class TridentMain {
             // Register commands ---------------------------
             logger.log("Registering server commands...");
             CommandHandler h = trident.getCommandHandler();
-            h.register("minecraft", new StopCommand());
-            h.register("minecraft", new KickCommand());
-            h.register("minecraft", new TeleportCommand());
-            h.register("minecraft", new SayCommand());
-            h.register("minecraft", new HelpCommand());
-            h.register("minecraft", new OpCommand());
-            h.register("minecraft", new DeopCommand());
-            h.register("trident", new DebugCommand());
+            h.register(MINECRAFT_INST, new StopCommand());
+            h.register(MINECRAFT_INST, new KickCommand());
+            h.register(MINECRAFT_INST, new TeleportCommand());
+            h.register(MINECRAFT_INST, new SayCommand());
+            h.register(MINECRAFT_INST, new HelpCommand());
+            h.register(MINECRAFT_INST, new OpCommand());
+            h.register(MINECRAFT_INST, new DeopCommand());
+            h.register(TRIDENT_INST, new DebugCommand());
             logger.log("Done.");
             // ---------------------------------------------
 
