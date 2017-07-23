@@ -19,7 +19,8 @@ package net.tridentsdk.server.command;
 import net.tridentsdk.base.Position;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.command.*;
-import net.tridentsdk.command.params.ParamsAnnotations;
+import net.tridentsdk.command.annotation.AllowedSourceTypes;
+import net.tridentsdk.command.annotation.PermissionRequired;
 import net.tridentsdk.doc.Debug;
 import net.tridentsdk.inventory.Item;
 import net.tridentsdk.server.net.NetClient;
@@ -41,8 +42,8 @@ import javax.annotation.concurrent.Immutable;
 public class DebugCommand implements CommandListener {
 
     @Command(name = "debug", help = "/debug <chunks|bossbars|title|cleartitle|chat>", desc = "Secret debug command for devs")
-    @ParamsAnnotations.AllowedSourceTypes(CommandSourceType.PLAYER)
-    @ParamsAnnotations.PermissionRequired("trident.debug")
+    @AllowedSourceTypes(CommandSourceType.PLAYER)
+    @PermissionRequired("trident.debug")
     public void debug(CommandSource source, String[] args, String mode) {
         TridentPlayer player = (TridentPlayer) source;
         NetClient client = player.net();

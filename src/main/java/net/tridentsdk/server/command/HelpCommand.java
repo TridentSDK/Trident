@@ -20,7 +20,8 @@ import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Set;
 import net.tridentsdk.command.*;
-import net.tridentsdk.command.params.ParamsAnnotations;
+import net.tridentsdk.command.annotation.MaxCount;
+import net.tridentsdk.command.annotation.PermissionRequired;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.ui.chat.ChatColor;
 import net.tridentsdk.ui.chat.ChatComponent;
@@ -33,8 +34,8 @@ public class HelpCommand implements CommandListener {
     private static final int PAGE_SIZE = 5;
 
     @Command(name = "help", aliases = "?", help = "/help [command] [page]", desc = "Displays a help message, or looks for one if a command is provided")
-    @ParamsAnnotations.PermissionRequired("minecraft.help")
-    public void help(CommandSource source, String[] args, @ParamsAnnotations.MaxCount(2) String... params) {
+    @PermissionRequired("minecraft.help")
+    public void help(CommandSource source, String[] args, @MaxCount(2) String... params) {
         if (args.length == 1) {
             String command = params[0];
             try {

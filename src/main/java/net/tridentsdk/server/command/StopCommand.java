@@ -17,13 +17,14 @@
 package net.tridentsdk.server.command;
 
 import net.tridentsdk.command.*;
-import net.tridentsdk.command.params.ParamsAnnotations;
+import net.tridentsdk.command.annotation.AllowedSourceTypes;
+import net.tridentsdk.command.annotation.PermissionRequired;
 import net.tridentsdk.server.TridentServer;
 
 public class StopCommand implements CommandListener {
     @Command(name = "stop", aliases = { "shutdown", "fuck" }, help = "/stop", desc = "Stops the server and shuts-down")
-    @ParamsAnnotations.PermissionRequired("minecraft.stop")
-    @ParamsAnnotations.AllowedSourceTypes({ CommandSourceType.CONSOLE, CommandSourceType.PLAYER })
+    @PermissionRequired("minecraft.stop")
+    @AllowedSourceTypes({ CommandSourceType.CONSOLE, CommandSourceType.PLAYER })
     public void stop(CommandSource source, String[] args) {
         TridentServer.getInstance().shutdown();
     }

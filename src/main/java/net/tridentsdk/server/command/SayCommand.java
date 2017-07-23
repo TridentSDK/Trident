@@ -17,7 +17,8 @@
 package net.tridentsdk.server.command;
 
 import net.tridentsdk.command.*;
-import net.tridentsdk.command.params.ParamsAnnotations;
+import net.tridentsdk.command.annotation.MinCount;
+import net.tridentsdk.command.annotation.PermissionRequired;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.ui.chat.ChatComponent;
@@ -27,8 +28,8 @@ import net.tridentsdk.ui.chat.ClickEvent;
 
 public class SayCommand implements CommandListener {
     @Command(name = "say", help = "/say <message>", desc = "Broadcasts a message to all players")
-    @ParamsAnnotations.PermissionRequired("minecraft.say")
-    public void say(CommandSource source, String[] args, @ParamsAnnotations.MinCount(1) String... message) {
+    @PermissionRequired("minecraft.say")
+    public void say(CommandSource source, String[] args, @MinCount(1) String... message) {
         StringBuilder builder = new StringBuilder();
         for (String arg : message) {
             builder.append(' ').append(arg);
