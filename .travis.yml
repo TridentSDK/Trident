@@ -6,7 +6,7 @@ jdk:
   - oraclejdk8
   - openjdk8
 
-after_script: ./scripts/javadoc.sh
+#after_script: ./scripts/javadoc.sh
 
 script: ./scripts/build.sh
 
