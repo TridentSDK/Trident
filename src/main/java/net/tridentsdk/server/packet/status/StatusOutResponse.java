@@ -17,6 +17,9 @@
 package net.tridentsdk.server.packet.status;
 
 import io.netty.buffer.ByteBuf;
+import java.net.InetSocketAddress;
+import java.util.Collection;
+import net.tridentsdk.event.server.ServerPingEvent;
 import net.tridentsdk.logger.Logger;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.config.ServerConfig;
@@ -123,12 +126,12 @@ public final class StatusOutResponse extends PacketOut {
         if (image.getWidth() != 64 || image.getHeight() != 64){ // resize to 64x64 as required
             BufferedImage resizedImage = new BufferedImage(64, 64, BufferedImage.TYPE_INT_ARGB);
             Graphics2D g = resizedImage.createGraphics();
-            g.drawImage(image, 0, 0, 64, 64, null);
-            g.dispose();
             g.setComposite(AlphaComposite.Src);
             g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
             g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g.drawImage(image, 0, 0, 64, 64, null);
+            g.dispose();
             image = resizedImage;
         }
 
@@ -136,43 +139,38 @@ public final class StatusOutResponse extends PacketOut {
         ImageIO.write(image, "png", baos);
         byte[] data = baos.toByteArray();
         String b64 = Base64.getEncoder().encodeToString(data);
-        b64icon.set("data:image/png;base64," + b64);
-        logger.log("Loaded server icon data: data:image/png;base64," + b64);
+        b64 = "data:image/png;base64," + b64;
+        b64icon.set(b64);
+        logger.log("Loaded server icon data: " + b64);
     }
 
-    public StatusOutResponse() {
+    private final InetSocketAddress pinger;
+
+    public StatusOutResponse(InetSocketAddress pinger) {
         super(StatusOutResponse.class);
+        this.pinger = pinger;
     }
 
     @Override
     public void write(ByteBuf buf) {
         ServerConfig cfg = TridentServer.cfg();
-        JsonObject resp = new JsonObject();
 
-        JsonObject version = new JsonObject();
-        version.add("name", MC_VERSION);
-        version.add("protocol", PROTOCOL_VERSION);
-        resp.add("version", version);
-
-        JsonObject players = new JsonObject();
-        players.add("max", cfg.maxPlayers());
-        players.add("online", TridentPlayer.getPlayers().size());
-        JsonArray sample = new JsonArray();
-        TridentPlayer.getPlayers().forEach((u, p) -> {
-            JsonObject o = new JsonObject();
-            o.add("name", p.getName());
-            o.add("id", p.getUuid().toString());
-            sample.add(o);
-        });
-        players.add("sample", sample);
-        resp.add("players", players);
-
-        resp.add("description", ChatComponent.text(cfg.motd()).asJson());
-
-        String icon = b64icon.get();
-        if (icon != null) {
-            resp.add("favicon", icon);
+        Collection<TridentPlayer> players = TridentPlayer.getPlayers().values();
+        int onlinePlayers = players.size();
+        ServerPingEvent.ServerPingResponseSample[] sample = new ServerPingEvent.ServerPingResponseSample[onlinePlayers];
+        int i = 0;
+        for (TridentPlayer player : players) {
+            sample[i++] = new ServerPingEvent.ServerPingResponseSample(player.getName(), player.getUuid());
         }
-        wstr(buf, resp.toString(Stringify.PLAIN));
+
+        ServerPingEvent.ServerPingResponse response = new ServerPingEvent.ServerPingResponse(
+                new ServerPingEvent.ServerPingResponseVersion(MC_VERSION, PROTOCOL_VERSION),
+                new ServerPingEvent.ServerPingResponsePlayers(onlinePlayers, cfg.maxPlayers(), sample),
+                ChatComponent.text(cfg.motd()),
+                b64icon.get()
+        );
+        ServerPingEvent event = new ServerPingEvent(pinger, response);
+        TridentServer.getInstance().getEventController().dispatch(event);
+        wstr(buf, event.getResponse().asJson().toString(Stringify.PLAIN));
     }
 }

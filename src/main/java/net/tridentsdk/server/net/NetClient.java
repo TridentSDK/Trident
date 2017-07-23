@@ -45,6 +45,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 @ThreadSafe
 public class NetClient {
+
     /**
      * Represents the current connection state that the
      * client is in whilst connecting to the server.
@@ -94,6 +95,7 @@ public class NetClient {
      * The channel which is the connection that this client
      * has to the server.
      */
+    @Getter
     private final Channel channel;
     /**
      * The current state of the client connection to the
@@ -109,7 +111,7 @@ public class NetClient {
     @Setter
     private volatile String name;
     /**
-     * The crypto module used for encrpyting and decrypting
+     * The crypto module used for encrypting and decrypting
      * server messages.
      */
     @Getter

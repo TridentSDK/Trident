@@ -17,6 +17,7 @@
 package net.tridentsdk.server.packet.status;
 
 import io.netty.buffer.ByteBuf;
+import java.net.InetSocketAddress;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.packet.PacketIn;
 
@@ -36,6 +37,6 @@ public final class StatusInRequest extends PacketIn {
 
     @Override
     public void read(ByteBuf buf, NetClient client) {
-        client.sendPacket(new StatusOutResponse());
+        client.sendPacket(new StatusOutResponse((InetSocketAddress) client.getChannel().remoteAddress()));
     }
 }
