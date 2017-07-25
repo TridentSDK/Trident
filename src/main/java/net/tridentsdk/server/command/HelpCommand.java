@@ -36,7 +36,7 @@ public class HelpCommand implements CommandListener {
     @Command(name = "help", aliases = "?", help = "/help [command] [page]", desc = "Displays a help message, or looks for one if a command is provided")
     @PermissionRequired("minecraft.help")
     public void help(CommandSource source, String[] args, @MaxCount(2) String... params) {
-        if (args.length == 1) {
+        if (params.length == 1) {
             String command = params[0];
             try {
                 int page = Integer.parseInt(command);
@@ -52,7 +52,7 @@ public class HelpCommand implements CommandListener {
                     this.search(command, 1, source);
                 }
             }
-        } else if (args.length == 2) {
+        } else if (params.length == 2) {
             String command = params[0];
             try {
                 int page = Integer.parseInt(params[1]);
@@ -66,7 +66,7 @@ public class HelpCommand implements CommandListener {
                     this.search(command, page, source);
                 }
             } catch (NumberFormatException x) {
-                source.sendMessage(ChatComponent.create().setColor(ChatColor.RED).setText("No help for " + args[0] + ' ' + args[1]));
+                source.sendMessage(ChatComponent.create().setColor(ChatColor.RED).setText("No help for " + params[0] + ' ' + params[1]));
             }
         } else {
             this.help(1, source);
