@@ -19,9 +19,11 @@ package net.tridentsdk.server.packet.status;
 import io.netty.buffer.ByteBuf;
 import java.net.InetSocketAddress;
 import java.util.Collection;
+import java.util.concurrent.atomic.AtomicBoolean;
 import net.tridentsdk.event.server.ServerPingEvent;
 import net.tridentsdk.logger.Logger;
 import net.tridentsdk.server.TridentServer;
+import net.tridentsdk.server.concurrent.ServerThreadPool;
 import net.tridentsdk.server.config.ServerConfig;
 import net.tridentsdk.server.packet.PacketOut;
 import net.tridentsdk.server.player.TridentPlayer;
@@ -60,10 +62,14 @@ public final class StatusOutResponse extends PacketOut {
      */
     public static final int PROTOCOL_VERSION = 335;
 
-    private static final Logger logger;
-    private static final Path iconPath;
-    private static final AtomicReference<String> b64icon = new AtomicReference<>();
-    static {
+    static final AtomicReference<String> b64icon = new AtomicReference<>();
+    private static Logger logger;
+    private static Path iconPath;
+
+    private static final AtomicBoolean init = new AtomicBoolean();
+    public static void init() {
+        if (!init.compareAndSet(false, true))
+            return;
         String userDir = System.getProperty("user.dir");
         logger = Logger.get("Server Icon File Watcher");
         iconPath = Paths.get("server-icon.png");
@@ -142,33 +148,15 @@ public final class StatusOutResponse extends PacketOut {
         logger.log("Loaded server icon data: " + b64);
     }
 
-    private final InetSocketAddress pinger;
+    private final ServerPingEvent event;
 
-    public StatusOutResponse(InetSocketAddress pinger) {
+    public StatusOutResponse(ServerPingEvent event) {
         super(StatusOutResponse.class);
-        this.pinger = pinger;
+        this.event = event;
     }
 
     @Override
     public void write(ByteBuf buf) {
-        ServerConfig cfg = TridentServer.cfg();
-
-        Collection<TridentPlayer> players = TridentPlayer.getPlayers().values();
-        int onlinePlayers = players.size();
-        ServerPingEvent.ServerPingResponseSample[] sample = new ServerPingEvent.ServerPingResponseSample[onlinePlayers];
-        int i = 0;
-        for (TridentPlayer player : players) {
-            sample[i++] = new ServerPingEvent.ServerPingResponseSample(player.getName(), player.getUuid());
-        }
-
-        ServerPingEvent.ServerPingResponse response = new ServerPingEvent.ServerPingResponse(
-                new ServerPingEvent.ServerPingResponseVersion(MC_VERSION, PROTOCOL_VERSION),
-                new ServerPingEvent.ServerPingResponsePlayers(onlinePlayers, cfg.maxPlayers(), sample),
-                ChatComponent.text(cfg.motd()),
-                b64icon.get()
-        );
-        ServerPingEvent event = new ServerPingEvent(pinger, response);
-        TridentServer.getInstance().getEventController().dispatch(event);
         wstr(buf, event.getResponse().asJson().toString(Stringify.PLAIN));
     }
 }

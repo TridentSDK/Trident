@@ -219,6 +219,11 @@ public final class TridentMain {
         server.setup();
         // -------------------------------------------------
 
+        // Load server icon ----------------- --------------
+        logger.log("Loading server icon");
+        StatusOutResponse.init();
+        // -------------------------------------------------
+
         // JLine -------------------------------------------
         LineReader reader = LineReaderBuilder.
                 builder().

@@ -18,10 +18,22 @@ package net.tridentsdk.server.packet.status;
 
 import io.netty.buffer.ByteBuf;
 import java.net.InetSocketAddress;
+import java.util.Collection;
+import java.util.concurrent.ExecutionException;
+import net.tridentsdk.event.server.ServerPingEvent;
+import net.tridentsdk.server.TridentServer;
+import net.tridentsdk.server.concurrent.PoolSpec;
+import net.tridentsdk.server.concurrent.ServerThreadPool;
+import net.tridentsdk.server.config.ServerConfig;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.packet.PacketIn;
 
 import javax.annotation.concurrent.Immutable;
+import net.tridentsdk.server.player.TridentPlayer;
+import net.tridentsdk.ui.chat.ChatComponent;
+
+import static net.tridentsdk.server.packet.status.StatusOutResponse.MC_VERSION;
+import static net.tridentsdk.server.packet.status.StatusOutResponse.PROTOCOL_VERSION;
 
 /**
  * This packet represents a status request that is sent
@@ -37,6 +49,27 @@ public final class StatusInRequest extends PacketIn {
 
     @Override
     public void read(ByteBuf buf, NetClient client) {
-        client.sendPacket(new StatusOutResponse((InetSocketAddress) client.getChannel().remoteAddress()));
+        ServerConfig cfg = TridentServer.cfg();
+
+        Collection<TridentPlayer> players = TridentPlayer.getPlayers().values();
+        int onlinePlayers = players.size();
+        ServerPingEvent.ServerPingResponseSample[] sample = new ServerPingEvent.ServerPingResponseSample[onlinePlayers];
+        int i = 0;
+        for (TridentPlayer player : players) {
+            sample[i++] = new ServerPingEvent.ServerPingResponseSample(player.getName(), player.getUuid());
+        }
+
+        ServerPingEvent.ServerPingResponse response = new ServerPingEvent.ServerPingResponse(
+                new ServerPingEvent.ServerPingResponseVersion(MC_VERSION, PROTOCOL_VERSION),
+                new ServerPingEvent.ServerPingResponsePlayers(onlinePlayers, cfg.maxPlayers(), sample),
+                ChatComponent.text(cfg.motd()),
+                StatusOutResponse.b64icon.get()
+        );
+        InetSocketAddress pinger = (InetSocketAddress) client.getChannel().remoteAddress();
+        ServerPingEvent event = new ServerPingEvent(pinger, response);
+        ServerThreadPool.forSpec(PoolSpec.PLUGINS)
+                .submit(() -> TridentServer.getInstance().getEventController()
+                        .dispatch(event, e -> client.sendPacket(new StatusOutResponse(e)))
+        );
     }
 }

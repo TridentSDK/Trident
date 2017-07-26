@@ -49,14 +49,7 @@ public final class PlayInChat extends PacketIn {
         if (msg.startsWith("/")) {
             player.runCommand(msg.replaceFirst("/", ""));
         } else {
-            ChatComponent chat = ChatComponent.create()
-                    .setTranslate("chat.type.text")
-                    .addWith(ChatComponent.create()
-                            .setText(player.getName())
-                            .setClickEvent(ClickEvent.of(ClickAction.SUGGEST_COMMAND, "/tell " + player.getName() + " ")))
-                    .addWith(msg);
-            TridentPlayer.getPlayers().values().forEach(p -> p.sendMessage(chat, ChatType.CHAT));
-            TridentServer.getInstance().getLogger().log(player.getName() + " [" + player.getUuid() + "]: " + msg);
+            player.chat(msg);
         }
     }
 }
