@@ -16,18 +16,17 @@
  */
 package net.tridentsdk.server.ui.tablist;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 import lombok.Getter;
 import net.tridentsdk.doc.Policy;
 import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.server.packet.play.PlayOutTabListItem;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.ui.chat.ChatComponent;
 
 import javax.annotation.concurrent.ThreadSafe;
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * Implementation of a global tablist, which contains all
@@ -56,6 +55,22 @@ public class TridentGlobalTabList extends TridentTabList {
     @Override
     public ChatComponent getElement(int slot) {
         return null;
+    }
+
+    @Override
+    public void unsubscribe(Player player) {
+        super.unsubscribe(player);
+
+        PlayOutTabListItem.PlayOutTabListItemRemovePlayer packet = PlayOutTabListItem.removePlayerPacket();
+        List<TabListElement> elements;
+        synchronized (this.lock) {
+            elements = this.elements;
+        }
+
+        for (TabListElement element : elements) {
+            packet.removePlayer(element.getUuid());
+        }
+        ((TridentPlayer) player).net().sendPacket(packet);
     }
 
     @Override

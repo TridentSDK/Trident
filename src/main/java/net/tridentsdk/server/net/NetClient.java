@@ -45,7 +45,6 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 @ThreadSafe
 public class NetClient {
-
     /**
      * Represents the current connection state that the
      * client is in whilst connecting to the server.
@@ -107,9 +106,7 @@ public class NetClient {
     /**
      * The name of the player that represents this client
      */
-    @Getter
-    @Setter
-    private volatile String name;
+    private final AtomicReference<String> name = new AtomicReference<>();
     /**
      * The crypto module used for encrypting and decrypting
      * server messages.
@@ -123,7 +120,9 @@ public class NetClient {
     /**
      * The player object
      */
-    private final AtomicReference<TridentPlayer> player = new AtomicReference<>();
+    @Setter
+    @Getter
+    private volatile TridentPlayer player;
     /**
      * The time it took for the server to receive the
      * status ping from the player, in ms.
@@ -243,23 +242,21 @@ public class NetClient {
     }
 
     /**
-     * Sets the player that holds the connection represented
-     * by this net client.
+     * Gets the name of the player.
      *
-     * @param player the player to set
+     * @return the player name
      */
-    public void setPlayer(TridentPlayer player) {
-        this.player.set(player);
+    public String getName() {
+        return this.name.get();
     }
 
     /**
-     * Obtains the owner of the connection represented by
-     * this net client.
+     * Sets the player name.
      *
-     * @return the player owner of this connection
+     * @param name the name to set
      */
-    public TridentPlayer getPlayer() {
-        return this.player.get();
+    public void setName(String name) {
+        this.name.set(name);
     }
 
     /**
@@ -278,30 +275,42 @@ public class NetClient {
      *
      * @param reason the reason for disconnecting
      */
-    public void disconnect(ChatComponent reason) {
-        TridentPlayer player = this.player.get();
-        if (this.player.compareAndSet(player, null)) {
-            this.channel.closeFuture().removeListener(this.futureListener);
+    public Future<Void> disconnect(ChatComponent reason) {
+        String name = this.name.get();
+        if (name == null) {
+            this.channel.close();
+            CLIENTS.remove(this.channel.remoteAddress());
+            return null;
+        }
 
+        if (name.equals("( ͡° ͜ʖ ͡°)( ͡° ͜ʖ ͡°)( ͡° ͜ʖ ͡°)")) { // pretty well future-proofed name
+            return null;
+        }
+
+        Future<Void> waiter = null;
+        if (this.name.compareAndSet(name, "( ͡° ͜ʖ ͡°)( ͡° ͜ʖ ͡°)( ͡° ͜ʖ ͡°)")) {
             NetClient.NetState state = this.state;
+
             if (state == NetClient.NetState.LOGIN) {
-                this.sendPacket(new LoginOutDisconnect(reason)).addListener(future -> {
+                waiter = this.sendPacket(new LoginOutDisconnect(reason)).addListener(future -> {
                     this.channel.close();
-                    TridentServer.getInstance().getLogger().log("Player " + this.name + " has disconnected: " + reason.getText());
+                    TridentServer.getInstance().getLogger().log("Player " + name + " has disconnected: " + reason.getText());
                 });
             } else if (state == NetClient.NetState.PLAY) {
+                TridentPlayer player = this.player;
                 if (player != null) {
-                    this.sendPacket(new PlayOutDisconnect(reason)).addListener(future -> {
+                    waiter = this.sendPacket(new PlayOutDisconnect(reason)).addListener(future -> {
                         this.channel.close();
                         player.remove();
-                        TridentServer.getInstance().getLogger().log("Player " + this.name + " [" + player.getUuid() + "] has disconnected: " + reason.getText());
+                        TridentServer.getInstance().getLogger().log("Player " + name + " [" + player.getUuid() + "] has disconnected: " + reason.getText());
                     });
                 }
             } else if (state == NetState.STATUS) {
-                this.channel.close();
+                waiter = this.channel.close();
             }
 
             CLIENTS.remove(this.channel.remoteAddress());
         }
+        return waiter;
     }
 }

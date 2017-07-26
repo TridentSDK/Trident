@@ -21,6 +21,7 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import net.tridentsdk.server.concurrent.PoolSpec;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -30,8 +31,8 @@ import javax.annotation.concurrent.Immutable;
  */
 @Immutable
 public class NetNioServer extends NetServer {
-    private final EventLoopGroup bossGroup = new NioEventLoopGroup();
-    private final EventLoopGroup workerGroup = new NioEventLoopGroup();
+    private final EventLoopGroup bossGroup = new NioEventLoopGroup(0, PoolSpec.UNCAUGHT_FACTORY);
+    private final EventLoopGroup workerGroup = new NioEventLoopGroup(0, PoolSpec.UNCAUGHT_FACTORY);
 
     public NetNioServer(String ip, int port) {
         super(ip, port);

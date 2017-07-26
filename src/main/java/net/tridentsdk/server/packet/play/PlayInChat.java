@@ -18,6 +18,8 @@ package net.tridentsdk.server.packet.play;
 
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.TridentServer;
+import net.tridentsdk.server.concurrent.PoolSpec;
+import net.tridentsdk.server.concurrent.ServerThreadPool;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.packet.PacketIn;
 import net.tridentsdk.server.player.TridentPlayer;
@@ -47,7 +49,7 @@ public final class PlayInChat extends PacketIn {
         String msg = rstr(buf);
 
         if (msg.startsWith("/")) {
-            player.runCommand(msg.replaceFirst("/", ""));
+            ServerThreadPool.forSpec(PoolSpec.PLUGINS).execute(() -> player.runCommand(msg.replaceFirst("/", "")));
         } else {
             player.chat(msg);
         }

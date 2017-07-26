@@ -66,7 +66,7 @@ public final class NetData {
      */
     public static byte[] arr(ByteBuf buf, int len) {
         byte[] bytes = new byte[len];
-        buf.readBytes(bytes);
+        buf.readBytes(bytes, 0, len);
 
         return bytes;
     }

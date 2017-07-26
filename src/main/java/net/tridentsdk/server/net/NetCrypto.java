@@ -17,7 +17,6 @@
 package net.tridentsdk.server.net;
 
 import io.netty.buffer.ByteBuf;
-import lombok.Getter;
 import net.tridentsdk.server.packet.login.LoginOutEncryptionRequest;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -89,11 +88,6 @@ public class NetCrypto {
      * Whether or not the crypto is ready
      */
     private volatile Function<Integer, Cipher> cipherInit;
-    /**
-     * Whether crypto is enabled
-     */
-    @Getter
-    private volatile boolean cryptoEnabled;
 
     /**
      * Constructs a new crypto module.
@@ -179,7 +173,6 @@ public class NetCrypto {
                         throw new RuntimeException(e);
                     }
                 };
-                cryptoEnabled = true;
                 return decryptedSecret;
             }
             // rofl @ 6 exceptions
@@ -217,14 +210,14 @@ public class NetCrypto {
      * @param buf the buffer
      * @param dest the destination
      */
-    public void decrypt(ByteBuf buf, ByteBuf dest) {
+    public void decrypt(ByteBuf buf, ByteBuf dest, int len) {
         Function<Integer, Cipher> init = this.cipherInit;
         if (init == null) {
-            dest.writeBytes(buf);
+            dest.writeBytes(buf, len);
             return;
         }
 
-        byte[] bytes = arr(buf);
+        byte[] bytes = arr(buf, len);
         Cipher cipher = init.apply(Cipher.DECRYPT_MODE);
         dest.writeBytes(cipher.update(bytes));
     }

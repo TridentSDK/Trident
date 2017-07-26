@@ -47,7 +47,7 @@ public final class ConfigIo {
         try {
             Files.copy(stream, dest);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 

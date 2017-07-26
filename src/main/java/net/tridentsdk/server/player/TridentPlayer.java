@@ -19,6 +19,7 @@ package net.tridentsdk.server.player;
 import lombok.Getter;
 import lombok.Setter;
 import net.tridentsdk.command.CommandSourceType;
+import net.tridentsdk.doc.Policy;
 import net.tridentsdk.entity.living.Player;
 import net.tridentsdk.event.player.PlayerChatEvent;
 import net.tridentsdk.event.player.PlayerJoinEvent;
@@ -59,7 +60,6 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
@@ -328,14 +328,20 @@ public class TridentPlayer extends TridentEntity implements Player {
             return;
         }
 
-        this.client.sendPacket(new PlayOutJoinGame(this, this.getWorld()));
+        TridentWorld world = this.getWorld();
+        this.client.sendPacket(new PlayOutJoinGame(this, world));
         this.client.sendPacket(PlayOutPluginMsg.BRAND);
         TridentPluginChannel.autoAdd(this);
-        this.client.sendPacket(new PlayOutDifficulty(this.getWorld()));
+        this.client.sendPacket(new PlayOutDifficulty(world));
         this.client.sendPacket(new PlayOutSpawnPos());
         this.client.sendPacket(new PlayOutPlayerAbilities(this));
         this.inventory.update();
         this.client.sendPacket(new PlayOutPosLook(this));
+
+        this.client.sendPacket(new PlayOutTime(world.getAge().longValue(), world.getTime()));
+        if (world.getWeather().isRaining()) {
+            this.client.sendPacket(new PlayOutGameState(2, 0));
+        }
 
         this.setTabList(TridentGlobalTabList.getInstance());
         TridentGlobalTabList.getInstance().update();
@@ -379,6 +385,7 @@ public class TridentPlayer extends TridentEntity implements Player {
 
     @Override
     public PacketOut getSpawnPacket() {
+        // TODO send tablist to update skin??
         return new PlayOutSpawnPlayer(this);
     }
 
@@ -400,7 +407,6 @@ public class TridentPlayer extends TridentEntity implements Player {
             chunk.getHolders().remove(this);
         }
         this.heldChunks.clear();
-
 
         ServerThreadPool.forSpec(PoolSpec.PLUGINS).execute(() -> {
             ChatComponent chat = ChatComponent.create()
@@ -716,16 +722,11 @@ public class TridentPlayer extends TridentEntity implements Player {
     }
 
     @Override
+    @Policy("plugin thread only")
     public void runCommand(String command) {
         TridentServer.getInstance().getLogger().log(this.name + " issued server command: /" + command);
-        try {
-            if (!ServerThreadPool.forSpec(PoolSpec.PLUGINS)
-                    .submit(() -> TridentServer.getInstance().getCommandHandler().dispatch(command, this)).get()) {
-                this.sendMessage(ChatComponent.create().setColor(ChatColor.RED).setText("No command found for " +
-                        command.split(" ")[0]));
-            }
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
+        if (!TridentServer.getInstance().getCommandHandler().dispatch(command, this)) {
+            this.sendMessage(ChatComponent.create().setColor(ChatColor.RED).setText("No command found for " + command.split(" ")[0]));
         }
     }
 

@@ -114,8 +114,7 @@ public class PlayInBlockPlace extends PacketIn {
                         }
                     }
 
-                    // TODO handle item NBT for skulls, also block states
-                    // TODO send chunk
+                    // TODO handle item NBT for skulls, also block states/block dir
                 }
             });
         }

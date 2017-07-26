@@ -16,7 +16,6 @@
  */
 package net.tridentsdk.server;
 
-import java.util.Objects;
 import lombok.Getter;
 import net.tridentsdk.Server;
 import net.tridentsdk.command.CommandHandler;
@@ -44,8 +43,11 @@ import javax.annotation.concurrent.ThreadSafe;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -260,13 +262,22 @@ public class TridentServer implements Server {
         this.logger.warn("SERVER SHUTTING DOWN...");
         this.shutdownState = true;
         try {
-            this.logger.log("Kicking players...");
-            TridentPlayer.getPlayers().values().forEach(p -> p.kick(ChatComponent.text("Server closed")));
-            this.tick.interrupt();
             this.logger.log("Unloading plugins...");
             if (!this.pluginLoader.unloadAll()) {
                 this.logger.error("Unloading plugins failed...");
             }
+
+            this.tick.interrupt();
+            this.logger.log("Kicking players... ");
+            int removed = 0;
+            Semaphore sem = new Semaphore(0);
+            for (TridentPlayer player : TridentPlayer.getPlayers().values()) {
+                removed++;
+                player.net().disconnect(ChatComponent.text("Server closed")).addListener(future -> sem.release());
+            }
+            sem.tryAcquire(removed, 10, TimeUnit.SECONDS);
+            this.logger.log("Closing network connections...");
+            this.server.shutdown();
             for (World world : TridentWorldLoader.getInstance().getWorlds().values()) {
                 this.logger.log("Saving world \"" + world.getName() + "\"...");
                 world.save();
@@ -275,8 +286,6 @@ public class TridentServer implements Server {
             this.config.save();
             this.logger.log("Shutting down server process...");
             ServerThreadPool.shutdownAll();
-            this.logger.log("Closing network connections...");
-            this.server.shutdown();
         } catch (IOException | InterruptedException e) {
             JiraExceptionCatcher.serverException(e);
             return;
@@ -296,7 +305,7 @@ public class TridentServer implements Server {
                 this.logger.log("No command \"" + command.split(" ")[0] + "\" found");
             }
         } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
