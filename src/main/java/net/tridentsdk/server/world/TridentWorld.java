@@ -73,6 +73,7 @@ public class TridentWorld implements World {
     // construction because the way we generate worlds is
     // ensuring that the entire world has loaded (read:
     // all chunks) before it is returned in WorldLoader
+    @Getter
     private final ChunkMap chunks = new ChunkMap(this);
     /**
      * Name of the world
@@ -207,6 +208,9 @@ public class TridentWorld implements World {
             }
         } while (!this.time.compareAndSet(curTime, newTime));
 
+        this.weather.tick();
+        this.border.tick();
+
         this.chunks.forEach(TridentChunk::tick);
     }
 
@@ -271,8 +275,6 @@ public class TridentWorld implements World {
         return new TridentBlock(pos);
     }
 
-    // TODO ------------------------------------------------
-
     @Override
     public void save() {
         Path level = this.directory.resolve("level.dat");
@@ -314,12 +316,11 @@ public class TridentWorld implements World {
                     rootChunk.putCompound(chunkData);
                     rootChunk.write(out);
                 } catch (IOException e) {
-                    e.printStackTrace();
                     throw new RuntimeException(e);
                 }
             });
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 }

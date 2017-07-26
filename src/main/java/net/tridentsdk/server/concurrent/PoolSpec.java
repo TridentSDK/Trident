@@ -17,9 +17,11 @@
 package net.tridentsdk.server.concurrent;
 
 import lombok.Getter;
+import net.tridentsdk.server.TridentServer;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
+import java.io.PrintStream;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinWorkerThread;
 import java.util.concurrent.ThreadFactory;
@@ -29,7 +31,13 @@ import java.util.concurrent.ThreadFactory;
  * managing the server thread pool.
  */
 @ThreadSafe
-public class PoolSpec implements ThreadFactory, ForkJoinPool.ForkJoinWorkerThreadFactory {
+public class PoolSpec implements ThreadFactory, ForkJoinPool.ForkJoinWorkerThreadFactory, Thread.UncaughtExceptionHandler {
+    /**
+     * A thread factory that does handling for exceptions,
+     * piping exception output to the loggers
+     */
+    public static final ThreadFactory UNCAUGHT_FACTORY = new PoolSpec("", 0, false);
+
     // Actually this is used to execute block related tick
     // methods as well such as sugar cane growing, tree leaf
     // decay, etc...
@@ -76,13 +84,28 @@ public class PoolSpec implements ThreadFactory, ForkJoinPool.ForkJoinWorkerThrea
 
     @Override
     public Thread newThread(@Nonnull Runnable r) {
-        return new Thread(r, this.name);
+        Thread thread = new Thread(r, this.name);
+        thread.setUncaughtExceptionHandler(this);
+
+        return thread;
     }
 
     @Override
     public ForkJoinWorkerThread newThread(ForkJoinPool pool) {
         ForkJoinWorkerThread worker = ForkJoinPool.defaultForkJoinWorkerThreadFactory.newThread(pool);
         worker.setName(this.name + " - " + worker.getPoolIndex());
+        worker.setUncaughtExceptionHandler(this);
+
         return worker;
+    }
+
+    @Override
+    public void uncaughtException(Thread t, Throwable e) {
+        e.printStackTrace(new PrintStream(System.out) {
+            @Override
+            public void println(Object x) {
+                TridentServer.getInstance().getLogger().error(String.valueOf(x));
+            }
+        });
     }
 }

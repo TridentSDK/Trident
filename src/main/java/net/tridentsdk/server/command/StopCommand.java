@@ -16,7 +16,10 @@
  */
 package net.tridentsdk.server.command;
 
-import net.tridentsdk.command.*;
+import net.tridentsdk.command.Command;
+import net.tridentsdk.command.CommandListener;
+import net.tridentsdk.command.CommandSource;
+import net.tridentsdk.command.CommandSourceType;
 import net.tridentsdk.command.annotation.AllowedSourceTypes;
 import net.tridentsdk.command.annotation.PermissionRequired;
 import net.tridentsdk.server.TridentServer;

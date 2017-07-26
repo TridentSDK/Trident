@@ -18,7 +18,6 @@ package net.tridentsdk.server.net;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.ByteToMessageDecoder;
 import io.netty.handler.codec.ReplayingDecoder;
 import net.tridentsdk.logger.Logger;
 import net.tridentsdk.server.TridentServer;
@@ -39,7 +38,7 @@ import static net.tridentsdk.server.net.NetData.rvint;
  * packets are read and decompressed through this decoder.
  */
 @ThreadSafe
-public class InDecoder extends ByteToMessageDecoder {
+public class InDecoder extends ReplayingDecoder<Void> {
     /**
      * The per-thread instance of the inflater to use to
      * decompress packets
@@ -71,14 +70,15 @@ public class InDecoder extends ByteToMessageDecoder {
         // If not, use the raw buffer
         ByteBuf decrypt = buf;
         NetCrypto crypto = this.client.getCryptoModule();
-        if (crypto != null && crypto.isCryptoEnabled()) {
+        if (crypto != null) {
             decrypt = ctx.alloc().buffer();
-            crypto.decrypt(buf, decrypt);
+            crypto.decrypt(buf, decrypt, this.actualReadableBytes());
         }
 
         // Step 2: Decompress if enabled
         // If not, compressed, use raw buffer
         int fullLen = rvint(decrypt);
+
         ByteBuf decompressed;
         if (this.client.doCompression()) {
             int uncompressed = rvint(decrypt);

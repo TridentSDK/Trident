@@ -21,6 +21,7 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollServerSocketChannel;
+import net.tridentsdk.server.concurrent.PoolSpec;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -30,8 +31,8 @@ import javax.annotation.concurrent.Immutable;
  */
 @Immutable
 public class NetEpollServer extends NetServer {
-    private final EventLoopGroup bossGroup = new EpollEventLoopGroup();
-    private final EventLoopGroup workerGroup = new EpollEventLoopGroup();
+    private final EventLoopGroup bossGroup = new EpollEventLoopGroup(0, PoolSpec.UNCAUGHT_FACTORY);
+    private final EventLoopGroup workerGroup = new EpollEventLoopGroup(0, PoolSpec.UNCAUGHT_FACTORY);
 
     NetEpollServer(String ip, int port) {
         super(ip, port);

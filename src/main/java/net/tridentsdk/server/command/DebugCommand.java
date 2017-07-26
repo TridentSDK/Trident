@@ -18,7 +18,10 @@ package net.tridentsdk.server.command;
 
 import net.tridentsdk.base.Position;
 import net.tridentsdk.base.Substance;
-import net.tridentsdk.command.*;
+import net.tridentsdk.command.Command;
+import net.tridentsdk.command.CommandListener;
+import net.tridentsdk.command.CommandSource;
+import net.tridentsdk.command.CommandSourceType;
 import net.tridentsdk.command.annotation.AllowedSourceTypes;
 import net.tridentsdk.command.annotation.PermissionRequired;
 import net.tridentsdk.doc.Debug;
@@ -41,7 +44,7 @@ import javax.annotation.concurrent.Immutable;
 @Debug
 public class DebugCommand implements CommandListener {
 
-    @Command(name = "debug", help = "/debug <chunks|bossbars|title|cleartitle|chat>", desc = "Secret debug command for devs")
+    @Command(name = "debug", help = "/debug <chunks|bossbars|title|cleartitle|chat|rain>", desc = "Secret debug command for devs")
     @AllowedSourceTypes(CommandSourceType.PLAYER)
     @PermissionRequired("trident.debug")
     public void debug(CommandSource source, String[] args, String mode) {
@@ -87,6 +90,9 @@ public class DebugCommand implements CommandListener {
         } else if (mode.equals("chat")) {
             player.sendMessage(ChatComponent.create().setText("What is this").setHoverEvent(
                     HoverEvent.item(Item.newItem(Substance.STONE, 30, (byte) 1))));
+        } else if (mode.equals("rain")) {
+            player.getWorld().getWeather().beginRaining();
+            player.getWorld().getWeather().beginThunder();
         }
     }
 }
