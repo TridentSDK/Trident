@@ -325,16 +325,18 @@ public class TridentPlayer extends TridentEntity implements Player {
             return;
         }
 
-        this.client.sendPacket(new PlayOutJoinGame(this, this.getWorld()));
+        TridentWorld world = this.getWorld();
+        this.client.sendPacket(new PlayOutJoinGame(this, world));
         this.client.sendPacket(PlayOutPluginMsg.BRAND);
         TridentPluginChannel.autoAdd(this);
-        this.client.sendPacket(new PlayOutDifficulty(this.getWorld()));
+        this.client.sendPacket(new PlayOutDifficulty(world));
         this.client.sendPacket(new PlayOutSpawnPos());
         this.client.sendPacket(new PlayOutPlayerAbilities(this));
         this.inventory.update();
         this.client.sendPacket(new PlayOutPosLook(this));
 
-        if (this.getWorld().getWeather().isRaining()) {
+        this.client.sendPacket(new PlayOutTime(world.getAge().longValue(), world.getTime()));
+        if (world.getWeather().isRaining()) {
             this.client.sendPacket(new PlayOutGameState(2, 0));
         }
 
@@ -402,7 +404,6 @@ public class TridentPlayer extends TridentEntity implements Player {
             chunk.getHolders().remove(this);
         }
         this.heldChunks.clear();
-
 
         ServerThreadPool.forSpec(PoolSpec.PLUGINS).execute(() -> {
             ChatComponent chat = ChatComponent.create()

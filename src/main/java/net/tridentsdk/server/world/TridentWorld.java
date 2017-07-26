@@ -25,6 +25,8 @@ import net.tridentsdk.meta.nbt.Tag;
 import net.tridentsdk.server.concurrent.PoolSpec;
 import net.tridentsdk.server.concurrent.ServerThreadPool;
 import net.tridentsdk.server.entity.TridentEntity;
+import net.tridentsdk.server.packet.play.PlayOutTime;
+import net.tridentsdk.server.player.RecipientSelector;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.world.opt.GenOptImpl;
 import net.tridentsdk.server.world.opt.WeatherImpl;
@@ -46,6 +48,7 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.LongAdder;
 import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -86,7 +89,7 @@ public class TridentWorld implements World {
     @Getter
     private final Path directory;
     /**
-     *
+     * The world's current dimension
      */
     @Getter
     private final Dimension dimension;
@@ -118,6 +121,11 @@ public class TridentWorld implements World {
      * = 24000 ticks total then resets.</p>
      */
     private final AtomicInteger time = new AtomicInteger();
+    /**
+     * The world's current age
+     */
+    @Getter
+    private final LongAdder age = new LongAdder();
 
     /**
      * The players that occupy this world
@@ -198,6 +206,8 @@ public class TridentWorld implements World {
 
     // Ticking implementation
     private void doTick() {
+        this.age.increment();
+
         int curTime;
         int newTime;
         do {
@@ -207,6 +217,12 @@ public class TridentWorld implements World {
                 newTime = 0;
             }
         } while (!this.time.compareAndSet(curTime, newTime));
+
+        if (newTime == 0) {
+            // resync time if the server is running behind
+            // at the end of the minecraft day
+            RecipientSelector.inWorld(this, new PlayOutTime(this.age.longValue(), newTime));
+        }
 
         this.weather.tick();
         this.border.tick();

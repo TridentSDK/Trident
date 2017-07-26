@@ -93,14 +93,22 @@ public class WorldBorderImpl implements WorldBorder {
     @Override
     public void grow(double delta, long time) {
         this.sizeTime.set(time);
-        double currentSize = Double.longBitsToDouble(this.size.get());
-        double grow = currentSize + delta;
-        this.targetSize.set(Double.doubleToLongBits(grow));
+        long oldSize;
+        long newSize;
+        double currentSize;
+        double nextSize;
+        do {
+            oldSize = this.targetSize.get();
+            currentSize = Double.longBitsToDouble(oldSize);
+            nextSize = currentSize + delta;
+            newSize = Double.doubleToLongBits(nextSize);
+        }
+        while (!this.targetSize.compareAndSet(oldSize, newSize));
 
         if (time == 0) {
-            RecipientSelector.inWorld(this.world, new PlayOutWorldBorder.SetSize(grow));
+            RecipientSelector.inWorld(this.world, new PlayOutWorldBorder.SetSize(nextSize));
         } else {
-            RecipientSelector.inWorld(this.world, new PlayOutWorldBorder.LerpSize(currentSize, grow, time));
+            RecipientSelector.inWorld(this.world, new PlayOutWorldBorder.LerpSize(currentSize, nextSize, time));
         }
     }
 
@@ -138,10 +146,15 @@ public class WorldBorderImpl implements WorldBorder {
 
     @Override
     public void growWarnDistance(int dist) {
-        int grow = this.warn.get() + dist;
-        this.warn.set(grow + dist);
+        int oldWarn;
+        int newWarn;
+        do {
+            oldWarn = this.warn.get();
+            newWarn = oldWarn + dist;
+        }
+        while (!this.warn.compareAndSet(oldWarn, newWarn));
 
-        RecipientSelector.inWorld(this.world, new PlayOutWorldBorder.SetWarnBlocks(grow));
+        RecipientSelector.inWorld(this.world, new PlayOutWorldBorder.SetWarnBlocks(newWarn));
     }
 
     @Override

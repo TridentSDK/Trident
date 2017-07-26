@@ -108,6 +108,7 @@ public final class PacketRegistry {
         put(PlayOutEntityMetadata.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x3B);
         put(PlayOutEquipment.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x3E);
         put(PlayOutSpawnPos.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x45);
+        put(PlayOutTime.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x46);
         put(PlayOutTitle.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x47);
         put(PlayOutPlayerListHeaderAndFooter.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x49);
         put(PlayOutTeleport.class, NetClient.NetState.PLAY, Packet.Bound.CLIENT, 0x4B);
