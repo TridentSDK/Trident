@@ -6,12 +6,10 @@ jdk:
   - oraclejdk8
   - openjdk8
 
-#after_script: ./scripts/javadoc.sh
-
 script: ./scripts/build.sh
+after_script: ./scripts/javadoc.sh
 
 install: true
-
 sudo: false
 
 deploy:
@@ -21,11 +19,13 @@ deploy:
     branch: revamp
     jdk: openjdk8
 
-before_cache:
-  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
-  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
-
 cache:
   directories:
-    - $HOME/.gradle/caches/
-    - $HOME/.gradle/wrapper/
+  - .autoconf
+  - $HOME/.m2
+
+env:
+  global:
+  - secure: Qv3lWydc65BlLDv2IGtRC1+NTOyytKOqAGOVSO5/NFvH1mX8VE1yBm+vop/S/Tj6iUxOSzxD47xDQAZt/T13SKKFUngqu83uQS4bwu8QK6aNVp2xxphLNwqprcxXIbvY4L5NxOd0lE050ITgJhyz+tVwW/0yfc7BTvw7t8iOkLI=
+  - secure: R5fqbgn9y+uZ8sjQul0tIrZoqqOIFBe8Peqop9onDx4/ffczZJvPkkPlI/PIYEUVRNEteSP+y1RSTGxTFNmeiX1NLWfB5mdT8dmKharKkWFuDKWwMdaOuWbdWjALT/dx4yrgY3UHsM7GO2h7T67owPL3c3k83IDlPgBI7CKSryc=
+  - secure: k5SUYYpfcBsvaWuIEtjKFk/7mOVwrxrcsx7Fba5GaO4oTHuomfDRc+NS6PI92Krkm6ZNV2HNSREwTbTSLRZ2L6iR8S2z3vbcg4ZvYnDJ94DxqSgBqc/b8En9mEGv16t8Q7g+vJfjKITpgO76hS3dEKD+RFpHbxz1m8gDalsA7M4=
