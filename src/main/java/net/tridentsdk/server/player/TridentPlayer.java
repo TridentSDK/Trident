@@ -44,12 +44,7 @@ import net.tridentsdk.server.ui.tablist.TridentTabList;
 import net.tridentsdk.server.world.TridentChunk;
 import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.ui.bossbar.BossBar;
-import net.tridentsdk.ui.chat.ChatColor;
-import net.tridentsdk.ui.chat.ChatComponent;
-import net.tridentsdk.ui.chat.ChatType;
-import net.tridentsdk.ui.chat.ClickAction;
-import net.tridentsdk.ui.chat.ClickEvent;
-import net.tridentsdk.ui.chat.ClientChatMode;
+import net.tridentsdk.ui.chat.*;
 import net.tridentsdk.ui.tablist.TabList;
 import net.tridentsdk.ui.title.Title;
 import net.tridentsdk.world.IntPair;
@@ -448,7 +443,6 @@ public class TridentPlayer extends TridentEntity implements Player {
     public void setTabList(TabList tabList) {
         TabList old = this.tabList;
         if (old != null) {
-            // TODO does this need send remove elements packet?
             old.unsubscribe(this);
         }
 

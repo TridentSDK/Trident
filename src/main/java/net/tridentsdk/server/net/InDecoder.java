@@ -38,21 +38,31 @@ import static net.tridentsdk.server.net.NetData.rvint;
  * packets are read and decompressed through this decoder.
  */
 @ThreadSafe
-public class InDecoder extends ReplayingDecoder<Void> {
-    /**
-     * The per-thread instance of the inflater to use to
-     * decompress packets
-     */
-    private static final ThreadLocal<Inflater> INFLATER = ThreadLocal.withInitial(Inflater::new);
+public class InDecoder extends ReplayingDecoder<InDecoder.DecoderState> {
     /**
      * The logger used for debugging packets
      */
     private static final Logger LOGGER = Logger.get(InDecoder.class);
 
     /**
+     * The instance of the inflater to use to decompress
+     * packets
+     */
+    private final Inflater inflater = new Inflater();
+    /**
      * The net client which holds this channel handler
      */
     private NetClient client;
+
+    public InDecoder() {
+        super(DecoderState.EXPECT_BYTES);
+    }
+
+    public enum DecoderState {
+        EXPECT_BYTES,
+        READ_LENGTH,
+        READ_PAYLOAD
+    }
 
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
@@ -69,15 +79,27 @@ public class InDecoder extends ReplayingDecoder<Void> {
         // Step 1: Decrypt if enabled
         // If not, use the raw buffer
         ByteBuf decrypt = buf;
-        NetCrypto crypto = this.client.getCryptoModule();
-        if (crypto != null) {
-            decrypt = ctx.alloc().buffer();
-            crypto.decrypt(buf, decrypt, this.actualReadableBytes());
+        if (this.state() == DecoderState.EXPECT_BYTES) {
+            NetCrypto crypto = this.client.getCryptoModule();
+            if (crypto != null) {
+                decrypt = ctx.alloc().buffer();
+                crypto.decrypt(buf, decrypt, this.actualReadableBytes());
+            }
+            this.checkpoint(DecoderState.READ_LENGTH);
         }
 
         // Step 2: Decompress if enabled
         // If not, compressed, use raw buffer
-        int fullLen = rvint(decrypt);
+        int fullLen = 0;
+        if (this.state() == DecoderState.READ_LENGTH) {
+            this.state(DecoderState.EXPECT_BYTES);
+            fullLen = rvint(decrypt);
+            this.state(DecoderState.READ_PAYLOAD);
+        }
+
+        if (this.state() == DecoderState.READ_PAYLOAD) {
+            this.state(DecoderState.EXPECT_BYTES);
+        }
 
         ByteBuf decompressed;
         if (this.client.doCompression()) {
@@ -91,15 +113,14 @@ public class InDecoder extends ReplayingDecoder<Void> {
                 decompressed = ctx.alloc().buffer();
                 byte[] in = arr(decrypt, fullLen - BigInteger.valueOf(uncompressed).toByteArray().length);
 
-                Inflater inflater = INFLATER.get();
-                inflater.setInput(in);
+                this.inflater.setInput(in);
 
                 byte[] buffer = new byte[NetClient.BUFFER_SIZE];
-                while (!inflater.finished()) {
-                    int bytes = inflater.inflate(buffer);
+                while (!this.inflater.finished()) {
+                    int bytes = this.inflater.inflate(buffer);
                     decompressed.writeBytes(buffer, 0, bytes);
                 }
-                inflater.reset();
+                this.inflater.reset();
             } else {
                 decompressed = decrypt.readBytes(fullLen - OutEncoder.VINT_LEN);
             }

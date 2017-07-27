@@ -18,6 +18,7 @@ package net.tridentsdk.server.ui.tablist;
 
 import lombok.Getter;
 import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.packet.play.PlayOutPlayerListHeaderAndFooter;
 import net.tridentsdk.server.packet.play.PlayOutTabListItem;
 import net.tridentsdk.server.player.TridentPlayer;
@@ -89,6 +90,20 @@ public abstract class TridentTabList implements TabList {
     @Override
     public void unsubscribe(Player player) {
         this.users.remove(player);
+
+        PlayOutTabListItem.PlayOutTabListItemRemovePlayer packet = PlayOutTabListItem.removePlayerPacket();
+        List<TabListElement> elements;
+        synchronized (this.lock) {
+            elements = this.elements;
+        }
+
+        for (TabListElement element : elements) {
+            packet.removePlayer(element.getUuid());
+        }
+
+        NetClient net = ((TridentPlayer) player).net();
+        net.sendPacket(packet);
+        net.sendPacket(new PlayOutPlayerListHeaderAndFooter(ChatComponent.empty(), ChatComponent.empty()));
     }
 
     /**

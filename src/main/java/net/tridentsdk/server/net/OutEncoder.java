@@ -40,16 +40,15 @@ public class OutEncoder extends MessageToByteEncoder<PacketOut> {
      */
     private static final Logger LOGGER = Logger.get(OutEncoder.class);
     /**
-     * The deflater used for compressing packets
-     */
-    private static final ThreadLocal<Deflater> DEFLATER = ThreadLocal.withInitial(
-            () -> new Deflater(Deflater.BEST_SPEED));
-    /**
      * Length of an uncompressed packet using the
      * compressed transport.
      */
     public static final int VINT_LEN = BigInteger.ZERO.toByteArray().length;
 
+    /**
+     * The deflater used for compressing packets
+     */
+    private final Deflater deflater = new Deflater(Deflater.BEST_SPEED);
     /**
      * The net client which holds this channel handler
      */
@@ -111,18 +110,17 @@ public class OutEncoder extends MessageToByteEncoder<PacketOut> {
     private void writeDeflated(ByteBuf payload, ByteBuf out, int len) {
         byte[] input = arr(payload, len);
 
-        Deflater deflater = DEFLATER.get();
-        deflater.setInput(input);
-        deflater.finish();
+        this.deflater.setInput(input);
+        this.deflater.finish();
 
         byte[] buffer = new byte[NetClient.BUFFER_SIZE];
         ByteBuf result = payload.alloc().buffer();
-        while (!deflater.finished()) {
-            int deflated = deflater.deflate(buffer);
+        while (!this.deflater.finished()) {
+            int deflated = this.deflater.deflate(buffer);
             result.writeBytes(buffer, 0, deflated);
         }
 
-        deflater.reset();
+        this.deflater.reset();
 
         int resultLen = result.readableBytes();
         wvint(out, resultLen + BigInteger.valueOf(len).toByteArray().length);
