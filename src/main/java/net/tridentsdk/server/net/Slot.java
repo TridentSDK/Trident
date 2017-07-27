@@ -67,7 +67,6 @@ public class Slot {
             byte count = buf.readByte();
             short dmg = buf.readShort();
             Tag.Compound nbt = Tag.decode(new DataInputStream(new ByteBufInputStream(buf)));
-            buf.readBytes(buf.readableBytes());
 
             if (id == Substance.AIR.getId()) {
                 return EMPTY;
