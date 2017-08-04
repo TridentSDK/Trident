@@ -54,7 +54,7 @@ public final class HandshakeIn extends PacketIn {
         int nextState = rvint(buf);
 
         if (version != StatusOutResponse.PROTOCOL_VERSION) {
-            client.sendPacket(new LoginOutDisconnect(ChatComponent.text("Client has the wrong protocol version")));
+            client.sendPacket(new LoginOutDisconnect(ChatComponent.text("Client has the wrong protocol version: " + version)));
         }
 
         client.setState(NetClient.NetState.values()[nextState]);
