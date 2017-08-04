@@ -6,6 +6,9 @@ jdk:
   - oraclejdk8
   - openjdk8
 
+before_install:
+  - git clone -b travis `git config --get remote.origin.url` travis
+
 script: ./scripts/build.sh
 after_script: ./scripts/javadoc.sh
 
