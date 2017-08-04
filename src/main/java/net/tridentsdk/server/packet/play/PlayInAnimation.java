@@ -20,6 +20,7 @@ import io.netty.buffer.ByteBuf;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.net.NetData;
 import net.tridentsdk.server.packet.PacketIn;
+import net.tridentsdk.server.player.RecipientSelector;
 import net.tridentsdk.server.player.TridentPlayer;
 
 /**
@@ -36,12 +37,9 @@ public class PlayInAnimation extends PacketIn {
     public void read(ByteBuf buf, NetClient client) {
         int animation = NetData.rvint(buf);
 
-        PlayOutAnimation packet = new PlayOutAnimation(client.getPlayer(), animation == 0 ? PlayOutAnimation.AnimationType.SWING_MAIN_ARM : PlayOutAnimation.AnimationType.SWING_OFFHAND);
-        TridentPlayer.getPlayers().values().forEach(p -> {
-            if (p != client.getPlayer()) {
-                p.net().sendPacket(packet);
-            }
-        });
+        TridentPlayer player = client.getPlayer();
+        PlayOutAnimation packet = new PlayOutAnimation(player, animation == 0 ? PlayOutAnimation.AnimationType.SWING_MAIN_ARM : PlayOutAnimation.AnimationType.SWING_OFFHAND);
+        RecipientSelector.whoCanSee(player, true, packet);
     }
 
 }

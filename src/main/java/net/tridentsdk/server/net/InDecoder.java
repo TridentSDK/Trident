@@ -18,7 +18,7 @@ package net.tridentsdk.server.net;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.ReplayingDecoder;
+import io.netty.handler.codec.ByteToMessageDecoder;
 import net.tridentsdk.logger.Logger;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.packet.Packet;
@@ -38,7 +38,7 @@ import static net.tridentsdk.server.net.NetData.rvint;
  * packets are read and decompressed through this decoder.
  */
 @ThreadSafe
-public class InDecoder extends ReplayingDecoder<InDecoder.DecoderState> {
+public class InDecoder extends ByteToMessageDecoder {
     /**
      * The logger used for debugging packets
      */
@@ -50,19 +50,14 @@ public class InDecoder extends ReplayingDecoder<InDecoder.DecoderState> {
      */
     private final Inflater inflater = new Inflater();
     /**
+     * The last reader index used by the decoder by the
+     * decrypter on the last iteration
+     */
+    private ByteBuf lastDecrypted;
+    /**
      * The net client which holds this channel handler
      */
     private NetClient client;
-
-    public InDecoder() {
-        super(DecoderState.EXPECT_BYTES);
-    }
-
-    public enum DecoderState {
-        EXPECT_BYTES,
-        READ_LENGTH,
-        READ_PAYLOAD
-    }
 
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
@@ -76,34 +71,64 @@ public class InDecoder extends ReplayingDecoder<InDecoder.DecoderState> {
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf buf, List<Object> list) throws Exception {
+        // Original index used if the buffer needs to wait
+        // for more input
+        int resetIdx = buf.readerIndex();
+
+        if (this.lastDecrypted == null) {
+            this.lastDecrypted = ctx.alloc().buffer();
+        }
+
+        // Decryption begins in buf at wherever the decoder
+        // left off when it last wrote to lastDecrypted
+        buf.readerIndex(this.lastDecrypted.writerIndex());
+
         // Step 1: Decrypt if enabled
-        // If not, use the raw buffer
-        ByteBuf decrypt = buf;
-        if (this.state() == DecoderState.EXPECT_BYTES) {
+        // If not, write the bytes to the lastDecrypted buf
+        int readableCrypted = buf.readableBytes();
+        if (readableCrypted > 0) {
             NetCrypto crypto = this.client.getCryptoModule();
             if (crypto != null) {
-                decrypt = ctx.alloc().buffer();
-                crypto.decrypt(buf, decrypt, this.actualReadableBytes());
+                crypto.decrypt(buf, this.lastDecrypted, readableCrypted);
+            } else {
+                this.lastDecrypted.writeBytes(buf);
             }
-            this.checkpoint(DecoderState.READ_LENGTH);
         }
 
         // Step 2: Decompress if enabled
         // If not, compressed, use raw buffer
+        // VarInt code pasted here in order to ensure that
+        // there is enough bytes in the buffer to read the
+        // full VarInt
+        int numRead = 0;
         int fullLen = 0;
-        if (this.state() == DecoderState.READ_LENGTH) {
-            this.state(DecoderState.EXPECT_BYTES);
-            fullLen = rvint(decrypt);
-            this.state(DecoderState.READ_PAYLOAD);
-        }
+        byte read;
+        do {
+            if (this.lastDecrypted.readableBytes() == 0) {
+                buf.readerIndex(resetIdx);
+                this.lastDecrypted.readerIndex(resetIdx);
+                return;
+            }
 
-        if (this.state() == DecoderState.READ_PAYLOAD) {
-            this.state(DecoderState.EXPECT_BYTES);
+            read = this.lastDecrypted.readByte();
+            int value = read & 0x7f;
+            fullLen |= value << 7 * numRead;
+
+            numRead++;
+            if (numRead > 5) {
+                throw new RuntimeException("VarInt is too big");
+            }
+        } while ((read & 0x80) != 0);
+
+        if (fullLen > this.lastDecrypted.readableBytes()) {
+            buf.readerIndex(resetIdx);
+            this.lastDecrypted.readerIndex(resetIdx);
+            return;
         }
 
         ByteBuf decompressed;
-        if (this.client.doCompression()) {
-            int uncompressed = rvint(decrypt);
+        if (this.client.doCompression()) { // compression enabled
+            int uncompressed = rvint(this.lastDecrypted);
             if (uncompressed != 0) {
                 if (uncompressed < TridentServer.cfg().compressionThresh()) {
                     this.client.disconnect("Incorrect compression header");
@@ -111,7 +136,7 @@ public class InDecoder extends ReplayingDecoder<InDecoder.DecoderState> {
                 }
 
                 decompressed = ctx.alloc().buffer();
-                byte[] in = arr(decrypt, fullLen - BigInteger.valueOf(uncompressed).toByteArray().length);
+                byte[] in = arr(this.lastDecrypted, fullLen - BigInteger.valueOf(uncompressed).toByteArray().length);
 
                 this.inflater.setInput(in);
 
@@ -121,11 +146,11 @@ public class InDecoder extends ReplayingDecoder<InDecoder.DecoderState> {
                     decompressed.writeBytes(buffer, 0, bytes);
                 }
                 this.inflater.reset();
-            } else {
-                decompressed = decrypt.readBytes(fullLen - OutEncoder.VINT_LEN);
+            } else { // compression enabled, < compress thresh
+                decompressed = this.lastDecrypted.readBytes(fullLen - OutEncoder.VINT_LEN);
             }
-        } else {
-            decompressed = decrypt.readBytes(fullLen);
+        } else { // not compressed
+            decompressed = this.lastDecrypted.readBytes(fullLen);
         }
 
         try {
@@ -140,18 +165,19 @@ public class InDecoder extends ReplayingDecoder<InDecoder.DecoderState> {
         } finally {
             decompressed.release();
 
-            // If we created a new buffer, release it here
-            if (decrypt != buf) {
-                decrypt.release();
+            if (this.lastDecrypted.readableBytes() == 0) {
+                this.lastDecrypted.release();
+                this.lastDecrypted = null;
+            } else {
+                buf.readerIndex(this.lastDecrypted.readerIndex());
             }
         }
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        NetClient client = NetClient.get(ctx);
-        if (client != null) {
-            client.disconnect("Server error: " + cause.getMessage());
+        if (this.client != null) {
+            this.client.disconnect("Server error: " + cause.getMessage());
         } else {
             ctx.channel().close().addListener(future -> LOGGER.error(ctx.channel().remoteAddress() + " disconnected due to server error"));
         }

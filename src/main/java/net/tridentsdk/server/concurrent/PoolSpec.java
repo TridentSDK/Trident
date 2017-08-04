@@ -36,7 +36,7 @@ public class PoolSpec implements ThreadFactory, ForkJoinPool.ForkJoinWorkerThrea
      * A thread factory that does handling for exceptions,
      * piping exception output to the loggers
      */
-    public static final ThreadFactory UNCAUGHT_FACTORY = new PoolSpec("", 0, false);
+    public static final ThreadFactory UNCAUGHT_FACTORY = new PoolSpec("TRD - Net", 0, false);
 
     // Actually this is used to execute block related tick
     // methods as well such as sugar cane growing, tree leaf

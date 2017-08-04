@@ -156,9 +156,8 @@ public class OutEncoder extends MessageToByteEncoder<PacketOut> {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        NetClient client = NetClient.get(ctx);
-        if (client != null) {
-            client.disconnect("Server error: " + cause.getMessage());
+        if (this.client != null) {
+            this.client.disconnect("Server error: " + cause.getMessage());
         } else {
             ctx.channel().close().addListener(future -> LOGGER.error(ctx.channel().remoteAddress() + " disconnected due to server error"));
         }

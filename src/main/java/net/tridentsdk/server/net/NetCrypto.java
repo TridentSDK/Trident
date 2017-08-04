@@ -25,7 +25,6 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.*;
 import java.util.Arrays;
-import java.util.function.Function;
 
 import static net.tridentsdk.server.net.NetData.arr;
 
@@ -79,15 +78,11 @@ public class NetCrypto {
     /**
      * The encryption cipher
      */
-    private final ThreadLocal<Cipher> encrypt = new ThreadLocal<>();
+    private volatile Cipher encrypt;
     /**
      * The decryption cipher
      */
-    private final ThreadLocal<Cipher> decrypt = new ThreadLocal<>();
-    /**
-     * Whether or not the crypto is ready
-     */
-    private volatile Function<Integer, Cipher> cipherInit;
+    private volatile Cipher decrypt;
 
     /**
      * Constructs a new crypto module.
@@ -148,36 +143,19 @@ public class NetCrypto {
                 SecretKey sharedSecret = new SecretKeySpec(decryptedSecret, SECRET_ALGO);
                 IvParameterSpec iv = new IvParameterSpec(sharedSecret.getEncoded());
 
-                this.cipherInit = mode -> {
-                    try {
-                        if (mode == Cipher.DECRYPT_MODE) {
-                            Cipher instance = this.decrypt.get();
-                            if (instance == null) {
-                                instance = Cipher.getInstance(CIPHER_NAME);
-                                instance.init(mode, sharedSecret, iv);
-                                this.decrypt.set(instance);
-                            }
+                Cipher instance = Cipher.getInstance(CIPHER_NAME);
+                instance.init(Cipher.DECRYPT_MODE, sharedSecret, iv);
+                this.decrypt = instance;
 
-                            return instance;
-                        } else {
-                            Cipher instance = this.encrypt.get();
-                            if (instance == null) {
-                                instance = Cipher.getInstance(CIPHER_NAME);
-                                instance.init(mode, sharedSecret, iv);
-                                this.encrypt.set(instance);
-                            }
+                instance = Cipher.getInstance(CIPHER_NAME);
+                instance.init(Cipher.ENCRYPT_MODE, sharedSecret, iv);
+                this.encrypt = instance;
 
-                            return instance;
-                        }
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                };
                 return decryptedSecret;
             }
             // rofl @ 6 exceptions
-        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException
-                | BadPaddingException | IllegalBlockSizeException e) {
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException |
+                BadPaddingException | IllegalBlockSizeException | InvalidAlgorithmParameterException e) {
             throw new RuntimeException(e);
         }
 
@@ -192,14 +170,13 @@ public class NetCrypto {
      * @param dest the destination
      */
     public void encrypt(ByteBuf buf, ByteBuf dest) {
-        Function<Integer, Cipher> init = this.cipherInit;
-        if (init == null) {
+        Cipher cipher = this.encrypt;
+        if (cipher == null) {
             dest.writeBytes(buf);
             return;
         }
 
         byte[] bytes = arr(buf);
-        Cipher cipher = init.apply(Cipher.ENCRYPT_MODE);
         dest.writeBytes(cipher.update(bytes));
     }
 
@@ -211,14 +188,13 @@ public class NetCrypto {
      * @param dest the destination
      */
     public void decrypt(ByteBuf buf, ByteBuf dest, int len) {
-        Function<Integer, Cipher> init = this.cipherInit;
-        if (init == null) {
+        Cipher cipher = this.decrypt;
+        if (cipher == null) {
             dest.writeBytes(buf, len);
             return;
         }
 
         byte[] bytes = arr(buf, len);
-        Cipher cipher = init.apply(Cipher.DECRYPT_MODE);
         dest.writeBytes(cipher.update(bytes));
     }
 }

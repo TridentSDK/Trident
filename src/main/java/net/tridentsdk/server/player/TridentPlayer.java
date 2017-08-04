@@ -41,6 +41,7 @@ import net.tridentsdk.server.ui.bossbar.AbstractBossBar;
 import net.tridentsdk.server.ui.tablist.TabListElement;
 import net.tridentsdk.server.ui.tablist.TridentGlobalTabList;
 import net.tridentsdk.server.ui.tablist.TridentTabList;
+import net.tridentsdk.server.util.Debug;
 import net.tridentsdk.server.world.TridentChunk;
 import net.tridentsdk.server.world.TridentWorld;
 import net.tridentsdk.ui.bossbar.BossBar;
@@ -345,6 +346,9 @@ public class TridentPlayer extends TridentEntity implements Player {
         Collections.addAll(this.permissions, "minecraft.help");
         if (TridentServer.getInstance().getOpsList().getOps().contains(this.uuid)) {
             this.op = true;
+        }
+        if (Debug.IS_DEBUGGING) {
+            this.permissions.add("trident.debug");
         }
 
         RecipientSelector.whoCanSee(this, true, new PlayOutSpawnPlayer(this));
