@@ -55,12 +55,12 @@ public final class StatusOutResponse extends PacketOut {
      * The current Minecraft version implemented by the
      * server
      */
-    public static final String MC_VERSION = "1.12";
+    public static final String MC_VERSION = "1.12.1";
     /**
      * The protocol version associated with the Minecraft
      * version
      */
-    public static final int PROTOCOL_VERSION = 335;
+    public static final int PROTOCOL_VERSION = 338;
 
     static final AtomicReference<String> b64icon = new AtomicReference<>();
     private static Logger logger;
