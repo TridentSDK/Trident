@@ -21,7 +21,7 @@ import lombok.Getter;
 import net.tridentsdk.base.Block;
 import net.tridentsdk.base.Position;
 import net.tridentsdk.entity.Entity;
-import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.entity.living.EntityPlayer;
 import net.tridentsdk.meta.nbt.Tag;
 import net.tridentsdk.server.concurrent.PoolSpec;
 import net.tridentsdk.server.concurrent.ServerThreadPool;
@@ -329,7 +329,7 @@ public class TridentChunk implements Chunk {
     }
 
     @Override
-    public Set<? extends Player> getPlayers() {
+    public Set<? extends EntityPlayer> getPlayers() {
         return Collections.unmodifiableSet(this.occupants);
     }
 

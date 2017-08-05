@@ -17,7 +17,7 @@
 package net.tridentsdk.server.packet.play;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.entity.living.EntityPlayer;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.packet.PacketIn;
 import net.tridentsdk.server.player.TridentPlayer;
@@ -46,7 +46,7 @@ public class PlayInPlayerAbilities extends PacketIn {
         // NOTE: We have to be very careful here, since a hacked client can easily send these things.
 
         TridentPlayer player = client.getPlayer();
-        player.setSprinting(Double.compare(walkingSpeed, Player.DEFAULT_SPRINT_SPEED) == 0);
+        player.setSprinting(Double.compare(walkingSpeed, EntityPlayer.DEFAULT_SPRINT_SPEED) == 0);
 
         if (player.canFly()) {
             player.setFlyingSpeed(flyingSpeed);

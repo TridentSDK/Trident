@@ -20,7 +20,7 @@ import lombok.Getter;
 import lombok.Setter;
 import net.tridentsdk.base.Position;
 import net.tridentsdk.entity.Entity;
-import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.entity.living.EntityPlayer;
 import net.tridentsdk.server.concurrent.PoolSpec;
 import net.tridentsdk.server.concurrent.ServerThreadPool;
 import net.tridentsdk.server.entity.meta.EntityMetaType;
@@ -97,7 +97,7 @@ public abstract class TridentEntity implements Entity {
         Position pos = world.getWorldOptions().getSpawn().toPosition(world);
         this.position = pos;
 
-        if (this instanceof Player) {
+        if (this instanceof EntityPlayer) {
             TridentPlayer player = (TridentPlayer) this;
             world.getOccupants().add(player);
             world.getChunkAt(pos.getChunkX(), pos.getChunkZ()).getOccupants().add(player);
@@ -126,7 +126,7 @@ public abstract class TridentEntity implements Entity {
         TridentWorld fromWorld = (TridentWorld) old.getWorld();
         TridentWorld destWorld = (TridentWorld) position.getWorld();
         if (!destWorld.equals(fromWorld)) {
-            if (this instanceof Player) {
+            if (this instanceof EntityPlayer) {
                 fromWorld.getOccupants().remove(this);
                 destWorld.getOccupants().add((TridentPlayer) this);
             } else {
@@ -145,7 +145,7 @@ public abstract class TridentEntity implements Entity {
             List<Entity> destroy = Collections.singletonList(this);
 
             PacketOut spawnThis = this.getSpawnPacket();
-            if (this instanceof Player) {
+            if (this instanceof EntityPlayer) {
                 TridentPlayer player = (TridentPlayer) this;
                 if (fromChunk != null) {
                     fromChunk.getOccupants().remove(player);
@@ -228,14 +228,14 @@ public abstract class TridentEntity implements Entity {
 
         TridentChunk chunk = world.getChunkAt(this.position.getChunkX(), this.position.getChunkZ(), false);
         if (chunk != null) {
-            if (this instanceof Player) {
+            if (this instanceof EntityPlayer) {
                 chunk.getOccupants().remove(this);
             } else {
                 chunk.getEntitySet().remove(this);
             }
         }
 
-        if (this instanceof Player) {
+        if (this instanceof EntityPlayer) {
             world.getOccupants().remove(this);
         } else {
             world.getEntitySet().remove(this);

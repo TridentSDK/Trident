@@ -17,7 +17,7 @@
 package net.tridentsdk.server.ui.tablist;
 
 import lombok.Getter;
-import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.entity.living.EntityPlayer;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.packet.play.PlayOutPlayerListHeaderAndFooter;
 import net.tridentsdk.server.packet.play.PlayOutTabListItem;
@@ -38,7 +38,7 @@ public abstract class TridentTabList implements TabList {
     /**
      * The players which are displayed this tab list
      */
-    protected final Collection<Player> users = Collections.newSetFromMap(new ConcurrentHashMap<>());
+    protected final Collection<EntityPlayer> users = Collections.newSetFromMap(new ConcurrentHashMap<>());
     /**
      * The last observed list of elements belonging to this
      * tab list's subscribers
@@ -78,17 +78,17 @@ public abstract class TridentTabList implements TabList {
     }
 
     @Override
-    public Collection<Player> getUserList() {
+    public Collection<EntityPlayer> getUserList() {
         return Collections.unmodifiableCollection(this.users);
     }
 
     @Override
-    public void subscribe(Player player) {
+    public void subscribe(EntityPlayer player) {
         this.users.add(player);
     }
 
     @Override
-    public void unsubscribe(Player player) {
+    public void unsubscribe(EntityPlayer player) {
         this.users.remove(player);
 
         PlayOutTabListItem.PlayOutTabListItemRemovePlayer packet = PlayOutTabListItem.removePlayerPacket();

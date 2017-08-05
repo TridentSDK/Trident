@@ -17,7 +17,7 @@
 package net.tridentsdk.server.packet.play;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.entity.living.EntityPlayer;
 import net.tridentsdk.server.packet.PacketOut;
 import net.tridentsdk.world.World;
 import net.tridentsdk.world.opt.Dimension;
@@ -51,9 +51,9 @@ public final class PlayOutJoinGame extends PacketOut {
     /**
      * The player that is joining the game
      */
-    private final Player player;
+    private final EntityPlayer player;
 
-    public PlayOutJoinGame(Player player, World world) {
+    public PlayOutJoinGame(EntityPlayer player, World world) {
         super(PlayOutJoinGame.class);
         this.player = player;
         this.dimension = world.getDimension();

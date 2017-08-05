@@ -16,10 +16,12 @@
  */
 package net.tridentsdk.server.command;
 
-import net.tridentsdk.command.*;
+import net.tridentsdk.command.Command;
+import net.tridentsdk.command.CommandListener;
+import net.tridentsdk.command.CommandSource;
 import net.tridentsdk.command.annotation.PermissionRequired;
 import net.tridentsdk.command.annotation.PlayerExactMatch;
-import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.entity.living.EntityPlayer;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.ui.chat.ChatComponent;
 
@@ -30,7 +32,7 @@ public class KickCommand implements CommandListener {
 
     @Command(name = "kick", help = "/kick <player> [reason]", desc = "Kicks a player from the server")
     @PermissionRequired("minecraft.kick")
-    public void kick(CommandSource source, String[] args, @PlayerExactMatch Player player, String... reason) {
+    public void kick(CommandSource source, String[] args, @PlayerExactMatch EntityPlayer player, String... reason) {
         if (player != null) {
             String reasonString = reason.length == 0 ? "Kicked by an operator." : String.join(" ", reason);
             player.kick(ChatComponent.text(reasonString));

@@ -20,7 +20,7 @@ import lombok.Getter;
 import lombok.Setter;
 import net.tridentsdk.command.CommandSourceType;
 import net.tridentsdk.doc.Policy;
-import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.entity.living.EntityPlayer;
 import net.tridentsdk.event.player.PlayerChatEvent;
 import net.tridentsdk.event.player.PlayerJoinEvent;
 import net.tridentsdk.event.player.PlayerQuitEvent;
@@ -65,7 +65,7 @@ import java.util.stream.Collectors;
  */
 @ThreadSafe
 @EntityMetaType(TridentPlayerMeta.class)
-public class TridentPlayer extends TridentEntity implements Player {
+public class TridentPlayer extends TridentEntity implements EntityPlayer {
     /**
      * The players on the server
      */
@@ -211,12 +211,12 @@ public class TridentPlayer extends TridentEntity implements Player {
      * The player's flying speed
      */
     @Getter
-    private volatile float flyingSpeed = Player.DEFAULT_FLYING_SPEED;
+    private volatile float flyingSpeed = EntityPlayer.DEFAULT_FLYING_SPEED;
     /**
      * The player's walking speed
      */
     @Getter
-    private volatile float walkingSpeed = Player.DEFAULT_WALKING_SPEED;
+    private volatile float walkingSpeed = EntityPlayer.DEFAULT_WALKING_SPEED;
 
     // -----------------------------------------------------
     // UI SETTINGS -----------------------------------------
@@ -625,9 +625,9 @@ public class TridentPlayer extends TridentEntity implements Player {
     public void setSprinting(boolean sprinting) {
         this.metadata.setSprinting(sprinting);
         if (sprinting) {
-            this.walkingSpeed = Player.DEFAULT_SPRINT_SPEED;
+            this.walkingSpeed = EntityPlayer.DEFAULT_SPRINT_SPEED;
         } else {
-            this.walkingSpeed = Player.DEFAULT_WALKING_SPEED;
+            this.walkingSpeed = EntityPlayer.DEFAULT_WALKING_SPEED;
         }
         this.client.sendPacket(new PlayOutPlayerAbilities(this));
         this.updateMetadata();
@@ -706,7 +706,7 @@ public class TridentPlayer extends TridentEntity implements Player {
                         .setText(getName())
                         .setClickEvent(ClickEvent.of(ClickAction.SUGGEST_COMMAND, "/tell " + getName() + " ")))
                 .addWith(msg);
-        Collection<Player> recipients = new ArrayList<>(TridentPlayer.getPlayers().values());
+        Collection<EntityPlayer> recipients = new ArrayList<>(TridentPlayer.getPlayers().values());
         PlayerChatEvent _event = new PlayerChatEvent(this, chat, recipients);
         ServerThreadPool.forSpec(PoolSpec.PLUGINS).submit(() -> {
             TridentServer.getInstance().getEventController().dispatch(_event, event -> {

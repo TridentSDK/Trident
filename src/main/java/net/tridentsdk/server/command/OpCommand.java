@@ -16,11 +16,14 @@
  */
 package net.tridentsdk.server.command;
 
-import net.tridentsdk.command.*;
+import net.tridentsdk.command.Command;
+import net.tridentsdk.command.CommandListener;
+import net.tridentsdk.command.CommandSource;
+import net.tridentsdk.command.CommandSourceType;
 import net.tridentsdk.command.annotation.AllowedSourceTypes;
 import net.tridentsdk.command.annotation.PermissionRequired;
 import net.tridentsdk.command.annotation.PlayerExactMatch;
-import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.entity.living.EntityPlayer;
 import net.tridentsdk.ui.chat.ChatColor;
 import net.tridentsdk.ui.chat.ChatComponent;
 
@@ -29,7 +32,7 @@ public class OpCommand implements CommandListener {
     @Command(name = "op", help = "/op <player>", desc = "Sets the player to an operator")
     @PermissionRequired("minecraft.op")
     @AllowedSourceTypes({ CommandSourceType.PLAYER, CommandSourceType.CONSOLE })
-    public void op(CommandSource source, String[] args, @PlayerExactMatch Player player) {
+    public void op(CommandSource source, String[] args, @PlayerExactMatch EntityPlayer player) {
         if (player == null) {
             source.sendMessage(ChatComponent.create().setColor(ChatColor.RED).setText("No player by the name '" + args[1] + "' is online!"));
         } else {

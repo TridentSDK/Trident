@@ -16,7 +16,8 @@
  */
 package net.tridentsdk.server.player;
 
-import net.tridentsdk.meta.entity.living.PlayerMeta;
+import net.tridentsdk.entity.Entity;
+import net.tridentsdk.meta.entity.living.EntityPlayerMeta;
 import net.tridentsdk.server.entity.meta.TridentLivingEntityMeta;
 import net.tridentsdk.server.net.EntityMetadata;
 
@@ -27,7 +28,7 @@ import javax.annotation.concurrent.ThreadSafe;
  * @since 0.5-alpha
  */
 @ThreadSafe
-public class TridentPlayerMeta extends TridentLivingEntityMeta implements PlayerMeta {
+public class TridentPlayerMeta extends TridentLivingEntityMeta implements EntityPlayerMeta {
 
     public TridentPlayerMeta(EntityMetadata metadata) {
         super(metadata);
@@ -35,6 +36,10 @@ public class TridentPlayerMeta extends TridentLivingEntityMeta implements Player
         metadata.add(12, EntityMetadata.EntityMetadataType.VARINT, 0);
         metadata.add(13, EntityMetadata.EntityMetadataType.BYTE, -1);
         metadata.add(14, EntityMetadata.EntityMetadataType.BYTE, 1);
+
+        //TODO Entity NBT Tags for entities on player's shoulder
+        metadata.add(15, null, null);
+        metadata.add(16, null, null);
     }
 
     @Override
@@ -43,8 +48,10 @@ public class TridentPlayerMeta extends TridentLivingEntityMeta implements Player
     }
 
     @Override
-    public void setAdditionalHearts(float hearts) {
+    public TridentPlayerMeta setAdditionalHearts(float hearts) {
         this.getMetadata().get(11).set(hearts);
+
+        return this;
     }
 
     @Override
@@ -53,8 +60,10 @@ public class TridentPlayerMeta extends TridentLivingEntityMeta implements Player
     }
 
     @Override
-    public void setScore(int score) {
+    public TridentPlayerMeta setScore(int score) {
         this.getMetadata().get(12).set(score);
+
+        return this;
     }
 
     @Override
@@ -63,8 +72,10 @@ public class TridentPlayerMeta extends TridentLivingEntityMeta implements Player
     }
 
     @Override
-    public void setSkinFlags(byte skinFlags) {
+    public TridentPlayerMeta setSkinFlags(byte skinFlags) {
         this.getMetadata().get(13).set(skinFlags);
+
+        return this;
     }
 
     @Override
@@ -73,8 +84,10 @@ public class TridentPlayerMeta extends TridentLivingEntityMeta implements Player
     }
 
     @Override
-    public void setCapeEnabled(boolean enabled) {
+    public TridentPlayerMeta setCapeEnabled(boolean enabled) {
         this.getMetadata().get(13).setBit(0, enabled);
+
+        return this;
     }
 
     @Override
@@ -83,8 +96,10 @@ public class TridentPlayerMeta extends TridentLivingEntityMeta implements Player
     }
 
     @Override
-    public void setJacketEnabled(boolean enabled) {
+    public TridentPlayerMeta setJacketEnabled(boolean enabled) {
         this.getMetadata().get(13).setBit(1, enabled);
+
+        return this;
     }
 
     @Override
@@ -93,8 +108,10 @@ public class TridentPlayerMeta extends TridentLivingEntityMeta implements Player
     }
 
     @Override
-    public void setLeftSleeveEnabled(boolean enabled) {
+    public TridentPlayerMeta setLeftSleeveEnabled(boolean enabled) {
         this.getMetadata().get(13).setBit(2, enabled);
+
+        return this;
     }
 
     @Override
@@ -103,8 +120,10 @@ public class TridentPlayerMeta extends TridentLivingEntityMeta implements Player
     }
 
     @Override
-    public void setRightSleeveEnabled(boolean enabled) {
+    public TridentPlayerMeta setRightSleeveEnabled(boolean enabled) {
         this.getMetadata().get(13).setBit(3, enabled);
+
+        return this;
     }
 
     @Override
@@ -113,8 +132,10 @@ public class TridentPlayerMeta extends TridentLivingEntityMeta implements Player
     }
 
     @Override
-    public void setLeftLegPantsEnabled(boolean enabled) {
+    public TridentPlayerMeta setLeftLegPantsEnabled(boolean enabled) {
         this.getMetadata().get(13).setBit(4, enabled);
+
+        return this;
     }
 
     @Override
@@ -123,8 +144,10 @@ public class TridentPlayerMeta extends TridentLivingEntityMeta implements Player
     }
 
     @Override
-    public void setRightLegPantsEnabled(boolean enabled) {
+    public TridentPlayerMeta setRightLegPantsEnabled(boolean enabled) {
         this.getMetadata().get(13).setBit(5, enabled);
+
+        return this;
     }
 
     @Override
@@ -133,8 +156,10 @@ public class TridentPlayerMeta extends TridentLivingEntityMeta implements Player
     }
 
     @Override
-    public void setHatEnabled(boolean enabled) {
+    public TridentPlayerMeta setHatEnabled(boolean enabled) {
         this.getMetadata().get(13).setBit(6, enabled);
+
+        return this;
     }
 
     @Override
@@ -143,8 +168,35 @@ public class TridentPlayerMeta extends TridentLivingEntityMeta implements Player
     }
 
     @Override
-    public void setLeftHandMain(boolean main) {
+    public TridentPlayerMeta setLeftHandMain(boolean main) {
         this.getMetadata().get(14).set(main ? 0 : 1);
+
+        return this;
+    }
+
+    @Override
+    public Entity getLeftShoulderEntity() {
+        //TODO Read NBT tag and return entity
+        return null;
+    }
+
+    @Override
+    public EntityPlayerMeta setLeftShoulderEntity(Entity parrot) {
+        //TODO Set NBT tag
+
+        return this;
+    }
+
+    @Override
+    public Entity getRightShoulderEntity() {
+        //TODO Read NBT tag and return entity
+        return null;
+    }
+
+    @Override
+    public EntityPlayerMeta setRightShoulderEntity(Entity parrot) {
+        //TODO Set NBT tag
+        return this;
     }
 
 }

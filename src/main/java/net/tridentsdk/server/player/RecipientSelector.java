@@ -20,7 +20,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import net.tridentsdk.base.Position;
 import net.tridentsdk.entity.Entity;
-import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.entity.living.EntityPlayer;
 import net.tridentsdk.server.entity.TridentEntity;
 import net.tridentsdk.server.packet.PacketOut;
 import net.tridentsdk.server.world.TridentChunk;
@@ -54,7 +54,7 @@ public final class RecipientSelector {
         }
 
         Set<TridentPlayer> targets = chunk.getHolders();
-        if (exclude == null || !(exclude instanceof Player)) {
+        if (exclude == null || !(exclude instanceof EntityPlayer)) {
             for (TridentPlayer p : targets) {
                 for (PacketOut out : packetOut) {
                     p.net().sendPacket(out);

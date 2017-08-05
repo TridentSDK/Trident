@@ -18,7 +18,7 @@ package net.tridentsdk.server.packet.play;
 
 import io.netty.buffer.ByteBuf;
 import net.tridentsdk.base.Position;
-import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.entity.living.EntityPlayer;
 import net.tridentsdk.server.entity.meta.TridentEntityMeta;
 import net.tridentsdk.server.packet.PacketOut;
 
@@ -30,9 +30,9 @@ import static net.tridentsdk.server.net.NetData.wvint;
 @Immutable
 public final class PlayOutSpawnPlayer extends PacketOut {
 
-    private final Player player;
+    private final EntityPlayer player;
 
-    public PlayOutSpawnPlayer(Player player) {
+    public PlayOutSpawnPlayer(EntityPlayer player) {
         super(PlayOutSpawnPlayer.class);
         this.player = player;
     }

@@ -16,7 +16,7 @@
  */
 package net.tridentsdk.server.entity.meta;
 
-import net.tridentsdk.meta.entity.living.LivingEntityMeta;
+import net.tridentsdk.meta.entity.living.EntityLivingMeta;
 import net.tridentsdk.server.net.EntityMetadata;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -26,7 +26,7 @@ import javax.annotation.concurrent.ThreadSafe;
  * @since 0.5-alpha
  */
 @ThreadSafe
-public class TridentLivingEntityMeta extends TridentEntityMeta implements LivingEntityMeta {
+public class TridentLivingEntityMeta extends TridentEntityMeta implements EntityLivingMeta {
 
     public TridentLivingEntityMeta(EntityMetadata metadata) {
         super(metadata);
@@ -43,8 +43,10 @@ public class TridentLivingEntityMeta extends TridentEntityMeta implements Living
     }
 
     @Override
-    public void setHandActive(boolean active) {
+    public TridentLivingEntityMeta setHandActive(boolean active) {
         this.getMetadata().get(6).setBit(0, active);
+
+        return this;
     }
 
     @Override
@@ -53,8 +55,10 @@ public class TridentLivingEntityMeta extends TridentEntityMeta implements Living
     }
 
     @Override
-    public void setMainHandActive(boolean mainHand) {
+    public TridentLivingEntityMeta setMainHandActive(boolean mainHand) {
         this.getMetadata().get(6).setBit(1, !mainHand);
+
+        return this;
     }
 
     @Override
@@ -63,8 +67,10 @@ public class TridentLivingEntityMeta extends TridentEntityMeta implements Living
     }
 
     @Override
-    public void setHealth(float health) {
+    public TridentLivingEntityMeta setHealth(float health) {
         this.getMetadata().get(7).set(health);
+
+        return this;
     }
 
     @Override
@@ -73,8 +79,10 @@ public class TridentLivingEntityMeta extends TridentEntityMeta implements Living
     }
 
     @Override
-    public void setPotionEffectColor(int potionEffectColor) {
+    public TridentLivingEntityMeta setPotionEffectColor(int potionEffectColor) {
         this.getMetadata().get(8).set(potionEffectColor);
+
+        return this;
     }
 
     @Override
@@ -83,8 +91,10 @@ public class TridentLivingEntityMeta extends TridentEntityMeta implements Living
     }
 
     @Override
-    public void setPotionEffectAmbient(boolean ambient) {
+    public TridentLivingEntityMeta setPotionEffectAmbient(boolean ambient) {
         this.getMetadata().get(9).set(ambient);
+
+        return this;
     }
 
     @Override
@@ -93,8 +103,10 @@ public class TridentLivingEntityMeta extends TridentEntityMeta implements Living
     }
 
     @Override
-    public void setNumberOfArrowsInEntity(int arrows) {
+    public TridentLivingEntityMeta setNumberOfArrowsInEntity(int arrows) {
         this.getMetadata().get(10).set(arrows);
+
+        return this;
     }
 
 }

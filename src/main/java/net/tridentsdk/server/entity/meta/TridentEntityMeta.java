@@ -47,8 +47,10 @@ public class TridentEntityMeta implements EntityMeta {
     }
 
     @Override
-    public void setOnFire(boolean onFire) {
+    public TridentEntityMeta setOnFire(boolean onFire) {
         this.metadata.get(0).setBit(0, onFire);
+
+        return this;
     }
 
     @Override
@@ -57,8 +59,10 @@ public class TridentEntityMeta implements EntityMeta {
     }
 
     @Override
-    public void setCrouched(boolean crouched) {
+    public TridentEntityMeta setCrouched(boolean crouched) {
         this.metadata.get(0).setBit(1, crouched);
+
+        return this;
     }
 
     @Override
@@ -67,8 +71,10 @@ public class TridentEntityMeta implements EntityMeta {
     }
 
     @Override
-    public void setSprinting(boolean sprinting) {
+    public TridentEntityMeta setSprinting(boolean sprinting) {
         this.metadata.get(0).setBit(3, sprinting);
+
+        return this;
     }
 
     @Override
@@ -77,8 +83,10 @@ public class TridentEntityMeta implements EntityMeta {
     }
 
     @Override
-    public void setEating(boolean eating) {
+    public TridentEntityMeta setEating(boolean eating) {
         this.metadata.get(0).setBit(4, eating);
+
+        return this;
     }
 
     @Override
@@ -87,8 +95,10 @@ public class TridentEntityMeta implements EntityMeta {
     }
 
     @Override
-    public void setInvisible(boolean invisible) {
+    public TridentEntityMeta setInvisible(boolean invisible) {
         this.metadata.get(0).setBit(5, invisible);
+
+        return this;
     }
 
     @Override
@@ -97,8 +107,10 @@ public class TridentEntityMeta implements EntityMeta {
     }
 
     @Override
-    public void setGlowing(boolean glowing) {
+    public TridentEntityMeta setGlowing(boolean glowing) {
         this.metadata.get(0).setBit(6, glowing);
+
+        return this;
     }
 
     @Override
@@ -107,8 +119,10 @@ public class TridentEntityMeta implements EntityMeta {
     }
 
     @Override
-    public void setUsingElytra(boolean usingElytra) {
+    public TridentEntityMeta setUsingElytra(boolean usingElytra) {
         this.metadata.get(0).setBit(7, usingElytra);
+
+        return this;
     }
 
     @Override
@@ -117,8 +131,10 @@ public class TridentEntityMeta implements EntityMeta {
     }
 
     @Override
-    public void setAir(int air) {
+    public TridentEntityMeta setAir(int air) {
         this.metadata.get(1).set(air);
+
+        return this;
     }
 
     @Override
@@ -127,8 +143,10 @@ public class TridentEntityMeta implements EntityMeta {
     }
 
     @Override
-    public void setCustomName(String name) {
+    public TridentEntityMeta setCustomName(String name) {
         this.metadata.get(2).set(name);
+
+        return this;
     }
 
     @Override
@@ -137,8 +155,10 @@ public class TridentEntityMeta implements EntityMeta {
     }
 
     @Override
-    public void setCustomNameVisible(boolean visible) {
+    public TridentEntityMeta setCustomNameVisible(boolean visible) {
         this.metadata.get(3).set(visible);
+
+        return this;
     }
 
     @Override
@@ -147,8 +167,10 @@ public class TridentEntityMeta implements EntityMeta {
     }
 
     @Override
-    public void setSilent(boolean silent) {
+    public TridentEntityMeta setSilent(boolean silent) {
         this.metadata.get(4).set(silent);
+
+        return this;
     }
 
     @Override
@@ -157,7 +179,9 @@ public class TridentEntityMeta implements EntityMeta {
     }
 
     @Override
-    public void setNoGravity(boolean noGravity) {
+    public TridentEntityMeta setNoGravity(boolean noGravity) {
         this.metadata.get(5).set(noGravity);
+
+        return this;
     }
 }

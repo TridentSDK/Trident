@@ -19,7 +19,8 @@ package net.tridentsdk.server.plugin;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.tridentsdk.doc.Policy;
-import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.entity.living.EntityPlayer;
+import net.tridentsdk.entity.living.EntityPlayer;
 import net.tridentsdk.plugin.channel.Destination;
 import net.tridentsdk.plugin.channel.PluginChannel;
 import net.tridentsdk.plugin.channel.SimpleChannelListener;
@@ -77,7 +78,7 @@ public class TridentPluginChannel implements PluginChannel {
      * The recipients of the plugin messages sent by this
      * channel
      */
-    private final Map<UUID, Player> recipients = new ConcurrentHashMap<>();
+    private final Map<UUID, EntityPlayer> recipients = new ConcurrentHashMap<>();
     /**
      * The channel name
      */
@@ -130,7 +131,7 @@ public class TridentPluginChannel implements PluginChannel {
      * @param player the player to add
      */
     public static void autoAdd(TridentPlayer player) {
-        Set<Player> singleton = Collections.singleton(player);
+        Set<EntityPlayer> singleton = Collections.singleton(player);
         for (PluginChannel channel : CHANNELS.values()) {
             if (channel instanceof TridentPluginAllChannel) {
                 PlayOutPluginMsg msg = new PlayOutPluginMsg(REGISTER,
@@ -153,7 +154,7 @@ public class TridentPluginChannel implements PluginChannel {
      * @param player the player to remove
      */
     public static void autoRemove(TridentPlayer player) {
-        Set<Player> singleton = Collections.singleton(player);
+        Set<EntityPlayer> singleton = Collections.singleton(player);
         for (PluginChannel channel : CHANNELS.values()) {
             if (channel instanceof TridentPluginAllChannel) {
                 channel.closeFor(singleton);
@@ -199,7 +200,7 @@ public class TridentPluginChannel implements PluginChannel {
         CHANNELS.remove(this.name);
 
         PlayOutPluginMsg msg = new PlayOutPluginMsg(UNREGISTER, this.name.getBytes(NetData.NET_CHARSET));
-        for (Player player : this.recipients.values()) {
+        for (EntityPlayer player : this.recipients.values()) {
             this.recipients.remove(player.getUuid());
             ((TridentPlayer) player).net().sendPacket(msg);
         }
@@ -212,10 +213,10 @@ public class TridentPluginChannel implements PluginChannel {
     }
 
     @Override
-    public void closeFor(Function<Player, Boolean> function) {
-        Set<Player> players = new HashSet<>();
+    public void closeFor(Function<EntityPlayer, Boolean> function) {
+        Set<EntityPlayer> players = new HashSet<>();
         PlayOutPluginMsg msg = new PlayOutPluginMsg(UNREGISTER, this.name.getBytes(NetData.NET_CHARSET));
-        for (Player player : this.recipients.values()) {
+        for (EntityPlayer player : this.recipients.values()) {
             if (function.apply(player)) {
                 players.add(player);
                 this.recipients.remove(player.getUuid());
@@ -231,10 +232,10 @@ public class TridentPluginChannel implements PluginChannel {
     }
 
     @Override
-    public boolean closeFor(Collection<Player> players) {
+    public boolean closeFor(Collection<EntityPlayer> players) {
         boolean success = true;
         PlayOutPluginMsg msg = new PlayOutPluginMsg(UNREGISTER, this.name.getBytes(NetData.NET_CHARSET));
-        for (Player player : players) {
+        for (EntityPlayer player : players) {
             player = this.recipients.remove(player.getUuid());
             if (player != null) {
                 ((TridentPlayer) player).net().sendPacket(msg);
@@ -255,10 +256,10 @@ public class TridentPluginChannel implements PluginChannel {
     @Override
     public boolean closeFor(UUID... uuids) {
         boolean success = true;
-        Set<Player> players = new HashSet<>();
+        Set<EntityPlayer> players = new HashSet<>();
         PlayOutPluginMsg msg = new PlayOutPluginMsg(UNREGISTER, this.name.getBytes(NetData.NET_CHARSET));
         for (UUID uuid : uuids) {
-            Player player = this.recipients.remove(uuid);
+            EntityPlayer player = this.recipients.remove(uuid);
             if (player != null) {
                 players.add(player);
                 ((TridentPlayer) player).net().sendPacket(msg);
@@ -277,10 +278,10 @@ public class TridentPluginChannel implements PluginChannel {
     }
 
     @Override
-    public void addRecipient(Player... recipients) {
-        Set<Player> players = new HashSet<>();
+    public void addRecipient(EntityPlayer... recipients) {
+        Set<EntityPlayer> players = new HashSet<>();
         PlayOutPluginMsg msg = new PlayOutPluginMsg(REGISTER, this.name.getBytes(NetData.NET_CHARSET));
-        for (Player player : recipients) {
+        for (EntityPlayer player : recipients) {
             players.add(player);
             this.recipients.put(player.getUuid(), player);
             ((TridentPlayer) player).net().sendPacket(msg);
@@ -294,9 +295,9 @@ public class TridentPluginChannel implements PluginChannel {
     }
 
     @Override
-    public void addRecipient(Collection<? extends Player> recipients) {
+    public void addRecipient(Collection<? extends EntityPlayer> recipients) {
         PlayOutPluginMsg msg = new PlayOutPluginMsg(REGISTER, this.name.getBytes(NetData.NET_CHARSET));
-        for (Player player : recipients) {
+        for (EntityPlayer player : recipients) {
             this.recipients.put(player.getUuid(), player);
             ((TridentPlayer) player).net().sendPacket(msg);
         }
@@ -309,7 +310,7 @@ public class TridentPluginChannel implements PluginChannel {
     }
 
     @Override
-    public Collection<Player> getRecipients() {
+    public Collection<EntityPlayer> getRecipients() {
         return Collections.unmodifiableCollection(this.recipients.values());
     }
 
@@ -320,7 +321,7 @@ public class TridentPluginChannel implements PluginChannel {
         }
 
         PlayOutPluginMsg msg = new PlayOutPluginMsg(this.name, message);
-        for (Player player : this.recipients.values()) {
+        for (EntityPlayer player : this.recipients.values()) {
             ((TridentPlayer) player).net().sendPacket(msg);
         }
 

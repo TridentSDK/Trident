@@ -21,7 +21,7 @@ import net.tridentsdk.Server;
 import net.tridentsdk.base.Substance;
 import net.tridentsdk.config.Config;
 import net.tridentsdk.doc.Policy;
-import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.entity.living.EntityPlayer;
 import net.tridentsdk.inventory.Inventory;
 import net.tridentsdk.inventory.InventoryType;
 import net.tridentsdk.inventory.Item;
@@ -147,7 +147,7 @@ public class ImplementationProvider implements Impl.Provider {
 
     @Override
     @Nonnull
-    public Map<String, Player> findByName(String name) {
+    public Map<String, EntityPlayer> findByName(String name) {
         // Skip list orders first from numbers, then
         // 1A to 16A then 1a to 16a, then 1B to 16B then
         // to 1b to 16b
@@ -174,12 +174,12 @@ public class ImplementationProvider implements Impl.Provider {
 
     @Override
     @Nullable
-    public Player getByName(String name) {
+    public EntityPlayer getByName(String name) {
         return TridentPlayer.getPlayerNames().get(name);
     }
 
     @Override
-    public PluginChannel open(String name, Player... targets) {
+    public PluginChannel open(String name, EntityPlayer... targets) {
         if (name.length() > 20) {
             throw new IllegalArgumentException("Cannot have channel name > 20");
         }
@@ -191,7 +191,7 @@ public class ImplementationProvider implements Impl.Provider {
     }
 
     @Override
-    public PluginChannel open(String name, Collection<? extends Player> players) {
+    public PluginChannel open(String name, Collection<? extends EntityPlayer> players) {
         if (name.length() > 20) {
             throw new IllegalArgumentException("Cannot have channel name > 20");
         }
