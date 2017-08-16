@@ -17,17 +17,9 @@
 package net.tridentsdk.server.packet.status;
 
 import io.netty.buffer.ByteBuf;
-import java.net.InetSocketAddress;
-import java.util.Collection;
-import java.util.concurrent.atomic.AtomicBoolean;
 import net.tridentsdk.event.server.ServerPingEvent;
 import net.tridentsdk.logger.Logger;
-import net.tridentsdk.server.TridentServer;
-import net.tridentsdk.server.concurrent.ServerThreadPool;
-import net.tridentsdk.server.config.ServerConfig;
 import net.tridentsdk.server.packet.PacketOut;
-import net.tridentsdk.server.player.TridentPlayer;
-import net.tridentsdk.ui.chat.ChatComponent;
 import org.hjson.Stringify;
 
 import javax.annotation.concurrent.Immutable;
@@ -41,6 +33,7 @@ import java.nio.file.Paths;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.Base64;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static java.nio.file.StandardWatchEventKinds.*;
@@ -63,21 +56,20 @@ public final class StatusOutResponse extends PacketOut {
     public static final int PROTOCOL_VERSION = 338;
 
     static final AtomicReference<String> b64icon = new AtomicReference<>();
-    private static Logger logger;
-    private static Path iconPath;
+    private static final Logger logger = Logger.get("Server Icon File Watcher");
+    private static final Path iconPath = Paths.get("server-icon.png");
 
     private static final AtomicBoolean init = new AtomicBoolean();
     public static void init() {
         if (!init.compareAndSet(false, true))
             return;
-        String userDir = System.getProperty("user.dir");
-        logger = Logger.get("Server Icon File Watcher");
-        iconPath = Paths.get("server-icon.png");
         try {
             loadIcon();
         } catch (IOException ex) {
             logger.log("No server-icon.png!");
         }
+
+        String userDir = System.getProperty("user.dir");
         Thread watcherThread = new Thread(() -> {
             try {
                 Path dir = Paths.get(userDir);

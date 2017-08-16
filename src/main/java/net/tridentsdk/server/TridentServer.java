@@ -33,7 +33,6 @@ import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.net.NetServer;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.plugin.TridentEventController;
-import net.tridentsdk.server.util.Debug;
 import net.tridentsdk.server.util.JiraExceptionCatcher;
 import net.tridentsdk.server.world.TridentWorldLoader;
 import net.tridentsdk.ui.chat.ChatComponent;
@@ -200,7 +199,7 @@ public class TridentServer implements Server {
                     String f = filter;
                     String n = p.getName();
                     while (n.length() >= f.length()) {
-                        if (f.length() == 0 || n.length() == 0)
+                        if (f.isEmpty() || n.isEmpty())
                             return true;
                         int index = n.indexOf(f.charAt(0));
                         if (index < 0)
@@ -236,13 +235,10 @@ public class TridentServer implements Server {
     @Override
     @Policy("call only from plugin thread")
     public void reload() {
-        Debug.tryCheckThread();
         this.logger.warn("SERVER RELOADING...");
 
         try {
             this.logger.log("Reloading server configs...");
-            this.config.save();
-            this.opsList.save();
             this.config.load();
             this.opsList.load();
             this.logger.log("Reloading plugins...");
@@ -258,7 +254,6 @@ public class TridentServer implements Server {
     @Override
     @Policy("call only from plugin thread")
     public void shutdown() {
-        Debug.tryCheckThread();
         this.logger.warn("SERVER SHUTTING DOWN...");
         this.shutdownState = true;
         try {

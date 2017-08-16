@@ -28,7 +28,6 @@ import net.tridentsdk.server.concurrent.ServerThreadPool;
 import net.tridentsdk.server.net.NetData;
 import net.tridentsdk.server.packet.play.PlayOutPluginMsg;
 import net.tridentsdk.server.player.TridentPlayer;
-import net.tridentsdk.server.util.Debug;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.*;
@@ -60,7 +59,6 @@ public class TridentPluginChannel implements PluginChannel {
      * @return the listener map
      */
     public static Map<Class<? extends SimpleChannelListener>, SimpleChannelListener> getListeners() {
-        Debug.tryCheckThread();
         return listeners;
     }
 
@@ -175,7 +173,6 @@ public class TridentPluginChannel implements PluginChannel {
      */
     @Policy("plugin thread only")
     public static void register(SimpleChannelListener listener) {
-        Debug.tryCheckThread();
         listeners.put(listener.getClass(), listener);
     }
 
@@ -189,7 +186,6 @@ public class TridentPluginChannel implements PluginChannel {
      */
     @Policy("plugin thread only")
     public static boolean unregister(Class<? extends SimpleChannelListener> cls) {
-        Debug.tryCheckThread();
         return listeners.remove(cls) != null;
     }
 

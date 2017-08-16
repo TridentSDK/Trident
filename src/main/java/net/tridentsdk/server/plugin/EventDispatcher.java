@@ -20,7 +20,6 @@ import com.esotericsoftware.reflectasm.MethodAccess;
 import lombok.Getter;
 import net.tridentsdk.event.DispatchOrder;
 import net.tridentsdk.event.Event;
-import net.tridentsdk.server.util.Debug;
 
 import javax.annotation.concurrent.Immutable;
 import java.lang.reflect.Method;
@@ -63,7 +62,6 @@ public final class EventDispatcher implements Comparable<EventDispatcher> {
      * @return the event that was passed to this handler
      */
     public Event fire(Event event) {
-        Debug.tryCheckThread();
         this.access.invoke(this.container, this.idx, event);
         return event;
     }

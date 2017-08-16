@@ -43,7 +43,6 @@ import net.tridentsdk.server.ui.bossbar.CustomBossBar;
 import net.tridentsdk.server.ui.tablist.TridentCustomTabList;
 import net.tridentsdk.server.ui.tablist.TridentGlobalTabList;
 import net.tridentsdk.server.ui.title.CustomTitle;
-import net.tridentsdk.server.util.Debug;
 import net.tridentsdk.ui.bossbar.BossBar;
 import net.tridentsdk.ui.tablist.TabList;
 import net.tridentsdk.ui.title.Title;
@@ -233,14 +232,12 @@ public class ImplementationProvider implements Impl.Provider {
     @Override
     @Policy("plugin thread only")
     public void register(SimpleChannelListener listener) {
-        Debug.tryCheckThread();
         TridentPluginChannel.register(listener);
     }
 
     @Override
     @Policy("plugin thread only")
     public boolean unregister(Class<? extends SimpleChannelListener> cls) {
-        Debug.tryCheckThread();
         return TridentPluginChannel.unregister(cls);
     }
 }

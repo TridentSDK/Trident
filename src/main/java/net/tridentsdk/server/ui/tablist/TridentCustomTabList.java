@@ -70,7 +70,7 @@ public class TridentCustomTabList extends TridentTabList {
                     this.elements.add(slot, element);
                     addedElements.add(element);
 
-                    if(addedElements.size() > 0) {
+                    if (!addedElements.isEmpty()) {
                         PlayOutTabListItem.PlayOutTabListItemAddPlayer packet = PlayOutTabListItem.addPlayerPacket();
                         addedElements.forEach(e -> packet.addPlayer(e.getUuid(), e.getName(), e.getGameMode(), e.getPing(), e.getDisplayName()));
                         this.getUserList().forEach(player -> ((TridentPlayer) player).net().sendPacket(packet));

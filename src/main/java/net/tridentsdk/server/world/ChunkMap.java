@@ -39,7 +39,7 @@ public class ChunkMap implements Iterable<TridentChunk> {
      * The actual map of chunks
      */
     @GuardedBy("lock")
-    private final Long2ReferenceOpenHashMap<TridentChunk> chunks = new Long2ReferenceOpenHashMap<TridentChunk>();
+    private final Long2ReferenceOpenHashMap<TridentChunk> chunks = new Long2ReferenceOpenHashMap<>();
     /**
      * The world holding the chunks in this map
      */

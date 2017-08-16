@@ -84,7 +84,7 @@ public class TabListElement {
         this.uuid = player.getUuid();
         this.name = player.getName();
         this.displayName = player.getDisplayName();
-        this.ping = (int) player.net().getPing();
+        this.ping = player.net().getPing().intValue();
         this.gameMode = player.getGameMode();
 
         TabListElement.PlayerProperty textures = player.getSkinTextures();

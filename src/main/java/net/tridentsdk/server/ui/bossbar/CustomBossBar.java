@@ -112,7 +112,7 @@ public class CustomBossBar extends AbstractBossBar {
         BossBarColor old;
         while (true) {
             old = this.color.get();
-            if (color != null && !color.equals(old)) {
+            if (color != null && color != old) {
                 if (this.color.compareAndSet(old, color)) {
                     this.casState(1);
                     break;

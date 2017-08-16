@@ -37,7 +37,7 @@ public final class StatusInPing extends PacketIn {
         long endStamp = System.currentTimeMillis();
         long time = buf.readLong();
 
-        client.setPing(endStamp - time);
+        client.getPing().set(endStamp - time);
         client.sendPacket(new StatusOutPong(time));
     }
 }

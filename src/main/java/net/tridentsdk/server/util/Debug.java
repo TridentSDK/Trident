@@ -31,9 +31,17 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class Debug {
+public final class Debug {
     public static volatile boolean IS_DEBUGGING;
 
+    /**
+     * Checks to see if the current thread that should be
+     * running according to the
+     * {@link net.tridentsdk.doc.Policy} annotation is
+     * actually using the plugin thread. This is a very
+     * crude name check and is prone to breaking should the
+     * name change, but oh well. Debugging.
+     */
     public static void tryCheckThread() {
         if (IS_DEBUGGING) {
             String name = Thread.currentThread().getName();

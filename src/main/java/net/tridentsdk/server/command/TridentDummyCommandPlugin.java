@@ -16,12 +16,13 @@
  */
 package net.tridentsdk.server.command;
 
+import net.tridentsdk.plugin.Plugin;
+import net.tridentsdk.plugin.PluginDesc;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
-import net.tridentsdk.plugin.Plugin;
-import net.tridentsdk.plugin.PluginDesc;
 
 /**
  * @author Nick Robson
@@ -39,8 +40,16 @@ public class TridentDummyCommandPlugin extends Plugin {
         }
         PluginDesc pluginDesc = new PluginDesc() {
             @Override public boolean equals(Object obj) { return obj == this; }
-            @Override public int hashCode() { return id().hashCode(); }
-            @Override public String toString() { return id(); }
+
+            @Override
+            public int hashCode() {
+                return this.id().hashCode();
+            }
+
+            @Override
+            public String toString() {
+                return this.id();
+            }
             @Override public Class<? extends Annotation> annotationType() { return PluginDesc.class; }
             @Override public String id() { return id; }
             @Override public String name() { return display; }

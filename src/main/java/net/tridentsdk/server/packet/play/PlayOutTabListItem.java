@@ -17,10 +17,7 @@
 package net.tridentsdk.server.packet.play;
 
 import io.netty.buffer.ByteBuf;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import lombok.RequiredArgsConstructor;
-import net.tridentsdk.server.net.NetData;
 import net.tridentsdk.server.packet.PacketOut;
 import net.tridentsdk.server.ui.tablist.TabListElement;
 import net.tridentsdk.ui.chat.ChatComponent;
@@ -29,7 +26,9 @@ import net.tridentsdk.world.opt.GameMode;
 import javax.annotation.concurrent.Immutable;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static net.tridentsdk.server.net.NetData.wstr;
@@ -195,7 +194,7 @@ public abstract class PlayOutTabListItem extends PacketOut {
             this.updates.forEach((uuid, gameMode) -> {
                 buf.writeLong(uuid.getMostSignificantBits());
                 buf.writeLong(uuid.getLeastSignificantBits());
-                NetData.wvint(buf, gameMode.asInt());
+                wvint(buf, gameMode.asInt());
             });
         }
 
@@ -223,7 +222,7 @@ public abstract class PlayOutTabListItem extends PacketOut {
             this.updates.forEach((uuid, latency) -> {
                 buf.writeLong(uuid.getMostSignificantBits());
                 buf.writeLong(uuid.getLeastSignificantBits());
-                NetData.wvint(buf, latency);
+                wvint(buf, latency);
             });
         }
 

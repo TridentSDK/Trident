@@ -16,7 +16,9 @@
  */
 package net.tridentsdk.server.command;
 
-import net.tridentsdk.command.*;
+import net.tridentsdk.command.Command;
+import net.tridentsdk.command.CommandListener;
+import net.tridentsdk.command.CommandSource;
 import net.tridentsdk.command.annotation.PermissionRequired;
 import net.tridentsdk.command.annotation.PlayerExactMatch;
 import net.tridentsdk.entity.living.Player;
@@ -34,7 +36,7 @@ public class KickCommand implements CommandListener {
         if (player != null) {
             String reasonString = reason.length == 0 ? "Kicked by an operator." : String.join(" ", reason);
             player.kick(ChatComponent.text(reasonString));
-            TridentServer.getInstance().getLogger().log("Kicked player " + player.getName() + " for: " + reason);
+            TridentServer.getInstance().getLogger().log("Kicked player " + player.getName() + " for: " + reasonString);
         } else {
             source.sendMessage(ChatComponent.text("No player by the name '" + args[1] + "' is online."));
         }

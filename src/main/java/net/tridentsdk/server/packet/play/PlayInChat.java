@@ -17,16 +17,11 @@
 package net.tridentsdk.server.packet.play;
 
 import io.netty.buffer.ByteBuf;
-import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.concurrent.PoolSpec;
 import net.tridentsdk.server.concurrent.ServerThreadPool;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.packet.PacketIn;
 import net.tridentsdk.server.player.TridentPlayer;
-import net.tridentsdk.ui.chat.ChatComponent;
-import net.tridentsdk.ui.chat.ChatType;
-import net.tridentsdk.ui.chat.ClickAction;
-import net.tridentsdk.ui.chat.ClickEvent;
 
 import javax.annotation.concurrent.Immutable;
 

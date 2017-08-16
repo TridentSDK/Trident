@@ -661,7 +661,6 @@ public class TridentPlayer extends TridentEntity implements Player {
      * If direction is null, chunks around the player will be sent
      */
     public void updateChunks() {
-        // TODO Improve this algorithm
         TridentWorld world = (TridentWorld) this.getPosition().getWorld();
         int centerX = this.getPosition().getChunkX();
         int centerZ = this.getPosition().getChunkZ();
@@ -699,24 +698,23 @@ public class TridentPlayer extends TridentEntity implements Player {
         });
     }
 
+    @Override
     public void chat(String msg) {
         ChatComponent chat = ChatComponent.create()
                 .setTranslate("chat.type.text")
                 .addWith(ChatComponent.create()
-                        .setText(getName())
-                        .setClickEvent(ClickEvent.of(ClickAction.SUGGEST_COMMAND, "/tell " + getName() + " ")))
+                        .setText(this.getName())
+                        .setClickEvent(ClickEvent.of(ClickAction.SUGGEST_COMMAND, "/tell " + this.getName() + " ")))
                 .addWith(msg);
         Collection<Player> recipients = new ArrayList<>(TridentPlayer.getPlayers().values());
         PlayerChatEvent _event = new PlayerChatEvent(this, chat, recipients);
-        ServerThreadPool.forSpec(PoolSpec.PLUGINS).submit(() -> {
-            TridentServer.getInstance().getEventController().dispatch(_event, event -> {
-                if (!event.isCancelled()) {
-                    ChatComponent chatComponent = event.getChatComponent();
-                    event.getRecipients().forEach(p -> p.sendMessage(chatComponent, ChatType.CHAT));
-                }
-                TridentServer.getInstance().getLogger().log(getName() + " [" + getUuid() + "]: " + msg);
-            });
-        });
+        ServerThreadPool.forSpec(PoolSpec.PLUGINS).submit(() -> TridentServer.getInstance().getEventController().dispatch(_event, event -> {
+            if (!event.isCancelled()) {
+                ChatComponent chatComponent = event.getChatComponent();
+                event.getRecipients().forEach(p -> p.sendMessage(chatComponent, ChatType.CHAT));
+            }
+            TridentServer.getInstance().getLogger().log(getName() + " [" + getUuid() + "]: " + msg);
+        }));
     }
 
     @Override

@@ -16,7 +16,6 @@
  */
 package net.tridentsdk.server.config;
 
-import java.util.stream.Collectors;
 import lombok.Getter;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.player.TridentPlayer;
@@ -28,6 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * List of server operators

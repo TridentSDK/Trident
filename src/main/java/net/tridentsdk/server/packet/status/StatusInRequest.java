@@ -17,9 +17,6 @@
 package net.tridentsdk.server.packet.status;
 
 import io.netty.buffer.ByteBuf;
-import java.net.InetSocketAddress;
-import java.util.Collection;
-import java.util.concurrent.ExecutionException;
 import net.tridentsdk.event.server.ServerPingEvent;
 import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.concurrent.PoolSpec;
@@ -27,10 +24,12 @@ import net.tridentsdk.server.concurrent.ServerThreadPool;
 import net.tridentsdk.server.config.ServerConfig;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.packet.PacketIn;
-
-import javax.annotation.concurrent.Immutable;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.ui.chat.ChatComponent;
+
+import javax.annotation.concurrent.Immutable;
+import java.net.InetSocketAddress;
+import java.util.Collection;
 
 import static net.tridentsdk.server.packet.status.StatusOutResponse.MC_VERSION;
 import static net.tridentsdk.server.packet.status.StatusOutResponse.PROTOCOL_VERSION;

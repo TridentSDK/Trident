@@ -127,26 +127,14 @@ public class NetClient {
      * The time it took for the server to receive the
      * status ping from the player, in ms.
      */
-    @Setter
     @Getter
-    private volatile long ping;
+    private final AtomicLong ping = new AtomicLong();
 
     /**
      * The last time which this player was pinged for keep
      * alive
      */
     private final AtomicLong lastKeepAlive = new AtomicLong(System.nanoTime());
-    /**
-     * The close future which cleans up the player for an
-     * unexpected loss of connection.
-     */
-    private final GenericFutureListener<Future<Void>> futureListener = new GenericFutureListener<Future<Void>>() {
-        @Override
-        public void operationComplete(Future<Void> future) throws Exception {
-            NetClient.this.disconnect("Player lost connection");
-            future.removeListener(this);
-        }
-    };
 
     /**
      * Creates a new netclient that represents a client's
@@ -157,7 +145,13 @@ public class NetClient {
     public NetClient(ChannelHandlerContext ctx) {
         this.channel = ctx.channel();
         this.state = NetClient.NetState.HANDSHAKE;
-        this.channel.closeFuture().addListener(this.futureListener);
+        this.channel.closeFuture().addListener(future -> new GenericFutureListener<Future<Void>>() {
+            @Override
+            public void operationComplete(Future<Void> f) throws Exception {
+                f.removeListener(this);
+                NetClient.this.disconnect("Player lost connection");
+            }
+        });
     }
 
     /**
