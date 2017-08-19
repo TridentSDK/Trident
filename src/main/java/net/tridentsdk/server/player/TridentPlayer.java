@@ -51,6 +51,7 @@ import net.tridentsdk.ui.title.Title;
 import net.tridentsdk.world.IntPair;
 import net.tridentsdk.world.opt.GameMode;
 
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -225,12 +226,14 @@ public class TridentPlayer extends TridentEntity implements Player {
     /**
      * The player's current tablist
      */
+    @GuardedBy("featuredTabLists")
     @Getter
-    private volatile TabList tabList;
+    private TridentTabList tabList;
     /**
-     * The tablists on which this
+     * The tablists on which this player is featured
      */
-    public final Set<TabList> featuredTabLists = Collections.newSetFromMap(new WeakHashMap<>());
+    @GuardedBy("featuredTabLists")
+    private final Set<TabList> featuredTabLists = new HashSet<>();
     /**
      * The boss bars that are being displayed to this
      * player.
@@ -423,10 +426,14 @@ public class TridentPlayer extends TridentEntity implements Player {
 
     @Override
     public void setDisplayName(ChatComponent displayName) {
+        // TODO name checking
         if (displayName != null && displayName.getText() == null)
             throw new IllegalArgumentException("display name must set text field");
         this.displayName = displayName != null ? displayName : ChatComponent.text(this.name);
-        this.featuredTabLists.forEach(TabList::update);
+
+        synchronized (this.featuredTabLists) {
+            this.featuredTabLists.forEach(TabList::update);
+        }
     }
 
     @Override
@@ -445,15 +452,18 @@ public class TridentPlayer extends TridentEntity implements Player {
 
     @Override
     public void setTabList(TabList tabList) {
-        TabList old = this.tabList;
-        if (old != null) {
-            old.unsubscribe(this);
-        }
+        synchronized (this.featuredTabLists) {
+            TridentTabList old = this.tabList;
+            if (old != null) {
+                old.unsubscribe(this);
+                this.featuredTabLists.remove(old);
+            }
 
-        if (tabList != null) {
-            this.tabList = tabList;
-            tabList.subscribe(this);
-            ((TridentTabList) tabList).forceSend(this);
+            if (tabList != null) {
+                this.tabList = (TridentTabList) tabList;
+                this.tabList.subscribe(this);
+                this.featuredTabLists.add(tabList);
+            }
         }
     }
 
@@ -552,7 +562,10 @@ public class TridentPlayer extends TridentEntity implements Player {
      */
     public void setTextures(TabListElement.PlayerProperty skinTextures) {
         this.skinTextures = skinTextures;
-        this.featuredTabLists.forEach(TabList::update);
+
+        synchronized (this.featuredTabLists) {
+            this.featuredTabLists.forEach(TabList::update);
+        }
     }
 
     @Override

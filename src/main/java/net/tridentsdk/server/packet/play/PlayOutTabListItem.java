@@ -37,16 +37,16 @@ import static net.tridentsdk.server.net.NetData.wvint;
 /**
  * A tab list item update packet, which can perform any of
  * the operations that are listed in
- * {@link PlayOutTabListItem.PlayOutTabListItemActionType}.
+ * {@link ActionType}.
  */
 @Immutable
 public abstract class PlayOutTabListItem extends PacketOut {
     /**
      * The action type that is occuring
      */
-    private final PlayOutTabListItem.PlayOutTabListItemActionType action;
+    private final ActionType action;
 
-    private PlayOutTabListItem(PlayOutTabListItem.PlayOutTabListItemActionType action) {
+    private PlayOutTabListItem(ActionType action) {
         super(PlayOutTabListItem.class);
         this.action = action;
     }
@@ -59,31 +59,31 @@ public abstract class PlayOutTabListItem extends PacketOut {
 
     public abstract int getActionCount();
 
-    public static PlayOutTabListItemAddPlayer addPlayerPacket() {
-        return new PlayOutTabListItemAddPlayer();
+    public static AddPlayer addPlayerPacket() {
+        return new AddPlayer();
     }
 
-    public static PlayOutTabListItemRemovePlayer removePlayerPacket() {
-        return new PlayOutTabListItemRemovePlayer();
+    public static RemovePlayer removePlayerPacket() {
+        return new RemovePlayer();
     }
 
-    public static PlayOutTabListItemUpdateDisplayName updatePlayerPacket() {
-        return new PlayOutTabListItemUpdateDisplayName();
+    public static UpdateDisplayName updatePlayerPacket() {
+        return new UpdateDisplayName();
     }
 
-    public static PlayOutTabListItemUpdateGamemode updateGamemodePacket() {
-        return new PlayOutTabListItemUpdateGamemode();
+    public static UpdateGameMode updateGamemodePacket() {
+        return new UpdateGameMode();
     }
 
-    public static PlayOutTabListItemUpdateLatency updateLatencyPacket() {
-        return new PlayOutTabListItemUpdateLatency();
+    public static UpdateLatency updateLatencyPacket() {
+        return new UpdateLatency();
     }
 
-    public static class PlayOutTabListItemAddPlayer extends PlayOutTabListItem {
+    public static class AddPlayer extends PlayOutTabListItem {
         private final Collection<PlayerData> additions = new ConcurrentLinkedQueue<>();
 
-        public PlayOutTabListItemAddPlayer() {
-            super(PlayOutTabListItem.PlayOutTabListItemActionType.ADD_PLAYER);
+        public AddPlayer() {
+            super(ActionType.ADD_PLAYER);
         }
 
         public void addPlayer(UUID uuid, String name, GameMode gameMode, int ping, ChatComponent displayName) {
@@ -149,11 +149,11 @@ public abstract class PlayOutTabListItem extends PacketOut {
         }
     }
 
-    public static class PlayOutTabListItemRemovePlayer extends PlayOutTabListItem {
+    public static class RemovePlayer extends PlayOutTabListItem {
         private final Collection<UUID> removals = new ConcurrentLinkedQueue<>();
 
-        public PlayOutTabListItemRemovePlayer() {
-            super(PlayOutTabListItem.PlayOutTabListItemActionType.REMOVE_PLAYER);
+        public RemovePlayer() {
+            super(ActionType.REMOVE_PLAYER);
         }
 
         public void removePlayer(UUID uuid) {
@@ -176,11 +176,11 @@ public abstract class PlayOutTabListItem extends PacketOut {
         }
     }
 
-    public static class PlayOutTabListItemUpdateGamemode extends PlayOutTabListItem {
+    public static class UpdateGameMode extends PlayOutTabListItem {
         private final Map<UUID, GameMode> updates = new ConcurrentHashMap<>();
 
-        public PlayOutTabListItemUpdateGamemode() {
-            super(PlayOutTabListItemActionType.UPDATE_GAMEMODE);
+        public UpdateGameMode() {
+            super(ActionType.UPDATE_GAMEMODE);
         }
 
         public void update(UUID uuid, GameMode gameMode) {
@@ -204,11 +204,11 @@ public abstract class PlayOutTabListItem extends PacketOut {
         }
     }
 
-    public static class PlayOutTabListItemUpdateLatency extends PlayOutTabListItem {
+    public static class UpdateLatency extends PlayOutTabListItem {
         private final Map<UUID, Integer> updates = new ConcurrentHashMap<>();
 
-        public PlayOutTabListItemUpdateLatency() {
-            super(PlayOutTabListItemActionType.UPDATE_LATENCY);
+        public UpdateLatency() {
+            super(ActionType.UPDATE_LATENCY);
         }
 
         public void update(UUID uuid, int latency) {
@@ -232,15 +232,15 @@ public abstract class PlayOutTabListItem extends PacketOut {
         }
     }
 
-    public static class PlayOutTabListItemUpdateDisplayName extends PlayOutTabListItem {
-        private final Collection<PlayOutTabListItem.PlayOutTabListItemUpdateDisplayName.PlayerData> updates = new ConcurrentLinkedQueue<>();
+    public static class UpdateDisplayName extends PlayOutTabListItem {
+        private final Collection<UpdateDisplayName.PlayerData> updates = new ConcurrentLinkedQueue<>();
 
-        public PlayOutTabListItemUpdateDisplayName() {
-            super(PlayOutTabListItem.PlayOutTabListItemActionType.UPDATE_DISPLAY_NAME);
+        public UpdateDisplayName() {
+            super(ActionType.UPDATE_DISPLAY_NAME);
         }
 
         public void update(UUID uuid, ChatComponent displayName) {
-            PlayOutTabListItem.PlayOutTabListItemUpdateDisplayName.PlayerData data = new PlayOutTabListItem.PlayOutTabListItemUpdateDisplayName.PlayerData(uuid, displayName);
+            UpdateDisplayName.PlayerData data = new UpdateDisplayName.PlayerData(uuid, displayName);
             this.updates.add(data);
         }
 
@@ -270,7 +270,7 @@ public abstract class PlayOutTabListItem extends PacketOut {
         }
     }
 
-    public enum PlayOutTabListItemActionType {
+    public enum ActionType {
         ADD_PLAYER, UPDATE_GAMEMODE, UPDATE_LATENCY, UPDATE_DISPLAY_NAME, REMOVE_PLAYER
     }
 }

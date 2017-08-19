@@ -46,7 +46,7 @@ public class TridentCustomTabList extends TridentTabList {
                 if (this.elements.size() > slot && this.elements.get(slot) != null) {
                     this.elements.get(slot).setDisplayName(value);
 
-                    PlayOutTabListItem.PlayOutTabListItemUpdateDisplayName packet = PlayOutTabListItem.updatePlayerPacket();
+                    PlayOutTabListItem.UpdateDisplayName packet = PlayOutTabListItem.updatePlayerPacket();
                     packet.update(this.elements.get(slot).getUuid(), value);
                     this.getUserList().forEach(player -> ((TridentPlayer) player).net().sendPacket(packet));
                 } else {
@@ -71,7 +71,7 @@ public class TridentCustomTabList extends TridentTabList {
                     addedElements.add(element);
 
                     if (!addedElements.isEmpty()) {
-                        PlayOutTabListItem.PlayOutTabListItemAddPlayer packet = PlayOutTabListItem.addPlayerPacket();
+                        PlayOutTabListItem.AddPlayer packet = PlayOutTabListItem.addPlayerPacket();
                         addedElements.forEach(e -> packet.addPlayer(e.getUuid(), e.getName(), e.getGameMode(), e.getPing(), e.getDisplayName()));
                         this.getUserList().forEach(player -> ((TridentPlayer) player).net().sendPacket(packet));
                     }
@@ -93,14 +93,14 @@ public class TridentCustomTabList extends TridentTabList {
                             }
                         }
 
-                        PlayOutTabListItem.PlayOutTabListItemRemovePlayer packet = PlayOutTabListItem.removePlayerPacket();
+                        PlayOutTabListItem.RemovePlayer packet = PlayOutTabListItem.removePlayerPacket();
                         removedElements.forEach(e -> packet.removePlayer(e.getUuid()));
                         this.getUserList().forEach(player -> ((TridentPlayer) player).net().sendPacket(packet));
                     } else {
                         this.elements.get(slot).setDisplayName(ChatComponent.empty());
                         this.elements.get(slot).setBlank(true);
 
-                        PlayOutTabListItem.PlayOutTabListItemUpdateDisplayName packet = PlayOutTabListItem.updatePlayerPacket();
+                        PlayOutTabListItem.UpdateDisplayName packet = PlayOutTabListItem.updatePlayerPacket();
                         packet.update(this.elements.get(slot).getUuid(), ChatComponent.empty());
                         this.getUserList().forEach(player -> ((TridentPlayer) player).net().sendPacket(packet));
                     }

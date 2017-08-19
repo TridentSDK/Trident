@@ -139,7 +139,7 @@ public class TridentInventory implements Inventory {
     private static int calculateNextId() {
         int t;
         do {
-            t = ThreadLocalRandom.current().nextInt(256);
+            t = ThreadLocalRandom.current().nextInt(255) + 1;
         } while (REGISTERED_WINDOWS.containsKey(t));
 
         return t;

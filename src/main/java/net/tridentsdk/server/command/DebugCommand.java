@@ -44,7 +44,7 @@ import javax.annotation.concurrent.Immutable;
 @Debug
 public class DebugCommand implements CommandListener {
 
-    @Command(name = "debug", help = "/debug <chunks|bossbars|title|cleartitle|chat|rain>", desc = "Secret debug command for devs")
+    @Command(name = "debug", help = "/debug <chunks|bossbars|title|cleartitle|chat|rain|change>", desc = "Secret debug command for devs")
     @AllowedSourceTypes(CommandSourceType.PLAYER)
     @PermissionRequired("trident.debug")
     public void debug(CommandSource source, String[] args, String mode) {
@@ -93,6 +93,10 @@ public class DebugCommand implements CommandListener {
         } else if (mode.equals("rain")) {
             player.getWorld().getWeather().beginRaining();
             player.getWorld().getWeather().beginThunder();
+        } else if (mode.equals("change")) {
+            player.getMetadata().setCustomNameVisible(true);
+            player.getMetadata().setCustomName("Hello?");
+            player.updateMetadata();
         }
     }
 }
