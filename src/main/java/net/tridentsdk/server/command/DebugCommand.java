@@ -28,6 +28,9 @@ import net.tridentsdk.doc.Debug;
 import net.tridentsdk.inventory.Item;
 import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.packet.play.PlayOutChunk;
+import net.tridentsdk.server.packet.play.PlayOutDestroyEntities;
+import net.tridentsdk.server.packet.play.PlayOutTabListItem;
+import net.tridentsdk.server.player.RecipientSelector;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.world.TridentChunk;
 import net.tridentsdk.ui.bossbar.BossBar;
@@ -39,6 +42,7 @@ import net.tridentsdk.ui.chat.HoverEvent;
 import net.tridentsdk.ui.title.Title;
 
 import javax.annotation.concurrent.Immutable;
+import java.util.Collections;
 
 @Immutable
 @Debug
@@ -94,9 +98,14 @@ public class DebugCommand implements CommandListener {
             player.getWorld().getWeather().beginRaining();
             player.getWorld().getWeather().beginThunder();
         } else if (mode.equals("change")) {
-            player.getMetadata().setCustomNameVisible(true);
-            player.getMetadata().setCustomName("Hello?");
-            player.updateMetadata();
+            PlayOutTabListItem.RemovePlayer removePlayer = PlayOutTabListItem.removePlayerPacket();
+            removePlayer.removePlayer(player.getUuid());
+
+            PlayOutTabListItem.AddPlayer addPlayer = PlayOutTabListItem.addPlayerPacket();
+            addPlayer.addPlayer(player.getUuid(), "I'm retarded", player.getGameMode(), 0, player.getDisplayName(), Collections.singletonList(player.getSkinTextures()));
+
+            RecipientSelector.whoCanSee(player, false, removePlayer, new PlayOutDestroyEntities(Collections.singletonList(player)), addPlayer);
+            RecipientSelector.whoCanSee(player, true, player.getSpawnPacket());
         }
     }
 }
