@@ -29,7 +29,6 @@ import net.tridentsdk.server.concurrent.ServerThreadPool;
 import net.tridentsdk.server.concurrent.TridentTick;
 import net.tridentsdk.server.config.OpsList;
 import net.tridentsdk.server.config.ServerConfig;
-import net.tridentsdk.server.net.NetClient;
 import net.tridentsdk.server.net.NetServer;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.plugin.TridentEventController;
@@ -42,12 +41,10 @@ import javax.annotation.concurrent.ThreadSafe;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 /**
  * This class represents the running Minecraft server
@@ -163,53 +160,7 @@ public class TridentServer implements Server {
 
     @Override
     public Collection<TridentPlayer> getPlayers() {
-        return TridentPlayer.getPlayers().values()
-                .stream()
-                .filter(p -> p.net().getState() == NetClient.NetState.PLAY)
-                .collect(Collectors.toSet());
-    }
-
-    @Override
-    public TridentPlayer getPlayer(UUID uuid) {
-        Objects.requireNonNull(uuid, "uuid cannot be null");
-        TridentPlayer player = TridentPlayer.getPlayers().get(uuid);
-        return player != null && player.net().getState() == NetClient.NetState.PLAY ? player : null;
-    }
-
-    @Override
-    public TridentPlayer getPlayerExact(String name) {
-        Objects.requireNonNull(name, "name cannot be null");
-        TridentPlayer player = TridentPlayer.getPlayerNames().get(name);
-        return player != null && player.net().getState() == NetClient.NetState.PLAY ? player : null;
-    }
-
-    @Override
-    public Collection<TridentPlayer> getPlayersMatching(String name) {
-        Objects.requireNonNull(name, "name cannot be null");
-        return getPlayers().stream()
-                .filter(p -> p.getName().toLowerCase().contains(name.toLowerCase()))
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public Collection<TridentPlayer> getPlayersFuzzyMatching(String filter) {
-        Objects.requireNonNull(filter, "filter cannot be null");
-        return getPlayers().stream()
-                .filter(p -> {
-                    String f = filter;
-                    String n = p.getName();
-                    while (n.length() >= f.length()) {
-                        if (f.isEmpty() || n.isEmpty())
-                            return true;
-                        int index = n.indexOf(f.charAt(0));
-                        if (index < 0)
-                            break;
-                        n = n.substring(index + 1);
-                        f = f.substring(1);
-                    }
-                    return false;
-                })
-                .collect(Collectors.toList());
+        return Collections.unmodifiableCollection(TridentPlayer.getPlayers().values());
     }
 
     @Override

@@ -365,7 +365,7 @@ public class TridentPlayer extends TridentEntity implements Player {
             TridentServer.getInstance().getEventController().dispatch(event);
             ChatComponent message = event.getMessage();
             if (message != null)
-                TridentServer.getInstance().getPlayers().forEach(p -> p.sendMessage(message, ChatType.CHAT));
+                players.values().forEach(p -> p.sendMessage(message, ChatType.CHAT));
         });
 
         TridentServer.getInstance().getLogger().log("Player " + this.name + " [" + this.uuid + "] has connected");
@@ -419,7 +419,7 @@ public class TridentPlayer extends TridentEntity implements Player {
             TridentServer.getInstance().getEventController().dispatch(event);
             ChatComponent message = event.getMessage();
             if (message != null)
-                TridentServer.getInstance().getPlayers().forEach(p -> p.sendMessage(message, ChatType.CHAT));
+                players.values().forEach(p -> p.sendMessage(message, ChatType.CHAT));
         });
         this.client.disconnect(ChatComponent.empty());
     }

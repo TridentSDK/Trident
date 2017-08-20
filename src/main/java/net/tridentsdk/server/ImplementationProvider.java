@@ -54,6 +54,8 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * This class is the bridge between the server and the API,
@@ -169,6 +171,33 @@ public class ImplementationProvider implements Impl.Provider {
         }
 
         return Collections.unmodifiableMap(TridentPlayer.getPlayerNames().subMap(bot, true, top, true));
+    }
+
+    @Nonnull
+    @Override
+    public Map<String, Player> findByNameFuzzy(String filter) {
+        return TridentPlayer.getPlayerNames().entrySet().stream().
+                filter(p -> {
+                    String f = filter;
+                    String n = p.getKey();
+                    while (n.length() >= f.length()) {
+                        if (f.isEmpty() || n.isEmpty())
+                            return true;
+                        int index = n.indexOf(f.charAt(0));
+                        if (index < 0)
+                            break;
+                        n = n.substring(index + 1);
+                        f = f.substring(1);
+                    }
+                    return false;
+                }).
+                collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
+    @Nullable
+    @Override
+    public Player getByUuid(UUID uuid) {
+        return TridentPlayer.getPlayers().get(uuid);
     }
 
     @Override

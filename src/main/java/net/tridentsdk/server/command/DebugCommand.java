@@ -104,7 +104,7 @@ public class DebugCommand implements CommandListener {
             PlayOutTabListItem.AddPlayer addPlayer = PlayOutTabListItem.addPlayerPacket();
             addPlayer.addPlayer(player.getUuid(), "I'm retarded", player.getGameMode(), 0, player.getDisplayName(), Collections.singletonList(player.getSkinTextures()));
 
-            RecipientSelector.whoCanSee(player, false, removePlayer, new PlayOutDestroyEntities(Collections.singletonList(player)), addPlayer);
+            RecipientSelector.whoCanSee(player, false, new PlayOutDestroyEntities(Collections.singletonList(player)), addPlayer);
             RecipientSelector.whoCanSee(player, true, player.getSpawnPacket());
         }
     }

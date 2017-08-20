@@ -50,7 +50,7 @@ public class TridentGlobalTabList extends TridentTabList {
 
     @Override
     public ChatComponent getElement(int slot) {
-        return null;
+        throw new RuntimeException("Attempted to grab element on global tablist");
     }
 
     @Override

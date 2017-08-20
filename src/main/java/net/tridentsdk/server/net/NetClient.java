@@ -18,9 +18,9 @@ package net.tridentsdk.server.net;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.concurrent.Future;
-import io.netty.util.concurrent.GenericFutureListener;
 import lombok.Getter;
 import lombok.Setter;
 import net.tridentsdk.server.TridentServer;
@@ -145,10 +145,10 @@ public class NetClient {
     public NetClient(ChannelHandlerContext ctx) {
         this.channel = ctx.channel();
         this.state = NetClient.NetState.HANDSHAKE;
-        this.channel.closeFuture().addListener(future -> new GenericFutureListener<Future<Void>>() {
+        this.channel.closeFuture().addListener(new ChannelFutureListener() {
             @Override
-            public void operationComplete(Future<Void> f) throws Exception {
-                f.removeListener(this);
+            public void operationComplete(ChannelFuture channelFuture) throws Exception {
+                channelFuture.removeListener(this);
                 NetClient.this.disconnect("Player lost connection");
             }
         });
