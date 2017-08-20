@@ -24,6 +24,7 @@ import net.tridentsdk.server.TridentServer;
 import net.tridentsdk.server.packet.Packet;
 import net.tridentsdk.server.packet.PacketIn;
 import net.tridentsdk.server.packet.PacketRegistry;
+import net.tridentsdk.server.player.TridentPlayer;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.math.BigInteger;
@@ -158,6 +159,15 @@ public class InDecoder extends ByteToMessageDecoder {
             int id = rvint(decompressed);
 
             Class<? extends Packet> cls = PacketRegistry.byId(this.client.getState(), Packet.Bound.SERVER, id);
+            if (cls == null) {
+                String stringId = String.format("%2s", Integer.toHexString(id).toUpperCase()).replace(' ', '0');
+                TridentPlayer player = this.client.getPlayer();
+                if (player != null) {
+                    player.sendMessage("Packet " + stringId + " => SERVER is not supported at this time");
+                }
+                LOGGER.warn("Client @ " + ctx.channel().remoteAddress() + " sent unsupported packet " + stringId);
+            }
+
             PacketIn packet = PacketRegistry.make(cls);
 
             LOGGER.debug("RECV: " + packet.getClass().getSimpleName());

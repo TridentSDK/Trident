@@ -29,6 +29,7 @@ import net.tridentsdk.server.packet.status.StatusOutResponse;
 import net.tridentsdk.server.util.Reference2IntOpenHashMap;
 import net.tridentsdk.util.Int2ReferenceOpenHashMap;
 
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import java.util.HashMap;
 import java.util.Map;
@@ -212,6 +213,7 @@ public final class PacketRegistry {
      * @param id the packet ID
      * @return the packet class
      */
+    @Nullable
     public static Class<? extends Packet> byId(NetClient.NetState state, Packet.Bound bound, int id) {
         int identifier = shift(state, bound, id);
         Class<? extends Packet> packet = PACKETS.get(identifier);
@@ -219,8 +221,9 @@ public final class PacketRegistry {
             return packet;
         }
 
-        String paddedHex = String.format("%2s", Integer.toHexString(id).toUpperCase()).replace(' ', '0');
-        throw new IllegalArgumentException(state + " => " + bound + ", " + id + " (0x" + paddedHex + ") is not registered");
+        return null;
+        // String paddedHex = String.format("%2s", Integer.toHexString(id).toUpperCase()).replace(' ', '0');
+        // throw new IllegalArgumentException(state + " => " + bound + ", " + id + " (0x" + paddedHex + ") is not registered");
     }
 
     /**
