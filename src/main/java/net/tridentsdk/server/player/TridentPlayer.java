@@ -410,14 +410,12 @@ public class TridentPlayer extends TridentEntity implements Player {
         }
         this.heldChunks.clear();
 
-        ServerThreadPool.forSpec(PoolSpec.PLUGINS).execute(() -> {
-            ChatComponent chat = ChatComponent.create()
-                    .setColor(ChatColor.YELLOW)
-                    .setTranslate("multiplayer.player.left")
-                    .addWith(this.name);
-            PlayerQuitEvent event = new PlayerQuitEvent(this, chat);
-            TridentServer.getInstance().getEventController().dispatch(event);
-            ChatComponent message = event.getMessage();
+        ChatComponent chat = ChatComponent.create()
+                .setColor(ChatColor.YELLOW)
+                .setTranslate("multiplayer.player.left")
+                .addWith(this.name);
+        TridentServer.getInstance().getEventController().dispatch(new PlayerQuitEvent(this, chat), e -> {
+            ChatComponent message = e.getMessage();
             if (message != null)
                 players.values().forEach(p -> p.sendMessage(message, ChatType.CHAT));
         });
@@ -439,8 +437,8 @@ public class TridentPlayer extends TridentEntity implements Player {
     @Override
     public void sendMessage(ChatComponent chat, ChatType type) {
         ClientChatMode chatMode = this.chatMode;
-        if (chatMode == ClientChatMode.COMMANDS_ONLY && type == ChatType.SYSTEM
-                || chatMode == ClientChatMode.CHAT_AND_COMMANDS) {
+        if (chatMode == ClientChatMode.COMMANDS_ONLY && type == ChatType.SYSTEM ||
+                chatMode == ClientChatMode.CHAT_AND_COMMANDS) {
             this.net().sendPacket(new PlayOutChat(chat, type, this.chatColors));
         }
     }
@@ -503,50 +501,33 @@ public class TridentPlayer extends TridentEntity implements Player {
                 continue;
             }
 
-            int changed = AbstractBossBar.STATE.get(bossBar);
-            do {
-                boolean sky = (changed >>> 4 & 1) == 1;
-                boolean title = (changed >>> 3 & 1) == 1;
-                boolean health = (changed >>> 2 & 1) == 1;
-                boolean style = (changed >>> 1 & 1) == 1;
-                boolean flags = (changed & 1) == 1;
-
-                if (sky) {
-                    this.net().sendPacket(new PlayOutBossBar.Add(bossBar));
-                } else {
-                    if (health) {
-                        this.net().sendPacket(new PlayOutBossBar.UpdateHealth(bossBar));
-                    }
-                    if (title) {
-                        this.net().sendPacket(new PlayOutBossBar.UpdateTitle(bossBar));
-                    }
-                    if (style) {
-                        this.net().sendPacket(new PlayOutBossBar.UpdateStyle(bossBar));
-                    }
-                    if (flags) {
-                        this.net().sendPacket(new PlayOutBossBar.UpdateFlags(bossBar));
-                    }
-                }
-            } while (!bossBar.unsetChanged(changed));
+            this.net().sendPacket(new PlayOutBossBar.UpdateHealth(bossBar));
+            this.net().sendPacket(new PlayOutBossBar.UpdateTitle(bossBar));
+            this.net().sendPacket(new PlayOutBossBar.UpdateStyle(bossBar));
+            this.net().sendPacket(new PlayOutBossBar.UpdateFlags(bossBar));
         }
     }
 
     @Override
     public void sendTitle(Title title) {
-        if (!title.isDefaultFadeTimes()) {
-            this.net().sendPacket(new PlayOutTitle.SetTiming(title));
+        synchronized (this.bossBars) { // this.bossBars simply used as lock object for titles
+            if (!title.isDefaultFadeTimes()) {
+                this.net().sendPacket(new PlayOutTitle.SetTiming(title));
+            }
+
+            ChatComponent mainTitle = title.getHeader();
+            ChatComponent subtitle = title.getSubtitle();
+
+            this.net().sendPacket(new PlayOutTitle.SetSubtitle(subtitle));
+            this.net().sendPacket(new PlayOutTitle.SetTitle(mainTitle));
         }
-
-        ChatComponent mainTitle = title.getHeader();
-        ChatComponent subtitle = title.getSubtitle();
-
-        this.net().sendPacket(new PlayOutTitle.SetSubtitle(subtitle));
-        this.net().sendPacket(new PlayOutTitle.SetTitle(mainTitle));
     }
 
     @Override
     public void resetTitle() {
-        this.net().sendPacket(new PlayOutTitle.Reset());
+        synchronized (this.bossBars) {
+            this.net().sendPacket(new PlayOutTitle.Reset());
+        }
     }
 
     @Override
@@ -721,13 +702,13 @@ public class TridentPlayer extends TridentEntity implements Player {
                 .addWith(msg);
         Collection<Player> recipients = new ArrayList<>(TridentPlayer.getPlayers().values());
         PlayerChatEvent _event = new PlayerChatEvent(this, chat, recipients);
-        ServerThreadPool.forSpec(PoolSpec.PLUGINS).submit(() -> TridentServer.getInstance().getEventController().dispatch(_event, event -> {
+        TridentServer.getInstance().getEventController().dispatch(_event, event -> {
             if (!event.isCancelled()) {
                 ChatComponent chatComponent = event.getChatComponent();
                 event.getRecipients().forEach(p -> p.sendMessage(chatComponent, ChatType.CHAT));
             }
             TridentServer.getInstance().getLogger().log(getName() + " [" + getUuid() + "]: " + msg);
-        }));
+        });
     }
 
     @Override

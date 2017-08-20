@@ -17,6 +17,7 @@
 package net.tridentsdk.server.packet.play;
 
 import io.netty.buffer.ByteBuf;
+import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import net.tridentsdk.server.packet.PacketOut;
 import net.tridentsdk.server.ui.tablist.TabListElement;
@@ -24,12 +25,8 @@ import net.tridentsdk.ui.chat.ChatComponent;
 import net.tridentsdk.world.opt.GameMode;
 
 import javax.annotation.concurrent.Immutable;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import javax.annotation.concurrent.NotThreadSafe;
+import java.util.*;
 
 import static net.tridentsdk.server.net.NetData.wstr;
 import static net.tridentsdk.server.net.NetData.wvint;
@@ -79,8 +76,9 @@ public abstract class PlayOutTabListItem extends PacketOut {
         return new UpdateLatency();
     }
 
+    @NotThreadSafe
     public static class AddPlayer extends PlayOutTabListItem {
-        private final Collection<PlayerData> additions = new ConcurrentLinkedQueue<>();
+        private final Collection<PlayerData> additions = new HashSet<>();
 
         public AddPlayer() {
             super(ActionType.ADD_PLAYER);
@@ -138,6 +136,8 @@ public abstract class PlayOutTabListItem extends PacketOut {
             return this.additions.size();
         }
 
+        @Immutable
+        @EqualsAndHashCode(of = "uuid")
         @RequiredArgsConstructor
         private class PlayerData {
             private final UUID uuid;
@@ -145,12 +145,13 @@ public abstract class PlayOutTabListItem extends PacketOut {
             private final GameMode gameMode;
             private final int ping;
             private final ChatComponent displayName;
-            public final List<TabListElement.PlayerProperty> properties;
+            private final List<TabListElement.PlayerProperty> properties;
         }
     }
 
+    @NotThreadSafe
     public static class RemovePlayer extends PlayOutTabListItem {
-        private final Collection<UUID> removals = new ConcurrentLinkedQueue<>();
+        private final Collection<UUID> removals = new HashSet<>();
 
         public RemovePlayer() {
             super(ActionType.REMOVE_PLAYER);
@@ -176,8 +177,9 @@ public abstract class PlayOutTabListItem extends PacketOut {
         }
     }
 
+    @NotThreadSafe
     public static class UpdateGameMode extends PlayOutTabListItem {
-        private final Map<UUID, GameMode> updates = new ConcurrentHashMap<>();
+        private final Map<UUID, GameMode> updates = new HashMap<>();
 
         public UpdateGameMode() {
             super(ActionType.UPDATE_GAMEMODE);
@@ -204,8 +206,9 @@ public abstract class PlayOutTabListItem extends PacketOut {
         }
     }
 
+    @NotThreadSafe
     public static class UpdateLatency extends PlayOutTabListItem {
-        private final Map<UUID, Integer> updates = new ConcurrentHashMap<>();
+        private final Map<UUID, Integer> updates = new HashMap<>();
 
         public UpdateLatency() {
             super(ActionType.UPDATE_LATENCY);
@@ -232,8 +235,9 @@ public abstract class PlayOutTabListItem extends PacketOut {
         }
     }
 
+    @NotThreadSafe
     public static class UpdateDisplayName extends PlayOutTabListItem {
-        private final Collection<UpdateDisplayName.PlayerData> updates = new ConcurrentLinkedQueue<>();
+        private final Collection<UpdateDisplayName.PlayerData> updates = new HashSet<>();
 
         public UpdateDisplayName() {
             super(ActionType.UPDATE_DISPLAY_NAME);
@@ -263,6 +267,8 @@ public abstract class PlayOutTabListItem extends PacketOut {
             return this.updates.size();
         }
 
+        @Immutable
+        @EqualsAndHashCode(of = "uuid")
         @RequiredArgsConstructor
         private final class PlayerData {
             private final UUID uuid;
@@ -270,6 +276,7 @@ public abstract class PlayOutTabListItem extends PacketOut {
         }
     }
 
+    @Immutable
     public enum ActionType {
         ADD_PLAYER, UPDATE_GAMEMODE, UPDATE_LATENCY, UPDATE_DISPLAY_NAME, REMOVE_PLAYER
     }

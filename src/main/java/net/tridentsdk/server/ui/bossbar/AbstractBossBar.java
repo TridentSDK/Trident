@@ -16,25 +16,18 @@
  */
 package net.tridentsdk.server.ui.bossbar;
 
-import net.tridentsdk.doc.Policy;
 import net.tridentsdk.ui.bossbar.BossBar;
 
 import java.util.Collections;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 
 /**
  * @author TridentSDK
  * @since 0.5-alpha
  */
 public abstract class AbstractBossBar implements BossBar {
-    /**
-     * Holds the getState changes of the boss bar.
-     */
-    public static final AtomicIntegerFieldUpdater<AbstractBossBar> STATE =
-            AtomicIntegerFieldUpdater.newUpdater(AbstractBossBar.class, "b");
     /**
      * Set of used UUIDs to prevent conflicts
      */
@@ -44,15 +37,6 @@ public abstract class AbstractBossBar implements BossBar {
      * The UUID of the boss bar
      */
     private final UUID uuid;
-
-    /**
-     * Boss bar getState field which holds what options have
-     * been changed
-     */
-    // int holds sky, title, health, style, and flags booleans
-    //             4 | 3  |   2   |   1  |   0
-    @Policy("Use STATE field to make changes")
-    protected volatile int b;
 
     /**
      * Creates a new boss bar and assigns a UUID
@@ -70,16 +54,6 @@ public abstract class AbstractBossBar implements BossBar {
     @Override
     public final UUID getUuid() {
         return this.uuid;
-    }
-
-    /**
-     * Unsets the changed flags of the boss bar
-     *
-     * @param last the last state value that was read
-     * @return {@code false} if a retry is needed
-     */
-    public boolean unsetChanged(int last) {
-        return STATE.compareAndSet(this, last, 0);
     }
 
     @Override

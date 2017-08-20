@@ -17,7 +17,6 @@
 package net.tridentsdk.server.ui.bossbar;
 
 import lombok.NoArgsConstructor;
-import net.tridentsdk.server.util.BitUtils;
 import net.tridentsdk.ui.bossbar.BossBarColor;
 import net.tridentsdk.ui.bossbar.BossBarDivision;
 import net.tridentsdk.ui.chat.ChatComponent;
@@ -54,11 +53,6 @@ public class CustomBossBar extends AbstractBossBar {
     }
 
     @Override
-    public boolean isDefault() {
-        return false;
-    }
-
-    @Override
     public ChatComponent getTitle() {
         return this.title.get();
     }
@@ -70,7 +64,6 @@ public class CustomBossBar extends AbstractBossBar {
             old = this.title.get();
             if (title != null && !title.equals(old)) {
                 if (this.title.compareAndSet(old, title)) {
-                    this.casState(3);
                     break;
                 }
             } else {
@@ -93,7 +86,6 @@ public class CustomBossBar extends AbstractBossBar {
             old = this.health.get();
             if (old != n) {
                 if (this.health.compareAndSet(old, n)) {
-                    this.casState(2);
                     break;
                 }
             } else {
@@ -114,7 +106,6 @@ public class CustomBossBar extends AbstractBossBar {
             old = this.color.get();
             if (color != null && color != old) {
                 if (this.color.compareAndSet(old, color)) {
-                    this.casState(1);
                     break;
                 }
             } else {
@@ -135,7 +126,6 @@ public class CustomBossBar extends AbstractBossBar {
             old = this.division.get();
             if (division != null && !division.equals(old)) {
                 if (this.division.compareAndSet(old, division)) {
-                    this.casState(1);
                     break;
                 }
             } else {
@@ -157,7 +147,6 @@ public class CustomBossBar extends AbstractBossBar {
             old = this.darkenSky.get();
             if (old != darkenSky) {
                 if (this.darkenSky.compareAndSet(old, darkenSky)) {
-                    this.casState(4);
                     break;
                 }
             } else {
@@ -179,34 +168,9 @@ public class CustomBossBar extends AbstractBossBar {
             old = this.dragonBar.get();
             if (old != dragonBar) {
                 if (this.dragonBar.compareAndSet(old, dragonBar)) {
-                    this.casState(0);
                     break;
                 }
             } else {
-                break;
-            }
-        }
-    }
-
-    /**
-     * Performs a compare and swap on the getState field which
-     * indicates whether or not a particular field has
-     * been changed yet.
-     *
-     * @param idx the index to cas (described in
-     * {@link AbstractBossBar#b})
-     */
-    private void casState(int idx) {
-        int b;
-        while (true) {
-            b = STATE.get(this);
-
-            // Check if bit already set
-            if ((b >>> idx & 1) == 1) {
-                break;
-            }
-
-            if (AbstractBossBar.STATE.compareAndSet(this, b, BitUtils.setBit(b, 0, true))) {
                 break;
             }
         }

@@ -24,19 +24,14 @@ import net.tridentsdk.ui.chat.ChatComponent;
  * @author TridentSDK
  * @since 0.5-alpha
  */
-public class DefaultBossBar extends AbstractBossBar {
+public class DragonBossBar extends AbstractBossBar {
 
     private final BossBarColor color;
     private final BossBarDivision division;
 
-    public DefaultBossBar(/* EnderDragon dragon */) {
+    public DragonBossBar(/* EnderDragon dragon */) {
         this.color = BossBarColor.PINK;
         this.division = BossBarDivision.NO_DIVISION;
-    }
-
-    @Override
-    public boolean isDefault() {
-        return true;
     }
 
     @Override
@@ -92,7 +87,7 @@ public class DefaultBossBar extends AbstractBossBar {
 
     @Override
     public boolean isDragonBar() {
-        return true; // TODO - true if dragon, false if other boss
+        return true;
     }
 
     @Override
@@ -101,7 +96,7 @@ public class DefaultBossBar extends AbstractBossBar {
     }
 
     @Override
-    public DefaultBossBar clone() {
+    public DragonBossBar clone() {
         return this;
     }
 }

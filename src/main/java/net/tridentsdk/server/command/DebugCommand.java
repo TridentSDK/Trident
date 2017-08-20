@@ -98,9 +98,6 @@ public class DebugCommand implements CommandListener {
             player.getWorld().getWeather().beginRaining();
             player.getWorld().getWeather().beginThunder();
         } else if (mode.equals("change")) {
-            PlayOutTabListItem.RemovePlayer removePlayer = PlayOutTabListItem.removePlayerPacket();
-            removePlayer.removePlayer(player.getUuid());
-
             PlayOutTabListItem.AddPlayer addPlayer = PlayOutTabListItem.addPlayerPacket();
             addPlayer.addPlayer(player.getUuid(), "I'm retarded", player.getGameMode(), 0, player.getDisplayName(), Collections.singletonList(player.getSkinTextures()));
 
