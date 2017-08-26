@@ -18,6 +18,8 @@ package net.tridentsdk.server.player;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
+import net.tridentsdk.base.Position;
 import net.tridentsdk.command.CommandSourceType;
 import net.tridentsdk.doc.Policy;
 import net.tridentsdk.entity.living.Player;
@@ -64,6 +66,7 @@ import java.util.stream.Collectors;
  * This class is the implementation of a Minecraft client
  * that is represented by a physical entity in a world.
  */
+@ToString(of = "name")
 @ThreadSafe
 @EntityMetaType(TridentPlayerMeta.class)
 public class TridentPlayer extends TridentEntity implements Player {
@@ -154,7 +157,7 @@ public class TridentPlayer extends TridentEntity implements Player {
      * The player's display name
      */
     @Getter
-    private volatile ChatComponent displayName;
+    private volatile ChatComponent tabListName;
     /**
      * The player's current game mode
      */
@@ -226,14 +229,9 @@ public class TridentPlayer extends TridentEntity implements Player {
     /**
      * The player's current tablist
      */
-    @GuardedBy("featuredTabLists")
+    @GuardedBy("heldChunks") // random field used to lock
     @Getter
     private TridentTabList tabList;
-    /**
-     * The tablists on which this player is featured
-     */
-    @GuardedBy("featuredTabLists")
-    private final Set<TabList> featuredTabLists = new HashSet<>();
     /**
      * The boss bars that are being displayed to this
      * player.
@@ -286,7 +284,7 @@ public class TridentPlayer extends TridentEntity implements Player {
         this.client = client;
         this.name = name;
         this.uuid = uuid;
-        this.displayName = ChatComponent.text(name);
+        this.tabListName = ChatComponent.text(name);
         this.gameMode = world.getWorldOptions().getGameMode();
         this.canFly = this.gameMode == GameMode.CREATIVE || this.gameMode == GameMode.SPECTATOR;
         this.skinTextures = skinTextures;
@@ -343,7 +341,6 @@ public class TridentPlayer extends TridentEntity implements Player {
         }
 
         this.setTabList(TridentGlobalTabList.getInstance());
-        TridentGlobalTabList.getInstance().update();
 
         // TODO default permissions?
         Collections.addAll(this.permissions, "minecraft.help");
@@ -403,7 +400,7 @@ public class TridentPlayer extends TridentEntity implements Player {
         playerNames.remove(this.name);
 
         this.setTabList(null);
-        TridentGlobalTabList.getInstance().update();
+        TridentGlobalTabList.getInstance().unsubscribe(this);
         TridentInventory.clean();
         for (TridentChunk chunk : this.heldChunks.values()) {
             chunk.getHolders().remove(this);
@@ -423,15 +420,12 @@ public class TridentPlayer extends TridentEntity implements Player {
     }
 
     @Override
-    public void setDisplayName(ChatComponent displayName) {
-        // TODO name checking
-        if (displayName != null && displayName.getText() == null)
+    public void setTabListName(ChatComponent name) {
+        if (name != null && name.getText() == null)
             throw new IllegalArgumentException("display name must set text field");
-        this.displayName = displayName != null ? displayName : ChatComponent.text(this.name);
+        this.tabListName = name != null ? name : ChatComponent.text(this.name);
 
-        synchronized (this.featuredTabLists) {
-            this.featuredTabLists.forEach(TabList::update);
-        }
+        TridentGlobalTabList.getInstance().updateTabListName(this);
     }
 
     @Override
@@ -450,17 +444,15 @@ public class TridentPlayer extends TridentEntity implements Player {
 
     @Override
     public void setTabList(TabList tabList) {
-        synchronized (this.featuredTabLists) {
+        synchronized (this.heldChunks) {
             TridentTabList old = this.tabList;
             if (old != null) {
                 old.unsubscribe(this);
-                this.featuredTabLists.remove(old);
             }
 
             if (tabList != null) {
                 this.tabList = (TridentTabList) tabList;
                 this.tabList.subscribe(this);
-                this.featuredTabLists.add(tabList);
             }
         }
     }
@@ -544,9 +536,7 @@ public class TridentPlayer extends TridentEntity implements Player {
     public void setTextures(TabListElement.PlayerProperty skinTextures) {
         this.skinTextures = skinTextures;
 
-        synchronized (this.featuredTabLists) {
-            this.featuredTabLists.forEach(TabList::update);
-        }
+        TridentGlobalTabList.getInstance().update(this);
     }
 
     @Override
@@ -655,9 +645,10 @@ public class TridentPlayer extends TridentEntity implements Player {
      * If direction is null, chunks around the player will be sent
      */
     public void updateChunks() {
-        TridentWorld world = (TridentWorld) this.getPosition().getWorld();
-        int centerX = this.getPosition().getChunkX();
-        int centerZ = this.getPosition().getChunkZ();
+        Position position = this.getPosition();
+        TridentWorld world = (TridentWorld) position.getWorld();
+        int centerX = position.getChunkX();
+        int centerZ = position.getChunkZ();
 
         int radius = this.renderDistance;
 
@@ -668,8 +659,8 @@ public class TridentPlayer extends TridentEntity implements Player {
                     if (!this.heldChunks.containsKey(pair)) {
                         TridentChunk chunk = world.getChunkAt(x, z);
                         this.heldChunks.put(pair, chunk);
-                        chunk.getEntities().filter(e -> !e.equals(this)).forEach(e -> this.net().sendPacket(((TridentEntity) e).getSpawnPacket()));
                         chunk.getHolders().add(this);
+                        chunk.getEntities().filter(e -> !e.equals(this)).forEach(e -> this.net().sendPacket(((TridentEntity) e).getSpawnPacket()));
                         this.net().sendPacket(new PlayOutChunk(chunk));
                     }
                 }

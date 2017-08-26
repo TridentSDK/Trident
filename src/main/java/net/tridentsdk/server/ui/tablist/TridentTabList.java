@@ -38,19 +38,14 @@ public abstract class TridentTabList implements TabList {
     /**
      * The players which are displayed this tab list
      */
-    protected final Collection<Player> users = Collections.newSetFromMap(new ConcurrentHashMap<>());
-    /**
-     * The last observed list of elements belonging to this
-     * tab list's subscribers
-     */
-    private final Set<TabListElement> lastSeen = Collections.newSetFromMap(new ConcurrentHashMap<>());
+    protected final Collection<TridentPlayer> users = Collections.newSetFromMap(new ConcurrentHashMap<>());
     /**
      * Elements of this tab list
      */
     @GuardedBy("lock")
     protected final List<TabListElement> elements = new ArrayList<>();
     /**
-     * Lock for the element list
+     * Lock for the elements/lastSeen collections
      */
     protected final Object lock = new Object();
 
@@ -83,106 +78,88 @@ public abstract class TridentTabList implements TabList {
     }
 
     public void subscribe(Player player) {
-        this.users.add(player);
+        TridentPlayer tridentPlayer = (TridentPlayer) player;
+        this.users.add(tridentPlayer);
 
         PlayOutTabListItem.AddPlayer addPacket = PlayOutTabListItem.addPlayerPacket();
         PlayOutPlayerListHeaderAndFooter headerAndFooterPacket = new PlayOutPlayerListHeaderAndFooter(this.header, this.footer);
+        TabListElement element = new TabListElement(tridentPlayer);
 
         synchronized (this.lock) {
+            this.elements.add(element);
             this.elements.forEach(addPacket::addPlayer);
         }
 
-        NetClient net = ((TridentPlayer) player).net();
+        NetClient net = tridentPlayer.net();
         net.sendPacket(addPacket);
         net.sendPacket(headerAndFooterPacket);
+
+        PlayOutTabListItem.AddPlayer addMe = PlayOutTabListItem.addPlayerPacket();
+        addMe.addPlayer(element);
+        for (TridentPlayer tp : this.users) {
+            tp.net().sendPacket(addMe);
+        }
     }
 
     public void unsubscribe(Player player) {
-        this.users.remove(player);
+        TridentPlayer tridentPlayer = (TridentPlayer) player;
+        this.users.remove(tridentPlayer);
 
         PlayOutTabListItem.RemovePlayer packet = PlayOutTabListItem.removePlayerPacket();
-        List<TabListElement> elements;
+
         synchronized (this.lock) {
-            elements = this.elements;
+            for (Iterator<TabListElement> it = this.elements.iterator(); it.hasNext(); ) {
+                TabListElement element = it.next();
+                if (element.getUuid().equals(tridentPlayer.getUuid())) {
+                    it.remove();
+                }
+
+                packet.removePlayer(element.getUuid());
+            }
         }
 
-        for (TabListElement element : elements) {
-            packet.removePlayer(element.getUuid());
-        }
-
-        NetClient net = ((TridentPlayer) player).net();
+        NetClient net = tridentPlayer.net();
         net.sendPacket(packet);
         net.sendPacket(new PlayOutPlayerListHeaderAndFooter(ChatComponent.empty(), ChatComponent.empty()));
+
+        PlayOutTabListItem.RemovePlayer removeMe = PlayOutTabListItem.removePlayerPacket();
+        removeMe.removePlayer(tridentPlayer.getUuid());
+        for (TridentPlayer tp : this.users) {
+            tp.net().sendPacket(removeMe);
+        }
     }
 
     /**
-     * Sends the tab list to all subscribed players.
+     * Updates the player's tab list name.
+     *
+     * @param player the player whose tab list name is to be
+     * updated
      */
-    @Override
-    public void update() {
-        PlayOutPlayerListHeaderAndFooter headerAndFooterPacket = new PlayOutPlayerListHeaderAndFooter(this.header, this.footer);
-        PlayOutTabListItem.AddPlayer addPacket = PlayOutTabListItem.addPlayerPacket();
-        PlayOutTabListItem.RemovePlayer removePacket = PlayOutTabListItem.removePlayerPacket();
-        PlayOutTabListItem.UpdateGameMode updateGamemodePacket = PlayOutTabListItem.updateGamemodePacket();
-        PlayOutTabListItem.UpdateLatency updateLatencyPacket = PlayOutTabListItem.updateLatencyPacket();
-        PlayOutTabListItem.UpdateDisplayName updateNamePacket = PlayOutTabListItem.updatePlayerPacket();
+    public void updateTabListName(Player player) {
+        PlayOutTabListItem.UpdateDisplayName updateDisplayName = PlayOutTabListItem.updatePlayerPacket();
+        updateDisplayName.update(player.getUuid(), player.getTabListName());
 
-        Map<UUID, TabListElement> lastSeen = new LinkedHashMap<>();
-        Map<UUID, TabListElement> currentElements = new LinkedHashMap<>();
-
-        this.lastSeen.forEach(e -> lastSeen.put(e.getUuid(), e));
-        synchronized (this.lock) {
-            this.elements.forEach(e -> currentElements.put(e.getUuid(), e));
+        for (TridentPlayer tp : this.users) {
+            tp.net().sendPacket(updateDisplayName);
         }
+    }
 
-        if (currentElements.containsKey(null)) {
-            throw new IllegalStateException("tablist currently has a null uuid (= " + currentElements.get(null) + ")");
+    /**
+     * Refreshes the player's entry in the tab list.
+     *
+     * @param player the player to update
+     */
+    public void update(TridentPlayer player) {
+        PlayOutTabListItem.RemovePlayer removeMe = PlayOutTabListItem.removePlayerPacket();
+        removeMe.removePlayer(player.getUuid());
+
+        PlayOutTabListItem.AddPlayer addMe = PlayOutTabListItem.addPlayerPacket();
+        addMe.addPlayer(new TabListElement(player));
+
+        for (TridentPlayer tp : this.users) {
+            tp.net().sendPacket(removeMe);
+            tp.net().sendPacket(addMe);
         }
-
-        lastSeen.entrySet()
-                .stream()
-                .filter(e -> !currentElements.containsKey(e.getKey()))
-                .forEach(e -> {
-                    removePacket.removePlayer(e.getKey());
-                    currentElements.remove(e.getKey());
-                });
-
-        currentElements.forEach((key, value) -> {
-            if (lastSeen.containsKey(key)) {
-                TabListElement last = lastSeen.get(key);
-                if (!Objects.equals(value.getDisplayName(), last.getDisplayName())) {
-                    updateNamePacket.update(key, value.getDisplayName());
-                }
-                if (value.getGameMode() != last.getGameMode()) {
-                    updateGamemodePacket.update(key, value.getGameMode());
-                }
-                if (value.getPing() != last.getPing()) {
-                    updateLatencyPacket.update(key, value.getPing());
-                }
-            } else {
-                addPacket.addPlayer(value);
-            }
-        });
-
-        synchronized (this.lock) {
-            this.lastSeen.clear();
-            this.lastSeen.addAll(this.elements);
-        }
-
-        this.users.forEach(p -> {
-            TridentPlayer player = (TridentPlayer) p;
-            if (removePacket.getActionCount() > 0)
-                player.net().sendPacket(removePacket);
-            if (addPacket.getActionCount() > 0)
-                player.net().sendPacket(addPacket);
-            if (updateGamemodePacket.getActionCount() > 0)
-                player.net().sendPacket(updateGamemodePacket);
-            if (updateLatencyPacket.getActionCount() > 0)
-                player.net().sendPacket(updateLatencyPacket);
-            if (updateNamePacket.getActionCount() > 0)
-                player.net().sendPacket(updateNamePacket);
-            player.net().sendPacket(headerAndFooterPacket);
-        });
     }
 
     /**
@@ -191,6 +168,6 @@ public abstract class TridentTabList implements TabList {
      */
     private void updateHeaderFooter() {
         PlayOutPlayerListHeaderAndFooter packet = new PlayOutPlayerListHeaderAndFooter(this.header, this.footer);
-        this.users.forEach(player -> ((TridentPlayer) player).net().sendPacket(packet));
+        this.users.forEach(player -> player.net().sendPacket(packet));
     }
 }

@@ -37,12 +37,14 @@ public final class PlayInTeleportConfirm extends PacketIn {
      */
     private static final Cache<NetClient, IdBlock> TELEPORT_ID =
             new Cache<>(NetClient.KEEP_ALIVE_KICK_NANOS / 1000000, (client, id) -> {
-                if (id.shouldRemove()) {
+                int block = id.getBlockSize();
+                int cur = id.getCount();
+
+                if (cur < block) {
                     client.disconnect("No teleport response");
-                    return true;
                 }
 
-                return false;
+                return cur == block;
             });
 
     /**
@@ -92,17 +94,22 @@ public final class PlayInTeleportConfirm extends PacketIn {
         }
 
         /**
-         * Checks to see whether or not this block has been
-         * fully checked in and should be removed to make
-         * space for another block.
+         * Obtains the max block size for this set of IDs.
          *
-         * @return {@code true} if the block should be
-         * removed
+         * @return the max block size
          */
-        boolean shouldRemove() {
-            int done = CHECK_IN.get(this);
-            int cur = COUNTER.get(this);
-            return done == cur;
+        int getBlockSize() {
+            return COUNTER.get(this);
+        }
+
+        /**
+         * Obtains the current block count for this set of
+         * ID values.
+         *
+         * @return the current checked in IDs
+         */
+        int getCount() {
+            return CHECK_IN.get(this);
         }
     }
 

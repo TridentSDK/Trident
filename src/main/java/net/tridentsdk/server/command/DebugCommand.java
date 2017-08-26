@@ -98,10 +98,15 @@ public class DebugCommand implements CommandListener {
             player.getWorld().getWeather().beginRaining();
             player.getWorld().getWeather().beginThunder();
         } else if (mode.equals("change")) {
-            PlayOutTabListItem.AddPlayer addPlayer = PlayOutTabListItem.addPlayerPacket();
-            addPlayer.addPlayer(player.getUuid(), "I'm retarded", player.getGameMode(), 0, player.getDisplayName(), Collections.singletonList(player.getSkinTextures()));
+            PlayOutTabListItem.RemovePlayer removePlayer = PlayOutTabListItem.removePlayerPacket();
+            removePlayer.removePlayer(player.getUuid());
 
-            RecipientSelector.whoCanSee(player, false, new PlayOutDestroyEntities(Collections.singletonList(player)), addPlayer);
+            PlayOutTabListItem.AddPlayer addPlayer = PlayOutTabListItem.addPlayerPacket();
+            addPlayer.addPlayer(player.getUuid(), "Im_&*!@#$``~", player.getGameMode(), 0, player.getTabListName(),
+                    Collections.emptyList());
+
+            RecipientSelector.whoCanSee(player, false, new PlayOutDestroyEntities(Collections.singletonList(player)),
+                    addPlayer);
             RecipientSelector.whoCanSee(player, true, player.getSpawnPacket());
         }
     }

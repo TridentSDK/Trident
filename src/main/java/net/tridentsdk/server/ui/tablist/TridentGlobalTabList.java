@@ -18,6 +18,8 @@ package net.tridentsdk.server.ui.tablist;
 
 import lombok.Getter;
 import net.tridentsdk.doc.Policy;
+import net.tridentsdk.entity.living.Player;
+import net.tridentsdk.server.packet.play.PlayOutTabListItem;
 import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.ui.chat.ChatComponent;
 
@@ -40,7 +42,7 @@ public class TridentGlobalTabList extends TridentTabList {
     /**
      * Creates an initializes a new global tab list
      */
-    public TridentGlobalTabList() {
+    private TridentGlobalTabList() {
     }
 
     @Override
@@ -54,16 +56,36 @@ public class TridentGlobalTabList extends TridentTabList {
     }
 
     @Override
-    public void update() {
+    public void subscribe(Player player) {
+        this.users.add((TridentPlayer) player);
+
+        PlayOutTabListItem.RemovePlayer removeAll = PlayOutTabListItem.removePlayerPacket();
+        PlayOutTabListItem.AddPlayer addAll = PlayOutTabListItem.addPlayerPacket();
         synchronized (this.lock) {
+            for (TabListElement element : this.elements) {
+                removeAll.removePlayer(element.getUuid());
+            }
+
             this.elements.clear();
 
             TridentPlayer.getPlayers().values().
                     stream().
-                    sorted(Comparator.comparing(p -> p.getDisplayName().getText())).
-                    forEach(p -> this.elements.add(new TabListElement(p)));
+                    sorted(Comparator.comparing(p -> p.getTabListName().getText())).
+                    forEach(p -> {
+                        TabListElement e = new TabListElement(p);
+                        this.elements.add(e);
+                        addAll.addPlayer(e);
+                    });
         }
 
-        super.update();
+        for (TridentPlayer p : this.users) {
+            p.net().sendPacket(removeAll);
+            p.net().sendPacket(addAll);
+        }
+    }
+
+    @Override
+    public void unsubscribe(Player player) {
+        super.unsubscribe(player);
     }
 }

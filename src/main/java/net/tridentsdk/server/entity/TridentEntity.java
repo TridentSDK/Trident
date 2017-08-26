@@ -16,6 +16,7 @@
  */
 package net.tridentsdk.server.entity;
 
+import io.netty.channel.ChannelFutureListener;
 import lombok.Getter;
 import lombok.Setter;
 import net.tridentsdk.base.Position;
@@ -35,7 +36,9 @@ import net.tridentsdk.server.world.TridentWorld;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
@@ -70,8 +73,7 @@ public abstract class TridentEntity implements Entity {
     /**
      * The position at which this entity is located
      */
-    @Getter
-    protected volatile Position position;
+    private volatile Position position;
     /**
      * Whether or not this entity is on the ground
      */
@@ -119,9 +121,15 @@ public abstract class TridentEntity implements Entity {
     }
 
     @Override
+    public Position getPosition() {
+        synchronized (this.pool) {
+            return this.position;
+        }
+    }
+
+    @Override
     public final void setPosition(Position position) {
         Position old = this.position;
-        this.position = position;
 
         TridentWorld fromWorld = (TridentWorld) old.getWorld();
         TridentWorld destWorld = (TridentWorld) position.getWorld();
@@ -194,30 +202,103 @@ public abstract class TridentEntity implements Entity {
         }
 
         Position delta = position.subtract(old);
-        if(delta.getX() != 0 || delta.getY() != 0 || delta.getZ() != 0) {
-            if (old.distanceSquared(position) > 16) {
-                PlayOutTeleport packet = new PlayOutTeleport(this, position);
-                RecipientSelector.whoCanSee(destChunk, null, packet);
-            } else {
-                if (Double.compare(old.getYaw(), position.getYaw()) == 0 && Double.compare(old.getPitch(), position.getPitch()) == 0){
-                    PlayOutEntityRelativeMove packet = new PlayOutEntityRelativeMove(this, delta);
-                    RecipientSelector.whoCanSee(destChunk, this, packet);
+        synchronized (this.pool) { // Synchronization here only for serial execution
+            if (delta.getX() != 0 || delta.getY() != 0 || delta.getZ() != 0) {
+                if (old.distanceSquared(position) > 16) {
+                    this.teleport(destChunk, position);
                 } else {
-                    PlayOutEntityLookAndRelativeMove lookAndRelativeMove = new PlayOutEntityLookAndRelativeMove(this, delta);
-                    PlayOutEntityHeadLook look = new PlayOutEntityHeadLook(this);
-                    RecipientSelector.whoCanSee(destChunk, this, lookAndRelativeMove, look);
+                    if (Double.compare(old.getYaw(), position.getYaw()) == 0 && Double.compare(old.getPitch(), position.getPitch()) == 0) {
+                        PlayOutEntityRelativeMove packet = new PlayOutEntityRelativeMove(this, delta);
+                        this.updatePosition(destChunk, position, packet);
+                    } else {
+                        PlayOutEntityLookAndRelativeMove lookAndRelativeMove = new PlayOutEntityLookAndRelativeMove(this, delta);
+                        PlayOutEntityHeadLook look = new PlayOutEntityHeadLook(this);
+                        this.updatePosition(destChunk, position, lookAndRelativeMove, look);
+                    }
+                }
+            } else if (Float.compare(old.getYaw(), position.getYaw()) != 0 || Float.compare(old.getPitch(), position.getPitch()) != 0) {
+                PlayOutEntityLookAndRelativeMove lookAndRelativeMove = new PlayOutEntityLookAndRelativeMove(this, delta);
+                PlayOutEntityHeadLook look = new PlayOutEntityHeadLook(this);
+                this.updatePosition(destChunk, position, lookAndRelativeMove, look);
+            }
+        }
+    }
+
+    /**
+     * Causes this entity's current position to be updated
+     * and queue the position field to be set.
+     *
+     * @param chunk the chunk containing this entity
+     * @param pos the position to move to
+     * @param packetOut the packets to send
+     */
+    private void updatePosition(TridentChunk chunk, Position pos, PacketOut... packetOut) {
+        if (chunk == null) {
+            throw new IllegalStateException("Player cannot inhabit an unloaded chunk");
+        }
+
+        Set<TridentPlayer> targets = chunk.getHolders();
+        for (Iterator<TridentPlayer> it = targets.iterator(); ; ) {
+            if (!it.hasNext()) {
+                break;
+            }
+
+            TridentPlayer p = it.next();
+            if (p.equals(this)) {
+                continue;
+            }
+
+            for (int i = 0; i < packetOut.length; i++) {
+                PacketOut out = packetOut[i];
+                if (!it.hasNext() && i == packetOut.length - 1) {
+                    p.net().sendPacket(out).addListener((ChannelFutureListener) future -> this.position = pos);
+                    return;
+                } else {
+                    p.net().sendPacket(out);
                 }
             }
-        } else if (Float.compare(old.getYaw(), position.getYaw()) != 0 || Float.compare(old.getPitch(), position.getPitch()) != 0) {
-            PlayOutEntityLookAndRelativeMove lookAndRelativeMove = new PlayOutEntityLookAndRelativeMove(this, delta);
-            PlayOutEntityHeadLook look = new PlayOutEntityHeadLook(this);
-            RecipientSelector.whoCanSee(destChunk, this, lookAndRelativeMove, look);
+        }
+    }
+
+    /**
+     * Teleports this entity to the given position, queuing
+     * this entity's position to be updated later.
+     *
+     * @param chunk the chunk containing this entity
+     * @param pos the position to teleport to
+     */
+    private void teleport(TridentChunk chunk, Position pos) {
+        if (chunk == null) {
+            throw new IllegalStateException("Player cannot inhabit an unloaded chunk");
+        }
+
+        PlayOutTeleport teleport = new PlayOutTeleport(this, pos);
+        Set<TridentPlayer> targets = chunk.getHolders();
+        if (this instanceof TridentPlayer) {
+            targets.add((TridentPlayer) this);
+        }
+
+        for (Iterator<TridentPlayer> it = targets.iterator(); ; ) {
+            if (!it.hasNext()) {
+                break;
+            }
+
+            TridentPlayer p = it.next();
+            if (!it.hasNext()) {
+                p.net().sendPacket(teleport).addListener((ChannelFutureListener) future -> {
+                    this.position = pos;
+                    p.updateChunks();
+                });
+                return;
+            } else {
+                p.net().sendPacket(teleport);
+            }
         }
     }
 
     @Override
     public TridentWorld getWorld() {
-        return (TridentWorld) this.position.getWorld();
+        return (TridentWorld) this.getPosition().getWorld();
     }
 
     @Override
