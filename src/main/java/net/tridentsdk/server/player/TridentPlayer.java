@@ -310,7 +310,7 @@ public class TridentPlayer extends TridentEntity implements Player {
         TridentPlayer.playerNames.put(name, player);
         Login.finish();
 
-        player.updateChunks();
+        player.updateChunks(player.getPosition());
         player.resumeLogin();
 
         return player;
@@ -644,8 +644,7 @@ public class TridentPlayer extends TridentEntity implements Player {
      * Send an update to the client with the chunks
      * If direction is null, chunks around the player will be sent
      */
-    public void updateChunks() {
-        Position position = this.getPosition();
+    public void updateChunks(Position position) {
         TridentWorld world = (TridentWorld) position.getWorld();
         int centerX = position.getChunkX();
         int centerZ = position.getChunkZ();

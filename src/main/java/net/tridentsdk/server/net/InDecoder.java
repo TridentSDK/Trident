@@ -163,9 +163,10 @@ public class InDecoder extends ByteToMessageDecoder {
                 String stringId = String.format("%2s", Integer.toHexString(id).toUpperCase()).replace(' ', '0');
                 TridentPlayer player = this.client.getPlayer();
                 if (player != null) {
-                    player.sendMessage("Packet " + stringId + " => SERVER is not supported at this time");
+                    player.sendMessage("Packet 0x" + stringId + " => SERVER is not supported at this time");
                 }
-                LOGGER.warn("Client @ " + ctx.channel().remoteAddress() + " sent unsupported packet " + stringId);
+                LOGGER.warn("Client @ " + ctx.channel().remoteAddress() + " sent unsupported packet 0x" + stringId);
+                return;
             }
 
             PacketIn packet = PacketRegistry.make(cls);

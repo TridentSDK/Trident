@@ -34,6 +34,7 @@ import net.tridentsdk.server.player.TridentPlayer;
 import net.tridentsdk.server.world.TridentChunk;
 import net.tridentsdk.server.world.TridentWorld;
 
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Collections;
 import java.util.Iterator;
@@ -73,7 +74,8 @@ public abstract class TridentEntity implements Entity {
     /**
      * The position at which this entity is located
      */
-    private volatile Position position;
+    @GuardedBy("pool")
+    private Position position;
     /**
      * Whether or not this entity is on the ground
      */
@@ -129,80 +131,80 @@ public abstract class TridentEntity implements Entity {
 
     @Override
     public final void setPosition(Position position) {
-        Position old = this.position;
+        synchronized (this.pool) {
+            Position old = this.position;
 
-        TridentWorld fromWorld = (TridentWorld) old.getWorld();
-        TridentWorld destWorld = (TridentWorld) position.getWorld();
-        if (!destWorld.equals(fromWorld)) {
-            if (this instanceof Player) {
-                fromWorld.getOccupants().remove(this);
-                destWorld.getOccupants().add((TridentPlayer) this);
-            } else {
-                fromWorld.getEntitySet().remove(this);
-                destWorld.getEntitySet().add(this);
-            }
-        }
-
-        int destCX = position.getChunkX();
-        int destCZ = position.getChunkZ();
-        TridentChunk destChunk = destWorld.getChunkAt(destCX, destCZ);
-        int fromCX = old.getChunkX();
-        int fromCZ = old.getChunkZ();
-        if (fromCX != destCX || fromCZ != destCZ) {
-            TridentChunk fromChunk = fromWorld.getChunkAt(fromCX, fromCZ, false);
-            List<Entity> destroy = Collections.singletonList(this);
-
-            PacketOut spawnThis = this.getSpawnPacket();
-            if (this instanceof Player) {
-                TridentPlayer player = (TridentPlayer) this;
-                if (fromChunk != null) {
-                    fromChunk.getOccupants().remove(player);
+            TridentWorld fromWorld = (TridentWorld) old.getWorld();
+            TridentWorld destWorld = (TridentWorld) position.getWorld();
+            if (!destWorld.equals(fromWorld)) {
+                if (this instanceof Player) {
+                    fromWorld.getOccupants().remove(this);
+                    destWorld.getOccupants().add((TridentPlayer) this);
+                } else {
+                    fromWorld.getEntitySet().remove(this);
+                    destWorld.getEntitySet().add(this);
                 }
-                destChunk.getOccupants().add(player);
+            }
 
-                Stream.concat(fromChunk == null ? Stream.empty() : fromChunk.getHolders().stream(), destChunk.getHolders().stream()).
-                        distinct().
-                        forEach(p -> {
-                            if (fromChunk == null || !fromChunk.getHolders().contains(p)) {
-                                if (p.equals(this)) {
-                                    return;
+            int destCX = position.getChunkX();
+            int destCZ = position.getChunkZ();
+            TridentChunk destChunk = destWorld.getChunkAt(destCX, destCZ);
+            int fromCX = old.getChunkX();
+            int fromCZ = old.getChunkZ();
+            if (fromCX != destCX || fromCZ != destCZ) {
+                TridentChunk fromChunk = fromWorld.getChunkAt(fromCX, fromCZ, false);
+                List<Entity> destroy = Collections.singletonList(this);
+
+                PacketOut spawnThis = this.getSpawnPacket();
+                if (this instanceof Player) {
+                    TridentPlayer player = (TridentPlayer) this;
+                    if (fromChunk != null) {
+                        fromChunk.getOccupants().remove(player);
+                    }
+                    destChunk.getOccupants().add(player);
+
+                    Stream.concat(fromChunk == null ? Stream.empty() : fromChunk.getHolders().stream(), destChunk.getHolders().stream()).
+                            distinct().
+                            forEach(p -> {
+                                if (fromChunk == null || !fromChunk.getHolders().contains(p)) {
+                                    if (p.equals(this)) {
+                                        return;
+                                    }
+
+                                    p.net().sendPacket(spawnThis);
                                 }
 
-                                p.net().sendPacket(spawnThis);
-                            }
+                                if (!destChunk.getHolders().contains(p)) {
+                                    p.net().sendPacket(new PlayOutDestroyEntities(destroy));
+                                }
+                            });
+                    player.updateChunks(position);
+                } else {
+                    if (fromChunk != null) {
+                        fromChunk.getEntitySet().remove(this);
+                    }
 
-                            if (!destChunk.getHolders().contains(p)) {
-                                p.net().sendPacket(new PlayOutDestroyEntities(destroy));
-                            }
-                        });
-                player.updateChunks();
-            } else {
-                if (fromChunk != null) {
-                    fromChunk.getEntitySet().remove(this);
-                }
+                    destChunk.getEntitySet().add(this);
 
-                destChunk.getEntitySet().add(this);
+                    Stream.concat(fromChunk == null ? Stream.empty() : fromChunk.getHolders().stream(), destChunk.getHolders().stream()).
+                            distinct().
+                            forEach(p -> {
+                                if (fromChunk == null || !fromChunk.getHolders().contains(p)) {
+                                    if (p.equals(this)) {
+                                        return;
+                                    }
 
-                Stream.concat(fromChunk == null ? Stream.empty() : fromChunk.getHolders().stream(), destChunk.getHolders().stream()).
-                        distinct().
-                        forEach(p -> {
-                            if (fromChunk == null || !fromChunk.getHolders().contains(p)) {
-                                if (p.equals(this)) {
-                                    return;
+                                    p.net().sendPacket(spawnThis);
                                 }
 
-                                p.net().sendPacket(spawnThis);
-                            }
-
-                            if (!destChunk.getHolders().contains(p)) {
-                                p.net().sendPacket(new PlayOutDestroyEntities(destroy));
-                            }
-                        });
+                                if (!destChunk.getHolders().contains(p)) {
+                                    p.net().sendPacket(new PlayOutDestroyEntities(destroy));
+                                }
+                            });
+                }
             }
-        }
 
-        Position delta = position.subtract(old);
-        synchronized (this.pool) { // Synchronization here only for serial execution
+            Position delta = position.subtract(old);
             if (delta.getX() != 0 || delta.getY() != 0 || delta.getZ() != 0) {
                 if (old.distanceSquared(position) > 16) {
                     this.teleport(destChunk, position);
@@ -251,7 +253,11 @@ public abstract class TridentEntity implements Entity {
             for (int i = 0; i < packetOut.length; i++) {
                 PacketOut out = packetOut[i];
                 if (!it.hasNext() && i == packetOut.length - 1) {
-                    p.net().sendPacket(out).addListener((ChannelFutureListener) future -> this.position = pos);
+                    p.net().sendPacket(out).addListener((ChannelFutureListener) future -> {
+                        synchronized (this.pool) {
+                            this.position = pos;
+                        }
+                    });
                     return;
                 } else {
                     p.net().sendPacket(out);
@@ -286,8 +292,9 @@ public abstract class TridentEntity implements Entity {
             TridentPlayer p = it.next();
             if (!it.hasNext()) {
                 p.net().sendPacket(teleport).addListener((ChannelFutureListener) future -> {
-                    this.position = pos;
-                    p.updateChunks();
+                    synchronized (this.pool) {
+                        this.position = pos;
+                    }
                 });
                 return;
             } else {
