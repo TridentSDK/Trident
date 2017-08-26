@@ -107,7 +107,6 @@ public abstract class TridentEntity implements Entity {
             world.getChunkAt(pos.getChunkX(), pos.getChunkZ()).getOccupants().add(player);
         } else {
             world.getEntitySet().add(this);
-            world.getEntitySet().add(this);
         }
 
         EntityMetaType metaType = this.getClass().getAnnotation(EntityMetaType.class);
