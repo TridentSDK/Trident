@@ -41,7 +41,7 @@ public final class PlayInLook extends PacketIn {
 
         TridentPlayer player = client.getPlayer();
         if (player == null) return;
-        player.setPosition(player.getPosition().setYaw(yaw).setPitch(pitch));
+        player.setPosition(player.getPosition().setYaw(yaw).setPitch(pitch), false);
         player.setOnGround(onGround);
     }
 }

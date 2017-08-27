@@ -48,6 +48,12 @@ public final class PlayOutPosLook extends PacketOut {
         this.pos = player.getPosition();
     }
 
+    public PlayOutPosLook(TridentPlayer player, Position pos) {
+        super(PlayOutPosLook.class);
+        this.player = player;
+        this.pos = pos;
+    }
+
     @Override
     public void write(ByteBuf buf) {
         buf.writeDouble(this.pos.getX());

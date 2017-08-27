@@ -41,7 +41,7 @@ public final class PlayInPos extends PacketIn {
         boolean onGround = buf.readBoolean();
 
         TridentPlayer player = client.getPlayer();
-        player.setPosition(player.getPosition().set(x, feetY, z));
+        player.setPosition(player.getPosition().set(x, feetY, z), false);
         player.setOnGround(onGround);
     }
 }

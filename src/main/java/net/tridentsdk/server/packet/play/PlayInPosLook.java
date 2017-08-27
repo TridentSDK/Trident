@@ -44,7 +44,7 @@ public final class PlayInPosLook extends PacketIn {
         float pitch = buf.readFloat();
         boolean isOnGround = buf.readBoolean();
 
-        player.setPosition(new Position(player.getWorld(), x, y, z, yaw, pitch));
+        player.setPosition(new Position(player.getWorld(), x, y, z, yaw, pitch), false);
         player.setOnGround(isOnGround);
     }
 }

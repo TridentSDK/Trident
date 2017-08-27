@@ -107,7 +107,6 @@ public abstract class TridentEntity implements Entity {
             world.getChunkAt(pos.getChunkX(), pos.getChunkZ()).getOccupants().add(player);
         } else {
             world.getEntitySet().add(this);
-            world.getEntitySet().add(this);
         }
 
         EntityMetaType metaType = this.getClass().getAnnotation(EntityMetaType.class);
@@ -131,6 +130,19 @@ public abstract class TridentEntity implements Entity {
 
     @Override
     public final void setPosition(Position position) {
+        this.setPosition(position, true);
+    }
+
+    /**
+     * Internal method that sets the entity's position with
+     * option to send the update as a player to move the
+     * client.
+     *
+     * @param position the position to set
+     * @param sendUpdate {@code true} to update for the
+     * client represented by this entity
+     */
+    public void setPosition(Position position, boolean sendUpdate) {
         synchronized (this.pool) {
             Position old = this.position;
 
@@ -207,21 +219,21 @@ public abstract class TridentEntity implements Entity {
             Position delta = position.subtract(old);
             if (delta.getX() != 0 || delta.getY() != 0 || delta.getZ() != 0) {
                 if (old.distanceSquared(position) > 16) {
-                    this.teleport(destChunk, position);
+                    this.teleport(destChunk, position, sendUpdate);
                 } else {
                     if (Double.compare(old.getYaw(), position.getYaw()) == 0 && Double.compare(old.getPitch(), position.getPitch()) == 0) {
                         PlayOutEntityRelativeMove packet = new PlayOutEntityRelativeMove(this, delta);
-                        this.updatePosition(destChunk, position, packet);
+                        this.updatePosition(destChunk, position, sendUpdate, packet);
                     } else {
                         PlayOutEntityLookAndRelativeMove lookAndRelativeMove = new PlayOutEntityLookAndRelativeMove(this, delta);
                         PlayOutEntityHeadLook look = new PlayOutEntityHeadLook(this);
-                        this.updatePosition(destChunk, position, lookAndRelativeMove, look);
+                        this.updatePosition(destChunk, position, sendUpdate, lookAndRelativeMove, look);
                     }
                 }
             } else if (Float.compare(old.getYaw(), position.getYaw()) != 0 || Float.compare(old.getPitch(), position.getPitch()) != 0) {
                 PlayOutEntityLookAndRelativeMove lookAndRelativeMove = new PlayOutEntityLookAndRelativeMove(this, delta);
                 PlayOutEntityHeadLook look = new PlayOutEntityHeadLook(this);
-                this.updatePosition(destChunk, position, lookAndRelativeMove, look);
+                this.updatePosition(destChunk, position, sendUpdate, lookAndRelativeMove, look);
             }
         }
     }
@@ -234,7 +246,7 @@ public abstract class TridentEntity implements Entity {
      * @param pos the position to move to
      * @param packetOut the packets to send
      */
-    private void updatePosition(TridentChunk chunk, Position pos, PacketOut... packetOut) {
+    private void updatePosition(TridentChunk chunk, Position pos, boolean sendUpdate, PacketOut... packetOut) {
         if (chunk == null) {
             throw new IllegalStateException("Player cannot inhabit an unloaded chunk");
         }
@@ -247,6 +259,22 @@ public abstract class TridentEntity implements Entity {
 
             TridentPlayer p = it.next();
             if (p.equals(this)) {
+                if (sendUpdate) {
+                    if (!it.hasNext()) {
+                        p.net().sendPacket(new PlayOutPosLook(p, pos)).addListener((ChannelFutureListener) future -> {
+                            synchronized (this.pool) {
+                                this.position = pos;
+                            }
+                        });
+                        return;
+                    } else {
+                        p.net().sendPacket(new PlayOutPosLook(p, pos));
+                    }
+                } else {
+                    synchronized (this.pool) {
+                        this.position = pos;
+                    }
+                }
                 continue;
             }
 
@@ -273,7 +301,7 @@ public abstract class TridentEntity implements Entity {
      * @param chunk the chunk containing this entity
      * @param pos the position to teleport to
      */
-    private void teleport(TridentChunk chunk, Position pos) {
+    private void teleport(TridentChunk chunk, Position pos, boolean sendUpdate) {
         if (chunk == null) {
             throw new IllegalStateException("Player cannot inhabit an unloaded chunk");
         }
@@ -290,6 +318,25 @@ public abstract class TridentEntity implements Entity {
             }
 
             TridentPlayer p = it.next();
+            if (p.equals(this)) {
+                if (sendUpdate) {
+                    if (!it.hasNext()) {
+                        p.net().sendPacket(new PlayOutPosLook(p, pos));
+                        synchronized (this.pool) {
+                            this.position = pos;
+                        }
+                        return;
+                    } else {
+                        p.net().sendPacket(new PlayOutPosLook(p, pos));
+                    }
+                } else {
+                    synchronized (this.pool) {
+                        this.position = pos;
+                    }
+                }
+                continue;
+            }
+
             if (!it.hasNext()) {
                 p.net().sendPacket(teleport).addListener((ChannelFutureListener) future -> {
                     synchronized (this.pool) {
