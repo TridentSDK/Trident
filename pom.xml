@@ -25,7 +25,7 @@
         <repository>
             <id>deployment-tridentsdk</id>
             <name>Internal Releases</name>
-            <url>http://repo.tridentsdk.net/nexus/content/repositories/releases/</url>
+            <url>https://repo.tridentsdk.net/nexus/content/repositories/releases/</url>
         </repository>
         <snapshotRepository>
             <id>tridentsdk-central</id>
@@ -37,13 +37,13 @@
     <repositories>
         <repository>
             <id>maven-repo</id>
-            <url>http://repo1.maven.org/maven2</url>
+            <url>https://repo1.maven.org/maven2</url>
         </repository>
 
         <repository>
             <id>Sonatype-public</id>
             <name>SnakeYAML repository</name>
-            <url>http://oss.sonatype.org/content/groups/public/</url>
+            <url>https://oss.sonatype.org/content/groups/public/</url>
         </repository>
 
         <repository>
